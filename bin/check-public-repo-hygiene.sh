@@ -73,11 +73,13 @@ CHECKS=(LICENSE NOTICE VERSION .gitignore .github/CODEOWNERS .gitleaks.toml .git
 
 check_repo() {
     local repo="$1"
-    # --tree passes an absolute/relative path directly; default mode prefixes UMBRELLA_DIR.
+    # --tree passes an absolute/relative path directly; default mode resolves a
+    # bare name to the sibling checkout beside the umbrella (legacy nested works).
     local repo_path="$UMBRELLA_DIR/$repo"
     case "$repo" in
         .) repo_path="$UMBRELLA_DIR" ;;
         /*|*/*) repo_path="$repo" ;;
+        *) [ -e "$UMBRELLA_DIR/$repo/.git" ] || repo_path="$(dirname "$UMBRELLA_DIR")/$repo" ;;
     esac
 
     if [ ! -d "$repo_path/.git" ]; then

@@ -1,6 +1,6 @@
 # DMF Status
 
-_Auto-generated 2026-06-11 07:18 UTC by `bin/generate-status.sh`. Run again to refresh._
+_Auto-generated 2026-06-11 08:11 UTC by `bin/generate-status.sh`. Run again to refresh._
 
 For decisions, see [docs/decisions/](docs/decisions/INDEX.md).
 For active task spec, see the most recent file in [docs/plans/](docs/plans/).
@@ -11,15 +11,15 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 | Repo | Branch | Last commit | Subject | Dirty | Unpushed |
 |---|---|---|---|---|---|
-| dmfdeploy (umbrella) | main | `5ed9539` (18 minutes ago) | fix(wp17): last hostname literal out of scrub comm | 4: `.github/workflows/ci.yml·bin/generate-scripts-catalog.sh·bin/install-hooks.sh` | **8** |
-| dmf-cms | main | `5dd2a10` (34 hours ago) | fix(console): base_path-aware fallback redirect +  | clean | **5** |
-| dmf-runbooks | main | `9f7ab4d` (34 hours ago) | fix(ci): actionlint sha256 + tuned .yamllint + .an | clean | **5** |
-| dmf-central | main | `983a5e3` (34 hours ago) | fix(ci): add .ansible-lint profile=min (first publ | clean | **6** |
-| dmf-infra | main | `4179274` (34 hours ago) | fix(ci): add .ansible-lint profile=min (first publ | clean | **6** |
-| dmf-env | main | `be661d8` (34 hours ago) | fix(ci): yq→jq bridge in wizard-noninteractive-par | clean | **7** |
-| dmf-media | main | `2a22f9b` (34 hours ago) | fix(ci): add .ansible-lint profile=min (first publ | clean | **7** |
-| dmf-init | main | `68bb73d` (25 hours ago) | fix(ci): install rclone for doctor-run test (runne | clean | **6** |
-| dmf-promsd | main | `3603ff6` (35 hours ago) | fix(ci): correct actionlint sha256 in guard | clean | **5** |
+| dmfdeploy (umbrella) | main | `75ca986` (23 minutes ago) | docs(plans): init installer UI redesign executed — | 17: `.gitignore·.qwen/skills/cold-agent-wp-execution/SKILL.md·.qwen/skills/orchestrated-lifter-workflow/SKILL.md` | — |
+| dmf-cms | main | `d7016a8` (23 hours ago) | docs: drop stale 'spike' framing and neutralize op | clean | — |
+| dmf-runbooks | main | `c84fde7` (24 hours ago) | docs: use "all repos" instead of a hardcoded count | clean | — |
+| dmf-central | main | `a3ea74b` (24 hours ago) | docs: future-proof repo count and fix stale dmf-en | clean | — |
+| dmf-infra | main | `0aa8e07` (23 hours ago) | chore: remove must-not-main MXL spike artifacts fr | clean | — |
+| dmf-env | main | `eb91bda` (79 minutes ago) | fix(doctor): make the age-key permission check por | clean | — |
+| dmf-media | main | `654b054` (23 hours ago) | docs: drop stale '(SPIKE)' labels and neutralize o | clean | — |
+| dmf-init | main | `4e46b57` (55 minutes ago) | chore(release): v0.2.0 — console installer skin, w | clean | — |
+| dmf-promsd | main | `d506e9c` (26 hours ago) | Initial public release v0.1.3 | clean | — |
 
 ## Active plans
 
@@ -28,108 +28,66 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 | DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19 | 2026-05-19 | — |
 | DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04 | 2026-06-04 | [#5](https://github.com/dmfdeploy/dmfdeploy/issues/5) |
 | DMF First Public Release Plan 2026-06-09 | 2026-06-09 | — |
-| DMF Init Installer UI Redesign Plan 2026-06-10 | 2026-06-10 | [#4](https://github.com/dmfdeploy/dmfdeploy/issues/4) |
 | DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25 | 2026-05-25 | — |
 | DMF OSS v0.1 WP1S Single-Node Sandbox Lane 2026-05-25 | 2026-05-25 | — |
 | DMF OSS v0.1 WP5 Release Verification and Tagging 2026-05-25 | 2026-05-25 | — |
-| DMF Umbrella Public Entrance and GitHub Working Model Plan 2026-06-10 | 2026-06-10 | [#3](https://github.com/dmfdeploy/dmfdeploy/issues/3) |
 | DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06 | 2026-06-06 | — |
 
 ## Recent activity (last 7 days, all repos)
 
 | When | Repo | Commit | Subject |
 |---|---|---|---|
-| 2026-06-11 09:00 | dmfdeploy | 5ed9539 | fix(wp17): last hostname literal out of scrub comment; STATUS notes... |
-| 2026-06-11 08:58 | dmfdeploy | 91ab45a | feat(wp17): split operator-private detection patterns out of the pu... |
-| 2026-06-10 21:08 | dmfdeploy | 7022675 | docs(wp17-prep): dry-run findings — fix credential-regex false po... |
-| 2026-06-10 21:04 | dmfdeploy | 193a3e1 | chore(wp16): untrack qwen identity-scrub skill (detection patterns)... |
-| 2026-06-10 21:01 | dmfdeploy | 1370c46 | feat(wp17-prep): export-scan accepts the umbrella + scrub no-allowl... |
-| 2026-06-10 21:00 | dmfdeploy | b0de1a2 | docs(wp16): identity/topology scrub sweep — placeholder conventio... |
-| 2026-06-10 20:25 | dmfdeploy | 04a18ac | docs(wp15): front door — README rewrite, THESIS one-pager, docs m... |
-| 2026-06-10 20:11 | dmfdeploy | 882a088 | docs(wp12-14): JOURNEY narrative + ADR reading guide + open-questio... |
-| 2026-06-10 18:56 | dmfdeploy | a806115 | docs(status): umbrella entrance WP1-WP11 executed — operator note... |
-| 2026-06-10 18:55 | dmfdeploy | f14a658 | feat(wp5): STATUS.md active-plans section + recent-activity cap |
-| 2026-06-10 08:21 | dmf-init | 68bb73d | fix(ci): install rclone for doctor-run test (runner lacks it) |
-| 2026-06-09 23:06 | dmf-runbooks | 9f7ab4d | fix(ci): actionlint sha256 + tuned .yamllint + .ansible-lint profil... |
-| 2026-06-09 23:03 | dmf-media | 2a22f9b | fix(ci): add .ansible-lint profile=min (first public gate) |
-| 2026-06-09 23:03 | dmf-infra | 4179274 | fix(ci): add .ansible-lint profile=min (first public gate) |
-| 2026-06-09 23:03 | dmf-cms | 5dd2a10 | fix(console): base_path-aware fallback redirect + App Catalog in cl... |
-| 2026-06-09 23:03 | dmf-env | be661d8 | fix(ci): yq→jq bridge in wizard-noninteractive-parity (runner yq ... |
-| 2026-06-09 23:03 | dmf-central | 983a5e3 | fix(ci): add .ansible-lint profile=min (first public gate) |
-| 2026-06-09 22:24 | dmf-promsd | 3603ff6 | fix(ci): correct actionlint sha256 in guard |
-| 2026-06-09 22:24 | dmf-init | 7f85840 | fix(ci): install age for backup/restore tests; actionlint sha256 |
-| 2026-06-09 22:24 | dmf-env | 6fa281b | fix(ci): tofu fmt main.tf; shellcheck -S error; sops via pinned rel... |
-| 2026-06-09 22:24 | dmf-media | 0df691d | fix(ci): tuned .yamllint (relaxed, ignore Helm templates) + drop -s... |
-| 2026-06-09 22:24 | dmf-infra | 78ee7a4 | fix(ci): sanitize forgejo-chart private-key placeholders; tuned .ya... |
-| 2026-06-09 22:24 | dmf-cms | 9540b70 | fix(ci): bump react-router to 7.17.0 (CVE-2026-42342), StaticFiles ... |
-| 2026-06-09 22:24 | dmf-central | c7dfdf4 | fix(ci): tuned .yamllint (relaxed, ignore Helm templates) + drop -s... |
-| 2026-06-09 21:42 | dmf-runbooks | 73e2455 | chore(release): bump VERSION to 0.1.3 (governance + CI / Workstream... |
-| 2026-06-09 20:54 | dmf-promsd | dc7c891 | ci(guard): use --no-git tree scan for gitleaks (match export-scan a... |
-| 2026-06-09 20:54 | dmf-runbooks | 4a2bb4b | ci(guard): use --no-git tree scan for gitleaks (match export-scan a... |
-| 2026-06-09 20:54 | dmf-media | ce5a9f3 | ci(guard): use --no-git tree scan for gitleaks (match export-scan a... |
-| 2026-06-09 20:54 | dmf-init | 422b478 | ci(guard): use --no-git tree scan for gitleaks (match export-scan a... |
-| 2026-06-09 20:54 | dmf-infra | 030fc33 | ci(guard): use --no-git tree scan for gitleaks (match export-scan a... |
-| 2026-06-09 20:54 | dmf-env | 4fa369d | ci(guard): use --no-git tree scan for gitleaks (match export-scan a... |
-| 2026-06-09 20:54 | dmf-central | 6372edf | ci(guard): use --no-git tree scan for gitleaks (match export-scan a... |
-| 2026-06-09 20:54 | dmf-cms | 3f7211c | ci(guard): use --no-git tree scan for gitleaks (match export-scan a... |
-| 2026-06-09 20:50 | dmf-infra | 4c3fe94 | chore(public-prep): sanitize arbitrary IPs + allowlist framework/ex... |
-| 2026-06-09 20:48 | dmf-env | a2d17f9 | chore(public-prep): sanitize test IP + allowlist framework CIDR def... |
-| 2026-06-09 20:45 | dmf-promsd | ddeb8ba | test: use RFC5737 documentation IP (192.0.2.5) in SD address tests |
-| 2026-06-09 20:39 | dmf-media | 12674e5 | docs: point registry references at public ghcr.io/dmfdeploy |
-| 2026-06-09 20:37 | dmf-media | 2628c7d | docs: use example registry hostname (drop operator topology) |
-| 2026-06-09 20:37 | dmf-init | 337d123 | test: use generic 'deploy' user in inventory fixtures (drop operato... |
-| 2026-06-09 20:28 | dmf-central | 1fd56e6 | fix(example): use RFC5737 documentation IP (192.0.2.10) in example ... |
-| 2026-06-09 19:27 | dmf-promsd | 4a122c0 | ci: PR gates — guard (gitleaks/trivy/commitlint/actionlint) + per... |
-| 2026-06-09 19:27 | dmf-media | 6faa2de | ci: PR gates — guard (gitleaks/trivy/commitlint/actionlint) + per... |
-| 2026-06-09 19:27 | dmf-init | 921ed45 | ci: PR gates — guard (gitleaks/trivy/commitlint/actionlint) + per... |
-| 2026-06-09 19:27 | dmf-infra | 6a34c63 | ci: PR gates — guard (gitleaks/trivy/commitlint/actionlint) + per... |
-| 2026-06-09 19:27 | dmf-env | 7b96916 | ci: PR gates — guard (gitleaks/trivy/commitlint/actionlint) + per... |
-| 2026-06-09 19:27 | dmf-central | ee2391d | ci: PR gates — guard (gitleaks/trivy/commitlint/actionlint) + per... |
-| 2026-06-09 19:27 | dmf-runbooks | 186745b | ci: PR gates — guard (gitleaks/trivy/commitlint/actionlint) + per... |
-| 2026-06-09 19:27 | dmf-cms | 2313bc6 | ci: PR gates — guard (gitleaks/trivy/commitlint/actionlint) + per... |
-| 2026-06-09 17:54 | dmf-promsd | f5d6107 | docs(governance): public-parity governance + hygiene + DCO (Workstr... |
-| 2026-06-09 17:54 | dmf-env | 0fb6150 | docs(governance): public-parity governance + hygiene + DCO (Workstr... |
-| 2026-06-09 17:54 | dmf-init | 293f683 | docs(governance): GitHub-first CONTRIBUTING/SECURITY/templates + DC... |
-| 2026-06-09 17:54 | dmf-runbooks | b0f4a0c | docs(governance): GitHub-first CONTRIBUTING/SECURITY/templates + DC... |
-| 2026-06-09 17:54 | dmf-media | 0d5ae22 | docs(governance): GitHub-first CONTRIBUTING/SECURITY/templates + DC... |
-| 2026-06-09 17:54 | dmf-infra | 35b8efd | docs(governance): GitHub-first CONTRIBUTING/SECURITY/templates + DC... |
-| 2026-06-09 17:54 | dmf-central | 9db2a69 | docs(governance): GitHub-first CONTRIBUTING/SECURITY/templates + DC... |
-| 2026-06-09 17:54 | dmf-cms | 10df2e2 | docs(governance): GitHub-first CONTRIBUTING/SECURITY/templates + DC... |
-| 2026-06-09 14:29 | dmf-env | 1827085 | chore(public-prep): reduce dmf-env to a generic public-safe surface |
-| 2026-06-09 09:45 | dmf-init | 3ea8780 | fix(ci): force DOCKER_BUILDKIT=1 in build-bundle.sh |
-| 2026-06-09 09:38 | dmf-init | 4b90d0b | ci(bundle): fresh-from-origin build-bundle.sh + Forgejo Actions wor... |
-| 2026-06-08 20:20 | dmf-init | 2c6e117 | fix(deps): declare python-multipart (+ pydantic) — appliance cras... |
-| 2026-06-08 20:14 | dmf-init | 9895909 | perf(image): ansible-core + 3 curated collections; drop dead rclone... |
-| 2026-06-07 21:32 | dmf-env | 079cf52 | fix(unseal): make macOS Keychain conditional on non-sandbox posture |
-| 2026-06-07 21:27 | dmf-infra | 2f4bd1a | fix(k3s): make node pip install kubernetes trixie-safe |
-| 2026-06-07 21:11 | dmf-infra | d6459ba | fix(authentik): document bootstrap passkey invitation as reusable w... |
-| 2026-06-07 21:10 | dmf-env | 5f13bcc | fix(sandbox): make label cosmetic; auto-derive BASE_DOMAIN from nod... |
-| 2026-06-07 20:49 | dmf-infra | 1492abc | fix(sandbox): make bootstrap passkey invitation reusable within TTL... |
-| 2026-06-07 20:49 | dmf-env | 2e47e67 | fix(sandbox): update passkey enrollment hints for reusable invite (... |
-| 2026-06-07 16:33 | dmf-infra | 2f7741d | fix(landing-page): portable single-line base64 for asset ConfigMap |
-| 2026-06-05 13:42 | dmf-runbooks | 84a7986 | feat(mxl-hello): launch/teardown launcher playbooks |
-| 2026-06-05 13:42 | dmf-media | 0df3307 | feat(mxl-hello): single-node catalog control-chain — chart + catalog |
-| 2026-06-04 18:41 | dmf-promsd | 37c1116 | fix(publish): call docker-buildx binary directly |
-| 2026-06-04 17:43 | dmf-promsd | 1b33486 | feat: add cluster svc dns targets to promsd |
-| 2026-06-04 16:59 | dmf-promsd | c916dcf | fix(cache): union per-tag NetBox queries (?tag= is ANDed) + bump 0.1.2 |
-| 2026-06-04 16:54 | dmf-promsd | db71065 | fix(netbox): query by tag slug (colon->hyphen) + bump 0.1.1 |
-| 2026-06-04 13:16 | dmf-promsd | 263e3b3 | fix(docker): pin dmf user to uid/gid 1000 (match deploy runAsUser:1... |
-| 2026-06-04 13:08 | dmf-runbooks | c634ac5 | feat: stamp nmos-cpp monitoring metadata |
-| 2026-06-04 13:08 | dmf-media | 2bc417a | docs: add nmos-cpp monitoring contract |
+| 2026-06-11 09:51 | dmfdeploy | 75ca986 | docs(plans): init installer UI redesign executed — shipped as dmf... |
+| 2026-06-11 09:39 | dmfdeploy | a3cb740 | docs(plans): umbrella entrance plan executed — WP1-17 complete, r... |
+| 2026-06-11 09:29 | dmf-env | eb91bda | fix(doctor): make the age-key permission check portable to GNU stat |
+| 2026-06-11 09:23 | dmf-init | ca0ce11 | fix(ui): start the doctor run on arrival at Validate |
+| 2026-06-11 09:23 | dmf-init | c1a1828 | feat(ui): within-step task ticker + per-step elapsed on the splash |
+| 2026-06-11 09:23 | dmf-init | a8adc6e | fix(ui): workstation station — kill column overlap, ghosting and ... |
+| 2026-06-11 09:23 | dmf-init | 4e46b57 | chore(release): v0.2.0 — console installer skin, workstation paus... |
+| 2026-06-11 09:23 | dmf-init | 38e3f4d | feat(ui): console installer skin — left rail, wizard pages, viewp... |
+| 2026-06-11 09:23 | dmf-init | 36ea345 | feat(ui): install activity ticker + step rail folded into sidebar |
+| 2026-06-11 09:23 | dmf-init | 2f93395 | fix: fail fast on unusable SSH keys and never drop the render stream |
+| 2026-06-11 09:23 | dmf-init | 28011b7 | fix(ui): map network-level fetch failures to operator-actionable er... |
+| 2026-06-11 09:23 | dmf-init | 00ed35e | fix(ui): kill bootstrap-start stampede and Deploy-transition dead zone |
+| 2026-06-11 09:19 | dmfdeploy | 7344326 | Initial public release v0.1.0 |
+| 2026-06-11 09:07 | dmf-init | 8506456 | feat: recovery-package download with honest safe-to-delete gating |
+| 2026-06-10 11:13 | dmf-media | 654b054 | docs: drop stale '(SPIKE)' labels and neutralize operator path |
+| 2026-06-10 11:13 | dmf-cms | d7016a8 | docs: drop stale 'spike' framing and neutralize operator paths |
+| 2026-06-10 10:53 | dmf-media | 26ab44b | chore: remove must-not-main MXL fabrics spike handoff docs |
+| 2026-06-10 10:53 | dmf-infra | 0aa8e07 | chore: remove must-not-main MXL spike artifacts from public main |
+| 2026-06-10 10:53 | dmf-infra | e01b590 | docs: correct GitHub org/repo model and refresh stale docs |
+| 2026-06-10 10:53 | dmf-media | 36b3b10 | docs: future-proof repo count and fix stale dmf-env description |
+| 2026-06-10 10:53 | dmf-cms | 9a71230 | docs: future-proof repo count and neutralize operator-local paths |
+| 2026-06-10 10:52 | dmf-central | a3ea74b | docs: future-proof repo count and fix stale dmf-env description |
+| 2026-06-10 10:32 | dmf-runbooks | c84fde7 | docs: use "all repos" instead of a hardcoded count in CLAUDE.md |
+| 2026-06-10 08:26 | dmf-runbooks | 02b39a4 | Initial public release v0.1.3 |
+| 2026-06-10 08:16 | dmf-infra | c591db7 | Initial public release v0.1.0 |
+| 2026-06-10 08:16 | dmf-env | d96b968 | Initial public release v0.1.0 |
+| 2026-06-10 08:15 | dmf-media | 29257aa | Initial public release v0.1.0 |
+| 2026-06-10 08:15 | dmf-cms | fbe755e | Initial public release v0.10.0 |
+| 2026-06-10 08:14 | dmf-promsd | d506e9c | Initial public release v0.1.3 |
+| 2026-06-10 08:14 | dmf-central | de92278 | Initial public release v0.1.0 |
 
-_dmf-init: 14 more commit(s) not shown._
-
-_dmf-env: 2 more commit(s) not shown._
-
-_dmf-promsd: 4 more commit(s) not shown._
-
-_dmf-infra: 26 more commit(s) not shown._
-
-_dmfdeploy: 68 more commit(s) not shown._
+_dmf-init: 8 more commit(s) not shown._
 
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ UMBRELLA PUBLISHED + SIBLING LAYOUT — docs/tooling updated (2026-06-11)
+The umbrella is **live at `github.com/dmfdeploy/dmfdeploy`** (v0.1.0; WP17 push
+completed by the operator) and the workspace layout flipped: component repos
+are **siblings of the umbrella under a common parent** (`../dmf-*`), no longer
+nested/gitignored inside it. Recorded as an **ADR-0001 amendment**; CLAUDE.md /
+AGENTS.md / QWEN.md / README.md updated; `.gitignore` `dmf-*` entries kept only
+as a legacy-nested-clone safety net. `bin/` tooling (generate-status,
+generate-scripts-catalog, scrub/author/hygiene gates, export-scan,
+mxl-sync-check) now resolves components in either layout (nested first, sibling
+fallback) — before this fix STATUS.md reported every component "(not a git
+repo)". CLAUDE.md backlog section now also names the milestones
+(`v0.1-polish`/`v0.2`) + board Component/Workstream fields and the
+`gh api graphql` project gotcha. Retired/mothballed tooling
+(`bin/sync-to-github.sh`, `bin/agentic/`) deliberately untouched.
+
 ### 🚧 DMF-INIT INSTALLER UI REDESIGN — pass 1 done + Lima-validated, PR pending; pass 2 specced (2026-06-10)
 **Canonical plan:** `docs/plans/DMF Init Installer UI Redesign Plan 2026-06-10.md`.
 Pass 1 (installer-style create flow: Configure→Install→Connect→Finish→Validate,
@@ -2521,5 +2479,6 @@ Private SSH key for control-node access lives in OpenBao, never in tracked files
 
 **Boot ritual reminder:** when starting a session in any DMF repo,
 `git fetch && git pull` the umbrella, read this file, read the most recent
-handoff in `docs/handoffs/`, run `git status` in any sub-repo you're about
-to touch, and ask the user before modifying any sub-repo with dirty state.
+handoff in `docs/handoffs/`, run `git status` in any component repo
+(`../dmf-*`) you're about to touch, and ask the user before modifying any
+component repo with dirty state.

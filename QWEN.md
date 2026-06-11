@@ -26,6 +26,9 @@ End-of-session: if you changed shared cross-repo state, update the
 
 ## Workspace at a glance
 
+All 9 repos sit side by side under one parent directory — the component repos
+are **siblings of the umbrella**, not nested inside it:
+
 | Path | Role | Stack | State |
 |---|---|---|---|
 | `dmfdeploy/` (here) | umbrella — docs, decisions, skills | git only | active |

@@ -1,7 +1,10 @@
 # CLAUDE.md — dmfdeploy umbrella
 
-This is the **umbrella workspace** for the DMF Platform. It contains the consolidated
-knowledge base (`docs/`) and the 8 component repos as `.gitignore`d sibling directories.
+This is the **umbrella repo** for the DMF Platform: the consolidated
+knowledge base (`docs/`) and cross-repo coordination point. Since the public
+release (2026-06-11) the 8 component repos are **siblings of this repo under a
+common parent directory** (`../dmf-cms`, `../dmf-infra`, …) — they are no
+longer nested inside the umbrella.
 
 ## Boot ritual (every session, every agent)
 
@@ -18,9 +21,9 @@ Before touching any DMF repo:
    prior session's intent, recorded for you.
 4. Skim [docs/decisions/INDEX.md](docs/decisions/INDEX.md) — note any ADRs
    relevant to your task. Apply them.
-5. Run `git status` in any sub-repo you're about to touch. **Ask the user
-   before modifying any sub-repo with dirty (uncommitted) state** — that's
-   in-progress work from another session/agent.
+5. Run `git status` in any component repo (`../dmf-*`) you're about to touch.
+   **Ask the user before modifying any component repo with dirty (uncommitted)
+   state** — that's in-progress work from another session/agent.
 6. If you're going to retrieve secrets, run cluster operations, or release
    dmf-cms, read the §0 of the relevant skill first:
    `dmf-cluster-access`, `dmf-openbao-unseal`, `dmf-cms-build-and-release`.
@@ -96,7 +99,7 @@ Each is a separate git repo with its own remote:
   pre-EBU-vocabulary scheme and may use stale terminology.
 - **Doc filenames preserved verbatim** from the original operator note store. Many docs reference
   each other by display name; don't rename without sweeping callers.
-- **Sub-repo agent files** (`CLAUDE.md`, `AGENTS.md`, `QWEN.md`) may still carry stray
+- **Component-repo agent files** (`CLAUDE.md`, `AGENTS.md`, `QWEN.md`) may still carry stray
   `<note-store>/...` references — most are cleaned, but spot-check before quoting any
   cross-repo path. The `dmf-cms` mockup reference at `<note-store>/tmp/dmf-portal-mockup-2025.png`
   is the known remaining one (tracked in [umbrella issue #26](https://github.com/dmfdeploy/dmfdeploy/issues/26)).
@@ -115,6 +118,13 @@ Each is a separate git repo with its own remote:
   (org board: [Project #1](https://github.com/orgs/dmfdeploy/projects/1));
   TODOS.md was retired into Issues on 2026-06-10. Discussions host Q&A + the
   RFC-before-ADR pipeline (see [CONTRIBUTING.md](CONTRIBUTING.md)).
+- **Milestones schedule the backlog:** `v0.1-polish` (items gating the v0.1
+  claim) and `v0.2` (post-v0.1 scope). New issues get a milestone, a
+  `component:*` + `workstream:*` label pair, and land on the org board, which
+  carries matching **Component** and **Workstream** single-select fields plus
+  Status (Todo / In Progress / Done).
+- **Gotcha:** `gh project` subcommands may 401 — use raw `gh api graphql`
+  (Project #1 node id `PVT_kwDOENb9uM4BaPY-`).
 - **New-work convention:** open (or claim) an issue → write the on-disk spec in
   `docs/plans/` with `tracking_issue` frontmatter → the PR that completes the
   work closes the issue **and flips the plan's frontmatter in the same change**.
@@ -132,9 +142,14 @@ Each is a separate git repo with its own remote:
 
 ## Git topology
 
-- This umbrella's `.gitignore` excludes the 8 component dirs entirely; they remain
-  independent repos. If you ever want pinned versions for reproducible builds,
-  convert them to git submodules (a one-way decision worth a discussion first).
+- The 8 component repos live as **siblings of the umbrella** under a common
+  parent directory; each remains an independent repo (ADR-0001, amended
+  2026-06-11). Nothing is nested inside the umbrella anymore — the old
+  `.gitignore` entries for `dmf-*` remain only as a safety net for legacy
+  nested clones. `bin/` tooling resolves component repos in either layout
+  (sibling canonical, nested fallback). If you ever want pinned versions for
+  reproducible builds, convert them to git submodules (a one-way decision
+  worth a discussion first).
 - **All 9 repos use `main` as the default branch** (renamed from `master` on
   2026-05-07 for the three that still had it). On Forgejo, the default-branch
   setting must match — flip via Settings → Branches if a freshly-cloned repo
