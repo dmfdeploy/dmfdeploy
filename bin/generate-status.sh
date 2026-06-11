@@ -63,8 +63,10 @@ collect_repo() {
     # Dirty count (modified + untracked, excluding ignored)
     count_dirty="$(git -C "$path" status --porcelain 2>/dev/null | wc -l | tr -d ' ')"
     if [ "$count_dirty" -gt 0 ]; then
-        # Pull just the path (last field) from each porcelain line, join with ·
-        status_summary="$(git -C "$path" status --porcelain | head -3 | awk '{print $NF}' | tr '\n' '·' | sed 's/·$//')"
+        # Path-safe summary: porcelain paths start at column 4 — awk '$NF'
+        # split filenames containing spaces. quotepath off so such names
+        # aren't C-quoted either.
+        status_summary="$(git -C "$path" -c core.quotepath=false status --porcelain | head -3 | cut -c4- | tr '\n' '·' | sed 's/·$//')"
         dirty="${count_dirty}: \`${status_summary}\`"
     else
         dirty="clean"
@@ -75,15 +77,22 @@ collect_repo() {
     last_commit_msg="$(git -C "$path" log -1 --format='%s' 2>/dev/null | cut -c1-50 || echo '—')"
     last_commit_age="$(git -C "$path" log -1 --format='%ar' 2>/dev/null || echo '—')"
 
-    # Unpushed
+    # Unpushed — only meaningful when an upstream exists. The old
+    # `git log @{u}.. | wc -l || echo 0` double-printed ("0\n0") under
+    # pipefail on branches without an upstream (e.g. pre-push topic
+    # branches), corrupting the table cell across two lines.
     if [ "$DO_FETCH" -eq 1 ]; then
         git -C "$path" fetch --quiet 2>/dev/null || true
     fi
-    count_unpushed="$(git -C "$path" log '@{u}'..HEAD --oneline 2>/dev/null | wc -l | tr -d ' ' || echo '0')"
-    if [ "$count_unpushed" = "0" ] || [ -z "$count_unpushed" ]; then
-        unpushed="—"
+    if git -C "$path" rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
+        count_unpushed="$(git -C "$path" log '@{u}'..HEAD --oneline 2>/dev/null | wc -l | tr -d ' ')"
+        if [ "$count_unpushed" = "0" ] || [ -z "$count_unpushed" ]; then
+            unpushed="—"
+        else
+            unpushed="**$count_unpushed**"
+        fi
     else
-        unpushed="**$count_unpushed**"
+        unpushed="_(no upstream)_"
     fi
 
     # shellcheck disable=SC2016
