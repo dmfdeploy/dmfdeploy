@@ -1,6 +1,6 @@
 # DMF Status
 
-_Auto-generated 2026-06-11 09:10 UTC by `bin/generate-status.sh`. Run again to refresh._
+_Auto-generated 2026-06-11 09:15 UTC by `bin/generate-status.sh`. Run again to refresh._
 
 For decisions, see [docs/decisions/](docs/decisions/INDEX.md).
 For active task spec, see the most recent file in [docs/plans/](docs/plans/).
@@ -11,11 +11,11 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 | Repo | Branch | Last commit | Subject | Dirty | Unpushed |
 |---|---|---|---|---|---|
-| dmfdeploy (umbrella) | main | `21850d5` (59 minutes ago) | docs: record sibling-repo layout post-publish (ADR | 14: `.claude/settings.json·.githooks/pre-commit·.github/workflows/ci.yml` | **1** |
+| dmfdeploy (umbrella) | main | `0cc5f6e` (5 minutes ago) | feat: working-model enforcement foundation, umbrel | 1: `.github/workflows/guard.yml` | **2** |
 | dmf-cms | main | `d7016a8` (24 hours ago) | docs: drop stale 'spike' framing and neutralize op | clean | — |
 | dmf-runbooks | main | `c84fde7` (25 hours ago) | docs: use "all repos" instead of a hardcoded count | clean | — |
 | dmf-central | main | `a3ea74b` (25 hours ago) | docs: future-proof repo count and fix stale dmf-en | clean | — |
-| dmf-infra | main | `0aa8e07` (24 hours ago) | chore: remove must-not-main MXL spike artifacts fr | clean | — |
+| dmf-infra | main | `0aa8e07` (25 hours ago) | chore: remove must-not-main MXL spike artifacts fr | clean | — |
 | dmf-env | main | `eb91bda` (2 hours ago) | fix(doctor): make the age-key permission check por | clean | — |
 | dmf-media | main | `654b054` (24 hours ago) | docs: drop stale '(SPIKE)' labels and neutralize o | clean | — |
 | dmf-init | main | `4e46b57` (2 hours ago) | chore(release): v0.2.0 — console installer skin, w | clean | — |
@@ -38,6 +38,7 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 | When | Repo | Commit | Subject |
 |---|---|---|---|
+| 2026-06-11 11:10 | dmfdeploy | 0cc5f6e | feat: working-model enforcement foundation, umbrella side (refs #32) |
 | 2026-06-11 10:11 | dmfdeploy | 21850d5 | docs: record sibling-repo layout post-publish (ADR-0001 amendment) ... |
 | 2026-06-11 09:51 | dmfdeploy | 75ca986 | docs(plans): init installer UI redesign executed — shipped as dmf... |
 | 2026-06-11 09:39 | dmfdeploy | a3cb740 | docs(plans): umbrella entrance plan executed — WP1-17 complete, r... |
