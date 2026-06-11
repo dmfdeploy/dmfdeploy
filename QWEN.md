@@ -76,6 +76,24 @@ Apply the ones relevant to your task. The most consequential for daily work:
 - **ADR-0010** — `bin/run-playbook.sh` is the only sanctioned ansible entry point
 - **ADR-0011** — auto-unseal trades Shamir defense-in-depth for operational tolerability (known weakness, accepted in experiment phase)
 
+<!-- WORKING-MODEL-BLOCK-START — generated from umbrella docs/templates/working-model-block.md; do not edit copies, edit the template and run bin/check-working-model-sync.sh -->
+## Working model (mandatory)
+
+Canonical: [docs/WORKING-MODEL.md](https://github.com/dmfdeploy/dmfdeploy/blob/main/docs/WORKING-MODEL.md)
+in the umbrella repo. The three rules that matter mid-task:
+
+1. **Work starts at an issue** in the canonical backlog
+   ([dmfdeploy/dmfdeploy issues](https://github.com/dmfdeploy/dmfdeploy/issues);
+   milestone + `component:*`/`workstream:*` labels). Non-trivial work gets a
+   plan doc in umbrella `docs/plans/` with `tracking_issue` frontmatter.
+2. **The completing PR closes the issue and flips the plan frontmatter in the
+   same change.** From a component repo, reference umbrella issues **fully
+   qualified** — `Closes dmfdeploy/dmfdeploy#N`; bare `#N` targets the wrong repo.
+3. **Never invent a local backlog** (TODO files, ad-hoc trackers). Issues =
+   liveness; plan frontmatter = design state; ADRs = decisions (RFC in
+   Discussions first); STATUS.md = cross-repo now.
+<!-- WORKING-MODEL-BLOCK-END -->
+
 ## Qwen-specific working rules
 
 ### Plan mode

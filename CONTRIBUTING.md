@@ -19,6 +19,9 @@ and is never a contribution path.)
    [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues), scheduled on
    the [org project board](https://github.com/orgs/dmfdeploy/projects/1).
    Questions go to [Discussions](https://github.com/dmfdeploy/dmfdeploy/discussions) (Q&A).
+   The canonical statement of how Issues/milestones/board/Discussions and the
+   documentation rules fit together is
+   [`docs/WORKING-MODEL.md`](docs/WORKING-MODEL.md) — read it once.
 3. **Do the work:** claim or open an issue; non-trivial work gets an on-disk
    spec in `docs/plans/` carrying `tracking_issue` frontmatter; the PR that
    completes it closes the issue and flips the plan's frontmatter in the same

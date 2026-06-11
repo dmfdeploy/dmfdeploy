@@ -1,6 +1,6 @@
 # DMF Status
 
-_Auto-generated 2026-06-11 08:11 UTC by `bin/generate-status.sh`. Run again to refresh._
+_Auto-generated 2026-06-11 09:10 UTC by `bin/generate-status.sh`. Run again to refresh._
 
 For decisions, see [docs/decisions/](docs/decisions/INDEX.md).
 For active task spec, see the most recent file in [docs/plans/](docs/plans/).
@@ -11,15 +11,15 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 | Repo | Branch | Last commit | Subject | Dirty | Unpushed |
 |---|---|---|---|---|---|
-| dmfdeploy (umbrella) | main | `75ca986` (23 minutes ago) | docs(plans): init installer UI redesign executed — | 17: `.gitignore·.qwen/skills/cold-agent-wp-execution/SKILL.md·.qwen/skills/orchestrated-lifter-workflow/SKILL.md` | — |
-| dmf-cms | main | `d7016a8` (23 hours ago) | docs: drop stale 'spike' framing and neutralize op | clean | — |
-| dmf-runbooks | main | `c84fde7` (24 hours ago) | docs: use "all repos" instead of a hardcoded count | clean | — |
-| dmf-central | main | `a3ea74b` (24 hours ago) | docs: future-proof repo count and fix stale dmf-en | clean | — |
-| dmf-infra | main | `0aa8e07` (23 hours ago) | chore: remove must-not-main MXL spike artifacts fr | clean | — |
-| dmf-env | main | `eb91bda` (79 minutes ago) | fix(doctor): make the age-key permission check por | clean | — |
-| dmf-media | main | `654b054` (23 hours ago) | docs: drop stale '(SPIKE)' labels and neutralize o | clean | — |
-| dmf-init | main | `4e46b57` (55 minutes ago) | chore(release): v0.2.0 — console installer skin, w | clean | — |
-| dmf-promsd | main | `d506e9c` (26 hours ago) | Initial public release v0.1.3 | clean | — |
+| dmfdeploy (umbrella) | main | `21850d5` (59 minutes ago) | docs: record sibling-repo layout post-publish (ADR | 14: `.claude/settings.json·.githooks/pre-commit·.github/workflows/ci.yml` | **1** |
+| dmf-cms | main | `d7016a8` (24 hours ago) | docs: drop stale 'spike' framing and neutralize op | clean | — |
+| dmf-runbooks | main | `c84fde7` (25 hours ago) | docs: use "all repos" instead of a hardcoded count | clean | — |
+| dmf-central | main | `a3ea74b` (25 hours ago) | docs: future-proof repo count and fix stale dmf-en | clean | — |
+| dmf-infra | main | `0aa8e07` (24 hours ago) | chore: remove must-not-main MXL spike artifacts fr | clean | — |
+| dmf-env | main | `eb91bda` (2 hours ago) | fix(doctor): make the age-key permission check por | clean | — |
+| dmf-media | main | `654b054` (24 hours ago) | docs: drop stale '(SPIKE)' labels and neutralize o | clean | — |
+| dmf-init | main | `4e46b57` (2 hours ago) | chore(release): v0.2.0 — console installer skin, w | clean | — |
+| dmf-promsd | main | `d506e9c` (27 hours ago) | Initial public release v0.1.3 | clean | — |
 
 ## Active plans
 
@@ -31,12 +31,14 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 | DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25 | 2026-05-25 | — |
 | DMF OSS v0.1 WP1S Single-Node Sandbox Lane 2026-05-25 | 2026-05-25 | — |
 | DMF OSS v0.1 WP5 Release Verification and Tagging 2026-05-25 | 2026-05-25 | — |
+| DMF Working-Model Enforcement Plan 2026-06-11 | 2026-06-11 | [#32](https://github.com/dmfdeploy/dmfdeploy/issues/32) |
 | DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06 | 2026-06-06 | — |
 
 ## Recent activity (last 7 days, all repos)
 
 | When | Repo | Commit | Subject |
 |---|---|---|---|
+| 2026-06-11 10:11 | dmfdeploy | 21850d5 | docs: record sibling-repo layout post-publish (ADR-0001 amendment) ... |
 | 2026-06-11 09:51 | dmfdeploy | 75ca986 | docs(plans): init installer UI redesign executed — shipped as dmf... |
 | 2026-06-11 09:39 | dmfdeploy | a3cb740 | docs(plans): umbrella entrance plan executed — WP1-17 complete, r... |
 | 2026-06-11 09:29 | dmf-env | eb91bda | fix(doctor): make the age-key permission check portable to GNU stat |
@@ -73,6 +75,24 @@ _dmf-init: 8 more commit(s) not shown._
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### 🚧 WORKING-MODEL ENFORCEMENT — umbrella foundation landed; 8-repo propagation NEXT (2026-06-11)
+**Tracking: [issue #32](https://github.com/dmfdeploy/dmfdeploy/issues/32)** ·
+plan `docs/plans/DMF Working-Model Enforcement Plan 2026-06-11.md` (reviewed by
+claude-bottom, 5 points folded). Landed this session (umbrella): canonical
+**`docs/WORKING-MODEL.md`** (with WM-DIGEST markers), block template
+`docs/templates/working-model-block.md`, identical block in umbrella
+CLAUDE/AGENTS/QWEN, **`bin/check-working-model-sync.sh`** (wired into ci.yml +
+pre-commit, `--umbrella-only` so one repo's drift never blocks another),
+**`bin/working-model-digest.sh`** + SessionStart hook in `.claude/settings.json`
+(runtime-extracts the digest; warns-not-wedges if umbrella absent), INDEX +
+CONTRIBUTING pointers. **NEXT (batch, all 8 component repos, PRs referencing
+`dmfdeploy/dmfdeploy#32` qualified):** WP2 blocks in agent files + `--strict`
+sync-check in each ci.yml, WP3 settings hook, WP4 guard.yml PR-must-link-issue
+job (component repos REQUIRE qualified `Closes dmfdeploy/dmfdeploy#N`, reject
+bare `#N`; `no-issue` label escape). **Operator-gated:** WP5 adjudicate the 6
+active plans w/o tracking_issue then flip check-docs W2 warn→fail; WP6 hygiene
+detector + schedule; WP7 org `.github` (optional).
+
 ### ✅ UMBRELLA PUBLISHED + SIBLING LAYOUT — docs/tooling updated (2026-06-11)
 The umbrella is **live at `github.com/dmfdeploy/dmfdeploy`** (v0.1.0; WP17 push
 completed by the operator) and the workspace layout flipped: component repos
