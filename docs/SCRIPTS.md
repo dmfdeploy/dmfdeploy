@@ -23,6 +23,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `bin/check-docs.sh` | offline documentation gate for the DMF umbrella. Hard-fails on missing/broken frontmatter, dangling superseded_by targets, stale plans index, or inconsistent ADR file↔INDEX cross-references. Prints warnings for issues that don't block (missing tracking_issue, unresolved links, closed tracking issues). |
 | `bin/check-public-commit-authors.sh` | verify every commit author/committer on every public DMF Platform repo matches the public-identity allowlist. |
 | `bin/check-public-repo-hygiene.sh` | bin/check-public-repo-hygiene.sh — per-repo Tier A.2 hygiene gate. |
+| `bin/check-working-model-sync.sh` | keep the working-model block from drifting. |
 | `bin/dmf-env-public-surface-gate.sh` | fail-closed gate: is a dmf-env tree safe to publish as a generic env-tooling repo? |
 | `bin/export-scan.sh` | stage a CLEAN-HISTORY orphan export of one component repo and run every public-safety gate against that exact tree. Workstream A (first public release). |
 | `bin/generate-plans-index.sh` | scan docs/plans/*.md for YAML frontmatter and produce docs/plans/INDEX.md, grouped by status (Active / Draft / Executed / Superseded / Historical), newest-first. Superseded rows include superseded_by links; executed rows include executed dates when present. |
@@ -35,6 +36,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `bin/render-bpmn.sh` | Render a .bpmn file to .svg with the shared docs/processes/diagrams/_styles.css stylesheet injected. Wraps `npx bpmn-to-image`. |
 | `bin/scrub-public-repos.sh` | pre-publish secret + topology + identity scan. |
 | `bin/sync-to-github.sh` | RETIRED 2026-06-09 (do not use). |
+| `bin/working-model-digest.sh` | print the DMF working-model digest for session context. |
 
 ## umbrella — `dmfdeploy/bin/agentic/` (mothballed 2026-06-04)
 

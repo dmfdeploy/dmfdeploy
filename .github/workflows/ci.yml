@@ -42,3 +42,5 @@ jobs:
         run: bin/generate-plans-index.sh --check
       - name: Run doc gate
         run: bin/check-docs.sh
+      - name: Working-model block sync
+        run: bin/check-working-model-sync.sh --umbrella-only

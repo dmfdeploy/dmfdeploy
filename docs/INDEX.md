@@ -14,6 +14,7 @@ verbatim (docs cross-reference each other by display name).
 | [JOURNEY.md](JOURNEY.md) | How did it get here — phases, pivots, and the method? |
 | [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) | What is frozen, unproven, broken, or undecided — honestly? |
 | [decisions/READING-GUIDE.md](decisions/READING-GUIDE.md) | Which ~8 ADRs to read, in what order? |
+| [WORKING-MODEL.md](WORKING-MODEL.md) | How work is tracked — Issues/milestones/board/Discussions + documentation rules (canonical, enforced) |
 
 ## Directories
 

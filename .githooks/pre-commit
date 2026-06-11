@@ -99,4 +99,16 @@ if [ -x "$REPO_ROOT/bin/check-docs.sh" ]; then
     fi
 fi
 
+# Working-model block sync (umbrella issue #32): copies of the agent-context
+# block must match docs/templates/working-model-block.md byte-for-byte.
+if [ -x "$REPO_ROOT/bin/check-working-model-sync.sh" ]; then
+    if ! "$REPO_ROOT/bin/check-working-model-sync.sh" --umbrella-only >/dev/null 2>&1; then
+        echo "" >&2
+        echo "[pre-commit] working-model block drifted — refusing commit" >&2
+        "$REPO_ROOT/bin/check-working-model-sync.sh" --umbrella-only 2>&1 | sed 's/^/  /' >&2
+        echo "  edit docs/templates/working-model-block.md, then re-paste copies" >&2
+        exit 1
+    fi
+fi
+
 exit 0
