@@ -109,6 +109,26 @@ adjudicates which are genuinely active vs stale-active), then flip
 Run weekly via a scheduled umbrella workflow that opens/updates a single
 "backlog hygiene" issue; also runnable locally.
 
+### WP8 — approval-driven auto-merge (added 2026-06-11, [issue #34](https://github.com/dmfdeploy/dmfdeploy/issues/34))
+
+Operator request: after approval, PRs merge themselves (rebase) and delete
+their branch — regardless of who submitted or approved. Three layers:
+
+1. **Repo settings, all 9:** `allow_auto_merge` + `delete_branch_on_merge`
+   (umbrella also dropped squash/merge-commit for rebase-only parity).
+2. **Ruleset `required_status_checks`, all 9:** the gap that made auto-merge
+   unsafe — green CI was a human habit, not a gate. Contexts harvested from
+   the WP2–4 batch PRs (dco + guard incl. `issue-link` + per-stack ci incl.
+   `working-model`). Non-strict (no forced re-runs after each merge).
+   Found+fixed along the way: **the umbrella had no rulesets at all** — branch
+   + 2 tag rulesets cloned from dmf-cms.
+3. **`automerge.yml`, all 9:** arms GitHub-native rebase auto-merge on PR
+   open/reopen/ready/label-change; `hold` label disarms; drafts skipped.
+   `pull_request_target`, metadata-only, never checks out PR code.
+
+Behavioral change: **approval = landing** (no post-approval hold window);
+documented in WORKING-MODEL.md §6.
+
 ### WP7 (optional) — org `.github` repo
 
 `dmfdeploy/.github` with default community-health files + org profile README
@@ -125,6 +145,7 @@ setup.
 | WP2/3/4 propagation: blocks + settings hook + guard.yml job, 8 component repos | 8 repos | follow-up PR batch (one umbrella issue = #32, all PRs reference it qualified) |
 | WP5 backfill + flip W2 | umbrella | after operator adjudicates the 6 plans |
 | WP6 hygiene detector + schedule | umbrella | follow-up |
+| WP8 auto-merge: settings + required-checks rulesets (live) + automerge.yml (9-repo batch) | all repos | 2026-06-11, issue #34 |
 | WP7 org .github | org | optional, last |
 
 ## Acceptance

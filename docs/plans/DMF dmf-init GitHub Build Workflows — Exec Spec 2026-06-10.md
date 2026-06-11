@@ -1,6 +1,7 @@
 ---
-status: draft
+status: executed
 date: 2026-06-10
+executed: 2026-06-10
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/7
 ---
 # DMF dmf-init GitHub Build Workflows — Exec Spec for qwen — 2026-06-10
