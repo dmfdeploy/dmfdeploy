@@ -1,6 +1,9 @@
 # DMF Status
 
-_Auto-generated 2026-06-11 16:14 UTC by `bin/generate-status.sh`. Run again to refresh._
+_Auto-generated 2026-06-11 17:13 UTC by `bin/generate-status.sh`. Run again to refresh._
+_The committed copy lags its own commit by design — a snapshot cannot contain
+the hash of the commit that carries it. Judge freshness by regenerating, not
+by diffing a checkout; `--check` is a local pre-commit aid, not a review gate._
 
 For decisions, see [docs/decisions/](docs/decisions/INDEX.md).
 For active task spec, see the most recent file in [docs/plans/](docs/plans/).
@@ -11,15 +14,15 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 | Repo | Branch | Last commit | Subject | Dirty | Unpushed |
 |---|---|---|---|---|---|
-| dmfdeploy (umbrella) | znerol2/close-32 | `4da3ad9` (2 hours ago) | docs(plans): working-model enforcement executed —  | 2: `STATUS.md·bin/generate-status.sh` | — |
-| dmf-cms | main | `f2a6545` (5 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-runbooks | main | `e818621` (5 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-central | main | `8030d1e` (5 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-infra | main | `d4c4d1b` (5 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-env | main | `083de09` (5 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-media | main | `0d07e5e` (5 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-init | main | `c1b056a` (5 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-promsd | main | `0fa2221` (5 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmfdeploy (umbrella) | znerol2/close-32 | `15d8a96` (59 minutes ago) | fix(status): path-safe dirty summary + sane unpush | 1: `bin/generate-status.sh` | — |
+| dmf-cms | main | `f2a6545` (6 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-runbooks | main | `e818621` (6 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-central | main | `8030d1e` (6 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-infra | main | `d4c4d1b` (6 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-env | main | `083de09` (6 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-media | main | `0d07e5e` (6 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-init | main | `c1b056a` (6 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-promsd | main | `0fa2221` (6 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
 
 ## Active plans
 
@@ -32,6 +35,7 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 | When | Repo | Commit | Subject |
 |---|---|---|---|
+| 2026-06-11 18:14 | dmfdeploy | 15d8a96 | fix(status): path-safe dirty summary + sane unpushed cell without u... |
 | 2026-06-11 16:33 | dmfdeploy | 4da3ad9 | docs(plans): working-model enforcement executed — WP1–6+8 shipp... |
 | 2026-06-11 16:15 | dmfdeploy | c2b440d | feat: backlog-hygiene drift detector + weekly schedule (WP6, refs #32) |
 | 2026-06-11 13:35 | dmfdeploy | e60c8bd | docs(plans): WP5 adjudication — 6 active plans resolved; check-do... |
@@ -57,7 +61,6 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 | 2026-06-11 12:31 | dmfdeploy | 528a6c2 | ci: require PR-to-issue linkage in guard.yml (refs #32) |
 | 2026-06-11 12:31 | dmfdeploy | 294f353 | feat: working-model enforcement foundation, umbrella side (refs #32) |
 | 2026-06-11 12:31 | dmfdeploy | 029ee03 | fix: shellcheck-clean new bin scripts; STATUS note for the 9-PR bat... |
-| 2026-06-11 09:51 | dmfdeploy | 75ca986 | docs(plans): init installer UI redesign executed — shipped as dmf... |
 | 2026-06-11 09:29 | dmf-env | eb91bda | fix(doctor): make the age-key permission check portable to GNU stat |
 | 2026-06-11 09:23 | dmf-init | ca0ce11 | fix(ui): start the doctor run on arrival at Validate |
 | 2026-06-11 09:23 | dmf-init | c1a1828 | feat(ui): within-step task ticker + per-step elapsed on the splash |
@@ -86,7 +89,7 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 _dmf-init: 10 more commit(s) not shown._
 
-_dmfdeploy: 2 more commit(s) not shown._
+_dmfdeploy: 3 more commit(s) not shown._
 
 ## Operator notes (hand-edited — preserved across regenerations)
 
