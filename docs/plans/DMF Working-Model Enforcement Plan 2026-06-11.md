@@ -1,9 +1,21 @@
 ---
-status: active
+status: executed
 date: 2026-06-11
+executed: 2026-06-11
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/32
 ---
 # DMF Working-Model Enforcement Plan 2026-06-11
+
+> **✅ EXECUTED 2026-06-11, same day** (issue #32 closed by the PR carrying this
+> flip). WP1–WP6 + WP8 all delivered and merged: canonical WORKING-MODEL.md,
+> template-identical agent blocks in all 9 repos (strict CI sync), SessionStart
+> digest hooks, issue-link PR gates, the W2 hard-fail after the 6-plan
+> adjudication, the backlog-hygiene detector + weekly schedule (first run's 10
+> findings triaged to zero), and approval-driven auto-merge (#34).
+> **WP7 (org `.github`) was optional and is NOT executed** — deferred with a
+> written analysis on #32 (slim scope recommended: org profile README +
+> CoC/SUPPORT/GOVERNANCE defaults + new-repo bootstrap checklist). If picked
+> up, it gets a fresh issue.
 
 > **Goal:** any agent (Claude Code, codex, qwen) or human contributor working in
 > **any** of the 9 repos is exposed to — and where possible machine-held to —
