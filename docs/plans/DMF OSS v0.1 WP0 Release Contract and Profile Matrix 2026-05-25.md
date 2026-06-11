@@ -1,8 +1,14 @@
 ---
-status: active
+status: superseded
 date: 2026-05-25
+superseded_by: "DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md"
 ---
 # DMF OSS v0.1 WP0 — Release Contract & Profile Matrix
+> **Superseded by** [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) (adjudicated 2026-06-11, refs
+> issue #32 WP5): [architectural-commitments-v1](../decisions/architectural-commitments-v1.md)
+> re-cut v0.1 — the sandbox lane's proven core stands, the AWS/profile-matrix
+> sequencing is dropped (cloud claims are a named non-goal), and the remaining
+> gate (stranger-reproducibility) is carried by the successor plan (issue #36).
 > Supersedes: [DMF OSS v0.1 Release Mission 2026-05-25.md](DMF%20OSS%20v0.1%20Release%20Mission%202026-05-25.md)
 
 **Status:** Active — binding planning anchor for OSS v0.1

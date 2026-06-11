@@ -1,8 +1,14 @@
 ---
-status: active
+status: superseded
 date: 2026-05-25
+superseded_by: "DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md"
 ---
 # DMF OSS v0.1 WP1S — Single-Node Sandbox Lane
+> **Superseded by** [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) (adjudicated 2026-06-11, refs
+> issue #32 WP5): [architectural-commitments-v1](../decisions/architectural-commitments-v1.md)
+> re-cut v0.1 — the sandbox lane's proven core stands, the AWS/profile-matrix
+> sequencing is dropped (cloud claims are a named non-goal), and the remaining
+> gate (stranger-reproducibility) is carried by the successor plan (issue #36).
 
 **Status:** Active — **first actionable work package** after WP0. **Phase 3 (AWX fit) + Phase 4 (catalog loop, machine path) PROVEN on `imc1-cyh4` 2026-05-29** (see §8.1). **Operator-confirmed end-to-end on `imc1-cyh4` 2026-05-29** (passkey browser → Console → AWX deploy/teardown). Remaining before a v0.1 tag: a formal non-maintainer fresh-clone replicability run.
 **Date:** 2026-05-25

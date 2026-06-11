@@ -8,16 +8,11 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (8)
+## Active (3)
 
 - [DMF Working-Model Enforcement Plan 2026-06-11](DMF%20Working-Model%20Enforcement%20Plan%202026-06-11.md) — 2026-06-11
-- [DMF First Public Release Plan 2026-06-09](DMF%20First%20Public%20Release%20Plan%202026-06-09.md) — 2026-06-09
 - [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
 - [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04](DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md) — 2026-06-04
-- [DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25](DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md) — 2026-05-25
-- [DMF OSS v0.1 WP1S Single-Node Sandbox Lane 2026-05-25](DMF%20OSS%20v0.1%20WP1S%20Single-Node%20Sandbox%20Lane%202026-05-25.md) — 2026-05-25
-- [DMF OSS v0.1 WP5 Release Verification and Tagging 2026-05-25](DMF%20OSS%20v0.1%20WP5%20Release%20Verification%20and%20Tagging%202026-05-25.md) — 2026-05-25
-- [DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19](DMF%20Cluster-Internal%20Ansible%20Execution%20and%20Catalog%20Helm%20Pivot%20Plan%202026-05-19.md) — 2026-05-19
 
 ## Draft (7)
 
@@ -29,7 +24,7 @@ shelved, kept for provenance.
 - [DMF Pre-Release Compliance Readiness Plan 2026-05-11](DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md) — 2026-05-11
 - [DMF Tier A Phase Execution Plan 2026-05-11](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — 2026-05-11
 
-## Executed (69)
+## Executed (71)
 
 - [DMF Doc-Hygiene Judgment-Tier Exec Spec 2026-06-10](DMF%20Doc-Hygiene%20Judgment-Tier%20Exec%20Spec%202026-06-10.md) — 2026-06-10 (executed 2026-06-10)
 - [DMF Doc-Hygiene PR-Submission Spec 2026-06-10](DMF%20Doc-Hygiene%20PR-Submission%20Spec%202026-06-10.md) — 2026-06-10 (executed 2026-06-10)
@@ -40,6 +35,7 @@ shelved, kept for provenance.
 - [DMF dmf-init GitHub Build Workflows — Exec Spec 2026-06-10](DMF%20dmf-init%20GitHub%20Build%20Workflows%20%E2%80%94%20Exec%20Spec%202026-06-10.md) — 2026-06-10 (executed 2026-06-10)
 - [wp1-triage-table-2026-06](wp1-triage-table-2026-06.md) — 2026-06-10 (executed 2026-06-10)
 - [wp9-todos-issue-triage-2026-06](wp9-todos-issue-triage-2026-06.md) — 2026-06-10 (executed 2026-06-10)
+- [DMF First Public Release Plan 2026-06-09](DMF%20First%20Public%20Release%20Plan%202026-06-09.md) — 2026-06-09 (executed 2026-06-11)
 - [DMF Workstream A — CI Recovery Fix Spec 2026-06-09](DMF%20Workstream%20A%20%E2%80%94%20CI%20Recovery%20Fix%20Spec%202026-06-09.md) — 2026-06-09 (executed 2026-06-10)
 - [DMF Workstream A — Clean-History Import and Canonical Flip Execution Spec 2026-06-09](DMF%20Workstream%20A%20%E2%80%94%20Clean-History%20Import%20and%20Canonical%20Flip%20Execution%20Spec%202026-06-09.md) — 2026-06-09 (executed 2026-06-10)
 - [DMF Workstream A — Pre-A Tooling Implementation Spec 2026-06-09](DMF%20Workstream%20A%20%E2%80%94%20Pre-A%20Tooling%20Implementation%20Spec%202026-06-09.md) — 2026-06-09 (executed 2026-06-09)
@@ -74,6 +70,7 @@ shelved, kept for provenance.
 - [DMF Per-App Identity Feasibility Survey 2026-05-24](DMF%20Per-App%20Identity%20Feasibility%20Survey%202026-05-24.md) — 2026-05-24
 - [DMF Unified App-Admin Helper Plan 2026-05-23](DMF%20Unified%20App-Admin%20Helper%20Plan%202026-05-23.md) — 2026-05-23
 - [DMF ADR-0025 Lane B Implementation Plan 2026-05-22](DMF%20ADR-0025%20Lane%20B%20Implementation%20Plan%202026-05-22.md) — 2026-05-22 (executed 2026-05-23)
+- [DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19](DMF%20Cluster-Internal%20Ansible%20Execution%20and%20Catalog%20Helm%20Pivot%20Plan%202026-05-19.md) — 2026-05-19 (executed 2026-06-11)
 - [DMF Hardcoded Environment Literals Cleanup Plan 2026-05-19](DMF%20Hardcoded%20Environment%20Literals%20Cleanup%20Plan%202026-05-19.md) — 2026-05-19
 - [DMF Init Wizard env_id Provider Architecture Split Plan 2026-05-19](DMF%20Init%20Wizard%20env_id%20Provider%20Architecture%20Split%20Plan%202026-05-19.md) — 2026-05-19
 - [DMF Public Container Registry Publishing Plan 2026-05-19](DMF%20Public%20Container%20Registry%20Publishing%20Plan%202026-05-19.md) — 2026-05-19
@@ -101,9 +98,12 @@ shelved, kept for provenance.
 - [DMF Improvement Run Plan 2026-04-22](DMF%20Improvement%20Run%20Plan%202026-04-22.md) — 2026-04-22
 - [DMF Orchestrator and Renumbering Plan 2026-04-22](DMF%20Orchestrator%20and%20Renumbering%20Plan%202026-04-22.md) — 2026-04-22
 
-## Superseded (9)
+## Superseded (12)
 
 - [DMF OSS v0.1 Release Mission 2026-05-25](DMF%20OSS%20v0.1%20Release%20Mission%202026-05-25.md) — 2026-05-25 → superseded by [DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25.md](DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md)
+- [DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25](DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md) — 2026-05-25 → superseded by [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md)
+- [DMF OSS v0.1 WP1S Single-Node Sandbox Lane 2026-05-25](DMF%20OSS%20v0.1%20WP1S%20Single-Node%20Sandbox%20Lane%202026-05-25.md) — 2026-05-25 → superseded by [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md)
+- [DMF OSS v0.1 WP5 Release Verification and Tagging 2026-05-25](DMF%20OSS%20v0.1%20WP5%20Release%20Verification%20and%20Tagging%202026-05-25.md) — 2026-05-25 → superseded by [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md)
 - [DMF MXL Single-Node Media Node Spike Plan 2026-05-17](DMF%20MXL%20Single-Node%20Media%20Node%20Spike%20Plan%202026-05-17.md) — 2026-05-17 → superseded by [DMF MXL Single-Node Loopback Execution Plan 2026-05-29.md](DMF%20MXL%20Single-Node%20Loopback%20Execution%20Plan%202026-05-29.md)
 - [DMF In-Cluster Ansible Runner Pod Implementation Plan 2026-05-14](DMF%20In-Cluster%20Ansible%20Runner%20Pod%20Implementation%20Plan%202026-05-14.md) — 2026-05-14 → superseded by [DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md](DMF%20Cluster-Internal%20Ansible%20Execution%20and%20Catalog%20Helm%20Pivot%20Plan%202026-05-19.md)
 - [DMF Day-0 Inventory and Monitoring Plan](DMF%20Day-0%20Inventory%20and%20Monitoring%20Plan.md) — 2026-05-11 → superseded by [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04.md](DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md)

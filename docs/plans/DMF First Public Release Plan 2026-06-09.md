@@ -1,8 +1,14 @@
 ---
-status: active
+status: executed
 date: 2026-06-09
+executed: 2026-06-11
 ---
 # DMF First Public Release Plan
+> **✅ EXECUTED (adjudicated 2026-06-11, refs issue #32 WP5):** all workstreams
+> delivered — A clean-history imports (8 component repos public + CI-green,
+> 2026-06-10), B dmf-env scrub, C ADR digests, D GitHub-first governance +
+> DCO (ADR-0041), E1 PR-gate CI; umbrella published 2026-06-11 (entrance plan,
+> issue #3). Remainder spun out: **E2 release automation = issue #6**.
 
 **Date:** 2026-06-09 · **Status:** Approved (planning only — no release work executed)
 **Author:** umbrella session (claude)

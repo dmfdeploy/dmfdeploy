@@ -1,8 +1,15 @@
 ---
-status: active
+status: executed
 date: 2026-05-19
+executed: 2026-06-11
 ---
 # DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan
+> **✅ EXECUTED (adjudicated 2026-06-11, refs issue #32 WP5):** Lane A + Lane B
+> landed (2026-05-23, ADR-0025 Accepted) and the catalog control chain was
+> proven live (Move 1, 2026-06-04). Lane C's runner-pod foundation (050 +
+> role) shipped, but the 69x in-cluster transport switch was **consciously
+> dropped** under [architectural-commitments-v1](../decisions/architectural-commitments-v1.md)
+> (dmf-init drives bootstrap; rebuild-only lifecycle). Revival needs a new issue.
 > Supersedes: [DMF In-Cluster Ansible Runner Pod Implementation Plan 2026-05-14.md](DMF%20In-Cluster%20Ansible%20Runner%20Pod%20Implementation%20Plan%202026-05-14.md), [Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md](Move%201%20Gate%202%20-%20Pivot%20to%20Path%20A%20for%20Catalog%20Launchers%202026-05-06.md)
 
 **Date:** 2026-05-19

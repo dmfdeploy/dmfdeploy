@@ -197,7 +197,7 @@ else
     echo "  ✓ ADR file↔INDEX consistent"
 fi
 
-# ── WARNINGS (never affect exit code) ────────────────────────────────────────
+# ── WARNINGS + promoted gates (W2 fails since 2026-06-11) ───────────────────
 
 echo ""
 echo "── warnings"
@@ -233,7 +233,10 @@ while IFS= read -r -d '' filepath; do
     done < <(grep -oE '\]\([^)]+\)' "$filepath" 2>/dev/null | sed -E 's/^\]\(//; s/\)$//' || true)
 done < <(git -c core.quotepath=false ls-files -z 'docs/plans/*.md' 2>/dev/null)
 
-# W2: Active plans without tracking_issue
+# W2 → HARD FAILURE since 2026-06-11 (working-model plan WP5, issue #32):
+# every active plan must carry a tracking_issue. The 2026-06-11 adjudication
+# cleared the backlog of grandfathered ones; from here this is the gate that
+# keeps liveness (issues) and design state (frontmatter) from splitting.
 echo "  · checking active plans without tracking_issue ..."
 while IFS=$'\t' read -r level filepath status _date _exec _sb; do
     if [ "$level" = "OK" ] && [ "$status" = "active" ]; then
@@ -241,8 +244,8 @@ while IFS=$'\t' read -r level filepath status _date _exec _sb; do
         head_content="$(head -20 "$filepath" 2>/dev/null)" || continue
         fm_block="$(echo "$head_content" | sed -n '2,/^---$/p' | sed '$d')" || true
         if ! echo "$fm_block" | grep -q '^tracking_issue:'; then
-            echo "    ⚠ ${filepath}: active but no tracking_issue"
-            warn_count=$((warn_count + 1))
+            echo "    ✗ ${filepath}: active but no tracking_issue (open an issue and add the URL to the frontmatter)" >&2
+            FAILED=$((FAILED + 1))
         fi
     fi
 done < <(parse_all_plans)
