@@ -8,10 +8,9 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (9)
+## Active (8)
 
 - [DMF Init Installer UI Redesign Plan 2026-06-10](DMF%20Init%20Installer%20UI%20Redesign%20Plan%202026-06-10.md) — 2026-06-10
-- [DMF Umbrella Public Entrance and GitHub Working Model Plan 2026-06-10](DMF%20Umbrella%20Public%20Entrance%20and%20GitHub%20Working%20Model%20Plan%202026-06-10.md) — 2026-06-10
 - [DMF First Public Release Plan 2026-06-09](DMF%20First%20Public%20Release%20Plan%202026-06-09.md) — 2026-06-09
 - [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
 - [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04](DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md) — 2026-06-04
@@ -31,12 +30,13 @@ shelved, kept for provenance.
 - [DMF Pre-Release Compliance Readiness Plan 2026-05-11](DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md) — 2026-05-11
 - [DMF Tier A Phase Execution Plan 2026-05-11](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — 2026-05-11
 
-## Executed (66)
+## Executed (67)
 
 - [DMF Doc-Hygiene Judgment-Tier Exec Spec 2026-06-10](DMF%20Doc-Hygiene%20Judgment-Tier%20Exec%20Spec%202026-06-10.md) — 2026-06-10 (executed 2026-06-10)
 - [DMF Doc-Hygiene PR-Submission Spec 2026-06-10](DMF%20Doc-Hygiene%20PR-Submission%20Spec%202026-06-10.md) — 2026-06-10 (executed 2026-06-10)
 - [DMF LAN Forgejo Archive and GitHub-Mirror Plan 2026-06-10](DMF%20LAN%20Forgejo%20Archive%20and%20GitHub-Mirror%20Plan%202026-06-10.md) — 2026-06-10 (executed 2026-06-10)
 - [DMF Public Repo Doc-Hygiene Cleanup Plan 2026-06-10](DMF%20Public%20Repo%20Doc-Hygiene%20Cleanup%20Plan%202026-06-10.md) — 2026-06-10 (executed 2026-06-10)
+- [DMF Umbrella Public Entrance and GitHub Working Model Plan 2026-06-10](DMF%20Umbrella%20Public%20Entrance%20and%20GitHub%20Working%20Model%20Plan%202026-06-10.md) — 2026-06-10 (executed 2026-06-11)
 - [wp1-triage-table-2026-06](wp1-triage-table-2026-06.md) — 2026-06-10 (executed 2026-06-10)
 - [wp9-todos-issue-triage-2026-06](wp9-todos-issue-triage-2026-06.md) — 2026-06-10 (executed 2026-06-10)
 - [DMF Workstream A — CI Recovery Fix Spec 2026-06-09](DMF%20Workstream%20A%20%E2%80%94%20CI%20Recovery%20Fix%20Spec%202026-06-09.md) — 2026-06-09 (executed 2026-06-10)

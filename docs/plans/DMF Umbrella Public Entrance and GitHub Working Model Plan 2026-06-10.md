@@ -1,12 +1,13 @@
 ---
-status: active
+status: executed
 date: 2026-06-10
+executed: 2026-06-11
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/3
 ---
 
 # DMF Umbrella Public Entrance & GitHub Working Model Plan 2026-06-10
 
-**Status:** 🚧 ACTIVE — approved 2026-06-10; broken into work packages (WP1–WP17, §"Work packages") for agent pickup. No WP has started unless marked.
+**Status:** ✅ EXECUTED 2026-06-11 — all 17 work packages complete; the umbrella was published as `dmfdeploy/dmfdeploy` v0.1.0 (orphan import, repo + org Project #1 public). This doc is the record of how.
 
 > This plan doc carries the new machine-readable frontmatter (see WP2) as its first
 > production use. Reviewed adversarially by qwen-left and codex on 2026-06-10; all
