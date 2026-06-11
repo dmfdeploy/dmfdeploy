@@ -1,16 +1,23 @@
 ---
-status: active
+status: executed
 date: 2026-06-10
+executed: 2026-06-11
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/4
 ---
 # dmf-init UI redesign — installer-style flow
 
-> **Status (2026-06-10):** Pass 1 implemented, verified (pytest 42 pass, tsc/build
-> green, screenshots OK) and **field-validated by a full operator Lima E2E run**.
-> Committed on dmf-init branch `<handle>/installer-ui-redesign` (3 signed-off
-> conventional commits; PR against `main` pending). **Pass 2 — console installer
-> skin** is specced at the bottom; backend deltas (workstation pause merge +
-> package endpoint) go first, then the skin/layout pass.
+> **Status:** ✅ EXECUTED 2026-06-11 — both passes shipped as **dmf-init
+> v0.2.0** (tagged). Pass 1 landed via dmf-init PR #3; pass 2 landed as
+> dmf-init PRs #4 (workstation pause merge), #5 (recovery-package download
+> with safe-to-delete gating) and #7 (console installer skin + Configure
+> wizard + install splash; supersedes #6). Field-validated by three full
+> operator Lima E2E runs, the last end-to-end through package download and
+> the optional Validate (doctor) run. Operator field feedback from the final
+> run was folded in before landing: doctor auto-starts on Validate, and the
+> long playbook steps show an honest within-step Ansible task ticker +
+> per-step elapsed time. That run also surfaced a doctor false-negative in
+> dmf-env (BSD-first `stat` probe poisons the perms capture under GNU
+> coreutils) — fixed via dmf-env PR #1.
 
 ## Context
 
