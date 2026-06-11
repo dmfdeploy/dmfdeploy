@@ -1,0 +1,32 @@
+# DMF Agentic Harness — Issues Mirror
+#
+# ⚠️ Status: HISTORICAL (mothballed 2026-06-04). The reconciler loop is retired;
+# the harness never opened any issues. Live backlog is TODOS.md. Preserved for
+# provenance.
+#
+# Local thin mirror of agent-opened Forgejo issues. Reconciled by
+# bin/agentic/postflight.sh against `bin/agentic/issue-list.sh --json` on
+# every tick. Drift between this file and Forgejo halts the loop (someone
+# edited issues outside the harness — operator decides whether to accept
+# their edits or revert).
+#
+# Schema:
+#   - id:          Forgejo issue number (integer)
+#     title:       verbatim issue title
+#     type:        workaround | feature | bug | decision-requested
+#     scope:       list of `<scope-label>` values (e.g. [dmf-cms, dmf-infra])
+#     pickup:      ready | blocked | in-progress | deferred
+#     effort:      S | M | L
+#     opened_at:   ISO-timestamp at creation
+#     opened_by:   "agentic-harness" (always — workers don't open issues
+#                   directly per Constitution Rule 11)
+#     backlog_link: optional backlog.yaml id this issue relates to
+#     body_sha256: SHA-256 of the issue body at last sync (used by postflight
+#                   to detect external edits)
+#
+# Canonical source: Forgejo at <forgejo-host> with label `agent-opened`.
+# Source spec:      docs/plans/DMF Agentic Harness Plan 2026-05-11.md §Layer 4.
+#
+# ─── Entries ─────────────────────────────────────────────────────────────────
+
+# (none yet — harness has not opened any issues)

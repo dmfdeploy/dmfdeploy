@@ -1,0 +1,1155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions
+  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  id="Definitions_DMFBootstrap"
+  targetNamespace="http://dmfdeploy.dev/processes"
+  exporter="Camunda Modeler"
+  exporterVersion="5.x">
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       DMF Platform Bootstrap Process
+       Canonical BPMN 2.0 model of fresh cluster bring-up.
+       ISO/IEC 19510-compliant.
+       Source: docs/processes/diagrams/dmf-bootstrap.bpmn
+       See: docs/processes/dmf-bootstrap.md
+  ════════════════════════════════════════════════════════════════ -->
+
+  <!-- ── Operator pool ──────────────────────────────────────────── -->
+  <bpmn:collaboration id="Collab_DMFBootstrap">
+    <bpmn:participant id="Pool_Operator" name="Operator" processRef="Process_Operator" />
+    <bpmn:participant id="Pool_Terraform" name="Terraform / dmf-env" processRef="Process_Terraform" />
+    <bpmn:participant id="Pool_Ansible" name="Ansible / dmf-infra" processRef="Process_Ansible" />
+    <bpmn:participant id="Pool_OpenBao" name="OpenBao" processRef="Process_OpenBao" />
+    <bpmn:participant id="Pool_DMFCMS" name="dmf-cms" processRef="Process_DMFCMS" />
+
+    <!-- Message flows: Operator → Terraform -->
+    <bpmn:messageFlow id="MF_TriggerTF" sourceRef="Task_RunTerraform" targetRef="Task_ProvisionInfra" />
+    <!-- Message flows: Operator → Ansible pre-seed -->
+    <bpmn:messageFlow id="MF_TriggerPreSeed" sourceRef="Task_RunPreSeed" targetRef="Task_PreSeedProvision" />
+    <!-- Message flows: Operator seeds bundle into OpenBao -->
+    <bpmn:messageFlow id="MF_SeedBao" sourceRef="Task_SeedBundle" targetRef="Task_ReceiveSeed" />
+    <!-- Message flows: Operator → Ansible post-seed -->
+    <bpmn:messageFlow id="MF_TriggerPostSeed" sourceRef="Task_RunPostSeed" targetRef="Task_PostSeedProvision" />
+    <!-- Message flows: Operator → Ansible configure -->
+    <bpmn:messageFlow id="MF_TriggerConfigure" sourceRef="Task_RunConfigure" targetRef="Task_ConfigureApps" />
+    <!-- Message flows: Operator → Ansible verify -->
+    <bpmn:messageFlow id="MF_TriggerVerify" sourceRef="Task_RunVerify" targetRef="Task_VerifyBootstrap" />
+    <!-- Message flows: dmf-cms reachable signal back to Operator -->
+    <bpmn:messageFlow id="MF_CMSReady" sourceRef="Task_ExposeCMS" targetRef="Catch_CMSReachable" />
+  </bpmn:collaboration>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       OPERATOR PROCESS
+  ════════════════════════════════════════════════════════════════ -->
+  <bpmn:process id="Process_Operator" name="Operator" isExecutable="false">
+
+    <bpmn:startEvent id="Start_Operator" name="Cloud credentials and empty target environment available">
+      <bpmn:outgoing>Flow_Op01</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- Phase 0: Initialise pre-Bao bootstrap bundle -->
+    <bpmn:userTask id="Task_InitBundle" name="Initialise pre-Bao bootstrap bundle">
+      <bpmn:documentation>
+        Operator runs: dmf-env/bin/bootstrap-secrets.sh init &lt;env&gt;
+        Collects provider tokens, generates k3s token and shared bootstrap admin identity.
+        Encrypts bundle to ${DMF_BOOTSTRAP_BUNDLE_DIR}/&lt;env&gt;.sops.yaml outside any git tree.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Op01</bpmn:incoming>
+      <bpmn:outgoing>Flow_Op02</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_DoctorBundle" name="Validate bootstrap bundle with doctor check">
+      <bpmn:documentation>
+        Operator runs: dmf-env/bin/bootstrap-secrets.sh doctor &lt;env&gt;
+        Verifies all required secrets are present and the age key can decrypt the bundle.
+        Fails fast before touching the cluster.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Op02</bpmn:incoming>
+      <bpmn:outgoing>Flow_Op03</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_BundleValid" name="Bundle valid?">
+      <bpmn:incoming>Flow_Op03</bpmn:incoming>
+      <bpmn:outgoing>Flow_Op04_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Op04_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="End_BundleInvalid" name="Bootstrap aborted — bundle invalid">
+      <bpmn:documentation>Operator must fix the bundle and restart from the init step.</bpmn:documentation>
+      <bpmn:incoming>Flow_Op04_No</bpmn:incoming>
+      <bpmn:terminateEventDefinition />
+    </bpmn:endEvent>
+
+    <!-- Phase 1: Provision cloud infrastructure via Terraform -->
+    <bpmn:userTask id="Task_RunTerraform" name="Apply Terraform Layer-1 infrastructure">
+      <bpmn:documentation>
+        Operator runs: dmf-env/bin/tf-apply.sh &lt;env&gt;
+        Provisions Hetzner VMs, cloud-init with k3s-admin pubkey and AWX control-node pubkey.
+        Outputs: node IPs, load-balancer IP.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Op04_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_Op05</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_TFApplied" name="Terraform apply successful?">
+      <bpmn:incoming>Flow_Op05</bpmn:incoming>
+      <bpmn:outgoing>Flow_Op06_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Op06_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="End_TFFailed" name="Bootstrap aborted — infrastructure provisioning failed">
+      <bpmn:incoming>Flow_Op06_No</bpmn:incoming>
+      <bpmn:terminateEventDefinition />
+    </bpmn:endEvent>
+
+    <!-- Phase 2: Pre-seed Ansible provision -->
+    <bpmn:userTask id="Task_RunPreSeed" name="Run pre-seed provision playbook">
+      <bpmn:documentation>
+        Operator runs: dmf-env/bin/run-playbook.sh &lt;env&gt; bootstrap-provision-pre-seed.yml
+        Installs: host platform, k3s cluster, ingress, cert-manager, Tailscale, Longhorn,
+        Zot (htpasswd only), OpenBao, ESO, network policies.
+        Must complete before seed-bao.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Op06_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_Op07</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_PreSeedOK" name="Pre-seed provision succeeded?">
+      <bpmn:incoming>Flow_Op07</bpmn:incoming>
+      <bpmn:outgoing>Flow_Op08_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Op08_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="End_PreSeedFailed" name="Bootstrap aborted — pre-seed provision failed">
+      <bpmn:incoming>Flow_Op08_No</bpmn:incoming>
+      <bpmn:terminateEventDefinition />
+    </bpmn:endEvent>
+
+    <!-- Phase 3: Manual OpenBao init and unseal -->
+    <bpmn:userTask id="Task_InitOpenBao" name="Initialise and unseal OpenBao">
+      <bpmn:documentation>
+        Operator runs: bao operator init (via SSH to control node).
+        Distributes 5 Shamir shares per ADR-0009.
+        Runs dmf-env/bin/unseal-openbao.sh to unseal with shares 1+2+3.
+        Policy bootstrap is performed by the openbao Ansible role during pre-seed.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Op08_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_Op09</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_BaoUnsealed" name="OpenBao unsealed?">
+      <bpmn:incoming>Flow_Op09</bpmn:incoming>
+      <bpmn:outgoing>Flow_Op10_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Op10_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="End_UnsealFailed" name="Bootstrap blocked — unseal quorum not achieved">
+      <bpmn:documentation>
+        Operator must locate a sufficient quorum of Shamir shares (3 of 5) and retry.
+        See dmf-openbao-unseal skill and ADR-0009.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Op10_No</bpmn:incoming>
+      <bpmn:terminateEventDefinition />
+    </bpmn:endEvent>
+
+    <!-- Phase 4: Seed bootstrap bundle into OpenBao -->
+    <bpmn:userTask id="Task_SeedBundle" name="Seed bootstrap bundle into OpenBao">
+      <bpmn:documentation>
+        Operator runs: dmf-env/bin/bootstrap-secrets.sh seed-bao &lt;env&gt;
+        Decrypts bundle, writes platform bootstrap paths to OpenBao via SSH to control node.
+        Collision policy: missing → write; same value → no-op; differing platform path → fail.
+        Must complete before post-seed provision.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Op10_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_Op11</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_SeedOK" name="Bundle seeded without collision?">
+      <bpmn:incoming>Flow_Op11</bpmn:incoming>
+      <bpmn:outgoing>Flow_Op12_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Op12_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="End_SeedCollision" name="Bootstrap blocked — seed collision detected">
+      <bpmn:documentation>
+        A differing value exists in OpenBao for a platform path.
+        Operator must run explicit rotate operation or resolve the conflict manually.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Op12_No</bpmn:incoming>
+      <bpmn:terminateEventDefinition />
+    </bpmn:endEvent>
+
+    <!-- Phase 5: Post-seed Ansible provision -->
+    <bpmn:userTask id="Task_RunPostSeed" name="Run post-seed provision playbook">
+      <bpmn:documentation>
+        Operator runs: dmf-env/bin/run-playbook.sh &lt;env&gt; bootstrap-provision-post-seed.yml
+        Installs: Prometheus, Loki, Promtail, Grafana, Authentik, NetBox, Forgejo, AWX,
+        DMF Console — all in vanilla/local form.
+        Playbook asserts secret/platform/bootstrap_admin and secret/platform/k3s/cluster exist first.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Op12_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_Op13</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_PostSeedOK" name="Post-seed provision succeeded?">
+      <bpmn:incoming>Flow_Op13</bpmn:incoming>
+      <bpmn:outgoing>Flow_Op14_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Op14_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="End_PostSeedFailed" name="Bootstrap aborted — post-seed provision failed">
+      <bpmn:incoming>Flow_Op14_No</bpmn:incoming>
+      <bpmn:terminateEventDefinition />
+    </bpmn:endEvent>
+
+    <!-- Phase 6: Bootstrap Configure -->
+    <bpmn:userTask id="Task_RunConfigure" name="Run bootstrap configure playbook">
+      <bpmn:documentation>
+        Operator runs: dmf-env/bin/run-playbook.sh &lt;env&gt; bootstrap-configure.yml
+        Wires: Authentik OIDC graph, app identity overlays, NetBox SoT, Forgejo repos,
+        AWX integration, born-inventory, CMS API tokens.
+        Does not launch media workloads.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Op14_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_Op15</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_ConfigureOK" name="Configure succeeded?">
+      <bpmn:incoming>Flow_Op15</bpmn:incoming>
+      <bpmn:outgoing>Flow_Op16_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Op16_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="End_ConfigureFailed" name="Bootstrap aborted — configure failed">
+      <bpmn:incoming>Flow_Op16_No</bpmn:incoming>
+      <bpmn:terminateEventDefinition />
+    </bpmn:endEvent>
+
+    <!-- Phase 7: Bootstrap Verify -->
+    <bpmn:userTask id="Task_RunVerify" name="Run bootstrap verify playbook">
+      <bpmn:documentation>
+        Operator runs: dmf-env/bin/run-playbook.sh &lt;env&gt; bootstrap-verify.yml
+        Checks: k3s nodes Ready, CoreDNS, ingress reachability, cert-manager, Longhorn,
+        OpenBao unsealed, ESO ClusterSecretStore Ready, Authentik break-glass,
+        monitoring stack deployed, OIDC operator identity has admin access.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Op16_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_Op17</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_VerifyOK" name="All verification gates pass?">
+      <bpmn:incoming>Flow_Op17</bpmn:incoming>
+      <bpmn:outgoing>Flow_Op18_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Op18_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="End_VerifyFailed" name="Bootstrap incomplete — verification gate failed">
+      <bpmn:incoming>Flow_Op18_No</bpmn:incoming>
+      <bpmn:terminateEventDefinition />
+    </bpmn:endEvent>
+
+    <!-- Wait for dmf-cms reachable signal -->
+    <bpmn:intermediateCatchEvent id="Catch_CMSReachable" name="dmf-cms reachable">
+      <bpmn:incoming>Flow_Op18_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_Op19</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MsgDef_CMSReady" messageRef="Msg_CMSReady" />
+    </bpmn:intermediateCatchEvent>
+
+    <bpmn:endEvent id="End_BootstrapComplete" name="Cluster healthy, OpenBao unsealed, dmf-cms reachable">
+      <bpmn:incoming>Flow_Op19</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Sequence flows: Operator -->
+    <bpmn:sequenceFlow id="Flow_Op01" sourceRef="Start_Operator" targetRef="Task_InitBundle" />
+    <bpmn:sequenceFlow id="Flow_Op02" sourceRef="Task_InitBundle" targetRef="Task_DoctorBundle" />
+    <bpmn:sequenceFlow id="Flow_Op03" sourceRef="Task_DoctorBundle" targetRef="GW_BundleValid" />
+    <bpmn:sequenceFlow id="Flow_Op04_Yes" name="Yes" sourceRef="GW_BundleValid" targetRef="Task_RunTerraform" />
+    <bpmn:sequenceFlow id="Flow_Op04_No" name="No" sourceRef="GW_BundleValid" targetRef="End_BundleInvalid" />
+    <bpmn:sequenceFlow id="Flow_Op05" sourceRef="Task_RunTerraform" targetRef="GW_TFApplied" />
+    <bpmn:sequenceFlow id="Flow_Op06_Yes" name="Yes" sourceRef="GW_TFApplied" targetRef="Task_RunPreSeed" />
+    <bpmn:sequenceFlow id="Flow_Op06_No" name="No" sourceRef="GW_TFApplied" targetRef="End_TFFailed" />
+    <bpmn:sequenceFlow id="Flow_Op07" sourceRef="Task_RunPreSeed" targetRef="GW_PreSeedOK" />
+    <bpmn:sequenceFlow id="Flow_Op08_Yes" name="Yes" sourceRef="GW_PreSeedOK" targetRef="Task_InitOpenBao" />
+    <bpmn:sequenceFlow id="Flow_Op08_No" name="No" sourceRef="GW_PreSeedOK" targetRef="End_PreSeedFailed" />
+    <bpmn:sequenceFlow id="Flow_Op09" sourceRef="Task_InitOpenBao" targetRef="GW_BaoUnsealed" />
+    <bpmn:sequenceFlow id="Flow_Op10_Yes" name="Yes" sourceRef="GW_BaoUnsealed" targetRef="Task_SeedBundle" />
+    <bpmn:sequenceFlow id="Flow_Op10_No" name="No" sourceRef="GW_BaoUnsealed" targetRef="End_UnsealFailed" />
+    <bpmn:sequenceFlow id="Flow_Op11" sourceRef="Task_SeedBundle" targetRef="GW_SeedOK" />
+    <bpmn:sequenceFlow id="Flow_Op12_Yes" name="Yes" sourceRef="GW_SeedOK" targetRef="Task_RunPostSeed" />
+    <bpmn:sequenceFlow id="Flow_Op12_No" name="No" sourceRef="GW_SeedOK" targetRef="End_SeedCollision" />
+    <bpmn:sequenceFlow id="Flow_Op13" sourceRef="Task_RunPostSeed" targetRef="GW_PostSeedOK" />
+    <bpmn:sequenceFlow id="Flow_Op14_Yes" name="Yes" sourceRef="GW_PostSeedOK" targetRef="Task_RunConfigure" />
+    <bpmn:sequenceFlow id="Flow_Op14_No" name="No" sourceRef="GW_PostSeedOK" targetRef="End_PostSeedFailed" />
+    <bpmn:sequenceFlow id="Flow_Op15" sourceRef="Task_RunConfigure" targetRef="GW_ConfigureOK" />
+    <bpmn:sequenceFlow id="Flow_Op16_Yes" name="Yes" sourceRef="GW_ConfigureOK" targetRef="Task_RunVerify" />
+    <bpmn:sequenceFlow id="Flow_Op16_No" name="No" sourceRef="GW_ConfigureOK" targetRef="End_ConfigureFailed" />
+    <bpmn:sequenceFlow id="Flow_Op17" sourceRef="Task_RunVerify" targetRef="GW_VerifyOK" />
+    <bpmn:sequenceFlow id="Flow_Op18_Yes" name="Yes" sourceRef="GW_VerifyOK" targetRef="Catch_CMSReachable" />
+    <bpmn:sequenceFlow id="Flow_Op18_No" name="No" sourceRef="GW_VerifyOK" targetRef="End_VerifyFailed" />
+    <bpmn:sequenceFlow id="Flow_Op19" sourceRef="Catch_CMSReachable" targetRef="End_BootstrapComplete" />
+  </bpmn:process>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       TERRAFORM / dmf-env PROCESS
+  ════════════════════════════════════════════════════════════════ -->
+  <bpmn:process id="Process_Terraform" name="Terraform / dmf-env" isExecutable="false">
+
+    <bpmn:startEvent id="Start_TF" name="Terraform apply triggered">
+      <bpmn:outgoing>Flow_TF01</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MsgDef_TFStart" messageRef="Msg_TriggerTF" />
+    </bpmn:startEvent>
+
+    <bpmn:serviceTask id="Task_ProvisionInfra" name="Provision cloud VMs and network">
+      <bpmn:documentation>
+        Hetzner CAX21 ARM64 nodes provisioned via OpenTofu.
+        cloud-init injects: k3s-admin pubkey and AWX control-node pubkey (ADR-0016).
+        Outputs: control node IP, worker node IPs, load-balancer IP.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_TF01</bpmn:incoming>
+      <bpmn:outgoing>Flow_TF02</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:endEvent id="End_TF" name="Infrastructure provisioned">
+      <bpmn:incoming>Flow_TF02</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="Flow_TF01" sourceRef="Start_TF" targetRef="Task_ProvisionInfra" />
+    <bpmn:sequenceFlow id="Flow_TF02" sourceRef="Task_ProvisionInfra" targetRef="End_TF" />
+  </bpmn:process>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ANSIBLE / dmf-infra PROCESS
+  ════════════════════════════════════════════════════════════════ -->
+  <bpmn:process id="Process_Ansible" name="Ansible / dmf-infra" isExecutable="false">
+
+    <!-- Pre-seed provision -->
+    <bpmn:startEvent id="Start_Ansible_PreSeed" name="Pre-seed provision triggered">
+      <bpmn:outgoing>Flow_AN01</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MsgDef_ANPreSeed" messageRef="Msg_TriggerPreSeed" />
+    </bpmn:startEvent>
+
+    <bpmn:serviceTask id="Task_PreSeedProvision" name="Execute pre-seed provision">
+      <bpmn:documentation>
+        bootstrap-provision-pre-seed.yml via run-playbook.sh.
+        Phases: host platform (baseline + harden) → k3s cluster → ingress (public + private)
+        → cert-manager → Tailscale → Longhorn → Zot (htpasswd only)
+        → OpenBao install + init → ESO + ClusterSecretStore → network policies.
+        No Layer 6 app install. No app-admin-facts calls.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_AN01</bpmn:incoming>
+      <bpmn:outgoing>Flow_AN02</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- Post-seed provision -->
+    <bpmn:intermediateCatchEvent id="Catch_PostSeedTrigger" name="Post-seed provision triggered">
+      <bpmn:incoming>Flow_AN02</bpmn:incoming>
+      <bpmn:outgoing>Flow_AN03</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MsgDef_ANPostSeed" messageRef="Msg_TriggerPostSeed" />
+    </bpmn:intermediateCatchEvent>
+
+    <bpmn:serviceTask id="Task_AssertSecretsExist" name="Assert platform secrets exist in OpenBao">
+      <bpmn:documentation>
+        Asserts secret/platform/bootstrap_admin and secret/platform/k3s/cluster exist.
+        Fails the playbook if absent — prevents accidental first-run use of lifecycle-provision.yml.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_AN03</bpmn:incoming>
+      <bpmn:outgoing>Flow_AN04</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="Task_PostSeedProvision" name="Install Layer 6 applications in vanilla form">
+      <bpmn:documentation>
+        bootstrap-provision-post-seed.yml via run-playbook.sh.
+        Installs: Prometheus, Loki, Promtail, Grafana, Authentik, NetBox, Forgejo, AWX, DMF Console.
+        All apps receive shared bootstrap admin identity from OpenBao.
+        No cross-app wiring.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_AN04</bpmn:incoming>
+      <bpmn:outgoing>Flow_AN05</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- Bootstrap Configure -->
+    <bpmn:intermediateCatchEvent id="Catch_ConfigureTrigger" name="Configure triggered">
+      <bpmn:incoming>Flow_AN05</bpmn:incoming>
+      <bpmn:outgoing>Flow_AN06</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MsgDef_ANConfigure" messageRef="Msg_TriggerConfigure" />
+    </bpmn:intermediateCatchEvent>
+
+    <bpmn:serviceTask id="Task_ConfigureApps" name="Wire cross-app relationships">
+      <bpmn:documentation>
+        bootstrap-configure.yml via run-playbook.sh.
+        Configures: Authentik OIDC graph, app identity overlays (Zot, Grafana, NetBox,
+        Forgejo, AWX, DMF Console), NetBox SoT, Forgejo service repos, AWX SCM projects
+        and job templates, born-inventory registration, CMS API tokens.
+        Does not launch media workloads.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_AN06</bpmn:incoming>
+      <bpmn:outgoing>Flow_AN07</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- Bootstrap Verify -->
+    <bpmn:intermediateCatchEvent id="Catch_VerifyTrigger" name="Verify triggered">
+      <bpmn:incoming>Flow_AN07</bpmn:incoming>
+      <bpmn:outgoing>Flow_AN08</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MsgDef_ANVerify" messageRef="Msg_TriggerVerify" />
+    </bpmn:intermediateCatchEvent>
+
+    <bpmn:serviceTask id="Task_VerifyBootstrap" name="Execute bootstrap verification gates">
+      <bpmn:documentation>
+        bootstrap-verify.yml via run-playbook.sh.
+        Gates: k3s nodes Ready, CoreDNS, ingress, cert-manager, Longhorn, Zot auth,
+        OpenBao unsealed and reachable, ESO ClusterSecretStore Ready,
+        Authentik break-glass login, monitoring stack, OIDC admin identity.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_AN08</bpmn:incoming>
+      <bpmn:outgoing>Flow_AN09</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:endEvent id="End_Ansible" name="Bootstrap playbooks complete">
+      <bpmn:incoming>Flow_AN09</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="Flow_AN01" sourceRef="Start_Ansible_PreSeed" targetRef="Task_PreSeedProvision" />
+    <bpmn:sequenceFlow id="Flow_AN02" sourceRef="Task_PreSeedProvision" targetRef="Catch_PostSeedTrigger" />
+    <bpmn:sequenceFlow id="Flow_AN03" sourceRef="Catch_PostSeedTrigger" targetRef="Task_AssertSecretsExist" />
+    <bpmn:sequenceFlow id="Flow_AN04" sourceRef="Task_AssertSecretsExist" targetRef="Task_PostSeedProvision" />
+    <bpmn:sequenceFlow id="Flow_AN05" sourceRef="Task_PostSeedProvision" targetRef="Catch_ConfigureTrigger" />
+    <bpmn:sequenceFlow id="Flow_AN06" sourceRef="Catch_ConfigureTrigger" targetRef="Task_ConfigureApps" />
+    <bpmn:sequenceFlow id="Flow_AN07" sourceRef="Task_ConfigureApps" targetRef="Catch_VerifyTrigger" />
+    <bpmn:sequenceFlow id="Flow_AN08" sourceRef="Catch_VerifyTrigger" targetRef="Task_VerifyBootstrap" />
+    <bpmn:sequenceFlow id="Flow_AN09" sourceRef="Task_VerifyBootstrap" targetRef="End_Ansible" />
+  </bpmn:process>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       OPENBAO PROCESS
+  ════════════════════════════════════════════════════════════════ -->
+  <bpmn:process id="Process_OpenBao" name="OpenBao" isExecutable="false">
+
+    <bpmn:startEvent id="Start_Bao" name="Seed bundle received">
+      <bpmn:outgoing>Flow_Bao01</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MsgDef_BaoSeed" messageRef="Msg_SeedBao" />
+    </bpmn:startEvent>
+
+    <bpmn:serviceTask id="Task_ReceiveSeed" name="Write platform secrets to KV store">
+      <bpmn:documentation>
+        Receives seed via stdin transport through SSH to control node (ADR-0007 compliant).
+        Writes: secret/platform/bootstrap_admin, secret/platform/k3s/cluster,
+        provider paths (hetzner, cloudflare, tailscale, notifications),
+        app-local admin compatibility copies (same value as bootstrap_admin).
+        Collision policy enforced by bootstrap-secrets.sh.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Bao01</bpmn:incoming>
+      <bpmn:outgoing>Flow_Bao02</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:endEvent id="End_Bao" name="OpenBao seeded">
+      <bpmn:incoming>Flow_Bao02</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="Flow_Bao01" sourceRef="Start_Bao" targetRef="Task_ReceiveSeed" />
+    <bpmn:sequenceFlow id="Flow_Bao02" sourceRef="Task_ReceiveSeed" targetRef="End_Bao" />
+  </bpmn:process>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       DMF-CMS PROCESS
+  ════════════════════════════════════════════════════════════════ -->
+  <bpmn:process id="Process_DMFCMS" name="dmf-cms" isExecutable="false">
+
+    <bpmn:startEvent id="Start_CMS" name="AWX integration and CMS API tokens wired">
+      <bpmn:outgoing>Flow_CMS01</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:serviceTask id="Task_ExposeCMS" name="Expose dmf-cms via ingress">
+      <bpmn:documentation>
+        dmf-cms deployment is ready and reachable through the configured ingress hostname.
+        Authentik OIDC provider for dmf-cms is wired during bootstrap-configure.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_CMS01</bpmn:incoming>
+      <bpmn:outgoing>Flow_CMS02</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:endEvent id="End_CMS" name="dmf-cms reachable and OIDC-authenticated">
+      <bpmn:incoming>Flow_CMS02</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="Flow_CMS01" sourceRef="Start_CMS" targetRef="Task_ExposeCMS" />
+    <bpmn:sequenceFlow id="Flow_CMS02" sourceRef="Task_ExposeCMS" targetRef="End_CMS" />
+  </bpmn:process>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       MESSAGES
+  ════════════════════════════════════════════════════════════════ -->
+  <bpmn:message id="Msg_TriggerTF" name="TriggerTerraformApply" />
+  <bpmn:message id="Msg_TriggerPreSeed" name="TriggerPreSeedProvision" />
+  <bpmn:message id="Msg_SeedBao" name="SeedBootstrapBundle" />
+  <bpmn:message id="Msg_TriggerPostSeed" name="TriggerPostSeedProvision" />
+  <bpmn:message id="Msg_TriggerConfigure" name="TriggerBootstrapConfigure" />
+  <bpmn:message id="Msg_TriggerVerify" name="TriggerBootstrapVerify" />
+  <bpmn:message id="Msg_CMSReady" name="CMSReachable" />
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       BPMN DI — Diagram Interchange
+       Left-to-right layout. Pools stacked vertically.
+       Operator pool: y=20, height=820 (tallest — drives all phases)
+       Terraform pool: y=860, height=120
+       Ansible pool: y=1000, height=170
+       OpenBao pool: y=1190, height=120
+       dmf-cms pool: y=1330, height=120
+  ════════════════════════════════════════════════════════════════ -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collab_DMFBootstrap">
+
+      <!-- ── Operator pool ──────────────────────────────────────── -->
+      <bpmndi:BPMNShape id="Pool_Operator_di" bpmnElement="Pool_Operator" isHorizontal="true">
+        <dc:Bounds x="30" y="20" width="2560" height="820" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="30" y="390" width="20" height="80" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Start -->
+      <bpmndi:BPMNShape id="Start_Operator_di" bpmnElement="Start_Operator">
+        <dc:Bounds x="82" y="412" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="56" y="455" width="88" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Init bundle -->
+      <bpmndi:BPMNShape id="Task_InitBundle_di" bpmnElement="Task_InitBundle">
+        <dc:Bounds x="170" y="390" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Doctor check -->
+      <bpmndi:BPMNShape id="Task_DoctorBundle_di" bpmnElement="Task_DoctorBundle">
+        <dc:Bounds x="340" y="390" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- GW: Bundle valid? -->
+      <bpmndi:BPMNShape id="GW_BundleValid_di" bpmnElement="GW_BundleValid" isMarkerVisible="true">
+        <dc:Bounds x="510" y="405" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="495" y="462" width="80" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- End: Bundle invalid -->
+      <bpmndi:BPMNShape id="End_BundleInvalid_di" bpmnElement="End_BundleInvalid">
+        <dc:Bounds x="512" y="290" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="483" y="260" width="94" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Run Terraform -->
+      <bpmndi:BPMNShape id="Task_RunTerraform_di" bpmnElement="Task_RunTerraform">
+        <dc:Bounds x="620" y="390" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- GW: TF applied? -->
+      <bpmndi:BPMNShape id="GW_TFApplied_di" bpmnElement="GW_TFApplied" isMarkerVisible="true">
+        <dc:Bounds x="790" y="405" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="770" y="462" width="90" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- End: TF failed -->
+      <bpmndi:BPMNShape id="End_TFFailed_di" bpmnElement="End_TFFailed">
+        <dc:Bounds x="792" y="290" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="760" y="260" width="100" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Run pre-seed -->
+      <bpmndi:BPMNShape id="Task_RunPreSeed_di" bpmnElement="Task_RunPreSeed">
+        <dc:Bounds x="900" y="390" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- GW: Pre-seed OK? -->
+      <bpmndi:BPMNShape id="GW_PreSeedOK_di" bpmnElement="GW_PreSeedOK" isMarkerVisible="true">
+        <dc:Bounds x="1070" y="405" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1048" y="462" width="94" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- End: Pre-seed failed -->
+      <bpmndi:BPMNShape id="End_PreSeedFailed_di" bpmnElement="End_PreSeedFailed">
+        <dc:Bounds x="1072" y="290" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1040" y="260" width="100" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Init OpenBao -->
+      <bpmndi:BPMNShape id="Task_InitOpenBao_di" bpmnElement="Task_InitOpenBao">
+        <dc:Bounds x="1180" y="390" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- GW: Bao unsealed? -->
+      <bpmndi:BPMNShape id="GW_BaoUnsealed_di" bpmnElement="GW_BaoUnsealed" isMarkerVisible="true">
+        <dc:Bounds x="1350" y="405" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1328" y="462" width="94" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- End: Unseal failed -->
+      <bpmndi:BPMNShape id="End_UnsealFailed_di" bpmnElement="End_UnsealFailed">
+        <dc:Bounds x="1352" y="290" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1316" y="260" width="108" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Seed bundle -->
+      <bpmndi:BPMNShape id="Task_SeedBundle_di" bpmnElement="Task_SeedBundle">
+        <dc:Bounds x="1460" y="390" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- GW: Seed OK? -->
+      <bpmndi:BPMNShape id="GW_SeedOK_di" bpmnElement="GW_SeedOK" isMarkerVisible="true">
+        <dc:Bounds x="1630" y="405" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1605" y="462" width="100" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- End: Seed collision -->
+      <bpmndi:BPMNShape id="End_SeedCollision_di" bpmnElement="End_SeedCollision">
+        <dc:Bounds x="1632" y="290" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1596" y="260" width="108" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Run post-seed -->
+      <bpmndi:BPMNShape id="Task_RunPostSeed_di" bpmnElement="Task_RunPostSeed">
+        <dc:Bounds x="1740" y="390" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- GW: Post-seed OK? -->
+      <bpmndi:BPMNShape id="GW_PostSeedOK_di" bpmnElement="GW_PostSeedOK" isMarkerVisible="true">
+        <dc:Bounds x="1910" y="405" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1886" y="462" width="98" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- End: Post-seed failed -->
+      <bpmndi:BPMNShape id="End_PostSeedFailed_di" bpmnElement="End_PostSeedFailed">
+        <dc:Bounds x="1912" y="290" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1876" y="260" width="108" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Run configure -->
+      <bpmndi:BPMNShape id="Task_RunConfigure_di" bpmnElement="Task_RunConfigure">
+        <dc:Bounds x="2020" y="390" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- GW: Configure OK? -->
+      <bpmndi:BPMNShape id="GW_ConfigureOK_di" bpmnElement="GW_ConfigureOK" isMarkerVisible="true">
+        <dc:Bounds x="2190" y="405" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2168" y="462" width="94" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- End: Configure failed -->
+      <bpmndi:BPMNShape id="End_ConfigureFailed_di" bpmnElement="End_ConfigureFailed">
+        <dc:Bounds x="2192" y="290" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2156" y="260" width="108" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Run verify -->
+      <bpmndi:BPMNShape id="Task_RunVerify_di" bpmnElement="Task_RunVerify">
+        <dc:Bounds x="2300" y="390" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- GW: Verify OK? -->
+      <bpmndi:BPMNShape id="GW_VerifyOK_di" bpmnElement="GW_VerifyOK" isMarkerVisible="true">
+        <dc:Bounds x="2470" y="405" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2447" y="462" width="96" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- End: Verify failed -->
+      <bpmndi:BPMNShape id="End_VerifyFailed_di" bpmnElement="End_VerifyFailed">
+        <dc:Bounds x="2472" y="290" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2436" y="260" width="108" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Catch: CMS reachable -->
+      <bpmndi:BPMNShape id="Catch_CMSReachable_di" bpmnElement="Catch_CMSReachable">
+        <dc:Bounds x="2472" y="552" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2450" y="595" width="80" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- End: Bootstrap complete -->
+      <bpmndi:BPMNShape id="End_BootstrapComplete_di" bpmnElement="End_BootstrapComplete">
+        <dc:Bounds x="2472" y="652" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2440" y="695" width="100" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- ── Operator sequence flow edges ──────────────────────── -->
+      <bpmndi:BPMNEdge id="Flow_Op01_di" bpmnElement="Flow_Op01">
+        <di:waypoint x="118" y="430" />
+        <di:waypoint x="170" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op02_di" bpmnElement="Flow_Op02">
+        <di:waypoint x="290" y="430" />
+        <di:waypoint x="340" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op03_di" bpmnElement="Flow_Op03">
+        <di:waypoint x="460" y="430" />
+        <di:waypoint x="510" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op04_Yes_di" bpmnElement="Flow_Op04_Yes">
+        <di:waypoint x="560" y="430" />
+        <di:waypoint x="620" y="430" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="580" y="412" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op04_No_di" bpmnElement="Flow_Op04_No">
+        <di:waypoint x="535" y="405" />
+        <di:waypoint x="535" y="308" />
+        <di:waypoint x="512" y="308" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="540" y="355" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op05_di" bpmnElement="Flow_Op05">
+        <di:waypoint x="740" y="430" />
+        <di:waypoint x="790" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op06_Yes_di" bpmnElement="Flow_Op06_Yes">
+        <di:waypoint x="840" y="430" />
+        <di:waypoint x="900" y="430" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="858" y="412" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op06_No_di" bpmnElement="Flow_Op06_No">
+        <di:waypoint x="815" y="405" />
+        <di:waypoint x="815" y="308" />
+        <di:waypoint x="792" y="308" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="820" y="355" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op07_di" bpmnElement="Flow_Op07">
+        <di:waypoint x="1020" y="430" />
+        <di:waypoint x="1070" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op08_Yes_di" bpmnElement="Flow_Op08_Yes">
+        <di:waypoint x="1120" y="430" />
+        <di:waypoint x="1180" y="430" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1138" y="412" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op08_No_di" bpmnElement="Flow_Op08_No">
+        <di:waypoint x="1095" y="405" />
+        <di:waypoint x="1095" y="308" />
+        <di:waypoint x="1072" y="308" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1100" y="355" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op09_di" bpmnElement="Flow_Op09">
+        <di:waypoint x="1300" y="430" />
+        <di:waypoint x="1350" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op10_Yes_di" bpmnElement="Flow_Op10_Yes">
+        <di:waypoint x="1400" y="430" />
+        <di:waypoint x="1460" y="430" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1418" y="412" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op10_No_di" bpmnElement="Flow_Op10_No">
+        <di:waypoint x="1375" y="405" />
+        <di:waypoint x="1375" y="308" />
+        <di:waypoint x="1352" y="308" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1380" y="355" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op11_di" bpmnElement="Flow_Op11">
+        <di:waypoint x="1580" y="430" />
+        <di:waypoint x="1630" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op12_Yes_di" bpmnElement="Flow_Op12_Yes">
+        <di:waypoint x="1680" y="430" />
+        <di:waypoint x="1740" y="430" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1698" y="412" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op12_No_di" bpmnElement="Flow_Op12_No">
+        <di:waypoint x="1655" y="405" />
+        <di:waypoint x="1655" y="308" />
+        <di:waypoint x="1632" y="308" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1660" y="355" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op13_di" bpmnElement="Flow_Op13">
+        <di:waypoint x="1860" y="430" />
+        <di:waypoint x="1910" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op14_Yes_di" bpmnElement="Flow_Op14_Yes">
+        <di:waypoint x="1960" y="430" />
+        <di:waypoint x="2020" y="430" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1978" y="412" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op14_No_di" bpmnElement="Flow_Op14_No">
+        <di:waypoint x="1935" y="405" />
+        <di:waypoint x="1935" y="308" />
+        <di:waypoint x="1912" y="308" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1940" y="355" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op15_di" bpmnElement="Flow_Op15">
+        <di:waypoint x="2140" y="430" />
+        <di:waypoint x="2190" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op16_Yes_di" bpmnElement="Flow_Op16_Yes">
+        <di:waypoint x="2240" y="430" />
+        <di:waypoint x="2300" y="430" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2258" y="412" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op16_No_di" bpmnElement="Flow_Op16_No">
+        <di:waypoint x="2215" y="405" />
+        <di:waypoint x="2215" y="308" />
+        <di:waypoint x="2192" y="308" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2220" y="355" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op17_di" bpmnElement="Flow_Op17">
+        <di:waypoint x="2420" y="430" />
+        <di:waypoint x="2470" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op18_Yes_di" bpmnElement="Flow_Op18_Yes">
+        <di:waypoint x="2495" y="455" />
+        <di:waypoint x="2495" y="552" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2500" y="495" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op18_No_di" bpmnElement="Flow_Op18_No">
+        <di:waypoint x="2495" y="405" />
+        <di:waypoint x="2495" y="326" />
+        <di:waypoint x="2472" y="326" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2500" y="355" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Op19_di" bpmnElement="Flow_Op19">
+        <di:waypoint x="2490" y="588" />
+        <di:waypoint x="2490" y="652" />
+      </bpmndi:BPMNEdge>
+
+      <!-- ── Terraform pool ──────────────────────────────────────── -->
+      <bpmndi:BPMNShape id="Pool_Terraform_di" bpmnElement="Pool_Terraform" isHorizontal="true">
+        <dc:Bounds x="30" y="860" width="840" height="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="30" y="905" width="20" height="70" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Start_TF_di" bpmnElement="Start_TF">
+        <dc:Bounds x="82" y="912" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="56" y="955" width="88" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_ProvisionInfra_di" bpmnElement="Task_ProvisionInfra">
+        <dc:Bounds x="170" y="890" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="End_TF_di" bpmnElement="End_TF">
+        <dc:Bounds x="352" y="912" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="326" y="955" width="88" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Flow_TF01_di" bpmnElement="Flow_TF01">
+        <di:waypoint x="118" y="930" />
+        <di:waypoint x="170" y="930" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_TF02_di" bpmnElement="Flow_TF02">
+        <di:waypoint x="290" y="930" />
+        <di:waypoint x="352" y="930" />
+      </bpmndi:BPMNEdge>
+
+      <!-- ── Ansible pool ────────────────────────────────────────── -->
+      <bpmndi:BPMNShape id="Pool_Ansible_di" bpmnElement="Pool_Ansible" isHorizontal="true">
+        <dc:Bounds x="30" y="1000" width="2560" height="170" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="30" y="1070" width="20" height="100" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Start_Ansible_PreSeed_di" bpmnElement="Start_Ansible_PreSeed">
+        <dc:Bounds x="82" y="1067" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="56" y="1110" width="88" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_PreSeedProvision_di" bpmnElement="Task_PreSeedProvision">
+        <dc:Bounds x="170" y="1045" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Catch_PostSeedTrigger_di" bpmnElement="Catch_PostSeedTrigger">
+        <dc:Bounds x="622" y="1067" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="596" y="1110" width="88" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_AssertSecretsExist_di" bpmnElement="Task_AssertSecretsExist">
+        <dc:Bounds x="710" y="1045" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_PostSeedProvision_di" bpmnElement="Task_PostSeedProvision">
+        <dc:Bounds x="900" y="1045" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Catch_ConfigureTrigger_di" bpmnElement="Catch_ConfigureTrigger">
+        <dc:Bounds x="1342" y="1067" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1316" y="1110" width="88" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_ConfigureApps_di" bpmnElement="Task_ConfigureApps">
+        <dc:Bounds x="1440" y="1045" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Catch_VerifyTrigger_di" bpmnElement="Catch_VerifyTrigger">
+        <dc:Bounds x="1942" y="1067" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1916" y="1110" width="80" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_VerifyBootstrap_di" bpmnElement="Task_VerifyBootstrap">
+        <dc:Bounds x="2040" y="1045" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="End_Ansible_di" bpmnElement="End_Ansible">
+        <dc:Bounds x="2222" y="1067" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2196" y="1110" width="88" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Flow_AN01_di" bpmnElement="Flow_AN01">
+        <di:waypoint x="118" y="1085" />
+        <di:waypoint x="170" y="1085" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AN02_di" bpmnElement="Flow_AN02">
+        <di:waypoint x="290" y="1085" />
+        <di:waypoint x="622" y="1085" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AN03_di" bpmnElement="Flow_AN03">
+        <di:waypoint x="658" y="1085" />
+        <di:waypoint x="710" y="1085" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AN04_di" bpmnElement="Flow_AN04">
+        <di:waypoint x="830" y="1085" />
+        <di:waypoint x="900" y="1085" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AN05_di" bpmnElement="Flow_AN05">
+        <di:waypoint x="1020" y="1085" />
+        <di:waypoint x="1342" y="1085" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AN06_di" bpmnElement="Flow_AN06">
+        <di:waypoint x="1378" y="1085" />
+        <di:waypoint x="1440" y="1085" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AN07_di" bpmnElement="Flow_AN07">
+        <di:waypoint x="1560" y="1085" />
+        <di:waypoint x="1942" y="1085" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AN08_di" bpmnElement="Flow_AN08">
+        <di:waypoint x="1978" y="1085" />
+        <di:waypoint x="2040" y="1085" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AN09_di" bpmnElement="Flow_AN09">
+        <di:waypoint x="2160" y="1085" />
+        <di:waypoint x="2222" y="1085" />
+      </bpmndi:BPMNEdge>
+
+      <!-- ── OpenBao pool ────────────────────────────────────────── -->
+      <bpmndi:BPMNShape id="Pool_OpenBao_di" bpmnElement="Pool_OpenBao" isHorizontal="true">
+        <dc:Bounds x="30" y="1190" width="1640" height="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="30" y="1235" width="20" height="60" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Start_Bao_di" bpmnElement="Start_Bao">
+        <dc:Bounds x="82" y="1232" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="56" y="1275" width="88" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_ReceiveSeed_di" bpmnElement="Task_ReceiveSeed">
+        <dc:Bounds x="170" y="1210" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="End_Bao_di" bpmnElement="End_Bao">
+        <dc:Bounds x="352" y="1232" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="326" y="1275" width="88" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Flow_Bao01_di" bpmnElement="Flow_Bao01">
+        <di:waypoint x="118" y="1250" />
+        <di:waypoint x="170" y="1250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Bao02_di" bpmnElement="Flow_Bao02">
+        <di:waypoint x="290" y="1250" />
+        <di:waypoint x="352" y="1250" />
+      </bpmndi:BPMNEdge>
+
+      <!-- ── dmf-cms pool ────────────────────────────────────────── -->
+      <bpmndi:BPMNShape id="Pool_DMFCMS_di" bpmnElement="Pool_DMFCMS" isHorizontal="true">
+        <dc:Bounds x="30" y="1330" width="2560" height="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="30" y="1375" width="20" height="60" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Start_CMS_di" bpmnElement="Start_CMS">
+        <dc:Bounds x="82" y="1372" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="56" y="1415" width="88" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_ExposeCMS_di" bpmnElement="Task_ExposeCMS">
+        <dc:Bounds x="170" y="1350" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="End_CMS_di" bpmnElement="End_CMS">
+        <dc:Bounds x="352" y="1372" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="326" y="1415" width="88" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Flow_CMS01_di" bpmnElement="Flow_CMS01">
+        <di:waypoint x="118" y="1390" />
+        <di:waypoint x="170" y="1390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CMS02_di" bpmnElement="Flow_CMS02">
+        <di:waypoint x="290" y="1390" />
+        <di:waypoint x="352" y="1390" />
+      </bpmndi:BPMNEdge>
+
+      <!-- ── Message flow edges (cross-pool) ───────────────────── -->
+
+      <!-- Operator → Terraform: TriggerTerraformApply -->
+      <bpmndi:BPMNEdge id="MF_TriggerTF_di" bpmnElement="MF_TriggerTF">
+        <di:waypoint x="680" y="470" />
+        <di:waypoint x="680" y="860" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="685" y="650" width="84" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <!-- Operator → Ansible: TriggerPreSeedProvision -->
+      <bpmndi:BPMNEdge id="MF_TriggerPreSeed_di" bpmnElement="MF_TriggerPreSeed">
+        <di:waypoint x="960" y="470" />
+        <di:waypoint x="960" y="1000" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="965" y="720" width="84" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <!-- Operator → OpenBao: SeedBootstrapBundle -->
+      <bpmndi:BPMNEdge id="MF_SeedBao_di" bpmnElement="MF_SeedBao">
+        <di:waypoint x="1520" y="470" />
+        <di:waypoint x="1520" y="1190" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1525" y="810" width="84" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <!-- Operator → Ansible: TriggerPostSeedProvision -->
+      <bpmndi:BPMNEdge id="MF_TriggerPostSeed_di" bpmnElement="MF_TriggerPostSeed">
+        <di:waypoint x="1800" y="470" />
+        <di:waypoint x="1800" y="1060" />
+        <di:waypoint x="640" y="1060" />
+        <di:waypoint x="640" y="1067" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1805" y="740" width="84" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <!-- Operator → Ansible: TriggerBootstrapConfigure -->
+      <bpmndi:BPMNEdge id="MF_TriggerConfigure_di" bpmnElement="MF_TriggerConfigure">
+        <di:waypoint x="2080" y="470" />
+        <di:waypoint x="2080" y="1040" />
+        <di:waypoint x="1360" y="1040" />
+        <di:waypoint x="1360" y="1067" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2085" y="740" width="84" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <!-- Operator → Ansible: TriggerBootstrapVerify -->
+      <bpmndi:BPMNEdge id="MF_TriggerVerify_di" bpmnElement="MF_TriggerVerify">
+        <di:waypoint x="2360" y="470" />
+        <di:waypoint x="2360" y="1020" />
+        <di:waypoint x="1960" y="1020" />
+        <di:waypoint x="1960" y="1067" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2365" y="720" width="84" height="28" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <!-- dmf-cms → Operator: CMSReachable -->
+      <bpmndi:BPMNEdge id="MF_CMSReady_di" bpmnElement="MF_CMSReady">
+        <di:waypoint x="290" y="1390" />
+        <di:waypoint x="2490" y="1390" />
+        <di:waypoint x="2490" y="588" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1300" y="1370" width="84" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>

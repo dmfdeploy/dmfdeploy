@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+# .githooks/pre-commit — keep STATUS.md fresh on every umbrella commit.
+#
+# Runs bin/generate-status.sh, auto-stages STATUS.md if it changed, then lets
+# the commit proceed. The auto-staging means STATUS.md updates are baked into
+# whatever commit the user is making rather than forcing a separate commit.
+#
+# Activate once per clone:
+#   git config core.hooksPath .githooks
+#   (or: bin/install-hooks.sh)
+#
+# Escape hatches:
+#   STATUS_HOOK_SKIP=1 git commit ...    # skip refresh entirely
+#   git commit --no-verify ...           # bypass all hooks (use sparingly)
+
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+# ── Secret scanning (runs in every repo, including component repos that
+#    opt into this hooks dir). Honors a .gitleaks.toml at the repo root.
+if command -v gitleaks >/dev/null 2>&1; then
+    if ! gitleaks protect --staged --no-banner --redact >/dev/null 2>&1; then
+        echo "" >&2
+        echo "[pre-commit] gitleaks: leak detected in staged changes — refusing commit" >&2
+        echo "  inspect:        gitleaks protect --staged -v" >&2
+        echo "  allowlist FP:   edit .gitleaks.toml (path / regex)" >&2
+        echo "  bypass (rare):  git commit --no-verify" >&2
+        exit 1
+    fi
+    # Second pass: operator-private rules (identity/topology). The local
+    # config is gitignored; contributors without it simply skip this pass.
+    REPO_TOP="$(git rev-parse --show-toplevel)"
+    if [ -f "$REPO_TOP/.gitleaks.local.toml" ]; then
+        if ! gitleaks protect --staged --no-banner --redact \
+                --config "$REPO_TOP/.gitleaks.local.toml" >/dev/null 2>&1; then
+            echo "" >&2
+            echo "[pre-commit] gitleaks (operator-private rules): identity/topology literal in staged changes — refusing commit" >&2
+            echo "  inspect:  gitleaks protect --staged -v --config .gitleaks.local.toml" >&2
+            exit 1
+        fi
+    fi
+elif [ "${GITLEAKS_HOOK_QUIET:-0}" != "1" ]; then
+    echo "[pre-commit] WARN: gitleaks not installed — skipping secret scan." >&2
+    echo "             brew install gitleaks (silence with GITLEAKS_HOOK_QUIET=1)" >&2
+fi
+
+# Only fire the umbrella-specific bits (STATUS.md / SCRIPTS.md auto-refresh)
+# when bin/generate-status.sh exists. Component repos use the same hooksPath
+# only if their operators opt in; we don't want to break them silently if
+# they happen to share a config.
+[ -x "$REPO_ROOT/bin/generate-status.sh" ] || exit 0
+
+# Skip during rebase / merge / cherry-pick — STATUS.md drift is normal there
+# and noise from the hook just confuses the operator.
+[ -d "$REPO_ROOT/.git/rebase-merge" ] && exit 0
+[ -d "$REPO_ROOT/.git/rebase-apply" ] && exit 0
+[ -f "$REPO_ROOT/.git/MERGE_HEAD" ] && exit 0
+[ -f "$REPO_ROOT/.git/CHERRY_PICK_HEAD" ] && exit 0
+
+[ "${STATUS_HOOK_SKIP:-0}" = "1" ] && {
+    echo "[pre-commit] STATUS_HOOK_SKIP=1 — skipping STATUS.md refresh"
+    exit 0
+}
+
+# Refresh without hitting the network — fast on every commit
+"$REPO_ROOT/bin/generate-status.sh" --no-fetch >/dev/null
+
+if ! git diff --quiet -- STATUS.md 2>/dev/null; then
+    git add STATUS.md
+    echo "[pre-commit] STATUS.md auto-refreshed and staged"
+fi
+
+# Refresh the scripts catalog if a script header may have changed
+if [ -x "$REPO_ROOT/bin/generate-scripts-catalog.sh" ]; then
+    "$REPO_ROOT/bin/generate-scripts-catalog.sh" >/dev/null
+    if ! git diff --quiet -- docs/SCRIPTS.md 2>/dev/null; then
+        git add docs/SCRIPTS.md
+        echo "[pre-commit] docs/SCRIPTS.md auto-refreshed and staged"
+    fi
+fi
+
+# Regenerate the plans index and run the doc gate
+if [ -x "$REPO_ROOT/bin/generate-plans-index.sh" ]; then
+    "$REPO_ROOT/bin/generate-plans-index.sh" >/dev/null
+    if ! git diff --quiet -- docs/plans/INDEX.md 2>/dev/null; then
+        git add docs/plans/INDEX.md
+        echo "[pre-commit] docs/plans/INDEX.md auto-refreshed and staged"
+    fi
+fi
+
+if [ -x "$REPO_ROOT/bin/check-docs.sh" ]; then
+    if ! "$REPO_ROOT/bin/check-docs.sh" >/dev/null 2>&1; then
+        echo "" >&2
+        echo "[pre-commit] check-docs: doc gate failed — refusing commit" >&2
+        "$REPO_ROOT/bin/check-docs.sh" 2>&1 | sed 's/^/  /' >&2
+        echo "  fix frontmatter or STATUS_HOOK_SKIP=1 to bypass" >&2
+        exit 1
+    fi
+fi
+
+exit 0

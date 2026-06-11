@@ -1,0 +1,119 @@
+# DMF Platform Umbrella — AI Agent Rules
+
+This is the **umbrella workspace** for the DMF Platform. It contains the consolidated
+knowledge base (`docs/`), multi-repo coordination (`STATUS.md`, `CLAUDE.md`), and the 8 component repos as `.gitignore`d sibling directories.
+
+## Context for All Agents
+
+**Before any non-trivial change:**
+
+1. `git fetch && git pull` (umbrella)
+2. `bin/generate-status.sh` — refreshes [STATUS.md](STATUS.md)
+3. Read [STATUS.md](STATUS.md) — it's the authoritative source for what's happening across all 9 repos (umbrella + 8 components)
+4. Skim [docs/decisions/INDEX.md](docs/decisions/INDEX.md) — note any ADRs applicable to your task
+5. Read the most recent file in [docs/handoffs/](docs/handoffs/) — prior session's intent
+
+## What Lives Where
+
+| Question | Answer | Agent |
+|----------|--------|-------|
+| What is the DMF Platform supposed to be? | `docs/THESIS.md`, then `docs/architecture/DMF Platform Plan.md` | Claude/Codex |
+| What's the active task? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues) + Active section of `docs/plans/INDEX.md` | Claude |
+| What's the strategic frame? | `docs/decisions/architectural-commitments-v1.md` (+ `docs/reviews/dmf-platform-technical-evaluation-2026-06-06.md`) | Claude |
+| Who handed off what? | `docs/handoffs/` (most recent) | Claude |
+| What changed during rebuild? | `docs/sessions/` | Claude |
+| What decisions are binding? | `docs/decisions/INDEX.md` | Codex (for compliance audits) |
+
+## Component Repos at a Glance
+
+Each is a separate git repo with its own CLAUDE.md and AGENTS.md:
+
+| Repo | Purpose | Agent-Friendly? |
+|------|---------|---|
+| `dmf-cms` | React + FastAPI operator console | **Codex** for React review; Claude for API |
+| `dmf-infra` | Ansible playbooks & roles | **Codex** for infra review; Claude for problem-solving |
+| `dmf-env` | Generic env tooling (per-env state is operator-local) | Claude only (secrets-sensitive) |
+| `dmf-central` | Central services scaffold | **Codex** for review; Claude for design |
+| `dmf-media` | Media domain modules | **Codex** for review; Claude for design |
+| `dmf-runbooks` | Thin AWX launcher playbooks + `nmos-cpp` role | **Codex** for infra review; Claude for design |
+| `dmf-init` | Day-0 init/bootstrap container (React + FastAPI) | **Codex** for review; Claude for design |
+| `dmf-promsd` | NetBox-driven Prometheus service-discovery | **Codex** for review; Claude for design |
+
+## Documentation Standards
+
+**All documentation file names are preserved verbatim from the original operator note store.**
+Many docs reference each other by display name; **don't rename without sweeping callers.**
+
+**Per-repo CLAUDE.md files still reference `<note-store>/Projects/...` paths — these are stale.**
+**Treat them as pointing at `../docs/<subdir>/<file>` in this umbrella.**
+Cleanup is deferred; agents should flag these during reviews.
+
+## Multi-Repo Coordination
+
+**Git topology:**
+- Umbrella's `.gitignore` excludes all 8 component dirs — they remain independent repos
+- Doc edits go in this umbrella
+- Code edits go in component repos
+- Cross-cutting task specs and reviews go in `docs/plans/` or `docs/reviews/` here
+
+**When you touch a component repo:**
+1. Check its `git status` — ask the user before modifying dirty state (another session's work)
+2. Read its CLAUDE.md + AGENTS.md
+3. Apply any relevant ADRs from `dmfdeploy/docs/decisions/`
+4. If you change cross-repo state, update `STATUS.md` before finishing
+
+## When to Use Codex
+
+**Codex is the primary agent for:**
+- **Infrastructure code review** — dmf-infra playbooks and roles for idempotency, error handling, best practices
+- **React/frontend review** — dmf-cms for component architecture, TypeScript safety, design system compliance
+- **Multi-file refactoring** — moving code between repos or large-scale reorganization
+- **Diagnostic help** — analyzing error logs, git diffs, cluster state dumps
+- **Architecture & design review** — across multiple files/repos, spotting inconsistencies
+
+**Use Claude for:**
+- **Planning & strategy** — new features, architectural decisions, multi-repo coordination
+- **Documentation** — writing ADRs, handoffs, README updates, high-level design docs
+- **Secrets & policy** — anything involving OpenBao, auth, or deployment credentials (Codex skips these)
+- **One-off problem-solving** — quick bugs, script generation, interactive troubleshooting
+
+## Agent Context Files
+
+Each agent has a persona file:
+
+- **CLAUDE.md** — umbrella boot ritual, workspace structure, secrets discipline
+- **AGENTS.md** — this file + per-repo agent rules for Codex and other tools
+
+When an agent starts a session in this workspace, it should read BOTH files.
+
+## Key Principles
+
+1. **Relative paths everywhere** — no hardcoded `/Users/<operator>` or `/Volumes` in code
+2. **Variables for environment-specific config** — IPs, URLs, sockets go in dmf-env inventory
+3. **Idempotency first** — all Ansible plays must be safe to re-run
+4. **Canonical docs in umbrella** — component repos reference back, not vice versa
+5. **Secrets stay in OpenBao** — never commit credentials, always use `vault_*` variables
+6. **Current phase: v0.1 committed** — experiment phase closed 2026-06-06
+   (`docs/decisions/architectural-commitments-v1.md`); choose work that makes the
+   proven core runnable and legible to an outsider
+7. **Backlog lives on GitHub** — Issues are canonical for liveness, plan
+   frontmatter for design state; a PR that completes a plan closes its issue and
+   flips the frontmatter in the same change (`bin/check-docs.sh` gates commits)
+
+## Running Playbooks
+
+```bash
+# From dmf-env with the wrapper (DO THIS)
+cd ../dmf-env
+bin/run-playbook.sh hetzner-arm ../dmf-infra/k3s-lab-bootstrap/playbooks/300-k3s.yml
+
+# Direct kubectl (DON'T DO THIS)
+kubectl get pods  # Will fail — no local kubeconfig wired up
+```
+
+## Codex-Specific Notes
+
+- **When reviewing dmf-infra:** Check for hardcoded paths, broken heredocs, missing idempotency guards
+- **When reviewing dmf-cms:** Check for design system compliance, TypeScript safety, query hook usage
+- **When analyzing errors:** Read from the bottom up (the bottom usually has the root cause)
+- **When suggesting refactors:** Verify the change works locally first (ask for a --check run)

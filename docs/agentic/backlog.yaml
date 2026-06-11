@@ -1,0 +1,594 @@
+# DMF Agentic Harness — Backlog
+#
+# ⚠️ Status: HISTORICAL (mothballed 2026-06-04). This is NO LONGER the forward
+# queue. The harness ran K1–K4 + K5 ticks on 2026-05-12 (through tick 16) and has
+# been unused since; the live backlog is TODOS.md. Still-real pending items
+# (rel-p1/p2 release tasks, group-d Tier A finish) were migrated to TODOS.md
+# §"Release & compliance". move1-p9 was closed 2026-06-04
+# (docs/reviews/dmf-platform-move-1-learnings-2026-06-04.md). Statuses below are
+# frozen at their 2026-05-12 values and preserved for provenance.
+#
+# Work-unit queue for the agentic loop. Mutated by the tick state machine
+# (preflight selects next eligible entry; postflight updates status). The
+# operator may edit between runs but should prefer adding via /agentic-tick
+# discoveries or `bin/agentic/issue-promote.sh <issue-id>`.
+#
+# Schema:
+#   - id:           unique slug, kebab-case
+#     scope:        umbrella | dmf-cms | dmf-infra | dmf-env | dmf-central | dmf-media | dmf-runbooks
+#     kind:         rote | taste | decision | review
+#     worker:       claude | qwen-left | qwen-right | operator
+#     deps:         list of backlog ids that must be `done` first
+#     decision_gate: optional gate name (D1..D4, tier-a-1, etc.) — entry is
+#                    `blocked` while gate is in decisions-open.md
+#     acceptance:   list of dict checks (file_exists, guard, adr_status, …)
+#     status:       pending | in-progress | blocked | done
+#     issue:        optional Forgejo issue ref (`forgejo#<n>`) — entry was
+#                    promoted from an issue, or relates to one
+#
+# Canonical plan: docs/plans/DMF Agentic Harness Plan 2026-05-11.md
+# Constitution:   docs/agentic/CONSTITUTION.md
+#
+# ─── Group A — Foundation (this kickoff; must complete first) ───────────────
+
+- id: constitution-install
+  scope: umbrella
+  kind: rote
+  worker: claude
+  deps: []
+  decision_gate: null
+  acceptance:
+    - file_exists: docs/agentic/CONSTITUTION.md
+  status: done              # landed K1: umbrella@6cd4343
+
+- id: backlog-seed
+  scope: umbrella
+  kind: rote
+  worker: claude
+  deps: []
+  decision_gate: null
+  acceptance:
+    - file_exists: docs/agentic/backlog.yaml
+  status: done              # landed K1: umbrella@6cd4343
+
+- id: adr-0020-promote
+  scope: umbrella
+  kind: decision
+  worker: operator
+  deps: []
+  decision_gate: tier-a-1
+  acceptance:
+    - adr_status: Accepted
+    - adr_id: ADR-0020
+  status: done              # answered 2026-05-12: A (Mode A only, OSS self-host)
+                            # follow-up: promote ADR-0020 status header to Accepted
+
+- id: github-org-name
+  scope: umbrella
+  kind: decision
+  worker: operator
+  deps: []
+  decision_gate: release-phase-2
+  acceptance:
+    - decision_logged: github_org_name
+  status: done              # answered 2026-05-12: A (`dmfdeploy`)
+
+# ─── Group B — Release & Contribution Phases 0-2 (deferred to K-future) ─────
+#
+# Source plan: docs/plans/DMF Release and Contribution Model Implementation Plan 2026-05-11.md
+# Scope:       ~35 rote tasks across 6 public repos (LICENSE, NOTICE, VERSION,
+#              .gitignore baseline, CONTRIBUTING.md stub, per-repo gitleaks
+#              hooks, dry-run of sync-to-github.sh)
+# Workers:     qwen-left (rote file generation) + qwen-right (hook install
+#              + dry-run execution)
+# Expansion:   /agentic-tick will read the source plan and create individual
+#              entries here when Group A is `done` and Group B is unblocked.
+#
+# Placeholder so the loop knows this group exists:
+
+- id: group-b-expansion
+  scope: umbrella
+  kind: rote
+  worker: claude
+  deps:
+    - adr-0020-promote
+    - github-org-name
+  decision_gate: null
+  acceptance:
+    - tasks_enumerated: "docs/plans/DMF Release and Contribution Model Implementation Plan 2026-05-11.md"
+  status: done              # expanded 2026-05-12 tick 1 (shift 2)
+                            # produced 10 entries below (rel-p0-* + rel-p1-* + rel-p2-*)
+
+# ─── Group B (expanded) — Release & Contribution Phases 0–2 ─────────────────
+#
+# Generated from group-b-expansion. Phase 2.1 + 2.2 are already complete
+# from K2/pre-K1 work (check-public-repo-hygiene.sh exists; sync-to-github.sh
+# exists with 6 gates). The remaining surface is the per-repo Phase 0
+# baseline + Phase 1 hook install + Phase 2 GitHub org setup + dry-run.
+
+# Phase 0 — per-repo baseline hygiene (LICENSE, NOTICE, VERSION, .gitignore
+# baseline, CONTRIBUTING.md, README "## License" section). One bulk task per
+# repo per the plan's step 0.6 "Bulk-commit per repo".
+
+- id: rel-p0-umbrella
+  scope: umbrella
+  kind: rote
+  worker: qwen-left
+  deps: []
+  decision_gate: null
+  acceptance:
+    - file_exists: LICENSE
+    - file_exists: NOTICE
+    - file_exists: CONTRIBUTING.md
+    - readme_section: "## License"
+    - guard: bin/check-public-repo-hygiene.sh --repo .
+  status: done              # 2026-05-12 shift 3 tick 2 (qwen-left)
+                            # guard reports .githooks/pre-push MISSING — rel-p1 territory
+
+- id: rel-p0-dmf-cms
+  scope: dmf-cms
+  kind: rote
+  worker: qwen-left
+  deps: []
+  decision_gate: null
+  acceptance:
+    - file_exists: dmf-cms/LICENSE
+    - file_exists: dmf-cms/NOTICE
+    - file_exists: dmf-cms/VERSION              # dmf-cms already has this — verify intact
+    - file_exists: dmf-cms/CONTRIBUTING.md
+    - readme_section: "## License"
+    - guard: bin/check-public-repo-hygiene.sh --repo dmf-cms
+  status: done              # 2026-05-12 shift 3 tick 3 (qwen-left)
+                            # VERSION untouched (0.8.0); WIP stashed @ stash@{0}
+
+- id: rel-p0-dmf-infra
+  scope: dmf-infra
+  kind: rote
+  worker: qwen-left
+  deps: []
+  decision_gate: null
+  acceptance:
+    - file_exists: dmf-infra/LICENSE
+    - file_exists: dmf-infra/NOTICE
+    - file_exists: dmf-infra/VERSION             # missing today
+    - file_exists: dmf-infra/CONTRIBUTING.md
+    - readme_section: "## License"
+    - guard: bin/check-public-repo-hygiene.sh --repo dmf-infra
+  status: done              # 2026-05-12 shift 3 tick 4 (qwen-left)
+                            # VERSION created at 0.1.0 (fresh SSOT)
+
+- id: rel-p0-dmf-central
+  scope: dmf-central
+  kind: rote
+  worker: qwen-left
+  deps: []
+  decision_gate: null
+  acceptance:
+    - file_exists: dmf-central/LICENSE
+    - file_exists: dmf-central/NOTICE
+    - file_exists: dmf-central/VERSION           # missing today
+    - file_exists: dmf-central/CONTRIBUTING.md
+    - readme_section: "## License"
+    - guard: bin/check-public-repo-hygiene.sh --repo dmf-central
+  status: done              # 2026-05-12 shift 3 tick 5 (qwen-left)
+                            # VERSION created at 0.1.0 (fresh SSOT)
+
+- id: rel-p0-dmf-media
+  scope: dmf-media
+  kind: rote
+  worker: qwen-left
+  deps: []
+  decision_gate: null
+  acceptance:
+    - file_exists: dmf-media/LICENSE
+    - file_exists: dmf-media/NOTICE
+    - file_exists: dmf-media/VERSION             # media has v0.1.0 tag — verify file
+    - file_exists: dmf-media/CONTRIBUTING.md
+    - readme_section: "## License"
+    - guard: bin/check-public-repo-hygiene.sh --repo dmf-media
+  status: done              # 2026-05-12 shift 3 tick 6 (qwen-left, post-/clear)
+                            # VERSION untouched (0.1.0, tag-aligned)
+
+- id: rel-p0-dmf-runbooks
+  scope: dmf-runbooks
+  kind: rote
+  worker: qwen-left
+  deps: []
+  decision_gate: null
+  acceptance:
+    - file_exists: dmf-runbooks/LICENSE
+    - file_exists: dmf-runbooks/NOTICE           # MUST include sony/nmos-cpp Apache 2.0 attribution
+    - file_exists: dmf-runbooks/VERSION          # missing today
+    - file_exists: dmf-runbooks/CONTRIBUTING.md
+    - readme_section: "## License"
+    - guard: bin/check-public-repo-hygiene.sh --repo dmf-runbooks
+  status: done              # 2026-05-12 shift 3 tick 7 (qwen-left)
+                            # NOTICE includes Sony nmos-cpp attribution per source plan §0.2
+                            # VERSION created at 0.1.0 (fresh SSOT)
+
+# Phase 1 — per-repo gitleaks pre-commit + pre-push hook install.
+
+- id: rel-p1-install-agentic-hooks
+  scope: umbrella                # operates across all 6 public repos via the script
+  kind: rote
+  worker: operator               # K2 smoke test showed existing variant hooks → operator
+  deps: []                       # decides whether to --force
+  decision_gate: null
+  acceptance:
+    - bin_runs_clean: "bin/agentic/install-agentic-hooks.sh"
+    - per_repo_hookspath_set: 6  # all 6 public repos have core.hooksPath=.githooks
+  status: pending
+
+- id: rel-p1-rotate-forgejo-dev-creds
+  scope: umbrella                # incidental finding from §1 of the release plan
+  kind: taste                    # security-sensitive; not pure rote
+  worker: operator
+  deps: []
+  decision_gate: null
+  acceptance:
+    - lan_forgejo_dev_password_rotated: true
+    - forgejo_lab_password_rotated: true
+    - lab_remote_url_uses_helper: true
+  status: pending
+
+# Phase 2 — publish-flow tooling. 2.1 + 2.2 already complete.
+
+- id: rel-p2-github-org-setup
+  scope: umbrella
+  kind: rote
+  worker: operator               # requires GitHub account interaction (auth, org creation)
+  deps:
+    - github-org-name            # provides the org name
+  decision_gate: null
+  acceptance:
+    - github_org_exists: dmfdeploy
+    - github_repos_created: 6    # empty repos for the 6 public components
+    - each_repo_has_github_remote: 6
+  status: pending
+
+- id: rel-p2-dryrun-sync-to-github
+  scope: umbrella
+  kind: rote
+  worker: qwen-right
+  deps:
+    - rel-p0-umbrella
+    - rel-p0-dmf-cms
+    - rel-p0-dmf-infra
+    - rel-p0-dmf-central
+    - rel-p0-dmf-media
+    - rel-p0-dmf-runbooks
+    - rel-p1-install-agentic-hooks
+    - rel-p2-github-org-setup
+  decision_gate: null
+  acceptance:
+    - dryrun_clean: 6            # bin/sync-to-github.sh --dry-run passes for each
+  status: pending
+
+# ─── Group C — Move 1 (deferred to K-future; gated by D1-D4) ────────────────
+#
+# Source plan: docs/plans/dmf-platform-move-1-task-2026-05-04.md
+# Scope:       9 pieces (NMOS registry + Function Catalog spike)
+# Workers:     qwen-left (Piece 1, Piece 7 dmf-cms catalog page)
+#              qwen-right (Pieces 2, 3, 4, 5, 6, 8 — Ansible/Docker/Helm)
+#              claude (Piece 9 write-up)
+# Decision gates: D1 (NMOS registry impl), D2 (lifecycle-configure shape),
+#                 D3 (AWX launcher pattern), D4 (dmf-cms catalog source).
+# Expansion:   /agentic-tick reads the source plan and creates entries when
+#              D1-D4 are answered in decisions-open.md.
+
+- id: group-c-expansion
+  scope: umbrella
+  kind: rote
+  worker: claude
+  deps:
+    - adr-0020-promote
+  decision_gate: null
+  acceptance:
+    - tasks_enumerated: "docs/plans/dmf-platform-move-1-task-2026-05-04.md"
+    - gates_answered: [D1, D2, D3, D4]
+  status: done              # 2026-05-12 shift 4 tick 8 (claude)
+                            # produced 9 entries below (move1-p1..p9)
+                            # using D1=A D2=A D3=B D4=B (matches plan §"Concrete work breakdown" assumption)
+
+# ─── Group C (expanded) — Move 1 NMOS spike (9 Pieces) ──────────────────────
+#
+# Source plan: docs/plans/dmf-platform-move-1-task-2026-05-04.md
+# Decision answers in effect:
+#   D1=A — Sony nmos-cpp built from source via Conan
+#   D2=A — Tag-driven, single import per entry (lifecycle-configure pattern)
+#   D3=B — hosts: + roles: with explicit roles_path config (AWX launcher)
+#   D4=B — ConfigMap mounted at pod start (dmf-cms catalog source)
+#
+# Worker model:
+#   - qwen-left  → P1 (catalog schema), P7 (dmf-cms catalog page)
+#   - qwen-right → P2-P6, P8 (Ansible/Docker/Helm under skill-guarded
+#                  cluster-access scope; qwen produces files, OPERATOR runs
+#                  the playbook + verifies cluster-side acceptance items)
+#   - claude     → P9 (write-up; observation-based, post-implementation)
+#
+# Cluster-execution caveat: every Piece touching dmf-infra/dmf-media/
+# dmf-runbooks playbooks has both FILE-LEVEL acceptance (verifiable by the
+# orchestrator inspecting diffs) and CLUSTER-LEVEL acceptance (verifiable
+# only after `bin/run-playbook.sh hetzner-arm ...` is executed by the
+# operator). The harness treats the entry as `done` when file-level
+# acceptance is satisfied; cluster verification surfaces as an operator
+# action in the per-Piece commit message + handoff.
+
+- id: move1-p1-catalog-schema
+  scope: dmf-media
+  kind: rote
+  worker: qwen-left
+  deps: []
+  decision_gate: null
+  acceptance:
+    - file_exists: dmf-media/catalog/nmos-cpp.yaml
+    - file_exists: dmf-media/catalog/README.md
+    - yaml_parses: dmf-media/catalog/nmos-cpp.yaml
+    - schema_ref: "docs/architecture/DMF Function Catalog Model.md §2"
+  status: done              # 2026-05-12 shift 4 tick 9 — pre-existing work
+                            # dmf-media/catalog/nmos-cpp.yaml + README.md exist
+                            # YAML parses (8 top-level keys: key, display_name,
+                            # summary, ebu, provision, configure, finalise,
+                            # dependencies). No qwen dispatch needed.
+
+- id: move1-p2-lifecycle-configure-wrapper
+  scope: dmf-infra
+  kind: rote
+  worker: qwen-right
+  deps:
+    - move1-p1-catalog-schema   # wrapper imports the catalog entry's tag
+  decision_gate: null
+  acceptance:
+    - file_exists: dmf-infra/k3s-lab-bootstrap/lifecycle-configure.yml
+    - file_modified: dmf-infra/k3s-lab-bootstrap/lifecycle-provision.yml
+    - cluster_verify_optional: "bin/run-playbook.sh hetzner-arm ../dmf-infra/k3s-lab-bootstrap/lifecycle-configure.yml --list-tags lists nmos-cpp"
+  status: obviated          # 2026-05-12 shift 5 audit (Option B)
+                            # Path A pivot (ADR-0014/0016, 2026-05-06) replaced
+                            # wrapper-driven Configure with AWX-driven job
+                            # templates. lifecycle-configure.yml is now an
+                            # explicit stub redirecting to AWX. The May-4
+                            # spec for this Piece no longer applies.
+
+- id: move1-p3-forgejo-mirror-awx-projects
+  scope: dmf-infra
+  kind: rote
+  worker: qwen-right
+  deps: []                      # independent infra change
+  decision_gate: null
+  acceptance:
+    - file_modified: dmf-infra/k3s-lab-bootstrap/roles/stack/operator/forgejo-bootstrap/tasks/main.yml
+    - file_modified: dmf-infra/k3s-lab-bootstrap/roles/stack/operator/awx-integration/tasks/main.yml
+    - file_modified: dmf-infra/k3s-lab-bootstrap/roles/stack/operator/awx-integration/defaults/main.yml
+    - cluster_verify_optional: "AWX UI shows dmf-runbooks + dmf-media + dmf-infra projects with successful initial SCM sync; dmf-cms-svc has read access"
+  status: done              # 2026-05-12 shift 5 audit (Option B)
+                            # Path A satisfied: awx_catalog_projects defaults
+                            # include dmf-runbooks + dmf-media (with roles_path).
+                            # dmf-infra not in catalog projects (and not needed
+                            # — it's the bootstrap source, not an AWX consumer).
+                            # forgejo_mirror_repos default is `{}` — deferred
+                            # via 2026-05-07 GitHub push-mirror posture; not a gap.
+
+- id: move1-p4-nmos-provision
+  scope: dmf-runbooks         # was dmf-infra in source plan; relocated by Path A
+  kind: rote
+  worker: qwen-right
+  deps:
+    - move1-p1-catalog-schema   # registers NetBox ipam.Service that catalog references
+  decision_gate: null
+  acceptance:
+    - file_exists: dmf-runbooks/roles/nmos-cpp/tasks/provision.yml   # Path A location
+    - file_exists: dmf-runbooks/roles/nmos-cpp/files/Dockerfile.registry
+    - file_exists: dmf-runbooks/roles/nmos-cpp/files/Dockerfile.node
+    - file_exists: dmf-runbooks/roles/nmos-cpp/scripts/push-nmos-images.sh
+    - source_ref: "docs/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md Phase 1 Steps 1-2 (Dockerfile + role tasks + ConfigMaps + Helm template)"
+    - cluster_verify_optional: "provision stage runs idempotently; NetBox shows ipam.Service nmos-cpp tagged lifecycle:bootstrapped; images present in Zot"
+  status: done              # 2026-05-12 shift 5 audit (Option B)
+                            # Path A consolidated provision stage into the
+                            # nmos-cpp role under dmf-runbooks. Source plan's
+                            # standalone 410-nmos-cpp-provision.yml playbook
+                            # was superseded by role-stage approach (called
+                            # via launcher with nmos_stage: provision).
+
+- id: move1-p5-nmos-configure-launch
+  scope: dmf-media
+  kind: rote
+  worker: qwen-right
+  deps:
+    - move1-p1-catalog-schema
+    - move1-p4-nmos-provision
+  decision_gate: null
+  acceptance:
+    - file_exists: dmf-media/playbooks/configure-media/launch-nmos-cpp.yml
+    - file_exists: dmf-media/playbooks/configure-media/teardown-nmos-cpp.yml
+    - cluster_verify_optional: "lifecycle-configure --tags nmos-cpp launches registry; idempotent re-run; NetBox tag flips bootstrapped→active; teardown reverses"
+  status: obviated          # 2026-05-12 shift 5 audit (Option B)
+                            # Path A consolidated configure stage into
+                            # dmf-runbooks/roles/nmos-cpp/tasks/configure.yml.
+                            # The dmf-media/playbooks/configure-media/ path
+                            # is no longer the architecture. Equivalent
+                            # function lives at dmf-runbooks/playbooks/
+                            # {launch,teardown}-nmos-cpp.yml (see move1-p6).
+
+- id: move1-p6-awx-launcher-runbooks
+  scope: dmf-runbooks
+  kind: rote
+  worker: qwen-right
+  deps:
+    - move1-p1-catalog-schema
+    # move1-p5 obviated by Path A — original plan made p6 depend on a
+    # configure-side launch playbook that no longer exists. Path A's
+    # equivalent (role's configure.yml) is satisfied via the launcher
+    # itself, so the dependency dissolves.
+  decision_gate: null
+  acceptance:
+    - file_exists: dmf-runbooks/playbooks/launch-nmos-cpp.yml    # Path A actual location (not root)
+    - file_exists: dmf-runbooks/playbooks/teardown-nmos-cpp.yml  # source plan called this finalise-nmos-cpp.yml
+    - file_modified: dmf-infra/k3s-lab-bootstrap/roles/stack/operator/awx-integration/defaults/main.yml  # awx_catalog_job_templates: media-launch-nmos-cpp + media-finalise-nmos-cpp
+    - cluster_verify_optional: "AWX manual run of media-launch-nmos-cpp resolves nmos-cpp role from dmf-runbooks project; NetBox tag flips"
+  status: done              # 2026-05-12 shift 5 audit (Option B)
+                            # launcher matches D3=B (hosts: + roles: + explicit
+                            # roles_path); calls role with nmos_stage: provision
+                            # then nmos_stage: configure (single AWX job covers
+                            # both stages per ADR-0012 stage-split-at-role-level).
+                            # AWX job templates media-launch-nmos-cpp + media-
+                            # finalise-nmos-cpp defined in awx_catalog_job_templates.
+
+- id: move1-p7-dmf-cms-catalog-page
+  scope: dmf-cms
+  kind: taste                   # umbrella entry — split into P7a/P7b/P7c per shift 6 operator decision
+  worker: claude                # umbrella; sub-pieces dispatch to qwen
+  deps:
+    - move1-p1-catalog-schema
+    - move1-p3-forgejo-mirror-awx-projects
+    - move1-p6-awx-launcher-runbooks
+  decision_gate: null
+  acceptance:
+    - subentry_done: move1-p7a-cms-catalog-backend
+    - subentry_done: move1-p7b-cms-catalog-frontend
+    - subentry_done: move1-p7c-cms-catalog-helm-role
+    - cluster_verify_optional: "open dmf-cms /catalog; nmos-cpp card shows lifecycle:bootstrapped; click Deploy → ~30s → lifecycle:active; click Teardown → ~30s → lifecycle:bootstrapped"
+  status: done             # 2026-05-12 — all 3 P7 sub-pieces done by end of shift 7
+
+- id: move1-p7a-cms-catalog-backend
+  scope: dmf-cms
+  kind: rote
+  worker: qwen-left            # operator pref: qwen-left
+  deps:
+    - move1-p1-catalog-schema  # catalog YAML schema must be stable
+  decision_gate: null
+  acceptance:
+    - file_exists: dmf-cms/src/dmf_cms/catalog.py     # YAML read + NetBox tag join
+    - file_modified: dmf-cms/src/dmf_cms/main.py      # GET /api/catalog + POST <key>/deploy + POST <key>/teardown + GET <key>/status/<job_id>
+    - api_endpoints: 4
+    - module_pattern: "matches existing dmf_cms/awx.py + dmf_cms/netbox.py style"
+  status: done              # 2026-05-12 shift 6 tick 12 (qwen-left)
+                            # catalog.py 133 lines; main.py +167/-16. 4 new endpoints
+                            # + deprecated /api/catalog/entries alias with X-DMF-Deprecated
+                            # header. Uses existing awx.py + netbox.py helpers; no
+                            # reinvented clients. Minor latent concerns: _catalog_index()
+                            # reloads YAML per request (acceptable for spike); N+1 NetBox
+                            # query per entry in GET /api/catalog (also acceptable for 1
+                            # entry; revisit at scale).
+
+- id: move1-p7b-cms-catalog-frontend
+  scope: dmf-cms
+  kind: taste                  # React rewrite — needs to call real APIs + handle async deploy/teardown + polling
+  worker: qwen-left
+  deps:
+    - move1-p7a-cms-catalog-backend   # frontend calls the API endpoints from P7a
+  decision_gate: null
+  acceptance:
+    - file_modified: dmf-cms/frontend/src/pages/Catalog/index.tsx
+    - calls_real_api: GET /api/catalog
+    - has_buttons: ["Deploy", "Teardown"]
+    - has_status_polling: true        # polls /api/catalog/<key>/status/<job_id> until terminal
+    - design_compliance: dmf-cms/AGENTS.md (existing card + panel patterns)
+  status: done              # 2026-05-12 shift 6 tick 13 (qwen-left)
+                            # 4 hooks added (useCatalog, useDeployCatalog,
+                            # useTeardownCatalog, useCatalogJobStatus); 4 types added;
+                            # Catalog/index.tsx rewritten (60→271 lines); tsc clean;
+                            # invalidates catalog query on job complete.
+
+- id: move1-p7c-cms-catalog-helm-role
+  scope: multi (dmf-cms + dmf-infra)
+  kind: rote
+  worker: qwen-left
+  deps:
+    - move1-p7a-cms-catalog-backend   # backend reads from /etc/dmf-cms/catalog/; ConfigMap mounts there
+  decision_gate: null
+  acceptance:
+    - file_exists: dmf-cms/charts/dmf-cms/templates/configmap-catalog.yaml
+    - file_modified: dmf-infra/k3s-lab-bootstrap/roles/stack/operator/cms/tasks/main.yml  # gather catalog YAML from mirrored sources, render to ConfigMap before helm upgrade
+    - mount_path: /etc/dmf-cms/catalog/
+  status: done              # 2026-05-12 shift 7 tick 15 (qwen-left interrupted +
+                            # claude fix-up). qwen produced 8 file changes before
+                            # API ECONNRESET; claude fixed two bugs:
+                            # (1) `patterns: "*.yaml", "*.yml"` invalid YAML →
+                            #     proper YAML list
+                            # (2) community.general.json_query with Jinja-filter
+                            #     pseudo-JMESPath → include_tasks read-catalog-file.yml
+                            #     loop using qwen's own fallback file
+                            # helm lint passes; tasks/main.yml parses; cms_catalog_enabled
+                            # auto-derives from gathered entries length.
+
+- id: move1-p8-drift-detector
+  scope: dmf-infra
+  kind: rote
+  worker: qwen-right
+  deps:
+    - move1-p1-catalog-schema
+    - move1-p6-awx-launcher-runbooks   # was move1-p5; Path A relocated workload deploy under P6's launcher (calls role configure stage)
+  decision_gate: catalog-namespace-source-of-truth   # answered 2026-05-12 — A
+  acceptance:
+    - file_exists: dmf-infra/k3s-lab-bootstrap/playbooks/lifecycle/operate-catalog-drift.yml
+    - file_exists: dmf-infra/k3s-lab-bootstrap/playbooks/lifecycle/tasks/catalog-drift-check.yml
+    - file_modified: dmf-infra/k3s-lab-bootstrap/lifecycle-operate.yml
+    - syntax_check: ansible-playbook --syntax-check (passes; warnings only)
+    - namespace_source: "reads entry.provision.namespace; asserts presence; no heuristic"
+    - cluster_verify_optional: "lifecycle-operate exits green when consistent; manually delete Helm release without flipping NetBox tag → drift check fails on next run, identifies entry"
+  status: done              # 2026-05-12 shift 8 tick 16
+                            # original qwen-right delivery (shift 5 tick 11) + Option A
+                            # patch (this tick): provision.namespace now in catalog schema;
+                            # drift check reads it explicitly; previous heuristic gone.
+
+- id: move1-p9-writeup
+  scope: umbrella
+  kind: taste                   # observational synthesis, not mechanical
+  worker: claude
+  deps:
+    # P2 + P5 are obviated by Path A — treated as terminal (skip-equivalent-to-done).
+    # P7 split into P7a/P7b/P7c per shift 6 operator decision.
+    # The write-up should still cover obviated/split entries as findings.
+    - move1-p1-catalog-schema
+    - move1-p3-forgejo-mirror-awx-projects
+    - move1-p4-nmos-provision
+    - move1-p6-awx-launcher-runbooks
+    - move1-p7a-cms-catalog-backend
+    - move1-p7b-cms-catalog-frontend
+    - move1-p7c-cms-catalog-helm-role
+    - move1-p8-drift-detector
+  decision_gate: null
+  acceptance:
+    - file_exists: docs/reviews/dmf-platform-move-1-learnings-2026-06-04.md
+    - file_exists: docs/architectural-commitments-v1.md
+    - structure: "six Q-and-A sections matching the six §'What this falsifies' items + §Bonus learnings (per Move 2 learnings doc)"
+    - includes_path_a_findings: true   # write-up MUST cover P2/P5 obviation as a learning
+    - exit_criterion: "ADR-0004 revisit criteria triggered; project transitions out of pure experiment phase"
+  status: done              # 2026-06-04 — docs/reviews/dmf-platform-move-1-learnings-2026-06-04.md
+                            # six Q&A + bonus + ADR-0004 revisit verdict; architectural-commitments-v1
+                            # superseded. Verdict: catalog/NMOS thesis CONFIRMED (5/6 falsifications
+                            # did not fire; Q6 live drift-injection = evidence gap, optional P0b).
+                            # MXL spike = successor pressure, not successor evidence.
+
+# ─── Group D — Tier A finish (deferred to K-future; parallel with C) ────────
+#
+# Source plan: docs/plans/DMF Pre-Release Compliance Readiness Plan 2026-05-11.md
+# Status:      A.7 already done; A.2 covered by Group B; rest pending.
+#              Tier A Phase 1 (audit-log archival) + Phase 2 (object-storage)
+#              + Phase 3 (vertical-resilience) already landed via direct
+#              operator-driven work; Tier A.1, A.3, A.4, A.5, A.6, A.8, A.9
+#              remain.
+# Workers:     qwen-left (A.3 SELF-HOST-DISCLAIMER ×6, A.9 supplier register
+#              stub), claude (A.4 audit-log retention policy, A.5 Cosign
+#              bootstrap doc — secret-adjacent), qwen-right (A.6 identity
+#              sweep close-out, A.8 dmf-env-off-GitHub re-verify).
+# Expansion:   /agentic-tick reads the source plan and creates entries when
+#              Group A is `done`.
+
+- id: group-d-expansion
+  scope: umbrella
+  kind: rote
+  worker: claude
+  deps:
+    - adr-0020-promote
+  decision_gate: null
+  acceptance:
+    - tasks_enumerated: "docs/plans/DMF Pre-Release Compliance Readiness Plan 2026-05-11.md"
+  status: pending
+
+# ─── End of seed ────────────────────────────────────────────────────────────
+#
+# Total seed entries: 7 (4 Group A + 3 group-expansion placeholders).
+# True backlog size after expansion: ~50 tasks across A/B/C/D.
+# The loop does NOT enumerate B/C/D until Group A is done — keeps the queue
+# legible for the operator's first review.

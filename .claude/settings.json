@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(bin/agentic/preflight.sh*)",
+      "Bash(bin/agentic/postflight.sh*)",
+      "Bash(bin/agentic/install-agentic-hooks.sh --dry-run*)",
+      "Bash(bin/check-public-repo-hygiene.sh*)",
+      "Bash(bin/scrub-public-repos.sh*)",
+      "Bash(bin/check-public-commit-authors.sh*)",
+      "Bash(bin/generate-status.sh*)",
+      "Bash(bin/generate-scripts-catalog.sh*)",
+      "Bash(bin/sync-to-github.sh --dry-run*)",
+      "Bash(gitleaks protect*)",
+      "Bash(gitleaks detect*)",
+      "Bash(shasum -a 256*)",
+      "Bash(~/.claude/skills/agent-bridge/bin/agent-bridge*)",
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git show*)",
+      "Bash(git rev-parse*)",
+      "Bash(git ls-files*)",
+      "Bash(git cat-file*)",
+      "Bash(git branch --show-current)",
+      "Bash(git config --get core.hooksPath)"
+    ],
+    "deny": [
+      "Bash(git push * github *)",
+      "Bash(git push github *)",
+      "Bash(git push --no-verify*)",
+      "Bash(git commit --no-verify*)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard *)",
+      "Bash(rm -rf /)",
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf ~)",
+      "Bash(rm -rf ~/*)",
+      "Bash(rm -rf $HOME*)",
+      "Bash(kubectl delete --all*)",
+      "Bash(kubectl delete namespace*)",
+      "Bash(helm uninstall *)",
+      "Bash(helm delete *)",
+      "Bash(tofu destroy*)",
+      "Bash(terraform destroy*)"
+    ]
+  }
+}

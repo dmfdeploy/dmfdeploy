@@ -1,0 +1,88 @@
+# DMF Platform — gitleaks config (umbrella)
+#
+# Pre-commit + CI scanner config. Extends the default gitleaks rule pack
+# and tunes for this codebase:
+#   - generic-api-key: noisy on prose. Allowlisted under docs/ (which
+#     legitimately discusses "API tokens", "OIDC client secrets",
+#     "Secret Ownership plan" etc. as concepts, not literals).
+#   - dev:changeme: custom rule. Catches the LAN Forgejo dev credential
+#     whenever it appears outside the few docs that explicitly call out
+#     the smell as a known issue.
+#
+# Operator-identity and internal-topology rules are deliberately NOT in
+# this file: publishing the patterns would publish what they protect.
+# They live in the gitignored `.gitleaks.local.toml` (operator-private),
+# which the pre-commit hook runs as a second pass when present, mirrored
+# by the operator-local include consumed by bin/scrub-public-repos.sh.
+#
+# Add new exceptions only with a comment explaining why and a path
+# anchored as narrowly as possible.
+
+[extend]
+useDefault = true
+
+# Global allowlist — operator-local working-tree paths that gitleaks
+# --no-git would otherwise scan even though they're gitignored. The
+# sub-repo working trees (dmf-*) are checked out as siblings of the
+# umbrella and each has its own .gitleaks.toml; double-scanning them
+# from the umbrella is just noise.
+[allowlist]
+description = "operator-local working-tree noise (gitignored or sub-repo)"
+paths = [
+    '''^\.claude/settings\.local\.json$''',
+    '''^\.claude/scheduled_tasks\.lock$''',
+    '''^\.qwen/''',
+    '''^docs/plans/LLM-Restricted Git Pipeline''',
+    '''^dmf-cms/''',
+    '''^dmf-runbooks/''',
+    '''^dmf-central/''',
+    '''^dmf-infra/''',
+    '''^dmf-media/''',
+    '''^dmf-env/''',
+]
+
+# Per-rule allowlist for the default generic-api-key rule.
+[[rules]]
+id = "generic-api-key"
+[[rules.allowlists]]
+description = "docs/ prose references to secret/token concepts"
+paths = [
+    '''^docs/'''
+]
+
+# Catch the well-known LAN Forgejo dev credential.
+[[rules]]
+id = "dmf-dev-changeme"
+description = "Known dev:changeme cred (LAN Forgejo dev credentials)"
+regex = '''dev:changeme'''
+tags = ["lab-cred", "dmf"]
+[[rules.allowlists]]
+description = "docs that intentionally call out the dev:changeme smell"
+paths = [
+    '''^docs/architecture/DMF Release and Contribution Model\.md$''',
+    '''^docs/reviews/dmf-move1-gate2-ssh-credential-incident-2026-05-05\.md$''',
+    '''^docs/plans/DMF Public Repo Identity Leak Sweep 2026-05-11\.md$''',
+    '''^bin/scrub-public-repos\.sh$''',
+    '''^bin/dmf-env-public-surface-gate\.sh$''',
+    '''^bin/export-scan\.sh$''',
+    '''^docs/plans/DMF Workstream B .*Scrub Spec 2026-06-09\.md$''',
+    '''^docs/plans/DMF Workstream D .*Governance Execution Spec 2026-06-09\.md$''',
+    '''^docs/plans/DMF Workstream E1 .*Execution Spec 2026-06-09\.md$''',
+    '''^docs/plans/DMF Workstream A .*Spec 2026-06-09\.md$''',
+]
+
+# Catch macOS metadata leaking into the tracked tree (.DS_Store, etc.).
+[[rules]]
+id = "dmf-macos-metadata"
+description = "macOS metadata file in tracked tree"
+regex = '''\.DS_Store'''
+tags = ["operator-identity", "dmf"]
+[[rules.allowlists]]
+description = "files that intentionally name the artifact"
+paths = [
+    '''^bin/scrub-public-repos\.sh$''',
+    '''^\.gitleaks\.toml$''',
+    '''^docs/plans/DMF Public Repo Identity Leak Sweep 2026-05-11\.md$''',
+    '''(^|/)\.gitignore$''',
+    '''(^|/)docs/DEVELOPMENT-AND-BUILD-RULES\.md$''',
+]

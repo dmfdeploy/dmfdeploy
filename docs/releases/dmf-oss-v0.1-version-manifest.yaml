@@ -1,0 +1,651 @@
+# DMF OSS v0.1 — Version Manifest / Bill of Materials
+#
+# PHYSICAL SOURCE OF TRUTH for the OSS v0.1 release composition.
+# Human-facing companion: "DMF OSS v0.1 Version Manifest.md" (same dir).
+#
+# Governs release reproducibility under ADR-0031 (sandbox-first profile
+# matrix). This is a WP0/WP5 release-discipline artifact, NOT a new ADR.
+#
+# STATUS: DRAFT. Values are a provisional snapshot taken 2026-05-26 from the
+# local component repos. Component refs are OBSERVED HEADs, not release tags
+# (see component_repos[].provisional). Floating image/chart/collection refs
+# are recorded honestly with a must_*_before_release flag rather than being
+# pretended acceptable.
+#
+# WP5 owns enforcement (see gates.* and the verifier checklist). No verifier
+# script ships with this manifest yet — the checks below are the spec WP5
+# implements.
+
+schema_version: 1
+release: dmf-oss-v0.1
+manifest_status: draft
+generated: "2026-05-26"
+generated_from: "local component repo HEADs (umbrella dmfdeploy@8ae2a34)"
+governing_adr: ADR-0031   # OSS v0.1 sandbox-and-AWS release-profile matrix
+anchor_plan: "docs/plans/DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25.md"
+verification_owner: "docs/plans/DMF OSS v0.1 WP5 Release Verification and Tagging 2026-05-25.md"
+
+# ---------------------------------------------------------------------------
+# Lane classification vocabulary (ADR-0031 profile matrix).
+# Every release-relevant component below carries `lanes: [...]` drawn from
+# these. A component may belong to more than one lane.
+# ---------------------------------------------------------------------------
+lane_classes:
+  sandbox-required: >-
+    Part of the `sandbox-single-node` profile, which GATES v0.1. The tag is
+    blocked unless every sandbox-required component is pinned, arm64-available,
+    and passes the WP5 sandbox row from a fresh clone.
+  aws-required: >-
+    Part of the `aws-arm64-multi-node` secondary lane. Must be pinned/arm64
+    before the AWS row can pass, but the AWS row is informational and never
+    gates v0.1 (ADR-0031 Profile 2).
+  lab-only: >-
+    Used only by the `g2r6-foa9` reference/regression lab (Profile 3). Not a
+    release profile; exempt from v0.1 release scrutiny. Recorded here for
+    completeness and drift tracking, NOT as a release gate.
+  optional: >-
+    Shippable in a profile but not required by its gate (e.g. monitoring is
+    trimmed/optional in sandbox). If actually shipped in a release lane it
+    inherits that lane's pin/arch rules.
+  deferred: >-
+    Present in the workspace but out of v0.1 scope (scaffold / future work).
+    Excluded from the release composition.
+
+# Architecture requirement (ADR-0031 common gate 3, WP5 arm64 gate):
+#   Every sandbox-required and aws-required RUNTIME IMAGE must have a
+#   linux/arm64 manifest. `arch_arm64: verify` = not yet asserted by WP5.
+arch_requirement:
+  required_for_lanes: [sandbox-required, aws-required]
+  platform: linux/arm64
+
+# ---------------------------------------------------------------------------
+# 1. Component repositories
+# ---------------------------------------------------------------------------
+# current_observed_ref = HEAD at manifest generation. PROVISIONAL: these are
+# not release tags. ADR-0031 O6: the umbrella manifest is canonical; public
+# component repos MAY also carry matching v0.1.0 tags (WP5 Phase 6 decides
+# Option A vs B). Private dmf-env is NOT a public release artifact.
+component_repos:
+  - name: dmfdeploy
+    role: "umbrella workspace + canonical docs (this manifest lives here)"
+    remote_public: true
+    current_observed_ref: 8ae2a34
+    branch: main
+    provisional: true
+    lanes: [sandbox-required, aws-required]
+  - name: dmf-infra
+    role: "generic Ansible playbooks/roles, AWX EE build, k3s bootstrap"
+    remote_public: true
+    current_observed_ref: 53f3905
+    branch: main
+    provisional: true
+    lanes: [sandbox-required, aws-required]
+  - name: dmf-cms
+    role: "operator console (React + FastAPI) + Helm chart"
+    remote_public: true
+    current_observed_ref: 9215832
+    branch: main
+    provisional: true
+    lanes: [sandbox-required, aws-required]
+  - name: dmf-media
+    role: "media catalog metadata + nmos-cpp reference chart (ADR-0031 O2 item)"
+    remote_public: true
+    current_observed_ref: 0318b3a
+    branch: main
+    provisional: true
+    lanes: [sandbox-required, aws-required]
+  - name: dmf-runbooks
+    role: "thin AWX launcher playbooks + authoritative nmos-cpp role (ADR-0014/0016)"
+    remote_public: true
+    current_observed_ref: d321d09
+    branch: main
+    provisional: true
+    lanes: [sandbox-required, aws-required]
+  - name: dmf-central
+    role: "central services scaffold (Phase 0 step 5)"
+    remote_public: true
+    current_observed_ref: b4ab734
+    branch: main
+    provisional: true
+    lanes: [deferred]
+    note: "Scaffold only; not part of the v0.1 composition unless promoted before tag."
+  - name: dmf-env
+    role: "PRIVATE inventory + Terraform Layer-1 (env id rotates)"
+    remote_public: false
+    current_observed_ref: 0ef05d9
+    branch: main
+    provisional: true
+    lanes: [lab-only, aws-required]
+    note: >-
+      Per ADR-0031 O6 NOT a public release artifact and excluded from the
+      release tag. OSS sample manifests/templates must live in public docs or
+      public infra/template locations, never in dmf-env. Ref recorded for
+      reproducibility of the lab/AWS lanes only.
+
+# ---------------------------------------------------------------------------
+# 2. Kubernetes distribution
+# ---------------------------------------------------------------------------
+kubernetes:
+  - name: k3s
+    version: "v1.30.6+k3s1"
+    lanes: [sandbox-required, aws-required]
+    source: "dmf-infra: k3s-lab-bootstrap/playbooks/300-k3s.yml:56,139"
+    install: "INSTALL_K3S_VERSION via https://get.k3s.io"
+    arch_arm64: verify
+    drift_note: >-
+      Pinned twice in the same playbook (server play line 56, agent play line
+      139). Both currently agree at v1.30.6+k3s1. WP5 must fail if the two
+      copies ever diverge or disagree with this manifest.
+
+# ---------------------------------------------------------------------------
+# 2b. Host operating system (node base OS — a release component)
+# ---------------------------------------------------------------------------
+# The node OS is part of the BOM, not an environmental detail: the Layer-2
+# host playbooks (200-baseline "Debian 12", 210-harden, 211-kernel-cve) are
+# written for Debian 12, so OS family/version/arch is a release-relevant pin.
+# ADR-0031 states the release claim as "one ARM64 Debian host".
+host_os:
+  release_claim: >-
+    OSS v0.1 targets an ARM64 Debian 12 (bookworm) host for the
+    sandbox-single-node profile (ADR-0031). The aws-arm64-multi-node lane
+    carries the same OS family/version/arch requirement (Debian 12 arm64 AMI).
+  wp5_enforcement: >-
+    WP5 must verify host OS family + version + arch for the lane being
+    released: the sandbox row fails unless the node reports Debian 12
+    (bookworm) on linux/arm64; the AWS row must boot a Debian 12 arm64 AMI.
+  lanes:
+    - lane: sandbox-single-node
+      os_family: debian
+      distribution: "Debian GNU/Linux 12 (bookworm)"
+      version: "12"
+      codename: bookworm
+      platform: linux/arm64
+      arch_arm64: confirmed          # node Ready at first-acceptance 2026-05-26
+      gates_v0_1: true               # sandbox lane gates the tag
+      source: >-
+        dmf-env: inventories/dmf-sandbox + live first-acceptance check
+        (`kubectl get nodes -o wide` reported Debian GNU/Linux 12 (bookworm),
+        6.1.0-cloud-arm64). Local backing host was a Lima template://debian-12
+        VM, but the lane is provider-agnostic — the OS pin is what matters, not
+        the VMM (bare metal / VPS / QEMU are equivalent).
+    - lane: aws-arm64-multi-node
+      os_family: debian
+      distribution: "Debian 12 (bookworm) arm64 AMI"
+      version: "12"
+      codename: bookworm
+      platform: linux/arm64
+      arch_arm64: required
+      gates_v0_1: false              # secondary lane; informational, never gates v0.1
+      source: >-
+        dmf-env: terraform/modules/aws/cluster/main.tf (aws_ami data source:
+        owner 136693071363 = Debian, name debian-12-arm64-*, architecture
+        arm64; comment ties it to spec.topology.os=debian-12 and the hetzner
+        module's debian-12 image). NOTE: the AWS module is still WIP/uncommitted
+        in dmf-env at manifest time — confirm the resolved AMI id before the AWS
+        row passes.
+
+# ---------------------------------------------------------------------------
+# 3. Upstream Helm charts (remote repos)
+# ---------------------------------------------------------------------------
+helm_charts:
+  - name: cert-manager
+    chart: jetstack/cert-manager
+    version: "v1.20.2"
+    crds: "github.com/cert-manager/cert-manager/releases/download/v1.20.2/cert-manager.crds.yaml"
+    lanes: [sandbox-required, aws-required]
+    source: "dmf-infra: roles/base/cert-manager/defaults/main.yml:4"
+    arch_arm64: verify
+    profile_note: "sandbox issues a local CA; AWS uses Route53 DNS-01 (ADR-0031)."
+  - name: external-secrets
+    chart: external-secrets/external-secrets
+    version: "2.3.0"
+    lanes: [sandbox-required, aws-required]
+    source: "dmf-infra: roles/base/external-secrets/defaults/main.yml:10 (eso_helm_version)"
+    arch_arm64: verify
+  - name: awx-operator
+    chart: awx-operator/awx-operator
+    version: "3.2.1"
+    lanes: [sandbox-required, aws-required]
+    source: "dmf-infra: roles/stack/operator/awx/defaults/main.yml:4"
+    arch_arm64: verify
+    profile_note: "Retained in sandbox (load-bearing for the catalog loop) at low concurrency on local-path (WP0 §5)."
+  - name: authentik
+    chart: authentik/authentik
+    version: "2026.2.2"
+    lanes: [sandbox-required, aws-required]
+    source: "dmf-infra: roles/stack/operator/authentik/defaults/main.yml:7 (authentik_helm_version)"
+    arch_arm64: verify
+    profile_note: "Identity authority (ADR-0028). Gates the seeded-admin passkey login (ADR-0015)."
+  - name: traefik-private
+    chart: traefik/traefik
+    version: "39.0.9"
+    lanes: [optional]
+    source: "dmf-infra: roles/base/ingress-private/defaults/main.yml:13 (ingress_private_chart_version)"
+    arch_arm64: verify
+    note: >-
+      Private Traefik instance, used only when the private-ingress path is
+      enabled. The default cluster ingress is the k3s-bundled Traefik (no
+      separate chart pin). WP1S to confirm whether sandbox needs this.
+  - name: loki
+    chart: grafana/loki
+    version: "6.6.2"
+    lanes: [optional]
+    source: "dmf-infra: roles/stack/operator/loki/defaults/main.yml:22 (loki_helm_chart_version)"
+    arch_arm64: verify
+    note: "Monitoring/logging — trimmed/optional in sandbox (WP0 §5)."
+  - name: promtail
+    chart: grafana/promtail
+    version: "6.16.4"
+    lanes: [optional]
+    source: "dmf-infra: roles/base/promtail/defaults/main.yml:4"
+    arch_arm64: verify
+    note: "Optional in sandbox."
+  - name: grafana
+    chart: grafana/grafana
+    version: "8.0.0"
+    lanes: [optional]
+    source: "dmf-infra: roles/base/grafana/defaults/main.yml:7"
+    arch_arm64: verify
+    note: "Optional in sandbox."
+  - name: prometheus
+    chart: prometheus-community/prometheus
+    version: "25.8.0"
+    lanes: [optional]
+    source: "dmf-infra: roles/base/prometheus/defaults/main.yml:18"
+    arch_arm64: verify
+    note: "Optional in sandbox (monitoring trimmed)."
+  - name: librenms
+    chart: librenms/librenms
+    version: "7.1.0"
+    lanes: [lab-only, optional]
+    source: "dmf-infra: roles/modules/infra-monitoring/librenms/defaults/main.yml:8"
+    arch_arm64: verify
+    note: "Infra-monitoring module; not in the sandbox gate."
+
+# ---------------------------------------------------------------------------
+# 4. Local / vendored charts (in-repo or wrapper-over-upstream)
+# ---------------------------------------------------------------------------
+local_charts:
+  - name: dmf-cms
+    chart_version: "0.9.0"
+    app_version: "0.9.0"
+    lanes: [sandbox-required, aws-required]
+    source: "dmf-cms: charts/dmf-cms/Chart.yaml"
+    note: "Console chart. Image resolved separately (see dmf_images.dmf-cms)."
+  - name: nmos-cpp
+    chart_version: "0.1.1"
+    app_version: "0.1.0"
+    lanes: [sandbox-required, aws-required]
+    source_chart: "dmf-media: charts/nmos-cpp/Chart.yaml"
+    published_oci: "ghcr.io/dmfdeploy/charts/nmos-cpp (mirrored to zot.zot.svc.cluster.local:5000/dmf/charts/nmos-cpp)"
+    digest: "sha256:827bce1a0a769bd996033232d178ad1b057879f4619d8ef17ca1281903bd5ba0"
+    digest_source: "dmf-infra: roles/stack/operator/awx-integration/defaults/main.yml:186 (nmos_cpp_chart_digest)"
+    note: >-
+      ADR-0031 O2 reference catalog item. The 630 seed playbook fallback
+      default was realigned to 0.1.1 / sha256:827bce... in dmf-infra b644c3a,
+      so the tree is no longer knowingly wrong. Residual (see known_gaps
+      nmos-seed-chart-version-fallback): WP5 must enforce cross-source
+      agreement across this manifest, dmf-media Chart.yaml, awx-integration
+      defaults, 630-zot-seed-platform.yml, dmf-runbooks launch-nmos-cpp.yml,
+      and the published OCI digest.
+  - name: netbox
+    wrapper_chart_version: "0.1.0"
+    upstream_chart: "netbox-community/netbox-chart"
+    upstream_chart_version: "7.3.0"
+    upstream_app_version: "4.5"
+    lock_digest: "sha256:19f3250df2b20a0a1b601b875cf0661d4b6b01aa333d33bba54d831c79d1aede"
+    lanes: [sandbox-required, aws-required]
+    source: "dmf-infra: k3s-lab-bootstrap/charts/netbox/Chart.yaml + Chart.lock"
+    confirm_in: WP1S
+    note: >-
+      NetBox is the platform Source-of-Truth; the AWX catalog loop writes
+      lifecycle tags to it. Marked sandbox-required provisionally — WP1S must
+      confirm whether the sandbox reference deploy genuinely needs the SoT or
+      whether it can be trimmed. SEE known_gaps for the Valkey :latest subchart
+      image.
+  - name: forgejo
+    vendored_chart_version: "16.0.2"
+    app_version: "14.0.2"
+    dependency: "common (oci://ghcr.io/visualon/bitnamicharts) 2.31.4"
+    lock_digest: "sha256:e0a6af44c4382f020e0d8451604cc41cf9733777024eb2eb0881cd24d92a97b5"
+    lanes: [sandbox-required, aws-required]
+    source: "dmf-infra: k3s-lab-bootstrap/charts/forgejo/Chart.yaml + Chart.lock"
+    confirm_in: WP1S
+    note: >-
+      Forgejo hosts the automation/config repos AWX consumes for the catalog
+      loop. Marked sandbox-required provisionally; WP1S to confirm necessity
+      for the single-node gate.
+
+# ---------------------------------------------------------------------------
+# 5. Raw manifest installs (kubectl apply from a pinned URL)
+# ---------------------------------------------------------------------------
+raw_manifests:
+  - name: metallb
+    version: "v0.14.9"
+    url: "https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml"
+    lanes: [optional]
+    source: "dmf-infra: roles/base/metallb/defaults/main.yml:2,4"
+    arch_arm64: verify
+    note: >-
+      Ingress-mode dependent. Single-node sandbox can use klipper/nodeport
+      instead; the AWS lane uses an NLB. Not in the sandbox gate by default.
+  - name: longhorn
+    version: "v1.10.1"
+    url: "https://raw.githubusercontent.com/longhorn/longhorn/v1.10.1/deploy/longhorn.yaml"
+    lanes: [lab-only]
+    source: "dmf-infra: k3s-lab-bootstrap/playbooks/330-longhorn.yml:6,7"
+    arch_arm64: verify
+    note: >-
+      EXPLICITLY removed from sandbox (WP0 §5 storage trim: sandbox uses k3s
+      local-path). Reference/lab storage only. The roles/base/longhorn role is
+      a TODO stub; the live install is the inline playbook above.
+
+# ---------------------------------------------------------------------------
+# 6. DMF-built images
+# ---------------------------------------------------------------------------
+# Published to GHCR (ghcr.io/dmfdeploy/*) then mirrored into cluster-internal
+# Zot by dmf-infra playbook 630-zot-seed-platform.yml. Release installs must
+# resolve image tags THROUGH THIS MANIFEST, not by reading a sibling VERSION
+# file at runtime (see known_gaps: dmf-cms-runtime-version-resolution).
+dmf_images:
+  - name: dmf-cms
+    source_registry: "ghcr.io/dmfdeploy/dmf-cms"
+    tag: "0.9.0"
+    lanes: [sandbox-required, aws-required]
+    built_from: "dmf-cms (VERSION=0.9.0; publish-to-ghcr.sh, GHCR_NAMESPACE default dmfdeploy)"
+    arch_arm64: verify
+    note: >-
+      Chart values default repository is the placeholder
+      registry.dmf.example.com/dmf-cms:0.9.0 (env overrides to GHCR/Zot). Tag
+      currently tracks the VERSION file at runtime — acceptable for dev, but a
+      release install must pin via this manifest. SEE known_gaps.
+  - name: awx-ee
+    source_registry: "ghcr.io/dmfdeploy/awx-ee"
+    zot_path: "zot.zot.svc.cluster.local:5000/dmf/awx-ee"
+    tag: "0.1.0"
+    lanes: [sandbox-required, aws-required]
+    built_from: "dmf-infra: k3s-lab-bootstrap/ee/ (ansible-builder; ADR-0025)"
+    source: "dmf-infra: roles/stack/operator/awx-integration/defaults/main.yml:171,172"
+    arch_arm64: verify
+    note: "Execution environment for AWX catalog jobs — load-bearing for the catalog loop."
+  - name: nmos-cpp-registry
+    source_registry: "ghcr.io/dmfdeploy/nmos-cpp-registry"
+    zot_path: "zot.zot.svc.cluster.local:5000/dmf/nmos-cpp-registry"
+    tag: "0.1.0"
+    lanes: [sandbox-required, aws-required]
+    built_from: "nmos-cpp role (dmf-runbooks, ADR-0014/0016)"
+    source: "dmf-infra: roles/stack/operator/awx-integration/defaults/main.yml:179,180; dmf-media charts/nmos-cpp/values.yaml:6,7"
+    arch_arm64: verify
+  - name: nmos-cpp-node
+    source_registry: "ghcr.io/dmfdeploy/nmos-cpp-node"
+    zot_path: "zot.zot.svc.cluster.local:5000/dmf/nmos-cpp-node"
+    tag: "0.1.0"
+    lanes: [sandbox-required, aws-required]
+    built_from: "nmos-cpp role (dmf-runbooks, ADR-0014/0016)"
+    source: "dmf-infra: roles/stack/operator/awx-integration/defaults/main.yml:181,182; dmf-media charts/nmos-cpp/values.yaml:19,20"
+    arch_arm64: verify
+
+# ---------------------------------------------------------------------------
+# 7. Third-party runtime / utility images
+# ---------------------------------------------------------------------------
+# Pinned entries are acceptable. Floating entries (must_pin_before_release:
+# true) MUST be resolved to an immutable tag or digest before the relevant
+# release lane can pass WP5. They are recorded honestly, not whitewashed.
+third_party_images:
+  # --- pinned (acceptable) ---
+  - name: openbao-server
+    image: "openbao/openbao:2.5.2"
+    lanes: [sandbox-required, aws-required]
+    source: "dmf-infra: roles/stack/operator/openbao/defaults/main.yml:6"
+    arch_arm64: verify
+    must_pin_before_release: false
+  - name: post-bootstrap-verify
+    image: "busybox:1.36"
+    lanes: [sandbox-required]
+    source: "dmf-infra: roles/base/post-bootstrap-verify/defaults/main.yml:3"
+    arch_arm64: verify
+    must_pin_before_release: false
+  - name: librenms-proxy
+    image: "nginx:1.27-alpine"
+    lanes: [lab-only, optional]
+    source: "dmf-infra: roles/modules/infra-monitoring/librenms/defaults/main.yml:27"
+    arch_arm64: verify
+    must_pin_before_release: false
+    note: "Minor-pinned (floating patch). Acceptable for lab; tighten if shipped in a release lane."
+
+  # --- FLOATING — must_pin_before_release: true ---
+  - name: netbox-valkey
+    image: "bitnami/valkey:latest"
+    lanes: [sandbox-required, aws-required]
+    source: "dmf-infra: roles/stack/operator/netbox/templates/values.yml.j2:155 (tag: latest)"
+    arch_arm64: verify
+    must_pin_before_release: true
+    note: "NetBox Valkey subchart image. Floating; pin to a digest/version."
+  - name: landing-page-curl
+    image: "curlimages/curl:latest"
+    lanes: [sandbox-required]
+    source: "dmf-infra: roles/stack/operator/landing-page/tasks/main.yml:151,176"
+    arch_arm64: verify
+    must_pin_before_release: true
+    note: "Two occurrences. Landing page ships in the sandbox profile."
+  - name: landing-page-nginx
+    image: "nginx:alpine"
+    lanes: [sandbox-required]
+    source: "dmf-infra: roles/stack/operator/landing-page/tasks/main.yml:164"
+    arch_arm64: verify
+    must_pin_before_release: true
+    note: "Floating tag; pin to nginx:<major.minor>-alpine or a digest."
+  - name: prometheus-ntfy-bridge
+    image: "python:3.13-alpine"
+    lanes: [optional]
+    source: "dmf-infra: roles/base/prometheus/defaults/main.yml:48"
+    arch_arm64: verify
+    must_pin_before_release: true
+    note: "Floating patch tag. Optional/monitoring; pin if shipped."
+  - name: openbao-raft-snapshot
+    image: "openbao/openbao:latest"
+    lanes: [lab-only, aws-required]
+    source: "dmf-infra: roles/base/openbao-raft-snapshot/defaults/main.yml:27"
+    arch_arm64: verify
+    must_pin_before_release: true
+    note: >-
+      INCONSISTENT with the pinned openbao-server (2.5.2). Pin and align to the
+      server version. Backup CronJob — trimmed from sandbox (no backup gate).
+  - name: awscli-postgres-backups
+    image: "amazon/aws-cli:latest"
+    lanes: [lab-only, aws-required]
+    source: "dmf-infra: roles/base/postgres-backups/defaults/main.yml:31"
+    arch_arm64: verify
+    must_pin_before_release: true
+    note: "Backup CronJob loader. Trimmed from sandbox."
+  - name: awscli-openbao-raft-snapshot
+    image: "amazon/aws-cli:latest"
+    lanes: [lab-only, aws-required]
+    source: "dmf-infra: roles/base/openbao-raft-snapshot/defaults/main.yml:28"
+    arch_arm64: verify
+    must_pin_before_release: true
+  - name: awscli-resilience-verify
+    image: "amazon/aws-cli:latest"
+    lanes: [lab-only, aws-required]
+    source: "dmf-infra: roles/base/resilience-verify/defaults/main.yml:40"
+    arch_arm64: verify
+    must_pin_before_release: true
+  - name: awscli-zot-mirror
+    image: "amazon/aws-cli:latest"
+    lanes: [lab-only, aws-required]
+    source: "dmf-infra: roles/base/zot-mirror/defaults/main.yml:57"
+    arch_arm64: verify
+    must_pin_before_release: true
+  - name: skopeo-zot-mirror
+    image: "quay.io/skopeo/stable:latest"
+    lanes: [lab-only, aws-required]
+    source: "dmf-infra: roles/base/zot-mirror/defaults/main.yml:56"
+    arch_arm64: verify
+    must_pin_before_release: true
+    note: "Image-mirror CronJob. Trimmed from sandbox."
+
+# ---------------------------------------------------------------------------
+# 8. Ansible collections
+# ---------------------------------------------------------------------------
+# Exact-pinning is required for release reproducibility. Current state is
+# UNPINNED (no version) for workstation/repo requirements and RANGED (>=,<) for
+# the EE build. Release-lane requirements must become exact pins before release.
+ansible_collections:
+  - file: "dmf-infra: k3s-lab-bootstrap/requirements.yml"
+    purpose: "workstation / control-node collections"
+    lanes: [sandbox-required, aws-required]
+    must_exact_pin_before_release: true
+    collections:
+      - { name: kubernetes.core, version: "UNPINNED" }
+      - { name: ansible.posix,   version: "UNPINNED" }
+      - { name: community.general, version: "UNPINNED" }
+  - file: "dmf-infra: k3s-lab-bootstrap/ee/requirements.yml"
+    purpose: "AWX EE image (ADR-0025 Lane A); also copied to ee/context/_build/requirements.yml"
+    lanes: [sandbox-required, aws-required]
+    must_exact_pin_before_release: true
+    drift_note: >-
+      ee/requirements.yml and ee/context/_build/requirements.yml are duplicates
+      that differ only in a comment (630-zot-seed-platform vs 630-awx-ee). WP5
+      should fail if their collection sets diverge.
+    collections:
+      - { name: kubernetes.core,   version: ">=5.0.0,<6.0.0",  pin_status: ranged }
+      - { name: community.general, version: ">=9.0.0,<11.0.0", pin_status: ranged }
+      - { name: ansible.posix,     version: ">=1.6.0,<2.0.0",  pin_status: ranged }
+      - { name: community.docker,  version: ">=3.10.0,<5.0.0", pin_status: ranged }
+  - file: "dmf-runbooks: requirements.yml"
+    purpose: "AWX launcher / catalog runbook dependencies (nmos-cpp launch + teardown)"
+    lanes: [sandbox-required, aws-required]
+    must_exact_pin_before_release: true
+    collections:
+      - { name: ansible.posix, version: "UNPINNED" }
+      - { name: ansible.netcommon, version: "UNPINNED" }
+      - { name: kubernetes.core, version: "UNPINNED" }
+  - file: "dmf-media: requirements.yml"
+    purpose: "media-domain playbooks and helper roles"
+    lanes: [sandbox-required, aws-required]
+    must_exact_pin_before_release: true
+    collections:
+      - { name: ansible.posix, version: "UNPINNED" }
+      - { name: ansible.utils, version: "UNPINNED" }
+      - { name: community.hashi_vault, version: "UNPINNED" }
+      - { name: kubernetes.core, version: "UNPINNED" }
+  - file: "dmf-central: requirements.yml"
+    purpose: "central-services scaffold dependencies"
+    lanes: [deferred]
+    must_exact_pin_before_release: false
+    note: "Deferred from v0.1 composition; exact-pin before promotion into a release lane."
+    collections:
+      - { name: ansible.posix, version: "UNPINNED" }
+      - { name: ansible.utils, version: "UNPINNED" }
+      - { name: community.hashi_vault, version: "UNPINNED" }
+      - { name: kubernetes.core, version: "UNPINNED" }
+
+# ---------------------------------------------------------------------------
+# 9. Toolchain (record exact versions before release)
+# ---------------------------------------------------------------------------
+toolchain:
+  must_record_before_release: true
+  note: >-
+    Versions not yet pinned in public docs. WP5 must record the exact versions
+    used for the passing verification run.
+  components:
+    - { name: ansible-core, role: "playbook + EE build", version: TBD }
+    - { name: ansible-builder, role: "AWX EE build (ADR-0025)", version: TBD }
+    - { name: helm, role: "chart installs", version: TBD }
+    - { name: kubectl, role: "raw-manifest applies + verification", version: TBD }
+    - { name: skopeo, role: "image seed/mirror (workstation)", version: TBD }
+    - { name: "opentofu/terraform", role: "AWS Layer-1 (aws lane only)", version: TBD, lanes: [aws-required] }
+
+# ---------------------------------------------------------------------------
+# 10. Release gates (WP5-enforced; see companion doc + WP5 plan)
+# ---------------------------------------------------------------------------
+gates:
+  v0_1_tag_gating_lane: sandbox-required   # ONLY the sandbox row gates the tag
+  aws_lane: informational-unless-passed    # ships in tag only if it also passes
+  lab_lane: reference-only                  # never a release pass/fail
+  fail_conditions:
+    - "Any sandbox-required or aws-required component carries a floating Helm chart, image, or collection ref (must_pin_before_release / must_exact_pin_before_release still true) for the lane being released."
+    - "This manifest and a role default / playbook value disagree (e.g. nmos seed chart version/digest)."
+    - "A sandbox-required or aws-required runtime image has no linux/arm64 manifest (arch_arm64 != confirmed)."
+    - "A component_repos[].current_observed_ref is still provisional at tag time without an explicit operator waiver."
+    - "k3s version pins in 300-k3s.yml disagree with each other or with this manifest."
+    - "The host OS for the lane being released does not match host_os (family/version/arch): the sandbox node is not Debian 12 (bookworm) on linux/arm64, or the AWS lane does not boot a Debian 12 arm64 AMI."
+  passing_record:
+    note: "WP5 records, per lane, the passing component SHAs, image digests, and verification env id here at tag time."
+    sandbox_single_node: { status: not-yet-verified }
+    aws_arm64_multi_node: { status: not-yet-verified }
+
+# ---------------------------------------------------------------------------
+# 11. Known gaps (current, exact — do not lose these)
+# ---------------------------------------------------------------------------
+known_gaps:
+  - id: nmos-seed-chart-version-fallback
+    severity: patched          # was release-blocker; tactical fix landed 2026-05-26
+    status: patched-wp5-must-enforce
+    where: "dmf-infra: k3s-lab-bootstrap/playbooks/630-zot-seed-platform.yml:105,106"
+    resolved_2026_05_26: >-
+      Tactical patch landed in dmf-infra b644c3a: the two fallback defaults are
+      now nmos_cpp_seed_chart_version=default('0.1.1') and
+      nmos_cpp_seed_chart_digest=default('sha256:827bce1a0a769bd996033232d178ad1b057879f4619d8ef17ca1281903bd5ba0'),
+      so the tree is no longer knowingly wrong. Residual obligation below is on
+      WP5, not on the tree.
+    detail: >-
+      Fallback defaults WERE nmos_cpp_seed_chart_version=default('0.1.0') and
+      nmos_cpp_seed_chart_digest=default('sha256:4de20135...c32d648c1'), while
+      the live values (awx-integration defaults:185,186) are 0.1.1 /
+      sha256:827bce... The live var wins WHEN DEFINED, so this only bit an unset
+      invocation, but it is exactly the manifest/role-default disagreement WP5
+      must fail on.
+    decision_2026_05_26: >-
+      AGREED ACTION: do the tactical patch, then enforce the stronger release
+      rule. Before v0.1, update the two fallback defaults to 0.1.1 /
+      sha256:827bce... so the tree is not knowingly wrong. The longer-term
+      release posture is that the version manifest owns the nmos chart version
+      and digest; WP5 must fail unless the manifest, dmf-media Chart.yaml,
+      awx-integration defaults, 630-zot-seed-platform.yml, dmf-runbooks
+      launch-nmos-cpp.yml, and the published OCI chart digest all agree (where
+      the digest is reachable). Future hardening may remove the fallback
+      entirely so an unset chart version/digest fails loudly.
+  - id: floating-third-party-images
+    severity: release-blocker-per-lane
+    detail: >-
+      latest/floating tags: netbox bitnami/valkey:latest; landing-page
+      curlimages/curl:latest (x2) and nginx:alpine; prometheus
+      python:3.13-alpine; openbao-raft-snapshot openbao/openbao:latest;
+      amazon/aws-cli:latest (postgres-backups, openbao-raft-snapshot,
+      resilience-verify, zot-mirror); quay.io/skopeo/stable:latest (zot-mirror).
+      See third_party_images[] entries with must_pin_before_release: true.
+  - id: openbao-image-inconsistency
+    severity: medium
+    detail: >-
+      openbao server is pinned (2.5.2) but the raft-snapshot CronJob uses
+      openbao/openbao:latest. Align both to a single pinned version.
+  - id: unpinned-and-ranged-ansible-collections
+    severity: release-blocker
+    detail: >-
+      Release-lane requirements files are fully unpinned (dmf-infra
+      k3s-lab-bootstrap/requirements.yml, dmf-runbooks/requirements.yml,
+      dmf-media/requirements.yml); EE requirements use ranges. Exact-pin all
+      release-lane entries before release. dmf-central requirements are
+      unpinned too but deferred from v0.1. See ansible_collections[].
+  - id: dmf-cms-runtime-version-resolution
+    severity: medium
+    where: "dmf-cms: scripts/publish-to-ghcr.sh; charts/dmf-cms/values.yaml"
+    detail: >-
+      dmf-cms image tag is read from the sibling VERSION file at runtime (good
+      for dev). A release install should resolve the tag through THIS manifest
+      so the released console image is pinned, not whatever VERSION says at
+      deploy time.
+  - id: k3s-version-double-pin
+    severity: low
+    where: "dmf-infra: k3s-lab-bootstrap/playbooks/300-k3s.yml:56,139"
+    detail: "k3s_version is duplicated across the server and agent plays. They agree now; WP5 must fail on divergence."
+  - id: ee-requirements-duplication
+    severity: low
+    detail: "ee/requirements.yml duplicated at ee/context/_build/requirements.yml; keep them in lockstep."
+  - id: netbox-forgejo-sandbox-necessity
+    severity: scope-open
+    detail: >-
+      NetBox (SoT) and Forgejo (automation repos) are marked sandbox-required
+      provisionally. WP1S must confirm whether the single-node reference deploy
+      actually needs them or can trim them.

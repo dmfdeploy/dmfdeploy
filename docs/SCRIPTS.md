@@ -1,0 +1,119 @@
+# DMF Scripts Catalog
+
+_Auto-generated 2026-06-11 by `bin/generate-scripts-catalog.sh`._
+
+A single discoverable index of every shell script across the DMF repos.
+Each entry shows where the script lives and what it does in one line.
+Run the generator to refresh; `--check` exits non-zero on drift.
+
+**Convention:** scripts live in `<repo>/bin/` or `<repo>/scripts/`. The
+first non-shebang comment **paragraph** (consecutive `#` lines until the
+first blank `#`, with pure-decoration lines skipped) becomes the catalog
+description. Keep the first paragraph a tight summary; put deeper detail
+in subsequent paragraphs separated by a blank `#`.
+
+For a deeper read of any script, open it directly. For repository-specific
+context (working directory, env vars, secrets discipline), see the relevant
+repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
+
+## umbrella — `dmfdeploy/bin/`
+
+| Script | Description |
+|---|---|
+| `bin/check-docs.sh` | offline documentation gate for the DMF umbrella. Hard-fails on missing/broken frontmatter, dangling superseded_by targets, stale plans index, or inconsistent ADR file↔INDEX cross-references. Prints warnings for issues that don't block (missing tracking_issue, unresolved links, closed tracking issues). |
+| `bin/check-public-commit-authors.sh` | verify every commit author/committer on every public DMF Platform repo matches the public-identity allowlist. |
+| `bin/check-public-repo-hygiene.sh` | bin/check-public-repo-hygiene.sh — per-repo Tier A.2 hygiene gate. |
+| `bin/dmf-env-public-surface-gate.sh` | fail-closed gate: is a dmf-env tree safe to publish as a generic env-tooling repo? |
+| `bin/export-scan.sh` | stage a CLEAN-HISTORY orphan export of one component repo and run every public-safety gate against that exact tree. Workstream A (first public release). |
+| `bin/generate-plans-index.sh` | scan docs/plans/*.md for YAML frontmatter and produce docs/plans/INDEX.md, grouped by status (Active / Draft / Executed / Superseded / Historical), newest-first. Superseded rows include superseded_by links; executed rows include executed dates when present. |
+| `bin/generate-scripts-catalog.sh` | scan all DMF repos for shell scripts and produce docs/SCRIPTS.md, a single discoverable index. Each script's first non-shebang comment paragraph (consecutive `#` lines until the first blank `#`, with pure-decoration lines skipped) becomes its catalog entry. |
+| `bin/generate-status.sh` | regenerate STATUS.md at the umbrella root. |
+| `bin/install-hooks.sh` | point this clone's git at .githooks/. |
+| `bin/mxl-sync-check.sh` | report how far each mxl-spike repo is behind origin/main. |
+| `bin/publish-chart-to-ghcr.sh` | package a Helm chart and publish it to GHCR. |
+| `bin/publish-image-to-ghcr.sh` | generic helper to publish one or more locally-built images to GHCR. Replaces the per-repo publish-to-ghcr.sh duplication (NMOS, AWX EE, dmf-cms) introduced in the 2026-05-19 Lane A work. |
+| `bin/render-bpmn.sh` | Render a .bpmn file to .svg with the shared docs/processes/diagrams/_styles.css stylesheet injected. Wraps `npx bpmn-to-image`. |
+| `bin/scrub-public-repos.sh` | pre-publish secret + topology + identity scan. |
+| `bin/sync-to-github.sh` | RETIRED 2026-06-09 (do not use). |
+
+## umbrella — `dmfdeploy/bin/agentic/` (mothballed 2026-06-04)
+
+| Script | Description |
+|---|---|
+| `bin/agentic/agent-status.sh` | MOTHBALLED 2026-06-04 (historical, fails closed): bin/agentic/agent-status.sh — in-flight task status file helper. |
+| `bin/agentic/install-agentic-hooks.sh` | MOTHBALLED 2026-06-04 (historical, fails closed): bin/agentic/install-agentic-hooks.sh — install agentic-harness git hooks into the umbrella and (optionally) every public component repo. |
+| `bin/agentic/issue-close.sh` | MOTHBALLED 2026-06-04 (historical, fails closed): bin/agentic/issue-close.sh — close an agent-opened Forgejo issue with a structured reason and ref. |
+| `bin/agentic/issue-list.sh` | bin/agentic/issue-list.sh — list agent-opened Forgejo issues. |
+| `bin/agentic/issue-migrate-to-github.sh` | MOTHBALLED 2026-06-04 (historical, fails closed): bin/agentic/issue-migrate-to-github.sh — operator-invoked migration of public-safe agent-opened Forgejo issues to GitHub at v0.1.0 publish. |
+| `bin/agentic/issue-open.sh` | MOTHBALLED 2026-06-04 (historical, fails closed): bin/agentic/issue-open.sh — open a new agent-opened Forgejo issue. |
+| `bin/agentic/issue-promote.sh` | MOTHBALLED 2026-06-04 (historical, fails closed): bin/agentic/issue-promote.sh — promote a pickup:ready issue into backlog.yaml. |
+| `bin/agentic/postflight.sh` | MOTHBALLED 2026-06-04 (historical, fails closed): bin/agentic/postflight.sh — agentic-harness tick-end guard. |
+| `bin/agentic/preflight.sh` | bin/agentic/preflight.sh — agentic-harness tick-start fact dump. |
+
+## dmf-cms — `dmf-cms/bin/`
+
+| Script | Description |
+|---|---|
+| `dmf-cms/bin/install-hooks.sh` | point this clone's git at .githooks/. |
+
+## dmf-cms — `dmf-cms/scripts/`
+
+| Script | Description |
+|---|---|
+| `dmf-cms/scripts/build-image.sh` | Build the DMF Console image locally and tag it registry.dmf.example.com/dmf-cms:<VERSION>. |
+| `dmf-cms/scripts/publish-to-ghcr.sh` | push the locally-built dmf-cms image to GHCR. |
+| `dmf-cms/scripts/release.sh` | End-to-end release: bump version, sync, commit, tag, build (local only). |
+| `dmf-cms/scripts/sync-version.sh` | Propagate VERSION → pyproject.toml, frontend/package.json, charts/dmf-cms/Chart.yaml, charts/dmf-cms/values.yaml |
+| `dmf-cms/scripts/verify-cluster.sh` | Verify the deployed image matches the local VERSION file. Run after deploying to confirm the rollout reached the cluster. |
+
+## dmf-central — `dmf-central/bin/`
+
+| Script | Description |
+|---|---|
+| `dmf-central/bin/install-hooks.sh` | point this clone's git at .githooks/. |
+
+## dmf-infra — `dmf-infra/bin/`
+
+| Script | Description |
+|---|---|
+| `dmf-infra/bin/install-hooks.sh` | point this clone's git at .githooks/. |
+
+## dmf-env — `dmf-env/bin/`
+
+| Script | Description |
+|---|---|
+| `dmf-env/bin/b2-buckets.sh` | create and configure Backblaze B2 buckets for a DMF env. |
+| `dmf-env/bin/bootstrap-operator-approle.sh` | workstation-side wrapper. |
+| `dmf-env/bin/bootstrap-secrets.sh` | manage pre-Bao bootstrap secrets for DMF platform. |
+| `dmf-env/bin/cluster-bootstrap-operator-approle.sh` | cluster-bootstrap-operator-approle.sh |
+| `dmf-env/bin/cluster-rotate-approle-secret-id.sh` | cluster-rotate-approle-secret-id.sh |
+| `dmf-env/bin/export-openbao-vars.sh` | generate a temp vars file for ansible-playbook. |
+| `dmf-env/bin/get-admin-cred.sh` | retrieve an app's admin credential from OpenBao via the operator userpass path (Phase 5 of the Authentik baseline plan). |
+| `dmf-env/bin/get-passkey-enrollment-url.sh` | retrieve the DMF passkey enrollment URL and the operator's confirmed-passkey count. |
+| `dmf-env/bin/init-wizard.sh` | interactive greenfield env bootstrap wizard. |
+| `dmf-env/bin/monitor-playbook.sh` | stream filtered ansible-playbook output from a log file. |
+| `dmf-env/bin/recreate-sandbox-vm.sh` | (re)create the WP1S sandbox Lima VM substrate. |
+| `dmf-env/bin/remove-env.sh` | idempotent teardown + removal of new-layout envs. |
+| `dmf-env/bin/rotate-approle-secret-id.sh` | workstation-side wrapper. |
+| `dmf-env/bin/run-playbook.sh` | wrapper for ansible-playbook that exports OpenBao secrets to a temp vars file before execution. |
+| `dmf-env/bin/sandbox-workstation-hosts.sh` | map the sandbox app hostnames to the node IP in THIS workstation's /etc/hosts. |
+| `dmf-env/bin/tf-apply.sh` | wrapper for `tofu` that resolves per-env inputs and isolates state. |
+| `dmf-env/bin/tf-destroy.sh` | safe ordered teardown of the Hetzner cluster. |
+| `dmf-env/bin/tf-render-inventory.sh` | re-render the env's hosts.ini from current tofu state without touching upstream Hetzner / Cloudflare resources. |
+| `dmf-env/bin/unseal-openbao.sh` | strict, scriptable 3-share Shamir unseal of OpenBao. |
+| `dmf-env/bin/upgrade-in-place.sh` | idempotent upgrade of an existing DMF env to current main. |
+| `dmf-env/bin/validate-env.sh` | pre-apply validation for cloud envs. |
+
+## dmf-media — `dmf-media/bin/`
+
+| Script | Description |
+|---|---|
+| `dmf-media/bin/install-hooks.sh` | point this clone's git at .githooks/. |
+| `dmf-media/bin/publish-chart-to-ghcr.sh` | publish the dmf-media NMOS chart to GHCR. |
+
+## dmf-init — `dmf-init/bin/`
+
+| Script | Description |
+|---|---|
+| `dmf-init/bin/build-bundle.sh` | build a SELF-CONTAINED dmf-init appliance image (the 6 runtime repos baked in) and export it as a portable `docker load` tarball. No registry, no source checkout, no bind-mounts needed on the target host: docker load -i <tarball> docker run --rm -p 127.0.0.1:8000:8000 dmf-init:bundle # open the http://localhost:8000/?token=... printed in the logs |
+| `dmf-init/bin/install-hooks.sh` | point this clone's git at .githooks/. |

@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# .githooks/pre-push — refuse direct push to the `github` remote.
+#
+# Installed into every public DMF repo by `bin/agentic/install-agentic-hooks.sh`.
+# The single sanctioned path to publish a DMF repo to GitHub is the umbrella's
+# `bin/sync-to-github.sh`, which runs 6 gates before pushing and sets the
+# `SYNC_TO_GITHUB=1` env var to declare its authorization.
+#
+# Pushes to other remotes (`origin` for Forgejo, custom names) pass through
+# unhardened — this hook does not interfere with normal development.
+#
+# Escape hatch (use sparingly):
+#   git push --no-verify github main   # bypass; loses sync-to-github gates
+#
+# Refs:
+#   docs/agentic/CONSTITUTION.md (Rule 1 push gate)
+#   bin/sync-to-github.sh
+
+set -euo pipefail
+
+REMOTE_NAME="${1:-}"
+# REMOTE_URL="${2:-}"   # available if needed for future URL-matching
+
+# Allow if SYNC_TO_GITHUB authorizes — set by bin/sync-to-github.sh after its
+# 6 gates pass. The env var is the trust ticket.
+if [ "${SYNC_TO_GITHUB:-0}" = "1" ]; then
+    exit 0
+fi
+
+# Refuse only when pushing to the `github` remote. Other remotes are unaffected.
+if [ "$REMOTE_NAME" = "github" ]; then
+    echo "" >&2
+    echo "[pre-push] refusing direct push to 'github' remote." >&2
+    echo "  Use the sanctioned path from the umbrella:" >&2
+    echo "    bin/sync-to-github.sh <repo-name>" >&2
+    echo "  This runs the 6 publish gates (whitelist / scrub / identity /" >&2
+    echo "  gitleaks-main / gitleaks-tree / remote-exists) before pushing." >&2
+    echo "" >&2
+    echo "  See: docs/agentic/CONSTITUTION.md Rule 1 — Push gate." >&2
+    exit 1
+fi
+
+exit 0

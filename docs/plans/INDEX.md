@@ -1,0 +1,141 @@
+# DMF Plans Index
+
+_Auto-generated 2026-06-11 by `bin/generate-plans-index.sh`._
+
+Status taxonomy: **active** = guiding work now; **draft** = proposed/approved
+but not started; **executed** = work landed (terminal); **superseded** =
+replaced by a named successor; **historical** = point-in-time / frozen /
+shelved, kept for provenance.
+
+
+## Active (9)
+
+- [DMF Init Installer UI Redesign Plan 2026-06-10](DMF%20Init%20Installer%20UI%20Redesign%20Plan%202026-06-10.md) — 2026-06-10
+- [DMF Umbrella Public Entrance and GitHub Working Model Plan 2026-06-10](DMF%20Umbrella%20Public%20Entrance%20and%20GitHub%20Working%20Model%20Plan%202026-06-10.md) — 2026-06-10
+- [DMF First Public Release Plan 2026-06-09](DMF%20First%20Public%20Release%20Plan%202026-06-09.md) — 2026-06-09
+- [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
+- [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04](DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md) — 2026-06-04
+- [DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25](DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md) — 2026-05-25
+- [DMF OSS v0.1 WP1S Single-Node Sandbox Lane 2026-05-25](DMF%20OSS%20v0.1%20WP1S%20Single-Node%20Sandbox%20Lane%202026-05-25.md) — 2026-05-25
+- [DMF OSS v0.1 WP5 Release Verification and Tagging 2026-05-25](DMF%20OSS%20v0.1%20WP5%20Release%20Verification%20and%20Tagging%202026-05-25.md) — 2026-05-25
+- [DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19](DMF%20Cluster-Internal%20Ansible%20Execution%20and%20Catalog%20Helm%20Pivot%20Plan%202026-05-19.md) — 2026-05-19
+
+## Draft (8)
+
+- [DMF dmf-init GitHub Build Workflows — Exec Spec 2026-06-10](DMF%20dmf-init%20GitHub%20Build%20Workflows%20%E2%80%94%20Exec%20Spec%202026-06-10.md) — 2026-06-10
+- [DMF Facility Console — Born-Inventoried Env Surfacing Plan 2026-06-04](DMF%20Facility%20Console%20%E2%80%94%20Born-Inventoried%20Env%20Surfacing%20Plan%202026-06-04.md) — 2026-06-04
+- [DMF Internal Ansible Collection Source Plan 2026-05-29](DMF%20Internal%20Ansible%20Collection%20Source%20Plan%202026-05-29.md) — 2026-05-29
+- [DMF Authentik Bootstrap Enrollment Drop Username Prompt Plan 2026-05-28](DMF%20Authentik%20Bootstrap%20Enrollment%20Drop%20Username%20Prompt%20Plan%202026-05-28.md) — 2026-05-28
+- [DMF Zot Machine-Identity Service Account Plan 2026-05-27](DMF%20Zot%20Machine-Identity%20Service%20Account%20Plan%202026-05-27.md) — 2026-05-27
+- [DMF AWX Catalog Credential Type Migration Plan 2026-05-23](DMF%20AWX%20Catalog%20Credential%20Type%20Migration%20Plan%202026-05-23.md) — 2026-05-23
+- [DMF Pre-Release Compliance Readiness Plan 2026-05-11](DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md) — 2026-05-11
+- [DMF Tier A Phase Execution Plan 2026-05-11](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — 2026-05-11
+
+## Executed (66)
+
+- [DMF Doc-Hygiene Judgment-Tier Exec Spec 2026-06-10](DMF%20Doc-Hygiene%20Judgment-Tier%20Exec%20Spec%202026-06-10.md) — 2026-06-10 (executed 2026-06-10)
+- [DMF Doc-Hygiene PR-Submission Spec 2026-06-10](DMF%20Doc-Hygiene%20PR-Submission%20Spec%202026-06-10.md) — 2026-06-10 (executed 2026-06-10)
+- [DMF LAN Forgejo Archive and GitHub-Mirror Plan 2026-06-10](DMF%20LAN%20Forgejo%20Archive%20and%20GitHub-Mirror%20Plan%202026-06-10.md) — 2026-06-10 (executed 2026-06-10)
+- [DMF Public Repo Doc-Hygiene Cleanup Plan 2026-06-10](DMF%20Public%20Repo%20Doc-Hygiene%20Cleanup%20Plan%202026-06-10.md) — 2026-06-10 (executed 2026-06-10)
+- [wp1-triage-table-2026-06](wp1-triage-table-2026-06.md) — 2026-06-10 (executed 2026-06-10)
+- [wp9-todos-issue-triage-2026-06](wp9-todos-issue-triage-2026-06.md) — 2026-06-10 (executed 2026-06-10)
+- [DMF Workstream A — CI Recovery Fix Spec 2026-06-09](DMF%20Workstream%20A%20%E2%80%94%20CI%20Recovery%20Fix%20Spec%202026-06-09.md) — 2026-06-09 (executed 2026-06-10)
+- [DMF Workstream A — Clean-History Import and Canonical Flip Execution Spec 2026-06-09](DMF%20Workstream%20A%20%E2%80%94%20Clean-History%20Import%20and%20Canonical%20Flip%20Execution%20Spec%202026-06-09.md) — 2026-06-09 (executed 2026-06-10)
+- [DMF Workstream A — Pre-A Tooling Implementation Spec 2026-06-09](DMF%20Workstream%20A%20%E2%80%94%20Pre-A%20Tooling%20Implementation%20Spec%202026-06-09.md) — 2026-06-09 (executed 2026-06-09)
+- [DMF Workstream B — dmf-env Public-Surface Scrub Spec 2026-06-09](DMF%20Workstream%20B%20%E2%80%94%20dmf-env%20Public-Surface%20Scrub%20Spec%202026-06-09.md) — 2026-06-09 (executed 2026-06-09)
+- [DMF Workstream C — ADR Digest Execution Spec 2026-06-09](DMF%20Workstream%20C%20%E2%80%94%20ADR%20Digest%20Execution%20Spec%202026-06-09.md) — 2026-06-09 (executed 2026-06-09)
+- [DMF Workstream D — GitHub-First Governance Execution Spec 2026-06-09](DMF%20Workstream%20D%20%E2%80%94%20GitHub-First%20Governance%20Execution%20Spec%202026-06-09.md) — 2026-06-09 (executed 2026-06-09)
+- [DMF Workstream E1 — PR-Gate CI Execution Spec 2026-06-09](DMF%20Workstream%20E1%20%E2%80%94%20PR-Gate%20CI%20Execution%20Spec%202026-06-09.md) — 2026-06-09 (executed 2026-06-09)
+- [DMF Sandbox Zero-Setup Addressing (sslip.io) Plan 2026-06-07](DMF%20Sandbox%20Zero-Setup%20Addressing%20%28sslip.io%29%20Plan%202026-06-07.md) — 2026-06-07 (executed 2026-06-08)
+- [DMF dmf-init Container Productization Plan 2026-06-07](DMF%20dmf-init%20Container%20Productization%20Plan%202026-06-07.md) — 2026-06-07 (executed 2026-06-08)
+- [DMF MXL-Hello Single-Node Catalog Control-Chain Validation Plan 2026-06-05](DMF%20MXL-Hello%20Single-Node%20Catalog%20Control-Chain%20Validation%20Plan%202026-06-05.md) — 2026-06-05 (executed 2026-06-05)
+- [DMF Sandbox E2E Test Harness Plan 2026-06-05](DMF%20Sandbox%20E2E%20Test%20Harness%20Plan%202026-06-05.md) — 2026-06-05
+- [DMF Sandbox Harness Followups — Env-Domain, QR, Passkey-Flow 2026-06-05](DMF%20Sandbox%20Harness%20Followups%20%E2%80%94%20Env-Domain%2C%20QR%2C%20Passkey-Flow%202026-06-05.md) — 2026-06-05 (executed 2026-06-08)
+- [DMF Montest Fresh-Bootstrap Validation Task 2026-06-04](DMF%20Montest%20Fresh-Bootstrap%20Validation%20Task%202026-06-04.md) — 2026-06-04 (executed 2026-06-05)
+- [DMF NetBox-SoT Token-Mint Hardening Task 2026-06-04](DMF%20NetBox-SoT%20Token-Mint%20Hardening%20Task%202026-06-04.md) — 2026-06-04 (executed 2026-06-04)
+- [DMF dmf-init Live-Sandbox Fix Batch Plan 2026-06-03](DMF%20dmf-init%20Live-Sandbox%20Fix%20Batch%20Plan%202026-06-03.md) — 2026-06-03 (executed 2026-06-03)
+- [DMF Init Bootstrap Container Plan 2026-06-02](DMF%20Init%20Bootstrap%20Container%20Plan%202026-06-02.md) — 2026-06-02 (executed 2026-06-08)
+- [DMF Init Phase 1 Implementation Plan 2026-06-02](DMF%20Init%20Phase%201%20Implementation%20Plan%202026-06-02.md) — 2026-06-02
+- [DMF Init Phase 1b Orchestration Design 2026-06-02](DMF%20Init%20Phase%201b%20Orchestration%20Design%202026-06-02.md) — 2026-06-02
+- [DMF Init Phase 1c Manage Mode Design 2026-06-02](DMF%20Init%20Phase%201c%20Manage%20Mode%20Design%202026-06-02.md) — 2026-06-02
+- [DMF Env Lifecycle Refactor Plan 2026-06-01](DMF%20Env%20Lifecycle%20Refactor%20Plan%202026-06-01.md) — 2026-06-01 (executed 2026-06-01)
+- [DMF Hetzner CCM Upgrade Plan 2026-06-01](DMF%20Hetzner%20CCM%20Upgrade%20Plan%202026-06-01.md) — 2026-06-01 (executed 2026-06-01)
+- [DMF MXL M1.1 Catalog Launch Design 2026-06-01](DMF%20MXL%20M1.1%20Catalog%20Launch%20Design%202026-06-01.md) — 2026-06-01 (executed 2026-06-05)
+- [DMF Authentik Brand-Wide Passkey-First Login Plan 2026-05-29](DMF%20Authentik%20Brand-Wide%20Passkey-First%20Login%20Plan%202026-05-29.md) — 2026-05-29
+- [DMF Sandbox Artifact Consolidation Plan 2026-05-28](DMF%20Sandbox%20Artifact%20Consolidation%20Plan%202026-05-28.md) — 2026-05-28
+- [DMF Catalog NetBox Scoped Writer Plan 2026-05-27](DMF%20Catalog%20NetBox%20Scoped%20Writer%20Plan%202026-05-27.md) — 2026-05-27 (executed 2026-05-27)
+- [DMF Console Authentik Internal Back-Channel Split Plan 2026-05-27](DMF%20Console%20Authentik%20Internal%20Back-Channel%20Split%20Plan%202026-05-27.md) — 2026-05-27
+- [DMF Sandbox Monitoring Vertical Integration Plan 2026-05-27](DMF%20Sandbox%20Monitoring%20Vertical%20Integration%20Plan%202026-05-27.md) — 2026-05-27
+- [DMF OSS v0.1 Contributor Replicability Premise Pass 2026-05-25](DMF%20OSS%20v0.1%20Contributor%20Replicability%20Premise%20Pass%202026-05-25.md) — 2026-05-25
+- [DMF OSS v0.1 WP2 Bootstrap Independence 2026-05-25](DMF%20OSS%20v0.1%20WP2%20Bootstrap%20Independence%202026-05-25.md) — 2026-05-25
+- [DMF OSS v0.1 WP3 In-Cluster Platform Services 2026-05-25](DMF%20OSS%20v0.1%20WP3%20In-Cluster%20Platform%20Services%202026-05-25.md) — 2026-05-25
+- [DMF OSS v0.1 WP4 CMS User Administration 2026-05-25](DMF%20OSS%20v0.1%20WP4%20CMS%20User%20Administration%202026-05-25.md) — 2026-05-25 (executed 2026-06-08)
+- [DMF Per-App Identity Feasibility Survey 2026-05-24](DMF%20Per-App%20Identity%20Feasibility%20Survey%202026-05-24.md) — 2026-05-24
+- [DMF Unified App-Admin Helper Plan 2026-05-23](DMF%20Unified%20App-Admin%20Helper%20Plan%202026-05-23.md) — 2026-05-23
+- [DMF ADR-0025 Lane B Implementation Plan 2026-05-22](DMF%20ADR-0025%20Lane%20B%20Implementation%20Plan%202026-05-22.md) — 2026-05-22 (executed 2026-05-23)
+- [DMF Hardcoded Environment Literals Cleanup Plan 2026-05-19](DMF%20Hardcoded%20Environment%20Literals%20Cleanup%20Plan%202026-05-19.md) — 2026-05-19
+- [DMF Init Wizard env_id Provider Architecture Split Plan 2026-05-19](DMF%20Init%20Wizard%20env_id%20Provider%20Architecture%20Split%20Plan%202026-05-19.md) — 2026-05-19
+- [DMF Public Container Registry Publishing Plan 2026-05-19](DMF%20Public%20Container%20Registry%20Publishing%20Plan%202026-05-19.md) — 2026-05-19
+- [DMF Lifecycle-Configure Bootstrap Completion Plan 2026-05-15](DMF%20Lifecycle-Configure%20Bootstrap%20Completion%20Plan%202026-05-15.md) — 2026-05-15
+- [DMF App Admin Account Drift Audit and Realignment Plan 2026-05-14](DMF%20App%20Admin%20Account%20Drift%20Audit%20and%20Realignment%20Plan%202026-05-14.md) — 2026-05-14 (executed 2026-05-23)
+- [DMF Internal Service DNS Migration Survey 2026-05-14](DMF%20Internal%20Service%20DNS%20Migration%20Survey%202026-05-14.md) — 2026-05-14
+- [DMF OpenBao AppRole-Reconciler Implementation Brief 2026-05-13](DMF%20OpenBao%20AppRole-Reconciler%20Implementation%20Brief%202026-05-13.md) — 2026-05-13 (executed 2026-05-13)
+- [DMF OpenBao AppRole-Write Reconciler Plan 2026-05-13](DMF%20OpenBao%20AppRole-Write%20Reconciler%20Plan%202026-05-13.md) — 2026-05-13 (executed 2026-05-13)
+- [DMF Move 1 Path A Reset 2026-05-12](DMF%20Move%201%20Path%20A%20Reset%202026-05-12.md) — 2026-05-12
+- [DMF Public Repo Identity Leak Sweep 2026-05-11](DMF%20Public%20Repo%20Identity%20Leak%20Sweep%202026-05-11.md) — 2026-05-11
+- [DMF Secret Ownership and OpenBao Migration Plan](DMF%20Secret%20Ownership%20and%20OpenBao%20Migration%20Plan.md) — 2026-05-11
+- [DMF Base Domain in Bootstrap Bundle and CMS Logout Redirect 2026-05-09](DMF%20Base%20Domain%20in%20Bootstrap%20Bundle%20and%20CMS%20Logout%20Redirect%202026-05-09.md) — 2026-05-09
+- [DMF Bootstrap Pre-Seed Blocker Fix Implementation Plan 2026-05-09](DMF%20Bootstrap%20Pre-Seed%20Blocker%20Fix%20Implementation%20Plan%202026-05-09.md) — 2026-05-09
+- [DMF Pre-Bao Bootstrap Secrets Design 2026-05-08](DMF%20Pre-Bao%20Bootstrap%20Secrets%20Design%202026-05-08.md) — 2026-05-08
+- [DMF Bootstrap Provision Configure Split Plan 2026-05-07](DMF%20Bootstrap%20Provision%20Configure%20Split%20Plan%202026-05-07.md) — 2026-05-07
+- [AWX NetBox Inventory Sync Fix 2026-05-04](AWX%20NetBox%20Inventory%20Sync%20Fix%202026-05-04.md) — 2026-05-04 (executed 2026-05-04)
+- [DMF Forgejo Import + AWX Runbooks Plan 2026-05-04](DMF%20Forgejo%20Import%20%2B%20AWX%20Runbooks%20Plan%202026-05-04.md) — 2026-05-04
+- [Move 1 Gate 1 — Build NMOS + Run Provision](Move%201%20Gate%201%20%E2%80%94%20Build%20NMOS%20%2B%20Run%20Provision.md) — 2026-05-04
+- [dmf-platform-move-1-task-2026-05-04](dmf-platform-move-1-task-2026-05-04.md) — 2026-05-04 (executed 2026-06-04)
+- [dmf-platform-codex-cleanup-task-2026-04-30](dmf-platform-codex-cleanup-task-2026-04-30.md) — 2026-04-30
+- [dmf-platform-move-2-task-2026-04-30](dmf-platform-move-2-task-2026-04-30.md) — 2026-04-30 (executed 2026-05-04)
+- [DMF AWX Authentik SAML Plan 2026-04-27](DMF%20AWX%20Authentik%20SAML%20Plan%202026-04-27.md) — 2026-04-27
+- [DMF Console Initial Implementation Plan 2026-04-26](DMF%20Console%20Initial%20Implementation%20Plan%202026-04-26.md) — 2026-04-26
+- [DMF Layer-1 OpenTofu Bootstrap Plan 2026-04-26](DMF%20Layer-1%20OpenTofu%20Bootstrap%20Plan%202026-04-26.md) — 2026-04-26
+- [DMF Improvement Run Plan 2026-04-22](DMF%20Improvement%20Run%20Plan%202026-04-22.md) — 2026-04-22
+- [DMF Orchestrator and Renumbering Plan 2026-04-22](DMF%20Orchestrator%20and%20Renumbering%20Plan%202026-04-22.md) — 2026-04-22
+
+## Superseded (9)
+
+- [DMF OSS v0.1 Release Mission 2026-05-25](DMF%20OSS%20v0.1%20Release%20Mission%202026-05-25.md) — 2026-05-25 → superseded by [DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25.md](DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md)
+- [DMF MXL Single-Node Media Node Spike Plan 2026-05-17](DMF%20MXL%20Single-Node%20Media%20Node%20Spike%20Plan%202026-05-17.md) — 2026-05-17 → superseded by [DMF MXL Single-Node Loopback Execution Plan 2026-05-29.md](DMF%20MXL%20Single-Node%20Loopback%20Execution%20Plan%202026-05-29.md)
+- [DMF In-Cluster Ansible Runner Pod Implementation Plan 2026-05-14](DMF%20In-Cluster%20Ansible%20Runner%20Pod%20Implementation%20Plan%202026-05-14.md) — 2026-05-14 → superseded by [DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md](DMF%20Cluster-Internal%20Ansible%20Execution%20and%20Catalog%20Helm%20Pivot%20Plan%202026-05-19.md)
+- [DMF Day-0 Inventory and Monitoring Plan](DMF%20Day-0%20Inventory%20and%20Monitoring%20Plan.md) — 2026-05-11 → superseded by [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04.md](DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md)
+- [DMF Release and Contribution Model Implementation Plan 2026-05-11](DMF%20Release%20and%20Contribution%20Model%20Implementation%20Plan%202026-05-11.md) — 2026-05-11 → superseded by [DMF Workstream D — GitHub-First Governance Execution Spec 2026-06-09.md](DMF%20Workstream%20D%20%E2%80%94%20GitHub-First%20Governance%20Execution%20Spec%202026-06-09.md)
+- [Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06](Move%201%20Gate%202%20-%20Pivot%20to%20Path%20A%20for%20Catalog%20Launchers%202026-05-06.md) — 2026-05-06 → superseded by [DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md](DMF%20Cluster-Internal%20Ansible%20Execution%20and%20Catalog%20Helm%20Pivot%20Plan%202026-05-19.md)
+- [Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount](Move%201%20Gate%202%20Fix%20-%20AWX%20EE%20Pod%20Service%20Account%20Mount.md) — 2026-05-05 → superseded by [Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md](Move%201%20Gate%202%20-%20Pivot%20to%20Path%20A%20for%20Catalog%20Launchers%202026-05-06.md)
+- [DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04](DMF%20NMOS%20Registry%20%2B%20Crosspoint%20Demo%20Plan%202026-05-04.md) — 2026-05-04 → superseded by [dmf-platform-move-1-task-2026-05-04.md](dmf-platform-move-1-task-2026-05-04.md)
+- [Move 1 Gate 2 — AWX Integration + Launch NMOS](Move%201%20Gate%202%20%E2%80%94%20AWX%20Integration%20%2B%20Launch%20NMOS.md) — 2026-05-04 → superseded by [Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md](Move%201%20Gate%202%20-%20Pivot%20to%20Path%20A%20for%20Catalog%20Launchers%202026-05-06.md)
+
+## Historical (25)
+
+- [DMF Dynamic Catalog & Deployable-Workflow Mechanism — Discussion Notes 2026-06-05](DMF%20Dynamic%20Catalog%20%26%20Deployable-Workflow%20Mechanism%20%E2%80%94%20Discussion%20Notes%202026-06-05.md) — 2026-06-05
+- [DMF Dynamic Media Facility & Dynamic Catalog — Initial Release Plan 2026-06-05](DMF%20Dynamic%20Media%20Facility%20%26%20Dynamic%20Catalog%20%E2%80%94%20Initial%20Release%20Plan%202026-06-05.md) — 2026-06-05
+- [DMF Media Workloads — NetBox-Driven Media Function Inventory Plan 2026-06-03](DMF%20Media%20Workloads%20%E2%80%94%20NetBox-Driven%20Media%20Function%20Inventory%20Plan%202026-06-03.md) — 2026-06-03
+- [DMF Elastic Media Nodes and Cloud Cost Controller Plan 2026-06-01](DMF%20Elastic%20Media%20Nodes%20and%20Cloud%20Cost%20Controller%20Plan%202026-06-01.md) — 2026-06-01
+- [DMF Idempotent Upgrade-in-Place Mechanism — Findings and Plan 2026-06-01](DMF%20Idempotent%20Upgrade-in-Place%20Mechanism%20%E2%80%94%20Findings%20and%20Plan%202026-06-01.md) — 2026-06-01
+- [DMF MXL On-Demand Media Function Cycle Plan 2026-06-01](DMF%20MXL%20On-Demand%20Media%20Function%20Cycle%20Plan%202026-06-01.md) — 2026-06-01
+- [DMF MXL Single-Node Loopback Execution Plan 2026-05-29](DMF%20MXL%20Single-Node%20Loopback%20Execution%20Plan%202026-05-29.md) — 2026-05-29
+- [DMF Vendor Multi-Tenancy Vision 2026-05-29](DMF%20Vendor%20Multi-Tenancy%20Vision%202026-05-29.md) — 2026-05-29
+- [DMF OSS v0.1 WP-LAB g2r6-foa9 Reference Delta 2026-05-25](DMF%20OSS%20v0.1%20WP-LAB%20g2r6-foa9%20Reference%20Delta%202026-05-25.md) — 2026-05-25
+- [DMF OSS v0.1 WP1 AWS Provider Profile 2026-05-25](DMF%20OSS%20v0.1%20WP1%20AWS%20Provider%20Profile%202026-05-25.md) — 2026-05-25
+- [DMF Unseal Posture Tiered Framework Plan 2026-05-24](DMF%20Unseal%20Posture%20Tiered%20Framework%20Plan%202026-05-24.md) — 2026-05-24
+- [DMF Convergence Next Steps Queue 2026-05-23](DMF%20Convergence%20Next%20Steps%20Queue%202026-05-23.md) — 2026-05-23
+- [DMF g2r6-foa9 Configure-Verify Follow-Ups Plan 2026-05-22](DMF%20g2r6-foa9%20Configure-Verify%20Follow-Ups%20Plan%202026-05-22.md) — 2026-05-22
+- [DMF Zot Cluster-Wide Pull-Through Cache Plan 2026-05-21](DMF%20Zot%20Cluster-Wide%20Pull-Through%20Cache%20Plan%202026-05-21.md) — 2026-05-21
+- [DMF Aliyun-123 Lifecycle-Configure Follow-Ups Plan 2026-05-17](DMF%20Aliyun-123%20Lifecycle-Configure%20Follow-Ups%20Plan%202026-05-17.md) — 2026-05-17
+- [DMF Init Wizard Expansion Survey 2026-05-13](DMF%20Init%20Wizard%20Expansion%20Survey%202026-05-13.md) — 2026-05-13
+- [DMF OpenBao Policy-Writer Session Separation Plan 2026-05-13](DMF%20OpenBao%20Policy-Writer%20Session%20Separation%20Plan%202026-05-13.md) — 2026-05-13
+- [DMF RPi Flypack Appliance Implementation Plan 2026-05-13](DMF%20RPi%20Flypack%20Appliance%20Implementation%20Plan%202026-05-13.md) — 2026-05-13
+- [DMF Agentic Harness Plan 2026-05-11](DMF%20Agentic%20Harness%20Plan%202026-05-11.md) — 2026-05-11
+- [DMF Deployment Workflow and Manifest Plan](DMF%20Deployment%20Workflow%20and%20Manifest%20Plan.md) — 2026-05-11
+- [DMF Forgejo Repo Hosting and Migration Plan](DMF%20Forgejo%20Repo%20Hosting%20and%20Migration%20Plan.md) — 2026-05-11
+- [LLM-Restricted Git Pipeline — Dev-Testing-Production Isolation Plan 2026-05-09](LLM-Restricted%20Git%20Pipeline%20%E2%80%94%20Dev-Testing-Production%20Isolation%20Plan%202026-05-09.md) — 2026-05-09
+- [dmf-multi-provider-resource-selection-future-direction-2026-05-08](dmf-multi-provider-resource-selection-future-direction-2026-05-08.md) — 2026-05-08
+- [Move 1 Gate 2 — Trials and Tribulations 2026-05-05](Move%201%20Gate%202%20%E2%80%94%20Trials%20and%20Tribulations%202026-05-05.md) — 2026-05-05
+- [DMF Staged Release Phase 2-3 Plan 2026-04-29](DMF%20Staged%20Release%20Phase%202-3%20Plan%202026-04-29.md) — 2026-04-29

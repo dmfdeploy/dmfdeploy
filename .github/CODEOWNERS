@@ -1,0 +1,25 @@
+# DMF Platform umbrella — CODEOWNERS
+#
+# Activates on GitHub once branch protection is enabled and reviews are
+# required. No effect locally or on Forgejo.
+#
+# Every file matches a single rule (last match wins). The catch-all line
+# at the top applies to anything not matched by a more specific rule.
+
+# Default reviewer for the whole umbrella
+*                              @dmfdeploy/maintainers
+
+# Foundational architectural decisions
+/docs/decisions/               @dmfdeploy/maintainers
+
+# Architecture references (canonical)
+/docs/architecture/            @dmfdeploy/maintainers
+
+# Operational tools — high-leverage on every workflow
+/bin/                          @dmfdeploy/maintainers
+
+# Agent runtime config — defines what agents may do
+/.claude/                      @dmfdeploy/maintainers
+
+# CI / GitHub workflows
+/.github/                      @dmfdeploy/maintainers

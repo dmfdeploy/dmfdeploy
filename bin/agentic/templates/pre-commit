@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# .githooks/pre-commit — gitleaks-only pre-commit for component repos.
+#
+# Installed into every public DMF component repo by
+# `bin/agentic/install-agentic-hooks.sh`. The umbrella has its own richer
+# pre-commit that also refreshes STATUS.md and docs/SCRIPTS.md; this minimal
+# version is what component repos get — no umbrella-specific behavior.
+#
+# Honors a `.gitleaks.toml` at the repo root for allowlists.
+#
+# Escape hatches:
+#   git commit --no-verify            # bypass all hooks (use sparingly)
+#   GITLEAKS_HOOK_QUIET=1 git commit   # silence "not installed" warning
+#
+# Refs:
+#   docs/agentic/CONSTITUTION.md (Rule 2 secret gate)
+
+set -euo pipefail
+
+if command -v gitleaks >/dev/null 2>&1; then
+    if ! gitleaks protect --staged --no-banner --redact >/dev/null 2>&1; then
+        echo "" >&2
+        echo "[pre-commit] gitleaks: leak detected in staged changes — refusing commit" >&2
+        echo "  inspect:        gitleaks protect --staged -v" >&2
+        echo "  allowlist FP:   edit .gitleaks.toml (path / regex)" >&2
+        echo "  bypass (rare):  git commit --no-verify" >&2
+        exit 1
+    fi
+elif [ "${GITLEAKS_HOOK_QUIET:-0}" != "1" ]; then
+    echo "[pre-commit] WARN: gitleaks not installed — skipping secret scan." >&2
+    echo "             brew install gitleaks (silence with GITLEAKS_HOOK_QUIET=1)" >&2
+fi
+
+exit 0
