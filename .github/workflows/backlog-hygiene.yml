@@ -1,0 +1,89 @@
+name: backlog-hygiene
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"  # Mondays 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  hygiene:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Run backlog-hygiene check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: hygiene_run
+        run: |
+          # pipefail so rc reflects the checker, not tee
+          set +e
+          set -o pipefail
+          bin/check-backlog-hygiene.sh 2>&1 | tee /tmp/report.txt
+          rc=$?
+          set -e
+          echo "exit_code=$rc" >> "$GITHUB_OUTPUT"
+
+      - name: Manage report issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPORT_RC: ${{ steps.hygiene_run.outputs.exit_code }}
+        run: |
+          set -euo pipefail
+
+          # The report issue carries hygiene-exempt so the checker never
+          # flags its own report (no milestone/workstream by design).
+          existing="$(gh issue list \
+            --repo dmfdeploy/dmfdeploy \
+            --search "Backlog hygiene report in:title" \
+            --state open \
+            --label component:cross-repo \
+            --json number --jq '.[0].number // empty' 2>/dev/null || true)"
+
+          {
+            printf '## Backlog hygiene report — %s\n\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            printf '```\n'
+            cat /tmp/report.txt
+            printf '```\n'
+          } > /tmp/body.md
+          cat >> /tmp/body.md <<'NOTE'
+
+          > **Note:** org-project board checks (check 2) may show SKIPPED here —
+          > `GITHUB_TOKEN` lacks org-project scope. Run
+          > `bin/check-backlog-hygiene.sh` locally for full coverage.
+          NOTE
+
+          if [ "${REPORT_RC:-1}" -ne 0 ]; then
+            if [ -n "$existing" ]; then
+              gh issue edit "$existing" \
+                --repo dmfdeploy/dmfdeploy \
+                --body-file /tmp/body.md
+              echo "Updated report issue #$existing"
+            else
+              gh issue create \
+                --repo dmfdeploy/dmfdeploy \
+                --title "Backlog hygiene report" \
+                --label component:cross-repo \
+                --label hygiene-exempt \
+                --body-file /tmp/body.md
+              echo "Created report issue"
+            fi
+          else
+            if [ -n "$existing" ]; then
+              gh issue close "$existing" \
+                --repo dmfdeploy/dmfdeploy \
+                --comment "Clean run — no findings." \
+                --reason completed
+              echo "Closed report issue #$existing (clean run)"
+            else
+              echo "No findings, no open report issue — nothing to do"
+            fi
+          fi
