@@ -20,6 +20,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 
 | Script | Description |
 |---|---|
+| `bin/check-backlog-hygiene.sh` | detect GitHub backlog drift across the DMF org. |
 | `bin/check-docs.sh` | offline documentation gate for the DMF umbrella. Hard-fails on missing/broken frontmatter, dangling superseded_by targets, stale plans index, or inconsistent ADR file↔INDEX cross-references. Prints warnings for issues that don't block (missing tracking_issue, unresolved links, closed tracking issues). |
 | `bin/check-public-commit-authors.sh` | verify every commit author/committer on every public DMF Platform repo matches the public-identity allowlist. |
 | `bin/check-public-repo-hygiene.sh` | bin/check-public-repo-hygiene.sh — per-repo Tier A.2 hygiene gate. |

@@ -1,6 +1,6 @@
 # DMF Status
 
-_Auto-generated 2026-06-11 11:30 UTC by `bin/generate-status.sh`. Run again to refresh._
+_Auto-generated 2026-06-11 13:31 UTC by `bin/generate-status.sh`. Run again to refresh._
 
 For decisions, see [docs/decisions/](docs/decisions/INDEX.md).
 For active task spec, see the most recent file in [docs/plans/](docs/plans/).
@@ -11,16 +11,15 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 | Repo | Branch | Last commit | Subject | Dirty | Unpushed |
 |---|---|---|---|---|---|
-| dmfdeploy (umbrella) | znerol2/wp5-plan-adjudication | `377e8da` (41 minutes ago) | ci: approval-driven rebase auto-merge + docs (WP8, | 9: `STATUS.md·bin/check-docs.sh·2026-05-19.md"` | **0
-0** |
-| dmf-cms | main | `f2a6545` (40 minutes ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-runbooks | main | `e818621` (40 minutes ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-central | main | `8030d1e` (39 minutes ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-infra | main | `d4c4d1b` (39 minutes ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-env | main | `083de09` (39 minutes ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-media | main | `0d07e5e` (39 minutes ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-init | main | `c1b056a` (39 minutes ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-promsd | main | `0fa2221` (39 minutes ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmfdeploy (umbrella) | znerol2/wp6-backlog-hygiene | `eb644f7` (2 hours ago) | feat: backlog-hygiene drift detector + weekly sche | 1: `.github/workflows/backlog-hygiene.yml` | — |
+| dmf-cms | main | `f2a6545` (3 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-runbooks | main | `e818621` (3 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-central | main | `8030d1e` (3 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-infra | main | `d4c4d1b` (3 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-env | main | `083de09` (3 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-media | main | `0d07e5e` (3 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-init | main | `c1b056a` (3 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-promsd | main | `0fa2221` (3 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
 
 ## Active plans
 
@@ -34,6 +33,8 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 | When | Repo | Commit | Subject |
 |---|---|---|---|
+| 2026-06-11 13:42 | dmfdeploy | eb644f7 | feat: backlog-hygiene drift detector + weekly schedule (WP6, refs #32) |
+| 2026-06-11 13:35 | dmfdeploy | e60c8bd | docs(plans): WP5 adjudication — 6 active plans resolved; check-do... |
 | 2026-06-11 13:05 | dmf-promsd | 0fa2221 | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
 | 2026-06-11 13:04 | dmf-init | c1b056a | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
 | 2026-06-11 13:03 | dmf-media | 0d07e5e | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
@@ -67,7 +68,6 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 | 2026-06-11 09:23 | dmf-init | 36ea345 | feat(ui): install activity ticker + step rail folded into sidebar |
 | 2026-06-11 09:23 | dmf-init | 2f93395 | fix: fail fast on unusable SSH keys and never drop the render stream |
 | 2026-06-11 09:23 | dmf-init | 28011b7 | fix(ui): map network-level fetch failures to operator-actionable er... |
-| 2026-06-11 09:19 | dmfdeploy | 7344326 | Initial public release v0.1.0 |
 | 2026-06-10 11:13 | dmf-media | 654b054 | docs: drop stale '(SPIKE)' labels and neutralize operator path |
 | 2026-06-10 11:13 | dmf-cms | d7016a8 | docs: drop stale 'spike' framing and neutralize operator paths |
 | 2026-06-10 10:53 | dmf-media | 26ab44b | chore: remove must-not-main MXL fabrics spike handoff docs |
@@ -86,6 +86,8 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 | 2026-06-10 08:14 | dmf-central | de92278 | Initial public release v0.1.0 |
 
 _dmf-init: 10 more commit(s) not shown._
+
+_dmfdeploy: 1 more commit(s) not shown._
 
 ## Operator notes (hand-edited — preserved across regenerations)
 
@@ -124,8 +126,20 @@ OSS v0.1 WP0/WP1S/WP5 2026-05-25 → superseded by the v0.1 Commitment &
 `check-docs.sh` W2 (active plan w/o tracking_issue) **flipped warn→FAIL**.
 Gotcha logged: board Status=Done **auto-closes the issue** (project workflow) —
 #36 was closed by a mis-set field and reopened; W3 caught it.
-**Remaining on #32:** WP6 hygiene detector + schedule (qwen-tasked); WP7 org
-`.github` (optional).
+**WP6 BUILT 2026-06-11** (this commit): `bin/check-backlog-hygiene.sh`
+(4 checks: umbrella label/milestone hygiene, board membership + empty
+Component/Workstream fields, active plans w/ closed tracking issues,
+untriaged component-repo issues >7d; `hygiene-exempt` label = escape, exists
+in all 9 repos) + weekly `backlog-hygiene.yml` (Mon 06:00 UTC; maintains a
+single "Backlog hygiene report" issue, closes it on clean runs; board checks
+may SKIP under GITHUB_TOKEN — run locally for full coverage). qwen-left
+lifted, claude fixed 5 review bugs (PyYAML dep, unused GraphQL var = hard
+validation error, `||…&&` precedence, tee-eats-rc in workflow, bash-3.2
+`local -A`). **First live run: 10 real findings** — #19/#28/#29 missing
+workstream label, #26/#28/#29 missing milestone, #19/#28/#29 empty board
+Workstream (operator scheduling calls); #36's empty Workstream was mine →
+fixed (release). **Remaining on #32:** operator triage of the 9 findings;
+WP7 org `.github` (optional).
 
 ### ✅ UMBRELLA PUBLISHED + SIBLING LAYOUT — docs/tooling updated (2026-06-11)
 The umbrella is **live at `github.com/dmfdeploy/dmfdeploy`** (v0.1.0; WP17 push
