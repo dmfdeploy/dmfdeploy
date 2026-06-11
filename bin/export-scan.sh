@@ -64,7 +64,10 @@ gh_name() {
 
 GH_NAME="$(gh_name "$REPO")" || die "'$REPO' is not in the importable set"
 
+# Component repos are siblings of the umbrella since 2026-06-11 (ADR-0001
+# amendment); legacy nested checkouts still resolve.
 SRC="$UMBRELLA_DIR/$REPO"
+[ -e "$SRC/.git" ] || SRC="$(dirname "$UMBRELLA_DIR")/$REPO"
 [ "$REPO" = "." ] && SRC="$UMBRELLA_DIR"
 [ -d "$SRC/.git" ] || die "no git repo at $SRC"
 [ -f "$SRC/VERSION" ] || die "$REPO has no VERSION file"

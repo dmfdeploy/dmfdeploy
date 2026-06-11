@@ -29,7 +29,7 @@ When an orchestrator dispatches work packages (WPs) from a plan document and exp
 ### Per WP
 
 1. **Read the spec** — understand what files change, what the acceptance test is.
-2. **Read target files** — use absolute paths (Glob may not find gitignored sibling repos).
+2. **Read target files** — use absolute paths (Glob may not find sibling repos outside the umbrella working dir).
 3. **Make changes** — match existing style, indentation, and guard patterns.
 4. **Verify before commit:**
    - `bash -n` for shell scripts

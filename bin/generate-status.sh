@@ -16,8 +16,17 @@
 set -euo pipefail
 
 UMBRELLA_DIR="${UMBRELLA_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
+PARENT_DIR="$(dirname "$UMBRELLA_DIR")"
 STATUS_FILE="$UMBRELLA_DIR/STATUS.md"
 COMPONENT_REPOS=(dmf-cms dmf-runbooks dmf-central dmf-infra dmf-env dmf-media dmf-init dmf-promsd)
+
+# Component repos are siblings of the umbrella under a common parent since the
+# public release (2026-06-11, ADR-0001 amendment); legacy nested checkouts
+# still resolve.
+component_path() {
+    if [ -e "$UMBRELLA_DIR/$1/.git" ]; then printf '%s' "$UMBRELLA_DIR/$1"
+    else printf '%s' "$PARENT_DIR/$1"; fi
+}
 
 DO_FETCH=1
 MODE="write"
@@ -170,9 +179,11 @@ collect_activity() {
     git -C "$UMBRELLA_DIR" log --since="$since" --format='%cI%x09dmfdeploy%x09%h%x09%s' >> "$tmp" 2>/dev/null || true
 
     # Components
+    local repo_dir
     for repo in "${COMPONENT_REPOS[@]}"; do
-        [ -d "$UMBRELLA_DIR/$repo/.git" ] || continue
-        git -C "$UMBRELLA_DIR/$repo" log --since="$since" --format='%cI%x09'"$repo"'%x09%h%x09%s' >> "$tmp" 2>/dev/null || true
+        repo_dir="$(component_path "$repo")"
+        [ -d "$repo_dir/.git" ] || continue
+        git -C "$repo_dir" log --since="$since" --format='%cI%x09'"$repo"'%x09%h%x09%s' >> "$tmp" 2>/dev/null || true
     done
 
     if [ ! -s "$tmp" ]; then
@@ -267,7 +278,7 @@ EOF
 
     collect_repo "dmfdeploy (umbrella)" "$UMBRELLA_DIR"
     for repo in "${COMPONENT_REPOS[@]}"; do
-        collect_repo "$repo" "$UMBRELLA_DIR/$repo"
+        collect_repo "$repo" "$(component_path "$repo")"
     done
 
     cat <<EOF
@@ -297,8 +308,9 @@ EOF
 
 **Boot ritual reminder:** when starting a session in any DMF repo,
 \`git fetch && git pull\` the umbrella, read this file, read the most recent
-handoff in \`docs/handoffs/\`, run \`git status\` in any sub-repo you're about
-to touch, and ask the user before modifying any sub-repo with dirty state.
+handoff in \`docs/handoffs/\`, run \`git status\` in any component repo
+(\`../dmf-*\`) you're about to touch, and ask the user before modifying any
+component repo with dirty state.
 EOF
 }
 

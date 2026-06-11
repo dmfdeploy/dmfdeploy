@@ -1,6 +1,6 @@
 # ADR-0001: Umbrella as docs home; component repos remain independent gits
 
-**Status:** Accepted
+**Status:** Accepted (amended 2026-06-11 — sibling layout)
 **Date:** 2026-05-03
 **Deciders:** @<handle>
 
@@ -51,3 +51,21 @@ CLAUDE.md / README files reference `dmfdeploy/docs/<subdir>/...` as textual
 pointers; rewrite enforced by past commits (see component repo `docs: rewrite
 <note-store> refs to dmfdeploy/docs/` commits). Boot ritual in umbrella
 CLAUDE.md tells agents to `git fetch && git pull` the umbrella first.
+
+## Amendment (2026-06-11): components are siblings, not nested
+
+With the first public release (all 9 repos at `github.com/dmfdeploy/<repo>`),
+the canonical checkout layout changed: the (now 8) component repos sit
+**beside** the umbrella under a common parent directory
+(`<parent>/dmfdeploy/` + `<parent>/dmf-*/`), no longer nested inside it.
+The decision itself stands — the umbrella remains the docs home and the
+component repos remain independent gits (still not submodules).
+
+Consequences of the amendment:
+
+- Component-repo paths from the umbrella root are `../dmf-*`.
+- The umbrella `.gitignore` entries for `dmf-*` are retained only as a safety
+  net for legacy nested clones; they are inert in the canonical layout.
+- Umbrella `bin/` tooling (`generate-status.sh`, `generate-scripts-catalog.sh`,
+  scrub/hygiene/export gates, `mxl-sync-check.sh`) resolves component repos in
+  either layout: nested if present, otherwise sibling.

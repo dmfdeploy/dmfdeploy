@@ -22,8 +22,9 @@ set -euo pipefail
 UMBRELLA_DIR="${UMBRELLA_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 PARENT_DIR="$(cd "$UMBRELLA_DIR/.." && pwd)"
 
-# The umbrella, then the four component repos. Component repos may sit either
-# nested inside the umbrella (canonical clone) or as siblings (spike worktree).
+# The umbrella, then the four component repos. Component repos sit as siblings
+# of the umbrella (canonical since 2026-06-11, ADR-0001 amendment); legacy
+# nested checkouts still resolve.
 COMPONENT_REPOS=(dmf-cms dmf-env dmf-infra dmf-media)
 
 DO_FETCH=1

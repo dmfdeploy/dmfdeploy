@@ -25,12 +25,14 @@ UMBRELLA_DIR="${UMBRELLA_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 PUBLIC_REPOS_DEFAULT=(. dmf-cms dmf-runbooks dmf-central dmf-infra dmf-media dmf-init dmf-env dmf-promsd)
 
 # Resolve a repo entry to a path: absolute / slash-containing (e.g. --tree scratch)
-# used directly; bare name relative to UMBRELLA_DIR.
+# used directly; bare name resolves to the sibling checkout beside the umbrella
+# (legacy nested checkouts still work).
 repo_path() {
     case "$1" in
         .)      printf '%s' "$UMBRELLA_DIR" ;;
         /*|*/*) printf '%s' "$1" ;;
-        *)      printf '%s' "$UMBRELLA_DIR/$1" ;;
+        *)      if [ -e "$UMBRELLA_DIR/$1/.git" ]; then printf '%s' "$UMBRELLA_DIR/$1"
+                else printf '%s' "$(dirname "$UMBRELLA_DIR")/$1"; fi ;;
     esac
 }
 

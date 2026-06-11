@@ -16,8 +16,17 @@
 set -euo pipefail
 
 UMBRELLA_DIR="${UMBRELLA_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
+PARENT_DIR="$(dirname "$UMBRELLA_DIR")"
 OUT="$UMBRELLA_DIR/docs/SCRIPTS.md"
 COMPONENT_REPOS=(dmf-cms dmf-central dmf-infra dmf-env dmf-media dmf-init)
+
+# Component repos are siblings of the umbrella under a common parent since the
+# public release (2026-06-11, ADR-0001 amendment); legacy nested checkouts
+# still resolve.
+component_path() {
+    if [ -e "$UMBRELLA_DIR/$1/.git" ]; then printf '%s' "$UMBRELLA_DIR/$1"
+    else printf '%s' "$PARENT_DIR/$1"; fi
+}
 
 MODE="write"
 for arg in "$@"; do
@@ -91,7 +100,10 @@ emit_section() {
         for f in "$subdir"/*.sh; do
             [ -f "$f" ] || continue
             local rel desc exec_marker
+            # Repo-relative display path in either layout (nested or sibling) —
+            # never an absolute operator-local path (scrub gate category 3).
             rel="${f#$UMBRELLA_DIR/}"
+            rel="${rel#$PARENT_DIR/}"
             desc="$(extract_desc "$f")"
             [ -z "$desc" ] && desc="_(no description in script header)_"
             if [ -x "$f" ]; then
@@ -135,7 +147,7 @@ EOF
     # Component repos: check bin/ then scripts/
     for repo in "${COMPONENT_REPOS[@]}"; do
         for sub in bin scripts; do
-            local subdir="$UMBRELLA_DIR/$repo/$sub"
+            local subdir="$(component_path "$repo")/$sub"
             [ -d "$subdir" ] || continue
             emit_section "$repo — \`$repo/$sub/\`" "$subdir"
         done

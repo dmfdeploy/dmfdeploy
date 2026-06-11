@@ -1,7 +1,9 @@
 # DMF Platform Umbrella — AI Agent Rules
 
-This is the **umbrella workspace** for the DMF Platform. It contains the consolidated
-knowledge base (`docs/`), multi-repo coordination (`STATUS.md`, `CLAUDE.md`), and the 8 component repos as `.gitignore`d sibling directories.
+This is the **umbrella repo** for the DMF Platform: the consolidated
+knowledge base (`docs/`) and multi-repo coordination (`STATUS.md`, `CLAUDE.md`).
+The 8 component repos are checked out as **siblings of this repo under a common
+parent directory** (`../dmf-cms`, `../dmf-infra`, …) — not nested inside it.
 
 ## Context for All Agents
 
@@ -51,7 +53,8 @@ Cleanup is deferred; agents should flag these during reviews.
 ## Multi-Repo Coordination
 
 **Git topology:**
-- Umbrella's `.gitignore` excludes all 8 component dirs — they remain independent repos
+- The 8 component repos are siblings of the umbrella under a common parent
+  directory — independent repos, never nested (ADR-0001, amended 2026-06-11)
 - Doc edits go in this umbrella
 - Code edits go in component repos
 - Cross-cutting task specs and reviews go in `docs/plans/` or `docs/reviews/` here

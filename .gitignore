@@ -1,5 +1,7 @@
-# Nested git repos — kept independent on purpose. The umbrella tracks docs + meta only.
-# If you ever want pinned versions, convert these to git submodules.
+# Legacy safety net: component repos are siblings of the umbrella since the
+# public release (2026-06-11, ADR-0001 amendment) — nothing is nested anymore.
+# These entries only protect old nested clones from accidentally staging a
+# component repo. The umbrella tracks docs + meta only.
 /dmf-cms/
 /dmf-runbooks/
 /dmf-central/

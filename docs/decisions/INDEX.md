@@ -31,7 +31,7 @@ truth is visible without opening the file.
 
 | # | Title | Status | Domain |
 |---|---|---|---|
-| [0001](0001-umbrella-as-docs-home.md) | Umbrella as docs home; component repos remain independent gits | Accepted | structure |
+| [0001](0001-umbrella-as-docs-home.md) | Umbrella as docs home; component repos remain independent gits | Accepted (amended 2026-06-11 — components are siblings of the umbrella, not nested) | structure |
 | [0002](0002-two-repo-model.md) | Two-repo model: generic playbooks + private inventory | Accepted | structure |
 | [0003](0003-ebu-v2-taxonomy.md) | EBU DMF V2.0 layer/vertical/lifecycle taxonomy | Accepted | vocabulary |
 | [0004](0004-experiment-phase-stance.md) | Experiment phase, not hardening (until thesis-killers fall) | Accepted — **stance superseded for committed core by [architectural-commitments-v1](architectural-commitments-v1.md)** (gate fired 2026-06-04) | strategic |

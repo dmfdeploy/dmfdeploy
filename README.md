@@ -33,8 +33,7 @@ deliberately frozen, unproven, or undecided is curated honestly in
 ## Component repos
 
 Each is an independent git repo under the [dmfdeploy org](https://github.com/dmfdeploy),
-checked out as a sibling directory of this umbrella (the umbrella `.gitignore`
-excludes them):
+checked out as a sibling directory of this umbrella under a common parent:
 
 | Repo | EBU layer / vertical | Stack | Status |
 |---|---|---|---|

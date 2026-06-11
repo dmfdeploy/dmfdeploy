@@ -21,7 +21,7 @@ When working as the LIFTER in a multi-agent orchestrated setup (another agent wr
 
 - Read the entire spec file from the given path (usually `/tmp/slice-N-spec.md`).
 - Note ALL tasks (A, B, C, etc.) and their verify commands.
-- Note the repo paths — they're usually absolute paths to gitignored sibling repos (your Glob may not find them; use Read/edit directly with absolute paths).
+- Note the repo paths — they're usually absolute paths to sibling repos outside the umbrella working dir (your Glob may not find them; use Read/edit directly with absolute paths).
 - Note the branch instruction (usually `main`, no feature branches).
 - Note the commit instruction (usually "no commits" — the orchestrator reviews diffs).
 
