@@ -1,6 +1,6 @@
 # DMF Status
 
-_Auto-generated 2026-06-11 13:31 UTC by `bin/generate-status.sh`. Run again to refresh._
+_Auto-generated 2026-06-11 14:33 UTC by `bin/generate-status.sh`. Run again to refresh._
 
 For decisions, see [docs/decisions/](docs/decisions/INDEX.md).
 For active task spec, see the most recent file in [docs/plans/](docs/plans/).
@@ -11,29 +11,29 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 | Repo | Branch | Last commit | Subject | Dirty | Unpushed |
 |---|---|---|---|---|---|
-| dmfdeploy (umbrella) | znerol2/wp6-backlog-hygiene | `eb644f7` (2 hours ago) | feat: backlog-hygiene drift detector + weekly sche | 1: `.github/workflows/backlog-hygiene.yml` | — |
-| dmf-cms | main | `f2a6545` (3 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-runbooks | main | `e818621` (3 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-central | main | `8030d1e` (3 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-infra | main | `d4c4d1b` (3 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-env | main | `083de09` (3 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-media | main | `0d07e5e` (3 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-init | main | `c1b056a` (3 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-promsd | main | `0fa2221` (3 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmfdeploy (umbrella) | znerol2/close-32 | `c2b440d` (3 hours ago) | feat: backlog-hygiene drift detector + weekly sche | 1: `2026-06-11.md"` | **0
+0** |
+| dmf-cms | main | `f2a6545` (4 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-runbooks | main | `e818621` (4 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-central | main | `8030d1e` (4 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-infra | main | `d4c4d1b` (4 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-env | main | `083de09` (4 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-media | main | `0d07e5e` (4 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-init | main | `c1b056a` (4 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-promsd | main | `0fa2221` (4 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
 
 ## Active plans
 
 | Plan | Date | Tracking issue |
 |---|---|---|
 | DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04 | 2026-06-04 | [#5](https://github.com/dmfdeploy/dmfdeploy/issues/5) |
-| DMF Working-Model Enforcement Plan 2026-06-11 | 2026-06-11 | [#32](https://github.com/dmfdeploy/dmfdeploy/issues/32) |
 | DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06 | 2026-06-06 | [#36](https://github.com/dmfdeploy/dmfdeploy/issues/36) |
 
 ## Recent activity (last 7 days, all repos)
 
 | When | Repo | Commit | Subject |
 |---|---|---|---|
-| 2026-06-11 13:42 | dmfdeploy | eb644f7 | feat: backlog-hygiene drift detector + weekly schedule (WP6, refs #32) |
+| 2026-06-11 16:15 | dmfdeploy | c2b440d | feat: backlog-hygiene drift detector + weekly schedule (WP6, refs #32) |
 | 2026-06-11 13:35 | dmfdeploy | e60c8bd | docs(plans): WP5 adjudication — 6 active plans resolved; check-do... |
 | 2026-06-11 13:05 | dmf-promsd | 0fa2221 | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
 | 2026-06-11 13:04 | dmf-init | c1b056a | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
