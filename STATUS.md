@@ -1,6 +1,6 @@
 # DMF Status
 
-_Auto-generated 2026-06-11 10:50 UTC by `bin/generate-status.sh`. Run again to refresh._
+_Auto-generated 2026-06-11 11:30 UTC by `bin/generate-status.sh`. Run again to refresh._
 
 For decisions, see [docs/decisions/](docs/decisions/INDEX.md).
 For active task spec, see the most recent file in [docs/plans/](docs/plans/).
@@ -11,34 +11,38 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 | Repo | Branch | Last commit | Subject | Dirty | Unpushed |
 |---|---|---|---|---|---|
-| dmfdeploy (umbrella) | znerol2/automerge | `55985c6` (24 minutes ago) | fix(sync-check): --strict fails on a MISSING agent | 5: `.github/workflows/automerge.yml·STATUS.md·docs/WORKING-MODEL.md` | **0
+| dmfdeploy (umbrella) | znerol2/wp5-plan-adjudication | `377e8da` (41 minutes ago) | ci: approval-driven rebase auto-merge + docs (WP8, | 9: `STATUS.md·bin/check-docs.sh·2026-05-19.md"` | **0
 0** |
-| dmf-cms | main | `6112f90` (34 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-runbooks | main | `8d3968f` (33 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-central | main | `af299ee` (33 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-infra | main | `1de83a8` (33 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-env | main | `9c3373c` (33 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-media | main | `df99732` (33 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-init | main | `3caeacd` (33 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-promsd | main | `cefd84d` (32 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-cms | main | `f2a6545` (40 minutes ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-runbooks | main | `e818621` (40 minutes ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-central | main | `8030d1e` (39 minutes ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-infra | main | `d4c4d1b` (39 minutes ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-env | main | `083de09` (39 minutes ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-media | main | `0d07e5e` (39 minutes ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-init | main | `c1b056a` (39 minutes ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-promsd | main | `0fa2221` (39 minutes ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
 
 ## Active plans
 
 | Plan | Date | Tracking issue |
 |---|---|---|
-| DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19 | 2026-05-19 | — |
 | DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04 | 2026-06-04 | [#5](https://github.com/dmfdeploy/dmfdeploy/issues/5) |
-| DMF First Public Release Plan 2026-06-09 | 2026-06-09 | — |
-| DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25 | 2026-05-25 | — |
-| DMF OSS v0.1 WP1S Single-Node Sandbox Lane 2026-05-25 | 2026-05-25 | — |
-| DMF OSS v0.1 WP5 Release Verification and Tagging 2026-05-25 | 2026-05-25 | — |
 | DMF Working-Model Enforcement Plan 2026-06-11 | 2026-06-11 | [#32](https://github.com/dmfdeploy/dmfdeploy/issues/32) |
-| DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06 | 2026-06-06 | — |
+| DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06 | 2026-06-06 | [#36](https://github.com/dmfdeploy/dmfdeploy/issues/36) |
 
 ## Recent activity (last 7 days, all repos)
 
 | When | Repo | Commit | Subject |
 |---|---|---|---|
+| 2026-06-11 13:05 | dmf-promsd | 0fa2221 | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
+| 2026-06-11 13:04 | dmf-init | c1b056a | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
+| 2026-06-11 13:03 | dmf-media | 0d07e5e | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
+| 2026-06-11 13:03 | dmf-env | 083de09 | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
+| 2026-06-11 13:02 | dmf-infra | d4c4d1b | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
+| 2026-06-11 13:01 | dmf-runbooks | e818621 | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
+| 2026-06-11 13:01 | dmf-cms | f2a6545 | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
+| 2026-06-11 13:00 | dmfdeploy | 377e8da | ci: approval-driven rebase auto-merge + docs (WP8, refs #34) |
+| 2026-06-11 12:54 | dmf-central | 8030d1e | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
 | 2026-06-11 12:41 | dmf-promsd | cefd84d | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
 | 2026-06-11 12:41 | dmf-init | 3caeacd | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
 | 2026-06-11 12:41 | dmf-media | df99732 | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
@@ -63,7 +67,6 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 | 2026-06-11 09:23 | dmf-init | 36ea345 | feat(ui): install activity ticker + step rail folded into sidebar |
 | 2026-06-11 09:23 | dmf-init | 2f93395 | fix: fail fast on unusable SSH keys and never drop the render stream |
 | 2026-06-11 09:23 | dmf-init | 28011b7 | fix(ui): map network-level fetch failures to operator-actionable er... |
-| 2026-06-11 09:23 | dmf-init | 00ed35e | fix(ui): kill bootstrap-start stampede and Deploy-transition dead zone |
 | 2026-06-11 09:19 | dmfdeploy | 7344326 | Initial public release v0.1.0 |
 | 2026-06-10 11:13 | dmf-media | 654b054 | docs: drop stale '(SPIKE)' labels and neutralize operator path |
 | 2026-06-10 11:13 | dmf-cms | d7016a8 | docs: drop stale 'spike' framing and neutralize operator paths |
@@ -82,7 +85,7 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 | 2026-06-10 08:14 | dmf-promsd | d506e9c | Initial public release v0.1.3 |
 | 2026-06-10 08:14 | dmf-central | de92278 | Initial public release v0.1.0 |
 
-_dmf-init: 9 more commit(s) not shown._
+_dmf-init: 10 more commit(s) not shown._
 
 ## Operator notes (hand-edited — preserved across regenerations)
 
@@ -110,12 +113,19 @@ trailers stripped batch-wide (operator policy — see agent memory
 ruleset** (green CI was previously NOT a merge gate — human habit only), and
 **umbrella rulesets created from scratch** (it had NONE — main was
 direct-pushable until now; branch + 2 tag rulesets cloned from dmf-cms, squash/
-merge-commit disabled). In PRs: `automerge.yml` (arms native rebase auto-merge
-at open; `hold` label disarms; drafts skipped; pull_request_target
-metadata-only). **Approval = landing** from now on (WORKING-MODEL.md §6).
-**Operator-gated follow-ups:** WP5 adjudicate the 6 active plans w/o
-tracking_issue then flip check-docs W2 warn→fail; WP6 hygiene detector +
-schedule; WP7 org `.github` (optional).
+merge-commit disabled). `automerge.yml` **MERGED in all 9 repos** — the 9
+rollout PRs self-merged on approval, proving the mechanism; issue #34 CLOSED.
+**Approval = landing** from now on (WORKING-MODEL.md §6; `hold` label disarms).
+**WP5 ADJUDICATED 2026-06-11** (this commit): Cluster-Internal/Catalog-Helm
+2026-05-19 → executed (Lanes A+B landed, Lane C transport dropped under
+commitments-v1); First Public Release 2026-06-09 → executed (E2 = issue #6);
+OSS v0.1 WP0/WP1S/WP5 2026-05-25 → superseded by the v0.1 Commitment &
+30-Day Focus-Cut Plan 2026-06-06, which got tracking **issue #36**;
+`check-docs.sh` W2 (active plan w/o tracking_issue) **flipped warn→FAIL**.
+Gotcha logged: board Status=Done **auto-closes the issue** (project workflow) —
+#36 was closed by a mis-set field and reopened; W3 caught it.
+**Remaining on #32:** WP6 hygiene detector + schedule (qwen-tasked); WP7 org
+`.github` (optional).
 
 ### ✅ UMBRELLA PUBLISHED + SIBLING LAYOUT — docs/tooling updated (2026-06-11)
 The umbrella is **live at `github.com/dmfdeploy/dmfdeploy`** (v0.1.0; WP17 push
