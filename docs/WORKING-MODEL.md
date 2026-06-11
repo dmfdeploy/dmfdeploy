@@ -103,6 +103,13 @@ the frontmatter must be flipped; frontmatter wins for design content.
   umbrella. Trivial changes may carry the `no-issue` label instead.
 - **Cross-repo batches:** one umbrella issue for the batch; every per-repo PR
   references it qualified.
+- **Approval = landing.** Every PR is armed with GitHub-native **rebase
+  auto-merge** at open (`automerge.yml`); it merges the moment CODEOWNERS
+  approval + all required status checks are satisfied, and the branch is
+  auto-deleted. There is no post-approval hold window — use *Comment* /
+  *Request changes* for non-landing feedback, or add the **`hold`** label to
+  disarm auto-merge. Required-check lists live in each repo's branch ruleset;
+  when CI job names change, update the ruleset in the same change.
 
 ## 7. How this is enforced (mechanics map)
 
@@ -114,4 +121,6 @@ the frontmatter must be flipped; frontmatter wins for design content.
 | SessionStart hook → `bin/working-model-digest.sh` | Claude Code, per repo (trust-gated) | injects digest at session start |
 | PR-gate issue-linkage job (`guard.yml`) | all 9 repos | fails unqualified/missing reference |
 | `bin/check-docs.sh` | umbrella | fails bad frontmatter; W2 → fail after backfill |
+| Branch ruleset: approval + CODEOWNERS + required status checks + rebase-only, stale approvals dismissed on push | all 9 repos | merge is impossible otherwise |
+| `automerge.yml` + `required_status_checks` ruleset | all 9 repos | approval-driven rebase auto-merge + branch auto-delete (`hold` label disarms) |
 | `bin/check-backlog-hygiene.sh` (scheduled) | umbrella + component intake | weekly drift report |

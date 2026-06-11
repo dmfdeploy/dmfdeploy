@@ -1,6 +1,6 @@
 # DMF Status
 
-_Auto-generated 2026-06-11 10:26 UTC by `bin/generate-status.sh`. Run again to refresh._
+_Auto-generated 2026-06-11 10:50 UTC by `bin/generate-status.sh`. Run again to refresh._
 
 For decisions, see [docs/decisions/](docs/decisions/INDEX.md).
 For active task spec, see the most recent file in [docs/plans/](docs/plans/).
@@ -11,15 +11,16 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 | Repo | Branch | Last commit | Subject | Dirty | Unpushed |
 |---|---|---|---|---|---|
-| dmfdeploy (umbrella) | main | `327a83f` (6 minutes ago) | fix: shellcheck-clean new bin scripts; STATUS note | 1: `bin/check-working-model-sync.sh` | **4** |
-| dmf-cms | znerol2/working-model | `cd358ed` (10 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-runbooks | znerol2/working-model | `096c7d0` (9 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-central | znerol2/working-model | `55e4b0a` (9 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-infra | znerol2/working-model | `8bc200b` (9 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-env | znerol2/working-model | `6e857d4` (9 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-media | znerol2/working-model | `444a540` (9 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-init | znerol2/working-model | `1dac21f` (9 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-promsd | znerol2/working-model | `768facb` (8 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmfdeploy (umbrella) | znerol2/automerge | `55985c6` (24 minutes ago) | fix(sync-check): --strict fails on a MISSING agent | 5: `.github/workflows/automerge.yml·STATUS.md·docs/WORKING-MODEL.md` | **0
+0** |
+| dmf-cms | main | `6112f90` (34 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-runbooks | main | `8d3968f` (33 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-central | main | `af299ee` (33 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-infra | main | `1de83a8` (33 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-env | main | `9c3373c` (33 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-media | main | `df99732` (33 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-init | main | `3caeacd` (33 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-promsd | main | `cefd84d` (32 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
 
 ## Active plans
 
@@ -38,18 +39,19 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 | When | Repo | Commit | Subject |
 |---|---|---|---|
-| 2026-06-11 12:20 | dmfdeploy | 327a83f | fix: shellcheck-clean new bin scripts; STATUS note for the 9-PR bat... |
-| 2026-06-11 12:18 | dmf-promsd | 768facb | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
-| 2026-06-11 12:17 | dmf-init | 1dac21f | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
-| 2026-06-11 12:17 | dmf-media | 444a540 | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
-| 2026-06-11 12:17 | dmf-env | 6e857d4 | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
-| 2026-06-11 12:17 | dmf-infra | 8bc200b | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
-| 2026-06-11 12:17 | dmf-central | 55e4b0a | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
-| 2026-06-11 12:17 | dmf-runbooks | 096c7d0 | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
-| 2026-06-11 12:16 | dmf-cms | cd358ed | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
-| 2026-06-11 11:15 | dmfdeploy | 06b9c7d | ci: require PR-to-issue linkage in guard.yml (refs #32) |
-| 2026-06-11 11:10 | dmfdeploy | 0cc5f6e | feat: working-model enforcement foundation, umbrella side (refs #32) |
-| 2026-06-11 10:11 | dmfdeploy | 21850d5 | docs: record sibling-repo layout post-publish (ADR-0001 amendment) ... |
+| 2026-06-11 12:41 | dmf-promsd | cefd84d | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
+| 2026-06-11 12:41 | dmf-init | 3caeacd | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
+| 2026-06-11 12:41 | dmf-media | df99732 | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
+| 2026-06-11 12:41 | dmf-env | 9c3373c | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
+| 2026-06-11 12:41 | dmf-infra | 1de83a8 | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
+| 2026-06-11 12:41 | dmf-central | af299ee | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
+| 2026-06-11 12:41 | dmf-runbooks | 8d3968f | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
+| 2026-06-11 12:41 | dmf-cms | 6112f90 | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
+| 2026-06-11 12:31 | dmfdeploy | aec1ba3 | docs: record sibling-repo layout post-publish (ADR-0001 amendment) ... |
+| 2026-06-11 12:31 | dmfdeploy | 55985c6 | fix(sync-check): --strict fails on a MISSING agent context file (re... |
+| 2026-06-11 12:31 | dmfdeploy | 528a6c2 | ci: require PR-to-issue linkage in guard.yml (refs #32) |
+| 2026-06-11 12:31 | dmfdeploy | 294f353 | feat: working-model enforcement foundation, umbrella side (refs #32) |
+| 2026-06-11 12:31 | dmfdeploy | 029ee03 | fix: shellcheck-clean new bin scripts; STATUS note for the 9-PR bat... |
 | 2026-06-11 09:51 | dmfdeploy | 75ca986 | docs(plans): init installer UI redesign executed — shipped as dmf... |
 | 2026-06-11 09:39 | dmfdeploy | a3cb740 | docs(plans): umbrella entrance plan executed — WP1-17 complete, r... |
 | 2026-06-11 09:29 | dmf-env | eb91bda | fix(doctor): make the age-key permission check portable to GNU stat |
@@ -95,19 +97,25 @@ CLAUDE/AGENTS/QWEN, **`bin/check-working-model-sync.sh`** (wired into ci.yml +
 pre-commit, `--umbrella-only` so one repo's drift never blocks another),
 **`bin/working-model-digest.sh`** + SessionStart hook in `.claude/settings.json`
 (runtime-extracts the digest; warns-not-wedges if umbrella absent), INDEX +
-CONTRIBUTING pointers. **PROPAGATION EXECUTED 2026-06-11 — 9 PRs OPEN,
-review+merge pending:** umbrella **PR #33** (foundation + sibling-layout docs +
-umbrella issue-link gate; **must merge FIRST** — component CI fetches the
-checker/template from umbrella main) then dmf-cms#3, dmf-runbooks#2,
-dmf-central#2, dmf-infra#3, dmf-env#2, dmf-media#4, dmf-init#8, dmf-promsd#1
-(each: agent-file blocks from the template, `bin/working-model-digest.sh` +
-SessionStart hook, ci.yml `working-model` strict sync job, guard.yml
-`issue-link` job requiring qualified `dmfdeploy/dmfdeploy#N`; `no-issue` label
-created in all 9 repos; dmf-promsd got minimal CLAUDE/AGENTS/QWEN — it had
-none). claude-bottom reviewed twice (plan + 0cc5f6e): PASS. **Operator-gated
-follow-ups:** WP5 adjudicate the 6 active plans w/o tracking_issue then flip
-check-docs W2 warn→fail; WP6 hygiene detector + schedule; WP7 org `.github`
-(optional).
+CONTRIBUTING pointers. **PROPAGATION MERGED 2026-06-11:** umbrella PR #33 +
+all 8 component PRs rebase-merged; every repo now has template-identical
+blocks (27/27 verified), the SessionStart digest hook, strict `working-model`
+CI, and the `issue-link` gate. Review fixes folded: AGENTS.md/QWEN.md gaps
+filled (sync-check `--strict` now fails on MISSING agent files), co-author
+trailers stripped batch-wide (operator policy — see agent memory
+`no-agent-coauthor-trailers`). claude-bottom reviewed 3×: PASS.
+**WP8 AUTO-MERGE (issue #34, 2026-06-11):** approval-driven rebase auto-merge
++ branch auto-delete, all 9 repos. Live already: `allow_auto_merge` +
+`delete_branch_on_merge` settings, **`required_status_checks` in every branch
+ruleset** (green CI was previously NOT a merge gate — human habit only), and
+**umbrella rulesets created from scratch** (it had NONE — main was
+direct-pushable until now; branch + 2 tag rulesets cloned from dmf-cms, squash/
+merge-commit disabled). In PRs: `automerge.yml` (arms native rebase auto-merge
+at open; `hold` label disarms; drafts skipped; pull_request_target
+metadata-only). **Approval = landing** from now on (WORKING-MODEL.md §6).
+**Operator-gated follow-ups:** WP5 adjudicate the 6 active plans w/o
+tracking_issue then flip check-docs W2 warn→fail; WP6 hygiene detector +
+schedule; WP7 org `.github` (optional).
 
 ### ✅ UMBRELLA PUBLISHED + SIBLING LAYOUT — docs/tooling updated (2026-06-11)
 The umbrella is **live at `github.com/dmfdeploy/dmfdeploy`** (v0.1.0; WP17 push
