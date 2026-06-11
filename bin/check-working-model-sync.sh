@@ -76,25 +76,25 @@ check_file() {
 }
 
 check_repo_dir() {
-    local dir="$1" label="$2"
+    local dir="$1"
     for f in "${AGENT_FILES[@]}"; do
         check_file "$dir/$f"
     done
 }
 
 if [ -n "$SINGLE_REPO" ]; then
-    check_repo_dir "$SINGLE_REPO" "$(basename "$SINGLE_REPO")"
+    check_repo_dir "$SINGLE_REPO"
 else
     # Umbrella: the block is mandatory regardless of --strict.
     saved_strict=$STRICT; STRICT=1
-    check_repo_dir "$UMBRELLA_DIR" "umbrella"
+    check_repo_dir "$UMBRELLA_DIR"
     STRICT=$saved_strict
     # Components (sibling canonical, nested legacy); absent checkouts are skipped —
     # each component repo gates its own copies in its CI.
     if [ "$UMBRELLA_ONLY" -eq 0 ]; then
         for repo in "${COMPONENT_REPOS[@]}"; do
-            if   [ -d "$UMBRELLA_DIR/$repo/.git" ]; then check_repo_dir "$UMBRELLA_DIR/$repo" "$repo"
-            elif [ -d "$PARENT_DIR/$repo/.git" ];   then check_repo_dir "$PARENT_DIR/$repo" "$repo"
+            if   [ -d "$UMBRELLA_DIR/$repo/.git" ]; then check_repo_dir "$UMBRELLA_DIR/$repo"
+            elif [ -d "$PARENT_DIR/$repo/.git" ];   then check_repo_dir "$PARENT_DIR/$repo"
             fi
         done
     fi
