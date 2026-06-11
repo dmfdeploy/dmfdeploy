@@ -1,6 +1,6 @@
 # DMF Status
 
-_Auto-generated 2026-06-11 10:20 UTC by `bin/generate-status.sh`. Run again to refresh._
+_Auto-generated 2026-06-11 10:26 UTC by `bin/generate-status.sh`. Run again to refresh._
 
 For decisions, see [docs/decisions/](docs/decisions/INDEX.md).
 For active task spec, see the most recent file in [docs/plans/](docs/plans/).
@@ -11,15 +11,15 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 | Repo | Branch | Last commit | Subject | Dirty | Unpushed |
 |---|---|---|---|---|---|
-| dmfdeploy (umbrella) | main | `06b9c7d` (65 minutes ago) | ci: require PR-to-issue linkage in guard.yml (refs | 3: `STATUS.md·bin/check-working-model-sync.sh·bin/generate-scripts-catalog.sh` | **3** |
-| dmf-cms | znerol2/working-model | `cd358ed` (4 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-runbooks | znerol2/working-model | `096c7d0` (3 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-central | znerol2/working-model | `55e4b0a` (3 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-infra | znerol2/working-model | `8bc200b` (3 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-env | znerol2/working-model | `6e857d4` (3 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-media | znerol2/working-model | `444a540` (2 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-init | znerol2/working-model | `1dac21f` (2 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
-| dmf-promsd | znerol2/working-model | `768facb` (2 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmfdeploy (umbrella) | main | `327a83f` (6 minutes ago) | fix: shellcheck-clean new bin scripts; STATUS note | 1: `bin/check-working-model-sync.sh` | **4** |
+| dmf-cms | znerol2/working-model | `cd358ed` (10 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-runbooks | znerol2/working-model | `096c7d0` (9 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-central | znerol2/working-model | `55e4b0a` (9 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-infra | znerol2/working-model | `8bc200b` (9 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-env | znerol2/working-model | `6e857d4` (9 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-media | znerol2/working-model | `444a540` (9 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-init | znerol2/working-model | `1dac21f` (9 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-promsd | znerol2/working-model | `768facb` (8 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
 
 ## Active plans
 
@@ -38,6 +38,7 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 | When | Repo | Commit | Subject |
 |---|---|---|---|
+| 2026-06-11 12:20 | dmfdeploy | 327a83f | fix: shellcheck-clean new bin scripts; STATUS note for the 9-PR bat... |
 | 2026-06-11 12:18 | dmf-promsd | 768facb | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
 | 2026-06-11 12:17 | dmf-init | 1dac21f | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
 | 2026-06-11 12:17 | dmf-media | 444a540 | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
