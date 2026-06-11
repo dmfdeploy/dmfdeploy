@@ -1,6 +1,6 @@
 # DMF Status
 
-_Auto-generated 2026-06-11 09:15 UTC by `bin/generate-status.sh`. Run again to refresh._
+_Auto-generated 2026-06-11 10:20 UTC by `bin/generate-status.sh`. Run again to refresh._
 
 For decisions, see [docs/decisions/](docs/decisions/INDEX.md).
 For active task spec, see the most recent file in [docs/plans/](docs/plans/).
@@ -11,15 +11,15 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 | Repo | Branch | Last commit | Subject | Dirty | Unpushed |
 |---|---|---|---|---|---|
-| dmfdeploy (umbrella) | main | `0cc5f6e` (5 minutes ago) | feat: working-model enforcement foundation, umbrel | 1: `.github/workflows/guard.yml` | **2** |
-| dmf-cms | main | `d7016a8` (24 hours ago) | docs: drop stale 'spike' framing and neutralize op | clean | — |
-| dmf-runbooks | main | `c84fde7` (25 hours ago) | docs: use "all repos" instead of a hardcoded count | clean | — |
-| dmf-central | main | `a3ea74b` (25 hours ago) | docs: future-proof repo count and fix stale dmf-en | clean | — |
-| dmf-infra | main | `0aa8e07` (25 hours ago) | chore: remove must-not-main MXL spike artifacts fr | clean | — |
-| dmf-env | main | `eb91bda` (2 hours ago) | fix(doctor): make the age-key permission check por | clean | — |
-| dmf-media | main | `654b054` (24 hours ago) | docs: drop stale '(SPIKE)' labels and neutralize o | clean | — |
-| dmf-init | main | `4e46b57` (2 hours ago) | chore(release): v0.2.0 — console installer skin, w | clean | — |
-| dmf-promsd | main | `d506e9c` (27 hours ago) | Initial public release v0.1.3 | clean | — |
+| dmfdeploy (umbrella) | main | `06b9c7d` (65 minutes ago) | ci: require PR-to-issue linkage in guard.yml (refs | 3: `STATUS.md·bin/check-working-model-sync.sh·bin/generate-scripts-catalog.sh` | **3** |
+| dmf-cms | znerol2/working-model | `cd358ed` (4 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-runbooks | znerol2/working-model | `096c7d0` (3 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-central | znerol2/working-model | `55e4b0a` (3 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-infra | znerol2/working-model | `8bc200b` (3 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-env | znerol2/working-model | `6e857d4` (3 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-media | znerol2/working-model | `444a540` (2 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-init | znerol2/working-model | `1dac21f` (2 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
+| dmf-promsd | znerol2/working-model | `768facb` (2 minutes ago) | feat: adopt DMF working-model enforcement (refs dm | clean | — |
 
 ## Active plans
 
@@ -38,6 +38,15 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 | When | Repo | Commit | Subject |
 |---|---|---|---|
+| 2026-06-11 12:18 | dmf-promsd | 768facb | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
+| 2026-06-11 12:17 | dmf-init | 1dac21f | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
+| 2026-06-11 12:17 | dmf-media | 444a540 | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
+| 2026-06-11 12:17 | dmf-env | 6e857d4 | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
+| 2026-06-11 12:17 | dmf-infra | 8bc200b | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
+| 2026-06-11 12:17 | dmf-central | 55e4b0a | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
+| 2026-06-11 12:17 | dmf-runbooks | 096c7d0 | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
+| 2026-06-11 12:16 | dmf-cms | cd358ed | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
+| 2026-06-11 11:15 | dmfdeploy | 06b9c7d | ci: require PR-to-issue linkage in guard.yml (refs #32) |
 | 2026-06-11 11:10 | dmfdeploy | 0cc5f6e | feat: working-model enforcement foundation, umbrella side (refs #32) |
 | 2026-06-11 10:11 | dmfdeploy | 21850d5 | docs: record sibling-repo layout post-publish (ADR-0001 amendment) ... |
 | 2026-06-11 09:51 | dmfdeploy | 75ca986 | docs(plans): init installer UI redesign executed — shipped as dmf... |
@@ -53,7 +62,6 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 | 2026-06-11 09:23 | dmf-init | 28011b7 | fix(ui): map network-level fetch failures to operator-actionable er... |
 | 2026-06-11 09:23 | dmf-init | 00ed35e | fix(ui): kill bootstrap-start stampede and Deploy-transition dead zone |
 | 2026-06-11 09:19 | dmfdeploy | 7344326 | Initial public release v0.1.0 |
-| 2026-06-11 09:07 | dmf-init | 8506456 | feat: recovery-package download with honest safe-to-delete gating |
 | 2026-06-10 11:13 | dmf-media | 654b054 | docs: drop stale '(SPIKE)' labels and neutralize operator path |
 | 2026-06-10 11:13 | dmf-cms | d7016a8 | docs: drop stale 'spike' framing and neutralize operator paths |
 | 2026-06-10 10:53 | dmf-media | 26ab44b | chore: remove must-not-main MXL fabrics spike handoff docs |
@@ -71,7 +79,7 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 | 2026-06-10 08:14 | dmf-promsd | d506e9c | Initial public release v0.1.3 |
 | 2026-06-10 08:14 | dmf-central | de92278 | Initial public release v0.1.0 |
 
-_dmf-init: 8 more commit(s) not shown._
+_dmf-init: 9 more commit(s) not shown._
 
 ## Operator notes (hand-edited — preserved across regenerations)
 
@@ -86,13 +94,19 @@ CLAUDE/AGENTS/QWEN, **`bin/check-working-model-sync.sh`** (wired into ci.yml +
 pre-commit, `--umbrella-only` so one repo's drift never blocks another),
 **`bin/working-model-digest.sh`** + SessionStart hook in `.claude/settings.json`
 (runtime-extracts the digest; warns-not-wedges if umbrella absent), INDEX +
-CONTRIBUTING pointers. **NEXT (batch, all 8 component repos, PRs referencing
-`dmfdeploy/dmfdeploy#32` qualified):** WP2 blocks in agent files + `--strict`
-sync-check in each ci.yml, WP3 settings hook, WP4 guard.yml PR-must-link-issue
-job (component repos REQUIRE qualified `Closes dmfdeploy/dmfdeploy#N`, reject
-bare `#N`; `no-issue` label escape). **Operator-gated:** WP5 adjudicate the 6
-active plans w/o tracking_issue then flip check-docs W2 warn→fail; WP6 hygiene
-detector + schedule; WP7 org `.github` (optional).
+CONTRIBUTING pointers. **PROPAGATION EXECUTED 2026-06-11 — 9 PRs OPEN,
+review+merge pending:** umbrella **PR #33** (foundation + sibling-layout docs +
+umbrella issue-link gate; **must merge FIRST** — component CI fetches the
+checker/template from umbrella main) then dmf-cms#3, dmf-runbooks#2,
+dmf-central#2, dmf-infra#3, dmf-env#2, dmf-media#4, dmf-init#8, dmf-promsd#1
+(each: agent-file blocks from the template, `bin/working-model-digest.sh` +
+SessionStart hook, ci.yml `working-model` strict sync job, guard.yml
+`issue-link` job requiring qualified `dmfdeploy/dmfdeploy#N`; `no-issue` label
+created in all 9 repos; dmf-promsd got minimal CLAUDE/AGENTS/QWEN — it had
+none). claude-bottom reviewed twice (plan + 0cc5f6e): PASS. **Operator-gated
+follow-ups:** WP5 adjudicate the 6 active plans w/o tracking_issue then flip
+check-docs W2 warn→fail; WP6 hygiene detector + schedule; WP7 org `.github`
+(optional).
 
 ### ✅ UMBRELLA PUBLISHED + SIBLING LAYOUT — docs/tooling updated (2026-06-11)
 The umbrella is **live at `github.com/dmfdeploy/dmfdeploy`** (v0.1.0; WP17 push

@@ -147,7 +147,8 @@ EOF
     # Component repos: check bin/ then scripts/
     for repo in "${COMPONENT_REPOS[@]}"; do
         for sub in bin scripts; do
-            local subdir="$(component_path "$repo")/$sub"
+            local subdir
+            subdir="$(component_path "$repo")/$sub"
             [ -d "$subdir" ] || continue
             emit_section "$repo — \`$repo/$sub/\`" "$subdir"
         done
