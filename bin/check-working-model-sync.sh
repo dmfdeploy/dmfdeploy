@@ -21,7 +21,8 @@ set -uo pipefail
 UMBRELLA_DIR="${UMBRELLA_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 PARENT_DIR="$(dirname "$UMBRELLA_DIR")"
 TEMPLATE="$UMBRELLA_DIR/docs/templates/working-model-block.md"
-COMPONENT_REPOS=(dmf-cms dmf-runbooks dmf-central dmf-infra dmf-env dmf-media dmf-init dmf-promsd)
+# Component + org meta repos (sibling dirs under $PARENT_DIR).
+COMPONENT_REPOS=(dmf-cms dmf-runbooks dmf-central dmf-infra dmf-env dmf-media dmf-init dmf-promsd .github)
 AGENT_FILES=(CLAUDE.md AGENTS.md QWEN.md)
 
 STRICT=0

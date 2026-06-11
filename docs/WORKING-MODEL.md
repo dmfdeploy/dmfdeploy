@@ -124,3 +124,40 @@ the frontmatter must be flipped; frontmatter wins for design content.
 | Branch ruleset: approval + CODEOWNERS + required status checks + rebase-only, stale approvals dismissed on push | all 9 repos | merge is impossible otherwise |
 | `automerge.yml` + `required_status_checks` ruleset | all 9 repos | approval-driven rebase auto-merge + branch auto-delete (`hold` label disarms) |
 | `bin/check-backlog-hygiene.sh` (scheduled) | umbrella + component intake | weekly drift report |
+
+## 8. New-repo bootstrap checklist
+
+The enforcement net — commit/push hooks (`bin/install-hooks.sh`), branch
+rulesets, required status checks, `bin/scrub-public-repos.sh` (gitleaks +
+secret scrub), `bin/check-working-model-sync.sh` (block sync),
+`bin/check-docs.sh` (frontmatter), CI gates — is **per-repo** and **not
+inherited** from the org `.github` defaults. A new repo starts outside the
+model, so spinning one up means running this checklist. The `.github` defaults
+(fallback CODE_OF_CONDUCT, SUPPORT, GOVERNANCE, profile README) only soften
+the gap; they do not enforce.
+
+1. **Agent files** — add `CLAUDE.md`, `AGENTS.md`, `QWEN.md` with the
+   working-model block from `docs/templates/working-model-block.md` (umbrella).
+   Register the repo in `bin/check-working-model-sync.sh`'s sibling scan so the
+   block stays synced across copies.
+2. **CODEOWNERS** — `* @dmfdeploy/maintainers` (per-repo overrides for
+   repo-specific paths).
+3. **LICENSE** — Apache-2.0.
+4. **SECURITY.md** — private vulnerability reporting via GitHub Advisories
+   (Security → Report a vulnerability); see umbrella `SECURITY.md` for the
+   template.
+5. **Pre-commit hooks** — run `bin/install-hooks.sh` to wire `.githooks/`;
+   the hook suite includes gitleaks + `bin/scrub-public-repos.sh` guards.
+   Add `bin/check-working-model-sync.sh --strict` to the repo's `ci.yml`
+   (WP4 batch) and the umbrella `check-docs.sh` to the umbrella pre-commit.
+6. **Branch ruleset** — require PR + 1 approval + linear history; set
+   required status checks to the CI jobs this repo actually runs (e.g. `dco`,
+   `guard` incl. `issue-link`, per-stack `ci` incl. `working-model`). If the
+   repo has no CI, leave required checks empty so auto-merge isn't blocked.
+7. **Auto-merge + branch auto-delete** — enable
+   `allow_auto_merge` + `delete_branch_on_merge` in repo settings; arm
+   `automerge.yml` (WP8 pattern: `pull_request_target`, `hold` label disarms).
+8. **Labels + project** — adopt `component:*` / `workstream:*` label usage;
+   land the repo on org Project #1 so issues appear on the canonical board.
+9. **Default branch** — `main`; disallow force-pushes; require signed commits
+   (DCO enforced by CI).

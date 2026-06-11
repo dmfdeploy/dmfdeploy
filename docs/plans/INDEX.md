@@ -24,8 +24,9 @@ shelved, kept for provenance.
 - [DMF Pre-Release Compliance Readiness Plan 2026-05-11](DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md) — 2026-05-11
 - [DMF Tier A Phase Execution Plan 2026-05-11](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — 2026-05-11
 
-## Executed (72)
+## Executed (73)
 
+- [DMF Org Dot-Github Slim WP7 Plan 2026-06-11](DMF%20Org%20Dot-Github%20Slim%20WP7%20Plan%202026-06-11.md) — 2026-06-11 (executed 2026-06-11)
 - [DMF Working-Model Enforcement Plan 2026-06-11](DMF%20Working-Model%20Enforcement%20Plan%202026-06-11.md) — 2026-06-11 (executed 2026-06-11)
 - [DMF Doc-Hygiene Judgment-Tier Exec Spec 2026-06-10](DMF%20Doc-Hygiene%20Judgment-Tier%20Exec%20Spec%202026-06-10.md) — 2026-06-10 (executed 2026-06-10)
 - [DMF Doc-Hygiene PR-Submission Spec 2026-06-10](DMF%20Doc-Hygiene%20PR-Submission%20Spec%202026-06-10.md) — 2026-06-10 (executed 2026-06-10)
