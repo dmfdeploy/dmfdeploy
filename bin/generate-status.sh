@@ -273,6 +273,9 @@ compose_status() {
 # DMF Status
 
 _Auto-generated $timestamp by \`bin/generate-status.sh\`. Run again to refresh._
+_The committed copy lags its own commit by design — a snapshot cannot contain
+the hash of the commit that carries it. Judge freshness by regenerating, not
+by diffing a checkout; \`--check\` is a local pre-commit aid, not a review gate._
 
 For decisions, see [docs/decisions/](docs/decisions/INDEX.md).
 For active task spec, see the most recent file in [docs/plans/](docs/plans/).
