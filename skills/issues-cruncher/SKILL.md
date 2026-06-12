@@ -55,8 +55,9 @@ it — do not inline its content here.
 5. **Verify** *(orchestrator)* — on disk; run tests via the project's runner; run
    the **discrimination check**; lint; fresh-checkout verify the *pushed* branch
    when artifacts can mask fallbacks (`references/guardrails.md`).
-6. **Commit (gated)** — implementer commits to the brief's conventions (hygiene from
-   the profile). 
+6. **Commit (gated)** — **the orchestrator** commits/amends/pushes, after the verify
+   gate passes, to the profile's conventions (hygiene from the profile). The
+   implementer only stages and reports; it never commits.
 7. **PR → CI → land → close → cleanup** — open the PR with the **evidence bundle**;
    CI truth from the adapter (not lagging aggregations); route reviewer rounds back
    to phase 3 and **re-verify**; on merge, honor the profile's close behavior
