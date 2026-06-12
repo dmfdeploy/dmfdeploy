@@ -53,7 +53,7 @@ collect_repo() {
     local branch dirty unpushed last_commit_short last_commit_msg last_commit_age
     local count_dirty count_unpushed status_summary
 
-    if [ ! -d "$path/.git" ]; then
+    if ! git -C "$path" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
         printf '| %s | — | — | — | (not a git repo) |\n' "$name"
         return
     fi
@@ -191,7 +191,7 @@ collect_activity() {
     local repo_dir
     for repo in "${COMPONENT_REPOS[@]}"; do
         repo_dir="$(component_path "$repo")"
-        [ -d "$repo_dir/.git" ] || continue
+        git -C "$repo_dir" rev-parse --is-inside-work-tree >/dev/null 2>&1 || continue
         git -C "$repo_dir" log --since="$since" --format='%cI%x09'"$repo"'%x09%h%x09%s' >> "$tmp" 2>/dev/null || true
     done
 
