@@ -44,6 +44,9 @@ outcome is decided here, before and after the lifting.
 - Route reviewer feedback back into a fresh brief; **re-verify the whole chain**.
 
 ## Git/PR discipline
+- **You own all git history.** The implementer stages + verifies + reports; **you**
+  commit, amend (on fix rounds), and push — only after the verify gate passes. The
+  implementer never commits, so nothing lands unreviewed.
 - Branch from the default branch; **isolate in a worktree** when the shared checkout
   is in use. Open the PR with the **evidence bundle**. CI truth from `gh run view`.
   After merge, close the tracker item per the profile (don't assume auto-close) and

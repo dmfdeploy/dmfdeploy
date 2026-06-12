@@ -8,7 +8,7 @@ type: reference
 
 ## Receiving a brief
 
-The orchestrator sends a scoped brief via agent-bridge, usually pointing at a spec file (`/tmp/slice-N-spec.md`) or a direct task description (e.g., an umbrella issue number with implementation instructions). **Read the full brief before touching code.** Identify: repo path, branch, files to change, verify commands, and commit/commit-gate instructions.
+The orchestrator sends a scoped brief via agent-bridge, usually pointing at a spec file (`/tmp/slice-N-spec.md`) or a direct task description (e.g., an umbrella issue number with implementation instructions). **Read the full brief before touching code.** Identify: repo path, branch, files to change, and verify commands. (You don't commit — the orchestrator commits after its verify gate.)
 
 ## Scope discipline — execute ONLY what's specified
 
@@ -35,7 +35,7 @@ Run the project's full test suite, lint, and type checks before sending DONE. Pa
 .venv/bin/ruff check ...                  → paste "All checks passed" or the errors
 ```
 
-For fix rounds: amend into the existing commit (`git commit --amend`), do not create a separate fix commit.
+For fix rounds, **fold the changes into the working tree** — do not create or amend commits yourself. The orchestrator amends its commit after re-verifying. (This overrides the worker-amend step in the referenced `fix-round-verification-protocol`: in the issues-cruncher loop, commit ownership is the orchestrator's.)
 
 ## Reporting via agent-bridge
 
@@ -47,7 +47,7 @@ The orchestrator gates all commits. Stage changes, verify, report — the orches
 
 ## Failure modes I've hit
 
-- **ECONNRESET mid-commit:** API connection can drop during a commit shell command. The edits are on disk but the commit doesn't land. Recovery: verify with `git log` / `git show`, then commit on the next round.
+- **ECONNRESET mid-command:** the API connection can drop during a shell command (e.g. a verify run). Your edits are on disk; re-check with `git status` / `git diff` and re-run only the interrupted step. (Commit/amend recovery is the orchestrator's concern — you don't commit.)
 - **Queued-message confusion:** the orchestrator's follow-up prompt arrives before seeing an earlier reply, causing duplicate instructions. Stay on the branch's current HEAD and fold new work into existing state — don't branch or duplicate.
 - **Omitting tests unless forced:** the default instinct is to fix the code and skip the test. The brief will always demand a discriminating test; treat test-writing as part of the fix, not optional. If the test feels hard to write, that's often a signal the fix itself needs tightening.
 - **Vacuous tests:** a test that passes on both old and new code is worse than no test — it gives false confidence. Always verify the test fails on the old code (or reason through why it would).
