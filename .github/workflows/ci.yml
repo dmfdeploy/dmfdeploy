@@ -31,6 +31,10 @@ jobs:
           # Gate on warnings+errors; style/info findings stay advisory
           # (legacy-script style burndown is follow-up work, not a gate).
           shellcheck --severity=warning "${scripts[@]}"
+      - name: close-completed-issues candidate-filter self-test
+        # Pure-local unit tests (no network/token) guarding the candidate
+        # filter against false-close regressions (refs #47).
+        run: bash bin/close-completed-issues.sh --self-test
   check-docs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
