@@ -52,16 +52,20 @@ it — do not inline its content here.
 4. **Cross-check (conditional)** — invoke codex only on risk signals / low
    confidence; treat its verdict as a second angle, not a gate
    (`references/adversary-primer.md`).
-5. **Verify** *(orchestrator)* — on disk; run tests via the project's runner; run
-   the **discrimination check**; lint; fresh-checkout verify the *pushed* branch
-   when artifacts can mask fallbacks (`references/guardrails.md`).
+5. **Verify** *(orchestrator — local / pre-commit)* — on disk; run tests via the
+   project's runner; run the **discrimination check**; lint; **clean-tree** verify
+   from a *local export* (`git archive`/`ls-tree`) where built artifacts can mask
+   fallbacks. This gate needs no push (`references/guardrails.md`).
 6. **Commit (gated)** — **the orchestrator** commits/amends/pushes, after the verify
    gate passes, to the profile's conventions (hygiene from the profile). The
    implementer only stages and reports; it never commits.
-7. **PR → CI → land → close → cleanup** — open the PR with the **evidence bundle**;
-   CI truth from the adapter (not lagging aggregations); route reviewer rounds back
-   to phase 3 and **re-verify**; on merge, honor the profile's close behavior
-   (don't assume auto-close) and clean up the branch/worktree.
+7. **Push → fresh-checkout verify → PR → CI → land → close → cleanup** — push;
+   **fresh-checkout verify the *pushed* branch** (catches what a dirty local tree
+   masks — this is the post-push half of verification, separate from Phase 5); open
+   the PR with the **evidence bundle**; CI truth from the adapter (not lagging
+   aggregations); route reviewer rounds back to phase 3 and **re-verify**; on merge,
+   honor the profile's close behavior (don't assume auto-close) and clean up the
+   branch/worktree.
 
 ## Tier in one line
 

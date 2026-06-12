@@ -28,8 +28,10 @@ real failures this session.
       not the dirty tree where built artifacts mask the fallback
       (`.qwen/skills/clean-tree-verification-protocol`).
 
-## Before/at PR
-- [ ] **Fresh-checkout verify the *pushed* branch**, not just your local tree.
+## After push / at PR
+- [ ] **Fresh-checkout verify the *pushed* branch** (requires the push first — this
+      is the post-push half of verification, distinct from the local Phase-5 gate),
+      not just your local tree.
 - [ ] **Evidence bundle on the PR**: the commands run, old-code-failing output,
       new-code-passing output, CI run URL, and any known residual risk.
 - [ ] **CI truth** from `gh run view`, not lagging aggregations

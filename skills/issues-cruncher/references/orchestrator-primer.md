@@ -27,14 +27,17 @@ outcome is decided here, before and after the lifting.
    in-scope vs. follow-up) — don't silently expand or shrink scope.
 5. Write the brief.
 
-## Phase 5 — verify (the part that earns trust)
+## Phase 5 — verify (local / pre-commit; the part that earns trust)
 - Run the project's real test runner (find the venv/toolchain; don't assume
   `python` is py3). Lint. 
 - **Discrimination check**: prove the new test fails on the old code (`git stash`
   the fix → run → watch it fail → restore). If the implementer wrote both fix and
   test, enforce **independent regression design**.
-- Fresh-checkout verify the pushed branch; clean-tree path where artifacts can mask
-  fallbacks.
+- **Clean-tree** path where built artifacts can mask fallbacks — verify from a
+  *local export* (`git archive`/`ls-tree` to a scratch dir); no push required.
+- The **fresh-checkout of the *pushed* branch** is a separate, later gate — it
+  happens in Phase 7 *after* you push (you can't check a pushed branch before it
+  exists).
 
 ## Delegating well
 - Hand qwen the brief; **gate the commit** until cross-check + verify pass. Expect to
