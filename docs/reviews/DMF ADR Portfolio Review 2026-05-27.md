@@ -3,7 +3,19 @@
 **Reviewer:** Claude (Opus), at operator request
 **Scope:** All 31 ADRs in [`docs/decisions/`](../decisions/) (0001–0028, 0030, 0031, 0032).
 **Mode:** Read-only review. No ADR content was changed. This document records
-findings; the §6 actions are *recommendations*, not applied edits.
+findings; the §6 actions were *recommendations* at the time of writing.
+
+> **Resolution — 2026-06-12: CLOSED.** All §2 contradictions and §6 organizing
+> actions were applied 2026-05-30 and re-verified 2026-06-12: **0029** written;
+> **0011** amended with forward-pointers to 0029/0031; **0020** numbering
+> corrected; **0030** dangling reference fixed; **INDEX** gained a status column
+> for partially/largely-superseded ADRs (0016, 0024) plus a "Theme clusters &
+> canonical pointer" map. The two §5 cosmetic nits (**0015** format, **0017**
+> operator-local paths) were resolved 2026-06-12. **One finding is standing —
+> not a checklist item:** §4's "enforcement is discipline-only" gap, sharpened
+> now that ADR-0004's experiment-phase stance is superseded by
+> [`architectural-commitments-v1`](../decisions/architectural-commitments-v1.md)
+> (2026-06-06).
 
 ---
 

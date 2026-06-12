@@ -240,7 +240,7 @@ pod-group lands across hosts.
 - Architecture: `github.com/dmf-mxl/mxl/blob/main/docs/Architecture.md`
 - Governance: `github.com/dmf-mxl/mxl/blob/main/GOVERNANCE/GOVERNANCE.md`
 - Workshop: `github.com/cbcrc/mxl-hands-on`
-- EBU DMF Reference Architecture V2.0 — `~/Downloads/EBU_White_Paper_The_Dynamic_Media_Facility_Reference_Architecture.pdf`
+- EBU DMF Reference Architecture V2.0 — EBU White Paper, *The Dynamic Media Facility Reference Architecture*
 - ADR-0003 (EBU taxonomy), ADR-0004 (experiment stance), ADR-0006
   (cluster as truth), ADR-0013 (catalog model)
 - `docs/architecture/DMF Function Catalog Model.md` §2 — catalog v2
@@ -248,5 +248,13 @@ pod-group lands across hosts.
 - `docs/plans/DMF Vendor Multi-Tenancy Vision 2026-05-29.md` — North Star
   that generalises this ADR's node-role topology to per-vendor tenancy;
   records IS-10 (control-plane authz) vs. MXL data-plane separation gap
-- Smoke test artifacts (left in place for follow-up):
-  `<home>/mxl-smoke-tmp/{mxl,Architecture.md,Building.md,Exercise1.md,compose-tmpfs.yaml,build-test.sh}`
+- Smoke test artifacts (operator-local, left in place for follow-up):
+  `mxl/`, `Architecture.md`, `Building.md`, `Exercise1.md`, `compose-tmpfs.yaml`,
+  `build-test.sh` under an operator-local `mxl-smoke-tmp/` working dir
+
+## Amendment 2026-06-12 — hygiene (no decision change)
+
+Scrubbed two operator-local filesystem paths (a home-dir Downloads PDF
+reference and a home-dir `mxl-smoke-tmp/` working dir) to neutral references
+per the repo's no-local-paths discipline. Closes the §5 nit in the
+[2026-05-27 ADR Portfolio Review](../reviews/DMF%20ADR%20Portfolio%20Review%202026-05-27.md).

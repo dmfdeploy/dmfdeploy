@@ -114,7 +114,9 @@ operator decision**, not a hygiene task.
 
 - [DMF ADR Portfolio Review 2026-05-27](../reviews/DMF%20ADR%20Portfolio%20Review%202026-05-27.md)
   — cross-ADR review: contradictions, staleness, over-fragmentation, and
-  suggested organizing actions (recommendations, not applied).
+  suggested organizing actions. **CLOSED 2026-06-12** — §2/§6 applied
+  (2026-05-30), §5 cosmetic nits fixed (2026-06-12); one standing
+  enforcement-gap item noted.
 
 ## Adding an ADR
 

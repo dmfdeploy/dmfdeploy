@@ -1,9 +1,8 @@
----
-status: Accepted
-date: 2026-05-04
----
+# ADR-0015: DMF Console uses passkey-only authentication flow
 
-# ADR-0015 — DMF Console uses passkey-only authentication flow
+**Status:** Accepted
+**Date:** 2026-05-04
+**Deciders:** @<handle>
 
 ## Context
 
@@ -15,7 +14,7 @@ username if the browser already holds a passkey for the domain.
 The previous configuration wired the DMF Console OIDC provider to
 `default-authentication-flow`, which includes an identification stage
 that always renders a username form. Even after removing `prompt=login`
-from the OIDC redirect (ADR-0015 precursor, fixed in dmf-cms v0.6.1),
+from the OIDC redirect (an earlier precursor fix in dmf-cms v0.6.1),
 the user still saw:
 
 1. Authentik identification page with "Email or Username" field
@@ -143,3 +142,10 @@ brand-wide. See `docs/plans/DMF Authentik Brand-Wide Passkey-First Login Plan
 `docs/plans/DMF Authentik Bootstrap Enrollment Drop Username Prompt Plan
 2026-05-28.md` (enrollment-flow username prompt) is a distinct, unimplemented
 item and is **not** affected by this change.
+
+## Amendment 2026-06-12 — cosmetic normalization (no decision change)
+
+Converted the YAML frontmatter to the standard `**Status:**` / `**Date:**` /
+`**Deciders:**` header, switched the em-dash title to the `ADR-NNNN:` form, and
+reworded the self-referential "ADR-0015 precursor". Closes the §5 format nit in
+the [2026-05-27 ADR Portfolio Review](../reviews/DMF%20ADR%20Portfolio%20Review%202026-05-27.md).
