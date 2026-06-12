@@ -1,0 +1,36 @@
+name: issue-close-reconciler
+
+on:
+  schedule:
+    - cron: "0 6 * * *"  # daily 06:00 UTC
+  workflow_dispatch:
+  pull_request:
+    types: [closed]
+    # Only main-targeted merges may trigger the privileged --apply run; a PR
+    # merged into a side branch must never execute (possibly modified)
+    # reconciler code with issues:write authority.
+    branches: [main]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read  # GraphQL reads PR fields via closedByPullRequestsReferences
+
+jobs:
+  reconcile:
+    # On schedule/dispatch: always run.
+    # On pull_request: only when the PR was actually merged (not just closed).
+    if: github.event_name != 'pull_request' || github.event.pull_request.merged == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Reconcile completed issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bin/close-completed-issues.sh --apply
