@@ -1,6 +1,6 @@
 # DMF Plans Index
 
-_Auto-generated 2026-06-11 by `bin/generate-plans-index.sh`._
+_Auto-generated 2026-06-12 by `bin/generate-plans-index.sh`._
 
 Status taxonomy: **active** = guiding work now; **draft** = proposed/approved
 but not started; **executed** = work landed (terminal); **superseded** =
