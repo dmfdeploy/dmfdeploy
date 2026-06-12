@@ -1,6 +1,6 @@
 # DMF Status
 
-_Auto-generated 2026-06-11 17:14 UTC by `bin/generate-status.sh`. Run again to refresh._
+_Auto-generated 2026-06-12 13:53 UTC by `bin/generate-status.sh`. Run again to refresh._
 _The committed copy lags its own commit by design — a snapshot cannot contain
 the hash of the commit that carries it. Judge freshness by regenerating, not
 by diffing a checkout; `--check` is a local pre-commit aid, not a review gate._
@@ -14,30 +14,38 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 | Repo | Branch | Last commit | Subject | Dirty | Unpushed |
 |---|---|---|---|---|---|
-| dmfdeploy (umbrella) | znerol2/close-32 | `a29322b` (61 seconds ago) | docs(status): state the one-commit-lag invariant i | clean | — |
-| dmf-cms | main | `f2a6545` (6 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-runbooks | main | `e818621` (6 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-central | main | `8030d1e` (6 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-infra | main | `d4c4d1b` (6 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-env | main | `083de09` (6 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-media | main | `0d07e5e` (6 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-init | main | `c1b056a` (6 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-promsd | main | `0fa2221` (6 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmfdeploy (umbrella) | docs/close-adr-portfolio-review | `ed1db78` (8 hours ago) | fix(status): worktree-safe git repo detection (ref | 5: `docs/decisions/0015-dmf-console-passkey-only.md·docs/decisions/0017-mxl-intra-host-data-plane.md·docs/decisions/INDEX.md` | _(no upstream)_ |
+| dmf-cms | main | `f2a6545` (27 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-runbooks | main | `e818621` (27 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-central | main | `8030d1e` (27 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-infra | main | `d4c4d1b` (27 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-env | main | `e887c3b` (7 hours ago) | test(remove-env): lock cloud-lane no-op invariant  | clean | — |
+| dmf-media | main | `0d07e5e` (27 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmf-init | main | `74200a2` (4 hours ago) | fix(createnew): single-flight guard against duplic | clean | — |
+| dmf-promsd | main | `0fa2221` (27 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
 
 ## Active plans
 
 | Plan | Date | Tracking issue |
 |---|---|---|
 | DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04 | 2026-06-04 | [#5](https://github.com/dmfdeploy/dmfdeploy/issues/5) |
+| DMF STATUS Split Plan 2026-06-11 | 2026-06-11 | [#40](https://github.com/dmfdeploy/dmfdeploy/issues/40) ⚠ stale? |
 | DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06 | 2026-06-06 | [#36](https://github.com/dmfdeploy/dmfdeploy/issues/36) |
 
 ## Recent activity (last 7 days, all repos)
 
 | When | Repo | Commit | Subject |
 |---|---|---|---|
-| 2026-06-11 19:13 | dmfdeploy | a29322b | docs(status): state the one-commit-lag invariant in the generated h... |
-| 2026-06-11 18:14 | dmfdeploy | 15d8a96 | fix(status): path-safe dirty summary + sane unpushed cell without u... |
-| 2026-06-11 16:33 | dmfdeploy | 4da3ad9 | docs(plans): working-model enforcement executed — WP1–6+8 shipp... |
+| 2026-06-12 15:44 | dmf-init | 74200a2 | fix(createnew): single-flight guard against duplicate orphan envs (... |
+| 2026-06-12 11:09 | dmf-env | e887c3b | test(remove-env): lock cloud-lane no-op invariant off-cloud (refs #20) |
+| 2026-06-12 08:50 | dmfdeploy | ed1db78 | fix(status): worktree-safe git repo detection (refs #44) |
+| 2026-06-11 21:22 | dmfdeploy | 2a179fb | docs(plans): WP7 org .github repo + new-repo bootstrap checklist (C... |
+| 2026-06-11 20:43 | dmfdeploy | fe2f272 | docs(plans): STATUS split spec — stop committing volatile generat... |
+| 2026-06-11 20:43 | dmfdeploy | 5e1e09c | docs(plans): regenerate INDEX for STATUS split plan (refs #40) |
+| 2026-06-11 19:43 | dmfdeploy | ea6901c | docs(plans): working-model enforcement executed — WP1–6+8 shipp... |
+| 2026-06-11 19:43 | dmfdeploy | a00fbcb | fix(status): path-safe dirty summary + sane unpushed cell without u... |
+| 2026-06-11 19:43 | dmfdeploy | 55f77cc | docs(status): regenerate on the clean PR head (refs #32) |
+| 2026-06-11 19:43 | dmfdeploy | 4b11083 | docs(status): state the one-commit-lag invariant in the generated h... |
 | 2026-06-11 16:15 | dmfdeploy | c2b440d | feat: backlog-hygiene drift detector + weekly schedule (WP6, refs #32) |
 | 2026-06-11 13:35 | dmfdeploy | e60c8bd | docs(plans): WP5 adjudication — 6 active plans resolved; check-do... |
 | 2026-06-11 13:05 | dmf-promsd | 0fa2221 | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
@@ -47,7 +55,6 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 | 2026-06-11 13:02 | dmf-infra | d4c4d1b | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
 | 2026-06-11 13:01 | dmf-runbooks | e818621 | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
 | 2026-06-11 13:01 | dmf-cms | f2a6545 | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
-| 2026-06-11 13:00 | dmfdeploy | 377e8da | ci: approval-driven rebase auto-merge + docs (WP8, refs #34) |
 | 2026-06-11 12:54 | dmf-central | 8030d1e | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
 | 2026-06-11 12:41 | dmf-promsd | cefd84d | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
 | 2026-06-11 12:41 | dmf-init | 3caeacd | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
@@ -57,10 +64,6 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 | 2026-06-11 12:41 | dmf-central | af299ee | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
 | 2026-06-11 12:41 | dmf-runbooks | 8d3968f | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
 | 2026-06-11 12:41 | dmf-cms | 6112f90 | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
-| 2026-06-11 12:31 | dmfdeploy | aec1ba3 | docs: record sibling-repo layout post-publish (ADR-0001 amendment) ... |
-| 2026-06-11 12:31 | dmfdeploy | 55985c6 | fix(sync-check): --strict fails on a MISSING agent context file (re... |
-| 2026-06-11 12:31 | dmfdeploy | 528a6c2 | ci: require PR-to-issue linkage in guard.yml (refs #32) |
-| 2026-06-11 12:31 | dmfdeploy | 294f353 | feat: working-model enforcement foundation, umbrella side (refs #32) |
 | 2026-06-11 09:29 | dmf-env | eb91bda | fix(doctor): make the age-key permission check portable to GNU stat |
 | 2026-06-11 09:23 | dmf-init | ca0ce11 | fix(ui): start the doctor run on arrival at Validate |
 | 2026-06-11 09:23 | dmf-init | c1a1828 | feat(ui): within-step task ticker + per-step elapsed on the splash |
@@ -69,7 +72,6 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 | 2026-06-11 09:23 | dmf-init | 38e3f4d | feat(ui): console installer skin — left rail, wizard pages, viewp... |
 | 2026-06-11 09:23 | dmf-init | 36ea345 | feat(ui): install activity ticker + step rail folded into sidebar |
 | 2026-06-11 09:23 | dmf-init | 2f93395 | fix: fail fast on unusable SSH keys and never drop the render stream |
-| 2026-06-11 09:23 | dmf-init | 28011b7 | fix(ui): map network-level fetch failures to operator-actionable er... |
 | 2026-06-10 11:13 | dmf-media | 654b054 | docs: drop stale '(SPIKE)' labels and neutralize operator path |
 | 2026-06-10 11:13 | dmf-cms | d7016a8 | docs: drop stale 'spike' framing and neutralize operator paths |
 | 2026-06-10 10:53 | dmf-media | 26ab44b | chore: remove must-not-main MXL fabrics spike handoff docs |
@@ -87,9 +89,9 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 | 2026-06-10 08:14 | dmf-promsd | d506e9c | Initial public release v0.1.3 |
 | 2026-06-10 08:14 | dmf-central | de92278 | Initial public release v0.1.0 |
 
-_dmf-init: 10 more commit(s) not shown._
+_dmf-init: 11 more commit(s) not shown._
 
-_dmfdeploy: 4 more commit(s) not shown._
+_dmfdeploy: 9 more commit(s) not shown._
 
 ## Operator notes (hand-edited — preserved across regenerations)
 
