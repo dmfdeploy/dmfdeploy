@@ -56,7 +56,7 @@ One file per cluster. Filenames exactly:
 # <Cluster name> — Canonical Digest
 
 **Scope:** <one sentence: what topic this cluster decides>
-**Canonical ADR(s):** [ADR-XXXX](../XXXX-...md)[, ADR-YYYY ...]
+**Canonical ADR(s):** `ADR-XXXX (TBD)`[, `ADR-YYYY` ...]
 **Last refreshed:** 2026-06-09
 
 > This digest states the **current consolidated truth** for this topic so a reader
@@ -133,7 +133,7 @@ header prepends; everything else is verify-only).
 
 In `INDEX.md`, in the existing "Theme clusters & canonical pointer" section, add a
 link from each cluster row to its new digest file (e.g. append
-"· [digest](digests/identity-and-authority.md)" to the cluster's "Canonical" cell).
+"· [digest](../decisions/digests/identity-and-authority.md)" to the cluster's "Canonical" cell).
 Do not restructure the table.
 
 ## 6. Acceptance — reply with this grep-proof checklist filled

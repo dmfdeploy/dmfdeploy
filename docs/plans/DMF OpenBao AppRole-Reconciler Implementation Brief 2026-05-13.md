@@ -621,7 +621,7 @@ Do not print real token values or secret values.
 - [ADR-0008 - OpenBao + ESO + AppRole shim as secrets architecture](../decisions/0008-openbao-secrets-architecture.md)
 - [ADR-0009 - Shamir DR model](../decisions/0009-shamir-dr-model.md)
 - [ADR-0010 - run-playbook wrapper](../decisions/0010-run-playbook-as-sanctioned-entry.md)
-- [OpenBao bootstrap security model](../../dmf-infra/docs/openbao-bootstrap-security-model.md)
+- [OpenBao bootstrap security model](https://github.com/dmfdeploy/dmf-infra/blob/main/docs/openbao-bootstrap-security-model.md)
 - [Parent AppRole reconciler plan](DMF%20OpenBao%20AppRole-Write%20Reconciler%20Plan%202026-05-13.md)
 - [Policy-writer session separation plan](DMF%20OpenBao%20Policy-Writer%20Session%20Separation%20Plan%202026-05-13.md)
 - [Tier A Phase 3 implementation handoff](../handoffs/DMF%20Tier%20A%20Phase%203%20Implementation%20Handoff%202026-05-12.md)

@@ -102,7 +102,7 @@ All line numbers verified against working trees on 2026-06-10. Severity:
   (`/loki`, `/loki/ready`), not a human UI. Reword, don't delete.
 - 🟠 `CLAUDE.md` ADR-0025 "incoming additions" (2026-05-19) → past tense (`ee/`
   + `630-zot-seed-platform.yml` have landed).
-- 🟠 **Broken intra-repo links**: `docs/dmf-platform-plan.md:310` `[CLAUDE.md](../CLAUDE.md)`
+- 🟠 **Broken intra-repo links**: `docs/dmf-platform-plan.md:310` quoted broken ref to `../CLAUDE.md`
   resolves to missing `k3s-lab-bootstrap/CLAUDE.md` (real one is repo root →
   `../../CLAUDE.md`); `docs/openbao-policy-reconciliation-agent-prompt.md:47`
   links `698-cms-smoke-test.yml` but smoke-test is `699` (698 is

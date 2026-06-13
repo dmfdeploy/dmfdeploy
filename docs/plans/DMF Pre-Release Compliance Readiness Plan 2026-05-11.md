@@ -6,7 +6,7 @@ date: 2026-05-11
 
 **Status:** Draft
 **Date:** 2026-05-11
-**Pairs with:** [ADR-0020](../decisions/0020-deployment-scope-and-regulatory-posture.md) (deployment scope), [`dmf-infra/docs/security-compliance-framework-plan.md`](../../dmf-infra/docs/security-compliance-framework-plan.md) (framework)
+**Pairs with:** [ADR-0020](../decisions/0020-deployment-scope-and-regulatory-posture.md) (deployment scope), [`dmf-infra/docs/security-compliance-framework-plan.md`](https://github.com/dmfdeploy/dmf-infra/blob/main/docs/security-compliance-framework-plan.md) (framework)
 **Operational counterpart:** [`docs/processes/pre-release-compliance-checklist.md`](../processes/pre-release-compliance-checklist.md)
 **Driver:** Senior-DevOps review 2026-05-11 — three architectural pivots cheap now / expensive later; multi-modal deployment posture (OSS / managed / flypack) requires tiered readiness gates rather than a single pre-release event.
 
