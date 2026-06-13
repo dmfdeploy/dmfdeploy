@@ -3,6 +3,7 @@
 **Status:** Accepted
 **Date:** 2026-04-22 (formalized in `DMF Secret Ownership and OpenBao Migration Plan.md`)
 **Deciders:** @<handle>
+**Rule:** Cluster-runtime secrets live in OpenBao and reach pods via External Secrets Operator (AppRole auth); operator scripts inject bootstrap secrets via a temp vars file; break-glass material (Shamir shares, ops_admin) stays outside the runtime path.
 
 ## Context
 

@@ -12,9 +12,9 @@ and is never a contribution path.)
 
 1. **Orient:** [`docs/THESIS.md`](docs/THESIS.md) (what this is) →
    [`docs/JOURNEY.md`](docs/JOURNEY.md) (how it got here) →
-   [`docs/decisions/READING-GUIDE.md`](docs/decisions/READING-GUIDE.md) (the ~8
-   ADRs that matter). [`docs/OPEN-QUESTIONS.md`](docs/OPEN-QUESTIONS.md) tells
-   you honestly what is frozen, unproven, or undecided.
+   [`docs/decisions/INDEX.md#start-here`](docs/decisions/INDEX.md#start-here) (the
+   core ADRs that bind you, marked ★). [`docs/OPEN-QUESTIONS.md`](docs/OPEN-QUESTIONS.md)
+   tells you honestly what is frozen, unproven, or undecided.
 2. **Find work:** the live backlog is
    [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues), scheduled on
    the [org project board](https://github.com/orgs/dmfdeploy/projects/1).
@@ -43,6 +43,18 @@ Cross-cutting decisions live as ADRs in `docs/decisions/` (see
    covered by the pinned "Decision record" index thread).
 
 Small, single-repo decisions don't need this — use the issue itself.
+
+### ADR conventions
+
+Every ADR (copy `docs/decisions/0000-template.md`) carries:
+
+- a top-of-doc **Rule:** line — the binding constraint in one imperative sentence,
+  so a reader gets the obligation without reading the whole doc;
+- an **Enforcement** section (`## Enforcement`) — how the decision is kept honest
+  (script / CI gate / skill), or "discipline only" stated explicitly;
+- filename `NNNN-kebab-title.md` (monotonic number) and an Index row in
+  [`docs/decisions/INDEX.md`](docs/decisions/INDEX.md); the core ADRs newcomers
+  must read are marked **★** there.
 
 ## Branch & PR model
 

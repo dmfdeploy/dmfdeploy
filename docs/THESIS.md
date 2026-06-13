@@ -69,4 +69,4 @@ The thesis was tested as a falsifiable experiment, not asserted: the
 [Move 1 learnings](reviews/dmf-platform-move-1-learnings-2026-06-04.md) record
 six architectural assumptions and their verdicts, including the one still
 unproven. The full arc is in [JOURNEY.md](JOURNEY.md); the decisions are in the
-[ADR record](decisions/READING-GUIDE.md).
+[ADR record](decisions/INDEX.md#start-here).

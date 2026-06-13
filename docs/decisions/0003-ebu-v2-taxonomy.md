@@ -3,6 +3,7 @@
 **Status:** Accepted
 **Date:** 2026-04-25 (vocabulary aligned with EBU White Paper V2.0)
 **Deciders:** @<handle>
+**Rule:** Every playbook, role, and doc uses the EBU DMF V2.0 taxonomy — 6 layers, 4 verticals, 6 lifecycle stages — and playbook numbers encode layer + lifecycle.
 
 ## Context
 

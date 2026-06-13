@@ -9,6 +9,7 @@ code-grounded reviewer), claude-top (survey owner).
 §Alternatives entry "Generalise the helper to read OpenBao too"
 (deferred → realised). ADR-0024 §3 (sanctioned exceptions) is preserved
 and re-confirmed by the per-app feasibility survey 2026-05-24.
+**Rule:** Humans log in with passkeys (Authentik); emergency admins are sealed in OpenBao; machines use scoped, named service accounts; every automated action records the human who requested it.
 
 ## Context
 

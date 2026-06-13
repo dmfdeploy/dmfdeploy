@@ -114,7 +114,7 @@ the buttons fast — one fixed, one still open (see
 ## What got built around the moves
 
 The experiments forced supporting architecture into existence, each piece with
-its decision record (the [reading guide](decisions/READING-GUIDE.md) sequences
+its decision record (the [Start here section](decisions/INDEX.md#start-here) sequences
 them; the [digests](decisions/digests/) hold consolidated truth):
 
 - **Identity & authority chain** ([ADR-0028](decisions/0028-identity-and-authority-chain.md)):
@@ -227,7 +227,7 @@ What remains open, frozen, or unproven is curated in
 [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md). The live backlog is
 [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues). If you want to
 understand the decisions, start with the
-[ADR reading guide](decisions/READING-GUIDE.md).
+[ADR Start here section](decisions/INDEX.md#start-here).
 
 ---
 

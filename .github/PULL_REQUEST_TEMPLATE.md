@@ -17,3 +17,4 @@ responsibility first.
 - [ ] No secrets / real IPs / DNS / operator identity anywhere in the diff or this PR.
 - [ ] CI is green (gitleaks, scrub, lint, commitlint where applicable).
 - [ ] Docs/ADRs updated if behavior or decisions changed.
+- [ ] Checked the governing ADR(s) for the area I changed (see [`docs/decisions/INDEX.md`](docs/decisions/INDEX.md) → ★ Start here).

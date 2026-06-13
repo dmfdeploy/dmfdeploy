@@ -1,6 +1,7 @@
 ---
-status: active
+status: executed
 date: 2026-06-13
+executed: 2026-06-13
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/61
 ---
 # DMF ADR Legibility & De-Layering Plan 2026-06-13
