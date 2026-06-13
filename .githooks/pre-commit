@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
-# .githooks/pre-commit — keep STATUS.md fresh on every umbrella commit.
+# .githooks/pre-commit — local pre-commit gates for the umbrella.
 #
-# Runs bin/generate-status.sh, auto-stages STATUS.md if it changed, then lets
-# the commit proceed. The auto-staging means STATUS.md updates are baked into
-# whatever commit the user is making rather than forcing a separate commit.
+# Runs staged secret scans, refreshes deterministic generated docs, and checks
+# documentation/frontmatter consistency before allowing the commit.
 #
 # Activate once per clone:
 #   git config core.hooksPath .githooks
 #   (or: bin/install-hooks.sh)
 #
 # Escape hatches:
-#   STATUS_HOOK_SKIP=1 git commit ...    # skip refresh entirely
+#   STATUS_HOOK_SKIP=1 git commit ...    # skip umbrella doc refresh/check steps
 #   git commit --no-verify ...           # bypass all hooks (use sparingly)
 
 set -euo pipefail
@@ -45,31 +44,22 @@ elif [ "${GITLEAKS_HOOK_QUIET:-0}" != "1" ]; then
     echo "             brew install gitleaks (silence with GITLEAKS_HOOK_QUIET=1)" >&2
 fi
 
-# Only fire the umbrella-specific bits (STATUS.md / SCRIPTS.md auto-refresh)
-# when bin/generate-status.sh exists. Component repos use the same hooksPath
-# only if their operators opt in; we don't want to break them silently if
-# they happen to share a config.
-[ -x "$REPO_ROOT/bin/generate-status.sh" ] || exit 0
+# Only fire the umbrella-specific bits when umbrella scripts exist. Component
+# repos use the same hooksPath only if their operators opt in; we don't want to
+# break them silently if they happen to share a config.
+[ -x "$REPO_ROOT/bin/check-docs.sh" ] || exit 0
 
-# Skip during rebase / merge / cherry-pick — STATUS.md drift is normal there
-# and noise from the hook just confuses the operator.
+# Skip during rebase / merge / cherry-pick — generated-doc noise from the hook
+# just confuses the operator there.
 [ -d "$REPO_ROOT/.git/rebase-merge" ] && exit 0
 [ -d "$REPO_ROOT/.git/rebase-apply" ] && exit 0
 [ -f "$REPO_ROOT/.git/MERGE_HEAD" ] && exit 0
 [ -f "$REPO_ROOT/.git/CHERRY_PICK_HEAD" ] && exit 0
 
 [ "${STATUS_HOOK_SKIP:-0}" = "1" ] && {
-    echo "[pre-commit] STATUS_HOOK_SKIP=1 — skipping STATUS.md refresh"
+    echo "[pre-commit] STATUS_HOOK_SKIP=1 — skipping umbrella doc refresh/check steps"
     exit 0
 }
-
-# Refresh without hitting the network — fast on every commit
-"$REPO_ROOT/bin/generate-status.sh" --no-fetch >/dev/null
-
-if ! git diff --quiet -- STATUS.md 2>/dev/null; then
-    git add STATUS.md
-    echo "[pre-commit] STATUS.md auto-refreshed and staged"
-fi
 
 # Refresh the scripts catalog if a script header may have changed
 if [ -x "$REPO_ROOT/bin/generate-scripts-catalog.sh" ]; then
