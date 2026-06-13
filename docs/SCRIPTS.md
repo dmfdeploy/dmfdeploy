@@ -30,7 +30,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `bin/export-scan.sh` | stage a CLEAN-HISTORY orphan export of one component repo and run every public-safety gate against that exact tree. Workstream A (first public release). |
 | `bin/generate-plans-index.sh` | scan docs/plans/*.md for YAML frontmatter and produce docs/plans/INDEX.md, grouped by status (Active / Draft / Executed / Superseded / Historical), newest-first. Superseded rows include superseded_by links; executed rows include executed dates when present. |
 | `bin/generate-scripts-catalog.sh` | scan all DMF repos for shell scripts and produce docs/SCRIPTS.md, a single discoverable index. Each script's first non-shebang comment paragraph (consecutive `#` lines until the first blank `#`, with pure-decoration lines skipped) becomes its catalog entry. |
-| `bin/generate-status.sh` | regenerate STATUS.md at the umbrella root. |
+| `bin/generate-status.sh` | regenerate STATUS.local.md at the umbrella root. |
 | `bin/install-hooks.sh` | point this clone's git at .githooks/. |
 | `bin/mxl-sync-check.sh` | report how far each mxl-spike repo is behind origin/main. |
 | `bin/publish-chart-to-ghcr.sh` | package a Helm chart and publish it to GHCR. |

@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# generate-status.sh — regenerate STATUS.md at the umbrella root.
+# generate-status.sh — regenerate STATUS.local.md at the umbrella root.
 #
 # Auto-derives the parts that come from `git log` / `git status` / `git fetch`
 # across all 9 repos (umbrella + 8 components). Preserves a hand-edited
-# section between <!-- HUMAN-START --> and <!-- HUMAN-END --> markers so
-# operators can record in-flight work, pending decisions, etc.
+# section from committed STATUS.md between <!-- HUMAN-START --> and
+# <!-- HUMAN-END --> markers so operators can record in-flight work,
+# pending decisions, etc. without committing volatile repo-state tables.
 #
 # Usage:
-#   bin/generate-status.sh                # regenerate STATUS.md (default)
-#   bin/generate-status.sh --check        # print diff vs current; exit 1 if drift
+#   bin/generate-status.sh                # regenerate STATUS.local.md (default)
 #   bin/generate-status.sh --no-fetch     # skip remote fetch (offline-safe)
 #
 # This script is read-only against the cluster — it does not SSH anywhere.
@@ -17,22 +17,31 @@ set -euo pipefail
 
 UMBRELLA_DIR="${UMBRELLA_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 PARENT_DIR="$(dirname "$UMBRELLA_DIR")"
-STATUS_FILE="$UMBRELLA_DIR/STATUS.md"
+STATUS_NOTES_FILE="$UMBRELLA_DIR/STATUS.md"
+STATUS_FILE="$UMBRELLA_DIR/STATUS.local.md"
 COMPONENT_REPOS=(dmf-cms dmf-runbooks dmf-central dmf-infra dmf-env dmf-media dmf-init dmf-promsd)
 
 # Component repos are siblings of the umbrella under a common parent since the
 # public release (2026-06-11, ADR-0001 amendment); legacy nested checkouts
 # still resolve.
+is_repo_root() {
+    local path="$1" top
+    [ -e "$path/.git" ] && return 0
+    top="$(git -C "$path" rev-parse --show-toplevel 2>/dev/null || true)"
+    [ -n "$top" ] && [ "$top" = "$path" ]
+}
+
 component_path() {
-    if [ -e "$UMBRELLA_DIR/$1/.git" ]; then printf '%s' "$UMBRELLA_DIR/$1"
-    else printf '%s' "$PARENT_DIR/$1"; fi
+    if is_repo_root "$UMBRELLA_DIR/$1"; then
+        printf '%s' "$UMBRELLA_DIR/$1"
+    else
+        printf '%s' "$PARENT_DIR/$1"
+    fi
 }
 
 DO_FETCH=1
-MODE="write"
 for arg in "$@"; do
     case "$arg" in
-        --check)    MODE="check" ;;
         --no-fetch) DO_FETCH=0 ;;
         -h|--help)
             sed -n '/^# generate-status/,/^$/p' "$0" | sed 's/^# \{0,1\}//'
@@ -53,7 +62,7 @@ collect_repo() {
     local branch dirty unpushed last_commit_short last_commit_msg last_commit_age
     local count_dirty count_unpushed status_summary
 
-    if ! git -C "$path" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    if ! is_repo_root "$path"; then
         printf '| %s | — | — | — | (not a git repo) |\n' "$name"
         return
     fi
@@ -191,7 +200,7 @@ collect_activity() {
     local repo_dir
     for repo in "${COMPONENT_REPOS[@]}"; do
         repo_dir="$(component_path "$repo")"
-        git -C "$repo_dir" rev-parse --is-inside-work-tree >/dev/null 2>&1 || continue
+        is_repo_root "$repo_dir" || continue
         git -C "$repo_dir" log --since="$since" --format='%cI%x09'"$repo"'%x09%h%x09%s' >> "$tmp" 2>/dev/null || true
     done
 
@@ -235,7 +244,7 @@ collect_activity() {
 
 # ── Extract human-edited section ─────────────────────────────────────────
 extract_human_section() {
-    if [ ! -f "$STATUS_FILE" ]; then
+    if [ ! -f "$STATUS_NOTES_FILE" ]; then
         cat <<'EOF'
 <!-- HUMAN-START -->
 ### In-flight work
@@ -261,7 +270,7 @@ EOF
         /<!-- HUMAN-START -->/ { keep = 1; print; next }
         /<!-- HUMAN-END -->/ { print; keep = 0; next }
         keep { print }
-    ' "$STATUS_FILE"
+    ' "$STATUS_NOTES_FILE"
 }
 
 # ── Compose ──────────────────────────────────────────────────────────────
@@ -272,10 +281,9 @@ compose_status() {
     cat <<EOF
 # DMF Status
 
-_Auto-generated $timestamp by \`bin/generate-status.sh\`. Run again to refresh._
-_The committed copy lags its own commit by design — a snapshot cannot contain
-the hash of the commit that carries it. Judge freshness by regenerating, not
-by diffing a checkout; \`--check\` is a local pre-commit aid, not a review gate._
+_Auto-generated $timestamp by \`bin/generate-status.sh\`. This local snapshot is gitignored._
+_The committed [STATUS.md](STATUS.md) contains only hand-edited operator notes;
+run this generator when you need the live repo-state snapshot._
 
 For decisions, see [docs/decisions/](docs/decisions/INDEX.md).
 For active task spec, see the most recent file in [docs/plans/](docs/plans/).
@@ -319,30 +327,15 @@ EOF
 ---
 
 **Boot ritual reminder:** when starting a session in any DMF repo,
-\`git fetch && git pull\` the umbrella, read this file, read the most recent
-handoff in \`docs/handoffs/\`, run \`git status\` in any component repo
-(\`../dmf-*\`) you're about to touch, and ask the user before modifying any
-component repo with dirty state.
+\`git fetch && git pull\` the umbrella, run \`bin/generate-status.sh\`, read
+this local snapshot, read the most recent handoff in \`docs/handoffs/\`, run
+\`git status\` in any component repo (\`../dmf-*\`) you're about to touch, and
+ask the user before modifying any component repo with dirty state. Edit
+committed \`STATUS.md\` only for hand-maintained operator notes.
 EOF
 }
 
-# ── Mode handling ────────────────────────────────────────────────────────
+# ── Write ────────────────────────────────────────────────────────────────
 new_content="$(compose_status)"
-
-if [ "$MODE" = "check" ]; then
-    if [ ! -f "$STATUS_FILE" ]; then
-        echo "STATUS.md does not exist yet — run without --check to create it" >&2
-        exit 1
-    fi
-    if diff -q <(printf '%s\n' "$new_content") "$STATUS_FILE" >/dev/null; then
-        echo "STATUS.md is current."
-        exit 0
-    fi
-    echo "STATUS.md drift detected:" >&2
-    diff <(printf '%s\n' "$new_content") "$STATUS_FILE" | head -40 >&2
-    exit 1
-fi
-
-# Write
 printf '%s\n' "$new_content" > "$STATUS_FILE"
 echo "wrote $STATUS_FILE"
