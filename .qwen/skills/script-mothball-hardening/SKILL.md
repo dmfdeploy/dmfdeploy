@@ -23,7 +23,7 @@ A script is **MUTATING** if it does ANY of:
 - Writes, creates, or deletes files in the repo (including JSON, YAML, markdown, log files).
 - Mutates git state (git config, git hooks, commits, branches).
 - Calls external mutation APIs (POST, PATCH, DELETE, PUT) — Forgejo, GitHub, Cloudflare, etc.
-- Runs other scripts that mutate state (e.g., `generate-status.sh` which writes STATUS.md).
+- Runs other scripts that mutate state (e.g., `generate-status.sh` which writes STATUS.local.md).
 
 A script is **READ-ONLY** if it:
 - Only reads files and prints to stdout.

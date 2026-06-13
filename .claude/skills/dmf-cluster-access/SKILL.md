@@ -1,13 +1,13 @@
 ---
 name: dmf-cluster-access
-description: Operate against the live DMF lab cluster. The cluster is the truth — local kubectl is not. This skill encodes how to inspect, change, and recover state authoritatively. Env slug rotates; current id lives in umbrella STATUS.md.
+description: Operate against the live DMF lab cluster. The cluster is the truth — local kubectl is not. This skill encodes how to inspect, change, and recover state authoritatively. Env slug rotates; current id in umbrella STATUS.local.md (run bin/generate-status.sh).
 ---
 
 # DMF Cluster Access
 
 **Scope:** the live Hetzner k3s lab cluster — 3 nodes on Hetzner CAX21 (ARM64), nbg1.
-The env slug rotates as we cut new test clusters (see umbrella `STATUS.md` for
-the current id). This is currently the only DMF cluster. When `dmf-central`
+The env slug rotates as we cut new test clusters (run `bin/generate-status.sh`
+and read the generated `STATUS.local.md` for the current id). This is currently the only DMF cluster. When `dmf-central`
 and flypack profiles stand up, this skill is revised, not generalized prematurely.
 
 **Iron rule:** the local Mac's `kubectl` context can point anywhere. For DMF, the
@@ -78,7 +78,7 @@ Hard rules. Violations leak secrets into transcripts, prompt caches, shell histo
 
 | Item | Value |
 |---|---|
-| Environment slug | `<env-name>` (current id lives in umbrella STATUS.md — env slugs rotate as we cut new test clusters) |
+| Environment slug | `<env-name>` (current id in the generated umbrella `STATUS.local.md` — run `bin/generate-status.sh`; env slugs rotate as we cut new test clusters) |
 | Provider | Hetzner Cloud, CAX21, ARM64, region `nbg1` |
 | Nodes | `k3s-node-01` (<node-public-ip>, priv 10.0.0.4) · `k3s-node-02` (<node-public-ip>, priv 10.0.0.3) · `k3s-node-03` (<control-node-public-ip>, priv 10.0.0.2) |
 | Control plane | All 3 (HA etcd) |
@@ -234,7 +234,7 @@ bin/run-playbook.sh ../dmf-infra/k3s-lab-bootstrap/site.yml
 
 The wrapper takes the env name as its first arg:
 `bin/run-playbook.sh <env-name> <playbook>` — look up the current env id in the
-umbrella's STATUS.md.
+umbrella's generated `STATUS.local.md` (run `bin/generate-status.sh`).
 
 ### 4.2 Watch a long run
 

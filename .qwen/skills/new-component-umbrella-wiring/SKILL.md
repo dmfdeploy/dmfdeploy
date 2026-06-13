@@ -19,7 +19,7 @@ Apply this checklist before committing the scaffold.
 |---|---|---|
 | `.gitignore` | (pattern) | Excludes the new dir from the umbrella git tree |
 | `CLAUDE.md` / `QWEN.md` | prose | "N component repos" count + component table entry |
-| `bin/generate-status.sh` | `COMPONENT_REPOS` | STATUS.md generation |
+| `bin/generate-status.sh` | `COMPONENT_REPOS` | STATUS.local.md generation (gitignored snapshot) |
 | `bin/generate-scripts-catalog.sh` | `COMPONENT_REPOS` | SCRIPTS.md generation |
 | `bin/scrub-public-repos.sh` | `PUBLIC_REPOS_DEFAULT` | Pre-publish secret/topology scan |
 | `bin/check-public-commit-authors.sh` | `PUBLIC_REPOS_DEFAULT` | Author identity gate |
@@ -60,8 +60,9 @@ the whitelist in `sync-to-github.sh` (minus the `.` umbrella entry).
 After all updates, run:
 
 ```bash
-# Check no drift in generated docs
-bin/generate-status.sh --check
+# Regenerate the gitignored local status snapshot (picks up the new repo)
+bin/generate-status.sh
+# Check no drift in committed generated docs
 bin/generate-scripts-catalog.sh --check
 
 # Verify the new repo passes public gates (if classified public)

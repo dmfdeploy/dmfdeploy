@@ -1,6 +1,6 @@
 ---
 name: dmf-openbao-unseal
-description: Strict procedure for unsealing OpenBao on the live DMF Hetzner cluster using the 3-of-5 Shamir quorum (JuiceFS shares 1+2 + Keychain share 3). Drives dmf-env/bin/unseal-openbao.sh; never improvise share handling. Env slug rotates; current id lives in umbrella STATUS.md.
+description: Strict procedure for unsealing OpenBao on the live DMF Hetzner cluster using the 3-of-5 Shamir quorum (JuiceFS shares 1+2 + Keychain share 3). Drives dmf-env/bin/unseal-openbao.sh; never improvise share handling. Env slug rotates; current id in umbrella STATUS.local.md (run bin/generate-status.sh).
 ---
 
 # DMF — OpenBao Manual Unseal
