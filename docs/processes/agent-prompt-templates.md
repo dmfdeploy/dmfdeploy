@@ -114,7 +114,7 @@ GIT:
     `git push`, STOP and report — your output is the orchestrator's
     input, and you'll create a merge mess if you commit ahead.
   - NEVER use --no-verify on any git command. The pre-commit hook
-    (gitleaks + STATUS.md refresh) is the canonical gate; bypassing it
+    (gitleaks + deterministic generated-doc refresh/checks) is the canonical gate; bypassing it
     silently lands secret-leaking content in history.
   - If gitleaks blocks a commit (orchestrator's commit, not yours),
     the orchestrator will read the finding and scrub. You don't need

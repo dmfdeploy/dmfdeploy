@@ -41,7 +41,7 @@ the dmf-cms NetBox client established the facts below.
 Two further forces matter:
 
 - **Env ids rotate.** Per the platform's operating model, env identifiers are
-  short-lived — new ones are cut as the build shifts (STATUS.md holds the live id). A
+  short-lived — new ones are cut as the build shifts (`STATUS.local.md` holds the live id after running `bin/generate-status.sh`). A
   per-env *tag* would therefore accumulate dead tags (`env:imc1-cyh4`, `env:g2r6`, …)
   that nothing prunes.
 - **Existing consumers already scope by Site/Cluster.** AWX's `nb_inventory` groups by

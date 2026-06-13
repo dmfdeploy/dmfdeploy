@@ -38,7 +38,8 @@ verbatim (docs cross-reference each other by display name).
 
 - [plans/INDEX.md](plans/INDEX.md) — by `bin/generate-plans-index.sh` (frontmatter-driven)
 - [SCRIPTS.md](SCRIPTS.md) — by `bin/generate-scripts-catalog.sh`
-- [../STATUS.md](../STATUS.md) — by `bin/generate-status.sh` (operator/agent dashboard)
+- `../STATUS.local.md` — by `bin/generate-status.sh` (local operator/agent dashboard, gitignored)
+- [../STATUS.md](../STATUS.md) — committed operator notes embedded into the local dashboard
 
 Live backlog: [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues) ·
 [project board](https://github.com/orgs/dmfdeploy/projects/1) ·

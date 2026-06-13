@@ -52,7 +52,7 @@ header and a `NOTICE` entry. We don't relicense; we attribute.
 | Handoffs (session intent) | `dmfdeploy/docs/handoffs/` (most recent is canonical) |
 | Reviews / audits / sessions | `dmfdeploy/docs/{reviews,audits,sessions}/` |
 | Skills (operational procedure) | `dmfdeploy/.claude/skills/<name>/SKILL.md` |
-| Cross-repo state | `dmfdeploy/STATUS.md` (auto + `<!-- HUMAN-START -->` block) |
+| Cross-repo state | `dmfdeploy/STATUS.local.md` (generated, gitignored) + `dmfdeploy/STATUS.md` (`<!-- HUMAN-START -->` notes) |
 | Code, charts, roles | Component repos only — never in umbrella |
 | Per-repo agent guidance | Repo-local `CLAUDE.md` / `AGENTS.md` (boot ritual + repo-specific only; cross-cutting state stays in umbrella) |
 

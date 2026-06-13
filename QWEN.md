@@ -11,7 +11,7 @@ that kind of work**, then following its sections like instructions.
 Before touching any DMF repo:
 
 1. `cd "$DMFDEPLOY_UMBRELLA" && git fetch && git pull` (umbrella)
-2. `bin/generate-status.sh` — refreshes [STATUS.md](STATUS.md), then read it
+2. `bin/generate-status.sh` — writes `STATUS.local.md` (gitignored), then read it
 3. Read the most recent file in [docs/handoffs/](docs/handoffs/) — prior session intent
 4. Skim [docs/decisions/INDEX.md](docs/decisions/INDEX.md) — apply any ADRs relevant to your task
 5. Run `git status` in any sub-repo you're about to touch. **Ask the user
@@ -91,7 +91,7 @@ in the umbrella repo. The three rules that matter mid-task:
    qualified** — `Closes dmfdeploy/dmfdeploy#N`; bare `#N` targets the wrong repo.
 3. **Never invent a local backlog** (TODO files, ad-hoc trackers). Issues =
    liveness; plan frontmatter = design state; ADRs = decisions (RFC in
-   Discussions first); STATUS.md = cross-repo now.
+   Discussions first); STATUS.md = committed notes; STATUS.local.md = live repo snapshot.
 <!-- WORKING-MODEL-BLOCK-END -->
 
 ## Qwen-specific working rules
@@ -112,10 +112,10 @@ in the umbrella repo. The three rules that matter mid-task:
 - Never mark a task complete without proving it works.
 - For dmf-cms: run `scripts/sync-version.sh --check` and build the frontend (`cd frontend && npm ci && npm run build`); confirm no compile errors.
 - For cluster changes: run `bin/unseal-openbao.sh --status` and the relevant playbook with `--check --diff` first; confirm clean.
-- For doc changes: run `bin/generate-status.sh --check`,
-  `bin/generate-scripts-catalog.sh --check`, and `bin/check-docs.sh`; confirm no
+- For doc changes: run `bin/generate-scripts-catalog.sh --check`,
+  `bin/generate-plans-index.sh --check`, and `bin/check-docs.sh`; confirm no
   drift and that plan-doc frontmatter parses (the pre-commit + CI gate rejects it
-  otherwise).
+  otherwise). `bin/generate-status.sh` writes only the gitignored local snapshot.
 
 ### Docker / Colima (dmf-cms builds only)
 - All Docker commands target Colima: `DOCKER_HOST=unix://$HOME/.colima/docker-build/docker.sock`
@@ -127,8 +127,8 @@ in the umbrella repo. The three rules that matter mid-task:
 - Component repos are independent gits — when you change cross-repo state,
   commit each repo separately with related messages so the history is
   navigable.
-- The umbrella's pre-commit hook auto-refreshes `STATUS.md` and
-  `docs/SCRIPTS.md`; don't bypass with `--no-verify` unless you have a
+- The umbrella's pre-commit hook refreshes deterministic generated docs
+  (`docs/SCRIPTS.md`, `docs/plans/INDEX.md`) and runs doc gates; don't bypass with `--no-verify` unless you have a
   reason and document it.
 
 ## End-of-session
@@ -136,8 +136,8 @@ in the umbrella repo. The three rules that matter mid-task:
 If you changed cross-repo state (new ADR, scaffold role implementation,
 script that other repos will reference), update the `<!-- HUMAN-START -->`
 section of [STATUS.md](STATUS.md) with one bullet: what changed, where,
-and (if applicable) what's left in flight. The auto-generated parts
-refresh next run; the operator notes section is hand-edited and survives.
+and (if applicable) what's left in flight. The live repo snapshot is local-only
+and refreshes next run; the operator notes section is hand-edited and survives.
 
 For lessons learned that should change future-Qwen behavior, update this
 file or the relevant skill's SKILL.md.
