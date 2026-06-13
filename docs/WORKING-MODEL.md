@@ -26,7 +26,8 @@ the backlog-hygiene detector. Plan:
 3. **Never invent a local backlog** (TODO files, ad-hoc trackers, stale
    `docs/agentic/` queues). Issues are canonical for *liveness*, plan
    frontmatter for *design state*, ADRs for *decisions* (propose via a
-   Discussions RFC first), STATUS.md for *cross-repo now*.
+   Discussions RFC first), STATUS.md for committed operator notes, and
+   STATUS.local.md for the generated live repo snapshot.
 <!-- WM-DIGEST-END -->
 
 ## 1. Source-of-truth map
@@ -36,7 +37,7 @@ the backlog-hygiene detector. Plan:
 | Is anyone working on X? Is it scheduled? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues) + [org Project #1](https://github.com/orgs/dmfdeploy/projects/1) |
 | What's the design/decision state of a plan? | The plan doc's frontmatter in umbrella `docs/plans/` |
 | What architectural rules bind me? | ADRs in umbrella `docs/decisions/` ([INDEX](decisions/INDEX.md)) |
-| What's happening across repos right now? | umbrella [STATUS.md](../STATUS.md) (regenerate via `bin/generate-status.sh`) |
+| What's happening across repos right now? | `STATUS.local.md` (generated locally via `bin/generate-status.sh`; gitignored). Committed [STATUS.md](../STATUS.md) keeps hand-edited operator notes only. |
 | Where do questions/proposals go? | [Discussions](https://github.com/dmfdeploy/dmfdeploy/discussions) |
 
 **Split-brain precedence:** on disagreement, the issue wins for liveness and

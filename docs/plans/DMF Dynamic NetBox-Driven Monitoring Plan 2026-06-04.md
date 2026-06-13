@@ -10,7 +10,7 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/5
 > plan-mode design conversation (see §Operator decisions). Broken into single-session
 > work packages a freshly-cleared agent can pick up. **No implementation has started.**
 > No live cluster is assumed mid-stream; live e2e is the final WP, run against the env
-> in `STATUS.md` when a cluster is available.
+> in `STATUS.local.md` after running `bin/generate-status.sh` when a cluster is available.
 
 ---
 
@@ -95,7 +95,7 @@ Rationale vs the `netbox-plugin-prometheus-sd` alternative (rejected):
 ## Conventions a fresh agent must follow
 
 - **Boot ritual** (CLAUDE.md): `git fetch && pull` umbrella → `bin/generate-status.sh`
-  → read newest `docs/handoffs/` → skim `docs/decisions/INDEX.md` → `git status` each
+  → read `STATUS.local.md` → read newest `docs/handoffs/` → skim `docs/decisions/INDEX.md` → `git status` each
   sub-repo before touching; **ask before modifying a dirty sub-repo**. Land work on
   `main` (no feature branches — `feedback_converge_on_main_no_feat_branches`); verify
   HEAD==main first (`feedback_verify_main_branch_before_work`).
@@ -269,7 +269,7 @@ vars are needed.
 monitored-inventory view.
 - Extend 190 to assert NetBox-derived targets are **present and `up`** in Prometheus
   (scrape + probe lanes), and that a catalog deploy/teardown adds/removes targets.
-- **Live e2e** against the current `STATUS.md` env when a cluster exists: deploy a
+- **Live e2e** against the current `STATUS.local.md` env when a cluster exists: deploy a
   catalog media function → confirm metrics + probe appear automatically → teardown →
   confirm they disappear, with no playbook re-run. See §Verification.
 
@@ -277,7 +277,7 @@ monitored-inventory view.
 
 ## Verification (end-to-end, WP11)
 
-1. `bin/generate-status.sh`; pick the live env id from `STATUS.md`.
+1. `bin/generate-status.sh`; pick the live env id from `STATUS.local.md`.
 2. `dmf-env/bin/run-playbook.sh <env> …/playbooks/vertical-monitoring/<…>` to deploy
    blackbox + promsd; confirm pods Running in `monitoring`, ESO secret populated.
 3. Prometheus **Targets** page (via Grafana datasource proxy): `netbox-scrape`,

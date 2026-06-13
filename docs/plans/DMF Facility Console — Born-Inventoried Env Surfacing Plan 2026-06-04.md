@@ -8,7 +8,7 @@ date: 2026-06-04
 > **dmf-cms-only** work package a freshly-cleared agent can pick up. Independent of the
 > in-flight NetBox-driven monitoring effort (ADR-0038) — **no dmf-infra / born-inventory
 > changes**: the env model already exists in NetBox. Live e2e is the final step, run
-> against the env in `STATUS.md` when a cluster is available.
+> against the env in `STATUS.local.md` after running `bin/generate-status.sh` when a cluster is available.
 
 ---
 
@@ -43,7 +43,7 @@ ADR-0038 (monitoring — site-derived labels; keep env scoping aligned).
 
 ## Conventions a fresh agent must follow
 
-- **Boot ritual** (umbrella CLAUDE.md): `git fetch && pull` → `bin/generate-status.sh` →
+- **Boot ritual** (umbrella CLAUDE.md): `git fetch && pull` → `bin/generate-status.sh` → read `STATUS.local.md` →
   read newest `docs/handoffs/` (the env-surfacing handoff 2026-06-04 is the pointer) →
   skim `docs/decisions/INDEX.md` (apply **ADR-0039**). `git status` dmf-cms **before
   touching it — ask the operator if it is dirty** (other agents may be mid-change).
@@ -147,7 +147,7 @@ signature, `?limit=100`):
   `/api/facility/env` JSON shape + counts.
 - `pnpm build` + typecheck the frontend.
 
-**Live e2e (the env in `STATUS.md`, when a cluster exists):**
+**Live e2e (the env in `STATUS.local.md`, when a cluster exists):**
 1. Build + release dmf-cms via the `dmf-cms-build-and-release` skill (VERSION bump → 630 →
    650).
 2. Open `/facility`: the Environment card shows `dmf_env_id` / label / provider /

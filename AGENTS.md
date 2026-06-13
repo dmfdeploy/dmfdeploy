@@ -10,8 +10,8 @@ parent directory** (`../dmf-cms`, `../dmf-infra`, …) — not nested inside it.
 **Before any non-trivial change:**
 
 1. `git fetch && git pull` (umbrella)
-2. `bin/generate-status.sh` — refreshes [STATUS.md](STATUS.md)
-3. Read [STATUS.md](STATUS.md) — it's the authoritative source for what's happening across all 9 repos (umbrella + 8 components)
+2. `bin/generate-status.sh` — writes `STATUS.local.md` (gitignored)
+3. Read `STATUS.local.md` — it's the local snapshot of what's happening across all 9 repos (umbrella + 8 components)
 4. Skim [docs/decisions/INDEX.md](docs/decisions/INDEX.md) — note any ADRs applicable to your task
 5. Read the most recent file in [docs/handoffs/](docs/handoffs/) — prior session's intent
 
@@ -104,7 +104,7 @@ in the umbrella repo. The three rules that matter mid-task:
    qualified** — `Closes dmfdeploy/dmfdeploy#N`; bare `#N` targets the wrong repo.
 3. **Never invent a local backlog** (TODO files, ad-hoc trackers). Issues =
    liveness; plan frontmatter = design state; ADRs = decisions (RFC in
-   Discussions first); STATUS.md = cross-repo now.
+   Discussions first); STATUS.md = committed notes; STATUS.local.md = live repo snapshot.
 <!-- WORKING-MODEL-BLOCK-END -->
 
 ## Key Principles

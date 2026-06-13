@@ -1,6 +1,7 @@
 ---
-status: active
+status: executed
 date: 2026-06-11
+executed: 2026-06-13
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/40
 ---
 # DMF STATUS Split Plan 2026-06-11

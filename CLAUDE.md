@@ -16,7 +16,7 @@ longer nested inside the umbrella.
 Before touching any DMF repo:
 
 1. `cd "$DMFDEPLOY_UMBRELLA" && git fetch && git pull` (umbrella)
-2. `bin/generate-status.sh` — refreshes [STATUS.md](STATUS.md), then read it.
+2. `bin/generate-status.sh` — writes `STATUS.local.md` (gitignored), then read it.
 3. Read the most recent file in [docs/handoffs/](docs/handoffs/) — it's the
    prior session's intent, recorded for you.
 4. Skim [docs/decisions/INDEX.md](docs/decisions/INDEX.md) — note any ADRs
@@ -35,30 +35,31 @@ Before touching any DMF repo:
 
 End-of-session: if you changed shared state (cross-repo decisions, in-flight
 work that another agent might trip over), update the `<!-- HUMAN-START -->`
-section of [STATUS.md](STATUS.md) before stopping. The auto-generated parts
-will refresh next run; the operator notes section won't.
+section of [STATUS.md](STATUS.md) before stopping. The live repo snapshot is
+local-only and will refresh next run; the committed operator notes section won't.
 
 ### One-time hook install per clone
 
-A pre-commit hook keeps `STATUS.md` fresh on every umbrella commit (auto-runs
-`bin/generate-status.sh --no-fetch` and stages the result). Activate once:
+A pre-commit hook runs staged secret scans, refreshes deterministic generated
+docs, and checks documentation/frontmatter consistency. Activate once:
 
 ```bash
 bin/install-hooks.sh
 ```
 
 Sets `core.hooksPath = .githooks`. Per-clone setting, so re-run after each
-fresh clone. Skip with `STATUS_HOOK_SKIP=1 git commit ...` for emergencies.
+fresh clone. Skip umbrella doc refresh/check steps with
+`STATUS_HOOK_SKIP=1 git commit ...` for emergencies.
 
 ## ⚠️ Cluster Target
 
 The **DMF Platform runs on Hetzner CAX21 ARM64** in nbg1 region under a rotating
 test-env identifier — env ids are short-lived (we cut new ones as the build
 shifts). The **current env id and its concrete details live in
-[STATUS.md](STATUS.md)**, not here. SSH access via
+`STATUS.local.md` after running `bin/generate-status.sh`**, not here. SSH access via
 `k3s-admin@<control-node-public-ip>`. Playbooks invoke via
 `dmf-env/bin/run-playbook.sh <env-name>` — substitute the current env from
-STATUS.md.
+`STATUS.local.md`.
 
 The local RPi k3s cluster (<lan-ip>) is an unrelated homelab — **never use it for DMF work**.
 Always verify kubectl context with `kubectl config current-context` before running cluster commands.
@@ -83,7 +84,7 @@ Each is a separate git repo with its own remote:
 
 - `dmf-cms/` — operator console (React + FastAPI). Active.
 - `dmf-infra/` — generic Ansible playbooks/roles. Active. Public.
-- `dmf-env/` — **generic env tooling**: `bin/` scripts, `terraform/modules/` + generic per-provider roots (`terraform/<provider>/`), neutral `tasks/`/`templates/`. Per-env state (inventory, manifest, bundle, tfvars, SSH keys, TF state) is **operator-local** under `~/.dmfdeploy/envs/<env>/` — nothing per-env is committed (ADR-0035, 2026-06-01). Live env id in STATUS.md.
+- `dmf-env/` — **generic env tooling**: `bin/` scripts, `terraform/modules/` + generic per-provider roots (`terraform/<provider>/`), neutral `tasks/`/`templates/`. Per-env state (inventory, manifest, bundle, tfvars, SSH keys, TF state) is **operator-local** under `~/.dmfdeploy/envs/<env>/` — nothing per-env is committed (ADR-0035, 2026-06-01). Live env id is in generated `STATUS.local.md`.
 - `dmf-central/` — central services (scaffold, Phase 0 step 5).
 - `dmf-media/` — media-domain catalog metadata + (future) Layer 5 roles. Currently scaffold; `nmos-cpp` role relocated to `dmf-runbooks` per 2026-05-06 Path A pivot.
 - `dmf-runbooks/` — thin AWX launcher playbooks + currently-authoritative `nmos-cpp` role (ADR-0014, ADR-0016). Active.
@@ -127,7 +128,7 @@ in the umbrella repo. The three rules that matter mid-task:
    qualified** — `Closes dmfdeploy/dmfdeploy#N`; bare `#N` targets the wrong repo.
 3. **Never invent a local backlog** (TODO files, ad-hoc trackers). Issues =
    liveness; plan frontmatter = design state; ADRs = decisions (RFC in
-   Discussions first); STATUS.md = cross-repo now.
+   Discussions first); STATUS.md = committed notes; STATUS.local.md = live repo snapshot.
 <!-- WORKING-MODEL-BLOCK-END -->
 
 ## Backlog + working model (GitHub-native)
