@@ -8,9 +8,8 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (4)
+## Active (3)
 
-- [DMF ADR Legibility & De-Layering Plan 2026-06-13](DMF%20ADR%20Legibility%20%26%20De-Layering%20Plan%202026-06-13.md) — 2026-06-13
 - [DMF Issues-Cruncher Skill 2026-06-12](DMF%20Issues-Cruncher%20Skill%202026-06-12.md) — 2026-06-12
 - [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
 - [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04](DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md) — 2026-06-04
@@ -25,8 +24,9 @@ shelved, kept for provenance.
 - [DMF Pre-Release Compliance Readiness Plan 2026-05-11](DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md) — 2026-05-11
 - [DMF Tier A Phase Execution Plan 2026-05-11](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — 2026-05-11
 
-## Executed (74)
+## Executed (75)
 
+- [DMF ADR Legibility & De-Layering Plan 2026-06-13](DMF%20ADR%20Legibility%20%26%20De-Layering%20Plan%202026-06-13.md) — 2026-06-13 (executed 2026-06-13)
 - [DMF Org Dot-Github Slim WP7 Plan 2026-06-11](DMF%20Org%20Dot-Github%20Slim%20WP7%20Plan%202026-06-11.md) — 2026-06-11 (executed 2026-06-11)
 - [DMF STATUS Split Plan 2026-06-11](DMF%20STATUS%20Split%20Plan%202026-06-11.md) — 2026-06-11 (executed 2026-06-13)
 - [DMF Working-Model Enforcement Plan 2026-06-11](DMF%20Working-Model%20Enforcement%20Plan%202026-06-11.md) — 2026-06-11 (executed 2026-06-11)

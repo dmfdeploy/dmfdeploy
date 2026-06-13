@@ -3,6 +3,7 @@
 **Status:** Accepted
 **Date:** 2026-05-04
 **Deciders:** @<handle>, planning session with Claude
+**Rule:** A media function is a catalog entry = a YAML manifest (intent, in the function's source repo) joined to a NetBox runtime tag (lifecycle state); dmf-cms shows the join and drives the Configure/Finalise playbooks via AWX.
 
 ## Context
 

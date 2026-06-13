@@ -1,8 +1,12 @@
+<!-- ADR doc convention: every ADR carries a top-of-doc **Rule:** line — the binding
+constraint in one imperative sentence — directly under the metadata block. See
+CONTRIBUTING.md → "ADR conventions". -->
 # ADR-NNNN: Short title in imperative or declarative form
 
 **Status:** Proposed | Accepted | Superseded by ADR-NNNN | Deprecated
 **Date:** YYYY-MM-DD
 **Deciders:** @<handle>, [agent context if any]
+**Rule:** The single binding constraint, as one imperative sentence — what a reader must do or not do. (The decision in brief; the full rationale is below.)
 
 ## Context
 

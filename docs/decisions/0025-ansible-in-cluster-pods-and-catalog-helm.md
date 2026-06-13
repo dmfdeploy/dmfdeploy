@@ -3,6 +3,7 @@
 **Status:** Accepted
 **Date:** 2026-05-23
 **Deciders:** @<handle> (with Claude/Codex implementation handoff)
+**Rule:** `media-*` catalog launchers run in-cluster in AWX-spawned execution-environment pods (never by SSHing to a node), and catalog functions deploy as Helm charts from in-cluster Zot.
 
 ## Context
 

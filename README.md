@@ -23,7 +23,7 @@ closing: see the [thesis one-pager](docs/THESIS.md).
 | You are… | Read, in order |
 |---|---|
 | **Curious / evaluating** — "what is this and does it work?" | [docs/THESIS.md](docs/THESIS.md) → the [dmf-init quickstart](https://github.com/dmfdeploy/dmf-init) (Day-0 installer) |
-| **A potential contributor** | [docs/JOURNEY.md](docs/JOURNEY.md) (how we got here) → [ADR reading guide](docs/decisions/READING-GUIDE.md) → [CONTRIBUTING.md](CONTRIBUTING.md) → [Issues](https://github.com/dmfdeploy/dmfdeploy/issues) + [project board](https://github.com/orgs/dmfdeploy/projects/1) |
+| **A potential contributor** | [docs/JOURNEY.md](docs/JOURNEY.md) (how we got here) → [core ADRs — start here](docs/decisions/INDEX.md#start-here) → [CONTRIBUTING.md](CONTRIBUTING.md) → [Issues](https://github.com/dmfdeploy/dmfdeploy/issues) + [project board](https://github.com/orgs/dmfdeploy/projects/1) |
 | **An AI-agent operator** — working *on* the platform with agents | [CLAUDE.md](CLAUDE.md) / [AGENTS.md](AGENTS.md) boot ritual, then [STATUS.md](STATUS.md) |
 
 The knowledge base is mapped in [docs/INDEX.md](docs/INDEX.md). What's

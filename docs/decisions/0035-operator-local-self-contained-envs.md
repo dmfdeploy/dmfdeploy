@@ -1,6 +1,7 @@
 # ADR-0035: Envs are fully operator-local and self-contained; dmf-env is generic tooling + modules
 
 **Status:** Accepted
+**Rule:** Every env (cloud + sandbox) is fully operator-local and self-contained under `~/.dmfdeploy/envs/<env>/`, with nothing per-env committed; dmf-env is generic — scripts, `terraform/modules/`, one per-provider root, neutral tasks/templates.
 
 ## Context
 

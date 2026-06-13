@@ -1,6 +1,7 @@
 # ADR-0036: dmf-init is a thin control-plane container — runtime-pull playbooks at a selected ref; nothing baked
 
 **Status:** Accepted
+**Rule:** dmf-init bakes only the tool layer + the app; it `git clone`s the playbook repos at an operator-selected ref at runtime and pulls app images at bootstrap — no repos and no app images are ever baked.
 
 ## Context
 
