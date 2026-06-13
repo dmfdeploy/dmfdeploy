@@ -1,6 +1,6 @@
 # DMF Scripts Catalog
 
-_Auto-generated 2026-06-12 by `bin/generate-scripts-catalog.sh`._
+_Auto-generated 2026-06-13 by `bin/generate-scripts-catalog.sh`._
 
 A single discoverable index of every shell script across the DMF repos.
 Each entry shows where the script lives and what it does in one line.

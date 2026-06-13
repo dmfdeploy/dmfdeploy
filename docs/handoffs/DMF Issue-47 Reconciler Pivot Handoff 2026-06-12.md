@@ -46,9 +46,11 @@ spec; kills the entire extractor bug class.
   `CLOSE_KEYWORDS`, `NEGATION_RE`, the boundary/negation machinery, and the
   ~20 extractor self-test cases.
 - **Replace:** in `find_candidates()`, query merged PRs **with**
-  `closingIssuesReferences(first:10){ nodes{ number repository{nameWithOwner} } }`
-  in the same GraphQL call that already fetches `number,url,mergedAt` per repo.
-  Filter nodes to `repository.nameWithOwner == "dmfdeploy/dmfdeploy"`.
+  `closingIssuesReferences` exhausting the connection — paginate via
+  `pageInfo{hasNextPage,endCursor}` + `after:$cursor` in a loop until
+  `hasNextPage == false`, collecting all `nodes{ number repository{nameWithOwner} }`.
+  This must be in the same GraphQL call that already fetches `number,url,mergedAt`
+  per repo. Filter nodes to `repository.nameWithOwner == "dmfdeploy/dmfdeploy"`.
 - **Keep (still load-bearing):** merged-PRs-only enumeration; only-close-if-OPEN;
   **reopen guard** (timeline `reopened` newer than PR `mergedAt` ⇒ skip;
   **API-error ⇒ skip**, never close on unknown); dry-run default + `--apply`

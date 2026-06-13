@@ -1,6 +1,6 @@
 # DMF Status
 
-_Auto-generated 2026-06-12 13:53 UTC by `bin/generate-status.sh`. Run again to refresh._
+_Auto-generated 2026-06-13 05:42 UTC by `bin/generate-status.sh`. Run again to refresh._
 _The committed copy lags its own commit by design — a snapshot cannot contain
 the hash of the commit that carries it. Judge freshness by regenerating, not
 by diffing a checkout; `--check` is a local pre-commit aid, not a review gate._
@@ -14,21 +14,22 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 | Repo | Branch | Last commit | Subject | Dirty | Unpushed |
 |---|---|---|---|---|---|
-| dmfdeploy (umbrella) | docs/close-adr-portfolio-review | `ed1db78` (8 hours ago) | fix(status): worktree-safe git repo detection (ref | 5: `docs/decisions/0015-dmf-console-passkey-only.md·docs/decisions/0017-mxl-intra-host-data-plane.md·docs/decisions/INDEX.md` | _(no upstream)_ |
-| dmf-cms | main | `f2a6545` (27 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-runbooks | main | `e818621` (27 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-central | main | `8030d1e` (27 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-infra | main | `d4c4d1b` (27 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-env | main | `e887c3b` (7 hours ago) | test(remove-env): lock cloud-lane no-op invariant  | clean | — |
-| dmf-media | main | `0d07e5e` (27 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
-| dmf-init | main | `74200a2` (4 hours ago) | fix(createnew): single-flight guard against duplic | clean | — |
-| dmf-promsd | main | `0fa2221` (27 hours ago) | ci: approval-driven rebase auto-merge (refs dmfdep | clean | — |
+| dmfdeploy (umbrella) | znerol2/handoff-issue47-pivot | `f366f82` (11 hours ago) | docs(handoffs): issue-47 reconciler pivot handoff  | 1: `"docs/handoffs/DMF Issue-47 Reconciler Pivot Handoff 2026-06-12.md"` | — |
+| dmf-cms | znerol2/handoff-issue47-pivot | `f366f82` (11 hours ago) | docs(handoffs): issue-47 reconciler pivot handoff  | 442: `.claude/agents/README.md·.claude/agents/architecture-reviewer.md·.claude/agents/docs-writer.md` | — |
+| dmf-runbooks | znerol2/handoff-issue47-pivot | `f366f82` (11 hours ago) | docs(handoffs): issue-47 reconciler pivot handoff  | 435: `.claude/agents/README.md·.claude/agents/architecture-reviewer.md·.claude/agents/docs-writer.md` | — |
+| dmf-central | znerol2/handoff-issue47-pivot | `f366f82` (11 hours ago) | docs(handoffs): issue-47 reconciler pivot handoff  | 436: `.claude/agents/README.md·.claude/agents/architecture-reviewer.md·.claude/agents/docs-writer.md` | — |
+| dmf-infra | znerol2/handoff-issue47-pivot | `f366f82` (11 hours ago) | docs(handoffs): issue-47 reconciler pivot handoff  | 435: `.claude/agents/README.md·.claude/agents/architecture-reviewer.md·.claude/agents/docs-writer.md` | — |
+| dmf-env | znerol2/handoff-issue47-pivot | `f366f82` (11 hours ago) | docs(handoffs): issue-47 reconciler pivot handoff  | 456: `.claude/agents/README.md·.claude/agents/architecture-reviewer.md·.claude/agents/docs-writer.md` | — |
+| dmf-media | znerol2/handoff-issue47-pivot | `f366f82` (11 hours ago) | docs(handoffs): issue-47 reconciler pivot handoff  | 440: `.claude/agents/README.md·.claude/agents/architecture-reviewer.md·.claude/agents/docs-writer.md` | — |
+| dmf-init | znerol2/handoff-issue47-pivot | `f366f82` (11 hours ago) | docs(handoffs): issue-47 reconciler pivot handoff  | 442: `.claude/agents/README.md·.claude/agents/architecture-reviewer.md·.claude/agents/docs-writer.md` | — |
+| dmf-promsd | znerol2/handoff-issue47-pivot | `f366f82` (11 hours ago) | docs(handoffs): issue-47 reconciler pivot handoff  | 435: `.claude/agents/README.md·.claude/agents/architecture-reviewer.md·.claude/agents/docs-writer.md` | — |
 
 ## Active plans
 
 | Plan | Date | Tracking issue |
 |---|---|---|
 | DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04 | 2026-06-04 | [#5](https://github.com/dmfdeploy/dmfdeploy/issues/5) |
+| DMF Issues-Cruncher Skill 2026-06-12 | 2026-06-12 | [#46](https://github.com/dmfdeploy/dmfdeploy/issues/46) |
 | DMF STATUS Split Plan 2026-06-11 | 2026-06-11 | [#40](https://github.com/dmfdeploy/dmfdeploy/issues/40) ⚠ stale? |
 | DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06 | 2026-06-06 | [#36](https://github.com/dmfdeploy/dmfdeploy/issues/36) |
 
@@ -36,62 +37,114 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 | When | Repo | Commit | Subject |
 |---|---|---|---|
-| 2026-06-12 15:44 | dmf-init | 74200a2 | fix(createnew): single-flight guard against duplicate orphan envs (... |
-| 2026-06-12 11:09 | dmf-env | e887c3b | test(remove-env): lock cloud-lane no-op invariant off-cloud (refs #20) |
+| 2026-06-12 20:20 | dmfdeploy | f366f82 | docs(handoffs): issue-47 reconciler pivot handoff (refs #47) |
+| 2026-06-12 20:20 | dmf-runbooks | f366f82 | docs(handoffs): issue-47 reconciler pivot handoff (refs #47) |
+| 2026-06-12 20:20 | dmf-promsd | f366f82 | docs(handoffs): issue-47 reconciler pivot handoff (refs #47) |
+| 2026-06-12 20:20 | dmf-media | f366f82 | docs(handoffs): issue-47 reconciler pivot handoff (refs #47) |
+| 2026-06-12 20:20 | dmf-init | f366f82 | docs(handoffs): issue-47 reconciler pivot handoff (refs #47) |
+| 2026-06-12 20:20 | dmf-infra | f366f82 | docs(handoffs): issue-47 reconciler pivot handoff (refs #47) |
+| 2026-06-12 20:20 | dmf-env | f366f82 | docs(handoffs): issue-47 reconciler pivot handoff (refs #47) |
+| 2026-06-12 20:20 | dmf-cms | f366f82 | docs(handoffs): issue-47 reconciler pivot handoff (refs #47) |
+| 2026-06-12 20:20 | dmf-central | f366f82 | docs(handoffs): issue-47 reconciler pivot handoff (refs #47) |
+| 2026-06-12 18:15 | dmfdeploy | d1112d3 | docs(plans): issues-cruncher skill spec + index (refs #46) |
+| 2026-06-12 18:15 | dmfdeploy | bb9a57c | docs(skills): split local vs post-push verification gates (refs #46) |
+| 2026-06-12 18:15 | dmfdeploy | 19ee634 | feat(skills): issues-cruncher trio-orchestration skill (refs #46) |
+| 2026-06-12 18:15 | dmfdeploy | 0a8b6f5 | docs(skills): single commit owner — orchestrator commits, impleme... |
+| 2026-06-12 18:15 | dmf-runbooks | d1112d3 | docs(plans): issues-cruncher skill spec + index (refs #46) |
+| 2026-06-12 18:15 | dmf-runbooks | bb9a57c | docs(skills): split local vs post-push verification gates (refs #46) |
+| 2026-06-12 18:15 | dmf-runbooks | 19ee634 | feat(skills): issues-cruncher trio-orchestration skill (refs #46) |
+| 2026-06-12 18:15 | dmf-runbooks | 0a8b6f5 | docs(skills): single commit owner — orchestrator commits, impleme... |
+| 2026-06-12 18:15 | dmf-promsd | d1112d3 | docs(plans): issues-cruncher skill spec + index (refs #46) |
+| 2026-06-12 18:15 | dmf-promsd | bb9a57c | docs(skills): split local vs post-push verification gates (refs #46) |
+| 2026-06-12 18:15 | dmf-promsd | 19ee634 | feat(skills): issues-cruncher trio-orchestration skill (refs #46) |
+| 2026-06-12 18:15 | dmf-promsd | 0a8b6f5 | docs(skills): single commit owner — orchestrator commits, impleme... |
+| 2026-06-12 18:15 | dmf-media | d1112d3 | docs(plans): issues-cruncher skill spec + index (refs #46) |
+| 2026-06-12 18:15 | dmf-media | bb9a57c | docs(skills): split local vs post-push verification gates (refs #46) |
+| 2026-06-12 18:15 | dmf-media | 19ee634 | feat(skills): issues-cruncher trio-orchestration skill (refs #46) |
+| 2026-06-12 18:15 | dmf-media | 0a8b6f5 | docs(skills): single commit owner — orchestrator commits, impleme... |
+| 2026-06-12 18:15 | dmf-init | d1112d3 | docs(plans): issues-cruncher skill spec + index (refs #46) |
+| 2026-06-12 18:15 | dmf-init | bb9a57c | docs(skills): split local vs post-push verification gates (refs #46) |
+| 2026-06-12 18:15 | dmf-init | 19ee634 | feat(skills): issues-cruncher trio-orchestration skill (refs #46) |
+| 2026-06-12 18:15 | dmf-init | 0a8b6f5 | docs(skills): single commit owner — orchestrator commits, impleme... |
+| 2026-06-12 18:15 | dmf-infra | d1112d3 | docs(plans): issues-cruncher skill spec + index (refs #46) |
+| 2026-06-12 18:15 | dmf-infra | bb9a57c | docs(skills): split local vs post-push verification gates (refs #46) |
+| 2026-06-12 18:15 | dmf-infra | 19ee634 | feat(skills): issues-cruncher trio-orchestration skill (refs #46) |
+| 2026-06-12 18:15 | dmf-infra | 0a8b6f5 | docs(skills): single commit owner — orchestrator commits, impleme... |
+| 2026-06-12 18:15 | dmf-env | d1112d3 | docs(plans): issues-cruncher skill spec + index (refs #46) |
+| 2026-06-12 18:15 | dmf-env | bb9a57c | docs(skills): split local vs post-push verification gates (refs #46) |
+| 2026-06-12 18:15 | dmf-env | 19ee634 | feat(skills): issues-cruncher trio-orchestration skill (refs #46) |
+| 2026-06-12 18:15 | dmf-env | 0a8b6f5 | docs(skills): single commit owner — orchestrator commits, impleme... |
+| 2026-06-12 18:15 | dmf-cms | d1112d3 | docs(plans): issues-cruncher skill spec + index (refs #46) |
+| 2026-06-12 18:15 | dmf-cms | bb9a57c | docs(skills): split local vs post-push verification gates (refs #46) |
+| 2026-06-12 18:15 | dmf-cms | 19ee634 | feat(skills): issues-cruncher trio-orchestration skill (refs #46) |
+| 2026-06-12 18:15 | dmf-cms | 0a8b6f5 | docs(skills): single commit owner — orchestrator commits, impleme... |
+| 2026-06-12 18:15 | dmf-central | d1112d3 | docs(plans): issues-cruncher skill spec + index (refs #46) |
+| 2026-06-12 18:15 | dmf-central | bb9a57c | docs(skills): split local vs post-push verification gates (refs #46) |
+| 2026-06-12 18:15 | dmf-central | 19ee634 | feat(skills): issues-cruncher trio-orchestration skill (refs #46) |
+| 2026-06-12 18:15 | dmf-central | 0a8b6f5 | docs(skills): single commit owner — orchestrator commits, impleme... |
+| 2026-06-12 16:42 | dmfdeploy | f37ddac | docs(decisions): close out ADR Portfolio Review 2026-05-27 |
+| 2026-06-12 16:42 | dmf-runbooks | f37ddac | docs(decisions): close out ADR Portfolio Review 2026-05-27 |
+| 2026-06-12 16:42 | dmf-promsd | f37ddac | docs(decisions): close out ADR Portfolio Review 2026-05-27 |
+| 2026-06-12 16:42 | dmf-media | f37ddac | docs(decisions): close out ADR Portfolio Review 2026-05-27 |
+| 2026-06-12 16:42 | dmf-init | f37ddac | docs(decisions): close out ADR Portfolio Review 2026-05-27 |
+| 2026-06-12 16:42 | dmf-infra | f37ddac | docs(decisions): close out ADR Portfolio Review 2026-05-27 |
+| 2026-06-12 16:42 | dmf-env | f37ddac | docs(decisions): close out ADR Portfolio Review 2026-05-27 |
+| 2026-06-12 16:42 | dmf-cms | f37ddac | docs(decisions): close out ADR Portfolio Review 2026-05-27 |
+| 2026-06-12 16:42 | dmf-central | f37ddac | docs(decisions): close out ADR Portfolio Review 2026-05-27 |
 | 2026-06-12 08:50 | dmfdeploy | ed1db78 | fix(status): worktree-safe git repo detection (refs #44) |
+| 2026-06-12 08:50 | dmf-runbooks | ed1db78 | fix(status): worktree-safe git repo detection (refs #44) |
+| 2026-06-12 08:50 | dmf-promsd | ed1db78 | fix(status): worktree-safe git repo detection (refs #44) |
+| 2026-06-12 08:50 | dmf-media | ed1db78 | fix(status): worktree-safe git repo detection (refs #44) |
+| 2026-06-12 08:50 | dmf-init | ed1db78 | fix(status): worktree-safe git repo detection (refs #44) |
+| 2026-06-12 08:50 | dmf-infra | ed1db78 | fix(status): worktree-safe git repo detection (refs #44) |
+| 2026-06-12 08:50 | dmf-env | ed1db78 | fix(status): worktree-safe git repo detection (refs #44) |
+| 2026-06-12 08:50 | dmf-cms | ed1db78 | fix(status): worktree-safe git repo detection (refs #44) |
+| 2026-06-12 08:50 | dmf-central | ed1db78 | fix(status): worktree-safe git repo detection (refs #44) |
 | 2026-06-11 21:22 | dmfdeploy | 2a179fb | docs(plans): WP7 org .github repo + new-repo bootstrap checklist (C... |
+| 2026-06-11 21:22 | dmf-runbooks | 2a179fb | docs(plans): WP7 org .github repo + new-repo bootstrap checklist (C... |
+| 2026-06-11 21:22 | dmf-promsd | 2a179fb | docs(plans): WP7 org .github repo + new-repo bootstrap checklist (C... |
+| 2026-06-11 21:22 | dmf-media | 2a179fb | docs(plans): WP7 org .github repo + new-repo bootstrap checklist (C... |
+| 2026-06-11 21:22 | dmf-init | 2a179fb | docs(plans): WP7 org .github repo + new-repo bootstrap checklist (C... |
+| 2026-06-11 21:22 | dmf-infra | 2a179fb | docs(plans): WP7 org .github repo + new-repo bootstrap checklist (C... |
+| 2026-06-11 21:22 | dmf-env | 2a179fb | docs(plans): WP7 org .github repo + new-repo bootstrap checklist (C... |
+| 2026-06-11 21:22 | dmf-cms | 2a179fb | docs(plans): WP7 org .github repo + new-repo bootstrap checklist (C... |
+| 2026-06-11 21:22 | dmf-central | 2a179fb | docs(plans): WP7 org .github repo + new-repo bootstrap checklist (C... |
 | 2026-06-11 20:43 | dmfdeploy | fe2f272 | docs(plans): STATUS split spec — stop committing volatile generat... |
 | 2026-06-11 20:43 | dmfdeploy | 5e1e09c | docs(plans): regenerate INDEX for STATUS split plan (refs #40) |
-| 2026-06-11 19:43 | dmfdeploy | ea6901c | docs(plans): working-model enforcement executed — WP1–6+8 shipp... |
-| 2026-06-11 19:43 | dmfdeploy | a00fbcb | fix(status): path-safe dirty summary + sane unpushed cell without u... |
-| 2026-06-11 19:43 | dmfdeploy | 55f77cc | docs(status): regenerate on the clean PR head (refs #32) |
-| 2026-06-11 19:43 | dmfdeploy | 4b11083 | docs(status): state the one-commit-lag invariant in the generated h... |
-| 2026-06-11 16:15 | dmfdeploy | c2b440d | feat: backlog-hygiene drift detector + weekly schedule (WP6, refs #32) |
-| 2026-06-11 13:35 | dmfdeploy | e60c8bd | docs(plans): WP5 adjudication — 6 active plans resolved; check-do... |
-| 2026-06-11 13:05 | dmf-promsd | 0fa2221 | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
-| 2026-06-11 13:04 | dmf-init | c1b056a | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
-| 2026-06-11 13:03 | dmf-media | 0d07e5e | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
-| 2026-06-11 13:03 | dmf-env | 083de09 | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
-| 2026-06-11 13:02 | dmf-infra | d4c4d1b | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
-| 2026-06-11 13:01 | dmf-runbooks | e818621 | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
-| 2026-06-11 13:01 | dmf-cms | f2a6545 | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
-| 2026-06-11 12:54 | dmf-central | 8030d1e | ci: approval-driven rebase auto-merge (refs dmfdeploy/dmfdeploy#34) |
-| 2026-06-11 12:41 | dmf-promsd | cefd84d | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
-| 2026-06-11 12:41 | dmf-init | 3caeacd | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
-| 2026-06-11 12:41 | dmf-media | df99732 | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
-| 2026-06-11 12:41 | dmf-env | 9c3373c | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
-| 2026-06-11 12:41 | dmf-infra | 1de83a8 | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
-| 2026-06-11 12:41 | dmf-central | af299ee | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
-| 2026-06-11 12:41 | dmf-runbooks | 8d3968f | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
-| 2026-06-11 12:41 | dmf-cms | 6112f90 | feat: adopt DMF working-model enforcement (refs dmfdeploy/dmfdeploy... |
-| 2026-06-11 09:29 | dmf-env | eb91bda | fix(doctor): make the age-key permission check portable to GNU stat |
-| 2026-06-11 09:23 | dmf-init | ca0ce11 | fix(ui): start the doctor run on arrival at Validate |
-| 2026-06-11 09:23 | dmf-init | c1a1828 | feat(ui): within-step task ticker + per-step elapsed on the splash |
-| 2026-06-11 09:23 | dmf-init | a8adc6e | fix(ui): workstation station — kill column overlap, ghosting and ... |
-| 2026-06-11 09:23 | dmf-init | 4e46b57 | chore(release): v0.2.0 — console installer skin, workstation paus... |
-| 2026-06-11 09:23 | dmf-init | 38e3f4d | feat(ui): console installer skin — left rail, wizard pages, viewp... |
-| 2026-06-11 09:23 | dmf-init | 36ea345 | feat(ui): install activity ticker + step rail folded into sidebar |
-| 2026-06-11 09:23 | dmf-init | 2f93395 | fix: fail fast on unusable SSH keys and never drop the render stream |
-| 2026-06-10 11:13 | dmf-media | 654b054 | docs: drop stale '(SPIKE)' labels and neutralize operator path |
-| 2026-06-10 11:13 | dmf-cms | d7016a8 | docs: drop stale 'spike' framing and neutralize operator paths |
-| 2026-06-10 10:53 | dmf-media | 26ab44b | chore: remove must-not-main MXL fabrics spike handoff docs |
-| 2026-06-10 10:53 | dmf-infra | 0aa8e07 | chore: remove must-not-main MXL spike artifacts from public main |
-| 2026-06-10 10:53 | dmf-infra | e01b590 | docs: correct GitHub org/repo model and refresh stale docs |
-| 2026-06-10 10:53 | dmf-media | 36b3b10 | docs: future-proof repo count and fix stale dmf-env description |
-| 2026-06-10 10:53 | dmf-cms | 9a71230 | docs: future-proof repo count and neutralize operator-local paths |
-| 2026-06-10 10:52 | dmf-central | a3ea74b | docs: future-proof repo count and fix stale dmf-env description |
-| 2026-06-10 10:32 | dmf-runbooks | c84fde7 | docs: use "all repos" instead of a hardcoded count in CLAUDE.md |
-| 2026-06-10 08:26 | dmf-runbooks | 02b39a4 | Initial public release v0.1.3 |
-| 2026-06-10 08:16 | dmf-infra | c591db7 | Initial public release v0.1.0 |
-| 2026-06-10 08:16 | dmf-env | d96b968 | Initial public release v0.1.0 |
-| 2026-06-10 08:15 | dmf-media | 29257aa | Initial public release v0.1.0 |
-| 2026-06-10 08:15 | dmf-cms | fbe755e | Initial public release v0.10.0 |
-| 2026-06-10 08:14 | dmf-promsd | d506e9c | Initial public release v0.1.3 |
-| 2026-06-10 08:14 | dmf-central | de92278 | Initial public release v0.1.0 |
+| 2026-06-11 20:43 | dmf-runbooks | fe2f272 | docs(plans): STATUS split spec — stop committing volatile generat... |
+| 2026-06-11 20:43 | dmf-runbooks | 5e1e09c | docs(plans): regenerate INDEX for STATUS split plan (refs #40) |
+| 2026-06-11 20:43 | dmf-promsd | fe2f272 | docs(plans): STATUS split spec — stop committing volatile generat... |
+| 2026-06-11 20:43 | dmf-promsd | 5e1e09c | docs(plans): regenerate INDEX for STATUS split plan (refs #40) |
+| 2026-06-11 20:43 | dmf-media | fe2f272 | docs(plans): STATUS split spec — stop committing volatile generat... |
+| 2026-06-11 20:43 | dmf-media | 5e1e09c | docs(plans): regenerate INDEX for STATUS split plan (refs #40) |
+| 2026-06-11 20:43 | dmf-init | fe2f272 | docs(plans): STATUS split spec — stop committing volatile generat... |
+| 2026-06-11 20:43 | dmf-init | 5e1e09c | docs(plans): regenerate INDEX for STATUS split plan (refs #40) |
+| 2026-06-11 20:43 | dmf-infra | fe2f272 | docs(plans): STATUS split spec — stop committing volatile generat... |
+| 2026-06-11 20:43 | dmf-infra | 5e1e09c | docs(plans): regenerate INDEX for STATUS split plan (refs #40) |
+| 2026-06-11 20:43 | dmf-env | fe2f272 | docs(plans): STATUS split spec — stop committing volatile generat... |
+| 2026-06-11 20:43 | dmf-env | 5e1e09c | docs(plans): regenerate INDEX for STATUS split plan (refs #40) |
+| 2026-06-11 20:43 | dmf-cms | fe2f272 | docs(plans): STATUS split spec — stop committing volatile generat... |
+| 2026-06-11 20:43 | dmf-cms | 5e1e09c | docs(plans): regenerate INDEX for STATUS split plan (refs #40) |
+| 2026-06-11 20:43 | dmf-central | fe2f272 | docs(plans): STATUS split spec — stop committing volatile generat... |
+| 2026-06-11 20:43 | dmf-central | 5e1e09c | docs(plans): regenerate INDEX for STATUS split plan (refs #40) |
 
-_dmf-init: 11 more commit(s) not shown._
+_dmf-central: 15 more commit(s) not shown._
 
-_dmfdeploy: 9 more commit(s) not shown._
+_dmf-cms: 15 more commit(s) not shown._
+
+_dmf-init: 15 more commit(s) not shown._
+
+_dmf-env: 15 more commit(s) not shown._
+
+_dmf-promsd: 15 more commit(s) not shown._
+
+_dmf-runbooks: 15 more commit(s) not shown._
+
+_dmf-infra: 15 more commit(s) not shown._
+
+_dmfdeploy: 15 more commit(s) not shown._
+
+_dmf-media: 15 more commit(s) not shown._
 
 ## Operator notes (hand-edited — preserved across regenerations)
 
