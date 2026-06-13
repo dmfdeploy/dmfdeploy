@@ -197,7 +197,7 @@ sub-repo with uncommitted state.
 
 ## Reporting security issues
 
-See [`SECURITY.md`](SECURITY.md). **Do not** open a public issue for a vulnerability.
+See `SECURITY.md` at repo root. **Do not** open a public issue for a vulnerability.
 
 ## License & spec
 

@@ -270,7 +270,7 @@ Same as parent plan, plus:
 - [ADR-0021 — OpenBao AppRole reconciliation uses a dedicated bootstrap identity](../decisions/0021-openbao-approle-reconciler-identity.md)
 
 ### Design docs
-- [`dmf-infra/docs/openbao-bootstrap-security-model.md`](../../dmf-infra/docs/openbao-bootstrap-security-model.md)
+- [`dmf-infra/docs/openbao-bootstrap-security-model.md`](https://github.com/dmfdeploy/dmf-infra/blob/main/docs/openbao-bootstrap-security-model.md)
 - [Parent plan: DMF OpenBao Policy-Writer Session Separation Plan 2026-05-13](DMF%20OpenBao%20Policy-Writer%20Session%20Separation%20Plan%202026-05-13.md)
 - [Implementation brief: DMF OpenBao AppRole-Reconciler Implementation Brief 2026-05-13](DMF%20OpenBao%20AppRole-Reconciler%20Implementation%20Brief%202026-05-13.md)
 
