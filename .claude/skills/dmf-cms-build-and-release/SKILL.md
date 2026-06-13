@@ -182,7 +182,7 @@ Then publish + mirror + deploy via §6.
 The release path has three steps after `release.sh`. Each is idempotent.
 
 > **`<env-name>` in the commands below** — substitute the current Hetzner test
-> env id from the umbrella's `STATUS.md` (env ids rotate as we cut new test
+> env id from the umbrella's generated `STATUS.local.md` (run `bin/generate-status.sh`; env ids rotate as we cut new test
 > clusters; this skill stays env-agnostic).
 
 ### 6a. Publish the image to GHCR
