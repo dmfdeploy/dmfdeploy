@@ -47,6 +47,9 @@ __MACOSX/
 # Local-only scratch
 /scratch/
 
+# Local live repo-state snapshot generated from committed STATUS.md notes.
+/STATUS.local.md
+
 # Qwen artifacts
 .qwen/*.orig
 
