@@ -179,7 +179,41 @@ check() {
         echo "  ✗ no canonical store at $CANON" >&2; fail=$((fail + 1))
     fi
 
-    # (3) Local view drift (skipped where views are absent, e.g. CI checkout).
+    # (3) Public-safety: skills are reviewed, public-trajectory content — no
+    # private IPs and no operator home paths may hide in them. Placeholders
+    # (<node-priv-ip>, ~/...) pass; literals fail. Enforced in CI regardless of
+    # any operator-local gitleaks rules.
+    if [ -d "$CANON" ]; then
+        local leaks
+        leaks="$(python3 - "$CANON" <<'PY'
+import os, re, sys
+base = sys.argv[1]
+ip = re.compile(r'\b(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})\b')
+home = re.compile(r'/(?:Users|home)/(?!<)[A-Za-z0-9._-]+')
+for root, _dirs, files in os.walk(base):  # followlinks=False: skips symlinked views
+    if os.sep + "_inbox" in root:
+        continue
+    for fn in files:
+        p = os.path.join(root, fn)
+        try:
+            lines = open(p, encoding="utf-8").read().splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+        for i, line in enumerate(lines, 1):
+            for m in ip.finditer(line):
+                print(f"{os.path.relpath(p, base)}:{i}: private IP literal {m.group()}")
+            for m in home.finditer(line):
+                print(f"{os.path.relpath(p, base)}:{i}: operator home path {m.group()}")
+PY
+)"
+        if [ -n "$leaks" ]; then
+            echo "  ✗ identifying elements in skills (use placeholders — see CLAUDE.md conventions):" >&2
+            printf '%s\n' "$leaks" | sed 's/^/      /' >&2
+            fail=$((fail + 1))
+        fi
+    fi
+
+    # (4) Local view drift (skipped where views are absent, e.g. CI checkout).
     local agent viewdir name
     for agent in "${AGENTS[@]}"; do
         viewdir="$BASE/.$agent/skills"

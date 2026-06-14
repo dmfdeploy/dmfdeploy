@@ -80,7 +80,7 @@ Hard rules. Violations leak secrets into transcripts, prompt caches, shell histo
 |---|---|
 | Environment slug | `<env-name>` (current id in the generated umbrella `STATUS.local.md` — run `bin/generate-status.sh`; env slugs rotate as we cut new test clusters) |
 | Provider | Hetzner Cloud, CAX21, ARM64, region `nbg1` |
-| Nodes | `k3s-node-01` (<node-public-ip>, priv 10.0.0.4) · `k3s-node-02` (<node-public-ip>, priv 10.0.0.3) · `k3s-node-03` (<control-node-public-ip>, priv 10.0.0.2) |
+| Nodes | 3-node HA control plane; concrete hostnames + public/private IPs live in the generated `STATUS.local.md` (run `bin/generate-status.sh`) — never hard-coded here |
 | Control plane | All 3 (HA etcd) |
 | Default control node for SSH | `k3s-admin@<control-node-public-ip>` (k3s-node-03) |
 | KUBECONFIG path on node | `/etc/rancher/k3s/k3s.yaml` (root-owned; use `sudo`) |
