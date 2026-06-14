@@ -80,7 +80,7 @@ agent-bridge send claude -- "<your reply>"
 
 Fallback if `agent-bridge` is not on `PATH`:
 ```bash
-/Users/loz/.claude/skills/agent-bridge/bin/agent-bridge send claude -- "<your reply>"
+~/.claude/skills/agent-bridge/bin/agent-bridge send claude -- "<your reply>"
 ```
 
 Keep the bridge reply self-contained. The orchestrator may paste only that message into the shared workflow.

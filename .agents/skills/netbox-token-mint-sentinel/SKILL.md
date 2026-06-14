@@ -49,7 +49,7 @@ appear in banner output. Use a unique identifier per token type (e.g.,
 |---|---|---|
 | `1 objects imported automatically` | ❌ wrong line | ✓ ignored |
 | (blank line) | ❌ wrong line | ✓ ignored |
-| `PROMSD_TOKEN=v1_abc123.xyz789` | ❌ may or may not be last | ✓ matched |
+| `PROMSD_TOKEN=<token-value>` | ❌ may or may not be last | ✓ matched |
 | Any future banner variation | ❌ fragile | ✓ robust |
 
 ## Application
