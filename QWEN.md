@@ -1,10 +1,12 @@
 # QWEN.md — dmfdeploy umbrella
 
 Companion to [CLAUDE.md](CLAUDE.md), tuned for Qwen Code. Same boot ritual,
-same workspace, same skills — Qwen doesn't have Claude's `/skill-name`
-invocation, so "using a skill" here means **reading the relevant
-`.claude/skills/<name>/SKILL.md` as authoritative guidance when you start
-that kind of work**, then following its sections like instructions.
+same workspace, same skills — "using a skill" here means **reading the relevant
+`.agents/skills/<name>/SKILL.md` as authoritative guidance when you start
+that kind of work**, then following its sections like instructions. Per
+ADR-0042 `.agents/skills/` is the one canonical, agent-neutral store; the
+`.qwen/skills/` Qwen loads is a generated, gitignored view of it (refreshed by
+`bin/sync-skills.sh --apply`) — never hand-edit it.
 
 ## Boot ritual (every session, every time)
 
@@ -51,11 +53,17 @@ Secrets Discipline (where applicable) is **hard rules**, sections after
 that are workflow + decision tree + concrete commands. Read top-to-bottom
 when working in that domain.
 
+The §0-secrets-discipline ops skills you must read **before** the matching work:
+
 | Skill | Read this when… | Path |
 |---|---|---|
-| **dmf-cluster-access** | inspecting/modifying live cluster state, running playbooks, troubleshooting | `.claude/skills/dmf-cluster-access/SKILL.md` |
-| **dmf-cms-build-and-release** | bumping version, building, releasing, or pushing dmf-cms images | `.claude/skills/dmf-cms-build-and-release/SKILL.md` |
-| **dmf-openbao-unseal** | OpenBao seal-status check or manual 3-share unseal | `.claude/skills/dmf-openbao-unseal/SKILL.md` |
+| **dmf-cluster-access** | inspecting/modifying live cluster state, running playbooks, troubleshooting | `.agents/skills/dmf-cluster-access/SKILL.md` |
+| **dmf-cms-build-and-release** | bumping version, building, releasing, or pushing dmf-cms images | `.agents/skills/dmf-cms-build-and-release/SKILL.md` |
+| **dmf-openbao-unseal** | OpenBao seal-status check or manual 3-share unseal | `.agents/skills/dmf-openbao-unseal/SKILL.md` |
+
+The full skill set (workflow, review, GitHub-ops, etc.) lives under
+`.agents/skills/` — browse it there, or let Qwen surface them from the generated
+`.qwen/skills/` view.
 
 Skills cross-reference each other and the ADRs (`docs/decisions/`). When a
 skill says "see ADR-NNNN" or "see sibling skill X", follow the link before

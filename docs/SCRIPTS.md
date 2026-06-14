@@ -37,6 +37,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `bin/publish-image-to-ghcr.sh` | generic helper to publish one or more locally-built images to GHCR. Replaces the per-repo publish-to-ghcr.sh duplication (NMOS, AWX EE, dmf-cms) introduced in the 2026-05-19 Lane A work. |
 | `bin/render-bpmn.sh` | Render a .bpmn file to .svg with the shared docs/processes/diagrams/_styles.css stylesheet injected. Wraps `npx bpmn-to-image`. |
 | `bin/scrub-public-repos.sh` | pre-publish secret + topology + identity scan. |
+| `bin/sync-skills.sh` | one canonical agent-neutral skills source, many per-agent views. |
 | `bin/sync-to-github.sh` | RETIRED 2026-06-09 (do not use). |
 | `bin/working-model-digest.sh` | print the DMF working-model digest for session context. |
 

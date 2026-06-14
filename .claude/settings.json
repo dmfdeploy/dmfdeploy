@@ -7,6 +7,10 @@
           {
             "type": "command",
             "command": "bin/working-model-digest.sh"
+          },
+          {
+            "type": "command",
+            "command": "bin/sync-skills.sh --apply"
           }
         ]
       }

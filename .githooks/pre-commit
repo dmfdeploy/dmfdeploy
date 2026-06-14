@@ -101,4 +101,17 @@ if [ -x "$REPO_ROOT/bin/check-working-model-sync.sh" ]; then
     fi
 fi
 
+# Skills sync (ADR-0042): per-agent .claude/.qwen skill views are generated from
+# .agents/skills/ and must stay gitignored — nothing generated or un-promoted
+# (the _inbox) may be committed.
+if [ -x "$REPO_ROOT/bin/sync-skills.sh" ]; then
+    if ! "$REPO_ROOT/bin/sync-skills.sh" --check --umbrella-only >/dev/null 2>&1; then
+        echo "" >&2
+        echo "[pre-commit] skills out of sync with canonical — refusing commit" >&2
+        "$REPO_ROOT/bin/sync-skills.sh" --check --umbrella-only 2>&1 | sed 's/^/  /' >&2
+        echo "  run bin/sync-skills.sh to refresh, then stage and retry" >&2
+        exit 1
+    fi
+fi
+
 exit 0
