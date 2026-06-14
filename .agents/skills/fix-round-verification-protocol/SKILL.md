@@ -23,7 +23,7 @@ When a DONE report is submitted and the orchestrator finds defects, the fix roun
 3. For each defect:
    - Understand the root cause (not just the symptom).
    - Apply the minimal correct fix.
-   - Add a test if the defect was a missing guard (e.g., env_id validation, symlink rejection, concurrent reject).
+   - Add a **discriminating test** if the defect was a missing guard (e.g., env_id validation, symlink rejection, concurrent reject). A discriminating test FAILS on the old code and PASSES on the new code. See the `discriminating-test-design` skill for the pattern. If you authored both the fix and its discrimination test, flag it for independent review.
 4. Build frontend, run pytest, run ruff — all must pass before reporting DONE.
 5. Amend the commit (`git commit --amend`) — do not create a separate fix commit.
 

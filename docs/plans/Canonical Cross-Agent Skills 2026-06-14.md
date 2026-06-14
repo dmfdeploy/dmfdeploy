@@ -1,11 +1,11 @@
 ---
-status: draft
+status: executed
 date: 2026-06-14
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/46
 ---
 # Canonical Cross-Agent Skills — Implementation Spec (2026-06-14)
 
-**Status:** Draft design spec for the implementation half of [#46](https://github.com/dmfdeploy/dmfdeploy/issues/46).
+**Status:** Executed — `bin/sync-skills.sh` + the 33-skill migration into `.agents/skills/` landed; per-agent views generated/gitignored; pre-commit + CI `skills-sync` gates wired. Implementation half of [#46](https://github.com/dmfdeploy/dmfdeploy/issues/46).
 **Decision basis:** [ADR-0042](../decisions/0042-canonical-cross-agent-skills.md) (Accepted) — one canonical
 `.agents/skills/` source, generated per-agent views, CI drift gate, capture→review→promote.
 **Relates to:** [#26](https://github.com/dmfdeploy/dmfdeploy/issues/26) (stray component-repo `.qwen/` hygiene).

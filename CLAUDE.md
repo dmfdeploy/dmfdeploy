@@ -28,6 +28,12 @@ Before touching any DMF repo:
    dmf-cms, read the §0 of the relevant skill first:
    `dmf-cluster-access`, `dmf-openbao-unseal`, `dmf-cms-build-and-release`.
 
+> **Skills (ADR-0042):** the one canonical, agent-neutral store is
+> `.agents/skills/`; `.claude/skills/` and `.qwen/skills/` are **generated,
+> gitignored views** rebuilt by `bin/sync-skills.sh --apply` (also on SessionStart).
+> Author or edit skills only in `.agents/skills/`; never hand-edit a view. New
+> auto-minted skills go through `.agents/skills/_inbox/` → `--promote` → PR.
+
 > **Feature-branch work (e.g. the mxl spike):** also run `bin/mxl-sync-check.sh`
 > — a read-only checker that fetches all five mxl-spike repos and reports how far
 > each is behind `origin/main` (with a conflict preview + the exact merge command),

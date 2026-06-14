@@ -48,3 +48,12 @@ jobs:
         run: bin/check-docs.sh
       - name: Working-model block sync
         run: bin/check-working-model-sync.sh --umbrella-only
+  skills-sync:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Skills canonical-only invariant (.agents/skills/ is the only tracked copy)
+        run: bin/sync-skills.sh --check --umbrella-only

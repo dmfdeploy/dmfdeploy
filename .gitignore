@@ -101,8 +101,14 @@ secret_id
 secret_id.*
 .claude/scheduled_tasks.lock
 
+# Per-agent skill views are GENERATED from .agents/skills/ by bin/sync-skills.sh
+# and must never be tracked (ADR-0042, umbrella issue #46). Capture scratch and
+# operator-private canonical skills are likewise local-only.
+.claude/skills/
+.qwen/skills/
+.agents/skills/_inbox/
 # qwen runtime aid embedding scrub-detection patterns — never track (WP16)
-.qwen/skills/identity-scrub-sweep/
+.agents/skills/identity-scrub-sweep/
 
 # Operator-private gitleaks rules (identity/topology) — never track
 .gitleaks.local.toml
