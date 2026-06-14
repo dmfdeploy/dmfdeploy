@@ -13,8 +13,16 @@
 #   bin/check-working-model-sync.sh --strict         # missing block in an existing file = fail
 #   bin/check-working-model-sync.sh --repo <path>    # check one repo dir (component CI)
 #   bin/check-working-model-sync.sh --template <f>   # alternate template (e.g. curl'd from umbrella)
+#   bin/check-working-model-sync.sh --apply          # rewrite drifted blocks in place from the template
 #
-# Exit: 0 clean, 1 drift (always) or missing block (--strict).
+# --apply is the generator the markers promise: it replaces the marker-fenced
+# region of each agent file with the canonical block (idempotent — only differing
+# blocks are touched, per-repo content is left alone). Keep it an EXPLICIT action,
+# never a SessionStart auto-run, so it can't silently dirty a sibling repo another
+# agent is working in. The default (--check) stays the pre-commit/CI gate.
+#
+# Exit: 0 clean (or all drift re-synced under --apply), 1 drift (default) or
+#       missing block (--strict).
 
 set -uo pipefail
 
@@ -28,10 +36,12 @@ AGENT_FILES=(CLAUDE.md AGENTS.md QWEN.md)
 STRICT=0
 SINGLE_REPO=""
 UMBRELLA_ONLY=0
+APPLY=0
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --strict)        STRICT=1; shift ;;
         --umbrella-only) UMBRELLA_ONLY=1; shift ;;
+        --apply)         APPLY=1; shift ;;
         --repo)     SINGLE_REPO="$2"; shift 2 ;;
         --template) TEMPLATE="$2"; shift 2 ;;
         -h|--help)
@@ -48,11 +58,25 @@ extract_block() {
     awk '/<!-- WORKING-MODEL-BLOCK-START/{keep=1} keep{print} /<!-- WORKING-MODEL-BLOCK-END -->/{exit}' "$1"
 }
 
+# Replace the marker-fenced region of $1 with $canonical (which itself spans the
+# START..END markers): splice prefix-before-START + canonical + suffix-after-END.
+# (Done with single-line awk passes rather than `awk -v repl=...` because BSD awk
+# rejects newlines inside a -v string.)
+apply_block() {
+    local file="$1" tmp
+    tmp="$(mktemp)" || return 1
+    awk '/<!-- WORKING-MODEL-BLOCK-START/{exit} {print}' "$file"            >  "$tmp"
+    printf '%s\n' "$canonical"                                              >> "$tmp"
+    awk 'p{print} /<!-- WORKING-MODEL-BLOCK-END -->/{p=1}' "$file"          >> "$tmp"
+    mv "$tmp" "$file"
+}
+
 canonical="$(extract_block "$TEMPLATE")"
 [ -n "$canonical" ] || { echo "FAIL: no block markers in template $TEMPLATE" >&2; exit 1; }
 
 failures=0
 checked=0
+fixed=0
 
 check_file() {
     local file="$1"
@@ -80,9 +104,19 @@ check_file() {
     fi
     checked=$((checked + 1))
     if [ "$block" != "$canonical" ]; then
-        echo "  ✗ $file: working-model block DRIFTED from template" >&2
-        diff <(printf '%s\n' "$canonical") <(printf '%s\n' "$block") | head -10 >&2
-        failures=$((failures + 1))
+        if [ "$APPLY" -eq 1 ]; then
+            if apply_block "$file"; then
+                echo "  ✎ $file: block re-synced from template"
+                fixed=$((fixed + 1))
+            else
+                echo "  ✗ $file: failed to rewrite block" >&2
+                failures=$((failures + 1))
+            fi
+        else
+            echo "  ✗ $file: working-model block DRIFTED from template" >&2
+            diff <(printf '%s\n' "$canonical") <(printf '%s\n' "$block") | head -10 >&2
+            failures=$((failures + 1))
+        fi
     fi
 }
 
@@ -114,5 +148,9 @@ fi
 if [ "$failures" -gt 0 ]; then
     echo "FAIL: $failures working-model block issue(s); canonical template: docs/templates/working-model-block.md" >&2
     exit 1
+fi
+if [ "$APPLY" -eq 1 ]; then
+    echo "OK: re-synced $fixed block(s); $checked copy(ies) checked"
+    exit 0
 fi
 echo "OK: $checked working-model block copy(ies) match the template"
