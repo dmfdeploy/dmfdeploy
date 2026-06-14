@@ -222,8 +222,12 @@ Preparing the clean first public GitHub release. **Canonical handoff:**
   only; admin stays at org-owner level). ✅ **Merge method DECIDED (operator, 2026-06-09):
   rebase-and-merge ONLY** (disable squash + merge-commit per repo) → DCO `Signed-off-by`
   survives + linear history. Wired into Workstream A per-repo setup. **For E1/A:**
-  `.githooks/pre-push` is missing in ALL repos (the hygiene gate never passed clean) —
-  add everywhere or relax the gate.
+  ✅ resolved (dmfdeploy/dmfdeploy#21) — every repo now carries an advisory
+  `.githooks/pre-push` gitleaks range-scan (per-clone via `bin/install-hooks.sh`,
+  bypassable with `--no-verify`: defense-in-depth, **not** a gate). The enforceable
+  secret backstop is GitHub push-protection + secret-scanning + the required CI
+  gitleaks check — so "the gate never passed clean" was a category error: local
+  hooks can't be a gate.
   ✅ **LAN Forgejo push-mirror hazard RESOLVED (operator, 2026-06-09):** the
   Forgejo→GitHub **push-mirror job for `<handle>/dmf-runbooks` was removed.** dmf-runbooks D/E1
   commits stay local but pushing to Forgejo no longer auto-leaks to GitHub. Workstream A
