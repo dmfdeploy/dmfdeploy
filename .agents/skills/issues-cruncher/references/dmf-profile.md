@@ -22,9 +22,16 @@ revalidate before PR.
   `Co-Authored-By`**, no "Generated with" trailer — sign-off is the only trailer.
   Conventional-commit subject (commitlint gate).
 - **Close behavior:** cross-repo PRs **do not auto-close** umbrella issues (GitHub
-  limitation), and rebase auto-merge can sever even same-repo keyword close. **Close
-  the umbrella issue manually** after merge with a PR-linked comment. (Tracked for
-  mechanization in umbrella #47.)
+  limitation), and bot-actor rebase auto-merge severs even same-repo keyword close.
+  The `bin/close-completed-issues.sh` reconciler (`issue-close-reconciler.yml`,
+  daily + on-merge) closes from GitHub's parsed closing references, so a correct
+  `Closes …` keyword is enough — closure just lands within ~24h, not instantly.
+  Closing manually with a PR-linked comment is fine if you want it immediate.
+  (This is deliberate — the org stays on `GITHUB_TOKEN`, no standing secret; see
+  umbrella #47/#54.)
+- **Board:** org Project #1 is a **human curation surface**, not part of filing.
+  `gh issue create` doesn't (and needn't) add to it; nothing reconciles board
+  membership. Labels are canonical (see umbrella #52, `docs/WORKING-MODEL.md` §3).
 - **Merge:** approval-driven rebase auto-merge; PRs gate on `REVIEW_REQUIRED` +
   required checks. A force-push does not clear a standing `CHANGES_REQUESTED`.
 
