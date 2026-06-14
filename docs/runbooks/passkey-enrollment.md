@@ -245,16 +245,16 @@ bin/run-playbook.sh <env> ../dmf-infra/k3s-lab-bootstrap/playbooks/vertical-secu
 ## Cross-references
 
 - Script source:
-  [`dmf-env/bin/get-passkey-enrollment-url.sh`](../../../dmf-env/bin/get-passkey-enrollment-url.sh)
+  [`dmf-env/bin/get-passkey-enrollment-url.sh`](https://github.com/dmfdeploy/dmf-env/blob/main/bin/get-passkey-enrollment-url.sh)
 - Bootstrap-invitation mint logic:
-  [`dmf-infra/k3s-lab-bootstrap/roles/stack/operator/authentik/files/ak_passkey_invitation.py`](../../../dmf-infra/k3s-lab-bootstrap/roles/stack/operator/authentik/files/ak_passkey_invitation.py)
+  [`dmf-infra/k3s-lab-bootstrap/roles/stack/operator/authentik/files/ak_passkey_invitation.py`](https://github.com/dmfdeploy/dmf-infra/blob/main/k3s-lab-bootstrap/roles/stack/operator/authentik/files/ak_passkey_invitation.py)
   (single source of truth, used by both the role and the mini-playbook).
 - Self-heal mini-playbook:
-  [`dmf-infra/k3s-lab-bootstrap/playbooks/vertical-security/111-authentik-passkey-ensure.yml`](../../../dmf-infra/k3s-lab-bootstrap/playbooks/vertical-security/111-authentik-passkey-ensure.yml)
+  [`dmf-infra/k3s-lab-bootstrap/playbooks/vertical-security/111-authentik-passkey-ensure.yml`](https://github.com/dmfdeploy/dmf-infra/blob/main/k3s-lab-bootstrap/playbooks/vertical-security/111-authentik-passkey-ensure.yml)
 - Console self-service endpoint:
-  [`dmf-cms/src/dmf_cms/main.py`](../../../dmf-cms/src/dmf_cms/main.py)
+  [`dmf-cms/src/dmf_cms/main.py`](https://github.com/dmfdeploy/dmf-cms/blob/main/src/dmf_cms/main.py)
   (`POST /api/admin/invitations`) +
-  [`dmf-cms/src/dmf_cms/authentik.py`](../../../dmf-cms/src/dmf_cms/authentik.py)
+  [`dmf-cms/src/dmf_cms/authentik.py`](https://github.com/dmfdeploy/dmf-cms/blob/main/src/dmf_cms/authentik.py)
   (`create_invitation`).
 - Policy alignment (this runbook's reasoning):
   [`docs/reviews/DMF Passkey Invitation Policy Alignment Survey 2026-05-28.md`](../reviews/DMF%20Passkey%20Invitation%20Policy%20Alignment%20Survey%202026-05-28.md).
