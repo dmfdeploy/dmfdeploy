@@ -34,12 +34,36 @@ jobs:
         env:
           GL_VERSION: "8.21.2"
           GL_SHA256: "5bc41815076e6ed6ef8fbecc9d9b75bcae31f39029ceb55da08086315316e3ba"
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.event.after }}
         run: |
           set -eu
           curl -fsSLo /tmp/gl.tgz "https://github.com/gitleaks/gitleaks/releases/download/v${GL_VERSION}/gitleaks_${GL_VERSION}_linux_x64.tar.gz"
           echo "${GL_SHA256}  /tmp/gl.tgz" | sha256sum -c -
           tar -xzf /tmp/gl.tgz -C /tmp gitleaks
+          # 1) Tree scan: the final working tree as it would land on main.
           /tmp/gitleaks detect --source . --no-git --config /tmp/gitleaks.toml --redact --no-banner --exit-code 1
+          # 2) History scan (issue #74): every commit this PR/push introduces, so a
+          #    secret added then deleted in an intermediate commit can't slip past
+          #    the tree scan and survive in the rebase-merged history. Mirrors the
+          #    --log-opts gate already in bin/export-scan.sh. Config stays the
+          #    BASE-resolved /tmp/gitleaks.toml (never the PR-controlled file).
+          if [ -n "${BASE_SHA:-}" ] && [ -n "${HEAD_SHA:-}" ]; then
+            RANGE="${BASE_SHA}..${HEAD_SHA}"      # pull_request
+          else
+            RANGE="${PUSH_BEFORE:-}..${PUSH_AFTER:-}"  # push to main
+          fi
+          ZERO="0000000000000000000000000000000000000000"
+          case "${RANGE}" in
+            "${ZERO}".*|*."${ZERO}"|..*|*..)
+              # Branch creation / unknown base (no usable range) — tree scan above
+              # is the gate for this run.
+              echo "::notice::gitleaks history scan skipped — no usable commit range (${RANGE})" ;;
+            *)
+              /tmp/gitleaks detect --source . --log-opts="${RANGE}" --config /tmp/gitleaks.toml --redact --no-banner --exit-code 1 ;;
+          esac
       - name: Sanity-lint the PR's proposed .gitleaks.toml (non-blocking on content)
         if: github.event_name == 'pull_request'
         run: /tmp/gitleaks detect --no-git --source /dev/null --config .gitleaks.toml >/dev/null 2>&1 || echo "::warning::PR .gitleaks.toml changed — review the allowlist diff (CODEOWNERS-gated)"
