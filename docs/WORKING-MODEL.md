@@ -52,7 +52,9 @@ the frontmatter must be flipped; frontmatter wins for design content.
   (`dmf-cms` … `dmf-promsd`, `umbrella`, `cross-repo`) and one
   **`workstream:*`** label (`release`, `compliance`, `monitoring`,
   `infra-debt`, `scaffold`, `hygiene`, `ADR`, `catalog`, `identity-secrets`,
-  `hardening`, `entrance`), and sits on org Project #1.
+  `hardening`, `entrance`). Labels are the single source of truth for
+  component/workstream classification; board membership is **not** a filing
+  requirement (see §3).
 - **Milestones:** `v0.1-polish` — items gating the v0.1 claim; `v0.2` —
   post-v0.1 scope. New milestones need an operator decision.
 - **Component-repo issues are drive-by intake only** (bug reports from
@@ -62,9 +64,17 @@ the frontmatter must be flipped; frontmatter wins for design content.
 
 ## 3. Project board (org Project #1 "DMF Platform")
 
-- Fields: **Status** (Todo / In Progress / Done), **Component**, **Workstream**
-  (single-select, mirroring the label taxonomy). Set Component + Workstream
-  when adding an item.
+- The board is a **human curation surface** — people add the issues that carry
+  significance (something everyone's been asking to add or resolve) and track
+  them through **Status** (Todo / In Progress / Done). It is **not** an
+  automation target: there is no requirement that every issue land on the board,
+  and nothing reconciles it. Labels remain canonical; the board is a view people
+  choose to maintain.
+- The `Component` / `Workstream` single-select fields merely mirror the
+  `component:*` / `workstream:*` labels and are an optional convenience. Because
+  the labels are canonical and the board is human-curated, any field↔label drift
+  is cosmetic — these custom fields may be dropped in favour of the board's
+  native **Labels** field if they stop earning their keep (operator's call).
 - Tooling gotcha: `gh project` subcommands may 401 — use raw `gh api graphql`
   (project node id `PVT_kwDOENb9uM4BaPY-`).
 

@@ -144,10 +144,11 @@ in the umbrella repo. The three rules that matter mid-task:
   TODOS.md was retired into Issues on 2026-06-10. Discussions host Q&A + the
   RFC-before-ADR pipeline (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 - **Milestones schedule the backlog:** `v0.1-polish` (items gating the v0.1
-  claim) and `v0.2` (post-v0.1 scope). New issues get a milestone, a
-  `component:*` + `workstream:*` label pair, and land on the org board, which
-  carries matching **Component** and **Workstream** single-select fields plus
-  Status (Todo / In Progress / Done).
+  claim) and `v0.2` (post-v0.1 scope). New issues get a milestone and a
+  `component:*` + `workstream:*` label pair. The org board (Project #1) is a
+  **human curation surface**, not a filing requirement — people add significant
+  issues and track Status; nothing auto-adds or reconciles it, and labels stay
+  canonical (see `docs/WORKING-MODEL.md` §3).
 - **Gotcha:** `gh project` subcommands may 401 — use raw `gh api graphql`
   (Project #1 node id `PVT_kwDOENb9uM4BaPY-`).
 - **New-work convention:** open (or claim) an issue → write the on-disk spec in

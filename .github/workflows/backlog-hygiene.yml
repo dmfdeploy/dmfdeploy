@@ -54,12 +54,6 @@ jobs:
             cat /tmp/report.txt
             printf '```\n'
           } > /tmp/body.md
-          cat >> /tmp/body.md <<'NOTE'
-
-          > **Note:** org-project board checks (check 2) may show SKIPPED here —
-          > `GITHUB_TOKEN` lacks org-project scope. Run
-          > `bin/check-backlog-hygiene.sh` locally for full coverage.
-          NOTE
 
           if [ "${REPORT_RC:-1}" -ne 0 ]; then
             if [ -n "$existing" ]; then

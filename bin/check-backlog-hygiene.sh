@@ -3,13 +3,16 @@
 #
 # Read-only detector: every OPEN issue in the umbrella repo must carry a
 # milestone, at least one component:* label, and at least one workstream:*
-# label. The script also verifies that umbrella issues appear on the org
-# Project board with Component and Workstream fields populated, flags active
-# plan docs whose tracking issue is CLOSED, and surfaces untriaged component-
-# repo issues older than the staleness threshold. (umbrella issue #32)
+# label. The script also flags active plan docs whose tracking issue is CLOSED,
+# and surfaces untriaged component-repo issues older than the staleness
+# threshold. (umbrella issue #32)
+#
+# Board membership is deliberately NOT checked: org Project #1 is a human-
+# curated surface for issues of significance, not an automation target — see
+# docs/WORKING-MODEL.md §3 (umbrella issue #52).
 #
 # Usage:
-#   bin/check-backlog-hygiene.sh          # full run (umbrella + component repos + board)
+#   bin/check-backlog-hygiene.sh          # full run (umbrella + component repos)
 #   bin/check-backlog-hygiene.sh --help   # print this header
 #
 # Exit: 0 = no findings, 1 = one or more findings detected.
@@ -23,7 +26,6 @@ UMBRELLA_DIR="${UMBRELLA_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 # ── Constants ──────────────────────────────────────────────────────────────
 ORG="dmfdeploy"
 UMBRELLA_REPO="dmfdeploy/dmfdeploy"
-PROJECT_ID="PVT_kwDOENb9uM4BaPY-"
 COMPONENT_REPOS=(dmf-cms dmf-runbooks dmf-central dmf-infra dmf-env dmf-media dmf-init dmf-promsd)
 STALE_DAYS="${DMF_TRIAGE_DAYS:-7}"
 
@@ -86,70 +88,9 @@ check_umbrella_labels() {
     done
 }
 
-# ── Check 2: Board membership + fields ────────────────────────────────────
-check_board_membership() {
-    echo "── check 2: board membership + fields"
-
-    # Fetch board items with their content issue number, state, and the
-    # Component / Workstream field values. Use aliased fields to avoid
-    # GraphQL key collisions (fieldValueByName returns only the last match
-    # when called twice without aliases).
-    local payload
-    payload='{"query":"query($pid:ID!){node(id:$pid){...on ProjectV2{items(first:100){nodes{comp:fieldValueByName(name:\"Component\"){...on ProjectV2ItemFieldSingleSelectValue{name}}ws:fieldValueByName(name:\"Workstream\"){...on ProjectV2ItemFieldSingleSelectValue{name}}content{...on Issue{number,state}}}}}}}","variables":{"pid":"'"$PROJECT_ID"'"}}'
-
-    local resp
-    resp="$(gh_json "$payload")" || { skipped "gh api failed — token may lack org-project scope"; return; }
-
-    local count
-    count="$(echo "$resp" | jq -r '.data.node.items.nodes | length' 2>/dev/null)" || { skipped "jq parse failed"; return; }
-
-    # Build the set of issue numbers present on the board. Space-separated
-    # string, not an associative array — operator machines may run bash 3.2
-    # (macOS), where `local -A` is a runtime error.
-    local board_issue_numbers=" "
-    for i in $(seq 0 $((count - 1))); do
-        local issue_num issue_state comp ws
-        issue_num="$(echo "$resp" | jq -r ".data.node.items.nodes[$i].content.number // empty")"
-        issue_state="$(echo "$resp" | jq -r ".data.node.items.nodes[$i].content.state // empty")"
-        comp="$(echo "$resp" | jq -r ".data.node.items.nodes[$i].comp.name // empty")"
-        ws="$(echo "$resp" | jq -r ".data.node.items.nodes[$i].ws.name // empty")"
-
-        [ -n "$issue_num" ] && board_issue_numbers="${board_issue_numbers}${issue_num} "
-
-        # Check empty fields on OPEN content issues
-        if [ -n "$issue_num" ] && [ "$issue_state" = "OPEN" ]; then
-            [ -z "$comp" ] && finding "board item issue #$issue_num: empty Component field"
-            [ -z "$ws" ] && finding "board item issue #$issue_num: empty Workstream field"
-        fi
-    done
-
-    # Compare against check 1's open umbrella issue list — any OPEN umbrella
-    # issue NOT on the board is a finding. Reuse the same GraphQL query from
-    # check 1 but only collect numbers.
-    local umb_payload
-    umb_payload='{"query":"query($owner:String!,$repo:String!){repository(owner:$owner,name:$repo){issues(states:[OPEN],first:100){nodes{number,labels(first:20){nodes{name}}}}}}","variables":{"owner":"'"$ORG"'","repo":"'"${UMBRELLA_REPO#*/}"'"}}'
-
-    local umb_resp
-    umb_resp="$(gh_json "$umb_payload")" || { skipped "gh api failed for umbrella issue list"; return; }
-
-    local umb_count
-    umb_count="$(echo "$umb_resp" | jq -r '.data.repository.issues.nodes | length' 2>/dev/null)" || return
-
-    for i in $(seq 0 $((umb_count - 1))); do
-        local num exempt
-        num="$(echo "$umb_resp" | jq -r ".data.repository.issues.nodes[$i].number")"
-        exempt="$(echo "$umb_resp" | jq -r "[.data.repository.issues.nodes[$i].labels.nodes[].name] | map(select(.==\"hygiene-exempt\")) | length")"
-        [ "$exempt" -gt 0 ] && continue
-        case "$board_issue_numbers" in
-            *" $num "*) ;;
-            *) finding "umbrella issue #$num: not on org Project board" ;;
-        esac
-    done
-}
-
-# ── Check 3: Active plans with closed tracking issues ─────────────────────
+# ── Check 2: Active plans with closed tracking issues ─────────────────────
 check_active_plans() {
-    echo "── check 3: active plans with closed tracking issues"
+    echo "── check 2: active plans with closed tracking issues"
 
     local plan_dir="$UMBRELLA_DIR/docs/plans"
     [ -d "$plan_dir" ] || { skipped "docs/plans directory not found"; return; }
@@ -183,9 +124,9 @@ check_active_plans() {
     [ "$found_any" -eq 0 ] && echo "  · no active plans with tracking_issue found"
 }
 
-# ── Check 4: Untriaged component-repo issues ──────────────────────────────
+# ── Check 3: Untriaged component-repo issues ──────────────────────────────
 check_untriaged_component_issues() {
-    echo "── check 4: untriaged component-repo issues"
+    echo "── check 3: untriaged component-repo issues"
 
     # Compute cutoff date
     local cutoff
@@ -236,7 +177,6 @@ if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
 fi
 
 check_umbrella_labels
-check_board_membership
 check_active_plans
 check_untriaged_component_issues
 

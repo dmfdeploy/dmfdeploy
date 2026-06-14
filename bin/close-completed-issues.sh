@@ -31,8 +31,13 @@
 #     seconds between computation and close is caught by the next run's
 #     guard, and closes are idempotent.
 #
-# Known limitation (acceptable): only the first 10 closing-PR references per
-# issue are examined (closedByPullRequestsReferences first:10).
+# Closing-reference cap (documented justification): only the first 100 closing-PR
+# references per issue are examined (closedByPullRequestsReferences first:100 —
+# the GraphQL connection maximum). A single umbrella issue accruing more than 100
+# closing-PR references is implausible; full per-issue nested pagination (an
+# inner cursor loop) would add real complexity for no practical gain, and this
+# reconciler is a backstop to GitHub's native close mechanisms, not the sole
+# closer. If an issue ever approaches the cap, revisit with true pagination.
 
 set -euo pipefail
 
@@ -53,7 +58,7 @@ ISSUES_QUERY='query($owner: String!, $name: String!, $endCursor: String) {
       nodes {
         number
         createdAt
-        closedByPullRequestsReferences(first: 10, includeClosedPrs: true) {
+        closedByPullRequestsReferences(first: 100, includeClosedPrs: true) {
           nodes {
             url state mergedAt baseRefName
             repository { nameWithOwner }
