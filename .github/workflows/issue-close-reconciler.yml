@@ -4,12 +4,14 @@ on:
   schedule:
     - cron: "0 6 * * *"  # daily 06:00 UTC
   workflow_dispatch:
-  pull_request:
-    types: [closed]
-    # Only main-targeted merges may trigger the privileged --apply run; a PR
-    # merged into a side branch must never execute (possibly modified)
-    # reconciler code with issues:write authority.
-    branches: [main]
+  # NOTE: deliberately no `pull_request: closed` (on-merge) trigger. It would
+  # never fire for the PRs this reconciler exists to backstop: our auto-merge
+  # completes as the github-actions bot using GITHUB_TOKEN, and GitHub does not
+  # create workflow runs from GITHUB_TOKEN-attributed events (recursion
+  # prevention) — the very same bot-actor limitation that kills native
+  # auto-close (accepted as status quo in #54). Human same-repo merges already
+  # auto-close natively, so an on-merge run is redundant there too. The daily
+  # schedule (+ manual workflow_dispatch) is the real convergence path. (#79)
 
 permissions:
   contents: read
@@ -18,9 +20,6 @@ permissions:
 
 jobs:
   reconcile:
-    # On schedule/dispatch: always run.
-    # On pull_request: only when the PR was actually merged (not just closed).
-    if: github.event_name != 'pull_request' || github.event.pull_request.merged == true
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
