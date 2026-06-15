@@ -150,8 +150,6 @@ on:
   schedule:
     - cron: "0 6 * * *"
   workflow_dispatch:
-  pull_request:
-    types: [closed]
 
 permissions:
   contents: read
@@ -159,7 +157,6 @@ permissions:
 
 jobs:
   reconcile:
-    if: github.event_name != 'pull_request' || github.event.pull_request.merged == true
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@<sha>
@@ -170,7 +167,15 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-The merged-gate on `pull_request` ensures the workflow only runs on actual merges, not on PRs that were simply closed without merging.
+**Do not add a `pull_request: closed` (on-merge) trigger if your merges go
+through a `GITHUB_TOKEN` bot auto-merge.** GitHub does not start a workflow run
+from events attributed to `GITHUB_TOKEN` (recursion prevention), so the trigger
+never fires for bot-merged PRs — exactly the ones a close-reconciler backstops.
+It is dead weight that misleadingly advertises near-instant closure. Rely on the
+daily schedule (+ manual `workflow_dispatch`); accept next-run latency. (See
+dmfdeploy/dmfdeploy#79 for the concrete A/B that established this.) If a future
+merge actor is *not* `GITHUB_TOKEN` (e.g. a PAT or GitHub App), an on-merge
+trigger with a `merged == true` gate becomes viable again.
 
 ## Common pitfalls
 

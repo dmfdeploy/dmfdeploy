@@ -24,9 +24,14 @@ revalidate before PR.
 - **Close behavior:** cross-repo PRs **do not auto-close** umbrella issues (GitHub
   limitation), and bot-actor rebase auto-merge severs even same-repo keyword close.
   The `bin/close-completed-issues.sh` reconciler (`issue-close-reconciler.yml`,
-  daily + on-merge) closes from GitHub's parsed closing references, so a correct
-  `Closes …` keyword is enough — closure just lands within ~24h, not instantly.
-  Closing manually with a PR-linked comment is fine if you want it immediate.
+  **daily schedule + manual dispatch**) closes from GitHub's parsed closing
+  references, so a correct `Closes …` keyword is enough — closure just lands by
+  the next daily run (~24h, schedule is delay-prone), not instantly. There is
+  intentionally no on-merge trigger: a `pull_request: closed` event from a
+  `GITHUB_TOKEN` bot auto-merge does not start a workflow run (GitHub recursion
+  prevention — the same bot-actor limitation that kills native auto-close), so
+  it could never fire for the bot-merged PRs it would need to (#79). Closing
+  manually with a PR-linked comment is fine if you want it immediate.
   (This is deliberate — the org stays on `GITHUB_TOKEN`, no standing secret; see
   umbrella #47/#54.)
 - **Board:** org Project #1 is a **human curation surface**, not part of filing.
