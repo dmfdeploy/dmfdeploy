@@ -25,40 +25,48 @@ Do NOT use:
 - `tmux send-keys ... Enter` → submits the prompt.
 - `tmux capture-pane -p -S -<lines>` → reads scrollback to see the reply.
 
-Roles map to **stable tmux `pane_id`s** (not positional indexes) in
-`~/.config/agent-bridge/panes.json`, each with the program it should be running:
+Roles are bound to panes by a **durable tmux pane marker** (`@ab_role`), set with
+`agent-bridge register`. Routing **searches the live panes for that marker every
+time** — it never trusts a cached `%id` or a remembered command. A mirror of the
+bindings is kept in `~/.config/agent-bridge/panes.json` for display and
+down-detection:
 
 ```json
 {
   "session": "work",
   "roles": {
-    "claude":    { "pane_id": "%3", "expect_command": "claude" },
-    "codex":     { "pane_id": "%1", "expect_command": "codex" },
-    "qwen-left": { "pane_id": "%0", "expect_command": "node" }
+    "codex":      { "agent": "codex",  "last_pane_id": "%4" },
+    "qwen-left":  { "agent": "qwen",   "last_pane_id": "%0" },
+    "claude-top": { "agent": "claude", "last_pane_id": "%1" }
   }
 }
 ```
 
-**Why pane_id, not index:** tmux renumbers pane *indexes* (`0`,`1`,…) whenever
-panes are created or closed, and the same index can point at a different agent
-after a restart. `pane_id` (`%0`,`%3`,…) is assigned once and stable for the
-pane's lifetime. The legacy string form (`"claude": "2"`) still works but is
-**unverified** — re-pin with `agent-bridge configure --enrich`.
+**Why a marker, not a cached pane_id:** a pane_id (`%0`,`%4`,…) is stable for a
+pane's lifetime, but **panes outlive the agent inside them** — stop one agent and
+start another in the same pane and a cached `%id → role` map silently points at
+the wrong agent. (That, plus a coarse `expect_command` like `node`/`2.1.177` that
+collides across agents, is the old bug.) The `@ab_role` marker lives on the pane,
+survives an agent restarting in place, and does **not** transfer to a different
+agent — so resolution stays honest.
 
 **Correctness guarantees (so you never talk to the wrong agent):**
-- Targets resolve to a stable `pane_id`.
-- Before every `send`/`ask`, the target's running program is asserted against
-  `expect_command`; a mismatch (wrong agent / a shell / a crashed pane)
-  **refuses** the send unless `--force`.
-- Every `send` **auto-stamps the sender's own reply address** onto the prompt
-  (reverse-looked-up from `$TMUX_PANE`), so the recipient routes its answer back
-  to exactly you — no manual "reply to X", no wrong-pane replies. Opt out with
-  `--no-reply-id`.
-- `agent-bridge verify [role]` prints the live truth + PASS/FAIL.
+- A role resolves by searching for the live pane whose `@ab_role == <role>`.
+  **Fail closed:** zero matches ⇒ the role is `DOWN` and the send is **refused**
+  (re-register); two matches ⇒ `COLLISION` ⇒ refused. No silent mis-route.
+- `@ab_agent` records the agent type at register time; a `send` **refuses** if the
+  pane's live program *confidently* contradicts it (the pane was repurposed),
+  unless `--force`.
+- Every `send` **auto-stamps the sender's own reply address** onto the prompt,
+  read from *your* pane's `@ab_role` marker, so the recipient routes its answer
+  back to exactly you. Opt out with `--no-reply-id`.
+- `agent-bridge doctor` prints the live marker map and flags drift / unregistered
+  agent panes / down roles / collisions. `agent-bridge verify [role]` gives a
+  per-role PASS/FAIL.
 
-**Residual limit:** if an agent quits and a *new* session of the same program
-relaunches in the same pane, `pane_id` + `expect_command` still match but it's a
-fresh conversation with no memory. tmux cannot see that. For continuity-critical
+**Residual limit:** if an agent quits and a *new session of the same agent type*
+relaunches in the same pane, the marker still matches but it's a fresh
+conversation with no memory. tmux cannot see that. For continuity-critical
 exchanges use `agent-bridge ping <role>` (nonce-echo liveness handshake) and/or
 restate context.
 
@@ -66,13 +74,29 @@ The CLI works for **any** agent, not just Claude Code — codex, qwen, etc. can 
 
 ## Quick start
 
-First time on a machine:
+**Bind each agent to a role.** The reliable way is to run, *from inside each
+agent's pane*:
 
 ```
-~/.claude/skills/agent-bridge/bin/agent-bridge configure
+agent-bridge register codex          # marks THIS pane as role 'codex'
 ```
 
-That detects panes in the `work` session, writes a starter config, and prints both the config and the live pane listing. Edit role names in the JSON afterwards (the auto-named roles use `<command>-<pane>` like `node-0`, `claude-2`, `codex-aarch64-a-3`).
+or bind another pane by id from anywhere:
+
+```
+agent-bridge register qwen-left %0   # marks pane %0 as 'qwen-left'
+```
+
+To bootstrap a whole session at once, `agent-bridge configure` auto-detects every
+agent pane and registers it as `<agent>-<index>`; rename any with
+`agent-bridge register <name> %pane --force`. Then sanity-check:
+
+```
+agent-bridge doctor      # live marker map: roles, registered vs live agent, drift/collisions
+```
+
+Re-`register` whenever you stop an agent and start a different one in its pane —
+until you do, sends to that role **fail closed** (refuse) rather than mis-route.
 
 For convenience, symlink onto PATH (so other agents in the session can call it too):
 
@@ -83,19 +107,21 @@ ln -s ~/.claude/skills/agent-bridge/bin/agent-bridge ~/bin/agent-bridge
 ## Commands
 
 ```
-agent-bridge list                                  # roles + live status (OK/WRONG/GONE)
-agent-bridge verify [role]                          # identity check; PASS/FAIL per role
+agent-bridge register <role> [%pane] [--agent T] [--force]   # bind a role to a pane (durable marker)
+agent-bridge unregister <role|%pane|--here>                  # clear a binding
+agent-bridge doctor                                 # live marker map + drift/unregistered/down/collision
+agent-bridge list                                   # registered roles → live panes
+agent-bridge verify [role]                          # identity check; PASS/FAIL/DRIFT per role
 agent-bridge panes [session]                        # raw tmux pane listing (id + index)
 agent-bridge send  <role|%id> <text...>             # type + Enter (auto reply-id stamp)
 agent-bridge send  <role> --no-submit -- <text>     # type only, no Enter
 agent-bridge send  <role> --no-reply-id -- <text>   # suppress the reply-id header
-agent-bridge send  <role> --force -- <text>         # send despite identity mismatch
+agent-bridge send  <role> --force -- <text>         # send despite identity drift
 agent-bridge send  <role> -                         # text from stdin
 agent-bridge read  <role> [--lines N]               # capture pane output
 agent-bridge ask   <role> [--wait S] [--lines N] -- <text>   # send + sleep + read
 agent-bridge ping  <role> [--wait S]                # liveness handshake (nonce echo)
-agent-bridge configure [session]                    # fresh config, pinned to pane_id
-agent-bridge configure --enrich                     # keep role names; re-pin live pane_id+command
+agent-bridge configure [session]                    # auto-register every live agent pane
 ```
 
 Roles may also be a raw `%id` (e.g. `agent-bridge send %3 -- "…"`) — used by the
@@ -132,15 +158,18 @@ agent-bridge read qwen-left --lines 50
 
 ## Tips
 
-- **Verify first when the layout may have changed:** run `agent-bridge verify`
-  (or `list`) before a send if panes were opened/closed or an agent restarted.
-  A `WRONG`/`GONE` status means re-pin with `configure --enrich`.
+- **Doctor first when the layout may have changed:** run `agent-bridge doctor`
+  before a send if panes were opened/closed or an agent restarted. `DOWN` means
+  the role's pane is gone (re-`register`); `UNREGISTERED` means an agent pane has
+  no role yet; `DRIFT` means a pane was repurposed; `COLLISION` means a role name
+  is on two panes (`unregister` the wrong one).
 - **Reply-id is automatic:** you no longer hand-write "reply to claude". The
   sent prompt already carries `Reply by running: agent-bridge send <you> -- …`,
-  resolved from your own `$TMUX_PANE`. Recipients should follow it verbatim.
-- **Identity refusal:** `send`/`ask` abort if the target isn't running its
-  `expect_command`. Override only when you're sure: `--force`. Fix properly with
-  `configure --enrich`.
+  resolved from your own pane's `@ab_role` marker. Recipients should follow it
+  verbatim.
+- **Fail-closed, not mis-route:** `send`/`ask` refuse when a role is down,
+  ambiguous, or the pane was confidently repurposed to a different agent. That's
+  the whole point — re-`register` rather than `--force` (override only when sure).
 - **Wait time:** default `--wait 10s` is for quick lookups. For real work give 30–120s. The user can also `read` again later if needed — output is just scrollback.
 - **Multi-line:** bracketed paste preserves newlines correctly in Claude Code, codex TUI, and Qwen. Plain Enter at the end submits.
 - **No-submit mode:** `--no-submit` types into the input buffer without pressing Enter — useful for letting the user review and submit themselves.

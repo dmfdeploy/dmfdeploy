@@ -3,39 +3,57 @@
 # Send prompts (multi-line safe via bracketed paste), read replies via capture-pane.
 #
 # Correctness model (why you can trust the target):
-#   - Roles resolve to a STABLE tmux pane_id (%N), never a positional index.
-#     Pane indices renumber when panes are created/closed; pane_ids do not.
-#   - Before every send/ask, the target's running program is asserted against
-#     the role's `expect_command` (and optional `expect_title`). A mismatch
-#     (wrong agent, a shell, a crashed pane) REFUSES the send unless --force.
-#   - `agent-bridge verify [role]` shows the live truth and PASS/FAIL.
+#   - A role is bound to a pane by a DURABLE tmux pane user-option marker
+#     (@ab_role), set explicitly via `agent-bridge register`. The marker lives on
+#     the pane, persists for the pane's life, and survives an agent restarting in
+#     place. It does NOT silently transfer when a *different* agent is started in
+#     the pane.
+#   - Resolution SEARCHES the live panes for `@ab_role == <role>` every time —
+#     never a cached pane index or a remembered %id. So role->pane tracking is
+#     always current, even as panes are created/closed and %ids churn.
+#   - Fail closed: zero panes carry the marker => the role is DOWN and the send is
+#     REFUSED (re-register). Two panes carry it => COLLISION => refused.
+#   - @ab_agent records the agent type at register time; a send warns/refuses if
+#     the pane's live program clearly contradicts it (pane repurposed).
 #
-# Residual limit tmux cannot see: if an agent quits and a *new* session of the
-# same program relaunches in the same pane, pane_id + command still match, but
-# it is a fresh conversation. For continuity-critical exchanges, use an in-band
-# handshake (send a nonce, require it echoed back) — see `agent-bridge ping`.
+# Residual limit tmux cannot see: if an agent quits and a *new session of the same
+# agent type* relaunches in the same pane, the marker still matches but it is a
+# fresh conversation. For continuity-critical exchanges, use the in-band handshake
+# (`agent-bridge ping` — send a nonce, require it echoed back).
 set -euo pipefail
 
 CONFIG="${AGENT_BRIDGE_CONFIG:-$HOME/.config/agent-bridge/panes.json}"
 BUFFER_NAME="agent-bridge"
+OPT_ROLE="@ab_role"      # tmux pane user-option: the logical role bound to a pane
+OPT_AGENT="@ab_agent"    # tmux pane user-option: the agent type recorded at register
 
 usage() {
   cat <<EOF
 agent-bridge — send prompts and read replies across tmux agent panes
 
-Usage:
-  agent-bridge list
+Identity model: roles are bound to panes by a durable tmux marker (@ab_role) set
+with \`register\`. Routing always searches live panes for the marker, so it tracks
+agents across stop/start/restart and refuses (never mis-routes) when a role is
+down or ambiguous.
+
+Setup / inspection:
+  agent-bridge register <role> [%pane] [--agent T] [--force]
+       Bind <role> to a pane (default: your own \$TMUX_PANE). Run it from inside
+       the agent's pane, or target another with %pane. --agent overrides the
+       auto-detected agent type; --force steals the role from another pane.
+  agent-bridge unregister <role|%pane|--here>
+  agent-bridge doctor                            (live marker map + drift/collisions)
+  agent-bridge list                              (registered roles -> live panes)
+  agent-bridge panes [session]                   (raw tmux pane listing)
   agent-bridge verify [role]                     (identity check; all roles if omitted)
+  agent-bridge configure [session]               (auto-register every live agent pane)
+
+Messaging:
   agent-bridge send <role|%id> [--no-submit] [--force] [--no-reply-id] -- <text...>
   agent-bridge send <role> <text...>             (text after role, no flags)
-       Every send auto-stamps the sender's reply address onto the prompt so the
-       recipient replies to exactly the right agent. Disable with --no-reply-id.
   agent-bridge read <role> [--lines N]           (default 100)
   agent-bridge ask  <role> [--wait S] [--lines N] [--force] -- <text...>
   agent-bridge ping <role> [--wait S]            (liveness handshake via nonce echo)
-  agent-bridge configure [session]               (write fresh config, pinned to pane_id)
-  agent-bridge configure --enrich                (keep role names; re-pin live pane_id+command)
-  agent-bridge panes [session]                   (raw tmux pane listing)
 
 Reads stdin if <text> is "-":
   echo "long prompt" | agent-bridge send codex -
@@ -49,99 +67,126 @@ die() { echo "agent-bridge: $*" >&2; exit 1; }
 need() { command -v "$1" >/dev/null || die "missing dependency: $1"; }
 
 load_session() {
-  if [[ -f "$CONFIG" ]]; then jq -r '.session // "work"' "$CONFIG"; else echo "work"; fi
+  if [[ -f "$CONFIG" ]]; then jq -r '.session // "work"' "$CONFIG" 2>/dev/null || echo "work"; else echo "work"; fi
 }
 
 pane_field() {
-  # pane_field <target> <field-name>   → value or empty (never fails the script)
+  # pane_field <target> <field-name>   -> value or empty (never fails the script)
   tmux display -t "$1" -p "#{$2}" 2>/dev/null || true
 }
 
 pane_exists() { [[ -n "$(pane_field "$1" pane_id)" ]]; }
 
-# self_role — the caller's own reply address. Reverse-looks-up the config role
-# whose pinned pane_id == $TMUX_PANE; falls back to the raw pane_id (which
-# `send`/`resolve_target` accept directly). Empty only when not inside tmux.
+pane_opt() {
+  # pane_opt <pane> <option>  -> value or empty
+  tmux show-options -p -t "$1" -v "$2" 2>/dev/null || true
+}
+
+set_pane_opt() { tmux set-option -p -t "$1" "$2" "$3"; }
+clear_pane_opt() { tmux set-option -pu -t "$1" "$2" 2>/dev/null || true; }
+
+# detect_agent <pane> -> claude|codex|qwen|gemini|shell|unknown
+# BEST-EFFORT only (process inspection is racy under load) — used to seed
+# `register` and to warn in `doctor`/`assert_identity`, NEVER as routing truth.
+detect_agent() {
+  local pane="$1" cmd pid args=""
+  cmd=$(pane_field "$pane" pane_current_command)
+  pid=$(pane_field "$pane" pane_pid)
+  # Collect the pane process + a few generations of descendants' argv.
+  if [[ -n "$pid" ]]; then
+    local frontier="$pid" next p
+    args=$(ps -o command= -p "$pid" 2>/dev/null || true)
+    for _ in 1 2 3 4; do
+      next=""
+      for p in $frontier; do next="$next $(pgrep -P "$p" 2>/dev/null || true)"; done
+      next=$(echo $next)
+      [[ -z "$next" ]] && break
+      for p in $next; do args+=$'\n'"$(ps -o command= -p "$p" 2>/dev/null || true)"; done
+      frontier="$next"
+    done
+  fi
+  local hay="$cmd"$'\n'"$args"
+  if   grep -qiE '(^|/| )codex([- ]|$)'            <<<"$hay"; then echo codex
+  elif grep -qiE '/qwen([ /]|$)|(^| )qwen([ /]|$)' <<<"$hay"; then echo qwen
+  elif grep -qiE 'gemini'                          <<<"$hay"; then echo gemini
+  elif grep -qiE '(^|/| )claude([ /]|$)'           <<<"$hay"; then echo claude
+  elif grep -qiE '^[0-9]+\.[0-9]+\.[0-9]+$'        <<<"$cmd"; then echo claude   # Claude Code reports its version as the command
+  elif grep -qiE '(^|/| )-?(zsh|bash|sh|fish)( |$)' <<<"$cmd"; then echo shell
+  else echo unknown; fi
+}
+
+# panes_for_role <role> -> newline list of pane_ids whose @ab_role == role
+panes_for_role() {
+  local role="$1" sess; sess=$(load_session)
+  tmux list-panes -t "$sess" -a -F "#{pane_id}|#{${OPT_ROLE}}" 2>/dev/null \
+    | awk -F'|' -v r="$role" '$2==r {print $1}'
+}
+
+# self_role — the caller's own reply address, read from OUR pane's marker.
+# Falls back to the raw pane_id (which send/resolve accept directly). Empty only
+# when not inside tmux.
 self_role() {
   local me="${TMUX_PANE:-}"
   [[ -n "$me" ]] || { echo ""; return; }
-  if [[ -f "$CONFIG" ]]; then
-    local r pid
-    for r in $(jq -r '.roles | keys[]' "$CONFIG" 2>/dev/null); do
-      pid=$(jq -r --arg r "$r" '.roles[$r] | if type=="object" then (.pane_id // "") else . end' "$CONFIG")
-      [[ "$pid" == "$me" ]] && { echo "$r"; return; }
-    done
-  fi
-  echo "$me"
+  local r; r=$(pane_opt "$me" "$OPT_ROLE")
+  if [[ -n "$r" ]]; then echo "$r"; else echo "$me"; fi
 }
 
 # resolve_target <role>
-# Sets globals: RT_TARGET (tmux target), RT_EXPECT_CMD, RT_EXPECT_TITLE, RT_PANE_ID
+# Sets: RT_TARGET (tmux target), RT_PANE_ID, RT_AGENT (recorded @ab_agent).
+# On failure sets RT_ERR and returns 1 (does NOT exit) so callers can either
+# `|| die "$RT_ERR"` (messaging) or report it (verify/doctor).
 resolve_target() {
   local role="$1"
-  RT_EXPECT_CMD=""; RT_EXPECT_TITLE=""; RT_PANE_ID=""; RT_TARGET=""
-  # Direct pane-id target (e.g. reply-by-id) — bypasses config so a reply can
-  # always be routed even when the sender is not a named role.
+  RT_TARGET=""; RT_PANE_ID=""; RT_AGENT=""; RT_ERR=""
+  # Direct pane-id target (e.g. reply-by-id) — bypasses markers so a reply can
+  # always be routed even to an unregistered pane.
   if [[ "$role" == %* ]]; then
-    pane_exists "$role" || die "pane id '$role' not found"
-    RT_TARGET="$role"; RT_PANE_ID="$role"
-    return
+    if ! pane_exists "$role"; then RT_ERR="pane id '$role' not found"; return 1; fi
+    RT_TARGET="$role"; RT_PANE_ID="$role"; RT_AGENT=$(pane_opt "$role" "$OPT_AGENT")
+    return 0
   fi
-  [[ -f "$CONFIG" ]] || die "no config at $CONFIG — run: agent-bridge configure"
-  local val
-  val=$(jq -c --arg r "$role" '.roles[$r] // empty' "$CONFIG")
-  if [[ -z "$val" ]]; then
-    local known; known=$(jq -r '.roles | keys | join(", ")' "$CONFIG")
-    die "unknown role '$role'. known: $known"
-  fi
-  local sess; sess=$(load_session)
-  RT_EXPECT_CMD=""; RT_EXPECT_TITLE=""; RT_PANE_ID=""; RT_TARGET=""
-  local kind; kind=$(jq -r 'type' <<<"$val")
-  if [[ "$kind" == "object" ]]; then
-    RT_PANE_ID=$(jq -r '.pane_id // empty' <<<"$val")
-    RT_EXPECT_CMD=$(jq -r '.expect_command // empty' <<<"$val")
-    RT_EXPECT_TITLE=$(jq -r '.expect_title // empty' <<<"$val")
-    local idx; idx=$(jq -r '.index // empty' <<<"$val")
-    if [[ -n "$RT_PANE_ID" ]] && pane_exists "$RT_PANE_ID"; then
-      RT_TARGET="$RT_PANE_ID"
-    elif [[ -n "$idx" ]]; then
-      RT_TARGET="${sess}:.${idx}"
-      echo "agent-bridge: WARNING role '$role': pinned pane_id '${RT_PANE_ID:-none}' is gone; falling back to volatile index ${idx}. Re-pin: agent-bridge configure --enrich" >&2
-    else
-      die "role '$role': pinned pane_id '${RT_PANE_ID:-none}' not live and no index fallback. Re-pin: agent-bridge configure --enrich"
+  local matches; matches=$(panes_for_role "$role")
+  local n=0; [[ -n "$matches" ]] && n=$(grep -c . <<<"$matches")
+  if [[ "$n" -eq 0 ]]; then
+    local hint=""
+    if [[ -f "$CONFIG" ]] && jq -e --arg r "$role" '.roles[$r]' "$CONFIG" >/dev/null 2>&1; then
+      hint=" (it was registered before but no live pane carries the marker now — the agent was stopped or the pane closed)"
     fi
-  else
-    # legacy string form: a %id or a bare index
-    local s; s=$(jq -r '.' <<<"$val")
-    if [[ "$s" == %* ]]; then RT_TARGET="$s"; RT_PANE_ID="$s"
-    else RT_TARGET="${sess}:.${s}"; fi
-    echo "agent-bridge: NOTE role '$role' uses legacy unverified mapping ('$s'). Pin identity: agent-bridge configure --enrich" >&2
+    RT_ERR="role '$role' is DOWN: no live pane carries marker ${OPT_ROLE}=$role${hint}.
+  Re-bind it: from that agent's pane run  ->  agent-bridge register $role
+  See the map:                            ->  agent-bridge doctor"
+    return 1
+  elif [[ "$n" -gt 1 ]]; then
+    RT_ERR="role '$role' COLLISION: marker ${OPT_ROLE}=$role is on multiple panes:
+    $(echo $matches)
+  Fix with:  agent-bridge unregister <%wrong-pane>   (keep exactly one)"
+    return 1
   fi
+  RT_PANE_ID="$matches"; RT_TARGET="$matches"
+  RT_AGENT=$(pane_opt "$RT_TARGET" "$OPT_AGENT")
+  return 0
 }
 
-# assert_identity <role> <force>  — refuse if the live pane isn't the expected agent
+# assert_identity <role> <force> — confirm the resolved pane still hosts the
+# expected agent type. The marker guarantees the role; this catches a pane that
+# was repurposed to a *different* agent without re-registering.
 assert_identity() {
   local role="$1" force="${2:-0}"
-  local cmd title
-  cmd=$(pane_field "$RT_TARGET" pane_current_command)
-  title=$(pane_field "$RT_TARGET" pane_title)
-  [[ -n "$cmd" ]] || die "role '$role': target pane $RT_TARGET not found (agent gone?). Check: agent-bridge verify $role"
-  local problems=()
-  if [[ -n "$RT_EXPECT_CMD" ]]   && ! grep -qiE "$RT_EXPECT_CMD" <<<"$cmd";   then problems+=("running '$cmd' ≠ expected command /$RT_EXPECT_CMD/"); fi
-  if [[ -n "$RT_EXPECT_TITLE" ]] && ! grep -qiF "$RT_EXPECT_TITLE" <<<"$title"; then problems+=("title '$title' lacks '$RT_EXPECT_TITLE'"); fi
-  if [[ ${#problems[@]} -gt 0 ]]; then
+  [[ "$role" == %* ]] && return 0           # direct pane-id targets are unverified by design
+  local recorded="$RT_AGENT" live; live=$(detect_agent "$RT_TARGET")
+  # Only refuse on a CONFIDENT contradiction: both sides known and different.
+  if [[ -n "$recorded" && "$live" != "unknown" && "$live" != "shell" && "$live" != "$recorded" ]]; then
     if [[ "$force" == "1" || "${AGENT_BRIDGE_FORCE:-0}" == "1" ]]; then
-      echo "agent-bridge: WARNING (forced) identity mismatch for '$role' @ $RT_TARGET: ${problems[*]}" >&2
+      echo "agent-bridge: WARNING (forced) '$role' @ $RT_TARGET registered as '$recorded' but now looks like '$live'." >&2
     else
-      die "identity mismatch for '$role' @ $RT_TARGET:
-    ${problems[*]}
-  This pane is NOT the expected agent — refusing to send.
-    inspect:   agent-bridge verify $role
-    re-pin:    agent-bridge configure --enrich
+      die "identity drift for '$role' @ $RT_TARGET:
+    registered agent='$recorded' but the pane now runs '$live'.
+  The pane was repurposed — refusing to send.
+    re-bind:   agent-bridge register $role --agent $live
+    inspect:   agent-bridge doctor
     override:  add --force (dangerous)"
     fi
-  elif [[ -z "$RT_EXPECT_CMD" && -z "$RT_EXPECT_TITLE" ]]; then
-    echo "agent-bridge: NOTE '$role' has no identity expectations — sending UNVERIFIED. Pin: agent-bridge configure --enrich" >&2
   fi
 }
 
@@ -157,7 +202,86 @@ read_text_arg() {
   if [[ $# -eq 1 && "$1" == "-" ]]; then cat; else printf '%s' "$*"; fi
 }
 
+# ---- config persistence (a mirror of the live markers, for display + DOWN detection) ----
+config_put() {
+  # config_put <role> <agent> <pane_id>
+  need jq
+  mkdir -p "$(dirname "$CONFIG")"
+  local sess; sess=$(load_session)
+  local base='{"session":"'"$sess"'","roles":{}}'
+  [[ -f "$CONFIG" ]] && base=$(cat "$CONFIG")
+  jq --arg r "$1" --arg a "$2" --arg p "$3" \
+     '.roles[$r]={agent:$a, last_pane_id:$p}' <<<"$base" > "$CONFIG.tmp" && mv "$CONFIG.tmp" "$CONFIG"
+}
+config_del() {
+  need jq
+  [[ -f "$CONFIG" ]] || return 0
+  jq --arg r "$1" 'del(.roles[$r])' "$CONFIG" > "$CONFIG.tmp" && mv "$CONFIG.tmp" "$CONFIG"
+}
+
+cmd_register() {
+  need jq; need tmux
+  [[ $# -ge 1 ]] || die "register: <role> required"
+  local role="$1"; shift
+  [[ "$role" != %* ]] || die "register: role name cannot start with '%'"
+  [[ "$role" =~ ^[A-Za-z0-9._-]+$ ]] || die "register: role '$role' has invalid chars (use [A-Za-z0-9._-])"
+  local pane="${TMUX_PANE:-}" agent="" force=0
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --agent) agent="$2"; shift 2 ;;
+      --here)  pane="${TMUX_PANE:-}"; shift ;;
+      --force) force=1; shift ;;
+      %*)      pane="$1"; shift ;;
+      *)       die "register: unknown arg '$1'" ;;
+    esac
+  done
+  [[ -n "$pane" ]] || die "register: no target pane (not inside tmux and no %pane given)"
+  pane_exists "$pane" || die "register: pane '$pane' not found"
+  # Collision guard: is this role already on another pane?
+  local existing other
+  existing=$(panes_for_role "$role")
+  for other in $existing; do
+    [[ "$other" == "$pane" ]] && continue
+    if [[ "$force" == 1 ]]; then
+      echo "agent-bridge: (forced) clearing role '$role' from $other" >&2
+      clear_pane_opt "$other" "$OPT_ROLE"; clear_pane_opt "$other" "$OPT_AGENT"
+    else
+      die "register: role '$role' is already on pane $other. Move it with --force, or pick another name."
+    fi
+  done
+  [[ -n "$agent" ]] || agent=$(detect_agent "$pane")
+  set_pane_opt "$pane" "$OPT_ROLE" "$role"
+  set_pane_opt "$pane" "$OPT_AGENT" "$agent"
+  config_put "$role" "$agent" "$pane"
+  echo "agent-bridge: registered role '$role' -> $pane (agent=$agent)" >&2
+}
+
+cmd_unregister() {
+  need tmux
+  [[ $# -ge 1 ]] || die "unregister: <role|%pane|--here> required"
+  local what="$1"
+  local pane=""
+  if [[ "$what" == "--here" ]]; then pane="${TMUX_PANE:-}"; [[ -n "$pane" ]] || die "unregister --here: not inside tmux"; fi
+  [[ "$what" == %* ]] && pane="$what"
+  if [[ -n "$pane" ]]; then
+    local role; role=$(pane_opt "$pane" "$OPT_ROLE")
+    clear_pane_opt "$pane" "$OPT_ROLE"; clear_pane_opt "$pane" "$OPT_AGENT"
+    [[ -n "$role" ]] && config_del "$role"
+    echo "agent-bridge: unregistered pane $pane${role:+ (was '$role')}" >&2
+    return
+  fi
+  # by role name: clear every pane carrying it
+  local p found=0
+  for p in $(panes_for_role "$what"); do
+    clear_pane_opt "$p" "$OPT_ROLE"; clear_pane_opt "$p" "$OPT_AGENT"; found=1
+    echo "agent-bridge: cleared marker '$what' from $p" >&2
+  done
+  config_del "$what"
+  [[ "$found" == 1 ]] || echo "agent-bridge: no live pane carried role '$what' (config entry removed)" >&2
+}
+
 cmd_panes() {
+  need tmux
   local sess="${1:-$(load_session)}"
   tmux has-session -t "$sess" 2>/dev/null || die "no tmux session '$sess'"
   printf "%-5s %-5s %-12s %-18s %s\n" ID IDX SIZE COMMAND TITLE
@@ -166,61 +290,86 @@ cmd_panes() {
     | awk -F'|' '{printf "%-5s %-5s %-12s %-18s %s\n", $1, $2, $3, $4, $5}'
 }
 
+# doctor — the live marker map + drift/collision/unregistered analysis.
+cmd_doctor() {
+  need tmux
+  local sess; sess=$(load_session)
+  tmux has-session -t "$sess" 2>/dev/null || die "no tmux session '$sess'"
+  echo "agent-bridge doctor (session: $sess; self=${TMUX_PANE:-not-in-tmux})"
+  echo
+  printf "%-6s %-14s %-10s %-10s %-16s %s\n" PANE ROLE REG-AGENT LIVE STATUS TITLE
+  # Detect collisions: roles appearing on >1 pane.
+  local roles_seen
+  roles_seen=$(tmux list-panes -t "$sess" -a -F "#{${OPT_ROLE}}" | grep -v '^$' | sort | uniq -d || true)
+  local pane role regagent cmd title live status
+  while IFS='|' read -r pane role regagent cmd title; do
+    live=$(detect_agent "$pane")
+    if [[ -n "$role" ]]; then
+      if [[ -n "$roles_seen" ]] && grep -qxF "$role" <<<"$roles_seen"; then status="COLLISION"
+      elif [[ -n "$regagent" && "$live" != unknown && "$live" != shell && "$live" != "$regagent" ]]; then status="DRIFT->$live"
+      else status="ok"; fi
+    else
+      if [[ "$live" != shell && "$live" != unknown ]]; then status="UNREGISTERED"; else status="—"; fi
+    fi
+    [[ "$pane" == "${TMUX_PANE:-}" ]] && status="$status(self)"
+    printf "%-6s %-14s %-10s %-10s %-16s %s\n" \
+      "$pane" "${role:-—}" "${regagent:-—}" "$live" "$status" "$title"
+  done < <(tmux list-panes -t "$sess" -a -F "#{pane_id}|#{${OPT_ROLE}}|#{${OPT_AGENT}}|#{pane_current_command}|#{pane_title}")
+  # DOWN roles: known in config but no live pane carries the marker.
+  if [[ -f "$CONFIG" ]]; then
+    local r live_roles; live_roles=$(tmux list-panes -t "$sess" -a -F "#{${OPT_ROLE}}" | grep -v '^$' | sort -u || true)
+    for r in $(jq -r '.roles | keys[]' "$CONFIG" 2>/dev/null); do
+      grep -qxF "$r" <<<"$live_roles" || printf "%-6s %-14s %-10s %-10s %-16s %s\n" "—" "$r" "$(jq -r --arg r "$r" '.roles[$r].agent // "?"' "$CONFIG")" "—" "DOWN" "(no live pane)"
+    done
+  fi
+}
+
 cmd_list() {
-  need jq
-  [[ -f "$CONFIG" ]] || die "no config at $CONFIG — run: agent-bridge configure"
+  need jq; need tmux
   local sess; sess=$(load_session)
   printf "session: %s\nconfig:  %s\n\n" "$sess" "$CONFIG"
-  printf "%-15s %-6s %-6s %-18s %s\n" ROLE PANE_ID STATUS COMMAND TITLE
-  for role in $(jq -r '.roles | keys[]' "$CONFIG"); do
-    resolve_target "$role" 2>/dev/null || { printf "%-15s %-6s %-6s\n" "$role" "?" "ERR"; continue; }
-    local cmd title id status
-    id=$(pane_field "$RT_TARGET" pane_id)
-    cmd=$(pane_field "$RT_TARGET" pane_current_command)
-    title=$(pane_field "$RT_TARGET" pane_title)
-    if [[ -z "$cmd" ]]; then status="GONE"
-    elif [[ -n "$RT_EXPECT_CMD" ]] && ! grep -qiE "$RT_EXPECT_CMD" <<<"$cmd"; then status="WRONG"
-    elif [[ -z "$RT_EXPECT_CMD" ]]; then status="UNVERF"
-    else status="OK"; fi
-    printf "%-15s %-6s %-6s %-18s %s\n" "$role" "${id:-?}" "$status" "${cmd:-—}" "$title"
-  done
+  printf "%-15s %-7s %-9s %-18s %s\n" ROLE PANE AGENT COMMAND TITLE
+  local pane role agent cmd title
+  while IFS='|' read -r pane role agent cmd title; do
+    [[ -z "$role" ]] && continue
+    printf "%-15s %-7s %-9s %-18s %s\n" "$role" "$pane" "${agent:-—}" "$cmd" "$title"
+  done < <(tmux list-panes -t "$sess" -a -F "#{pane_id}|#{${OPT_ROLE}}|#{${OPT_AGENT}}|#{pane_current_command}|#{pane_title}" | sort -t'|' -k2)
+  echo "(roles bound by live @ab_role markers; run 'agent-bridge doctor' for drift/unregistered/down)" >&2
 }
 
 verify_one() {
   local role="$1"
-  resolve_target "$role" 2>/dev/null || { printf "  %-14s %-10s (unresolvable)\n" "$role" "ERROR"; return 1; }
-  local cmd title id
-  id=$(pane_field "$RT_TARGET" pane_id)
-  cmd=$(pane_field "$RT_TARGET" pane_current_command)
-  title=$(pane_field "$RT_TARGET" pane_title)
-  local status notes=""
-  if [[ -z "$cmd" ]]; then
-    printf "  %-14s %-10s target=%s (pane gone)\n" "$role" "GONE" "$RT_TARGET"; return 1
+  if ! resolve_target "$role"; then
+    printf "  %-14s %-10s %s\n" "$role" "FAIL" "$(head -1 <<<"$RT_ERR")"; return 1
   fi
-  status="OK"
-  if [[ -n "$RT_EXPECT_CMD" ]]   && ! grep -qiE "$RT_EXPECT_CMD" <<<"$cmd";   then status="FAIL"; notes+="cmd≠/$RT_EXPECT_CMD/ "; fi
-  if [[ -n "$RT_EXPECT_TITLE" ]] && ! grep -qiF "$RT_EXPECT_TITLE" <<<"$title"; then status="FAIL"; notes+="title≠'$RT_EXPECT_TITLE' "; fi
-  if [[ -z "$RT_EXPECT_CMD" && -z "$RT_EXPECT_TITLE" ]]; then status="UNVERF"; notes="no identity pinned "; fi
-  [[ "$id" == "${TMUX_PANE:-}" ]] && notes+="(SELF) "
-  printf "  %-14s %-10s id=%-4s cmd=%-12s %s\n" "$role" "$status" "$id" "$cmd" "$notes"
-  [[ "$status" != "FAIL" ]]
+  local live; live=$(detect_agent "$RT_TARGET")
+  local status="OK" notes=""
+  if [[ -n "$RT_AGENT" && "$live" != unknown && "$live" != shell && "$live" != "$RT_AGENT" ]]; then
+    status="DRIFT"; notes="registered=$RT_AGENT live=$live"
+  fi
+  [[ "$RT_PANE_ID" == "${TMUX_PANE:-}" ]] && notes+=" (SELF)"
+  printf "  %-14s %-10s pane=%-4s agent=%-8s %s\n" "$role" "$status" "$RT_PANE_ID" "${RT_AGENT:-?}" "$notes"
+  [[ "$status" != "DRIFT" ]]
 }
 
 cmd_verify() {
-  need jq
-  [[ -f "$CONFIG" ]] || die "no config at $CONFIG"
+  need jq; need tmux
   echo "identity check (session: $(load_session); self=${TMUX_PANE:-?}):"
   local rc=0
   if [[ $# -ge 1 ]]; then
     verify_one "$1" || rc=1
   else
-    for r in $(jq -r '.roles | keys[]' "$CONFIG"); do verify_one "$r" || rc=1; done
+    local sess; sess=$(load_session)
+    local r roles
+    roles=$(tmux list-panes -t "$sess" -a -F "#{${OPT_ROLE}}" | grep -v '^$' | sort -u || true)
+    if [[ -z "$roles" ]]; then echo "  (no roles registered — run: agent-bridge register <role> from each agent pane)"; return 0; fi
+    for r in $roles; do verify_one "$r" || rc=1; done
   fi
   return $rc
 }
 
 cmd_send() {
-  need jq
+  need jq; need tmux
   [[ $# -ge 1 ]] || die "send: role required"
   local role="$1"; shift
   local submit=1 force=0 reply_id=1
@@ -237,13 +386,12 @@ cmd_send() {
   local text; text=$(read_text_arg "$@")
   [[ -n "$text" ]] || die "send: text empty"
 
-  resolve_target "$role"
+  resolve_target "$role" || die "$RT_ERR"
   guard_self
   assert_identity "$role" "$force"
 
   # Always stamp the sender's reply address onto the prompt so the recipient
-  # routes its answer to exactly the right agent (no guessing, no wrong-pane
-  # replies). Opt out with --no-reply-id or AGENT_BRIDGE_NO_REPLY_ID=1.
+  # routes its answer to exactly the right agent. Opt out with --no-reply-id.
   if [[ "$reply_id" == 1 && "${AGENT_BRIDGE_NO_REPLY_ID:-0}" != 1 ]]; then
     local sr; sr=$(self_role)
     if [[ -n "$sr" ]]; then
@@ -262,11 +410,11 @@ ${text}"
     sleep 0.25
     tmux send-keys -t "$RT_TARGET" Enter
   fi
-  echo "agent-bridge: sent to '$role' @ $RT_TARGET ($(pane_field "$RT_TARGET" pane_current_command))" >&2
+  echo "agent-bridge: sent to '$role' @ $RT_TARGET (agent=${RT_AGENT:-?}, live=$(detect_agent "$RT_TARGET"))" >&2
 }
 
 cmd_read() {
-  need jq
+  need tmux
   [[ $# -ge 1 ]] || die "read: role required"
   local role="$1"; shift
   local lines=100
@@ -276,12 +424,12 @@ cmd_read() {
       *) die "read: unknown arg '$1'" ;;
     esac
   done
-  resolve_target "$role"
+  resolve_target "$role" || die "$RT_ERR"
   tmux capture-pane -t "$RT_TARGET" -p -S "-${lines}"
 }
 
 cmd_ask() {
-  need jq
+  need tmux
   [[ $# -ge 1 ]] || die "ask: role required"
   local role="$1"; shift
   local wait=10 lines=200 force=0
@@ -303,70 +451,51 @@ cmd_ask() {
 }
 
 cmd_ping() {
-  need jq
+  need tmux
   [[ $# -ge 1 ]] || die "ping: role required"
   local role="$1"; shift
   local wait=8
   [[ "${1:-}" == "--wait" ]] && { wait="$2"; shift 2; }
   local nonce; nonce="ABRIDGE-$(date +%s)-$RANDOM"
-  resolve_target "$role"; guard_self; assert_identity "$role" 0
+  resolve_target "$role" || die "$RT_ERR"; guard_self; assert_identity "$role" 0
   echo "agent-bridge: pinging '$role' @ $RT_TARGET with nonce $nonce" >&2
   cmd_send "$role" -- "agent-bridge ping — please reply with exactly this token so I can confirm I'm talking to the right live agent: ${nonce}"
   sleep "$wait"
-  if cmd_read "$role" --lines 60 | grep -q "$nonce"; then
-    # The nonce we sent will appear in the prompt echo; require it TWICE
-    # (our line + the agent's reply) for a real ack.
-    local hits; hits=$(cmd_read "$role" --lines 60 | grep -c "$nonce" || true)
-    if [[ "$hits" -ge 2 ]]; then echo "PONG: '$role' answered the handshake (nonce echoed)."; return 0; fi
-  fi
+  # Require the nonce TWICE (our prompt echo + the agent's reply) for a real ack.
+  local hits; hits=$(cmd_read "$role" --lines 60 | grep -c "$nonce" || true)
+  if [[ "$hits" -ge 2 ]]; then echo "PONG: '$role' answered the handshake (nonce echoed)."; return 0; fi
   echo "NO PONG: '$role' did not echo the nonce within ${wait}s (busy, hung, or not a responsive agent)." >&2
   return 1
 }
 
+# configure — bulk auto-register: stamp every live pane that looks like an agent
+# with a marker, naming roles <agent>-<index>. A convenience bootstrap; `register`
+# is the precise path.
 cmd_configure() {
-  need jq
-  local enrich=0 sess=""
+  need jq; need tmux
+  local sess=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --enrich) enrich=1; shift ;;
+      --enrich) shift ;;   # kept for back-compat; same behaviour as configure now
       *) sess="$1"; shift ;;
     esac
   done
-
-  if (( enrich )); then
-    [[ -f "$CONFIG" ]] || die "no config to enrich — run plain: agent-bridge configure"
-    sess=$(load_session)
-    local out; out=$(jq -c '.' "$CONFIG")
-    for role in $(jq -r '.roles | keys[]' "$CONFIG"); do
-      resolve_target "$role" 2>/dev/null || { echo "  ! $role: unresolvable, left as-is" >&2; continue; }
-      local id cmd title
-      id=$(pane_field "$RT_TARGET" pane_id)
-      cmd=$(pane_field "$RT_TARGET" pane_current_command)
-      title=$(pane_field "$RT_TARGET" pane_title)
-      [[ -n "$id" ]] || { echo "  ! $role: target gone, left as-is" >&2; continue; }
-      out=$(jq -c --arg r "$role" --arg id "$id" --arg cmd "$cmd" \
-            '.roles[$r]={pane_id:$id, expect_command:$cmd}' <<<"$out")
-      echo "  ✓ $role → $id (expect_command=$cmd)" >&2
-    done
-    printf '%s' "$out" | jq '.' > "$CONFIG"
-    echo "" >&2; echo "re-pinned $CONFIG:" >&2; cat "$CONFIG"
-    return
-  fi
-
-  sess="${sess:-work}"
+  sess="${sess:-$(load_session)}"
   tmux has-session -t "$sess" 2>/dev/null || die "no tmux session '$sess'"
   mkdir -p "$(dirname "$CONFIG")"
-  # Fresh config: pin each pane by stable pane_id + capture its command.
-  local roles_json
-  roles_json=$(tmux list-panes -t "$sess" -a -F '#{pane_id}|#{pane_index}|#{pane_current_command}|#{pane_title}' \
-    | awk -F'|' 'BEGIN{print "{"}
-                 { cmd=$3; gsub(/[^a-zA-Z0-9_-]/, "-", cmd); role=cmd "-" $2;
-                   printf "%s  \"%s\": {\"pane_id\":\"%s\",\"expect_command\":\"%s\"}", (NR>1?",\n":"\n"), role, $1, $3 }
-                 END{print "\n}"}')
-  jq -n --arg sess "$sess" --argjson roles "$roles_json" '{session:$sess, roles:$roles}' > "$CONFIG"
-  echo "wrote $CONFIG (pinned to pane_id):" >&2
-  cat "$CONFIG"
-  echo "" >&2; echo "edit role names to taste, then: agent-bridge verify" >&2
+  jq -n --arg s "$sess" '{session:$s, roles:{}}' > "$CONFIG"
+  local pane cmd idx agent role
+  while IFS='|' read -r pane idx cmd; do
+    agent=$(detect_agent "$pane")
+    [[ "$agent" == shell || "$agent" == unknown ]] && { echo "  · $pane ($cmd) — no agent detected, skipped" >&2; continue; }
+    role="${agent}-${idx}"
+    set_pane_opt "$pane" "$OPT_ROLE" "$role"
+    set_pane_opt "$pane" "$OPT_AGENT" "$agent"
+    config_put "$role" "$agent" "$pane"
+    echo "  ✓ $pane -> $role (agent=$agent)" >&2
+  done < <(tmux list-panes -t "$sess" -a -F '#{pane_id}|#{pane_index}|#{pane_current_command}')
+  echo "" >&2
+  echo "auto-registered. Rename a role with: agent-bridge register <name> %pane --force; then: agent-bridge doctor" >&2
 }
 
 main() {
@@ -374,6 +503,9 @@ main() {
   need tmux
   local cmd="$1"; shift
   case "$cmd" in
+    register)   cmd_register "$@" ;;
+    unregister) cmd_unregister "$@" ;;
+    doctor)     cmd_doctor "$@" ;;
     list)       cmd_list "$@" ;;
     verify)     cmd_verify "$@" ;;
     panes)      cmd_panes "$@" ;;
