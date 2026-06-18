@@ -79,6 +79,7 @@ Always verify kubectl context with `kubectl config current-context` before runni
 | What's the active task? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues) + the Active section of `docs/plans/INDEX.md` (umbrella plan: `DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md`) |
 | What's the strategic frame for current decisions? | `docs/decisions/architectural-commitments-v1.md` + `docs/reviews/dmf-platform-technical-evaluation-2026-06-06.md` (the 2026-04-30 strategic review is superseded) |
 | New here — what is this and how did it get here? | `docs/THESIS.md` → `docs/JOURNEY.md` → `docs/decisions/INDEX.md` (§Start here) |
+| What do these project words mean? | `docs/GLOSSARY.md` |
 | What's frozen / unproven / undecided? | `docs/OPEN-QUESTIONS.md` |
 | How must the operator console look/feel/behave? | `docs/design/DMF Console UX Constitution 2026-05-25.md` (principles + §3 hard gates; points to alarm/danger/audit/glossary specs in `docs/design/`) |
 | Who handed off what? | `docs/handoffs/` (most recent file is canonical) |
