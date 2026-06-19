@@ -1,6 +1,7 @@
 ---
-status: draft
+status: active
 date: 2026-06-18
+tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/97
 ---
 
 # DMF AWX On-Demand Scale-to-Zero Plan (v0.2)
@@ -55,17 +56,53 @@ running web pod whenever the applied deployment resources change, and DMF's own
 `kubectl exec`s into it to sync the admin password. **A naive born-asleep CR fails both
 paths.**
 
-**Spike, on a disposable AWX, before any code change** — patch the CR web/task replicas → 0
-and prove:
-- (a) both Deployments settle at 0 and **stay** there;
-- (b) the AWX CR conditions stay healthy (the operator is not looping on a web-pod wait
-  timeout);
-- (c) operator logs show no failing reconcile.
+**Spike, on a disposable AWX, before any code change** — patch the CR web/task replicas → 0.
+**Hardened acceptance (codex 2026-06-19): it is not enough to see the Deployments hit 0
+once.** Prove all of:
+- (a) both web+task Deployments settle at 0 and **stay** there;
+- (b) the AWX CR `.status.conditions` stay healthy across **more than one reconcile
+  interval** (operator not looping on a web-pod wait timeout);
+- (c) operator logs stay quiet across that window — no failing reconcile;
+- (d) an **operator restart** does not wake AWX or start a loop;
+- (e) `0 → 1` returns web/task/API cleanly;
+- (f) `1 → 0` **after an unrelated no-op CR apply** does not trip the
+  `roles/installer/tasks/resources_configuration.yml` web-pod wait loop;
+- (g) the normal DMF AWX role never reapplies resource changes while desired replicas are 0.
 
-Decide the correct steady-state knob (replicas `0` with `*_manage_replicas: true`, vs.
-toggling `manage_replicas`). **Do not set born-asleep in the sandbox profile until this
-passes.** Fallback if it cannot hold a clean zero: scale the Deployments directly (accept
-the operator may re-sync on its reconcile interval), or descope to manual sleep only.
+**Record the evidence concretely** (in this doc or the PR description, not as a recap) so a
+future agent can tell operator-native-by-design from a lucky live workaround: exact
+operator/chart version (`appVersion 2.19.1` / chart `3.2.1`), the literal CR patch applied,
+before/after web+task Deployment replicas and AWX CR `.status.conditions` snapshots, the
+operator log window, the operator-restart result, and the `0→1→0` transition timings — all
+on the Pi 4 / 8 GB arm64 node.
+
+Steady-state knob: prefer **`web_replicas:0` / `task_replicas:0` with
+`*_manage_replicas: true`** (the operator renders `spec.replicas` from them and holds it,
+reconcile-safe). **`manage_replicas:false` + direct Deployment scaling is a *rejected
+fallback*** — it creates split desired state and makes the helper the AWX replica controller,
+i.e. exactly the hack this design avoids — used **only** if Phase 0 proves CR-zero impossible.
+**Do not set born-asleep in the sandbox profile until this passes.**
+
+### Live evidence (2026-06-19, env `2czo-i1d1`, RPi 4B / 8 GB arm64)
+
+Captured during a real `dmf-init` bootstrap (post-#93 bundle, NetBox right-sizing holding) —
+seeds the Phase-0 evidence and confirms the problem framing:
+
+- **AWX is the floor even right-sized.** Per-container resident: `awx-task` 939 MiB,
+  `awx-web` 665 MiB + a 166 MiB rsyslog sidecar, `awx-task` rsyslog 166 MiB,
+  `awx-operator/awx-manager` 141 MiB. The CR already carries `uwsgi_processes: 2` +
+  `web/task_resource_requirements` (#93), reconcile-safe — so the worker-pool lever is spent;
+  awake AWX ≈ 2 GB is the floor.
+- **Operator reconcile loop is a CPU hog.** `awx-manager` sat pegged at its 500m CPU cap.
+  Scaling the *operator* deploy to 0 (web/task left up — API-only work needs no operator)
+  dropped 1-min load **25.8 → 11.3** immediately. (Operational bring-up expedient only — not
+  the permanent design; the permanent design keeps the operator and uses CR replicas.)
+- **The failures were ingress-collateral, not AWX bugs.** Under load (load 26–50 on 4 cores,
+  ~50 MiB free, swap engaged), liveness probes timed out cluster-wide and **Traefik restarted**
+  → `*.sslip.io` calls got `Errno 111`. `configure` died at a *different* ingress task each
+  re-run (NetBox `694`, then AWX `693`) — motivating §E as its own workstream.
+- **Aside (separate bug, not this plan):** NetBox v4.5 v2-token mint crashed once with
+  `value too long for character varying(12)` (`users/models/tokens.py`); track separately.
 
 ## Approach
 
@@ -74,16 +111,23 @@ Names *workload scale-to-zero* (this work, out-of-band) vs *node elasticity* (AW
 deferred) vs *cost guardrail* (deferred); holds the narrow boundary above; defines the
 reusable seam — *"scale a named workload to/from zero on demand"* — **without** building an
 actuator. Cross-links the deferred Elastic Media Nodes plan and the committed NetBox + AWX
-control loop (ADR-0013/0025/0037/0038).
+control loop (ADR-0013/0025/0037/0038). **The ADR must say explicitly (codex 2026-06-19):
+AWX remains the catalog/workflow actuator under ADR-0013 / ADR-0025 / ADR-0037; the helper
+changes AWX *availability* only — never job semantics, never media workload policy.**
 
 ### B. `awx-autoscale` helper (dmf-infra) — the cluster-scaling authority
 - **`POST /ensure-awake`:** idempotently patch the AWX CR (per the Phase 0 knob), wait for
   `awx-web` Ready + API 200. Record `min_awake_until` (a wake lease).
+- **Single-flight + durable lease (codex 2026-06-19).** Store `min_awake_until` / active wake
+  ownership in a **Kubernetes `Lease` (or ConfigMap)**, not only in process memory, so
+  concurrent dmf-cms clicks **collapse into one wake**. On helper restart, **fail *open*
+  toward keeping AWX awake** until active work can be observed — never toward sleeping.
 - **Idle-reaper loop:** query active work with the **proven DMF pattern**
   `status__in=new,pending,waiting,running` (NOT `status=running,pending,waiting`, which
-  drops `new` and uses the wrong separator); include project updates / all active work, not
-  just `/api/v2/jobs/`. Sleep only when there is no active work **and** `now >
-  min_awake_until` **and** idle > `grace_period`.
+  drops `new` and uses the wrong separator); cover **unified work** — jobs, workflow jobs,
+  project updates, inventory updates — not just `/api/v2/jobs/`. Sleep only when there is no
+  active work **and** `now > min_awake_until` **and** idle > `grace_period`. **If the AWX API
+  cannot be queried, do not sleep.**
 - **Image:** `python:3-slim` lacks FastAPI/uvicorn/the k8s client → either **stdlib-only**
   (`http.server` + raw Kubernetes REST via the mounted SA token over `urllib`; AWX calls via
   `urllib`) or a tiny **owned image** built through the GHCR→Zot pipeline. Either way: pin
@@ -99,11 +143,23 @@ control loop (ADR-0013/0025/0037/0038).
   (default `1`) + the `*_manage_replicas` decision from Phase 0.
 - `roles/stack/operator/awx/templates/awx-instance.yml.j2`: render them as **explicit
   scalar fields** (NOT via the `to_nice_yaml` resource-requirements dict pattern).
-- **Bootstrap vs steady-state:** the sandbox order is `640-awx → 650-dmf-cms →
-  693-awx-integration → 697-cms-awx-token → 699-cms-smoke-test` — all AWX API consumers.
-  AWX must stay **awake through bootstrap**; sleep happens only at the very end, after the
-  wiring and the helper are deployed. Born-asleep is a *steady-state* property, not a
-  *bootstrap* one.
+- **`awx-presence` role / state machine (codex 2026-06-19).** Model AWX presence as an
+  **explicit `state: awake|asleep`** invoked at **phase boundaries** — *not* born-asleep, and
+  *not* scattered task-level lazy gates. The bootstrap lifecycle is **1 → 0 → 1 → 0**:
+  1. **640 installs AWX awake**, and the `awx-manage` admin-password `kubectl exec` sync
+     **stays inside that awake window** (born-asleep breaks both the upstream operator's
+     web-pod wait and our role's `readyReplicas ≥ 1` exec — keep it as a convergence step;
+     do **not** redesign it to a direct DB mutation).
+  2. **Sleep AWX for the non-AWX configure work.** These plays don't touch the AWX API and
+     were starving on a constrained node while AWX ate ~2 GB: `191` zot OIDC, `692` forgejo
+     bootstrap, `691` netbox-sot, `694` born-inventory (**order `694` before `693`** so NetBox
+     inventory content exists before AWX integration), `160` promsd, `696` cms-authentik-api,
+     `698` cms netbox/forgejo tokens.
+  3. **One explicit AWX-awake window** for the AWX consumers: `693-awx-integration`,
+     `697-cms-awx-token`, and the AWX/CMS smoke.
+  4. **Sleep at the end** if the sandbox/on-demand flag is set; steady state then runs via the
+     helper (§B).
+  Use the presence role at boundaries, not as hidden per-task magic.
 - `bootstrap-sandbox-profile.yml`: opt-in `dmf_awx_autoscale_enabled`; cloud/lab lanes keep
   replicas `1` and deploy no helper (no behaviour change).
 
@@ -123,6 +179,27 @@ control loop (ADR-0013/0025/0037/0038).
 - **Settings:** dmf-cms gets `enabled` / `helper_url` / `max_startup_wait` only;
   **`grace_period` lives in the helper.** `DMF_CONSOLE_AWX_AUTOSCALE_*` env, following the
   frozen-dataclass pattern in `settings.py`. Helm values + `deployment.yaml` env injection.
+
+### E. Discriminating ingress readiness/retry gate (dmf-infra) — INDEPENDENT of AWX
+
+**This is the fix that actually stops the mid-bootstrap failures** (codex 2026-06-19). Sleeping
+AWX removes the *pressure source*, but `configure` tasks still call app APIs through
+`*.sslip.io` → Traefik, so a Traefik liveness-flap under load still throws `Errno 111
+Connection refused` at whatever task coincides with it (observed live: NetBox `694` "Create
+worker device role", then AWX `693` "Lookup AWX project" — different task each re-run). Ship
+this **as its own workstream**, not bundled into the AWX presence change.
+
+- **Shared precondition gate** before external app-API calls: assert the **Traefik route is
+  live** *and* the **target app health/API is ready**, then proceed.
+- **Discriminating + bounded retry:** retry **only** on transient classes — connection-refused
+  (Errno 111), timeouts, and 5xx — with bounded backoff. **Hard-fail immediately on 4xx, auth,
+  and schema errors** so the gate cannot mask real integration bugs.
+- **Internal-service access is NOT a host-side DNS swap.** The node runs the Ansible `uri`
+  tasks and **cannot resolve `*.svc.cluster.local`.** Where a task moves off ingress, make the
+  execution context **explicit**: (a) run the call from an in-cluster helper/runner pod, (b)
+  `exec` into the known app pod where that's the established local pattern, or (c) keep ingress
+  and wrap it with the shared route + target-readiness gate. **Never** just rewrite host-side
+  `uri` hosts to service DNS.
 
 ## Repo procedure for the future implementation
 
@@ -145,6 +222,13 @@ the issue **and** flips this doc to `status: executed` in the same change.
 - dmf-cms cold trigger blocks ~1–3 min (per-route timeout raised) → wakes → runs → succeeds
   → sleeps after grace; duplicate-click idempotency preserved (existing
   `find_active_job_for_template`).
+- **697/698 reorder regression (codex 2026-06-19):** with `698` (cms netbox/forgejo tokens)
+  in the asleep window and `697` (cms-awx-token) in the AWX-awake window, the dmf-cms runtime
+  Secret must **merge keys and recompute the rollout checksum order-independently**, clobbering
+  neither token. Assert both orders.
+- **Ingress gate (§E):** under induced load (AWX awake + concurrent reconcile), a Traefik
+  liveness-flap mid-`configure` no longer fails the run — the gate retries transient
+  111/timeout/5xx and the phase completes; a genuine 4xx/auth/schema error still fails fast.
 - Lane isolation: cloud/lab (flag off) renders replicas `1`, no helper.
 - CI green: `bin/check-docs.sh`, commitlint/DCO, fully-qualified closes.
 
@@ -161,10 +245,15 @@ the issue **and** flips this doc to `status: executed` in the same change.
   `docs/decisions/architectural-commitments-v1.md` (the v0.1 freeze this framing respects)
   and `docs/plans/DMF Elastic Media Nodes and Cloud Cost Controller Plan 2026-06-01.md` (the
   deferred elasticity track this is explicitly **not**).
-- **Status as of 2026-06-18:** design captured; cross-checked by codex (gpt-5.5) via the
-  agent-bridge skill against awx-operator 2.19.1 source + DMF code — verdict CHANGES-NEEDED,
-  with all P1/P2/P3 findings folded into this doc. Component repos were clean. Nothing
-  implemented; no issue/RFC opened yet.
+- **Status as of 2026-06-19:** **scheduled — `status: active`, tracking issue
+  [dmfdeploy/dmfdeploy#97](https://github.com/dmfdeploy/dmfdeploy/issues/97).** Design captured
+  and cross-checked by codex (gpt-5.5) via agent-bridge against awx-operator 2.19.1 source +
+  DMF code in **two passes** (2026-06-18 P1/P2/P3 + 2026-06-19 `awx-presence` state machine,
+  hardened Phase-0 evidence, the independent §E ingress gate, 697/698 reorder test, Lease
+  single-flight/fail-open, ADR-0043 boundary) — all folded in. **Live evidence** added from a
+  real Pi 4 bootstrap (env `2czo-i1d1`). Implementation is being orchestrated by the
+  **claude-top** agent running the issues-cruncher trio (qwen = implementer, codex =
+  adversary) on a shared worktree; nothing implemented yet at time of writing.
 - **Key code touchpoints to re-read before building:** dmf-infra
   `roles/stack/operator/awx/{defaults/main.yml,templates/awx-instance.yml.j2,tasks/main.yml}`,
   `bootstrap-sandbox-profile.yml`,
