@@ -104,6 +104,49 @@ seeds the Phase-0 evidence and confirms the problem framing:
 - **Aside (separate bug, not this plan):** NetBox v4.5 v2-token mint crashed once with
   `value too long for character varying(12)` (`users/models/tokens.py`); track separately.
 
+### Phase-0 execution evidence (2026-06-19, env `2czo-i1d1`, RPi 4B 8 GB arm64) — VERDICT: **PASS**
+
+Step 1 spike executed live and **codex-signed-off**. `web_replicas:0`/`task_replicas:0` +
+`*_manage_replicas:true` is the **operator-native, reconcile-safe** control plane on
+awx-operator **2.19.1** / AWX **24.6.1** / arm64. Raw excerpts (not just narrative):
+
+- **(a) render→0.** `kubectl -n awx patch awx awx --type merge -p
+  '{"spec":{"web_replicas":0,"task_replicas":0,"web_manage_replicas":true,"task_manage_replicas":true}}'`
+  → CR `gen 1→2`. Operator rewrote both Deployments: web `spec.replicas 1→0` @12:50:13Z (RV
+  13424→80160), task @12:50:48Z (RV 20076→80299); status replicas/ready/avail all 0, held.
+- **(a-neg) active anti-drift hold.** `kubectl -n awx scale deploy awx-web --replicas=1` (RV
+  82634) → operator reverted it to **0 @+577s** (`poll 38 13:11:43Z +577s: web.spec=0 →
+  RECONCILED_BACK_TO_ZERO`). Operator owns the replica count, not passive leftover.
+- **(b)/(c) healthy at zero.** Zero `failed=[1-9]`/`fatal`/error-level/`unreachable` since
+  patch; the 1→0 reconcile ran `installer : Apply deployment resources` → `Get the new resource
+  pod information` and **completed without a web-pod-wait hang**. (`observedGeneration` is
+  ABSENT on this CR — health keyed on Deployment readyReplicas + RV bumps + clean logs.)
+- **(d) survives operator restart at zero.** `rollout restart` → web/task stayed
+  `spec.replicas=0`, `webPods=0`; post-restart reconcile peaked `active=24` and completed
+  `D_RECONCILE_DONE_STILL_ZERO_+263s`. No wake, no loop.
+- **(e-asleep) REST API down asleep:** `api_ping=NO_RUNNING_WEB_POD`.
+- **(f) forced template change at zero (the `changed==true` branch).** `patch ... image_pull_policy:
+  Always` (`gen 2→3`) → operator **applied** it to web+task templates (`pullAlways=4` incl
+  initContainers) with **`spec.replicas` held 0, `webPods=0`, NO hang, reconcile idle**
+  (`F_POLICY_APPLIED_+47s ... web==0`). ⇒ the **upstream operator is NOT subject to the
+  `resources_configuration.yml` template-change-at-zero hang.**
+- **(collateral)** postgres Running, projects+postgres PVCs Bound, `awx-service` + AWX CR
+  present throughout — no partial uninstall.
+- **(e)+restore.** Null all spike fields (`gen→4`) → operator idle ~6.5 min (requeue) then woke:
+  web Ready @+421s, task Ready @+491s (`WAKE_RESTORED`); **API 200**; temp `Always` stripped
+  (`image_pull_policy=IfNotPresent`); web/task `1/1`; AWX awake, no temp fields left.
+
+**Two implementation constraints proven (codex-confirmed, non-negotiable):**
+1. **WS2 — install-awake NOT relaxed.** The operator tolerates CR-zero, but the DMF awx role's
+   *own* `readyReplicas>=1` waits + admin-sync `kubectl exec` (`roles/stack/operator/awx/tasks/main.yml:158-210`)
+   break a born-asleep CR. `awx-presence` asleep patches **replica fields only**; full role /
+   template-affecting applies run in an **awake window**. Born-asleep stays rejected.
+2. **WS4 — measured-latency budget.** Operator reconcile latency is **~6–10 min** before it
+   picks up a CR change, then **~70 s** pod/API wake once reconcile runs. `ensure-awake`
+   `max_startup_wait` must cover the measured latency (**≥ ~15 min on Pi-class**), not just the
+   cold-start. An annotation-poke is **unproven** (the `(a)` spec patch was itself a reconcile
+   event and *still* incurred the latency) — if WS4 attempts it, it needs its own small test.
+
 ## Approach
 
 ### A. Thin taxonomy ADR (umbrella, RFC → ADR ≈0043)
