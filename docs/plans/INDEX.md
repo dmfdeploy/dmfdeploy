@@ -8,9 +8,8 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (3)
+## Active (2)
 
-- [DMF AWX On-Demand Scale-to-Zero Plan 2026-06-18](DMF%20AWX%20On-Demand%20Scale-to-Zero%20Plan%202026-06-18.md) — 2026-06-18
 - [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
 - [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04](DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md) — 2026-06-04
 
@@ -24,8 +23,9 @@ shelved, kept for provenance.
 - [DMF Pre-Release Compliance Readiness Plan 2026-05-11](DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md) — 2026-05-11
 - [DMF Tier A Phase Execution Plan 2026-05-11](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — 2026-05-11
 
-## Executed (77)
+## Executed (78)
 
+- [DMF AWX On-Demand Scale-to-Zero Plan 2026-06-18](DMF%20AWX%20On-Demand%20Scale-to-Zero%20Plan%202026-06-18.md) — 2026-06-18 (executed 2026-06-20)
 - [Canonical Cross-Agent Skills 2026-06-14](Canonical%20Cross-Agent%20Skills%202026-06-14.md) — 2026-06-14
 - [DMF ADR Legibility & De-Layering Plan 2026-06-13](DMF%20ADR%20Legibility%20%26%20De-Layering%20Plan%202026-06-13.md) — 2026-06-13 (executed 2026-06-13)
 - [DMF Issues-Cruncher Skill 2026-06-12](DMF%20Issues-Cruncher%20Skill%202026-06-12.md) — 2026-06-12 (executed 2026-06-14)

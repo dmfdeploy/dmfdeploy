@@ -1,6 +1,7 @@
 ---
-status: active
+status: executed
 date: 2026-06-18
+executed: 2026-06-20
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/97
 ---
 
@@ -311,3 +312,34 @@ the issue **and** flips this doc to `status: executed` in the same change.
   are actually *rendered and verified* (not just specced). Drive it via the operator-local
   agent-bridge binary (`~/.claude/skills/agent-bridge/bin/agent-bridge`); note the role→pane
   map drifts — verify the live `codex` pane before sending.
+
+## Execution result (2026-06-20) — `status: executed`
+
+Implemented by the issues-cruncher trio (claude orchestrator + qwen implementer + codex
+adversary) and validated live on RPi 4B / 8 GB env `qluc-xwie`.
+
+**Landed code/docs (each `Refs`/`Closes` dmfdeploy/dmfdeploy#97):**
+- **WS2** awx-presence role + explicit-scalar CR replica knobs + flag-gated bootstrap
+  lifecycle — `dmf-infra` (PR #12, merged).
+- **WS3** discriminating ingress readiness/retry gate — `dmf-infra` (PR #12, merged);
+  runtime-resolution + wake-tolerance hardening (PR #13, merged).
+- **WS1** stdlib-only `awx-autoscale` helper — `dmf-infra` (PR #14).
+- **WS5** dmf-cms async ensure-awake integration (provisional-operation model; supersedes
+  the block-until-ready v1 above — a 10–20 min held request was untenable at the Pi's
+  cold-wake latency) — `dmf-cms` (PR #6).
+- **WS6** ADR-0043 (workload scale-to-zero = AWX-scoped availability) — umbrella (PR #98).
+
+**Live evidence (`configure` run, `ok=769 failed=0`):** Phase A sleep (CR→0) → ingress
+gate cleared at `694` → Phase C wake `0→1` via awx-presence (web ready after the measured
+~6–10 min operator reconcile, then task, then API 200) → AWX consumers `693/697/699` with
+the project-sync poll riding through the cold-wake window → Phase E sleep (CR→0); operator
+reconciled both Deployments to 0 (~5.5 min) — AWX genuinely at zero, operator+Postgres up
+for on-demand wake.
+
+**Open follow-ups (do not block this terminal status; the bootstrap scale-to-zero lifecycle
+is proven — these gate the *steady-state helper's* live deployment):** mint the helper bearer
+token via `bootstrap-secrets seed-bao` (`secret/apps/awx-autoscale/runtime`); preseed the
+helper's `python:3.12-slim` image into Zot for the offline lane; assert/remove the
+`awx_autoscale_listen_port` override (port coupling). The steady-state helper (WS1) is
+code-complete + security-reviewed but was not exercised by the above run (flag-on *bootstrap*
+uses the awx-presence role, not the helper).
