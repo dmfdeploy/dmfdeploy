@@ -17,7 +17,7 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/110
 > to pods-gone in **22s**. codex-reviewed (APPROVE) + CODEOWNERS-approved.
 > **WS3** (probe hardening) deferred — overlaps the #106 Tier-3 probe item.
 
-**Status:** Draft (proposed, not started).
+**Status:** Executed 2026-06-22 — WS1 + WS2 live-verified (see the EXECUTED note above); WS3 deferred.
 **Tracking:** [dmfdeploy/dmfdeploy#110](https://github.com/dmfdeploy/dmfdeploy/issues/110)
 **Component:** `dmf-infra` (`awx-presence` role, `awx-autoscale` helper).
 **Design authority:** within [ADR-0043](../decisions/0043-workload-scale-to-zero-availability.md)
