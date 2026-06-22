@@ -13,9 +13,8 @@ shelved, kept for provenance.
 - [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
 - [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04](DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md) — 2026-06-04
 
-## Draft (8)
+## Draft (7)
 
-- [DMF AWX Scale-to-Zero Speed-Up Plan 2026-06-21](DMF%20AWX%20Scale-to-Zero%20Speed-Up%20Plan%202026-06-21.md) — 2026-06-21
 - [DMF Facility Console — Born-Inventoried Env Surfacing Plan 2026-06-04](DMF%20Facility%20Console%20%E2%80%94%20Born-Inventoried%20Env%20Surfacing%20Plan%202026-06-04.md) — 2026-06-04
 - [DMF Internal Ansible Collection Source Plan 2026-05-29](DMF%20Internal%20Ansible%20Collection%20Source%20Plan%202026-05-29.md) — 2026-05-29
 - [DMF Authentik Bootstrap Enrollment Drop Username Prompt Plan 2026-05-28](DMF%20Authentik%20Bootstrap%20Enrollment%20Drop%20Username%20Prompt%20Plan%202026-05-28.md) — 2026-05-28
@@ -24,8 +23,9 @@ shelved, kept for provenance.
 - [DMF Pre-Release Compliance Readiness Plan 2026-05-11](DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md) — 2026-05-11
 - [DMF Tier A Phase Execution Plan 2026-05-11](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — 2026-05-11
 
-## Executed (79)
+## Executed (80)
 
+- [DMF AWX Scale-to-Zero Speed-Up Plan 2026-06-21](DMF%20AWX%20Scale-to-Zero%20Speed-Up%20Plan%202026-06-21.md) — 2026-06-21 (executed 2026-06-22)
 - [DMF Constrained-Node k3s Control-Plane Stability Plan 2026-06-21](DMF%20Constrained-Node%20k3s%20Control-Plane%20Stability%20Plan%202026-06-21.md) — 2026-06-21 (executed 2026-06-21)
 - [DMF AWX On-Demand Scale-to-Zero Plan 2026-06-18](DMF%20AWX%20On-Demand%20Scale-to-Zero%20Plan%202026-06-18.md) — 2026-06-18 (executed 2026-06-20)
 - [Canonical Cross-Agent Skills 2026-06-14](Canonical%20Cross-Agent%20Skills%202026-06-14.md) — 2026-06-14
