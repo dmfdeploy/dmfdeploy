@@ -1,6 +1,7 @@
 ---
-status: draft
+status: executed
 date: 2026-06-21
+executed: 2026-06-22
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/108
 ---
 # DMF NMOS Crosspoint Media Function Plan
@@ -9,7 +10,19 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/108
 **Owner:** operator (with Claude `claude-top`; adversarial cross-check by codex
 against live upstream commit `564ca41`, 2026-06-20)
 **Branch:** `feat/nmos-crosspoint-media-function` (all touched repos)
-**Tracking:** [dmfdeploy/dmfdeploy#108](https://github.com/dmfdeploy/dmfdeploy/issues/108)
+**Tracking:** [dmfdeploy/dmfdeploy#108](https://github.com/dmfdeploy/dmfdeploy/issues/108) (closed 2026-06-22)
+
+**Status:** **Executed 2026-06-22.** Phase 1 (visible-first) validated live
+end-to-end on sandbox env `sl2p-e8sm`: catalog **Deploy** button → AWX autowake →
+JT → Helm → `wss` → registry subscriptions → matrix with both nmos-cpp mock
+nodes, plus a full teardown→redeploy lifecycle. Switching stays Phase 2 (MXL).
+Live validation surfaced + fixed: `ws://` mixed-content, nmos-cpp registry `:81`
+query-ws port, launcher IngressRoute RBAC, console RBAC grant, env-specific JT
+inputs, and the sandbox autowake default. Follow-ups filed as
+[#119–#127](https://github.com/dmfdeploy/dmfdeploy/issues). Landing PRs:
+dmf-media#9, dmf-infra#26, dmf-env#13. Published: image `nmos-crosspoint:0.1.1`,
+charts `nmos-crosspoint:0.1.1` + `nmos-cpp:0.1.2`. The original "wiring-only,
+deferred-live" framing below is superseded by this live execution.
 
 ## Context
 
