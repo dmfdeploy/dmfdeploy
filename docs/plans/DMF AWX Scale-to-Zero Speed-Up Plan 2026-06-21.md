@@ -1,9 +1,21 @@
 ---
-status: draft
+status: executed
 date: 2026-06-21
+executed: 2026-06-22
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/110
 ---
 # DMF AWX Scale-to-Zero Speed-Up Plan (2026-06-21)
+
+> **EXECUTED 2026-06-22 — WS1 + WS2 (direct Deployment scaling), live-verified.**
+> Shipped in `dmf-infra` [PR #24](https://github.com/dmfdeploy/dmf-infra/pull/24):
+> the `awx-autoscale` helper (`/ensure-awake` + reaper) and the `awx-presence`
+> bootstrap role now scale the `awx-web`/`awx-task` Deployments **directly**,
+> alongside the authoritative CR patch (`manage_replicas=true` → operator reconcile
+> is a no-op since values match); RBAC widened `deployments: get→get,patch`.
+> **Live result on the Pi 4:** cold wake `readyReplicas>=1` in **18s** (was ~6–10 min
+> operator reconcile), **no replica bounce-back** across a full reconcile window, sleep
+> to pods-gone in **22s**. codex-reviewed (APPROVE) + CODEOWNERS-approved.
+> **WS3** (probe hardening) deferred — overlaps the #106 Tier-3 probe item.
 
 **Status:** Draft (proposed, not started).
 **Tracking:** [dmfdeploy/dmfdeploy#110](https://github.com/dmfdeploy/dmfdeploy/issues/110)
