@@ -99,6 +99,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `dmf-env/bin/get-admin-cred.sh` | retrieve an app's admin credential from OpenBao via the operator userpass path (Phase 5 of the Authentik baseline plan). |
 | `dmf-env/bin/get-passkey-enrollment-url.sh` | retrieve the DMF passkey enrollment URL and the operator's confirmed-passkey count. |
 | `dmf-env/bin/init-wizard.sh` | interactive greenfield env bootstrap wizard. |
+| `dmf-env/bin/install-hooks.sh` | point this clone's git at .githooks/. |
 | `dmf-env/bin/monitor-playbook.sh` | stream filtered ansible-playbook output from a log file. |
 | `dmf-env/bin/recreate-sandbox-vm.sh` | (re)create the WP1S sandbox Lima VM substrate. |
 | `dmf-env/bin/remove-env.sh` | idempotent teardown + removal of new-layout envs. |
@@ -119,6 +120,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 |---|---|
 | `dmf-media/bin/install-hooks.sh` | point this clone's git at .githooks/. |
 | `dmf-media/bin/publish-chart-to-ghcr.sh` | publish the dmf-media NMOS chart to GHCR. |
+| `dmf-media/bin/publish-nmos-crosspoint.sh` | build + (optionally) publish the nmos-crosspoint image. Thin wrapper: builds the ARM64 image at a pinned upstream ref via Colima, then delegates the GHCR push to the umbrella's bin/publish-image-to-ghcr.sh (single source of truth for auth: token-via-stdin, isolated DOCKER_CONFIG). |
 | `dmf-media/bin/working-model-digest.sh` | print the DMF working-model digest for session context. |
 
 ## dmf-init — `dmf-init/bin/`
