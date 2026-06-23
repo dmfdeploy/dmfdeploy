@@ -67,8 +67,24 @@ die() { echo "agent-bridge: $*" >&2; exit 1; }
 need() { command -v "$1" >/dev/null || die "missing dependency: $1"; }
 
 load_session() {
+  # Explicit override wins (useful when invoked from outside tmux, or a shell
+  # whose $TMUX points at a different server than the bridge session).
+  if [[ -n "${AGENT_BRIDGE_SESSION:-}" ]]; then echo "$AGENT_BRIDGE_SESSION"; return; fi
+  # A $TMUX_PANE-derived session is only trustworthy if it is actually listable
+  # on the server we can reach; otherwise fall through to the config default.
+  if [[ -n "${TMUX_PANE:-}" ]]; then
+    local sess; sess=$(tmux display -p -t "$TMUX_PANE" '#{session_name}' 2>/dev/null || true)
+    if [[ -n "$sess" ]] && tmux list-panes -t "$sess" -F '#{pane_id}' >/dev/null 2>&1; then
+      echo "$sess"; return
+    fi
+  fi
   if [[ -f "$CONFIG" ]]; then jq -r '.session // "work"' "$CONFIG" 2>/dev/null || echo "work"; else echo "work"; fi
 }
+
+# session_has_panes <session> — true if the session is reachable and has panes.
+# Used instead of `tmux has-session`, which some sandboxes deny on the tmux
+# socket even when list-panes is permitted.
+session_has_panes() { tmux list-panes -t "$1" -F '#{pane_id}' >/dev/null 2>&1; }
 
 pane_field() {
   # pane_field <target> <field-name>   -> value or empty (never fails the script)
@@ -283,7 +299,7 @@ cmd_unregister() {
 cmd_panes() {
   need tmux
   local sess="${1:-$(load_session)}"
-  tmux has-session -t "$sess" 2>/dev/null || die "no tmux session '$sess'"
+  session_has_panes "$sess" || die "no tmux session '$sess'"
   printf "%-5s %-5s %-12s %-18s %s\n" ID IDX SIZE COMMAND TITLE
   tmux list-panes -t "$sess" -a \
     -F '#{pane_id}|#{pane_index}|#{pane_width}x#{pane_height}|#{pane_current_command}|#{pane_title}' \
@@ -294,7 +310,7 @@ cmd_panes() {
 cmd_doctor() {
   need tmux
   local sess; sess=$(load_session)
-  tmux has-session -t "$sess" 2>/dev/null || die "no tmux session '$sess'"
+  session_has_panes "$sess" || die "no tmux session '$sess'"
   echo "agent-bridge doctor (session: $sess; self=${TMUX_PANE:-not-in-tmux})"
   echo
   printf "%-6s %-14s %-10s %-10s %-16s %s\n" PANE ROLE REG-AGENT LIVE STATUS TITLE
@@ -481,7 +497,7 @@ cmd_configure() {
     esac
   done
   sess="${sess:-$(load_session)}"
-  tmux has-session -t "$sess" 2>/dev/null || die "no tmux session '$sess'"
+  session_has_panes "$sess" || die "no tmux session '$sess'"
   mkdir -p "$(dirname "$CONFIG")"
   jq -n --arg s "$sess" '{session:$s, roles:{}}' > "$CONFIG"
   local pane cmd idx agent role

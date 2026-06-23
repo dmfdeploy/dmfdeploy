@@ -98,6 +98,11 @@ agent-bridge doctor      # live marker map: roles, registered vs live agent, dri
 Re-`register` whenever you stop an agent and start a different one in its pane —
 until you do, sends to that role **fail closed** (refuse) rather than mis-route.
 
+If you invoke the bridge from outside the tmux session (or from a shell whose
+`$TMUX` points at a different server), set `AGENT_BRIDGE_SESSION=work` so the
+script resolves the right session instead of guessing. From inside the panes the
+live session is inferred automatically.
+
 For convenience, symlink onto PATH (so other agents in the session can call it too):
 
 ```
@@ -177,3 +182,4 @@ agent-bridge read qwen-left --lines 50
 - **ANSI:** `capture-pane` strips ANSI by default, so the captured output is clean text.
 - **Self-pane guard:** if `$TMUX_PANE` matches the resolved target, the script aborts. This makes it safe to drop into PATH without worrying about an agent talking to itself.
 - **Other agents calling this skill:** they don't need Claude Code's skill system — they just shell out to the `agent-bridge` binary with the same commands.
+- **Canonical path:** the tracked binary is `.agents/skills/agent-bridge/bin/agent-bridge` (per ADR-0042). The `~/.claude/skills` / `~/.qwen/skills` entries are generated symlink views into it — discovery helpers, not the source of truth.
