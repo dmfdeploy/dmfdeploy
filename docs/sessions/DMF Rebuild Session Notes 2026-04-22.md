@@ -13,9 +13,9 @@ in `DMF Orchestrator and Renumbering Plan 2026-04-22.md` §2.
 **Operator:** the originating operator. Session ran on a Mac mini at `<lan-ip>`.
 
 **Cluster:**
-- `k3s-node-01` <control-node-public-ip> / 10.0.0.2 / tailnet 100.64.0.14
-- `k3s-node-02` <node-public-ip> / 10.0.0.3 / tailnet 100.64.0.15
-- `k3s-node-03` <node-public-ip> / 10.0.0.4 / tailnet 100.64.0.16
+- `k3s-node-01` <control-node-public-ip> / 10.0.0.2 / tailnet <tailnet-ip>
+- `k3s-node-02` <node-public-ip> / 10.0.0.3 / tailnet <tailnet-ip>
+- `k3s-node-03` <node-public-ip> / 10.0.0.4 / tailnet <tailnet-ip>
 - Hetzner LB `dmf-traefik` healthy at `<lb-public-ip>`
 - Wildcard `*.dmf.example.com` → all 3 tailnet IPs
 - OpenBao unsealed, ESO AppRole live, Authentik blueprints applied
@@ -162,7 +162,7 @@ noisy during the session. Not broken — just worth knowing.
 - Ingress stack: Hetzner LB + public Traefik (class `traefik`), private
   Traefik on NodePort 30443 (class `traefik-private`).
 - cert-manager `Certificate cluster-tls` Ready; wildcard cert in TLSStore.
-- Tailscale up on all 3 nodes (100.64.0.14/15/16), socat forwarders live.
+- Tailscale up on all 3 nodes (<tailnet-ip>/<tailnet-ip>/<tailnet-ip>), socat forwarders live.
 - Longhorn default StorageClass, 2-replica.
 - Zot registry up.
 - Landing page serving `/` on both lanes.

@@ -558,7 +558,7 @@ down so the broken-init breakglass state cannot be reused:
    `DeleteProtection`.
 2. `bin/tf-apply.sh aliyun destroy -auto-approve`.
 3. Delete any `*.<lan-host>` Cloudflare A records pointing at the
-   Aliyun tailnet IPs (100.64.0.13, .14, .15).
+   Aliyun tailnet IPs (<tailnet-ip>, <tailnet-ip>, <tailnet-ip>).
 4. Delete the matching Headscale node entries
    (`headscale nodes delete --identifier <id> --force`).
 5. Confirm no operator-side state remains:

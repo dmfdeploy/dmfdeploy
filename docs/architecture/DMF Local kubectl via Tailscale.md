@@ -9,7 +9,7 @@
 ## TL;DR for a fresh agent
 
 1. The operator's Mac has a kubeconfig at `~/.kube/k3s-hetzner.yaml` — context name `hetzner-arm`.
-2. It points at the control node's **Tailscale IP** (`100.64.0.55:6443` at the time of writing), not the public IP. Traffic stays on the tailnet; the API server is **not** publicly exposed.
+2. It points at the control node's **Tailscale IP** (`<tailscale-node-01>:6443` at the time of writing), not the public IP. Traffic stays on the tailnet; the API server is **not** publicly exposed.
 3. TLS verifies against the cert hostname `k3s-node-01` via `tls-server-name:` in the kubeconfig — the IP target and the cert SAN don't have to match.
 4. `kubectl get nodes` from the operator's Mac is fine. **Don't use this from any other workstation, CI runner, or container** — the kubeconfig contains a cluster-admin client cert.
 
@@ -25,7 +25,7 @@ kubectl -n authentik get pods
 
 ### 1. Tailscale on the cluster
 
-Every node runs `tailscaled` (deployed by `playbooks/321-tailscale.yml` → role `base/tailscale`). Each node registers with an **ephemeral hostname** — a stable prefix (`k3s-node-01`, `k3s-node-02`, `k3s-node-03`) plus a random suffix per registration (e.g. `k3s-node-01-x2ntqe8u`). The IP (`100.64.0.55`) stays put while the node stays up; both name and IP can change on re-register.
+Every node runs `tailscaled` (deployed by `playbooks/321-tailscale.yml` → role `base/tailscale`). Each node registers with an **ephemeral hostname** — a stable prefix (`k3s-node-01`, `k3s-node-02`, `k3s-node-03`) plus a random suffix per registration (e.g. `k3s-node-01-x2ntqe8u`). The IP (`<tailscale-node-01>`) stays put while the node stays up; both name and IP can change on re-register.
 
 Old, offline ephemeral entries pile up in `tailscale status` over time. Don't use them.
 
@@ -33,10 +33,10 @@ Old, offline ephemeral entries pile up in `tailscale status` over time. Don't us
 
 | Tailnet IP | Name | Notes |
 |---|---|---|
-| `100.64.0.3` | `<operator-workstation>` | Operator workstation (operator tailnet account) |
-| `100.64.0.55` | `k3s-node-01-<suffix>` | Control plane, current API target |
-| `100.64.0.54` | `k3s-node-02-<suffix>` | Control plane (HA etcd) |
-| `100.64.0.53` | `k3s-node-03-<suffix>` | Control plane (HA etcd) |
+| `<tailscale-operator-workstation>` | `<operator-workstation>` | Operator workstation (operator tailnet account) |
+| `<tailscale-node-01>` | `k3s-node-01-<suffix>` | Control plane, current API target |
+| `<tailscale-node-02>` | `k3s-node-02-<suffix>` | Control plane (HA etcd) |
+| `<tailscale-node-03>` | `k3s-node-03-<suffix>` | Control plane (HA etcd) |
 
 The IPs above were correct as of 2026-05-06. **They change** when the cluster is redeployed (Path Y) or when `tailscaled` re-registers. To re-discover:
 
@@ -56,7 +56,7 @@ IP:  10.0.0.2, 10.0.0.3, 10.0.0.4 (private),
      <control-node-public-ip> (k3s-node-01 public IPv4)
 ```
 
-The Tailscale IP `100.64.0.55` is **not** in the SAN. Without intervention, `kubectl --server=https://100.64.0.55:6443` fails TLS verification because the cert's SAN list doesn't include that IP.
+The Tailscale IP `<tailscale-node-01>` is **not** in the SAN. Without intervention, `kubectl --server=https://<tailscale-node-01>:6443` fails TLS verification because the cert's SAN list doesn't include that IP.
 
 The role `base/k3s` does **not** currently pass `--tls-san` for the tailnet name or IP. Adding it is a planned hardening pass; until then, see (4).
 
@@ -67,7 +67,7 @@ A kubeconfig cluster entry can carry both:
 ```yaml
 clusters:
 - cluster:
-    server: https://100.64.0.55:6443    # connect to this address
+    server: https://<tailscale-node-01>:6443    # connect to this address
     tls-server-name: k3s-node-01        # but verify the cert against this hostname
     certificate-authority-data: ...
   name: hetzner-arm
@@ -79,14 +79,14 @@ clusters:
 
 ```bash
 # Pull k3s.yaml from the control node via Tailscale
-ssh -i ~/.ssh/id_ed25519_k3s_hetzner k3s-admin@100.64.0.55 \
+ssh -i ~/.ssh/id_ed25519_k3s_hetzner k3s-admin@<tailscale-node-01> \
   'sudo cat /etc/rancher/k3s/k3s.yaml' > /tmp/k3s-hetzner.yaml
 
 # Rewrite cluster/context/user names + add Tailscale IP and tls-server-name
 sed -e 's/name: default$/name: hetzner-arm/' \
     -e 's/cluster: default/cluster: hetzner-arm/' \
     -e 's/current-context: default/current-context: hetzner-arm/' \
-    -e 's|server: https://127.0.0.1:6443|server: https://100.64.0.55:6443\n    tls-server-name: k3s-node-01|' \
+    -e 's|server: https://127.0.0.1:6443|server: https://<tailscale-node-01>:6443\n    tls-server-name: k3s-node-01|' \
     /tmp/k3s-hetzner.yaml > ~/.kube/k3s-hetzner.yaml
 
 # Then awk-fix the user-block name to "hetzner-arm-admin" (sed above renames clusters too aggressively)
@@ -133,13 +133,13 @@ This document is the **explicit operator-authorized exception** to that rule, sc
 
 The rule still applies in spirit: don't sprawl admin credentials. The exception is narrow. If a future agent or operator wants to extend access to a second workstation or to grant scoped read-only access to a teammate, that's an RBAC question, not a "copy the kubeconfig" question — generate a `ServiceAccount` with a `ClusterRole`, mint a kubeconfig from its token, and document the scope.
 
-A pending hardening item is to amend `roles/base/k3s/` to pass `--tls-san=100.64.0.55` (or, better, a stable tailnet hostname once that's wired up via MagicDNS) so the `tls-server-name` workaround can be retired. That ADR/work isn't done yet.
+A pending hardening item is to amend `roles/base/k3s/` to pass `--tls-san=<tailscale-node-01>` (or, better, a stable tailnet hostname once that's wired up via MagicDNS) so the `tls-server-name` workaround can be retired. That ADR/work isn't done yet.
 
 ---
 
 ## Troubleshooting
 
-### `Unable to connect to the server: dial tcp 100.64.0.55:6443: i/o timeout`
+### `Unable to connect to the server: dial tcp <tailscale-node-01>:6443: i/o timeout`
 
 Tailscale either isn't up locally or the node has gone offline.
 
@@ -148,14 +148,14 @@ tailscale status | grep "k3s-node-01"
 # Verify the suffix on the row marked "active". If "offline", the node tailscaled died.
 ```
 
-### `tls: failed to verify certificate: x509: certificate is valid for k3s-node-01, k3s-node-02, ..., not 100.64.0.55`
+### `tls: failed to verify certificate: x509: certificate is valid for k3s-node-01, k3s-node-02, ..., not <tailscale-node-01>`
 
 `tls-server-name` is missing from the kubeconfig. Re-add it:
 
 ```yaml
 clusters:
 - cluster:
-    server: https://100.64.0.55:6443
+    server: https://<tailscale-node-01>:6443
     tls-server-name: k3s-node-01    # ← this line
 ```
 

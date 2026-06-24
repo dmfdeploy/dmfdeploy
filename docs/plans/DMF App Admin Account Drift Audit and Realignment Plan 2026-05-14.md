@@ -322,7 +322,7 @@ ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<aliyun-control-node-public-ip> <<
 SECRET_ID=$(sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n external-secrets \
   get secret openbao-approle -o jsonpath='{.data.id}' | base64 -d)
 TOKEN=$(sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n openbao exec openbao-0 -- \
-  bao write auth/approle/login role_id=f7322dda-1851-a915-5caf-04337449b84a secret_id="$SECRET_ID" -format=json | \
+  bao write auth/approle/login role_id=<openbao-role-id-app-admin> secret_id="$SECRET_ID" -format=json | \
   python3 -c "import sys, json; print(json.load(sys.stdin)['auth']['client_token'])")
 PW=$(sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n openbao exec openbao-0 -- \
   bao kv get -token="$TOKEN" -field=password secret/apps/zot/admin)

@@ -1597,7 +1597,7 @@ repeating for any architecture-scale work going forward.
 
 **`g2r6-foa9`** — Hetzner CAX21 ARM64, nbg1, cluster domain
 `<lan-host>`. Substitute this into every `<env-name>` placeholder
-in the skills + canonical docs. Three Tailscale nodes at `100.64.0.22-24`;
+in the skills + canonical docs. Three Tailscale nodes at `<tailscale-hetzner-node-ips>`;
 SSH key `~/.ssh/id_ed25519_k3s_hetzner` with `ansible_user=k3s-admin`.
 Retired envs still present in `dmf-env/inventories/`: `hetzner-arm`,
 `aliyun`, `aliyun-123` (history; do not push to).
@@ -1973,7 +1973,7 @@ followup.
   is NXDOMAIN) is the canonical operator push target. The handoff doc
   used "lab Forgejo on Hetzner" as the canonical target name; reality
   is the LAN one. Doc correction worth landing.
-- `forgejo.<lan-host>` resolves to `100.64.0.22-24` =
+- `forgejo.<lan-host>` resolves to `<tailscale-hetzner-node-ips>` =
   g2r6-foa9 in-cluster Forgejo (downstream consumer, not push target).
 - The 5 remaining public repos (umbrella `dmfdeploy`, `dmf-cms`,
   `dmf-central`, `dmf-infra`, `dmf-media`) follow the same procedure but
@@ -2292,7 +2292,7 @@ resolution.
 
 ### ✅ Aliyun — SLB backend registration fix landed (2026-05-11)
 
-Public-lane SLB `dmf-traefik-slb` (`47.87.134.99`) had zero backends.
+Public-lane SLB `dmf-traefik-slb` (`<aliyun-slb-ip>`) had zero backends.
 Two distinct defects, both aliyun-specific, both now fixed in playbook
 + live:
 

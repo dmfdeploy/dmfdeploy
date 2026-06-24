@@ -38,12 +38,12 @@ proving it all with a real from-scratch bootstrap and live passkey enrollment.
 python, not Ansible's 3.13 (fixed → `/usr/bin/python3 -m pip`); WP3 keyed sandbox detection off a
 non-existent `posture` field (fixed → `dmf_provider`/`dmf_release_profile`, proven `IS_SANDBOX=1`).
 
-## Verification (live, env `pzbi-ed8q` = `47-87-129-233.sslip.io`, Alibaba node 47.87.129.233)
+## Verification (live, env `pzbi-ed8q` = `<aliyun-sandbox-node-ip-dashed>.sslip.io`, Alibaba node <aliyun-sandbox-node-ip>)
 
 - **WP4 from-scratch bootstrap PASS** on `dmf-init:prod`, **no runtime patching**; `PLAY RECAP
   failed=0`, 37 pods Running, console healthz 200 (7 apps, OIDC), AWX token authenticates as
   `dmf-cms-svc`, checkpoint-3 backed up.
-- **sslip.io chain:** `console.47-87-129-233.sslip.io/healthz → 200`, `auth.… → 302`, **no
+- **sslip.io chain:** `console.<aliyun-sandbox-node-ip-dashed>.sslip.io/healthz → 200`, `auth.… → 302`, **no
   `/etc/hosts`**. (WP1 sslip.io default also proven in the real container render.)
 - **WP1/WP2/WP3 engaged:** zero missing-tool errors; trixie PyYAML pre-task ran; sandbox `unseal`
   step ran without `require security` abort.

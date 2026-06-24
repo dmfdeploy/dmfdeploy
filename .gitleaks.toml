@@ -86,3 +86,26 @@ paths = [
     '''(^|/)\.gitignore$''',
     '''(^|/)docs/DEVELOPMENT-AND-BUILD-RULES\.md$''',
 ]
+
+# Catch cloud-provider resource IDs (Aliyun VPC/VSwitch/ECS/SLB/vserver-group)
+# that fingerprint the exact cloud account. These must appear only as
+# placeholders (<aliyun-vpc-id>, etc.) in public docs. Generic shape — the
+# account-specific patterns live in the gitignored .gitleaks.local.toml.
+# Surfaced + tightened by umbrella #133 (the operator-private topology gate
+# was blind to these; the rsp- vserver-group form was missed by the manual
+# enumeration and only caught by the account-fingerprint sweep).
+[[rules]]
+id = "dmf-cloud-resource-id"
+description = "Aliyun/Hetzner cloud resource ID in tracked tree"
+regex = '''\b(vpc|vsw|i|lb|rsp|eni|eip|sg|nat)-[a-z0-9]{12,}\b'''
+tags = ["infrastructure-fingerprint", "dmf"]
+[[rules.allowlists]]
+description = "meta files that intentionally reference the scrub pattern itself"
+paths = [
+    '''^\.gitleaks\.toml$''',
+    '''^\.gitleaks\.local\.toml$''',
+    '''^bin/scrub-public-repos\.sh$''',
+    '''^bin/dmf-env-public-surface-gate\.sh$''',
+    '''^bin/export-scan\.sh$''',
+    '''^docs/plans/DMF Umbrella Security Audit Remediation Spec''',
+]
