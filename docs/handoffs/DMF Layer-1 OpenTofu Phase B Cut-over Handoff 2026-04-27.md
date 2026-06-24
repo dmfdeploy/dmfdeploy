@@ -72,7 +72,7 @@ module.cluster.hcloud_ssh_key.k3s                      # name=k3s-hetzner
 local_file.hosts_ini                                   # renders inventories/hetzner-arm/hosts.ini
 ```
 
-Floating IP `k3s-vip` (195.201.251.7, unassigned) is intentionally **not**
+Floating IP `k3s-vip` (<hetzner-floating-ip>, unassigned) is intentionally **not**
 in tofu — see `terraform/README.md` "Resources NOT in tofu".
 
 ## 4. Repos and current heads
@@ -372,7 +372,7 @@ manually recover, do not retry.** Per plan §13.
    follow-up (set `-lock=false` for `import|plan|apply|destroy` and
    leave read-only subcommands untouched).
 
-3. **Floating IP `k3s-vip`** (`195.201.251.7`, unassigned) is
+3. **Floating IP `k3s-vip`** (`<hetzner-floating-ip>`, unassigned) is
    intentionally out-of-tofu (plan §8). It's legacy from the pre-CCM
    MetalLB era. To retire it later: `hcloud floating-ip delete k3s-vip`
    after confirming nothing references the IP in any inventory or

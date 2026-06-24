@@ -126,7 +126,7 @@ nat/PREROUTING chain" — that explains why iptables DNAT was dropped, but
 does not explain why `tailscale serve` was rejected over socat. Revisit;
 switch cost is low.
 
-### 3.3 Hardcoded socat fallback IP `100.64.0.13`
+### 3.3 Hardcoded socat fallback IP `<tailnet-ip>`
 `roles/base/tailscale/tasks/main.yml:145`. If `tailscale_ip` fact is ever
 unset, socat binds to an IP that probably isn't this host. Not a fallback;
 a footgun. Should fail hard instead.
@@ -208,7 +208,7 @@ is down too. Lab-appropriate, but should be documented.
    and `tailscale_authkey` are defined and non-empty at the start of their
    consuming playbooks.
 2. Switch `--authkey=…` to `--authkey-file=…` in the Tailscale role.
-3. Replace the hardcoded socat fallback IP (`100.64.0.13`) with a hard fail.
+3. Replace the hardcoded socat fallback IP (`<tailnet-ip>`) with a hard fail.
 
 ### Should-fix before rebuild (each ~30 min)
 4. Prototype `tailscale serve` as a socat replacement; if it works, switch.

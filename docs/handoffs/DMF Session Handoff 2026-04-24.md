@@ -105,7 +105,7 @@ All break-glass artefacts on JuiceFS at
 **ESO AppRole** (`auth/approle/role/external-secrets`):
 - Policy `eso-reader` (read-only on `secret/*` + pki issue)
 - `secret_id_ttl=720h` (30d) — rotation every ~25 days
-- Current accessor: `c140e71f-0c82-0be2-f008-5de483bd1af8`,
+- Current accessor: `<openbao-accessor>`,
   expires **2026-05-24T18:15Z**
 - Next rotation due: **2026-05-19** (runbook:
   `System/ESO AppRole Rotation Runbook.md`)
@@ -229,7 +229,7 @@ work; each has a clean stopping point.
   Pod Recovery" for the remaining NFS CSI decision.
 - **OpenClaw local LLM** workstream is in `Playbooks/OpenClaw*` and
   is unrelated to DMF. Don't touch unless asked.
-- **VPS OpenBao** on Aliyun at `140.82.39.12` with wg2 tunnel — this
+- **VPS OpenBao** on Aliyun at `<operator-vps-ip>` with wg2 tunnel — this
   is the cross-site secrets platform, separate from the in-cluster
   OpenBao in the Hetzner DMF lab. See
   `openbao-secret-platform/docs/openbao-secret-platform.md`.

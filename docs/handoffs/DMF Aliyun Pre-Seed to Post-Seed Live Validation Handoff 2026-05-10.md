@@ -20,7 +20,7 @@ reproduces cleanly.
   inventory references). Historical handoff/review docs retain
   `aliyun-frankfurt` as a record.
 - **3 ECS instances** running k3s `v1.30.6+k3s1`:
-  `8.211.28.16` / `47.87.138.154` / `47.245.149.55`
+  `<aliyun-node-ip-a>` / `<aliyun-node-ip-b>` / `<aliyun-node-ip-c>`
   (private `10.0.0.90/91/92`).
 - **OpenBao** unsealed, ESO ClusterSecretStore reconciling, breakglass
   JSON at `<secure-store>/openbao-breakglass/aliyun/openbao-keys-automation.json`.
@@ -28,12 +28,12 @@ reproduces cleanly.
 - **Layer 6 apps deployed** (post-seed PLAY RECAP `failed=0`):
   Authentik, Prometheus / Loki / Grafana / Promtail, landing-page,
   NetBox, Forgejo, AWX, dmf-cms.
-- **Cloudflare** wildcard `*.<lan-host>` → `100.64.0.16/17/18`
-  (Tailscale CGNAT); apex `<lan-host>` → `47.87.134.99` (public
+- **Cloudflare** wildcard `*.<lan-host>` → `<tailscale-node-ips>`
+  (Tailscale CGNAT); apex `<lan-host>` → `<aliyun-slb-ip>` (public
   Traefik SLB).
-- **One** Aliyun SLB remaining (`dmf-traefik-slb`, `47.87.134.99`).
-  The redundant private-lane SLB `lb-gw8kyr3sslf03akbb87bv`
-  (`8.211.19.167`) was deleted — `traefik-private` Service patched to
+- **One** Aliyun SLB remaining (`dmf-traefik-slb`, `<aliyun-slb-ip>`).
+  The redundant private-lane SLB `<aliyun-lb-id>`
+  (`<aliyun-lb-ip>`) was deleted — `traefik-private` Service patched to
   `type: NodePort`; private lane reached via Tailscale DNAT → NodePort
   `30443`.
 
@@ -150,10 +150,10 @@ Brief summary; the plan has the full audit and rejected alternatives.
   (the broken passlib-generated hash didn't verify); StatefulSet
   rolled. Push works.
 - **Redundant SLB delete** — `traefik-private` Service patched to
-  `NodePort`; `lb-gw8kyr3sslf03akbb87bv` (8.211.19.167) deleted.
+  `NodePort`; `<aliyun-lb-id>` (<aliyun-lb-ip>) deleted.
   Tailscale DNAT to NodePort `30443` continues serving the private
   lane unchanged.
-- **DNS apex** — `<lan-host> A 47.87.134.99` (public Traefik SLB)
+- **DNS apex** — `<lan-host> A <aliyun-slb-ip>` (public Traefik SLB)
   created in Cloudflare; landing-page served by the public lane. Stale
   `*.aliyun.<lan-host>` records deleted.
 - **SSH known_hosts** — ssh-keyscan of the 3 cluster nodes; entries

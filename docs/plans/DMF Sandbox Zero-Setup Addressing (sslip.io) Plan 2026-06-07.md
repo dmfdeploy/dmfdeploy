@@ -47,7 +47,7 @@ console.<node-ip-dashed>.sslip.io → <node-ip>
 netbox.<node-ip-dashed>.sslip.io  → <node-ip>       … etc.
 ```
 
-The base domain becomes `<node-ip-dashed>.sslip.io` (e.g. `47-87-129-233.sslip.io`) instead of
+The base domain becomes `<node-ip-dashed>.sslip.io` (e.g. `<aliyun-sandbox-node-ip-dashed>.sslip.io`) instead of
 `<label>.dmf.test`. **Nothing else changes** — still host-based, OIDC untouched, apps
 untouched; the local CA issues a wildcard for `*.<node-ip-dashed>.sslip.io`. Because
 `<ip>.sslip.io` is a *valid domain* (unlike a bare IP), the **WebAuthn RP ID is valid and
@@ -141,7 +141,7 @@ sites**: `:371` (`validate_inputs`), `:553` (`collect_inputs_interactive`), `:74
   The **only** opt-outs are `sandbox.addressing: hosts` **or** an explicit
   `sandbox.base_domain`; both yield `<label>.dmf.test`. **Otherwise default** to
   `<node-ip-dashed>.sslip.io` — dash-encode `SANDBOX_NODE_IP` (`.`→`-`, e.g.
-  `47.87.129.233`→`47-87-129-233`). IPv4 only; if `SANDBOX_NODE_IP` is not an IPv4, fall back
+  `<aliyun-sandbox-node-ip>`→`<aliyun-sandbox-node-ip-dashed>`). IPv4 only; if `SANDBOX_NODE_IP` is not an IPv4, fall back
   to `.dmf.test` and `warn`.
 - `SANDBOX_NODE_IP` must be the **browser-reachable** IP (already = `ansible_host`; for a NAT'd
   node that's the public IP, **not** `k3s_node_ip`).
@@ -153,13 +153,13 @@ sites**: `:371` (`validate_inputs`), `:553` (`collect_inputs_interactive`), `:74
 - Update the `:541` info copy and the `:1855` summary line (no longer always `.dmf.test`).
 - SANs already render `*.${BASE_DOMAIN}` + `${BASE_DOMAIN}` — no change beyond the value.
 **Acceptance:** `bin/init-wizard.sh --non-interactive answers.yaml` (provider `sandbox`, no
-label, `node_ip=47.87.129.233`) → rendered `manifest.yaml`, `inventory/group_vars/all/main.yml`
-(`dmf_sandbox_base_domain`), and `hosts` carry `47-87-129-233.sslip.io` and SAN
-`*.47-87-129-233.sslip.io`. The opt-out paths — `sandbox.addressing: hosts` **or** an explicit
+label, `node_ip=<aliyun-sandbox-node-ip>`) → rendered `manifest.yaml`, `inventory/group_vars/all/main.yml`
+(`dmf_sandbox_base_domain`), and `hosts` carry `<aliyun-sandbox-node-ip-dashed>.sslip.io` and SAN
+`*.<aliyun-sandbox-node-ip-dashed>.sslip.io`. The opt-out paths — `sandbox.addressing: hosts` **or** an explicit
 `sandbox.base_domain` — still yield `<label>.dmf.test`; a bare `sandbox.label` does **not**
 (it stays sslip.io). *(Verified 2026-06-07: codex render matrix — `default_no_label` &
-`label_default` → `47-87-129-233.sslip.io`, `hosts_optout` → `demo.dmf.test`, `explicit_base`
-→ `custom.example.test`; `dig console.47-87-129-233.sslip.io` → `47.87.129.233`.)*
+`label_default` → `<aliyun-sandbox-node-ip-dashed>.sslip.io`, `hosts_optout` → `demo.dmf.test`, `explicit_base`
+→ `custom.example.test`; `dig console.<aliyun-sandbox-node-ip-dashed>.sslip.io` → `<aliyun-sandbox-node-ip>`.)*
 
 ## WP2 — enrollment invite reusable within TTL  ·  repo `dmf-infra`
 **File:** `k3s-lab-bootstrap/roles/stack/operator/authentik/files/ak_passkey_invitation.py`

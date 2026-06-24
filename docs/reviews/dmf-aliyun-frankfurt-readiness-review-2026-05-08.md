@@ -177,7 +177,7 @@ output "vswitch_id" {
 Current contents:
 
 ```yaml
-openbao_secrets_role_id: "85e58ff2-7388-b9cf-2fed-ea52869d8603"
+openbao_secrets_role_id: "<openbao-role-id-netbox>"
 openbao_url: "https://<wg-mesh-ip>:8200"
 openbao_keychain_service: "openbao-aliyun-frankfurt"
 ```
@@ -186,7 +186,7 @@ Compare to the canonical hetzner-arm (`dmf-env/inventories/hetzner-arm/group_var
 
 ```yaml
 openbao_url: "https://<wg-mesh-ip>:8200"
-openbao_role_id: "85e58ff2-7388-b9cf-2fed-ea52869d8603"
+openbao_role_id: "<openbao-role-id-netbox>"
 openbao_secret_path: "secret/data/k3s-hetzner/credentials"
 openbao_keychain_service: "openbao-approle-dmf-infra"
 openbao_keychain_account: "secret-id"
@@ -252,7 +252,7 @@ age-keygen -y ~/.config/sops/age/keys.txt   # prints the pubkey
 
 ### S2. MEDIUM: AppRole role_id reused across environments
 
-**Both** `inventories/hetzner-arm/group_vars/all/openbao_secrets.yml` and `aliyun-frankfurt/group_vars/all/openbao_secrets.yml` carry `openbao_role_id: 85e58ff2-7388-b9cf-2fed-ea52869d8603`.
+**Both** `inventories/hetzner-arm/group_vars/all/openbao_secrets.yml` and `aliyun-frankfurt/group_vars/all/openbao_secrets.yml` carry `openbao_role_id: <openbao-role-id-netbox>`.
 
 The `openbao_keychain_service` values differ (`openbao-approle-dmf-infra` vs `openbao-aliyun-frankfurt`), suggesting *different secret IDs* but the *same role*. Either:
 - Intentional: a single AppRole `dmf-infra` whose policy permits `secret/data/k3s-hetzner/*` AND `secret/data/k3s-aliyun/*`. One role, per-env secret_id rotation. Acceptable.
@@ -270,7 +270,7 @@ The `openbao_keychain_service` values differ (`openbao-approle-dmf-infra` vs `op
 
 ### S5. OK: SSH allowlist matches operator posture
 
-`harden_ssh_allow_ipv4: ["140.82.39.12/32"]` (Vultr operator VPS, confirmed 2026-04-16 per inline comment).
+`harden_ssh_allow_ipv4: ["<operator-vps-ip>/32"]` (Vultr operator VPS, confirmed 2026-04-16 per inline comment).
 `harden_ssh_allow_ipv6: ["2a05:f480:1800:b82:5400:5ff:fed9:a4ae/128"]`.
 TCP 80/443 from 0.0.0.0/0, ICMP from 0.0.0.0/0 — expected for public ingress; matches the experiment-phase stance per ADR-0004.
 
@@ -324,7 +324,7 @@ Estimated 3–4 hours for an experienced Ansible/Tofu operator.
 | 4 | `dmf-env/bin/run-playbook.sh:85` | Replace `"$SCRIPT_DIR/export-openbao-vars.sh" "$ENV_NAME" "$TMP_VARS_FILE"` with `"$SCRIPT_DIR/bootstrap-secrets.sh" export-vars "$ENV_NAME" "$TMP_VARS_FILE"`. (After §3 makes export-vars provider-aware.) Optional: delete `export-openbao-vars.sh` once hetzner-arm flow re-tested. | `bin/run-playbook.sh hetzner-arm ../dmf-infra/k3s-lab-bootstrap/playbooks/200-baseline.yml --check` (regression-test hetzner) and same for aliyun. |
 | 5 | `dmf-env/terraform/aliyun-frankfurt/main.tf` lines 165–183 + `outputs.tf` | Wrap `cloudflare_record.cluster_apex` and `cloudflare_record.cluster_auth` in `count = length(data.alicloud_slbs.dmf_traefik.slbs) > 0 ? 1 : 0`. Add `output "vswitch_id"` to both `outputs.tf` and the module's `outputs.tf`. This permits a two-pass apply (infra first, ingress second, DNS via re-apply). | `bin/tf-apply.sh aliyun-frankfurt plan` — should produce a plan even when SLB doesn't exist yet. |
 | 6 | `dmf-env/.sops.yaml` lines 14, 22 | Replace both TODO placeholders with `age-keygen -y ~/.config/sops/age/keys.txt` output. | `sops --encrypt --in-place /tmp/throwaway.yaml` (where the file matches a `path_regex`) — should succeed. |
-| 7 | `dmf-env/inventories/aliyun-frankfurt/group_vars/all/openbao_secrets.yml` | Rename `openbao_secrets_role_id` → `openbao_role_id`. Add `openbao_secret_path: "secret/data/k3s-aliyun/credentials"` and `openbao_keychain_account: "secret-id"`. Confirm role_id intent (S2) — either keep shared `85e58ff2-…` or mint new. | `ansible-inventory -i inventories/aliyun-frankfurt --list 2>&1 | jq '.["_meta"].hostvars[][\"openbao_role_id\"]'` returns the value (not null). |
+| 7 | `dmf-env/inventories/aliyun-frankfurt/group_vars/all/openbao_secrets.yml` | Rename `openbao_secrets_role_id` → `openbao_role_id`. Add `openbao_secret_path: "secret/data/k3s-aliyun/credentials"` and `openbao_keychain_account: "secret-id"`. Confirm role_id intent (S2) — either keep shared `<openbao-role-id-netbox>` or mint new. | `ansible-inventory -i inventories/aliyun-frankfurt --list 2>&1 | jq '.["_meta"].hostvars[][\"openbao_role_id\"]'` returns the value (not null). |
 
 ---
 
@@ -435,7 +435,7 @@ The bootstrap provision/configure split (Tier 1, 2026-05-08) was intentionally a
 
 These should be answered before Phase A starts:
 
-1. **Role ID intent (S2):** is `85e58ff2-…` shared on purpose (one role, two policies, two secret_ids) or should aliyun mint its own role?
+1. **Role ID intent (S2):** is `<openbao-role-id-netbox>` shared on purpose (one role, two policies, two secret_ids) or should aliyun mint its own role?
 2. **Unseal flow ownership:** is `bin/unseal-openbao.sh` going to be parametrized for env, or forked? Affects skill `dmf-openbao-unseal` updates.
 3. **Two-pass Tofu acceptable?** Alternative is a separate `terraform/aliyun-frankfurt-dns/` workspace that runs after the cluster is up. Two-pass is simpler.
 4. **Prefer fix-then-apply or apply-then-fix?** Implementing items 1-3 of Phase A is ~3h work; user may want to start ECS spend ASAP and patch in flight. Recommend fix-first — failed Tofu apply with partial cluster is more painful than the wait.

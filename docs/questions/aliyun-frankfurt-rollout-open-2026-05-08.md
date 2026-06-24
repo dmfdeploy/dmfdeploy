@@ -8,7 +8,7 @@
 
 ## Q1: AppRole role_id scope (Review S2)
 
-Both `hetzner-arm` and `aliyun-frankfurt` inventories carry `openbao_role_id: 85e58ff2-…`. Two interpretations:
+Both `hetzner-arm` and `aliyun-frankfurt` inventories carry `openbao_role_id: <openbao-role-id-netbox>`. Two interpretations:
 
 | Option | Description |
 |---|---|
@@ -19,11 +19,11 @@ Both `hetzner-arm` and `aliyun-frankfurt` inventories carry `openbao_role_id: 85
 
 **Evidence:**
 
-1. **`bin/bootstrap-operator-approle.sh:55`** takes a `scope` arg defaulting to `k3s-hetzner` and uses it as "the first path segment under secret/data/". The script comment at line 40 confirms this is the policy boundary. The hetzner role_id `85e58ff2-…` therefore has policy scoped to `secret/data/k3s-hetzner/*` only — it cannot read `secret/data/k3s-aliyun/*`.
+1. **`bin/bootstrap-operator-approle.sh:55`** takes a `scope` arg defaulting to `k3s-hetzner` and uses it as "the first path segment under secret/data/". The script comment at line 40 confirms this is the policy boundary. The hetzner role_id `<openbao-role-id-netbox>` therefore has policy scoped to `secret/data/k3s-hetzner/*` only — it cannot read `secret/data/k3s-aliyun/*`.
 2. **`manifests/aliyun-frankfurt.yaml:133`** declares `key_root: secret/k3s-aliyun` — explicitly env-segregated.
 3. **Per-env breakglass dirs** (`<secure-store>/openbao-breakglass/hetzner-lab/` vs `aliyun-frankfurt/`) and per-env keychain services (`openbao-approle-dmf-infra` vs `openbao-aliyun-frankfurt`) confirm the design intent is *per-env OpenBao instances*, not a shared one.
 
-The current `85e58ff2-…` value in `aliyun-frankfurt/openbao_secrets.yml` is a **copy-paste bug**, not intentional sharing. It would not work in practice (policy denies reads on `secret/data/k3s-aliyun/*`).
+The current `<openbao-role-id-netbox>` value in `aliyun-frankfurt/openbao_secrets.yml` is a **copy-paste bug**, not intentional sharing. It would not work in practice (policy denies reads on `secret/data/k3s-aliyun/*`).
 
 **Sub-issue uncovered while answering:** `openbao_url: "https://<wg-mesh-ip>:8200"` is identical in both inventories. This cannot be right if each env has its own OpenBao — the aliyun cluster's OpenBao needs a different endpoint reachable from the operator (likely a different Tailscale IP, or the cluster's public ingress at `https://aliyun.<lan-host>/...`). Flag as **Phase A item #7a** below.
 

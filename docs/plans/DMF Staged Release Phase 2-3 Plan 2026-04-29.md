@@ -29,7 +29,7 @@ date: 2026-04-29
 | **1: OpenTofu Cut-over** | Infrastructure provisioning | ✅ **step 8 DONE, step 9 DONE early** | dmf-env main |
 | | Step 8: deprecate provision-nodes.sh, update DEPLOYMENT.md | ✅ **landed** `b81e0a1` | — |
 | | Step 9: destroy/recreate rehearsal on k3s-node-03 | ✅ **DONE early** — all 3 servers recreated by tofu | — |
-| | k3s-vip floating IP verification | ⏳ **still pending** — VIP 195.201.251.7 not yet assigned to new nodes | terraform/README.md |
+| | k3s-vip floating IP verification | ⏳ **still pending** — VIP <hetzner-floating-ip> not yet assigned to new nodes | terraform/README.md |
 | **2: Playbooks** | 650-dmf-cms.yml landing | ⏳ **drafted, test gap** | dmf-infra main |
 | | 694-born-inventory.yml landing | ⏳ **drafted, role review pending** | dmf-infra main |
 | | 695-zot-oidc.yml landing | ⏳ **drafted, Authentik provider validation missing** | dmf-infra main |
@@ -115,7 +115,7 @@ These must be resolved **before** Phase 1 production gate. Highlighted from erro
 
 ### 5.1 Floating IP k3s-vip verification (Phase 1 gate blocker)
 
-**Gap:** Floating IP 195.201.251.7 is intentionally **not** in tofu state (see `terraform/README.md`
+**Gap:** Floating IP <hetzner-floating-ip> is intentionally **not** in tofu state (see `terraform/README.md`
 "Resources NOT in tofu"). But k3s-vip is critical for multi-zone failover. Rehearsal on
 k3s-node-03 cannot verify vip reachability unless it's pre-assigned before destroy/recreate.
 
@@ -131,7 +131,7 @@ k3s-node-03 cannot verify vip reachability unless it's pre-assigned before destr
 **Shell command (Phase 1 step 9 preflight, after step 8 lands):**
 ```bash
 # Verify k3s-vip is bound to k3s-node-03
-ssh -i ~/.ssh/id_ed25519 root@10.0.0.4 ip addr show | grep -q 195.201.251.7 \
+ssh -i ~/.ssh/id_ed25519 root@10.0.0.4 ip addr show | grep -q <hetzner-floating-ip> \
   || { echo "ERROR: k3s-vip not bound to k3s-node-03"; exit 1; }
 echo "✓ k3s-vip preflight OK"
 ```
@@ -437,7 +437,7 @@ These are **not** blockers but should inform Phase 2-3 planning:
 1. **Step 8: Land cut-over changes in dmf-env (Week 1, EOD 2026-05-02)**
    - Deprecate `bin/provision-nodes.sh` (add banner: "DEPRECATED: provisioning moved to OpenTofu").
    - Update `DEPLOYMENT.md` §3 "Infrastructure Layer" to reference `terraform/hetzner-arm/` as source of truth.
-   - Update `terraform/README.md` §"Resources NOT in tofu" to explicitly document k3s-vip (195.201.251.7) decision.
+   - Update `terraform/README.md` §"Resources NOT in tofu" to explicitly document k3s-vip (<hetzner-floating-ip>) decision.
    - Verify `tofu plan` is clean (no changes).
    - Commit: `git add -A && git commit -m "chore: k3s Layer-1 cut-over to OpenTofu — deprecate provision-nodes.sh"`
    - **Gate:** Step 8 commit must be reviewed by yourself and merged to main.
@@ -452,7 +452,7 @@ These are **not** blockers but should inform Phase 2-3 planning:
        || { echo "ERROR: tofu plan reports changes; abort"; exit 1; }
      
      # Verify k3s-vip is bound to k3s-node-03
-     ssh -i ~/.ssh/id_ed25519 root@10.0.0.4 ip addr show | grep -q 195.201.251.7 \
+     ssh -i ~/.ssh/id_ed25519 root@10.0.0.4 ip addr show | grep -q <hetzner-floating-ip> \
        || { echo "ERROR: k3s-vip not bound to k3s-node-03"; exit 1; }
      
      # Verify etcd 3-member quorum
@@ -493,7 +493,7 @@ These are **not** blockers but should inform Phase 2-3 planning:
        || { echo "ERROR: post-rehearsal etcd quorum lost"; exit 1; }
      
      # Verify k3s-vip still bound
-     kubectl get nodes -L external-dns.alpha.kubernetes.io/acquire | grep k3s-node-01 | grep -q 195.201.251.7 \
+     kubectl get nodes -L external-dns.alpha.kubernetes.io/acquire | grep k3s-node-01 | grep -q <hetzner-floating-ip> \
        || { echo "WARNING: k3s-vip not visible in node labels"; }
      
      # Final tofu plan clean
@@ -514,7 +514,7 @@ These are **not** blockers but should inform Phase 2-3 planning:
 **Rollback procedure (if rehearsal fails):**
 - If tofu fails mid-apply: `tofu unlock -force` (if lock is stuck), retry `tofu apply -lock=false`.
 - If etcd quorum is lost: manually `kubectl delete node k3s-node-03`, then `tofu apply -lock=false` to provision fresh node.
-- If k3s-vip is unbound: manually assign via `hcloud floating-ip assign 195.201.251.7 k3s-node-03` (CLI).
+- If k3s-vip is unbound: manually assign via `hcloud floating-ip assign <hetzner-floating-ip> k3s-node-03` (CLI).
 
 ---
 

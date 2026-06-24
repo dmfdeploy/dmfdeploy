@@ -35,8 +35,8 @@ Then read, in order:
 
 | Resource | Status | Details |
 |---|---|---|
-| VPC `dmf-vpc` | ✅ Created | `vpc-gw8gqk3seakwtjcmjciel`, CIDR 10.0.0.0/16 |
-| VSwitch `dmf-vswitch-private` | ✅ Created | `vsw-gw8o9jrtiynhlpuu451lp`, CIDR 10.0.0.0/24 |
+| VPC `dmf-vpc` | ✅ Created | `<aliyun-vpc-id>`, CIDR 10.0.0.0/16 |
+| VSwitch `dmf-vswitch-private` | ✅ Created | `<aliyun-vsw-id>`, CIDR 10.0.0.0/24 |
 | Security Group `k3s-nodes` | ✅ Created | 5 rules: SSH×IPv4, SSH×IPv6, HTTP, HTTPS, ICMP, intra-subnet |
 | SSH Key Pair `k3s-aliyun` | ✅ Created | ed25519, uploaded to Alicloud |
 | 3× ECS instances `k3s-node-{01,02,03}` | ✅ Running | `ecs.g8y.large` (2 vCPU, 8GB ARM/Yitian 710), Debian 13.4, 80GB cloud_essd |
@@ -47,9 +47,9 @@ Then read, in order:
 
 | Node | Public IP | Private IP | SSH verified? |
 |---|---|---|---|
-| `k3s-node-01` | 47.87.135.133 | 10.0.0.223 | ✅ `k3s-admin` login works |
-| `k3s-node-02` | 8.211.29.238 | 10.0.0.224 | — (expected same key, untested) |
-| `k3s-node-03` | 47.87.142.151 | 10.0.0.225 | — (expected same key, untested) |
+| `k3s-node-01` | <aliyun-node-1-ip> | 10.0.0.223 | ✅ `k3s-admin` login works |
+| `k3s-node-02` | <aliyun-node-2-ip> | 10.0.0.224 | — (expected same key, untested) |
+| `k3s-node-03` | <aliyun-node-3-ip> | 10.0.0.225 | — (expected same key, untested) |
 
 **State file:** `<secure-store>/terraform-states/aliyun-frankfurt/terraform.tfstate`
 

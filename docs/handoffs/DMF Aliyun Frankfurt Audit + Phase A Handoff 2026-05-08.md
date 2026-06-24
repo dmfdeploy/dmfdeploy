@@ -52,7 +52,7 @@ See [`docs/questions/aliyun-frankfurt-rollout-open-2026-05-08.md`](../questions/
 
 | Q | Decision |
 |---|---|
-| Q1: AppRole role_id scope | **B — separate role per env.** Hetzner role_id (`85e58ff2-…`) was a copy-paste leak into aliyun. Mint a new role on the *aliyun* OpenBao after bootstrap via `bin/bootstrap-operator-approle.sh dmf-infra openbao-aliyun-frankfurt secret-id k3s-aliyun`. |
+| Q1: AppRole role_id scope | **B — separate role per env.** Hetzner role_id (`<openbao-role-id-netbox>`) was a copy-paste leak into aliyun. Mint a new role on the *aliyun* OpenBao after bootstrap via `bin/bootstrap-operator-approle.sh dmf-infra openbao-aliyun-frankfurt secret-id k3s-aliyun`. |
 | Q2: Unseal flow ownership | **A — parametrize `bin/unseal-openbao.sh`** (Phase B; not blocking first apply). Existing env vars already abstract location-specific values; add a positional `<env>` arg. |
 | Q3: Two-pass Tofu | **Two-pass guard inside the same workspace.** Implemented in `31f6a78`. |
 | Q4: Fix-then-apply | **Fix-then-apply.** Operator-confirmed "no rush to start ECS." |

@@ -3,7 +3,7 @@
 **Date:** 2026-05-11
 **Audience:** Next session — assume zero prior context.
 **Scope:** `dmf-env/tasks/aliyun/`, ADR-0019.
-**Status at end of session:** `dmf-traefik-slb` (`47.87.134.99`) backend
+**Status at end of session:** `dmf-traefik-slb` (`<aliyun-slb-ip>`) backend
 group now has all 3 ECS nodes registered; public lane serves HTTPS 200
 end-to-end. Both root-cause defects fixed in the playbook and live.
 
@@ -31,7 +31,7 @@ Tailscale-CGNAT-vs-cloud-internal-services decision record.
 
 ## Root-cause investigation summary
 
-Reproduced live against `aliyun` cluster (3× ECS, `47.87.134.99` SLB):
+Reproduced live against `aliyun` cluster (3× ECS, `<aliyun-slb-ip>` SLB):
 
 | Probe | Observation | Conclusion |
 |---|---|---|
@@ -42,7 +42,7 @@ Reproduced live against `aliyun` cluster (3× ECS, `47.87.134.99` SLB):
 | `ip route get 100.100.100.200` | `via 10.0.0.253 dev eth0` | Routing is correct |
 | `sudo iptables -L ts-input -n -v` | `DROP !tailscale0 100.64.0.0/10` | Tailscale's drop covers IMDS |
 | `sudo conntrack -L -d 100.100.100.200` | `SYN_RECV` (reply never reaches the socket) | Confirmed drop is on the reply path |
-| `sudo iptables -I ts-input -i eth0 -s 100.100.100.200 -j RETURN` then curl IMDS | returns `i-gw83n5fk9eofw2vjkaqu` | Fix concept validated |
+| `sudo iptables -I ts-input -i eth0 -s 100.100.100.200 -j RETURN` then curl IMDS | returns `<aliyun-instance-id>` | Fix concept validated |
 | Restart CCM, watch logs | `dial tcp 100.100.0.49:443: i/o timeout` (VPC API) | Scope is the full `100.100.0.0/16`, not just IMDS |
 | Widen rule to `100.100.0.0/16`, restart CCM | CCM healthy, but vgroups still `ServerCount: 0` | Second defect lurking |
 | Watch CCM logs | repeating `warning: can not find correspond node k3s-node-02 for endpoint 10.42.1.4` | Node exists, but CCM's NodeLister returns nil — points at a filter |
@@ -95,11 +95,11 @@ apps wanting IPs in `100.100.0.0/16`).
 - `tailscale-aliyun-internal-allow.service` `active` + `enabled` on all
   3 nodes. Confirmed re-arms after `systemctl restart tailscaled`.
 - `node-role.kubernetes.io/master` label removed from all 3 nodes.
-- `dmf-traefik-slb` `47.87.134.99`:
-  - vserver group `rsp-gw8oo8f03nzuu` (HTTP/30162) — 3 backends
-    (`i-gw83n5fk9eofw2vjkaqu/.91/.92`)
-  - vserver group `rsp-gw8c0aj5qmxsz` (HTTPS/30705) — 3 backends
-- End-to-end: `curl -k --resolve <lan-host>:443:47.87.134.99
+- `dmf-traefik-slb` `<aliyun-slb-ip>`:
+  - vserver group `<aliyun-vserver-group-http>` (HTTP/30162) — 3 backends
+    (`<aliyun-instance-id>/.91/.92`)
+  - vserver group `<aliyun-vserver-group-https>` (HTTPS/30705) — 3 backends
+- End-to-end: `curl -k --resolve <lan-host>:443:<aliyun-slb-ip>
   https://<lan-host>/` → HTTP 200 (landing page).
 
 ## What's next

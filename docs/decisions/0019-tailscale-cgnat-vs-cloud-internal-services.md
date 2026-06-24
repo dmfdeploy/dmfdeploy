@@ -9,7 +9,7 @@
 ## Context
 
 Aliyun's `aliyun` environment surfaced an SLB-backend-empty regression
-during the 2026-05-11 session: the `dmf-traefik-slb` (`47.87.134.99`)
+during the 2026-05-11 session: the `dmf-traefik-slb` (`<aliyun-slb-ip>`)
 existed and had listeners, but its vserver groups were empty
 (`ServerCount: 0`) — apps were reachable only via the private/Tailscale
 lane, not via the public hostname.
