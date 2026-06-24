@@ -271,7 +271,7 @@ The `openbao_keychain_service` values differ (`openbao-approle-dmf-infra` vs `op
 ### S5. OK: SSH allowlist matches operator posture
 
 `harden_ssh_allow_ipv4: ["<operator-vps-ip>/32"]` (Vultr operator VPS, confirmed 2026-04-16 per inline comment).
-`harden_ssh_allow_ipv6: ["2a05:f480:1800:b82:5400:5ff:fed9:a4ae/128"]`.
+`harden_ssh_allow_ipv6: ["<operator-vps-ipv6>/128"]`.
 TCP 80/443 from 0.0.0.0/0, ICMP from 0.0.0.0/0 — expected for public ingress; matches the experiment-phase stance per ADR-0004.
 
 ### S6. MEDIUM: SSH user keypair must exist before tofu apply
