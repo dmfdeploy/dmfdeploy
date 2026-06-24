@@ -23,8 +23,9 @@ shelved, kept for provenance.
 - [DMF Pre-Release Compliance Readiness Plan 2026-05-11](DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md) — 2026-05-11
 - [DMF Tier A Phase Execution Plan 2026-05-11](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — 2026-05-11
 
-## Executed (81)
+## Executed (82)
 
+- [DMF Sandbox Substrate-Agnostic Onboarding Plan 2026-06-24](DMF%20Sandbox%20Substrate-Agnostic%20Onboarding%20Plan%202026-06-24.md) — 2026-06-24 (executed 2026-06-24)
 - [DMF AWX Scale-to-Zero Speed-Up Plan 2026-06-21](DMF%20AWX%20Scale-to-Zero%20Speed-Up%20Plan%202026-06-21.md) — 2026-06-21 (executed 2026-06-22)
 - [DMF Constrained-Node k3s Control-Plane Stability Plan 2026-06-21](DMF%20Constrained-Node%20k3s%20Control-Plane%20Stability%20Plan%202026-06-21.md) — 2026-06-21 (executed 2026-06-21)
 - [DMF NMOS Crosspoint Media Function Plan 2026-06-21](DMF%20NMOS%20Crosspoint%20Media%20Function%20Plan%202026-06-21.md) — 2026-06-21 (executed 2026-06-22)
