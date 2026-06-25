@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 # check-docs.sh — offline documentation gate for the DMF umbrella.
 # Hard-fails on missing/broken frontmatter, dangling superseded_by targets,
-# stale plans index, or inconsistent ADR file↔INDEX cross-references.
+# stale plans index, inconsistent ADR file↔INDEX cross-references, or a broken
+# doc-to-doc relative .md link anywhere under docs/ (issue #84).
 # Prints warnings for issues that don't block (missing tracking_issue,
 # unresolved links, closed tracking issues).
 #
-# Scope (pass 1): docs/plans/ frontmatter + links, docs/decisions/ index↔files.
+# Scope: docs/plans/ frontmatter + links, docs/decisions/ index↔files, and
+# doc-to-doc link integrity across all of docs/ (links to sibling repos, code,
+# generated skill views, or <placeholder> targets are out of scope — not
+# verifiable offline).
 #
 # Usage:
 #   bin/check-docs.sh          # run all checks; exit 1 on any hard failure
@@ -195,6 +199,74 @@ if [ "${#ADR_BAD[@]}" -gt 0 ]; then
     FAILED=1
 else
     echo "  ✓ ADR file↔INDEX consistent"
+fi
+
+# ── HARD CHECK 5: doc-to-doc relative .md link integrity (all of docs/) ─
+# Catches a rename/move/delete that breaks a cross-reference between docs —
+# enforcing the "don't rename without sweeping callers" rule (issue #84). Scope
+# is deliberately narrow and deterministic: only links from a docs/ file to
+# another file UNDER docs/ are checked. Links to sibling repos
+# (../../dmf-*/...), code, generated/gitignored skill views, or <placeholder>
+# targets are a different concern and cannot be verified offline here.
+
+echo "── check: doc-to-doc link integrity"
+
+LINK_REPORT="$(python3 - <<'PYEOF'
+import os, re, subprocess, urllib.parse
+
+docs_root = os.path.abspath("docs")
+# All tracked files under docs/ (respects .gitignore; stable ordering).
+out = subprocess.run(
+    ["git", "-c", "core.quotepath=false", "ls-files", "-z", "docs/"],
+    capture_output=True, text=True,
+)
+files = [p for p in out.stdout.split("\0") if p.endswith(".md")]
+# Inline links [text](dest). The alternation allows one level of balanced
+# parens in dest so paren-named docs resolve, e.g.
+# "(../architecture/DMF EBU Mapping (2026-04-25).md)".
+# Known-unsupported (deliberately out of scope — none present in docs/ today):
+# reference-style links ([x][ref] + [ref]: dest), inline titles
+# ([x](dest "t")), and angle-bracket destinations ([x](<dest>)).
+link_re = re.compile(r"\]\(((?:[^()]|\([^()]*\))+)\)")
+broken = []
+for rel in files:
+    try:
+        text = open(rel, encoding="utf-8", errors="replace").read()
+    except OSError:
+        continue
+    base = os.path.dirname(rel)
+    for match in link_re.finditer(text):
+        target = match.group(1).strip()
+        if target.startswith(("http://", "https://", "#", "mailto:")):
+            continue
+        path_part = urllib.parse.unquote(target).split("#")[0]
+        if not path_part.endswith(".md"):
+            continue
+        if "<" in path_part:  # <placeholder> refs — out of scope
+            continue
+        candidate = os.path.normpath(os.path.join(base, path_part))
+        abs_candidate = os.path.abspath(candidate)
+        # Doc-to-doc only: the target must resolve to another file UNDER docs/.
+        # Links pointing outside docs/ (sibling repos like ../../dmf-infra/...,
+        # code, or generated/gitignored skill views) are a different concern and
+        # cannot be verified offline from the umbrella docs alone.
+        if os.path.relpath(abs_candidate, docs_root).startswith(".."):
+            continue
+        if not os.path.exists(abs_candidate):
+            broken.append(f"{rel}: broken link '{target}' -> {candidate}")
+for line in broken:
+    print(line)
+PYEOF
+)"
+
+if [ -n "$LINK_REPORT" ]; then
+    echo "  ✗ broken doc-to-doc links (rename/move/delete left a dangling reference):" >&2
+    while IFS= read -r line; do
+        echo "    ${line}" >&2
+    done <<< "$LINK_REPORT"
+    FAILED=1
+else
+    echo "  ✓ all doc-to-doc links resolve"
 fi
 
 # ── WARNINGS + promoted gates (W2 fails since 2026-06-11) ───────────────────
