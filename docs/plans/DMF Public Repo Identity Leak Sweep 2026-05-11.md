@@ -75,7 +75,7 @@ The current `bin/sync-to-github.sh` does not exist yet (Release Model §1 — de
 1.1 Add a fourth BLOCKING category `Operator identity` to `bin/scrub-public-repos.sh`:
 
 ```
-\bloz\b                    | operator username
+\b<operator>\b             | operator username
 /Users/<operator>                 | operator macOS home
 /Volumes/<operator>               | operator secure-store mount
 /home/<operator>                  | operator Linux home (catalog playbook leak)
@@ -180,7 +180,7 @@ A successful sweep means:
 
 ## Risks & non-obvious traps
 
-- `\bloz\b` is a broad regex and will false-positive on unrelated technical
+- `\b<operator>\b` is a broad regex and will false-positive on unrelated technical
   terms (none seen in the current survey, but possible in future content).
   Mitigation: word-boundary anchoring + allowlist of legitimate self-references.
 - Re-amending the v0.1.0 orphan commit changes its hash. Any external reference

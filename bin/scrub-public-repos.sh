@@ -80,6 +80,8 @@ SECRET_PATTERNS=(
     '\bxoxb-[A-Za-z0-9-]{20,}|Slack bot token'
     '"client_token"\s*:\s*"[a-z0-9-]{20,}"|Vault/bao client_token literal'
     '"secret_id"\s*:\s*"[a-z0-9-]{20,}"|AppRole secret_id literal'
+    '\bage1[0-9a-z]{58}\b|SOPS age recipient (public key, operator-setup fingerprint)'
+    'AGE-SECRET-KEY-1[0-9A-Z]{58}|SOPS age secret key (identity)'
 )
 
 # Internal topology + operator identity — the concrete literals are
@@ -143,7 +145,6 @@ ALLOWLIST_PATHS=(
     'docs/reviews/dmf-mxl-upstream-profile-and-contribution-review-2026-06-01\.md'
     '(^|/)docs/DEVELOPMENT-AND-BUILD-RULES\.md$'
     '(^|/)docs/decisions/[0-9]+'
-    '^STATUS\.md$'
     'docs/architecture/DMF Release and Contribution Model\.md'
     'docs/plans/DMF Release and Contribution Model Implementation Plan 2026-05-11\.md'
     'docs/reviews/dmf-move1-gate2-ssh-credential-incident-2026-05-05\.md'

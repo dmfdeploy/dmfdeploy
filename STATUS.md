@@ -172,7 +172,7 @@ Preparing the clean first public GitHub release. **Canonical handoff:**
   Spec: `docs/plans/DMF Workstream D — GitHub-First Governance Execution Spec 2026-06-09.md`
   (codex-agreed, 4 rounds; grep-proof verified). **Commits are LOCAL-ONLY — NOT pushed**
   (dmf-runbooks especially: no push until E1 batches; dmf-init/dmf-promsd local sign-off
-  is `Loz`/local — Workstream A's clean orphan import re-authors).
+  is `<operator>`/local — Workstream A's clean orphan import re-authors).
 - ✅ **Workstream E1** (before-flip PR-gate CI) — committed 2026-06-09 across all 9 repos
   (umbrella `8b58421`; dmf-cms `2313bc6`, dmf-runbooks `186745b`, dmf-central `ee2391d`,
   dmf-infra `6a34c63`, dmf-media `6faa2de`, dmf-init `921ed45`, dmf-env `7b96916`,
@@ -197,10 +197,10 @@ Preparing the clean first public GitHub release. **Canonical handoff:**
   `docs/plans/DMF Workstream A — Clean-History Import and Canonical Flip Execution Spec
   2026-06-09.md` (+ Pre-A Tooling + CI Recovery Fix specs). **Tooling:** `bin/export-scan.sh`
   (clean orphan + scan exact tree under **pinned gitleaks 8.21.2**, NEVER pushes;
-  recreate via `gh` + SSH key `~/.ssh/forgejo_loz`); sync-to-github.sh RETIRED.
+  recreate via `gh` + SSH key `~/.ssh/forgejo_<operator>`); sync-to-github.sh RETIRED.
   - **CI-recovery event (2026-06-09→10):** first flip went red — harness used wrong gitleaks
     (8.30.1 vs CI's 8.21.2 → version skew), qwen's actionlint sha256 was wrong, dmf-cms had a
-    `Owner: Loz` miss, + per-stack CI bugs never run on real runners. Recovery (codex multi-
+    `Owner: <operator>` miss, + per-stack CI bugs never run on real runners. Recovery (codex multi-
     round): pinned harness to 8.21.2, fixed actionlint sha256, sanitized dmf-infra forgejo-
     chart private-key placeholders, yamllint `.yamllint` relaxed + ignore Helm templates,
     ansible-lint `.ansible-lint profile:min`, dmf-cms react-router 7.17.0 (CVE) + StaticFiles
@@ -2368,7 +2368,7 @@ documented.
 **Phase A landed (Qwen-Coder, 15:55–16:07):**
 - `dmf-infra` (033d438): `219-host-verify.yml` hcloud block gated `when: cluster_ingress_provider_tasks is search('hetzner_ccm')`.
 - `dmf-env` (31f6a78): `bootstrap-secrets.sh` env-aware (hcloud OR alicloud) for schema/init/seed-bao/export-vars; `run-playbook.sh` swapped to `bootstrap-secrets.sh export-vars`; `tasks/aliyun_slb.yml` real Alicloud CCM install (no longer a stub); two-pass Cloudflare A-record guard in Tofu module; `vswitch_id` output added; openbao_secrets.yml copy-paste role_id removed with post-bootstrap instructions.
-- `dmf-env` (806b6bd): `.sops.yaml` populated with real age pubkey (Phase A #6) — both hetzner-arm and aliyun blocks reference `age1x0gntu7fy3vu7uh4mdgvl2n52wwfmd35wulh0g620ce964stj9rqnhjc8z`; TODOs removed.
+- `dmf-env` (806b6bd): `.sops.yaml` populated with real age pubkey (Phase A #6) — both hetzner-arm and aliyun blocks reference `<operator-age-recipient>`; TODOs removed.
 - `dmf-env` (cbccf8b, earlier): full aliyun scaffold — manifest, Tofu module, inventory group_vars, `tf-apply.sh` Alicloud branch, `.sops.yaml` recipient block.
 
 **Phase B still open** (does not block first apply):

@@ -116,7 +116,10 @@ SCAN_VIOLATIONS=""
 while IFS= read -r line; do
   [ -n "$line" ] || continue
   SCAN_VIOLATIONS="${SCAN_VIOLATIONS}  [identity] ${line}"$'\n'
-done < <(cd "$TREE" && git grep -nIE "$DMF_PRIVATE_IDENTITY_REGEX" 2>/dev/null || true)
+# -i: operator-name forms can leak title-cased (capitalized given/family
+# name), so match case-insensitively — aligned with scrub-public-repos.sh's
+# (?i) PCRE identity arrays (#137).
+done < <(cd "$TREE" && git grep -nIiE "$DMF_PRIVATE_IDENTITY_REGEX" 2>/dev/null || true)
 while IFS= read -r line; do
   [ -n "$line" ] || continue
   SCAN_VIOLATIONS="${SCAN_VIOLATIONS}  [topology] ${line}"$'\n'
