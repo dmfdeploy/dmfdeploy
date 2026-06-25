@@ -400,7 +400,7 @@ Read these at session start:
 - `project_dmf_no_wg2_openbao.md` — DMF excludes wg2-OpenBao; tokens come from local config shim
 - `project_tofu_juicefs_lock.md` — pass `-lock=false` to all tofu write subcommands on JuiceFS state
 - `feedback_homelab_patience.md` — concurrent-task safety
-- `feedback_loz_career_push.md` — Forgejo SSH push pattern (general)
+- `feedback_<operator>_career_push.md` — Forgejo SSH push pattern (general)
 
 ## 11. If this handoff is stale
 

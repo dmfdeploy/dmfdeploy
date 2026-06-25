@@ -404,7 +404,7 @@ Read these at session start for context:
 - `feedback_claude_code_is_on_mac_mini.md` — operator host topology
 - `project_dmf_no_wg2_openbao.md` — DMF does not involve wg2-OpenBao; tokens come from local config shim
 - `feedback_homelab_patience.md` — concurrent-task safety
-- `feedback_loz_career_push.md` — Forgejo SSH push pattern (general)
+- `feedback_<operator>_career_push.md` — Forgejo SSH push pattern (general)
 
 ## 13. Known gotchas (likely to hit)
 

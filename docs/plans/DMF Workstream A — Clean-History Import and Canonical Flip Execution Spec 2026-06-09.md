@@ -132,7 +132,7 @@ orphan export and scans **that exact tree**:
    the export tree before the orphan commit" is satisfied because D/E1 are already on the
    tip). Verify they're present (`.github/`, `CONTRIBUTING.md`, `SECURITY.md`, `LICENSE`).
 4. `git init` the scratch, set the orphan author/committer to a clean identity
-   (`znerol2 <<user-id>+<handle>@users.noreply.github.com>` — NOT `Loz`/local; closes the
+   (`znerol2 <<user-id>+<handle>@users.noreply.github.com>` — NOT `<operator>`/local; closes the
    D/E1 local-signoff identity leak), `git add -A`,
    `git commit -s -m "Initial public release v<VERSION>"` (signed-off → satisfies DCO),
    `git tag v<VERSION>`.

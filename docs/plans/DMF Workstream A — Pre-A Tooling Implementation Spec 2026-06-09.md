@@ -103,7 +103,7 @@ never runs.
    -C "$SCRATCH"`.
 6. **Sanity:** confirm governance/CI rode along — `.github/`, `CONTRIBUTING.md`, `SECURITY.md`,
    `LICENSE` exist in `$SCRATCH`; else FATAL (means D/E1 not committed on that repo's main).
-7. Orphan commit with a CLEAN identity (not Loz/local):
+7. Orphan commit with a CLEAN identity (not <operator>/local):
    ```bash
    git -C "$SCRATCH" init -q -b main
    git -C "$SCRATCH" -c user.name="znerol2" -c user.email="<user-id>+<handle>@users.noreply.github.com" \

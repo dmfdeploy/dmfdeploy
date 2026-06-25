@@ -24,7 +24,7 @@
 | Commit | What |
 |---|---|
 | `cbccf8b` (14:43) | Aliyun Frankfurt scaffold — manifest, Tofu module, inventory group_vars, `tf-apply.sh` Alicloud branch, `tf-destroy.sh` guard, `.sops.yaml` recipient block, `terraform/README.md` rewrite for both envs. |
-| `806b6bd` (16:06) | Phase A #6 — `.sops.yaml` populated with real age pubkey (`age1x0gntu7fy3vu7uh4mdgvl2n52wwfmd35wulh0g620ce964stj9rqnhjc8z`); both hetzner-arm and aliyun-frankfurt blocks updated, TODOs removed. |
+| `806b6bd` (16:06) | Phase A #6 — `.sops.yaml` populated with real age pubkey (`<operator-age-recipient>`); both hetzner-arm and aliyun-frankfurt blocks updated, TODOs removed. |
 | `31f6a78` (15:55) | Phase A items #2–#5, #7 from the readiness review:<br>• `bootstrap-secrets.sh` env-aware schema validation (hcloud OR alicloud), `cmd_init` reads `~/.secure/aliyun/.ay-dmfdeploy`, `cmd_seed_bao` writes `secret/platform/alicloud`, `cmd_export_vars` emits `vault_alicloud_*`, doctor/status display alicloud fields.<br>• `run-playbook.sh` swapped from `export-openbao-vars.sh` to `bootstrap-secrets.sh export-vars` (provider-agnostic).<br>• `tasks/aliyun_slb.yml` real Alicloud CCM install (secret, manifest, deployment patch, readiness wait, providerID patch) — no longer a stub.<br>• `terraform/modules/aliyun-cluster/main.tf` Cloudflare A-records guarded behind `count = local.has_slb ? 1 : 0` for two-pass apply.<br>• `terraform/aliyun-frankfurt/outputs.tf` adds `vswitch_id` for CCM.<br>• `inventories/aliyun-frankfurt/group_vars/all/openbao_secrets.yml` removes the copy-paste role_id and `openbao_url` (placeholders + post-bootstrap instructions).<br>• `inventories/.../main.yml` adds `alicloud_ccm_region` and `alicloud_ccm_vswitch_id` for CCM tasks. |
 
 ### dmf-infra

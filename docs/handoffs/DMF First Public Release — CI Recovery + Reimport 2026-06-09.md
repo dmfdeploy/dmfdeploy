@@ -18,7 +18,7 @@ Root causes (codex-confirmed, no real secret leaked):
 2. **actionlint sha256 wrong** (qwen's pin `...effaecb2b73cc44584f5`; real
    `...effaecce67290e7e0757`) → `guard` actionlint job failed on all repos.
 3. **dmf-cms operator-identity miss:** `docs/DEVELOPMENT-AND-BUILD-RULES.md:437` =
-   `**Owner:** Loz` reached the public commit (that doc path is allowlisted in the gitleaks
+   `**Owner:** <operator>` reached the public commit (that doc path is allowlisted in the gitleaks
    operator-identity rule). Not a credential, but violates the no-operator-identity invariant
    → in the public history → reimport required.
 4. **Per-stack CI bugs** (E1 workflows never run on real runners until now): ansible
@@ -44,7 +44,7 @@ Root causes (codex-confirmed, no real secret leaked):
 1. **Harness:** `export-scan.sh` downloads+verifies+version-asserts pinned **gitleaks 8.21.2**
    (no system fallback); corrected actionlint sha256 in all `guard.yml`.
 2. **CI/content fixes** (codex D1-D7) committed to each repo's local main.
-3. **dmf-cms:** fix `Owner: Loz`.
+3. **dmf-cms:** fix `Owner: <operator>`.
 4. **Re-verify** each with the corrected harness (pinned 8.21.2) + local actionlint.
 5. **Per repo (guardrails 2-5):** re-check 0 external activity → delete → recreate →
    push corrected orphan → flip public → re-harden (rebase-only + 3 rulesets + secret
