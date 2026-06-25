@@ -42,6 +42,7 @@ Setup / inspection:
        the agent's pane, or target another with %pane. --agent overrides the
        auto-detected agent type; --force steals the role from another pane.
   agent-bridge unregister <role|%pane|--here>
+  agent-bridge heal <role|--all>                 (re-stamp a DOWN role's lost marker; explicit, fail-closed)
   agent-bridge doctor                            (live marker map + drift/collisions)
   agent-bridge list                              (registered roles -> live panes)
   agent-bridge panes [session]                   (raw tmux pane listing)
@@ -65,6 +66,22 @@ EOF
 
 die() { echo "agent-bridge: $*" >&2; exit 1; }
 need() { command -v "$1" >/dev/null || die "missing dependency: $1"; }
+
+# self_bin — absolute path to THIS script, symlinks resolved. The reply-id stamp
+# uses it so recipients get a command that runs regardless of their PATH: the
+# bare name `agent-bridge` is frequently NOT on a sandboxed agent's PATH (and the
+# repo's install symlink historically landed in ~/bin, which no shell rc adds),
+# so a bare-name reply instruction failed with "command not found".
+self_bin() {
+  local src="${BASH_SOURCE[0]:-$0}" dir
+  while [[ -h "$src" ]]; do
+    dir=$(cd -P "$(dirname "$src")" >/dev/null 2>&1 && pwd)
+    src=$(readlink "$src")
+    [[ "$src" != /* ]] && src="$dir/$src"
+  done
+  dir=$(cd -P "$(dirname "$src")" >/dev/null 2>&1 && pwd)
+  printf '%s/%s\n' "$dir" "$(basename "$src")"
+}
 
 load_session() {
   # Explicit override wins (useful when invoked from outside tmux, or a shell
@@ -165,13 +182,19 @@ resolve_target() {
   local matches; matches=$(panes_for_role "$role")
   local n=0; [[ -n "$matches" ]] && n=$(grep -c . <<<"$matches")
   if [[ "$n" -eq 0 ]]; then
-    local hint=""
+    # Fail closed: no live pane carries the marker => DOWN, refuse (never guess a
+    # pane from cached state — that would be fail-open and could mis-route). If
+    # the agent is still running and only the marker was lost, the OPERATOR can
+    # consciously recover with `agent-bridge heal` (see cmd_heal).
+    local hint="" recover=""
     if [[ -f "$CONFIG" ]] && jq -e --arg r "$role" '.roles[$r]' "$CONFIG" >/dev/null 2>&1; then
-      hint=" (it was registered before but no live pane carries the marker now — the agent was stopped or the pane closed)"
+      hint=" (registered before, but no live pane carries the marker now — the agent was stopped, the pane closed/restarted, or it was repurposed)"
+      recover="  Recover if the agent is still running (marker lost): agent-bridge heal $role
+"
     fi
     RT_ERR="role '$role' is DOWN: no live pane carries marker ${OPT_ROLE}=$role${hint}.
-  Re-bind it: from that agent's pane run  ->  agent-bridge register $role
-  See the map:                            ->  agent-bridge doctor"
+${recover}  Re-bind from that agent's pane:                     agent-bridge register $role
+  See the map:                                        agent-bridge doctor"
     return 1
   elif [[ "$n" -gt 1 ]]; then
     RT_ERR="role '$role' COLLISION: marker ${OPT_ROLE}=$role is on multiple panes:
@@ -411,11 +434,18 @@ cmd_send() {
   if [[ "$reply_id" == 1 && "${AGENT_BRIDGE_NO_REPLY_ID:-0}" != 1 ]]; then
     local sr; sr=$(self_role)
     if [[ -n "$sr" ]]; then
-      local from="$sr"
-      [[ "$sr" != %* && -n "${TMUX_PANE:-}" ]] && from="$sr (${TMUX_PANE})"
+      local from="$sr" bin fallback=""; bin=$(self_bin)
+      # When we have our own pane id, advertise it as a fallback: direct pane-id
+      # routing bypasses role/session resolution, which is the leg that fails for
+      # a sandboxed recipient that cannot resolve the session by name.
+      if [[ "$sr" != %* && -n "${TMUX_PANE:-}" ]]; then
+        from="$sr (${TMUX_PANE})"
+        fallback="[agent-bridge] If that reports DOWN or \"no session\", use the direct pane id:  ${bin} send ${TMUX_PANE} -- \"<your reply>\"
+"
+      fi
       text="[agent-bridge] This prompt is from: ${from}
-[agent-bridge] Reply by running exactly:  agent-bridge send ${sr} -- \"<your reply>\"
----
+[agent-bridge] Reply by running exactly:  ${bin} send ${sr} -- \"<your reply>\"
+${fallback}---
 ${text}"
     fi
   fi
@@ -514,6 +544,45 @@ cmd_configure() {
   echo "auto-registered. Rename a role with: agent-bridge register <name> %pane --force; then: agent-bridge doctor" >&2
 }
 
+# heal — EXPLICIT, conscious recovery of a role whose marker was lost while the
+# agent kept running. Deliberately NOT automatic: auto-rebinding from cached state
+# would be fail-open (detect_agent is best-effort, not routing truth — it cannot
+# tell a same-type *replacement* from the original conversation). Run by hand when
+# you know the agent is still alive. Re-stamps @ab_role/@ab_agent on the pane the
+# mirror remembers — ONLY if that pane is live, carries no other role, and still
+# confidently runs the recorded agent type. Otherwise it refuses and tells you to
+# `register` explicitly. `heal --all` sweeps every DOWN role in the config.
+cmd_heal() {
+  need jq; need tmux
+  [[ $# -ge 1 ]] || die "heal: <role> required (or: heal --all)"
+  [[ -f "$CONFIG" ]] || die "heal: no config at $CONFIG (nothing remembered to heal)"
+  local roles
+  if [[ "$1" == "--all" ]]; then roles=$(jq -r '.roles | keys[]' "$CONFIG" 2>/dev/null); else roles="$1"; fi
+  local r healed=0
+  for r in $roles; do
+    if [[ -n "$(panes_for_role "$r")" ]]; then
+      echo "agent-bridge: '$r' already has a live marker — nothing to heal" >&2; continue
+    fi
+    local hp ha hcur hlive
+    hp=$(jq -r --arg r "$r" '.roles[$r].last_pane_id // empty' "$CONFIG" 2>/dev/null || true)
+    ha=$(jq -r --arg r "$r" '.roles[$r].agent // empty' "$CONFIG" 2>/dev/null || true)
+    [[ -n "$hp" ]] || { echo "agent-bridge: '$r' not in config — register it from its pane" >&2; continue; }
+    pane_exists "$hp" || { echo "agent-bridge: '$r' remembered pane $hp is gone — register from the agent's live pane" >&2; continue; }
+    hcur=$(pane_opt "$hp" "$OPT_ROLE")
+    [[ -z "$hcur" ]] || { echo "agent-bridge: refusing — pane $hp already carries role '$hcur', not '$r'" >&2; continue; }
+    hlive=$(detect_agent "$hp")
+    if [[ -z "$ha" || "$hlive" != "$ha" ]]; then
+      echo "agent-bridge: refusing to heal '$r' @ $hp — recorded agent='$ha' but live looks like '${hlive}' (not a confident match). If correct, run: agent-bridge register $r $hp" >&2
+      continue
+    fi
+    set_pane_opt "$hp" "$OPT_ROLE" "$r"
+    set_pane_opt "$hp" "$OPT_AGENT" "$ha"
+    echo "agent-bridge: healed '$r' -> $hp (agent=$ha). NOTE: tmux cannot tell a same-type *restart* from the original session — run 'agent-bridge ping $r' if conversation continuity matters." >&2
+    healed=1
+  done
+  [[ "$healed" == 1 ]] || return 1
+}
+
 main() {
   [[ $# -gt 0 ]] || { usage; exit 0; }
   need tmux
@@ -521,6 +590,7 @@ main() {
   case "$cmd" in
     register)   cmd_register "$@" ;;
     unregister) cmd_unregister "$@" ;;
+    heal)       cmd_heal "$@" ;;
     doctor)     cmd_doctor "$@" ;;
     list)       cmd_list "$@" ;;
     verify)     cmd_verify "$@" ;;
