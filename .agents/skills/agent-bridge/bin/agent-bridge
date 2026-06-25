@@ -103,6 +103,19 @@ load_session() {
 # socket even when list-panes is permitted.
 session_has_panes() { tmux list-panes -t "$1" -F '#{pane_id}' >/dev/null 2>&1; }
 
+# no_session_die <session> — fail with a message that points at the usual cause.
+# A sandboxed agent (e.g. codex workspace-write) can `ls` the tmux socket file
+# but its sandbox blocks the socket connect() (a network-class op), so tmux
+# reports the session as absent. That's a sandbox-policy problem, not a missing
+# session — say so instead of a bare "no session".
+no_session_die() {
+  die "no tmux session '$1' (or its tmux socket is unreachable).
+  If you are a sandboxed agent, the sandbox may be blocking the tmux socket
+  connect even though the socket file is listable — approve the command, run
+  from an unsandboxed shell, or set AGENT_BRIDGE_SESSION to the right session.
+  Sanity check from your shell:  tmux list-sessions"
+}
+
 pane_field() {
   # pane_field <target> <field-name>   -> value or empty (never fails the script)
   tmux display -t "$1" -p "#{$2}" 2>/dev/null || true
@@ -322,7 +335,7 @@ cmd_unregister() {
 cmd_panes() {
   need tmux
   local sess="${1:-$(load_session)}"
-  session_has_panes "$sess" || die "no tmux session '$sess'"
+  session_has_panes "$sess" || no_session_die "$sess"
   printf "%-5s %-5s %-12s %-18s %s\n" ID IDX SIZE COMMAND TITLE
   tmux list-panes -t "$sess" -a \
     -F '#{pane_id}|#{pane_index}|#{pane_width}x#{pane_height}|#{pane_current_command}|#{pane_title}' \
@@ -333,7 +346,7 @@ cmd_panes() {
 cmd_doctor() {
   need tmux
   local sess; sess=$(load_session)
-  session_has_panes "$sess" || die "no tmux session '$sess'"
+  session_has_panes "$sess" || no_session_die "$sess"
   echo "agent-bridge doctor (session: $sess; self=${TMUX_PANE:-not-in-tmux})"
   echo
   printf "%-6s %-14s %-10s %-10s %-16s %s\n" PANE ROLE REG-AGENT LIVE STATUS TITLE
@@ -527,7 +540,7 @@ cmd_configure() {
     esac
   done
   sess="${sess:-$(load_session)}"
-  session_has_panes "$sess" || die "no tmux session '$sess'"
+  session_has_panes "$sess" || no_session_die "$sess"
   mkdir -p "$(dirname "$CONFIG")"
   jq -n --arg s "$sess" '{session:$s, roles:{}}' > "$CONFIG"
   local pane cmd idx agent role
@@ -558,7 +571,10 @@ cmd_heal() {
   [[ -f "$CONFIG" ]] || die "heal: no config at $CONFIG (nothing remembered to heal)"
   local roles
   if [[ "$1" == "--all" ]]; then roles=$(jq -r '.roles | keys[]' "$CONFIG" 2>/dev/null); else roles="$1"; fi
-  local r healed=0
+  # Exit non-zero only if a requested role REMAINS down (couldn't be healed).
+  # A role that's already live is a success no-op (so `heal --all` on a healthy
+  # session returns 0, not a misleading failure).
+  local r failed=0
   for r in $roles; do
     if [[ -n "$(panes_for_role "$r")" ]]; then
       echo "agent-bridge: '$r' already has a live marker — nothing to heal" >&2; continue
@@ -566,21 +582,20 @@ cmd_heal() {
     local hp ha hcur hlive
     hp=$(jq -r --arg r "$r" '.roles[$r].last_pane_id // empty' "$CONFIG" 2>/dev/null || true)
     ha=$(jq -r --arg r "$r" '.roles[$r].agent // empty' "$CONFIG" 2>/dev/null || true)
-    [[ -n "$hp" ]] || { echo "agent-bridge: '$r' not in config — register it from its pane" >&2; continue; }
-    pane_exists "$hp" || { echo "agent-bridge: '$r' remembered pane $hp is gone — register from the agent's live pane" >&2; continue; }
+    [[ -n "$hp" ]] || { echo "agent-bridge: '$r' not in config — register it from its pane" >&2; failed=1; continue; }
+    pane_exists "$hp" || { echo "agent-bridge: '$r' remembered pane $hp is gone — register from the agent's live pane" >&2; failed=1; continue; }
     hcur=$(pane_opt "$hp" "$OPT_ROLE")
-    [[ -z "$hcur" ]] || { echo "agent-bridge: refusing — pane $hp already carries role '$hcur', not '$r'" >&2; continue; }
+    [[ -z "$hcur" ]] || { echo "agent-bridge: refusing — pane $hp already carries role '$hcur', not '$r'" >&2; failed=1; continue; }
     hlive=$(detect_agent "$hp")
     if [[ -z "$ha" || "$hlive" != "$ha" ]]; then
       echo "agent-bridge: refusing to heal '$r' @ $hp — recorded agent='$ha' but live looks like '${hlive}' (not a confident match). If correct, run: agent-bridge register $r $hp" >&2
-      continue
+      failed=1; continue
     fi
     set_pane_opt "$hp" "$OPT_ROLE" "$r"
     set_pane_opt "$hp" "$OPT_AGENT" "$ha"
     echo "agent-bridge: healed '$r' -> $hp (agent=$ha). NOTE: tmux cannot tell a same-type *restart* from the original session — run 'agent-bridge ping $r' if conversation continuity matters." >&2
-    healed=1
   done
-  [[ "$healed" == 1 ]] || return 1
+  return $failed
 }
 
 main() {
