@@ -54,12 +54,19 @@ agent — so resolution stays honest.
 - A role resolves by searching for the live pane whose `@ab_role == <role>`.
   **Fail closed:** zero matches ⇒ the role is `DOWN` and the send is **refused**
   (re-register); two matches ⇒ `COLLISION` ⇒ refused. No silent mis-route.
+- **`send` never auto-recovers.** A lost marker stays `DOWN` and the send is
+  refused — the bridge will not guess a pane from cached state (that would be
+  fail-open). Recovery is an **explicit, conscious** step: `agent-bridge heal
+  <role>` (below). This keeps the automatic path strictly fail-closed.
 - `@ab_agent` records the agent type at register time; a `send` **refuses** if the
   pane's live program *confidently* contradicts it (the pane was repurposed),
   unless `--force`.
 - Every `send` **auto-stamps the sender's own reply address** onto the prompt,
   read from *your* pane's `@ab_role` marker, so the recipient routes its answer
-  back to exactly you. Opt out with `--no-reply-id`.
+  back to exactly you. The reply instruction carries the **absolute path** of the
+  bridge binary (not the bare name `agent-bridge`), so the recipient can run it
+  even when the binary is not on its `PATH` (common for sandboxed agents). Opt
+  out with `--no-reply-id`.
 - `agent-bridge doctor` prints the live marker map and flags drift / unregistered
   agent panes / down roles / collisions. `agent-bridge verify [role]` gives a
   per-role PASS/FAIL.
@@ -106,7 +113,7 @@ live session is inferred automatically.
 For convenience, symlink onto PATH (so other agents in the session can call it too):
 
 ```
-ln -s ~/.claude/skills/agent-bridge/bin/agent-bridge ~/bin/agent-bridge
+ln -s ~/.claude/skills/agent-bridge/bin/agent-bridge ~/.local/bin/agent-bridge
 ```
 
 ## Commands
@@ -114,6 +121,7 @@ ln -s ~/.claude/skills/agent-bridge/bin/agent-bridge ~/bin/agent-bridge
 ```
 agent-bridge register <role> [%pane] [--agent T] [--force]   # bind a role to a pane (durable marker)
 agent-bridge unregister <role|%pane|--here>                  # clear a binding
+agent-bridge heal <role|--all>                      # explicit recovery of a DOWN role's lost marker
 agent-bridge doctor                                 # live marker map + drift/unregistered/down/collision
 agent-bridge list                                   # registered roles → live panes
 agent-bridge verify [role]                          # identity check; PASS/FAIL/DRIFT per role
@@ -169,12 +177,27 @@ agent-bridge read qwen-left --lines 50
   no role yet; `DRIFT` means a pane was repurposed; `COLLISION` means a role name
   is on two panes (`unregister` the wrong one).
 - **Reply-id is automatic:** you no longer hand-write "reply to claude". The
-  sent prompt already carries `Reply by running: agent-bridge send <you> -- …`,
-  resolved from your own pane's `@ab_role` marker. Recipients should follow it
-  verbatim.
+  sent prompt already carries `Reply by running: <abs-path>/agent-bridge send
+  <you> -- …`, resolved from your own pane's `@ab_role` marker and stamped with
+  the bridge's absolute path so it runs even off-`PATH`. Recipients should follow
+  it verbatim.
 - **Fail-closed, not mis-route:** `send`/`ask` refuse when a role is down,
   ambiguous, or the pane was confidently repurposed to a different agent. That's
   the whole point — re-`register` rather than `--force` (override only when sure).
+- **`heal` is a convenience fallback, not a guarantee:** when a role goes `DOWN`
+  because its marker was lost but the agent is *still running*, `agent-bridge heal
+  <role>` re-stamps the marker from the remembered pane — saving you a trip to
+  that pane to `register`. It refuses unless the remembered pane is live, free of
+  any other role, and still confidently the recorded agent type. **Residual
+  risk:** tmux cannot distinguish the original conversation from a *same-type
+  agent restarted in that pane*, so `heal` (like the markers themselves) can bind
+  to a fresh session. Follow it with `agent-bridge ping <role>` when continuity
+  matters. When unsure, `register` from the live pane instead.
+- **Off-PATH replies:** the auto reply-id stamp uses the bridge's **absolute
+  path** and offers the sender's raw `%id` as a fallback, because direct pane-id
+  routing skips role/session resolution — the leg that fails for a sandboxed
+  recipient that can't resolve the session by name. If a `send <role>` reply
+  reports `DOWN`/`no session`, use the `send %id` line instead.
 - **Wait time:** default `--wait 10s` is for quick lookups. For real work give 30–120s. The user can also `read` again later if needed — output is just scrollback.
 - **Multi-line:** bracketed paste preserves newlines correctly in Claude Code, codex TUI, and Qwen. Plain Enter at the end submits.
 - **No-submit mode:** `--no-submit` types into the input buffer without pressing Enter — useful for letting the user review and submit themselves.
