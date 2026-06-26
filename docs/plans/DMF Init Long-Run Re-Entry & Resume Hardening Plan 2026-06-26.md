@@ -171,37 +171,43 @@ is fetched once on mount and failures are **silently ignored**
   the specific poll code** or a same-site/cookie-attachment edge on those routes.
   Track + fix distinctly — it is an **adjacent weakness, not the lockout cause**.
 
-### (c) Durable resume — make restart survival real, reconcile with tmpfs
+### (c) Resume durability — DECIDED by ADR-0044: stay stateless, no host persistence
 
-> **This is a contract change, not just a bug fix (codex).** `README.md:34-36`
-> and the bootstrap plan (2026-06-02 §15-17, §52-60) explicitly promise
-> **tmpfs-only runtime state** and **safe `docker rm`**. Persisting *anything*
-> across restart — even non-secret cursor/meta — breaks the stateless/disposable
-> story unless we **deliberately change that contract**. Treat (c) as needing a
-> short **ADR**, decided before code.
+> **Resolved in [ADR-0044](../decisions/0044-dmf-init-stateless-tmpfs-recovery-model.md)
+> (Proposed, codex gate-reviewed).** The contract change was *considered and
+> rejected*: dmf-init **stays stateless** rather than persisting a cursor to host
+> disk. Rationale — facets (a)+(b) remove the need to restart a *healthy*
+> container, so the only restart left is a genuine crash, covered by the recovery
+> bundle. The decision tightens, rather than loosens, the contract.
 
-- The disk-backed resume cursor + the minimum env state needed to resume must
-  live somewhere that **actually survives an intended restart** — not RAM-only
-  tmpfs that a `docker restart` (with the designed `--tmpfs` mount) would wipe.
-- Keep the **secrets-in-RAM-only** guarantee: secrets stay in tmpfs; only the
-  *resume cursor + non-secret render metadata* may persist.
-- **Harden `_assert_data_root_tmpfs` while here:** today it only `logger.warning`s
-  (`manage.py:116`), so restore onto a non-tmpfs root is silently permitted —
-  meaning secrets can touch disk on restore. Decide whether it should fail-closed
-  (and how that squares with an intentionally-persistent cursor location).
-- Reconcile with the README `--rm` guidance: either a documented persistent
-  volume for the cursor, or explicit guidance that recovery relies on the
-  persistent recovery bundle (v0.3.4) — but not a silent dependence on an
-  accidental non-tmpfs layer.
+- **Enforce tmpfs fail-closed at startup** (not warn-only). `_assert_data_root_tmpfs`
+  today only `logger.warning`s (`manage.py:116`), which let this incident's
+  secrets land on the overlay layer. Promote to a fail-closed startup check;
+  scope out dev/test (appliance-only enforce / override env / `/dev/shm` in tests).
+- **The resume cursor stays tmpfs-only** — a within-container-lifetime convenience
+  (survives in-process restart + run-GC), explicitly **not** durable across
+  `docker rm`. No host volume.
+- **Crash recovery = rollback to the last *exported* checkpoint** (downloaded
+  bundle), checkpoints only at #2/#3 — strictly weaker than cursor resume, and
+  **only exists if the bundle has left tmpfs**. So the flow **must force/prove
+  checkpoint export before long unattended phases** (auto-download on seal, or
+  gate continuation past #2 on a proven download). See ADR-0044 Decision 3-4.
+- **Docs sequencing:** the README run command must mark `--tmpfs` mandatory in
+  the *same* change that enables fail-closed enforcement, or the documented
+  invocation starts failing.
 
 ## Implementation steps (sequence)
 
 0. **Codex cross-check — DONE (2026-06-26).** Corrected the diagnosis (tmpfs
    check warns, doesn't block; hard 12 h wall because the session is written
-   once) and reshaped (a)–(e). Findings folded in below. Eng review
-   (`/plan-eng-review`) still to run before code.
-1. **(c) ADR first** — decide the stateless-vs-durable contract (this gates the
-   resume-durability work; it is a promise change, not a bug fix).
+   once) and reshaped (a)–(e). **Eng-review + facet-(c) ADR done:** ADR-0044
+   (Proposed) decides *stay stateless*; codex gate-review (CHANGES-NEEDED →
+   addressed: crash contract = rollback-to-exported-checkpoint, forced export
+   required). Findings folded in. Implementation paused pending operator ratify.
+1. **(c) Enforce statelessness (ADR-0044)** — promote `_assert_data_root_tmpfs`
+   to a fail-closed startup check (dev/test scoped); **force checkpoint export**
+   before long unattended phases; make README `--tmpfs` mandatory in the same
+   change. **No host-persisted cursor.**
 2. **(a) Sliding session** in `dmf-init/src/dmf_init/main.py` — **mark the
    session modified on each authed request** (Starlette only re-cookies on
    `session.modified`); sliding idle TTL + absolute cap; remaining-session signal
@@ -209,10 +215,8 @@ is fetched once on mount and failures are **silently ignored**
 3. **(b) In-band re-mint** — SIGHUP/log reissue of the launch token; test that an
    expired/spent token on a live container is recoverable without restart and
    without state loss.
-4. **(c) Durable cursor** — per the ADR: persist cursor + non-secret resume
-   inputs across an intended restart, secrets stay tmpfs; decide
-   `_assert_data_root_tmpfs` fail-closed-vs-warn; align README. Restart→resume
-   tests.
+4. *(folded into step 1 — ADR-0044 rejected the durable cursor; the
+   statelessness-enforcement + forced-export work lives in step 1.)*
 5. **(d) Sealed-Bao pre-flight** — phase-scoped auto-unseal from the in-tmpfs key
    (not every resume; loud event); legible error if impossible. Test a
    reboot→sealed→resume cycle on the sandbox profile.
@@ -226,18 +230,22 @@ is fetched once on mount and failures are **silently ignored**
 ## Verification
 
 - Simulated long-run lockout: start a run, let the session lapse, confirm
-  in-band re-entry resumes the same run with no `docker restart`.
-- Restart→resume: intended restart preserves the resume cursor; resume picks up
-  from the failed step.
-- Security: secrets never persist outside tmpfs/RAM; the localhost-only trust
-  surface is unchanged; gitleaks/scrub gates still green.
+  in-band re-entry (facet b) resumes the same run with **no** `docker restart`.
+- Statelessness (ADR-0044): non-tmpfs `DMF_DATA_ROOT` → startup **refusal** (not
+  a warning); secrets never touch disk; `docker rm` stays safe.
+- Crash contract: a crash before any checkpoint export leaves no artifact →
+  verify the forced-export gate prevents entering long unattended phases without
+  an exported checkpoint; restore-from-bundle rolls back to the last exported
+  checkpoint (#2/#3), as documented (not same-step resume).
+- Security: localhost-only trust surface unchanged; gitleaks/scrub gates green.
 
 ## Open questions
 
 - (a) Idle-slide value + absolute-cap value (codex: cap, don't slide unbounded).
-- (c) The stateless-vs-durable **contract decision** (ADR): persistent volume vs.
-  recovery-bundle-only, and whether `_assert_data_root_tmpfs` becomes
-  fail-closed — reconciled with secrets-stay-in-tmpfs.
+- (c) **Decided** by [ADR-0044](../decisions/0044-dmf-init-stateless-tmpfs-recovery-model.md)
+  (Proposed): stay stateless. Remaining: the dev/test scoping of fail-closed
+  tmpfs, and the exact forced-export mechanism (auto-download on seal vs. gated
+  continuation).
 - (e) Root cause of the stray poll-401s (missing-credentials path vs. same-site
   cookie edge on those specific routes).
 
