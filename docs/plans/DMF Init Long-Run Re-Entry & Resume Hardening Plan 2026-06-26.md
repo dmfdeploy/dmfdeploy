@@ -1,6 +1,7 @@
 ---
-status: active
+status: executed
 date: 2026-06-26
+executed: 2026-06-27
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/150
 ---
 
@@ -10,6 +11,15 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/150
 > closes the robustness seam that locks an operator out of a healthy bootstrap
 > during long constrained-node runs. Self-contained: a freshly-cleared agent
 > should be able to resume from this doc + issue #150 alone (see **Resume guide**).
+
+> **Shipped 2026-06-27 (#150 done).** All facets merged, each codex-reviewed:
+> **(a)** sliding session + absolute cap & **(b)** SIGHUP launch re-mint —
+> dmf-init #27; **(c1)** tmpfs fail-closed enforcement — dmf-init #28; **(c2)**
+> forced checkpoint-export gate — dmf-init #29; **(d)** sealed-OpenBao auto-unseal
+> preflight on resume — dmf-init #30 (+ dmf-env #18, `unseal-openbao.sh` rc=2
+> disambiguation); **(e)** first-class expired-session UX + dead-session-poll fix
+> — dmf-init #31. Remaining operator-gated follow-up: cut a dmf-init release
+> (VERSION bump + appliance re-bake) to package these onto a tagged image.
 
 ## Why (the incident that motivated this)
 
