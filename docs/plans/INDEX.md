@@ -8,9 +8,8 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (3)
+## Active (2)
 
-- [DMF Init Long-Run Re-Entry & Resume Hardening Plan 2026-06-26](DMF%20Init%20Long-Run%20Re-Entry%20%26%20Resume%20Hardening%20Plan%202026-06-26.md) — 2026-06-26
 - [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
 - [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04](DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md) — 2026-06-04
 
@@ -24,8 +23,9 @@ shelved, kept for provenance.
 - [DMF Pre-Release Compliance Readiness Plan 2026-05-11](DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md) — 2026-05-11
 - [DMF Tier A Phase Execution Plan 2026-05-11](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — 2026-05-11
 
-## Executed (82)
+## Executed (83)
 
+- [DMF Init Long-Run Re-Entry & Resume Hardening Plan 2026-06-26](DMF%20Init%20Long-Run%20Re-Entry%20%26%20Resume%20Hardening%20Plan%202026-06-26.md) — 2026-06-26 (executed 2026-06-27)
 - [DMF Sandbox Substrate-Agnostic Onboarding Plan 2026-06-24](DMF%20Sandbox%20Substrate-Agnostic%20Onboarding%20Plan%202026-06-24.md) — 2026-06-24 (executed 2026-06-24)
 - [DMF AWX Scale-to-Zero Speed-Up Plan 2026-06-21](DMF%20AWX%20Scale-to-Zero%20Speed-Up%20Plan%202026-06-21.md) — 2026-06-21 (executed 2026-06-22)
 - [DMF Constrained-Node k3s Control-Plane Stability Plan 2026-06-21](DMF%20Constrained-Node%20k3s%20Control-Plane%20Stability%20Plan%202026-06-21.md) — 2026-06-21 (executed 2026-06-21)
