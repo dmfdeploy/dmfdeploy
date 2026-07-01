@@ -22,7 +22,8 @@ and opens the browser. It must work against the **already-published**
 Security invariants that must NOT be weakened (they are the model):
 
 - Loopback-only publish `-p 127.0.0.1:<port>:8000` (never a routable interface).
-- tmpfs data root `--tmpfs /tmp/dmf-init-data` (secrets stay in RAM; ADR-0044).
+- tmpfs data root `--tmpfs /tmp/dmf-init-data:exec` (secrets stay in RAM; ADR-0044.
+  `:exec` per #162 — the data root runs the wizard toolchain).
 - The one-time launch token is surfaced, never bypassed.
 
 Design was adversarially cross-checked with codex (agent-bridge); its P1/P2/P3
@@ -51,7 +52,7 @@ header-comment doubling as `--help` via `sed -n`; `BASH_SOURCE`-relative root;
 2. **Named + labelled, NOT `--rm`** so a startup crash doesn't self-delete before
    logs are read:
    `docker run -d --name dmf-init --label org.dmfdeploy.launcher=dmf-init
-   -p 127.0.0.1:${host_port}:8000 --tmpfs /tmp/dmf-init-data [env] <image>`.
+   -p 127.0.0.1:${host_port}:8000 --tmpfs /tmp/dmf-init-data:exec [env] <image>`.
    Container keeps internal `DMF_BIND_PORT=8000` — only the host mapping changes.
    Reuse guard fails closed on an **unlabelled** `dmf-init` name; verifies
    loopback + tmpfs (via `docker inspect`) before reusing a labelled one.
