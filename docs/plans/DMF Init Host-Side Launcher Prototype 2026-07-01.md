@@ -1,6 +1,7 @@
 ---
-status: active
+status: executed
 date: 2026-07-01
+executed: 2026-07-01
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/154
 ---
 
