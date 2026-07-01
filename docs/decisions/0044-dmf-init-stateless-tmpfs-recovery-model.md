@@ -123,3 +123,29 @@ rollback granularity stated above.
 - This ADR is **Proposed** — ratify via the CONTRIBUTING RFC step (Discussions)
   before flipping to Accepted; codex adversarial gate-review (CHANGES-NEEDED →
   addressed) precedes ratification.
+
+## Amendment (2026-07-01): the tmpfs data root must be **exec**-mounted (#162)
+
+The tmpfs mandate above says nothing about the mount's `exec` flag, and Docker's
+`--tmpfs` default is **`noexec`**. But `DMF_DATA_ROOT` is an **execution root**:
+the render step execs `init-wizard.sh` directly (`createnew.py`), which in turn
+directly execs ~40 dmf-env `bin/` tools. On a `noexec` mount every render fails
+with `PermissionError: [Errno 13] … init-wizard.sh` (a direct exec returns 126;
+only interpreter-wrapped `bash script.sh` would work, which is infeasible across
+the whole toolchain). Found via the published `curl … | bash -s -- up` launcher.
+
+**Invariant (refines the Rule):** `DMF_DATA_ROOT` must be tmpfs **and**
+exec-mounted — `docker: --tmpfs /tmp/dmf-init-data:exec`. This does **not** relax
+this ADR's Rule: the mount stays tmpfs (RAM-only secrets, `docker rm`-safe) and
+retains `nosuid`/`nodev`; `exec` is orthogonal to the secrets-on-disk concern.
+`noexec` gave no real protection here — the dir exists to run the toolchain and
+`noexec` is trivially bypassed via interpreters. (A future defense-in-depth option
+is splitting into an exec repos-mount + a noexec secrets/artifacts-mount; deferred,
+tracked separately.)
+
+**Enforcement (extends the fail-closed check):** `assert_data_root_tmpfs` also
+rejects a tmpfs-but-`noexec` data root at startup with an actionable message
+pointing at `:exec`, turning the cryptic mid-render `PermissionError` into a clear
+startup refusal — same fail-closed philosophy as the tmpfs check. The README /
+`build-bundle.sh` run commands and the `bin/dmf-init` launcher are updated to
+`--tmpfs /tmp/dmf-init-data:exec` in the same change.
