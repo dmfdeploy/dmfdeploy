@@ -8,8 +8,9 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (2)
+## Active (3)
 
+- [DMF Monitoring Close-Out Work Packages 2026-07-02](DMF%20Monitoring%20Close-Out%20Work%20Packages%202026-07-02.md) — 2026-07-02
 - [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
 - [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04](DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md) — 2026-06-04
 
