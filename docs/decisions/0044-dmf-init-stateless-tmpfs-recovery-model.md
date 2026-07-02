@@ -3,7 +3,7 @@ constraint in one imperative sentence — directly under the metadata block. See
 CONTRIBUTING.md → "ADR conventions". -->
 # ADR-0044: dmf-init stays stateless — tmpfs-only env state, enforced; durable recovery is the encrypted bundle, not host persistence
 
-**Status:** Proposed
+**Status:** Accepted (2026-07-02 — implementation landed in dmf-init v0.3.5: fail-closed `assert_data_root_tmpfs` startup guard, forced checkpoint-export gate before long unattended phases, launcher `--tmpfs :exec` noexec guard; #150 and #162 closed)
 **Date:** 2026-06-26
 **Deciders:** @znerol2 (with Claude drafting the facet-(c) decision for the dmf-init long-run re-entry hardening plan, codex adversarial gate-review)
 **Rule:** dmf-init persists **no** env state to host disk; `DMF_DATA_ROOT` **must** be tmpfs (enforced fail-closed at startup, not warn-only). The disk-backed resume cursor is tmpfs-only and is **not** durable across `docker rm`/recreate; cross-lifetime (crash / host-reboot) recovery is **rollback to the last checkpoint that has been exported off-tmpfs** (downloaded recovery bundle) — never a host-mounted durable store. Because that is a rollback (not same-step resume), the design **must make checkpoint export reliable before long unattended phases**.
