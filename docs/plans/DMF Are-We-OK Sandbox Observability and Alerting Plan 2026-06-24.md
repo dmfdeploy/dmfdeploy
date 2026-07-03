@@ -1,11 +1,17 @@
 ---
-status: draft
+status: active
 date: 2026-06-24
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/166
 ---
 # DMF "Are We OK?" Sandbox Observability & Alerting Plan (2026-06-24)
 
-> **STATUS: PROPOSED — for adversarial cross-check before any code lands.**
+> **STATUS: ACTIVE (adopted 2026-07-03, with Amendment A).** No `dmf-infra` code has
+> landed yet; the monitoring close-out (#5, executed 2026-07-03) delivered the probe-lane
+> prerequisites this plan builds on. **Amendment A (2026-07-03)** adds WP-G — Grafana
+> dashboard alignment (demote the lab-era k8s-views set, add the NetBox-driven
+> "Platform services" dashboard). Original proposal preamble follows.
+>
+> **STATUS AT AUTHORING: PROPOSED — for adversarial cross-check before any code lands.**
 > This is a design/spec doc only. No `dmf-infra` edits have been made. It captures the
 > full context, the live evidence it is grounded in, the decisions taken (and who/what
 > drove them), ADR conformance, the proposed work packages, the alternatives rejected,
@@ -246,6 +252,16 @@ annotation into `dmf-runbooks`. Groups:
   for GitOps correctness, but default to `run-playbook.sh` for sandbox iteration** to avoid the
   wake cost; reserve the AWX path for non-constrained envs.
 
+### WP-G — Grafana dashboard alignment (added by Amendment A, 2026-07-03)
+See **Amendment A** below for the full problem statement and decision. Summary: demote the
+four lab-era dotdc "Kubernetes / Views" dashboards (keep Global + Nodes in an expert
+**System** folder, delete Namespaces + Pods), and add a NetBox-driven **"Platform
+services"** dashboard consuming the `netbox-*` jobs (`probe_success`/`up` per discovered
+instance + a dmf-promsd adapter-health row: target counts via WP-B rules, cache
+freshness as a boolean blackbox probe of `/readyz`). Dashboard titles use operator
+vocabulary per UX-Constitution Art. 3. Same delivery mechanism as WP-E (ConfigMap
+sideload; two provider/ConfigMap pairs — see Amendment A).
+
 ---
 
 ## 6. Alternatives considered & rejected
@@ -350,9 +366,13 @@ these first.**
 - **ArgoCD** migration of the same rules repo (the GitOps seam) — explicit v0.1 non-goal.
 - `snmp-exporter` (monitoring-plan WP9); Loki/Promtail **log-relevance alerts** (WP10).
 - `dmf-cms` app instrumentation (`prometheus_client`) to replace blackbox-only coverage.
-- A real `dmf-promsd` `/metrics` endpoint (OQ-4 / umbrella #5).
+- A real `dmf-promsd` `/metrics` endpoint (OQ-4; the former umbrella-#5 self-metrics
+  note — #5 itself closed 2026-07-03 with self-metrics deferred here).
 - Console-classified **alarms** (lifecycle/severity) per `DMF Console Alarm Philosophy` — these
   raw alerts are the upstream feed, not the classified surface.
+- **Per-app deep-dive dashboards** (per-service Grafana boards beyond WP-G's "Platform
+  services" roll-up) — add only when a real operator workflow demands one (Art. 3 rule:
+  vocabulary/surfaces must earn their place).
 
 ---
 
@@ -363,4 +383,83 @@ these first.**
 - `DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04.md` — WP7 (born-inventory stamping), WP10 (alerts) follow-ons.
 - `DMF Constrained-Node k3s Control-Plane Stability Plan 2026-06-21.md` (dmfdeploy#106) — the failure mode this plan instruments.
 - `../design/DMF Console Alarm Philosophy.md` (stub) — downstream alarm classification (out of scope here).
-- Umbrella issue #5 — `dmf-promsd` open items (probe tuning / self-metrics).
+- `DMF Monitoring Close-Out Work Packages 2026-07-02.md` (dmfdeploy#5, **executed
+  2026-07-03**) — delivered the probe-lane prerequisites (`probe_path`,
+  `http_2xx_302`, launcher stamping); the remaining `dmf-promsd` self-metrics idea
+  lives in OQ-4, not in #5.
+
+---
+
+## Amendment A (2026-07-03): Grafana dashboard alignment (WP-G)
+
+**Status:** Adopted with the plan's flip to `active` (2026-07-03). Adds WP-G to §5.
+Motivated by the 2026-07-03 dashboard survey run after the monitoring close-out
+(dmfdeploy#5) landed the probe lane end-to-end.
+
+### Problem
+
+The Grafana dashboard layer predates ADR-0038 entirely. The only provisioned
+dashboards are the four vendored dotdc **"Kubernetes / Views"** JSONs
+(`roles/base/grafana/files/k8s-views-{global,nodes,namespaces,pods}.json`), sideloaded
+via the `grafana-custom-dashboards` ConfigMap into a folder literally named
+**"Kubernetes"** — a leftover from the early lab days. Meanwhile Prometheus runs the
+NetBox-driven jobs (`netbox-scrape`, `netbox-probe`, `netbox-snmp`) against dmf-promsd,
+and the probe lane (ADR-0038 Amendment B, `probe_path`, `http_2xx_302`) emits
+`probe_success` per platform app — **and no dashboard consumes any of it.** Two
+consequences:
+
+1. The operator's default Grafana surface visualizes raw Kubernetes state — **system-tier
+   vocabulary** per the Console UX Constitution Art. 3 — instead of the platform's own
+   monitoring model.
+2. The NetBox source-of-truth investment is invisible: per-instance health, discovery
+   freshness, and probe verdicts exist as metrics but have no visual consumer.
+
+### Decision (WP-G)
+
+1. **Demote, don't delete wholesale.** Keep `k8s-views-global.json` and
+   `k8s-views-nodes.json`, moved to a folder named **"System"** (expert tier, Art. 3);
+   **delete** `k8s-views-namespaces.json` and `k8s-views-pods.json` (drill-down views
+   duplicated by `kubectl` for the expert audience, never operator-relevant).
+   **Mechanism (explicit):** the pinned Grafana chart (8.0.0) keys external-ConfigMap
+   dashboards **per provider** (`dashboardsConfigMaps.<provider>` mounted at
+   `/var/lib/grafana/dashboards/<provider>`), and the current role defines a single
+   provider `custom` hard-coding folder "Kubernetes"
+   (`roles/base/grafana/templates/values.yml.j2`). The executing WP replaces this with
+   **two provider/ConfigMap pairs** — `dmf` (folder "DMF", the default surface) and
+   `system` (folder "System") — with matching mount paths and two ConfigMaps rendered
+   from `templates/configmap-dashboards.yml.j2`. `foldersFromFilesStructure` is **not**
+   usable here (it is a sidecar-provider knob, and direct ConfigMap mounts don't
+   materialize subdirectories).
+2. **New "Platform services" dashboard** (`roles/base/grafana/files/dmf-platform-services.json`,
+   registered in the `dmf` ConfigMap): per-instance health from the NetBox lanes —
+   `probe_success{job="netbox-probe"}` and `up{job=~"netbox-.*"}` rows with labels
+   derived from the NetBox-stamped target labels — plus a **dmf-promsd adapter-health
+   row** consisting of (a) discovered-target counts (`dmf:promsd_discovered_targets`,
+   WP-B) and (b) **cache freshness as a boolean blackbox probe of `/readyz`** — the
+   endpoint that goes non-2xx when the adapter's NetBox snapshot exceeds its staleness
+   threshold (`/healthz` is liveness-only and always 200-ok, so it cannot carry
+   freshness; and snapshot age is JSON, not a Prometheus metric). A real quantitative
+   freshness/age series requires the OQ-4 `/metrics` endpoint — until then the row is
+   counts + boolean-fresh, and says so on the panel (Art. 1: no false precision).
+3. **The WP-E verdict pane is the front item of the "DMF" folder.** Mechanically:
+   Grafana orders dashboards alphabetically within a folder, and "Are we OK?" sorts
+   before "Platform services" — the executing WP keeps titles in that order and MAY
+   additionally provision it as the org default home dashboard
+   (`grafana.ini` `[dashboards] default_home_dashboard_path` on the mounted provider
+   path); that choice is left to the executing WP. All dashboard titles use operator
+   vocabulary (Art. 3) — "Are we OK?", "Platform services" — never raw k8s/EBU-layer
+   jargon.
+4. **No mechanism change:** ConfigMap sideload stays the only delivery path (no
+   sidecar), files stay discrete/diffable under the role, delivered via WP-F.
+
+**Resource note:** net dashboard count stays at 4 (2 demoted + verdict + platform
+services); recording rules (WP-B) keep the new panels cheap. No new runtime components —
+consistent with §7.
+
+### Cross-env note (2026-07-03)
+
+At amendment time the live env is a **single cloud node** (bring-your-own-node
+sandbox profile, `<node-public-ip>`), not the RPi this plan was surveyed on. §2b's
+env-portability caveat covers it: the thermal/fan clauses are absent-tolerant and
+everything else is identical. Grafana on the live env confirmed at `11.0.0`, no
+dashboard sidecar, the four k8s-views dashboards as described.
