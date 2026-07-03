@@ -363,3 +363,68 @@ apps and to dynamically deployed catalog/media-function services.
 - Work-package impact: WP1 (netbox-sot) seeds the three custom fields; WP6 (catalog
   launcher) and WP7 (born-inventory) stamp them; WP3 (dmf-promsd) implements the
   composition + fallback. The `/sd/*` http_sd output contract is unchanged.
+
+---
+
+## Amendment B (2026-07-03): `probe_path` probe-lane URL path
+
+**Status:** Accepted. Amends §3, §4, and the Amendment A adapter composition.
+
+### Problem
+
+The probe lane composes a host:port target (Amendment A) and selects a blackbox
+module (`probe_module`), but has no way to express a URL path. Some targets are
+only meaningfully probeable on a specific path — the canonical case is Loki, whose
+root returns non-2xx by design while its health contract is `GET /ready` on the
+HTTP port. Blackbox modules cannot carry a path (the http prober takes the path
+from the *target*), and `metrics_path` is scrape-lane-only by §3. Without a
+path field the only workarounds are wrong ones: a public ingress detour for an
+internal health check, or `tcp_connect` (port-open ≠ ready).
+
+### Decision
+
+**Add one custom field to the monitoring contract:**
+
+| Custom field | Type | Default | Object types |
+|---|---|---|---|
+| `probe_path` | text | empty | `ipam.service`, `dcim.device`, `virtualization.virtualmachine` |
+
+**Semantics (probe-lane only):**
+
+1. `probe_path` participates only in the probe lane. The scrape lane keeps
+   `metrics_path`; the SNMP lane ignores `probe_path` entirely.
+2. The adapter appends the path to the composed probe target **only when the
+   selected `probe_module` is an http prober** (module name starting `http_`).
+   For any other module (`tcp_connect`, `icmp`, …) the field is ignored and the
+   target remains `host:port`.
+3. The path is normalized to a single leading `/` (`ready` and `/ready` both
+   yield `…:3100/ready`); trailing content is preserved as given.
+4. An empty or absent `probe_path` is a no-op: the composed target is exactly
+   what Amendment A specifies.
+5. The append applies to **both** address compositions: the svc-DNS form
+   (`<svc>.<ns>.svc.cluster.local:<cluster_port><probe_path>`) and the
+   `primary_ip4.address` fallback (`<ip>:<port><probe_path>`).
+
+The blackbox http prober accepts a schemeless full-URL target, and the existing
+probe-job relabelling (`__param_target <- __address__`) forwards it unchanged —
+so this amendment changes only the adapter's target composition, not the
+Prometheus job contract or the `/sd/*` output shape.
+
+**The `dmf_blackbox_probe_modules` choice set (§3) additionally gains
+`http_2xx_302`** — an http prober with `follow_redirects: false` and
+`valid_status_codes: [200, 301, 302, 303, 307, 308]`, for targets whose healthy
+root response is a redirect that must not be dereferenced (canonical case:
+Grafana's `/` → `/login` behind an OAuth auto-login chain to a local-CA URL).
+As everywhere in §3, the choice set must stay lock-step with the deployed
+blackbox-exporter module list.
+
+### Consequences / notes
+
+- The catalog `monitoring.probe` block gains an optional `probe_path` key,
+  mapping 1:1 to the custom field, consistent with §3's additive-schema rule.
+- Stamping follows Amendment A's "the deployer is the bridge" rule: born-inventory
+  (platform apps) and the catalog launcher stamp `probe_path` alongside the other
+  monitoring fields, gated on `monitoring:probe`.
+- Work-package impact (monitoring close-out plan, 2026-07-02): netbox-sot seeds
+  the field; born-inventory stamps it (`loki → /ready`); dmf-promsd implements
+  the normalization + conditional append.
