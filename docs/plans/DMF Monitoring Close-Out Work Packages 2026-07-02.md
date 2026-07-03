@@ -1,9 +1,21 @@
 ---
-status: active
+status: executed
 date: 2026-07-02
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/5
 ---
 # DMF Monitoring Close-Out Work Packages (2026-07-02)
+
+> **Executed (2026-07-03).** WP0 (ADR-0038 Amendment B, umbrella PR #169) →
+> WP1 (dmf-runbooks#7) ∥ WP2 (dmf-promsd#5, `0.1.4` on GHCR) ∥ WP3
+> (dmf-infra#35) → WP4 live-verified on the current sandbox env (all
+> acceptance gates green: grafana via `http_2xx_302` and loki via
+> `:3100/ready` both `probe_success 1`, no cert-verify failures, Loki public
+> IngressRoute + middleware removed with in-cluster consumers intact, and the
+> full nmos-cpp deploy→finalise lifecycle proven on the NetBox side). Every
+> WP codex-cross-checked (GATE: PASS ×5). Live-run finding for follow-up: the
+> dmf-init Manage restore does not rewrite `openbao_key_path` /
+> `eso_openbao_breakglass_file` when restoring into a different
+> `DMF_DATA_ROOT`.
 
 > **Purpose:** operationalize the two remaining items of
 > [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04](DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md)
