@@ -8,13 +8,13 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (1)
-
-- [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
-
-## Draft (9)
+## Active (2)
 
 - [DMF Are-We-OK Sandbox Observability and Alerting Plan 2026-06-24](DMF%20Are-We-OK%20Sandbox%20Observability%20and%20Alerting%20Plan%202026-06-24.md) — 2026-06-24
+- [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
+
+## Draft (8)
+
 - [DMF Umbrella Security Audit Remediation Spec 2026-06-15](DMF%20Umbrella%20Security%20Audit%20Remediation%20Spec%202026-06-15.md) — 2026-06-15
 - [DMF Facility Console — Born-Inventoried Env Surfacing Plan 2026-06-04](DMF%20Facility%20Console%20%E2%80%94%20Born-Inventoried%20Env%20Surfacing%20Plan%202026-06-04.md) — 2026-06-04
 - [DMF Internal Ansible Collection Source Plan 2026-05-29](DMF%20Internal%20Ansible%20Collection%20Source%20Plan%202026-05-29.md) — 2026-05-29
@@ -113,8 +113,9 @@ shelved, kept for provenance.
 - [DMF Improvement Run Plan 2026-04-22](DMF%20Improvement%20Run%20Plan%202026-04-22.md) — 2026-04-22
 - [DMF Orchestrator and Renumbering Plan 2026-04-22](DMF%20Orchestrator%20and%20Renumbering%20Plan%202026-04-22.md) — 2026-04-22
 
-## Superseded (12)
+## Superseded (13)
 
+- [DMF Media Workloads — NetBox-Driven Media Function Inventory Plan 2026-06-03](DMF%20Media%20Workloads%20%E2%80%94%20NetBox-Driven%20Media%20Function%20Inventory%20Plan%202026-06-03.md) — 2026-06-03 → superseded by [DMF Console Wording and Media Workloads Page Plan 2026-07-03.md](DMF%20Console%20Wording%20and%20Media%20Workloads%20Page%20Plan%202026-07-03.md)
 - [DMF OSS v0.1 Release Mission 2026-05-25](DMF%20OSS%20v0.1%20Release%20Mission%202026-05-25.md) — 2026-05-25 → superseded by [DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25.md](DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md)
 - [DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25](DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md) — 2026-05-25 → superseded by [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md)
 - [DMF OSS v0.1 WP1S Single-Node Sandbox Lane 2026-05-25](DMF%20OSS%20v0.1%20WP1S%20Single-Node%20Sandbox%20Lane%202026-05-25.md) — 2026-05-25 → superseded by [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md)
@@ -128,11 +129,10 @@ shelved, kept for provenance.
 - [DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04](DMF%20NMOS%20Registry%20%2B%20Crosspoint%20Demo%20Plan%202026-05-04.md) — 2026-05-04 → superseded by [dmf-platform-move-1-task-2026-05-04.md](dmf-platform-move-1-task-2026-05-04.md)
 - [Move 1 Gate 2 — AWX Integration + Launch NMOS](Move%201%20Gate%202%20%E2%80%94%20AWX%20Integration%20%2B%20Launch%20NMOS.md) — 2026-05-04 → superseded by [Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md](Move%201%20Gate%202%20-%20Pivot%20to%20Path%20A%20for%20Catalog%20Launchers%202026-05-06.md)
 
-## Historical (25)
+## Historical (24)
 
 - [DMF Dynamic Catalog & Deployable-Workflow Mechanism — Discussion Notes 2026-06-05](DMF%20Dynamic%20Catalog%20%26%20Deployable-Workflow%20Mechanism%20%E2%80%94%20Discussion%20Notes%202026-06-05.md) — 2026-06-05
 - [DMF Dynamic Media Facility & Dynamic Catalog — Initial Release Plan 2026-06-05](DMF%20Dynamic%20Media%20Facility%20%26%20Dynamic%20Catalog%20%E2%80%94%20Initial%20Release%20Plan%202026-06-05.md) — 2026-06-05
-- [DMF Media Workloads — NetBox-Driven Media Function Inventory Plan 2026-06-03](DMF%20Media%20Workloads%20%E2%80%94%20NetBox-Driven%20Media%20Function%20Inventory%20Plan%202026-06-03.md) — 2026-06-03
 - [DMF Elastic Media Nodes and Cloud Cost Controller Plan 2026-06-01](DMF%20Elastic%20Media%20Nodes%20and%20Cloud%20Cost%20Controller%20Plan%202026-06-01.md) — 2026-06-01
 - [DMF Idempotent Upgrade-in-Place Mechanism — Findings and Plan 2026-06-01](DMF%20Idempotent%20Upgrade-in-Place%20Mechanism%20%E2%80%94%20Findings%20and%20Plan%202026-06-01.md) — 2026-06-01
 - [DMF MXL On-Demand Media Function Cycle Plan 2026-06-01](DMF%20MXL%20On-Demand%20Media%20Function%20Cycle%20Plan%202026-06-01.md) — 2026-06-01
