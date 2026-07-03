@@ -8,11 +8,9 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (3)
+## Active (1)
 
-- [DMF Monitoring Close-Out Work Packages 2026-07-02](DMF%20Monitoring%20Close-Out%20Work%20Packages%202026-07-02.md) — 2026-07-02
 - [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
-- [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04](DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md) — 2026-06-04
 
 ## Draft (9)
 
@@ -26,8 +24,9 @@ shelved, kept for provenance.
 - [DMF Pre-Release Compliance Readiness Plan 2026-05-11](DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md) — 2026-05-11
 - [DMF Tier A Phase Execution Plan 2026-05-11](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — 2026-05-11
 
-## Executed (84)
+## Executed (86)
 
+- [DMF Monitoring Close-Out Work Packages 2026-07-02](DMF%20Monitoring%20Close-Out%20Work%20Packages%202026-07-02.md) — 2026-07-02
 - [DMF Init Host-Side Launcher Prototype 2026-07-01](DMF%20Init%20Host-Side%20Launcher%20Prototype%202026-07-01.md) — 2026-07-01 (executed 2026-07-01)
 - [DMF Init Long-Run Re-Entry & Resume Hardening Plan 2026-06-26](DMF%20Init%20Long-Run%20Re-Entry%20%26%20Resume%20Hardening%20Plan%202026-06-26.md) — 2026-06-26 (executed 2026-06-27)
 - [DMF Sandbox Substrate-Agnostic Onboarding Plan 2026-06-24](DMF%20Sandbox%20Substrate-Agnostic%20Onboarding%20Plan%202026-06-24.md) — 2026-06-24 (executed 2026-06-24)
@@ -63,6 +62,7 @@ shelved, kept for provenance.
 - [DMF MXL-Hello Single-Node Catalog Control-Chain Validation Plan 2026-06-05](DMF%20MXL-Hello%20Single-Node%20Catalog%20Control-Chain%20Validation%20Plan%202026-06-05.md) — 2026-06-05 (executed 2026-06-05)
 - [DMF Sandbox E2E Test Harness Plan 2026-06-05](DMF%20Sandbox%20E2E%20Test%20Harness%20Plan%202026-06-05.md) — 2026-06-05
 - [DMF Sandbox Harness Followups — Env-Domain, QR, Passkey-Flow 2026-06-05](DMF%20Sandbox%20Harness%20Followups%20%E2%80%94%20Env-Domain%2C%20QR%2C%20Passkey-Flow%202026-06-05.md) — 2026-06-05 (executed 2026-06-08)
+- [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04](DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md) — 2026-06-04
 - [DMF Montest Fresh-Bootstrap Validation Task 2026-06-04](DMF%20Montest%20Fresh-Bootstrap%20Validation%20Task%202026-06-04.md) — 2026-06-04 (executed 2026-06-05)
 - [DMF NetBox-SoT Token-Mint Hardening Task 2026-06-04](DMF%20NetBox-SoT%20Token-Mint%20Hardening%20Task%202026-06-04.md) — 2026-06-04 (executed 2026-06-04)
 - [DMF dmf-init Live-Sandbox Fix Batch Plan 2026-06-03](DMF%20dmf-init%20Live-Sandbox%20Fix%20Batch%20Plan%202026-06-03.md) — 2026-06-03 (executed 2026-06-03)

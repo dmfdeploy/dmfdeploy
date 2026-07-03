@@ -1,10 +1,24 @@
 ---
-status: active
+status: executed
 date: 2026-06-04
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/5
 ---
 # DMF Dynamic NetBox-Driven Monitoring Plan (2026-06-04)
 > Supersedes: [DMF Day-0 Inventory and Monitoring Plan.md](DMF%20Day-0%20Inventory%20and%20Monitoring%20Plan.md)
+
+> **Executed (2026-07-03).** The core pipeline (ADR-0038 incl. Amendment A,
+> the `dmf-promsd` adapter, netbox-sot seeding, born-inventory stamping)
+> shipped 2026-06-04/05 and was validated live. The two remaining items
+> closed via the
+> [Monitoring Close-Out Work Packages 2026-07-02](DMF%20Monitoring%20Close-Out%20Work%20Packages%202026-07-02.md):
+> **WP6 catalog-launcher stamping** (nmos-cpp stamps the Amendment-A cluster
+> coordinates; the full deploy→finalise lifecycle proven live on the NetBox
+> side) and **WP2/WP11 probe tuning** (ADR-0038 Amendment B `probe_path`
+> field + `http_2xx_302` module; grafana and loki `probe_success 1`
+> in-cluster; Loki's public-ingress probe workaround removed). **WP9
+> (snmp-exporter) and WP10 (log-relevance alerts) remain deferred** —
+> post-v0.1 scope alongside
+> [#166](https://github.com/dmfdeploy/dmfdeploy/issues/166).
 
 > **Status:** PLAN (2026-06-04). Design forks resolved with the operator in a
 > plan-mode design conversation (see §Operator decisions). Broken into single-session
