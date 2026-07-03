@@ -1,11 +1,15 @@
 ---
-status: historical
+status: superseded
 date: 2026-06-03
+superseded_by: DMF Console Wording and Media Workloads Page Plan 2026-07-03.md
 ---
 # DMF Media Workloads — NetBox-Driven Media Function Inventory Plan
 
 **Date:** 2026-06-03
-**Status:** Planning (approved model; **implementation not started — planning docs only by operator instruction**)
+**Status:** Superseded (2026-07-03) by `DMF Console Wording and Media Workloads Page
+Plan 2026-07-03.md` (#173), which re-plans the D4 page slice against the current
+codebase; the D1 model shipped as ADR-0037 and is unchanged. Original status follows.
+**Status at authoring:** Planning (approved model; **implementation not started — planning docs only by operator instruction**)
 **Authoring session:** Claude Opus 4.8 with operator, after reading the EBU DMF Reference Architecture V2.0 whitepaper together.
 **Executes / governed by:** [ADR-0037](../decisions/0037-media-workloads-netbox-instance-inventory.md) (amends [ADR-0027](../decisions/0027-catalog-instance-vs-definition-separation.md)).
 **Target lane (first proof):** the **`sandbox-single-node`** lane (`dmf-sandbox` Lima Debian-12 ARM64 VM) — see [WP1S](DMF%20OSS%20v0.1%20WP1S%20Single-Node%20Sandbox%20Lane%202026-05-25.md). **Not** a cloud env.
