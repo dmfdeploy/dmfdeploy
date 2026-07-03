@@ -19,6 +19,24 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ MONITORING CLOSE-OUT — issue #5 EXECUTED, live-verified (2026-07-03)
+The last engineering item gating `v0.1-polish` is done (only tracker
+[#36](https://github.com/dmfdeploy/dmfdeploy/issues/36) remains). Landed:
+**ADR-0038 Amendment B** (`probe_path` + `http_2xx_302`, umbrella #169),
+nmos-cpp Amendment-A stamping (dmf-runbooks#7), **dmf-promsd `0.1.4`**
+(probe-lane `probe_path`; on GHCR, dmf-promsd#5), dmf-infra module/schema/
+stamping + **Loki public-ingress removal** (dmf-infra#35), close-out #170.
+All five WPs codex-gated PASS. **Live-verified on the current sandbox env**
+via the dmf-init Manage lane: grafana (`http_2xx_302`) + loki (`:3100/ready`)
+`probe_success 1` in-cluster; no cert-verify failures; `IngressRoute/loki` +
+`Middleware/loki-ready-path` gone with promtail/Grafana-datasource intact;
+full nmos-cpp deploy→finalise lifecycle proven NetBox-side; AWX re-parked
+asleep after. **Follow-up filed:** [#171](https://github.com/dmfdeploy/dmfdeploy/issues/171)
+(dmf-init Manage restore doesn't rewrite `openbao_key_path`/
+`eso_openbao_breakglass_file` into a relocated `DMF_DATA_ROOT` — bit us live,
+symlink workaround). Deferred per plan: snmp-exporter, log-relevance alerts,
+console per-instance health join (v0.2 candidates).
+
 ### 🚧 WORKING-MODEL ENFORCEMENT — umbrella foundation landed; 8-repo propagation NEXT (2026-06-11)
 **Tracking: [issue #32](https://github.com/dmfdeploy/dmfdeploy/issues/32)** ·
 plan `docs/plans/DMF Working-Model Enforcement Plan 2026-06-11.md` (reviewed by
