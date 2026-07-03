@@ -1,0 +1,175 @@
+---
+status: draft
+date: 2026-07-03
+tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/17
+---
+# DMF MXL Single-Node Revival Plan (2026-07-03)
+
+> **STATUS: PROPOSED — documents-only round; no code edits yet.** Makes the MXL media
+> functions runnable again on the committed **single-node** proof surface (operator
+> decision 2026-07-03: *"single node MXL demo"*). Cross-host fabrics (≥2 nodes,
+> verbs/eRDMA) stays deferred per `../decisions/architectural-commitments-v1.md`
+> (multi-node is an explicit v0.1 non-goal); the preserved spike learnings live in
+> `../sessions/DMF MXL Cross-Cloud Media-Node Spike — As-Built and Fabrics Result
+> 2026-05-30.md`.
+
+**Components:** `dmf-media` (catalog + charts), `dmf-runbooks` (launchers),
+`dmf-infra` (bootstrap node prep, AWX JT seed — already present), `dmf-cms` (console
+surface — via #173, not this plan). Doc lives in the umbrella.
+**Tracking:** #17 (existing, v0.2) — this plan is its spec.
+
+---
+
+## 1. Context — why MXL functions don't run today
+
+Survey 2026-07-03 (live env + repos). The chain catalog → AWX JT → launcher → Helm
+chart exists end-to-end (JTs seeded from
+`dmf-infra/.../roles/stack/operator/awx-integration/defaults/main.yml`; launchers in
+`dmf-runbooks/playbooks/launch-*.yml`), but four gaps stop it:
+
+1. **Scheduling:** `charts/mxl-fabrics-demo/values.yaml` hard-codes
+   `nodeSelector: dmf.io/role=mxl-processor` + toleration for
+   `dmf.io/mxl=true:NoSchedule` — the retired spike nodes. On a single-node env the
+   pods are unschedulable.
+2. **Images:** catalog Provision digests are `sha256:0000…` placeholders in
+   `dmf-media/catalog/mxl-videotestsrc.yaml` and `mxl-videotest-view.yaml` (also
+   `nmos-cpp.yaml`); `mxl-hello.yaml` and the launcher default ride the dev tag
+   `v1.0.3-fabrics-dev`.
+3. **Console:** `DMF_CONSOLE_MXL_ENDPOINTS` defaults empty → the MXL Flows page
+   renders nothing (its replacement surface is #173's Media Workloads page).
+4. AWX runs scale-to-zero; any launch requires a wake (known cost, not a defect).
+
+## 2. Target demo (acceptance)
+
+On a fresh single-node sandbox env, from the console catalog:
+**deploy `mxl-videotestsrc` (initiator) + `mxl-videotest-view` (target) onto the same
+node** over the libfabric `tcp` provider; receiver flow reports `Active: true` with a
+climbing head index (the spike's own GREEN criterion), and the test-pattern preview is
+visible in the console (Media Workloads detail panel once #173 lands). `mxl-hello`
+(writer + fake-reader, designed single-node) also deploys and finalises cleanly.
+
+## 3. Work packages
+
+### WP1 — Images: publish + pin
+- Build/publish `ghcr.io/dmfdeploy/mxl-fabrics-demo` at a **release tag** (multi-arch
+  arm64/amd64, anon-pullable — same bar as dmf-promsd/dmf-cms images); retire
+  `v1.0.3-fabrics-dev` from `dmf-media/catalog/mxl-hello.yaml` and
+  `dmf-runbooks/playbooks/launch-mxl-fabrics-demo.yml` defaults.
+- Replace the `sha256:0000…` placeholder digests with the release-pinned digests in
+  `mxl-videotestsrc.yaml` and `mxl-videotest-view.yaml`. (`nmos-cpp.yaml` has the same
+  defect but is **out of this slice** — review decision: it belongs to #123 where its
+  secret/monitoring siblings live, unless this plan grew an NMOS regression gate,
+  which it deliberately does not.)
+- Verify the 630 mirror path pulls them into Zot (the launcher installs charts from
+  in-cluster Zot).
+
+### WP2 — Single-node scheduling: `placement_mode` (decision taken at review)
+**Decision (codex cross-check, 2026-07-03): a chart/launcher placement mode is
+required — a label-only approach cannot work.** The chart hard-codes not just
+`dmf.io/role=mxl-processor` but **per-role selectors** `dmf.io/mxl-demo-role: source`
+(initiator) and `dmf.io/mxl-demo-role: view` (target) — one node cannot carry both
+values of the same label key, so "label the node, chart unchanged" is impossible for
+the colocated pair.
+- Chart + launcher gain **`placement_mode: single-node | split-node`** (default
+  `split-node` preserves today's behavior). In `single-node` mode the
+  `dmf.io/mxl-demo-role` selector is omitted (both releases schedule by
+  `dmf.io/role=mxl-processor` alone); in `split-node` mode the per-role selectors
+  render as today.
+- The sandbox lane still labels its node `dmf.io/role=mxl-processor` at bootstrap
+  (one node-prep task) so placement records stay truthful. **No taint on the only
+  node** — the predecessor plan's taint-interaction table (`DMF MXL Single-Node
+  Loopback Execution Plan 2026-05-29.md` §4: node-exporter/promtail need explicit
+  tolerations, Traefik LB target black-holes) shows a taint there would repel or
+  complicate every platform workload; the chart's toleration stays (harmless when
+  no taint exists).
+
+### WP3 — Colocated fabrics demo audit
+- The initiator/target pair currently assumes `hostNetwork` + host port `1234` and a
+  `Recreate` strategy (spike as-built). Same-host colocation audit: fabric port
+  collision (initiator connects out, only the target binds — confirm), and
+  `mxl-coordinator` ConfigMap contents for same-host addressing.
+- **Known second collision (codex cross-check):** both deployments run the status
+  sidecar bound `0.0.0.0:$STATUS_PORT` from the same `.Values.status.port` default
+  (`9000`) — under `hostNetwork` on one node, source and view **collide on the
+  status port even if 1234 is safe**. Fix in `single-node` mode: distinct status
+  ports per role/release (values-driven), or better, drop `hostNetwork` for the
+  status sidecar entirely and expose it via the WP5 Service — evaluate whether the
+  fabric path itself needs `hostNetwork` intra-node at all (pod network may do;
+  smaller blast radius on the shared node).
+- Success gate = §2 acceptance; measure grain latency for the record (spike baseline:
+  ~2-grain/~50 ms cross-VPC; intra-node should beat it comfortably).
+
+### WP4 — `mxl-hello` validation
+- Deploy → finalise on the same env (it shares WP1's image + WP2's placement); its
+  catalog placement note (requires `mxl-processor` label) stays accurate — WP2 keeps
+  that label as the placement key in both `placement_mode`s.
+
+### WP5 — NetBox + monitoring wiring
+- **Prerequisite (codex cross-check): the chart currently has no `kind: Service`** —
+  ADR-0038 Amendment A stamps `cluster_service` as a Kubernetes **Service** name, so
+  WP5 first adds a per-release Service exposing the status sidecar port (this is also
+  WP3's preferred fix for the status-port collision), then launchers stamp instance
+  records + cluster coords per ADR-0037 D3 / ADR-0038 Amendment A
+  (`cluster_service`/`cluster_namespace`/`cluster_port`, probe lane
+  `probe_module`/`probe_path` — the sidecar's `/status` is the health surface),
+  mirroring the nmos-cpp launcher pattern (dmf-runbooks `e11bd3e`).
+- Result: MXL instances appear in the Media Workloads inventory (#173) and the
+  "Platform services" dashboard (#166 WP-G) with zero bespoke wiring.
+
+### WP6 — Console surface
+- **Primary:** #173's Media Workloads page (inventory from WP5's records; test-pattern
+  preview via the existing `mxl.py` sidecar fan-out as the per-instance detail).
+- **OQ-1 for the cross-check:** interim-stamp `DMF_CONSOLE_MXL_ENDPOINTS` (a deploy
+  task templating the cms env from the launched releases) so the *current* MXL Flows
+  page shows the demo before #173 lands — or skip the interim entirely and let the
+  demo be console-visible only when #173 merges. Leaning **skip** (throwaway wiring,
+  and #173 WP4 deletes the page); challenge if the demo needs to be showable sooner.
+
+## 4. Out of scope
+- Cross-host fabrics, second media node, Tailscale join, verbs/eRDMA zero-copy — all
+  deferred (commitments-v1 non-goal; spike learnings preserved).
+- nmos-crosspoint Phase 2 switchability (#129, #123 track its follow-ups).
+- dmf-media catalog-v2 roles (frozen scaffold per commitments-v1).
+
+## 5. Open questions for the cross-check
+- **OQ-1:** WP6 interim endpoint stamping — worth it? (see above; leaning skip).
+- **OQ-2 (RESOLVED, 2026-07-03 review round):** label-only is impossible (per-role
+  `dmf.io/mxl-demo-role` selectors); WP2 is the `placement_mode` chart/launcher
+  mechanism, no-taint, label kept.
+- **OQ-3 (RESOLVED, 2026-07-03 review round):** `nmos-cpp` digest fix moves to #123 —
+  this slice carries no NMOS acceptance gate, so it must not carry the change.
+- **OQ-4:** Release tag scheme for `mxl-fabrics-demo` (`v0.2.0`? date tag?) — the
+  image predates the repo release conventions.
+
+## 6. Verification plan
+- **Static:** catalog schema check scoped to the entries this plan touches
+  (`mxl-videotestsrc`, `mxl-videotest-view`, `mxl-hello`: digests resolve, no `0000…`
+  remains — `nmos-cpp.yaml`'s placeholder is deliberately deferred to #123); launcher
+  `ansible-playbook --syntax-check`; chart `helm template` in both `placement_mode`s.
+- **Live (single-node sandbox):** console catalog deploy of videotestsrc + view →
+  pods Running on the node → receiver flow `Active: true`, head index climbing;
+  `mxl-hello` deploy → finalise; NetBox instance records present with cluster coords;
+  `probe_success` for the stamped sidecar target; teardown leaves NetBox clean.
+- **Regression:** none required beyond the MXL entries — this slice deliberately
+  carries no NMOS acceptance gate (nmos-cpp/nmos-crosspoint changes live in #123);
+  if a shared launcher file is touched, its syntax-check covers the blast radius.
+
+## 7. Delivery & commit plan
+- PRs per component repo (`dmf-media` chart/catalog, `dmf-runbooks` launcher vars,
+  small `dmf-infra` node-prep change for the `mxl-processor` label), each referencing
+  **`refs dmfdeploy/dmfdeploy#17`** fully
+  qualified; the completing PR set closes #17 manually and flips this frontmatter
+  `draft → executed` in the umbrella.
+- WP1 lands first (publishable independently); WP2+WP3+WP4 as the demo slice;
+  WP5 with the launcher edits; WP6 rides #173.
+
+## 8. References
+- `DMF MXL Single-Node Loopback Execution Plan 2026-05-29.md` (historical) — direct
+  predecessor: originated the `mxl-hello` chart + catalog entry and the §4
+  taint-interaction analysis WP2 builds on; its dedicated-agent-node topology is what
+  this plan replaces with same-node placement.
+- `../sessions/DMF MXL Cross-Cloud Media-Node Spike — As-Built and Fabrics Result 2026-05-30.md` — as-built + acceptance criteria source.
+- `../decisions/architectural-commitments-v1.md` — single-node commitment; multi-node non-goal; "deploys NMOS/MXL from the console" stranger-flow.
+- `../decisions/0037-media-workloads-netbox-instance-inventory.md` + `0038-netbox-driven-dynamic-monitoring.md` (Amendments A/B) — the wiring contracts WP5 implements.
+- `DMF Console Wording and Media Workloads Page Plan 2026-07-03.md` (#173) — console surface.
+- `DMF Are-We-OK Sandbox Observability and Alerting Plan 2026-06-24.md` (#166, Amendment A) — dashboard consumer.
