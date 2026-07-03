@@ -13,8 +13,9 @@ shelved, kept for provenance.
 - [DMF Are-We-OK Sandbox Observability and Alerting Plan 2026-06-24](DMF%20Are-We-OK%20Sandbox%20Observability%20and%20Alerting%20Plan%202026-06-24.md) — 2026-06-24
 - [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
 
-## Draft (9)
+## Draft (10)
 
+- [DMF Console Information Architecture Implementation Plan 2026-07-03](DMF%20Console%20Information%20Architecture%20Implementation%20Plan%202026-07-03.md) — 2026-07-03
 - [DMF Console Wording and Media Workloads Page Plan 2026-07-03](DMF%20Console%20Wording%20and%20Media%20Workloads%20Page%20Plan%202026-07-03.md) — 2026-07-03
 - [DMF Umbrella Security Audit Remediation Spec 2026-06-15](DMF%20Umbrella%20Security%20Audit%20Remediation%20Spec%202026-06-15.md) — 2026-06-15
 - [DMF Facility Console — Born-Inventoried Env Surfacing Plan 2026-06-04](DMF%20Facility%20Console%20%E2%80%94%20Born-Inventoried%20Env%20Surfacing%20Plan%202026-06-04.md) — 2026-06-04
