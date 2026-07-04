@@ -1,11 +1,25 @@
 ---
-status: draft
+status: executed
 date: 2026-07-03
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/173
 ---
 # DMF Console Wording and Media Workloads Page Plan (2026-07-03)
 
-> **STATUS: PROPOSED — documents-only round; no dmf-cms edits yet.** First of two
+> **STATUS: EXECUTED (2026-07-04).** Implemented in `dmf-cms` PRs
+> [#12](https://github.com/dmfdeploy/dmf-cms/pull/12) (WP1 wording; glossary register
+> in umbrella [#177](https://github.com/dmfdeploy/dmfdeploy/pull/177)),
+> [#13](https://github.com/dmfdeploy/dmf-cms/pull/13) (WP2+WP3 read endpoint + page:
+> fail-closed tenancy via `DMF_CONSOLE_MEDIA_TENANCY`, desired-vs-observed state
+> split), [#14](https://github.com/dmfdeploy/dmf-cms/pull/14) (WP2b clear-for-
+> deployment: `bootstrapped→active` tag flip on the ADR-0032 writer token, C5
+> quartet, dual-parent device/VM scope), and
+> [#15](https://github.com/dmfdeploy/dmf-cms/pull/15) (WP4 MXL Flows retirement into
+> the Media Workloads live-view panel). OQ-2 resolved inline-overlay; OQ-3 resolved
+> minimal-copy. Recorded follow-ons: `media-engineers` group (#174), console-local
+> activity lane for the C5 record (#174), ESO-sourced writer-token secret in the
+> dmf-infra cms role, live reconcile proof on a sandbox env (rides #17's MXL data).
+>
+> Original preamble (authoring, 2026-07-03): documents-only round. First of two
 > console plans. This one delivers the **DMF-aligned wording pass** plus the
 > **Media Workloads page** (ADR-0037 D4) and retires the standalone MXL Flows page.
 > The second plan — `DMF Console Information Architecture Implementation Plan
