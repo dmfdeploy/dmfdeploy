@@ -195,6 +195,64 @@ against §3 WP1 as written:
   ADR-0025 (mirroring the nmos-cpp pattern) so the catalog digest becomes the
   actual pull contract rather than advisory metadata.
 
+## Amendment B (2026-07-04) — demo-slice design after GATE-14
+
+Codex GATE-14 (CHANGES-NEEDED → folded) reviewed the WP2+WP3+WP5 implementation
+design. Locked decisions and the two structural discoveries:
+
+- **WP2 placement:** chart `placementMode: split-node` default (single-node omits
+  the per-role `dmf.io/mxl-demo-role` selector; `dmf.io/role=mxl-processor`
+  renders in both modes). Launcher passes `--set placementMode=`; the AWX JT
+  extra_vars are **profile-derived** (`single-node` only when
+  `dmf_release_profile == sandbox-single-node`, else `split-node`) so split-node
+  AWX operation stays intact. Node label = idempotent post-install task in
+  300-k3s (`kubectl label --overwrite`), inventory/profile-gated; NOT
+  `INSTALL_K3S_EXEC --node-label` (install-time only). No taint.
+- **WP3 colocation:** in `single-node` mode both deployments drop `hostNetwork`
+  (pod network): target binds :1234 in its own netns, the coordinator
+  ConfigMap handshake is address-agnostic (pod `eth0` IP flows into
+  target-info), and both status sidecars keep :9000 with no collision.
+  `split-node` renders byte-identical to today. Live verify must additionally
+  prove **target-restart/staleness recovery** (epoch change observed by the
+  source, reconnect, `Active: true`, head index climbing post-restart) and
+  assert `mxl_interface=eth0` for single-node runs.
+- **WP5 Service + stamping:** per-release Service is **role-conditional and must
+  select pod-template labels** (`app: <release>-initiator|target` — the
+  `dmf.component` label exists only on Deployment metadata; selecting it gets
+  zero endpoints). Launch stamps `cluster_service`/`cluster_namespace`/
+  `cluster_port=9000` + `probe_module=http_2xx`/`probe_path=/status`; teardown
+  clears them (nmos-cpp pattern). **Discovery: MXL has no NetBox provision
+  path** — the catalog `netbox_service` block creates nothing; dmf-runbooks
+  gains MXL provision/clear tasks (ensure `ipam.Service` with catalog tags
+  before flipping lifecycle), mirroring the nmos-cpp role.
+- **P1 discovery — AWX catalog lane cannot launch MXL today:** the DMF catalog
+  Container Group pod-overrides every catalog JT into the `nmos` namespace
+  under the `nmos-cpp-launcher` ServiceAccount, whose RBAC is nmos-scoped. The
+  demo slice therefore extends awx-integration: pre-create the `mxl` namespace,
+  grant the catalog launcher identity Role/RoleBinding coverage there (all
+  chart-rendered kinds incl. the chart's own SA/RBAC objects), without touching
+  the nmos grants. (Generalized identity, not a namespace-override swap.)
+- **P1 discovery — console preview needs dmf-cms chart plumbing:** the
+  v0.12.0 live-view panel reads `DMF_CONSOLE_MXL_ENDPOINTS` (config-driven, not
+  NetBox-derived) and the dmf-cms Helm chart exposes neither that nor
+  `DMF_CONSOLE_MEDIA_TENANCY`. A dmf-cms **chart-only** PR joins the train:
+  value-plumb both env vars; the infra cms role sets tenancy `single` for the
+  sandbox profile and points the endpoints at the two per-release Services
+  (`http://mxl-videotestsrc.mxl.svc.cluster.local:9000`, `…-view…`). Deriving
+  live-view endpoints from NetBox `cluster_*` records is the recorded v0.2
+  follow-up (rides the #174 family).
+- **Registry flip:** catalog chart image defaults move to the in-cluster Zot
+  service-DNS form (`zot.zot.svc.cluster.local:5000/dmf/...`, the catalog-chart
+  pattern — containerd `hosts.toml` handles it), while 630 keeps seeding via the
+  `registry.<domain>` ingress. `dmf-media/bin/publish-chart-to-ghcr.sh` is
+  nmos-hardwired and gets generalized (chart dir + ref args) for the two MXL
+  chart publishes.
+- **PR train:** dmf-media (chart WP2/3/5 + bumps 0.2.0/0.1.1 + wrapper), then
+  dmf-runbooks (launcher + NetBox provision/stamp/clear), then dmf-cms (chart
+  env plumbing), then dmf-infra last (node label, mxl RBAC, JT vars, cms-role
+  envs, 630 seeds pointing at the *published* chart digests). All base on main
+  after the WP1 PRs merge — no stacking (auto-merge trap).
+
 ## 8. References
 - `DMF MXL Single-Node Loopback Execution Plan 2026-05-29.md` (historical) — direct
   predecessor: originated the `mxl-hello` chart + catalog entry and the §4
