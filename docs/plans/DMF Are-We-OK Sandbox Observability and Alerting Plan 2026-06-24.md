@@ -1,14 +1,22 @@
 ---
-status: active
+status: executed
 date: 2026-06-24
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/166
 ---
 # DMF "Are We OK?" Sandbox Observability & Alerting Plan (2026-06-24)
 
-> **STATUS: ACTIVE (adopted 2026-07-03, with Amendment A).** No `dmf-infra` code has
-> landed yet; the monitoring close-out (#5, executed 2026-07-03) delivered the probe-lane
-> prerequisites this plan builds on. **Amendment A (2026-07-03)** adds WP-G — Grafana
-> dashboard alignment (demote the lab-era k8s-views set, add the NetBox-driven
+> **STATUS: EXECUTED (2026-07-04).** Implemented in `dmf-infra` PRs
+> [#36](https://github.com/dmfdeploy/dmf-infra/pull/36) (WP-A..D + WP-F: rules-as-code,
+> alert suite, static probe lanes, AWX monitoring-apply lane, `195-are-we-ok-verify`)
+> and [#38](https://github.com/dmfdeploy/dmf-infra/pull/38) (WP-E + WP-G: verdict +
+> Platform-services dashboards, DMF/System provider split; re-land of #37, which
+> auto-merged into its stacked base). Live-verified on the `aoka-9dat` cloud sandbox
+> (fail-soft path: full rule suite with Alertmanager disabled). Open follow-ups are
+> tracked on issue #166: `dmf-runbooks/docs/alerts.md` runbook targets, AM inhibition
+> for warn/crit duplicate names, OQ-5 threshold baselining.
+>
+> Prior status note (adoption, 2026-07-03): adopted with **Amendment A** adding WP-G —
+> Grafana dashboard alignment (demote the lab-era k8s-views set, add the NetBox-driven
 > "Platform services" dashboard). Original proposal preamble follows.
 >
 > **STATUS AT AUTHORING: PROPOSED — for adversarial cross-check before any code lands.**
