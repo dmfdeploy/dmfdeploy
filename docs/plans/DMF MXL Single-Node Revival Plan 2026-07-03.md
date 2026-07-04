@@ -138,8 +138,9 @@ the colocated pair.
   mechanism, no-taint, label kept.
 - **OQ-3 (RESOLVED, 2026-07-03 review round):** `nmos-cpp` digest fix moves to #123 —
   this slice carries no NMOS acceptance gate, so it must not carry the change.
-- **OQ-4:** Release tag scheme for `mxl-fabrics-demo` (`v0.2.0`? date tag?) — the
-  image predates the repo release conventions.
+- **OQ-4 (RESOLVED, 2026-07-04 — see Amendment A):** release tag `v1.0.3`, a
+  digest-preserving retag of the proven `v1.0.3-fabrics-dev` artifact (a DMF
+  demo-artifact tag, not an upstream MXL SDK version claim).
 
 ## 6. Verification plan
 - **Static:** catalog schema check scoped to the entries this plan touches
@@ -162,6 +163,37 @@ the colocated pair.
   `draft → executed` in the umbrella.
 - WP1 lands first (publishable independently); WP2+WP3+WP4 as the demo slice;
   WP5 with the launcher edits; WP6 rides #173.
+
+## Amendment A (2026-07-04) — WP1 executed as digest-preserving retag; chart publish moves to the demo slice
+
+Codex-gated (GATE-13, CHANGES-NEEDED → folded; core deviation accepted). Deltas
+against §3 WP1 as written:
+
+- **Retag, not rebuild.** `ghcr.io/dmfdeploy/mxl-fabrics-demo:v1.0.3` was created
+  as a digest-preserving retag of `v1.0.3-fabrics-dev` —
+  `sha256:84980dc0c3e1de0a8f3ce12ce4d5149229c73a44b140c15ed77b8e84fb2108b1`,
+  `linux/arm64`, created 2026-05-30: the exact artifact the fabrics spike proved
+  GREEN. A rebuild would have produced a different, unproven digest and cost hours
+  of native C++/vcpkg compile for no evidence gain.
+- **amd64/multi-arch deferred** (not silently dropped): ADR-0031's release gate
+  requires `linux/arm64` only; commitments-v1 makes single-node ARM64 the proof
+  surface; the Dockerfile pins the `aarch64-linux-gnu` triplet (spike doc records
+  the x86 caveat). Revisit only if an amd64 deploy target ever appears.
+- **No-rebuild acceptance check** (mechanical, run on any future WP1-touching
+  change): `skopeo inspect docker://ghcr.io/dmfdeploy/mxl-fabrics-demo:v1.0.3`
+  must report the digest above and `Architecture: arm64`.
+- **WP1 is source-level only; the runtime flip rides the demo slice.** The
+  published `mxl-hello` chart `0.1.0` (seeded into Zot by dmf-infra 630 with a
+  pinned chart digest) still renders the dev tag, and `charts/mxl-fabrics-demo`
+  is not published to GHCR at all (nor in 630's seed list) even though the
+  catalog entries + launcher expect it from in-cluster Zot. The demo slice
+  (WP2+WP3+WP5) therefore additionally carries: republish `mxl-hello` as `0.1.1`
+  (tag bump only) and `mxl-fabrics-demo` as `0.2.0` (with the placement_mode +
+  Service work), update 630's chart seed digests, **add a 630 image seed entry
+  for `mxl-fabrics-demo`** (source digest pinned to `sha256:84980dc0…`, dest tag
+  `v1.0.3`), and flip the chart image registry defaults to in-cluster Zot per
+  ADR-0025 (mirroring the nmos-cpp pattern) so the catalog digest becomes the
+  actual pull contract rather than advisory metadata.
 
 ## 8. References
 - `DMF MXL Single-Node Loopback Execution Plan 2026-05-29.md` (historical) — direct
