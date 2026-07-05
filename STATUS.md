@@ -19,6 +19,21 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ CONSOLE IA RESTRUCTURE — issue #174 EXECUTED (2026-07-05)
+The last thread of the 2026-07-03 planning round. dmf-cms got the 4-rail IA
+spine (Workspace / Facilities / Media Workloads / Catalog + role-gated
+secondaries), the Workspace **"are we OK?" core** (firing-alert severity
+tiles + Current Problems, Watchdog-verified green, degraded-as-content, no
+Ack), the **Activity** two-lane rail (Jobs + History with the console-local
+C5 record), overview retirement, and the `media-engineers` surface group
+(console-seeded, first frontend `groups[]` consumer). PRs dmf-cms#18/#19/#20
++ release **0.13.0** (dmf-cms#21); codex gates G20/G21/G22-R2 all PASS
+(gate numbering resumes at **G23**). First frontend test harness (vitest)
+added — local-only, not yet in CI (recorded v0.2 seam, with per-subject
+console-local activity records). **The live env (aoka-9dat) still runs
+0.12.0** — GHCR publish + 630/650 deploy of 0.13.0 is an operator-authorized
+follow-up.
+
 ### ✅ MXL SINGLE-NODE REVIVAL — issue #17 EXECUTED, live-verified (2026-07-04/05)
 The committed single-node MXL demo runs end-to-end on the live env: console
 catalog → AWX → launcher → Helm → colocated videotestsrc→view pair over the
