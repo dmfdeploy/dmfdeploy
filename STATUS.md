@@ -30,9 +30,14 @@ C5 record), overview retirement, and the `media-engineers` surface group
 + release **0.13.0** (dmf-cms#21); codex gates G20/G21/G22-R2 all PASS
 (gate numbering resumes at **G23**). First frontend test harness (vitest)
 added — local-only, not yet in CI (recorded v0.2 seam, with per-subject
-console-local activity records). **The live env (aoka-9dat) still runs
-0.12.0** — GHCR publish + 630/650 deploy of 0.13.0 is an operator-authorized
-follow-up.
+console-local activity records). **0.13.0 is DEPLOYED to the live env
+(aoka-9dat)** (operator-authorized, 2026-07-05): GHCR publish (arm64 digest
+`sha256:ef6dc6a2…`) → 630 seed (`1 image(s) need seeding (dmf-cms)`) → 650
+Helm deploy, both green via the Manage lane (checkpoints 20+21 sealed);
+verified live by the 0.13.0-only `/api/workspace/health` route answering 401
+JSON where 0.12.0 served the SPA shell. Needed a lockfile fix first
+(dmf-cms#22): npm-11-generated lock broke `npm ci` under the node:22 image
+builder — regenerate locks with a full `npm install` inside node:22-slim.
 
 ### ✅ MXL SINGLE-NODE REVIVAL — issue #17 EXECUTED, live-verified (2026-07-04/05)
 The committed single-node MXL demo runs end-to-end on the live env: console
