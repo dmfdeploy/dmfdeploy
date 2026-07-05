@@ -1,5 +1,5 @@
 ---
-status: draft
+status: executed
 date: 2026-07-03
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/17
 ---
@@ -252,6 +252,47 @@ design. Locked decisions and the two structural discoveries:
   env plumbing), then dmf-infra last (node label, mxl RBAC, JT vars, cms-role
   envs, 630 seeds pointing at the *published* chart digests). All base on main
   after the WP1 PRs merge — no stacking (auto-merge trap).
+
+## Amendment C (2026-07-04) — live verify executed; findings and residue
+
+§6 executed on the live single-node env (arm64, `sandbox-single-node`
+profile), applied via the dmf-init Manage lane (692-fix → 300 → 630 → 650 →
+693) after the operator-approved dmf-cms 0.12.0 deploy. Results:
+
+- **§2 acceptance GREEN:** videotestsrc + view deployed from the console
+  catalog, colocated in `single-node` mode over the pod network; initiator
+  "Endpoint is now connected" on its pod IP; receiver `Active: true` with the
+  head index climbing at grain rate; test-pattern `preview.jpg` served by the
+  per-release Service and visible in the Media Workloads live view.
+  `mxl-hello` deploy → finalise round-trip clean (AWX jobs successful; NetBox
+  record active → back to bootstrapped with all monitoring stamps null; helm
+  release + pods gone — teardown leaves NetBox clean).
+- **Amendment-B restart check GREEN:** target+initiator restart published a
+  new coordinator epoch; the source reconnected; head index climbed again.
+- **Monitoring GREEN:** both stamped sidecars discovered by the
+  NetBox-driven lane; `probe_success 1`.
+- **Live-verify findings, all fixed + merged the same day:**
+  1. Forgejo `dmf-infra`/`dmf-media` repos were empty non-mirror stubs (stale
+     pre-publish "Move 7" gap) — AWX catalog projects synced an empty tree and
+     every infra JT create 400'd (dmf-infra#40).
+  2. The status sidecar spoke HTTP/1.0 (`BaseHTTPRequestHandler` default),
+     which blackbox `http_2xx` rejects — `probe_success 0` over a healthy
+     200 (dmf-media#12 → chart 0.2.1, dmf-runbooks#10, dmf-infra#41).
+  3. NetBox rejects `ipam.Service` with `ports: []` — `mxl-hello`'s record
+     now carries the conventional status port as intent metadata, no probe
+     tag (dmf-runbooks#11, dmf-media#13).
+- **Operational residue (recorded, not code):** waking AWX for API-driven
+  work requires patching the AWX CR (the operator reconciles `kubectl scale`
+  away) and suspending the awx-autoscale helper for the duration — API calls
+  and dependency inventory-syncs don't count as activity and get parked
+  mid-run; the console's own wake path fails while the helper is suspended.
+  Captured in agent memory + the 693 rerun history on the issue.
+- **Capacity note:** with nmos-cpp (registry + 2 mock nodes), nmos-crosspoint,
+  the MXL pair AND mxl-hello all running, the single 3-CPU node's request
+  budget hit 96% and AWX EE job pods went unschedulable (`Insufficient cpu` →
+  inventory-sync worker-stream death → JT "Previous Task Failed"). The full
+  demo menu does not fit at once; finalise something first. (v0.2 candidate:
+  an EE-schedulability precheck or request-budget alert.)
 
 ## 8. References
 - `DMF MXL Single-Node Loopback Execution Plan 2026-05-29.md` (historical) — direct

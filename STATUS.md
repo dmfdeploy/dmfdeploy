@@ -19,6 +19,22 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ MXL SINGLE-NODE REVIVAL — issue #17 EXECUTED, live-verified (2026-07-04/05)
+The committed single-node MXL demo runs end-to-end on the live env: console
+catalog → AWX → launcher → Helm → colocated videotestsrc→view pair over the
+pod network (placementMode single-node), receiver `Active: true` + head index
+at grain rate, restart/epoch recovery proven, NetBox-stamped + probe lane
+green, test-pattern preview in the Media Workloads page (dmf-cms **0.12.0
+deployed** same session, chart 0.12.1 wired tenancy + live-view endpoints).
+`mxl-hello` deploy→finalise round-trip clean. 12 PRs landed across all 4
+component repos + umbrella (codex gates G12–G18); plan flipped `executed`
+with Amendments A–C recording the deviations + live findings (Forgejo empty
+mirror stubs, HTTP/1.0 vs blackbox, NetBox empty-ports, AWX autoscaler vs
+API-driven work, node CPU-request budget). **Env residue:** the videotest
+pair deliberately left RUNNING for demo purposes (finalise from the console
+reverses everything); nmos-cpp/crosspoint (operator ad-hoc launches) also
+up — the full menu at once saturates the 3-CPU node's request budget.
+
 ### ✅ MONITORING CLOSE-OUT — issue #5 EXECUTED, live-verified (2026-07-03)
 The last engineering item gating `v0.1-polish` is done (only tracker
 [#36](https://github.com/dmfdeploy/dmfdeploy/issues/36) remains). Landed:
