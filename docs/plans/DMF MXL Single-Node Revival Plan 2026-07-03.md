@@ -281,6 +281,12 @@ profile), applied via the dmf-init Manage lane (692-fix → 300 → 630 → 650 
   3. NetBox rejects `ipam.Service` with `ports: []` — `mxl-hello`'s record
      now carries the conventional status port as intent metadata, no probe
      tag (dmf-runbooks#11, dmf-media#13).
+  4. The catalog EE image has no `kubectl` binary — the teardown's
+     last-release coordinator-ConfigMap cleanup shelled out to it and died
+     between `helm uninstall` and the NetBox finalise, stranding the record
+     active with a dead probe target (console teardown, AWX job #164). Fixed
+     with `kubernetes.core.k8s` + idempotent uninstall so finalise re-runs
+     converge (dmf-runbooks#12).
 - **Operational residue (recorded, not code):** waking AWX for API-driven
   work requires patching the AWX CR (the operator reconciles `kubectl scale`
   away) and suspending the awx-autoscale helper for the duration — API calls
