@@ -1,16 +1,45 @@
 ---
-status: draft
+status: executed
 date: 2026-07-03
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/174
 ---
 # DMF Console Information Architecture Implementation Plan (2026-07-03)
 
-> **STATUS: PROPOSED — documents-only round; no dmf-cms edits yet.** Second of two
-> console plans. Implements the 4-rail Information Architecture and the Workspace
-> **"are we OK?"** core specified in `../design/DMF Console Information Architecture
-> 2026-06-23.md`. **Sequenced after** `DMF Console Wording and Media Workloads Page
-> Plan 2026-07-03.md` (#173) and after #166's WP-B/WP-C (recording rules + alert
-> suite) land — the Workspace core consumes those signals.
+> **STATUS: EXECUTED (2026-07-05).** All four WPs landed in dmf-cms across three
+> PRs, each behind an adversarial codex gate:
+> [#18](https://github.com/dmfdeploy/dmf-cms/pull/18) (WP1+WP4 nav spine +
+> Workspace home + overview retirement; GATE-20 PASS, two P3s folded —
+> Settings as ungated secondary, MXL live-view endpoints behind the ADR-0037
+> surface gate), [#19](https://github.com/dmfdeploy/dmf-cms/pull/19) (WP3
+> Activity two-lane rail + console-local C5 lane; GATE-21 PASS, zero findings),
+> [#20](https://github.com/dmfdeploy/dmf-cms/pull/20) (WP2 Workspace
+> "are we OK?" core; GATE-22 round 1 CHANGES-NEEDED → all three findings
+> folded — firing-only alerts, full-label-set row identity, `watchdog-missing`
+> reason token — GATE-22-R2 PASS). Release: **dmf-cms 0.13.0** (§7 wrote
+> "plausibly 0.12.0", but 0.12.0 was earned by #17's Media Workloads deploy).
+> The #173 recorded follow-ons landed here: the `media-engineers` group is
+> seeded by the console's own Authentik bootstrap (not a dmf-infra blueprint)
+> and consumed as the first frontend `groups[]` gate; the console-local
+> activity lane carries the clear-for-deployment C5 record.
+> Open-question outcomes: OQ-1 one-rail-two-lanes shipped (binding subview
+> separation honoured); OQ-2 stood (no Ack of any kind); OQ-3 unchanged —
+> nmos-crosspoint stays a separate link-out surface until Phase 2
+> switchability, with the Media Workloads detail panel as the convergence
+> seam; OQ-4 resolved as "every actually-retired path" = `/facility`,
+> `/workflows`, `/changes` (+ the kept `/mxl-flows`), SPA-level redirects
+> (backend shell serves deep links; HTTP-permanence explicitly waived at
+> GATE-20). Recorded v0.2 seams: key/clear the console-local activity records
+> per subject/env/session when multi-user lands (GATE-21 note); frontend
+> vitest suite is local-only until wired into CI. Live-env deploy of 0.13.0
+> is a separate operator-authorized step (630→650), not part of this plan.
+>
+> Original preamble (authoring, 2026-07-03): documents-only round; no dmf-cms
+> edits yet. Second of two console plans. Implements the 4-rail Information
+> Architecture and the Workspace **"are we OK?"** core specified in
+> `../design/DMF Console Information Architecture 2026-06-23.md`. **Sequenced
+> after** `DMF Console Wording and Media Workloads Page Plan 2026-07-03.md`
+> (#173) and after #166's WP-B/WP-C (recording rules + alert suite) land — the
+> Workspace core consumes those signals.
 
 **Component:** `dmf-cms`. Doc lives in the umbrella per convention.
 **Governing design docs:** the IA doc (above) — this plan turns its spec into work
