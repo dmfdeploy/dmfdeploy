@@ -71,7 +71,15 @@ Widget personalization (show / hide / reorder, §6) is a **per-user preference**
 | **Media Workloads** | flows | `MXL Flows` | active / provisioned media functions + status | interconnection diagram, license status |
 | **Catalog** | catalog | `Catalog` | native media functions; *"companion integrations"* framing in copy | third-party integration directory |
 
-**Role-gated secondaries** (present only for roles that own them, per §7): **Activity** (§5), **Monitoring**, **Licenses**, **Users**, **Site settings**, **Admin**, **Settings**.
+**Role-gated secondaries** (present only for roles that own them, per §7): **Activity** (§5), **Monitoring**, **Licenses**, **Users**, **Site settings**, **Admin**.
+
+> **§3 placement clarification (2026-07-07, #185 WP-E).** "Settings (own prefs)"
+> is **not** a rail secondary — personal preferences live in the **Topbar avatar
+> menu** only (where they sat pre-#174). The rail slot once labelled "Settings"
+> is reserved for facility-level **Site settings** (admin-gated), which appears
+> only once that page exists. The build (dmf-cms Sidebar) carries no "Settings"
+> rail entry; the §4.3 role/nav table row below reads **"Settings (own prefs) —
+> avatar menu"** accordingly.
 
 **Vocabulary tier check (Constitution Art. 3).** Rail labels use the operator's / industry's language, not the DMF-internal EBU ontology. "Facilities", "Media Workloads", "Catalog", "Monitoring" are operator-native or industry-standard; no rail is labelled with `Layer 5`, `orchestration`, `configure`, or other layer/vertical/lifecycle jargon (the §4 anti-pattern that leaked `Layer 5 · orchestration · configure` to an operator). The EBU taxonomy stays an expert/internal organizing idea, not nav copy.
 
@@ -160,7 +168,7 @@ The console keeps its existing four roles (`api/types.ts`: `viewer | operator | 
 | **Users** | — | — | — | ✓ |
 | **Site settings** | — | — | ✓ (read) | ✓ |
 | **Admin** | — | — | — | ✓ |
-| **Settings** (own prefs) | ✓ | ✓ | ✓ | ✓ |
+| **Settings** (own prefs — avatar menu, not a rail; §3 clarification) | ✓ | ✓ | ✓ | ✓ |
 
 Notes:
 - ✓ vs ✓ (read) distinguishes *can act* from *can only view*; the precise action set per surface is governed by Art. 7 consequence classes, not by this table.
@@ -190,7 +198,7 @@ This is a **new requirement, not inherited canon** (the Constitution mandates ke
 | `/facility` Facility | **Facilities** (single-facility; label plural) |
 | `/monitoring` Monitoring | **Monitoring** (role-gated secondary) |
 | `/admin` Admin | **Admin** (role-gated secondary, unchanged) |
-| `/settings` Settings | **Settings** (role-gated secondary, unchanged) |
+| `/settings` Settings | **Settings (own prefs)** — Topbar avatar menu, not a rail (§3 clarification, #185 WP-E) |
 | *(new, role-gated)* | **Licenses**, **Users**, **Site settings** |
 
 Implementation touch-points (named for the follow-on, not built here): `components/Sidebar.tsx` (`allNavItems` + icons), `App.tsx` (routes), `pages/overview/*`. No new backend; reuse existing `.panel` / `.metric-card` / `.data-table` and Lucide icons.
@@ -209,4 +217,5 @@ Implementation touch-points (named for the follow-on, not built here): `componen
 This spec is **downstream** of the UX Constitution and subordinate to it: where the two appear to differ, the Constitution governs and this spec must be corrected. It **resolves** Constitution §7 Open Question #1 (role set + OIDC mapping, §7 here) and **supplies** the nav/page model the Constitution left open (§6 there). It introduces **no new hard gate**; it restates existing gates (Arts. 1, 2, 4, 5, 6, 7) as they bind navigation and the Workspace.
 
 ### Revision history
+- **2026-07-07 (#185 WP-E)** — §3 placement clarification: "Settings (own prefs)" is an account-menu surface (Topbar avatar), not a rail secondary; the rail "Settings" slot is reserved for facility-level **Site settings** (admin-gated), surfaced only once that page exists. Recorded so the docs don't drift from the build (dmf-cms Sidebar drops the ungated Settings rail entry in the same PR). No change to the role→surface matrix's access columns.
 - **2026-06-23 (pass 1)** — initial IA: spine principle ("name the goal, build only v0.1"), four primary rails (Workspace / Facilities / Media Workloads / Catalog), Activity two-lane rule, Workspace pinned-core widget model + client-side bounded personalization, role→surface matrix (closes Constitution §7 OQ#1), touch/PWA recorded as a separate deferred decision. Drafted after an adversarial codex cross-check (VERDICT: CHANGES-NEEDED → all six findings folded in: dropped a proposed fourth "Curation" axis, hardened the Facilities single-facility data-model guard, preserved the Changes history lens, pinned widget persistence to client-side-only, and split out the touch/PWA decision).
