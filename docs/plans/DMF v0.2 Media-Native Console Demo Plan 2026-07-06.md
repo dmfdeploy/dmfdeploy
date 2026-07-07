@@ -141,10 +141,16 @@ login-only — a viewer can deploy via curl.
   32KB JSON), and a JPEG SOI (`\xff\xd8`) check before proxying as image/jpeg.**
 - `main.py`, both gated `_require_media_workloads_access`:
   - `GET /api/media-workloads/{instance}/mxl/status` → `{instance, available,
-    role, provider, preview, node, mxl_version, flow{head_index, latency_ms,
+    role, provider, preview, mxl_version, flow{head_index, latency_ms,
     latency_grains, active, format, grain_rate}}`; degraded is 200 content
     (`available:false, reason:"no-sidecar"|"unreachable"`); 404 only for
-    not-in-scope.
+    not-in-scope. **Node is NOT relayed from the sidecar (codex WP-D R2): NetBox
+    placement is the source of truth, so the console joins node from the
+    inventory payload's `placement.node`, not the sidecar's self-reported
+    string.** The status string fields are shaped through tight per-field
+    grammars server-side (strict-slug role/provider; IPv4/FQDN-rejecting
+    mxl_version; dot/colon/slash-free format; fraction-only grain_rate) so a
+    compromised sidecar cannot smuggle a locator to the client.
   - `GET /api/media-workloads/{instance}/mxl/preview` → `image/jpeg`, no-store;
     404 for out-of-scope or no preview (source side runs PREVIEW=0; mxl-hello has
     no sidecar).
