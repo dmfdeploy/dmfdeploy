@@ -10,7 +10,7 @@ shelved, kept for provenance.
 
 ## Active (2)
 
-- [DMF v0.2 Media-Native Console Demo Plan 2026-07-06](DMF%20v0.2%20Media-Native%20Console%20Demo%20Plan%202026-07-06.md) — 2026-07-06
+- [DMF v0.2 EBU Facility-Orchestration Re-anchor Plan 2026-07-07](DMF%20v0.2%20EBU%20Facility-Orchestration%20Re-anchor%20Plan%202026-07-07.md) — 2026-07-07
 - [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
 
 ## Draft (8)
@@ -117,8 +117,9 @@ shelved, kept for provenance.
 - [DMF Improvement Run Plan 2026-04-22](DMF%20Improvement%20Run%20Plan%202026-04-22.md) — 2026-04-22
 - [DMF Orchestrator and Renumbering Plan 2026-04-22](DMF%20Orchestrator%20and%20Renumbering%20Plan%202026-04-22.md) — 2026-04-22
 
-## Superseded (13)
+## Superseded (14)
 
+- [DMF v0.2 Media-Native Console Demo Plan 2026-07-06](DMF%20v0.2%20Media-Native%20Console%20Demo%20Plan%202026-07-06.md) — 2026-07-06 → superseded by [DMF v0.2 EBU Facility-Orchestration Re-anchor Plan 2026-07-07.md](DMF%20v0.2%20EBU%20Facility-Orchestration%20Re-anchor%20Plan%202026-07-07.md)
 - [DMF Media Workloads — NetBox-Driven Media Function Inventory Plan 2026-06-03](DMF%20Media%20Workloads%20%E2%80%94%20NetBox-Driven%20Media%20Function%20Inventory%20Plan%202026-06-03.md) — 2026-06-03 → superseded by [DMF Console Wording and Media Workloads Page Plan 2026-07-03.md](DMF%20Console%20Wording%20and%20Media%20Workloads%20Page%20Plan%202026-07-03.md)
 - [DMF OSS v0.1 Release Mission 2026-05-25](DMF%20OSS%20v0.1%20Release%20Mission%202026-05-25.md) — 2026-05-25 → superseded by [DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25.md](DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md)
 - [DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25](DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md) — 2026-05-25 → superseded by [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md)
