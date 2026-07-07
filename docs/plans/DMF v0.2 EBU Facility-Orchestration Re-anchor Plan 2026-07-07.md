@@ -98,7 +98,7 @@ Reconciled work packages:
 | **A** super-admin | Security | ✅ done (merged #42) | Security vertical (authorise) |
 | **B** view-as | Security | ✅ done (merged dmf-cms#23) | Security vertical (authorise/audit) |
 | **E** gate + nav + §5b logout | Security | ✅ done (merged dmf-cms#24, dmf-infra#43) | Security **on the Configure/Provision writes**: operator-gated deploy/teardown/launch + C5 audit = the lifecycle's authorise+record. RP-initiated logout (end-session) + Settings→avatar nav; codex 2-round PASS |
-| **D** NetBox-derived per-instance MXL endpoints | "monitor polish" | **KEEP — critical path** | Monitor vertical; **without it you cannot SEE lifecycle state or a switch** (codex P2) |
+| **D** NetBox-derived per-instance MXL endpoints | "monitor polish" | ✅ done (merged dmf-cms#25, G26; codex 3-round PASS) — critical path | Monitor vertical; **without it you cannot SEE lifecycle state or a switch** (codex P2) |
 | **C** media-native tile + live modal | "monitor polish" | **KEEP — critical path** | The **lifecycle-legible instance view**: tile shows stage (bootstrapped/active) + live preview; the surface a switch is observed on |
 | **NEW L1** lifecycle legibility | — | **add** | Surface each instance's lifecycle **stage** as an explicit state (not a collapsed `<details>`); a state timeline backed by NetBox `lifecycle:*`; make deploy→clear→finalise read as Provision→Configure→Finalise |
 | **NEW L2** catalog EBU vocab fix | — | **add (bug)** | `mxl-videotest-view`, `mxl-hello`, `mxl-videotestsrc` set `vertical: media-functions`/`media-processing` — **invalid** (those are layer names). README requires vertical ∈ {orchestration, control, monitoring, security}. Fix the entries + **add a catalog schema check** so the console's EBU metadata is trustworthy (codex P2) |
@@ -200,6 +200,7 @@ rollback preflight.
   licence-provider code slice; live IS-05 switching; each with its own acceptance
   gate. WP-F (Console IAM, #186) and WP-G/H (#187) unchanged.
 - Codex-gate each code WP. **G25 = WP-E ✅ merged 2026-07-07** (dmf-cms#24 +
-  dmf-infra#43, codex 2-round PASS); next code WP is **D** (G26, NetBox-derived
-  per-instance MXL endpoints). PR auto-merge arms at open; branch each WP from
-  fresh `main`.
+  dmf-infra#43, codex 2-round PASS); **G26 = WP-D ✅ merged 2026-07-07**
+  (dmf-cms#25, NetBox-derived per-instance MXL endpoints, codex 3-round PASS);
+  next code WP is **C** (G27, media-native tile grid + live modal; depends on D).
+  PR auto-merge arms at open; branch each WP from fresh `main`.

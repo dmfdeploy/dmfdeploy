@@ -19,6 +19,24 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ v0.2a WP-D — NetBox-derived per-instance MXL endpoints MERGED (2026-07-07)
+G26 shipped as **dmf-cms#25** (branch `feat/mxl-per-instance-endpoints-g26`),
+auto-merged after review (merge commit `58c7ae1`). Two endpoints behind
+`_require_media_workloads_access`: `GET /api/media-workloads/{instance}/mxl/status`
+and `.../mxl/preview` — SSRF-gated sidecar URL from NetBox custom fields
+(namespace/port allowlists + concrete `cluster_service == svc.name` identity),
+hardened fetchers (short timeouts, byte caps, JPEG SOI), per-field output grammars.
+**`node` is NOT relayed from the sidecar** — NetBox `placement.node` is SoT, so
+WP-C joins node from the inventory payload. Codex adversarial cross-check ran
+**3 rounds → PASS** (R1 caught a 500 + status-passthrough leak; R2 caught
+short-locator strings surviving the length cap; R3 clean). Umbrella issue
+**#185 stays open** (covers WPs A–E; WP-D used `refs`, not `Closes`); plan status
+flipped in the EBU re-anchor plan (WP-D ✅ done, next code WP = **C**/G27).
+A follow-up fix landed on the branch pre-merge: the adversarial `test_mxl.py`
+fixtures used RFC1918 literals (`10.0.0.x`) as IP-shaped reject-inputs, tripping
+the `dmf-private-network-literal` gitleaks rule (guard CI red) — swapped to the
+RFC5737 doc range (`192.0.2.x`), still IPv4-shaped so assertions unchanged.
+
 ### ✅ CONSOLE IA RESTRUCTURE — issue #174 EXECUTED (2026-07-05)
 The last thread of the 2026-07-03 planning round. dmf-cms got the 4-rail IA
 spine (Workspace / Facilities / Media Workloads / Catalog + role-gated
