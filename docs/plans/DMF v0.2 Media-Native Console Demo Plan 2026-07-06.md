@@ -1,15 +1,24 @@
 ---
-status: active
+status: superseded
 date: 2026-07-06
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/185
+superseded_by: DMF v0.2 EBU Facility-Orchestration Re-anchor Plan 2026-07-07.md
 ---
 # DMF v0.2 Media-Native Console Demo Plan (2026-07-06)
 
-> **STATUS: ACTIVE.** Approved by the operator 2026-07-06 after two codex review
-> rounds (PLAN-V02 round 1 CHANGES-NEEDED → both P1s + all P2/P3s folded;
-> round 2 PASS with two notes folded — concrete service-identity binding and
-> the WP-E IA-doc amendment). This doc is the spec; the codex fold history is
-> recorded in §Risks and inline `(codex …)` markers. Do not re-litigate.
+> **STATUS: SUPERSEDED (2026-07-07)** by
+> [DMF v0.2 EBU Facility-Orchestration Re-anchor Plan 2026-07-07](DMF%20v0.2%20EBU%20Facility-Orchestration%20Re-anchor%20Plan%202026-07-07.md),
+> which re-frames the v0.2 round around the EBU facility-orchestration lifecycle
+> and reconciles these work packages under it (WP-A/B shipped and stay; WP-E
+> stays as the next code WP; WP-C/D become critical-path lifecycle-observation
+> surfaces; WP-G/H drop off the critical path; the media-native "demo" framing
+> and the mock-licence idea are dropped). This doc is retained for the WP
+> specifications and the codex fold history; the **re-anchor plan is canonical
+> for v0.2 scope**. Do not start new work from this framing.
+>
+> _Original status banner:_ **APPROVED 2026-07-06** after two codex review rounds
+> (PLAN-V02 round 1 CHANGES-NEEDED → both P1s + all P2/P3s folded; round 2 PASS).
+> The inline WP specs (esp. WP-E/D/C) remain the implementation detail.
 
 ## Context
 
