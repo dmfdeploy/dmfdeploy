@@ -65,8 +65,8 @@ historical artifacts in the operator note store archive.
 | Cluster | k3s cluster, lab cluster | EBU §Host Platform §Cluster |
 | Host | node | EBU treats Kubernetes "Node" as a Host |
 | Container | pod content | EBU treats Kubernetes "Pod" as a group of Containers |
-| Media Workload | (was "stack" loosely) | Assembly of Media Functions for a production |
-| Media Function | media app, media service | Containerised processing unit |
+| Media Workload | (was "stack" loosely) | Assembly of Media Functions for a production (EBU Fig B1). **NB:** the console's "Media Workloads" page currently lists Media *Function* instances (ADR-0037 modelled the inventory and deferred the assembly); a first-class Media Workload entity — membership by NetBox tag `workload:<name>`, first example `videotest` = `mxl-videotestsrc` + `mxl-videotest-view` — is tracked in the Media Workload RFC. |
+| Media Function | media app, media service | Containerised processing unit. Layer-5; classified by Layer + a media-function type/role — **not** by one of the four control-plane verticals (Orchestration/Control/Monitoring/Security). |
 | Resource Profile | (no equivalent) | EBU "Design" stage output: compute/network/storage/licence requirements |
 | Facility Orchestration | site.yml + run-playbook.sh | The whole control envelope |
 | Flow / Flow Domain | (no equivalent yet) | EBU §Media Exchange concept; deferred until layer 4 work |
