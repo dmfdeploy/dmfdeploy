@@ -99,7 +99,7 @@ Reconciled work packages:
 | **B** view-as | Security | ✅ done (merged dmf-cms#23) | Security vertical (authorise/audit) |
 | **E** gate + nav + §5b logout | Security | ✅ done (merged dmf-cms#24, dmf-infra#43) | Security **on the Configure/Provision writes**: operator-gated deploy/teardown/launch + C5 audit = the lifecycle's authorise+record. RP-initiated logout (end-session) + Settings→avatar nav; codex 2-round PASS |
 | **D** NetBox-derived per-instance MXL endpoints | "monitor polish" | ✅ done (merged dmf-cms#25, G26; codex 3-round PASS) — critical path | Monitor vertical; **without it you cannot SEE lifecycle state or a switch** (codex P2) |
-| **C** media-native tile + live modal | "monitor polish" | ✅ shipped as dmf-cms#26 (G27, codex 3-round PASS; PR open) | The **per-instance function view**: tile shows run-state + live preview; the surface a switch is observed on |
+| **C** media-native tile + live modal | "monitor polish" | ✅ done (merged dmf-cms#26, G27; codex 3-round PASS) | The **per-instance function view**: tile shows run-state + live preview; the surface a switch is observed on |
 | **W0** Media Workload entity | — | **→ RFC (filed separately)** | The missing anchor (EBU: a Media Workload is an *assembly of Media Functions for a production*, Fig B1). Introduce it as a first-class entity, membership by NetBox tag `workload:<name>`; `videotest` = `mxl-videotestsrc` + `mxl-videotest-view` + their flow. Extends ADR-0037 (which deliberately modelled the page as a Function *inventory* and deferred the assembly). **Not a v0.2a WP** — RFC→ADR |
 | ~~L1~~ lifecycle legibility | — | **reframed → W0/RFC** | Corrected: the EBU 6-stage lifecycle (Design→Plan→Provision→Configure→Operate→Finalise&Review) is a **workload-level** property, not per-function-instance, and is not the 3-stage collapse first sketched. A *function* has a run-state; the *workload* has a lifecycle stage. Lands on W0, not as a standalone WP |
 | ~~L2~~ catalog EBU vocab fix | — | **reframed → RFC (schema)** | Corrected: `vertical` is the **wrong axis** for Layer-5 media functions (the four verticals are control-plane cross-cuts). Not "pick a valid vertical" — media functions want a **Layer 5 + media-function type/role** and should not require a vertical. Touches ADR-0003/0013; filed separately as a catalog-schema change |
@@ -234,6 +234,7 @@ rollback preflight.
 - Codex-gate each code WP. **G25 = WP-E ✅ merged 2026-07-07** (dmf-cms#24 +
   dmf-infra#43, codex 2-round PASS); **G26 = WP-D ✅ merged 2026-07-07**
   (dmf-cms#25, NetBox-derived per-instance MXL endpoints, codex 3-round PASS);
-  **G27 = WP-C shipped as dmf-cms#26** (media-native tile grid + live modal,
-  codex 3-round PASS; PR open, holds on REVIEW_REQUIRED). That completes the A–E
-  demo set. PR auto-merge arms at open; branch each WP from fresh `main`.
+  **G27 = WP-C ✅ merged 2026-07-07** (dmf-cms#26, media-native tile grid + live
+  modal, codex 3-round PASS, approved by lkirc). **That completes the A–E demo
+  set — #185 is ready to close** (pending operator close-vs-retitle call).
+  PR auto-merge arms at open; branch each WP from fresh `main`.

@@ -19,6 +19,30 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ v0.2a WP-C — media-native tile grid + live modal MERGED (2026-07-07)
+G27 shipped as **dmf-cms#26** (branch `feat/mxl-tile-grid-g27`), merged (commit
+`97f8811`, approved by lkirc). Media Workloads gets a media-native tile grid as
+the default view behind a Grid|Table toggle (localStorage); the table + C5
+clear-for-deployment flow stay intact. Fixed 16:9 thumbnails (onError→glyph, no
+reflow), catalog display_name join, **node from NetBox `placement.node`, never
+the sidecar** (WP-D R2); live view via `useInstanceMxlStatus` with codex P2
+polling bounds (grid+visible-tab only, 6-tile cap, tile polling pauses while the
+modal is open) and P3 reduced-motion pause; 200ms `InstanceLiveModal` with focus
+management. Codex adversarial cross-check **3 rounds → PASS** (R1: legacy table
+`MxlDetailPanel` leaked unbounded 200ms polling + non-discriminating tests +
+missing modal focus; R2: modal flow-stats at 500ms vs the 200ms spec; R3 clean).
+49 frontend + 153 backend green. **This completes the A–E demo set** — #185 is
+ready to close (operator call; used `refs`, not `Closes`).
+
+**EBU terminology correction (2026-07-08):** review against the whitepaper (Fig
+B1) found DMF has no first-class **Media Workload** entity (an *assembly of Media
+Functions for a production*); ADR-0037 modelled the console page as a Function
+*inventory* and deferred the assembly. Drafted an **RFC** (NetBox tag
+`workload:<name>`; `videotest` = videotestsrc + view + flow) that also reframes
+L1 (workload-level 6-stage lifecycle) and L2 (vertical is the wrong axis for
+Layer-5 functions). L1/L2 + Workload filed separately (RFC→ADR); plan §4a records
+it. Under codex review.
+
 ### ✅ v0.2a WP-D — NetBox-derived per-instance MXL endpoints MERGED (2026-07-07)
 G26 shipped as **dmf-cms#25** (branch `feat/mxl-per-instance-endpoints-g26`),
 auto-merged after review (merge commit `58c7ae1`). Two endpoints behind
