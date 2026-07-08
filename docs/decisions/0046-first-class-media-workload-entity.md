@@ -97,14 +97,15 @@ entries' non-vertical pseudo-values. The schema contract:
   {orchestration, control, monitoring, security}; `ebu.media_function_type`, if
   present, must be in the enum; neither-both-nor-neither. This rejects the current
   non-vertical pseudo-values without breaking legitimate support/control verticals.
-- **Migration of the three MXL entries:**
+- **Migration of the MXL entries** (only the two that remain — see below):
   - `mxl-videotestsrc` — keep `layer:5`; drop `vertical: media-functions`; add
     `media_function_type: source`.
   - `mxl-videotest-view` — keep `layer:5`; drop `vertical: media-functions`; add
     `media_function_type: view`.
-  - `mxl-hello` — **reclassify `layer:4 → 5`** (it is a Media Function, not the
-    Media-Exchange transport); drop `vertical: media-processing`; add
-    `media_function_type: processor`.
+  - `mxl-hello` — **retired** (removed from the catalog), superseded by the
+    `videotest` workload; this deletes the anomalous `layer:4` +
+    `vertical: media-processing` entry rather than migrating it. Tracked in
+    [#193](https://github.com/dmfdeploy/dmfdeploy/issues/193).
 
 **7. Flows stay runtime/overlay (ADR-0037 preserved).** Membership is the tag;
 flow edges are a separate overlay, **never persisted to NetBox**: declared from
