@@ -100,9 +100,9 @@ Reconciled work packages:
 | **E** gate + nav + §5b logout | Security | ✅ done (merged dmf-cms#24, dmf-infra#43) | Security **on the Configure/Provision writes**: operator-gated deploy/teardown/launch + C5 audit = the lifecycle's authorise+record. RP-initiated logout (end-session) + Settings→avatar nav; codex 2-round PASS |
 | **D** NetBox-derived per-instance MXL endpoints | "monitor polish" | ✅ done (merged dmf-cms#25, G26; codex 3-round PASS) — critical path | Monitor vertical; **without it you cannot SEE lifecycle state or a switch** (codex P2) |
 | **C** media-native tile + live modal | "monitor polish" | ✅ done (merged dmf-cms#26, G27; codex 3-round PASS) | The **per-instance function view**: tile shows run-state + live preview; the surface a switch is observed on |
-| **W0** Media Workload entity | — | **→ RFC (filed separately)** | The missing anchor (EBU: a Media Workload is an *assembly of Media Functions for a production*, Fig B1). Introduce it as a first-class entity, membership by NetBox tag `workload:<name>`; `videotest` = `mxl-videotestsrc` + `mxl-videotest-view` + their flow. Extends ADR-0037 (which deliberately modelled the page as a Function *inventory* and deferred the assembly). **Not a v0.2a WP** — RFC→ADR |
+| **W0** Media Workload entity | — | **→ RFC (filed separately)** | The missing anchor (EBU: a Media Workload is an *assembly of Media Functions for a production*, Fig B1). Introduce it as a first-class entity, membership by NetBox tag `workload:<name>`; `videotest` = `mxl-videotestsrc` + `mxl-videotest-view` + their flow. **Amends** ADR-0037 (which deliberately modelled the page as a Function *inventory* and deferred the assembly) — as a tag-derived virtual grouping, no NetBox graph object. **Blocker (codex P1):** launcher configure/finalise tasks PATCH exact tag lists, so `workload:*` must be made owned/preserved or it's erased mid-lifecycle. **Not a v0.2a WP** — RFC→ADR |
 | ~~L1~~ lifecycle legibility | — | **reframed → W0/RFC** | Corrected: the EBU 6-stage lifecycle (Design→Plan→Provision→Configure→Operate→Finalise&Review) is a **workload-level** property, not per-function-instance, and is not the 3-stage collapse first sketched. A *function* has a run-state; the *workload* has a lifecycle stage. Lands on W0, not as a standalone WP |
-| ~~L2~~ catalog EBU vocab fix | — | **reframed → RFC (schema)** | Corrected: `vertical` is the **wrong axis** for Layer-5 media functions (the four verticals are control-plane cross-cuts). Not "pick a valid vertical" — media functions want a **Layer 5 + media-function type/role** and should not require a vertical. Touches ADR-0003/0013; filed separately as a catalog-schema change |
+| ~~L2~~ catalog EBU vocab fix | — | **reframed → RFC (schema)** | Corrected (codex, from the whitepaper): verticals are cross-cutting and apply at **every** layer, so Layer-5 *support/control* functions legitimately keep one (`nmos-cpp`=orchestration, `nmos-crosspoint`=control). The bug is narrower — the mxl entries' `media-functions`/`media-processing` values aren't verticals at all. Rule: Layer-5 *media-processing* functions get **Layer + a media-function type/role** and omit `vertical`. Touches ADR-0003/0013; filed separately as a catalog-schema change |
 | **NEW L3** run preflight + rollback | — | **add (stays v0.2a)** | Before a live run: report current media workloads + requested CPU/mem vs node budget; a cleanup/rollback path returning NetBox tags + Helm releases + monitor targets to pre-run state (codex P3 — the live env carries residue + CPU-budget pressure). Operational safety — stays in v0.2a |
 
 **v0.2a acceptance (load-bearing, codex P2):**
@@ -132,12 +132,17 @@ vocabulary drift that reshapes the former "L1/L2" additions:
   entity"), membership by NetBox tag `workload:<name>` (operator decision: NetBox
   for now, no new store). First worked example: the **`videotest`** workload =
   `mxl-videotestsrc` + `mxl-videotest-view` + the MXL flow between them (2
-  functions + 1 flow — the minimal Fig B1 box).
+  functions + 1 flow — the smallest demonstrator of the B1 pattern, not a literal
+  miniature of B1's many-role production).
 - **L1** (lifecycle) is reframed onto that entity: the 6-stage EBU lifecycle is a
-  **workload-level** property; a function keeps a run-state.
-- **L2** (catalog vocab) is reframed as a **schema** question: `vertical` is the
-  wrong axis for Layer-5 media functions; they want Layer + a function type/role
-  and should not require a control-plane vertical.
+  **workload-level** property (Fig 1 is titled *Media Workload Lifecycle*); a
+  function-instance's `lifecycle:*` tag is desired/run intent. NB the whitepaper
+  also defines function-orchestration activities, so this is a console rule, not
+  an absolute ontology claim.
+- **L2** (catalog vocab) is reframed as a **schema** question: verticals are
+  cross-cutting (every layer), so Layer-5 *support/control* functions may keep one;
+  the actual bug is the mxl entries' non-vertical values. Media-*processing*
+  functions get Layer + a function type/role and omit `vertical`.
 
 L1/L2 + the Workload entity leave the inline v0.2a scope and are filed
 separately (RFC + their own issues). L3 (preflight/rollback) stays in v0.2a.
