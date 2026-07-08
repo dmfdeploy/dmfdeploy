@@ -4,6 +4,7 @@
 **Date:** 2026-06-03
 **Deciders:** @<handle>, design conversation with Claude (2026-06-03) while reading the EBU DMF Reference Architecture V2.0 whitepaper
 **Supersedes/amends:** ADR-0027 (resolves its deferred installation/instance-layer implementation: NetBox instances, not a `MediaFunctionInstance` CRD)
+**Amended by:** ADR-0046 (adds the deferred *assembly* layer — a first-class Media Workload as a tag-derived grouping, `workload:<slug>`; this ADR's function-inventory model stays intact underneath it)
 
 ## Context
 
