@@ -6,7 +6,7 @@ Single-page lookup that aligns the homelab DMF rollout with the EBU
 vocabulary, layer/vertical/lifecycle naming, and old↔new playbook
 identity.
 
-White paper: `~/Downloads/EBU_White_Paper_The_Dynamic_Media_Facility_Reference_Architecture.pdf`
+White paper: `~/repos/EBU_White_Paper_The_Dynamic_Media_Facility_Reference_Architecture.pdf`
 
 ---
 
@@ -66,7 +66,7 @@ historical artifacts in the operator note store archive.
 | Host | node | EBU treats Kubernetes "Node" as a Host |
 | Container | pod content | EBU treats Kubernetes "Pod" as a group of Containers |
 | Media Workload | (was "stack" loosely) | Assembly of Media Functions for a production (EBU Fig B1). **NB:** the console's "Media Workloads" page currently lists Media *Function* instances (ADR-0037 modelled the inventory and deferred the assembly); a first-class Media Workload entity — membership by NetBox tag `workload:<name>`, first example `videotest` = `mxl-videotestsrc` + `mxl-videotest-view` — is tracked in the Media Workload RFC. |
-| Media Function | media app, media service | Containerised processing unit. Layer-5; classified by Layer + a media-function type/role — **not** by one of the four control-plane verticals (Orchestration/Control/Monitoring/Security). |
+| Media Function | media app, media service | Unit acting on media streams/files/objects, provisioned as **one or more** Containers. Verticals are cross-cutting (apply at every layer — see above), so a Layer-5 *support/control* function may carry one (`nmos-cpp`=orchestration, `nmos-crosspoint`=control). A Layer-5 *media-processing* function is classified by Layer + a media-function type/role and omits `vertical` — the current `media-functions`/`media-processing` values are invalid (those aren't verticals). See the Media Workload RFC. |
 | Resource Profile | (no equivalent) | EBU "Design" stage output: compute/network/storage/licence requirements |
 | Facility Orchestration | site.yml + run-playbook.sh | The whole control envelope |
 | Flow / Flow Domain | (no equivalent yet) | EBU §Media Exchange concept; deferred until layer 4 work |
