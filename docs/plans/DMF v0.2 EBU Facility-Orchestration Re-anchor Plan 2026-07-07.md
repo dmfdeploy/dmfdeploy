@@ -111,7 +111,11 @@ Reconciled work packages:
 2. The console shows `mxl-videotest-view` moving Provision→Configure(active)→
    Finalise as **explicit lifecycle state**, backed by NetBox `lifecycle:*`.
 3. Live preview + status visible on the instance (Monitor).
-4. Catalog schema check passes; the three MXL entries carry valid EBU verticals.
+4. Catalog schema check passes: it accepts legitimate support/control verticals
+   (e.g. `nmos-cpp`=orchestration, `nmos-crosspoint`=control), rejects the
+   non-vertical values, and requires the media-processing MXL entries
+   (`mxl-videotestsrc`/`view`, `mxl-hello`) to **omit** `vertical` and carry a
+   `media_function_type`/role instead.
 5. Preflight reports budget; a finalise/rollback returns the env to pre-run state.
 6. Devtools/network scan: no cluster/tailnet/IP strings in any payload.
 
@@ -229,7 +233,7 @@ rollback preflight.
   licensing). This plan supersedes the media-native demo plan's framing; that doc
   is flipped to `superseded`.
 - **RFC: first-class Media Workload entity** (§4a) — Draft; goes through a
-  Discussions RFC → ADR (extends ADR-0037; touches ADR-0003/0013). L1 (workload
+  Discussions RFC → ADR (amends ADR-0037; touches ADR-0003/0013). L1 (workload
   lifecycle) and L2 (catalog Layer/type vs vertical) land under it.
 - **ADR-0045** (licensing seam) — Proposed; should go through a Discussions RFC
   before Accepted (CONTRIBUTING RFC-before-ADR).
@@ -242,5 +246,5 @@ rollback preflight.
   (dmf-cms#25, NetBox-derived per-instance MXL endpoints, codex 3-round PASS);
   **G27 = WP-C ✅ merged 2026-07-07** (dmf-cms#26, media-native tile grid + live
   modal, codex 3-round PASS, approved by lkirc). **That completes the A–E demo
-  set — #185 is ready to close** (pending operator close-vs-retitle call).
+  set — #185 is closed; #189 (v0.2 EBU re-anchor) tracks the rest.**
   PR auto-merge arms at open; branch each WP from fresh `main`.

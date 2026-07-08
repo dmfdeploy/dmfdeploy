@@ -6,7 +6,8 @@ Single-page lookup that aligns the homelab DMF rollout with the EBU
 vocabulary, layer/vertical/lifecycle naming, and old↔new playbook
 identity.
 
-White paper: `~/repos/EBU_White_Paper_The_Dynamic_Media_Facility_Reference_Architecture.pdf`
+White paper: *The Dynamic Media Facility Reference Architecture* V2.0 (EBU,
+[tech.ebu.ch](https://tech.ebu.ch/)). Operator-local PDF copy kept outside the repo.
 
 ---
 
