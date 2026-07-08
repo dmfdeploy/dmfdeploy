@@ -1,7 +1,7 @@
 ---
 status: active
 date: 2026-07-07
-tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/185
+tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/189
 ---
 # DMF v0.2 EBU Facility-Orchestration Re-anchor Plan (2026-07-07)
 
@@ -222,11 +222,12 @@ rollback preflight.
 
 ## 9. Working-model wiring
 
-- Tracking issue **#185** = the **A–E demo set** (super-admin, view-as, gate/nav,
-  WP-D endpoints, WP-C grid). A–E is **complete once dmf-cms#26 merges → close
-  #185 there.** The Media Workload entity + L1/L2 are *not* A–E scope; they move to
-  their own RFC + issues (§4a). This plan supersedes the media-native demo plan's
-  framing; that doc is flipped to `superseded`.
+- Tracking issue is **#189** (v0.2 EBU re-anchor). The former **#185** = the
+  **A–E demo set** (super-admin, view-as, gate/nav, WP-D endpoints, WP-C grid);
+  A–E completed with dmf-cms#26, so **#185 is closed** and this plan re-points to
+  #189 (which carries L3 + the Media Workload entity/L1/L2 RFC track + v0.2b +
+  licensing). This plan supersedes the media-native demo plan's framing; that doc
+  is flipped to `superseded`.
 - **RFC: first-class Media Workload entity** (§4a) — Draft; goes through a
   Discussions RFC → ADR (extends ADR-0037; touches ADR-0003/0013). L1 (workload
   lifecycle) and L2 (catalog Layer/type vs vertical) land under it.

@@ -31,8 +31,11 @@ modal is open) and P3 reduced-motion pause; 200ms `InstanceLiveModal` with focus
 management. Codex adversarial cross-check **3 rounds → PASS** (R1: legacy table
 `MxlDetailPanel` leaked unbounded 200ms polling + non-discriminating tests +
 missing modal focus; R2: modal flow-stats at 500ms vs the 200ms spec; R3 clean).
-49 frontend + 153 backend green. **This completes the A–E demo set** — #185 is
-ready to close (operator call; used `refs`, not `Closes`).
+49 frontend + 153 backend green. **This completes the A–E demo set.** Per the
+working model (no active plan tracking a closed issue), **#185 is closed** and a
+fresh tracking issue **#189** (v0.2 EBU re-anchor) now carries the remaining work
+(L3, Media Workload entity/L1/L2 RFC, v0.2b, licensing); the re-anchor plan
+`tracking_issue` re-points to #189.
 
 **EBU terminology correction (2026-07-08):** review against the whitepaper (Fig
 B1) found DMF has no first-class **Media Workload** entity (an *assembly of Media
