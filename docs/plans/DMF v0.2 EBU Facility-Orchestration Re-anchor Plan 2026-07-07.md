@@ -99,10 +99,11 @@ Reconciled work packages:
 | **B** view-as | Security | ✅ done (merged dmf-cms#23) | Security vertical (authorise/audit) |
 | **E** gate + nav + §5b logout | Security | ✅ done (merged dmf-cms#24, dmf-infra#43) | Security **on the Configure/Provision writes**: operator-gated deploy/teardown/launch + C5 audit = the lifecycle's authorise+record. RP-initiated logout (end-session) + Settings→avatar nav; codex 2-round PASS |
 | **D** NetBox-derived per-instance MXL endpoints | "monitor polish" | ✅ done (merged dmf-cms#25, G26; codex 3-round PASS) — critical path | Monitor vertical; **without it you cannot SEE lifecycle state or a switch** (codex P2) |
-| **C** media-native tile + live modal | "monitor polish" | **KEEP — critical path** | The **lifecycle-legible instance view**: tile shows stage (bootstrapped/active) + live preview; the surface a switch is observed on |
-| **NEW L1** lifecycle legibility | — | **add** | Surface each instance's lifecycle **stage** as an explicit state (not a collapsed `<details>`); a state timeline backed by NetBox `lifecycle:*`; make deploy→clear→finalise read as Provision→Configure→Finalise |
-| **NEW L2** catalog EBU vocab fix | — | **add (bug)** | `mxl-videotest-view`, `mxl-hello`, `mxl-videotestsrc` set `vertical: media-functions`/`media-processing` — **invalid** (those are layer names). README requires vertical ∈ {orchestration, control, monitoring, security}. Fix the entries + **add a catalog schema check** so the console's EBU metadata is trustworthy (codex P2) |
-| **NEW L3** run preflight + rollback | — | **add** | Before a live run: report current media workloads + requested CPU/mem vs node budget; a cleanup/rollback path returning NetBox tags + Helm releases + monitor targets to pre-run state (codex P3 — the live env carries residue + CPU-budget pressure) |
+| **C** media-native tile + live modal | "monitor polish" | ✅ shipped as dmf-cms#26 (G27, codex 3-round PASS; PR open) | The **per-instance function view**: tile shows run-state + live preview; the surface a switch is observed on |
+| **W0** Media Workload entity | — | **→ RFC (filed separately)** | The missing anchor (EBU: a Media Workload is an *assembly of Media Functions for a production*, Fig B1). Introduce it as a first-class entity, membership by NetBox tag `workload:<name>`; `videotest` = `mxl-videotestsrc` + `mxl-videotest-view` + their flow. Extends ADR-0037 (which deliberately modelled the page as a Function *inventory* and deferred the assembly). **Not a v0.2a WP** — RFC→ADR |
+| ~~L1~~ lifecycle legibility | — | **reframed → W0/RFC** | Corrected: the EBU 6-stage lifecycle (Design→Plan→Provision→Configure→Operate→Finalise&Review) is a **workload-level** property, not per-function-instance, and is not the 3-stage collapse first sketched. A *function* has a run-state; the *workload* has a lifecycle stage. Lands on W0, not as a standalone WP |
+| ~~L2~~ catalog EBU vocab fix | — | **reframed → RFC (schema)** | Corrected: `vertical` is the **wrong axis** for Layer-5 media functions (the four verticals are control-plane cross-cuts). Not "pick a valid vertical" — media functions want a **Layer 5 + media-function type/role** and should not require a vertical. Touches ADR-0003/0013; filed separately as a catalog-schema change |
+| **NEW L3** run preflight + rollback | — | **add (stays v0.2a)** | Before a live run: report current media workloads + requested CPU/mem vs node budget; a cleanup/rollback path returning NetBox tags + Helm releases + monitor targets to pre-run state (codex P3 — the live env carries residue + CPU-budget pressure). Operational safety — stays in v0.2a |
 
 **v0.2a acceptance (load-bearing, codex P2):**
 1. ops login authorised; a viewer **cannot** deploy/clear/finalise by curl (403);
@@ -115,6 +116,31 @@ Reconciled work packages:
 6. Devtools/network scan: no cluster/tailnet/IP strings in any payload.
 
 **Explicitly NOT in v0.2a:** switching, licence enforcement, Design/Plan authoring.
+
+### 4a. Terminology correction — Media Workload vs Media Function (2026-07-08)
+
+Operator + Claude review against the EBU whitepaper (Annex B, Fig B1) surfaced a
+vocabulary drift that reshapes the former "L1/L2" additions:
+
+- **A Media Workload is an *assembly of Media Functions for a production*** (canon:
+  `docs/architecture/DMF EBU Mapping (2026-04-25).md`), not a single deployed
+  function. DMF has no such entity today — ADR-0037 deliberately modelled the
+  console's "Media Workloads" page as a Media *Function* **instance inventory**
+  and deferred the assembly. The page is named for the workload concept but its
+  rows are Functions.
+- This is now promoted to a standalone **RFC → ADR** ("first-class Media Workload
+  entity"), membership by NetBox tag `workload:<name>` (operator decision: NetBox
+  for now, no new store). First worked example: the **`videotest`** workload =
+  `mxl-videotestsrc` + `mxl-videotest-view` + the MXL flow between them (2
+  functions + 1 flow — the minimal Fig B1 box).
+- **L1** (lifecycle) is reframed onto that entity: the 6-stage EBU lifecycle is a
+  **workload-level** property; a function keeps a run-state.
+- **L2** (catalog vocab) is reframed as a **schema** question: `vertical` is the
+  wrong axis for Layer-5 media functions; they want Layer + a function type/role
+  and should not require a control-plane vertical.
+
+L1/L2 + the Workload entity leave the inline v0.2a scope and are filed
+separately (RFC + their own issues). L3 (preflight/rollback) stays in v0.2a.
 
 ## 5. v0.2b scope — connection intent (the next slice, sketch)
 
@@ -191,16 +217,23 @@ rollback preflight.
 
 ## 9. Working-model wiring
 
-- Tracking issue **#185** (reframed: the v0.2 demo-set issue now delivers the
-  v0.2a honest lifecycle). This plan supersedes the media-native demo plan's
+- Tracking issue **#185** = the **A–E demo set** (super-admin, view-as, gate/nav,
+  WP-D endpoints, WP-C grid). A–E is **complete once dmf-cms#26 merges → close
+  #185 there.** The Media Workload entity + L1/L2 are *not* A–E scope; they move to
+  their own RFC + issues (§4a). This plan supersedes the media-native demo plan's
   framing; that doc is flipped to `superseded`.
+- **RFC: first-class Media Workload entity** (§4a) — Draft; goes through a
+  Discussions RFC → ADR (extends ADR-0037; touches ADR-0003/0013). L1 (workload
+  lifecycle) and L2 (catalog Layer/type vs vertical) land under it.
 - **ADR-0045** (licensing seam) — Proposed; should go through a Discussions RFC
   before Accepted (CONTRIBUTING RFC-before-ADR).
-- New issues to open when their slice starts: v0.2b connection-intent switch; the
+- New issues to open when their slice starts: the Media Workload entity (post-RFC);
+  the L2 catalog-schema correction; v0.2b connection-intent switch; the
   licence-provider code slice; live IS-05 switching; each with its own acceptance
   gate. WP-F (Console IAM, #186) and WP-G/H (#187) unchanged.
 - Codex-gate each code WP. **G25 = WP-E ✅ merged 2026-07-07** (dmf-cms#24 +
   dmf-infra#43, codex 2-round PASS); **G26 = WP-D ✅ merged 2026-07-07**
   (dmf-cms#25, NetBox-derived per-instance MXL endpoints, codex 3-round PASS);
-  next code WP is **C** (G27, media-native tile grid + live modal; depends on D).
-  PR auto-merge arms at open; branch each WP from fresh `main`.
+  **G27 = WP-C shipped as dmf-cms#26** (media-native tile grid + live modal,
+  codex 3-round PASS; PR open, holds on REVIEW_REQUIRED). That completes the A–E
+  demo set. PR auto-merge arms at open; branch each WP from fresh `main`.
