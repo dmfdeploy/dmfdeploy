@@ -232,8 +232,9 @@ rollback preflight.
   #189 (which carries L3 + the Media Workload entity/L1/L2 RFC track + v0.2b +
   licensing). This plan supersedes the media-native demo plan's framing; that doc
   is flipped to `superseded`.
-- **RFC: first-class Media Workload entity** (§4a) — Draft; goes through a
-  Discussions RFC → ADR (amends ADR-0037; touches ADR-0003/0013). L1 (workload
+- **RFC: first-class Media Workload entity** (§4a) — posted as **Discussion #190**
+  (Ideas), codex 3-round PASS; → ADR when it converges (amends ADR-0037; touches
+  ADR-0003/0013). L1 (workload
   lifecycle) and L2 (catalog Layer/type vs vertical) land under it.
 - **ADR-0045** (licensing seam) — Proposed; should go through a Discussions RFC
   before Accepted (CONTRIBUTING RFC-before-ADR).
