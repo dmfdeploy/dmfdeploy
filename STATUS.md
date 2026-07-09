@@ -19,6 +19,15 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ ADR-0046 — first-class Media Workload entity: all 4 code slices MERGED (2026-07-09)
+The ADR-0046 implementation workstream landed across **8 PRs in 4 repos**:
+- **Slice A** (dmf-runbooks#13): launcher tag preservation — `netbox_catalog_common` role with `merge_owned_tags` filter plugin; all 3 launcher roles (mxl, nmos-cpp, nmos-crosspoint) now preserve non-owned tags (`workload:*`) across provision/configure/finalise PATCH cycles.
+- **Slice 2.1** (dmf-media#14 + dmf-cms#27): catalog `media_function_type` field + fail-closed validation — MXL entries migrated from legacy `vertical:media-functions` to `media_function_type:source|view`; dmf-cms `_validate_ebu()` rejects entries with neither/both/invalid classification (unhashable-safe via `isinstance(val, str)` guard).
+- **Slice 2.3** (dmf-media#15 + dmf-runbooks#14 + dmf-infra#44 + dmf-cms#28): mxl-hello retirement — chart, playbooks, AWX job templates, zot seed, and all test fixtures removed across 4 repos; no-sidecar test coverage preserved via `mxl-mock-nosidecar`.
+- **Slice 2.2** (dmf-cms#29): workload-first grouping + grouped API — additive `GET /api/media-workloads/grouped` endpoint groups instances by `workload:<slug>` tag, derives per-workload lifecycle (provision/configure/operate), identity-joins Prometheus observed state via `instance` target URL → NetBox `cluster_service` custom field (confirmed no `cluster_service` label on real metrics). Invalid-multiple instances surfaced with conflicting workload slugs. Frontend migrated to workload-first cards.
+
+Remaining: #196 (role-level test), #199 (API flip rename), Slice E live-track (#193 teardown, operator-owned). Issue #198 closed.
+
 ### ✅ v0.2a WP-C — media-native tile grid + live modal MERGED (2026-07-07)
 G27 shipped as **dmf-cms#26** (branch `feat/mxl-tile-grid-g27`), merged (commit
 `97f8811`, approved by lkirc). Media Workloads gets a media-native tile grid as
