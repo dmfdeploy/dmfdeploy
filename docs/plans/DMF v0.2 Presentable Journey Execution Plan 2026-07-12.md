@@ -20,7 +20,9 @@ A stranger-viewable demo of the complete user journey on one env:
 > Enroll an operator (passkey invitation) → see the declared **Design/Plan**
 > state of the `videotest` Media Workload (legibility, not authoring) →
 > **Provision** → **Configure** → **Operate**: watch live tiles/preview and
-> **switch the viewer between two test-pattern sources** → **Finalise**,
+> **re-point the viewer between two test-pattern sources** (coarse
+> source-reconfigure via the connection-intent seam, not live IS-05) →
+> **Finalise**,
 > with the **Security** beats (viewer-role 403s, reason-required writes, C5
 > audit trail) and **Monitor** beats (NetBox-derived targets, alerts,
 > preview) shown along the way.
@@ -32,13 +34,20 @@ the switch — everything before it shipped in v0.2a (A–E, #185).
 
 ## 2. Work packages, in priority order
 
-| # | WP | Issue | State | Depends on |
-|---|---|---|---|---|
-| J1 | **Switch beat**: multi-source videotest topology + launcher source selection + coarse connection-intent switch. **Spec doc first** (umbrella `docs/plans/`, codex-gated), then build. | [#201](https://github.com/dmfdeploy/dmfdeploy/issues/201) | open | — (spec); J2 capacity data helps |
-| J2 | **Workload-entity tail + safety**: grouped-API flip [#199](https://github.com/dmfdeploy/dmfdeploy/issues/199), tag-preservation test [#196](https://github.com/dmfdeploy/dmfdeploy/issues/196), mxl-hello retirement [#193](https://github.com/dmfdeploy/dmfdeploy/issues/193); then L3 preflight + rollback. | [#202](https://github.com/dmfdeploy/dmfdeploy/issues/202) (+ the three above) | open | — |
-| J3 | **Standing demo env + written demo runbook**; runbook written against current state, upgraded when J1 lands. | [#203](https://github.com/dmfdeploy/dmfdeploy/issues/203) | open | env: none; final runbook: J1 |
-| J4 | **RFC writing track** (parallel, design-only): media-function packaging, catalog sources, trust tiers — paired with the ADR-0045 licensing RFC. | [#204](https://github.com/dmfdeploy/dmfdeploy/issues/204) | open | none (must not displace J1–J3) |
-| J5 | **First out-of-tree media function** enters via the J4 package path (demo upgrade + contribution-path validation). | opens when J4 has a draft format | later | J4 draft, J1 |
+Liveness (open/claimed/done) lives in the issues, never in this table.
+
+| # | WP | Issue | Depends on |
+|---|---|---|---|
+| J1 | **Switch beat** (coarse source-reconfigure): multi-source videotest topology + launcher source selection + connection-intent seam. **Spec doc first** (umbrella `docs/plans/`, codex-gated), then build. | [#201](https://github.com/dmfdeploy/dmfdeploy/issues/201) | spec: none. Build/live demo: **#202 (L3) is a hard gate** — see sequencing rules |
+| J2 | **Workload-entity tail**: grouped-API flip [#199](https://github.com/dmfdeploy/dmfdeploy/issues/199), tag-preservation test [#196](https://github.com/dmfdeploy/dmfdeploy/issues/196), mxl-hello retirement [#193](https://github.com/dmfdeploy/dmfdeploy/issues/193). | those three | — |
+| J2s | **Run safety**: L3 preflight + rollback. | [#202](https://github.com/dmfdeploy/dmfdeploy/issues/202) | — |
+| J3 | **Standing demo env + written demo runbook**; runbook written against current state, upgraded when J1 lands. | [#203](https://github.com/dmfdeploy/dmfdeploy/issues/203) | env: none; final runbook: J1 |
+| J4 | **RFC writing track** (parallel, design-only, pure RFC/ADR text): media-function packaging, catalog sources, trust tiers — paired with the ADR-0045 licensing RFC. Any code footprint (e.g. catalog-schema hooks) is decided and scoped inside [#204](https://github.com/dmfdeploy/dmfdeploy/issues/204)/its ADR, not here. | [#204](https://github.com/dmfdeploy/dmfdeploy/issues/204) | none (must not displace J1–J3) |
+
+**Later (not in this round):** the first out-of-tree media function enters via
+the J4 package path (demo upgrade + contribution-path validation). It opens its
+own issue when J4 has a draft package format and J1 has landed; it is
+deliberately absent from the active table above.
 
 Sequencing rules:
 
@@ -46,25 +55,26 @@ Sequencing rules:
   path is unspecced.
 - **J2 small slices (#199/#196/#193) are fair game any time** — they're
   independent and already designed (ADR-0046).
-- **L3 (#202) must land before or with the J1 demo build** — the demo scenario
-  is exactly the shape that previously hit 96% CPU requests and wedged AWX
-  (MXL revival plan §7 follow-ups).
+- **L3 (#202) is a hard gate for the J1 demo build**: the J1 *spec* may
+  proceed freely, but no J1 multi-source topology runs live before the L3
+  preflight exists — the demo scenario is exactly the shape that previously
+  hit 96% CPU requests and wedged AWX (MXL revival plan §7 follow-ups).
 - **J3's env can start immediately** (it also unblocks live verification for
   everything else); the runbook is written incrementally, not at the end.
-- **J4 never blocks or displaces J1–J3.** It is a writing track; its only code
-  footprint in this round is the cheap-now catalog-schema hooks named in #204.
-- **J5 does not start in this round** — it opens its own issue when J4 has a
-  draft package format. The first out-of-tree function must *not* be wired the
-  current three-repo way (catalog in dmf-media + launchers in dmf-runbooks +
-  JT seeding in dmf-infra); entering through the package path is the point.
+- **J4 never blocks or displaces J1–J3.** It is a writing track producing RFC
+  and ADR text only; whether/when any code hooks land is decided inside #204
+  and its resulting ADR.
+- **The first out-of-tree function must *not* be wired the current three-repo
+  way** (catalog in dmf-media + launchers in dmf-runbooks + JT seeding in
+  dmf-infra); entering through the J4 package path is the point.
 
 ## 3. Acceptance gate for the track (#200)
 
 The demo runbook (#203) executes end-to-end on the standing env **by someone
-who didn't build the platform**, including the live switch beat (#201),
-without wedging the node (#202), with the Security and Monitor beats
+who didn't build the platform**, including the coarse source-reconfigure beat
+(#201), without wedging the node (#202), with the Security and Monitor beats
 observable as described. When that holds, #200 closes and this plan flips to
-`done`.
+`status: executed` (+ `executed: <date>`).
 
 ## 4. Non-goals in this round (already decided elsewhere — do not reopen)
 
@@ -84,7 +94,7 @@ issue + flips frontmatter). Specifics for this track:
 
 1. **Boot**: run the umbrella boot ritual, then read this plan §2 to pick the
    highest-priority unclaimed WP. Liveness lives in the issues, never here —
-   this table's State column is refreshed by the PRs that close the issues.
+   always check the linked issue before assuming a WP is open.
 2. **Claim by commenting on the issue** before starting, so parallel sessions
    don't collide.
 3. **Spec-first WPs (J1, J4)**: the spec/RFC is itself codex-gated before any
