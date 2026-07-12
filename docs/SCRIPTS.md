@@ -119,7 +119,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | Script | Description |
 |---|---|
 | `dmf-media/bin/install-hooks.sh` | point this clone's git at .githooks/. |
-| `dmf-media/bin/publish-chart-to-ghcr.sh` | publish the dmf-media NMOS chart to GHCR. |
+| `dmf-media/bin/publish-chart-to-ghcr.sh` | publish a dmf-media chart to GHCR. |
 | `dmf-media/bin/publish-nmos-crosspoint.sh` | build + (optionally) publish the nmos-crosspoint image. Thin wrapper: builds the ARM64 image at a pinned upstream ref via Colima, then delegates the GHCR push to the umbrella's bin/publish-image-to-ghcr.sh (single source of truth for auth: token-via-stdin, isolated DOCKER_CONFIG). |
 | `dmf-media/bin/working-model-digest.sh` | print the DMF working-model digest for session context. |
 
