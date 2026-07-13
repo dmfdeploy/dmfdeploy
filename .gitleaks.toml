@@ -27,7 +27,7 @@ useDefault = true
 # umbrella and each has its own .gitleaks.toml; double-scanning them
 # from the umbrella is just noise.
 [allowlist]
-description = "operator-local working-tree noise (gitignored or sub-repo)"
+description = "operator-local working-tree noise (gitignored or sub-repo) + meta files carrying pattern shapes by design"
 paths = [
     '''^\.claude/settings\.local\.json$''',
     '''^\.claude/scheduled_tasks\.lock$''',
@@ -39,8 +39,13 @@ paths = [
     '''^dmf-infra/''',
     '''^dmf-media/''',
     '''^dmf-env/''',
+    # The pattern manifest intentionally contains rule shapes + synthetic canaries
+    # (it is the source the rules region below is generated from) — like this
+    # config, it names the patterns it protects, so it is allowlisted here.
+    '''^patterns/public-manifest\.toml$''',
 ]
 
+# >>> DMF-GENERATED RULES (do not edit — bin/gen-gitleaks-rules.py) >>>
 # Per-rule allowlist for the default generic-api-key rule.
 [[rules]]
 id = "generic-api-key"
@@ -109,3 +114,4 @@ paths = [
     '''^bin/export-scan\.sh$''',
     '''^docs/plans/DMF Umbrella Security Audit Remediation Spec''',
 ]
+# <<< DMF-GENERATED RULES <<<
