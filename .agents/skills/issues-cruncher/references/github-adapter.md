@@ -25,7 +25,8 @@ adapter** (run status, required checks, merge state) and a **tracker adapter**
 - **Green ≠ mergeable** if rulesets allow admin bypass or skip required checks.
   Never auto-merge on green alone; respect the protection model.
 - Approval-driven rebase auto-merge **rebases**, which can sever the PR→issue
-  keyword auto-close. Don't rely on it to close the tracker item.
+  *native* keyword auto-close. Don't rely on the native keyword to close the
+  tracker item — a close reconciler (per profile) backstops it.
 
 ## Tracker (issues) — GitHub
 
@@ -35,9 +36,12 @@ adapter** (run status, required checks, merge state) and a **tracker adapter**
   multi-repo org the canonical backlog may be a *different* repo — use the
   fully-qualified `owner/repo#N` form so the link resolves (a bare `#N` targets the
   PR's own repo).
-- **Close behavior is a detected capability** (`repo-profile.md`). If the merge
-  won't auto-close (cross-repo, or rebase-merge severed it), close manually with a
-  comment linking the merge commit + PR. Don't assume.
+- **Close behavior is a detected capability** (`repo-profile.md`). Native
+  keyword auto-close may not fire (cross-repo, or rebase-merge severed it) — but
+  a repo may run a **close reconciler** that auto-closes from the qualified
+  `Closes` ref anyway (DMF does; see `dmf-profile.md`). Treat auto-close as the
+  norm where a reconciler exists; **manual close is a fallback** (no reconciler,
+  or you need immediacy) — a comment linking the merge commit + PR. Don't assume.
 
 ## Useful commands
 

@@ -21,17 +21,20 @@ revalidate before PR.
 - **Commit hygiene:** DCO sign-off required (`git commit -s`); **no
   `Co-Authored-By`**, no "Generated with" trailer — sign-off is the only trailer.
   Conventional-commit subject (commitlint gate).
-- **Close behavior:** cross-repo PRs **do not auto-close** umbrella issues (GitHub
-  limitation), and bot-actor rebase auto-merge severs even same-repo keyword close.
-  The `bin/close-completed-issues.sh` reconciler (`issue-close-reconciler.yml`,
-  **daily schedule + manual dispatch**) closes from GitHub's parsed closing
-  references, so a correct `Closes …` keyword is enough — closure just lands by
-  the next daily run (~24h, schedule is delay-prone), not instantly. There is
+- **Close behavior:** a correct fully-qualified `Closes dmfdeploy/dmfdeploy#N`
+  keyword **auto-closes** the umbrella issue — that is the norm, cross-repo
+  included. GitHub *native* auto-close doesn't fire here (cross-repo never fires,
+  and bot-actor rebase auto-merge severs even same-repo keyword close), so the
+  `bin/close-completed-issues.sh` reconciler (`issue-close-reconciler.yml`,
+  **daily schedule + manual dispatch**) does it — closing from GitHub's parsed
+  closing references. Closure lands by the next daily run (~06:00 UTC, schedule
+  is delay-prone), not instantly; **manual close is a fallback** — fine if you
+  need it immediate (PR-linked comment) or the ref wasn't qualified. There is
   intentionally no on-merge trigger: a `pull_request: closed` event from a
   `GITHUB_TOKEN` bot auto-merge does not start a workflow run (GitHub recursion
   prevention — the same bot-actor limitation that kills native auto-close), so
-  it could never fire for the bot-merged PRs it would need to (#79). Closing
-  manually with a PR-linked comment is fine if you want it immediate.
+  it could never fire for the bot-merged PRs it would need to (#79). The
+  reconciler never touches plan frontmatter — **flipping that stays manual.**
   (This is deliberate — the org stays on `GITHUB_TOKEN`, no standing secret; see
   umbrella #47/#54.)
 - **Board:** org Project #1 is a **human curation surface**, not part of filing.

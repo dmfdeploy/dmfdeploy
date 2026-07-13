@@ -30,8 +30,10 @@ or ask. Never silently default. Absence ≠ policy.**
 Whether a merged PR auto-closes its referenced issue is structural and
 platform-side. Determine it from **observed history**: do recently-merged PRs in
 this repo that said `Closes <ref>` actually show the issue closed-by-PR? Cross-repo
-(`owner/other#N`) almost never auto-closes — record that as a *detected capability*,
-not an assumption. (In this org it does **not** — see `dmf-profile.md` and #47.)
+(`owner/other#N`) almost never auto-closes **natively** — record that as a
+*detected capability*, not an assumption, and check whether the repo runs a close
+reconciler that closes it anyway. (This org **does** auto-close qualified cross-repo
+refs, via a daily reconciler — see `dmf-profile.md` and #47/#54.)
 
 ## Conflicting docs
 
