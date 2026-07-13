@@ -39,6 +39,13 @@ jobs:
         # Proves the gates scan a git worktree instead of silently skipping it
         # (public canary only; no operator-private include needed).
         run: bash tests/worktree-regression.sh
+      - name: gitleaks rules generator — drift check + self-test (R1 §4/§9)
+        # --check: the .gitleaks.toml [[rules]] region matches the manifest.
+        # --self-test: per-engine canary MATCH tests (public tier; no gitleaks
+        # binary needed until emit=false/useDefault entries land at step 4).
+        run: |
+          python3 bin/gen-gitleaks-rules.py --check
+          python3 bin/gen-gitleaks-rules.py --self-test
   check-docs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10

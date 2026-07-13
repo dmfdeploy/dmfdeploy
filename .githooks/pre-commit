@@ -44,6 +44,22 @@ elif [ "${GITLEAKS_HOOK_QUIET:-0}" != "1" ]; then
     echo "             brew install gitleaks (silence with GITLEAKS_HOOK_QUIET=1)" >&2
 fi
 
+# gitleaks rules region ↔ manifest drift (R1 §4/§9). This is a PUBLIC-SAFETY gate,
+# so it sits with the gitleaks scan ABOVE the STATUS_HOOK_SKIP escape hatch — that
+# hatch is only for doc refresh/checks and must never skip a secret-scanning gate.
+# The marker-fenced [[rules]] region of .gitleaks.toml is generated from
+# patterns/public-manifest.toml; a manifest edit without regen (or a hand-edited
+# region) is refused.
+if [ -f "$REPO_ROOT/patterns/public-manifest.toml" ] && command -v python3 >/dev/null 2>&1; then
+    if ! python3 "$REPO_ROOT/bin/gen-gitleaks-rules.py" --check >/dev/null 2>&1; then
+        echo "" >&2
+        echo "[pre-commit] .gitleaks.toml rules region drifted from the manifest — refusing commit" >&2
+        python3 "$REPO_ROOT/bin/gen-gitleaks-rules.py" --check 2>&1 | sed 's/^/  /' >&2
+        echo "  run: bin/gen-gitleaks-rules.py --emit  (then stage .gitleaks.toml)" >&2
+        exit 1
+    fi
+fi
+
 # Only fire the umbrella-specific bits when umbrella scripts exist. Component
 # repos use the same hooksPath only if their operators opt in; we don't want to
 # break them silently if they happen to share a config.
