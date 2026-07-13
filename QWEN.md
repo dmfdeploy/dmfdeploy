@@ -94,9 +94,11 @@ in the umbrella repo. The three rules that matter mid-task:
    ([dmfdeploy/dmfdeploy issues](https://github.com/dmfdeploy/dmfdeploy/issues);
    milestone + `component:*`/`workstream:*` labels). Non-trivial work gets a
    plan doc in umbrella `docs/plans/` with `tracking_issue` frontmatter.
-2. **The completing PR closes the issue and flips the plan frontmatter in the
-   same change.** From a component repo, reference umbrella issues **fully
-   qualified** — `Closes dmfdeploy/dmfdeploy#N`; bare `#N` targets the wrong repo.
+2. **The completing PR auto-closes its issue; you still flip the plan
+   frontmatter by hand in that PR.** Reference umbrella issues **fully
+   qualified** — `Closes dmfdeploy/dmfdeploy#N` (bare `#N` targets the wrong
+   repo); the daily issue-close reconciler honors that ref, cross-repo
+   included. Manual close is a fallback.
 3. **Never invent a local backlog** (TODO files, ad-hoc trackers). Issues =
    liveness; plan frontmatter = design state; ADRs = decisions (RFC in
    Discussions first); STATUS.md = committed notes; STATUS.local.md = live repo snapshot.
@@ -113,8 +115,11 @@ in the umbrella repo. The three rules that matter mid-task:
 - The live backlog is [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues)
   (org board Project #1) — not TODOS.md (retired 2026-06-10), not `docs/agentic/`.
 - New work: issue → on-disk spec in `docs/plans/` with `tracking_issue`
-  frontmatter → the completing PR closes the issue and flips the frontmatter in
-  the same change. Issues win for liveness; frontmatter wins for design state.
+  frontmatter → the completing PR **auto-closes the issue** (the daily
+  `issue-close-reconciler` honors the qualified `Closes dmfdeploy/dmfdeploy#N`
+  ref, cross-repo included; manual close is fallback) and you **flip the
+  frontmatter by hand** in the same change. Issues win for liveness; frontmatter
+  wins for design state.
 
 ### Verification before done
 - Never mark a task complete without proving it works.

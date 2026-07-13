@@ -130,9 +130,11 @@ in the umbrella repo. The three rules that matter mid-task:
    ([dmfdeploy/dmfdeploy issues](https://github.com/dmfdeploy/dmfdeploy/issues);
    milestone + `component:*`/`workstream:*` labels). Non-trivial work gets a
    plan doc in umbrella `docs/plans/` with `tracking_issue` frontmatter.
-2. **The completing PR closes the issue and flips the plan frontmatter in the
-   same change.** From a component repo, reference umbrella issues **fully
-   qualified** — `Closes dmfdeploy/dmfdeploy#N`; bare `#N` targets the wrong repo.
+2. **The completing PR auto-closes its issue; you still flip the plan
+   frontmatter by hand in that PR.** Reference umbrella issues **fully
+   qualified** — `Closes dmfdeploy/dmfdeploy#N` (bare `#N` targets the wrong
+   repo); the daily issue-close reconciler honors that ref, cross-repo
+   included. Manual close is a fallback.
 3. **Never invent a local backlog** (TODO files, ad-hoc trackers). Issues =
    liveness; plan frontmatter = design state; ADRs = decisions (RFC in
    Discussions first); STATUS.md = committed notes; STATUS.local.md = live repo snapshot.
@@ -153,8 +155,12 @@ in the umbrella repo. The three rules that matter mid-task:
 - **Gotcha:** `gh project` subcommands may 401 — use raw `gh api graphql`
   (Project #1 node id `PVT_kwDOENb9uM4BaPY-`).
 - **New-work convention:** open (or claim) an issue → write the on-disk spec in
-  `docs/plans/` with `tracking_issue` frontmatter → the PR that completes the
-  work closes the issue **and flips the plan's frontmatter in the same change**.
+  `docs/plans/` with `tracking_issue` frontmatter → the completing PR
+  **auto-closes the issue** (the `bin/close-completed-issues.sh` reconciler,
+  scheduled daily via `issue-close-reconciler.yml`, honors the qualified
+  `Closes dmfdeploy/dmfdeploy#N` reference — cross-repo included; manual close is
+  fallback only) **and must flip the plan's frontmatter in the same change** —
+  the frontmatter flip is not automated.
 - **Split-brain precedence rule:** GitHub Issues are canonical for
   scheduling/liveness ("is anyone working on this?"); in-repo frontmatter is
   canonical for design/decision state. On disagreement the issue wins for
