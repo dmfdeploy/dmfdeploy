@@ -4,17 +4,69 @@
 # docs/plans/DMF Public-Safety Pattern Manifest Plan 2026-07-13.md).
 # bin/gen-gitleaks-rules.py renders the marker-fenced [[rules]] region of
 # .gitleaks.toml from the entries whose [pattern.gitleaks].emit == true.
+# bin/dmf-scan reads every entry with a regex for its git-grep passes.
 #
-# SCOPE (rollout step 1, §9): this manifest currently carries ONLY the entries
-# needed to generate the .gitleaks.toml rules region. The scrub SECRET_PATTERNS
-# (useDefault-covered + scrub-only shapes) and the operator-private tier are
-# folded in at later rollout steps (caller switch + private bootstrap); their
-# emit=false / covered_by entries land then, with useDefault coverage proven by
-# --self-test per §4.3.
+# SCOPE (rollout §9, after the §4.3 follow-on fold-in): this manifest now
+# carries the full public tier — the .gitleaks.toml rule sources AND the
+# scrub SECRET_PATTERNS/IDENTITY_PATTERNS shapes, folded in 1:1 with the
+# §9.1 parity landing. The operator-private tier stays in the operator-local
+# private manifest (never here). bin/check-pattern-parity.py proves the
+# fold-in lost no coverage against the old in-script arrays.
+#
+# Field notes:
+#   [pattern.gitleaks].emit=false entries record how the shape is covered:
+#     covered_by = "useDefault"  — the default gitleaks pack catches it;
+#                                  PROVEN by --self-test canaries against the
+#                                  real merged useDefault config (§4.3), and
+#                                  the negatives are proven NOT caught.
+#     covered_by = "git-grep"    — no gitleaks rule catches the shape as
+#                                  authored (empirically verified 2026-07-13:
+#                                  default rules need e.g. a full PEM body or
+#                                  90+-char vault tokens, and generic-api-key
+#                                  is entropy-gated); the scan library's
+#                                  git-grep pass is the coverage.
+#   [pattern.parity] marks entries with no old-world counterpart so the
+#   §9.1 parity gate can distinguish deliberate additions from drift.
+#
+# CANARY SPLICE: provider-shaped canary values are stored with a '~' spliced
+# into the token (stripped by every loader — bin/lib/dmf_scan.py
+# canary_value()) so the committed file never contains a literal that
+# provider push-protection scanners (GitHub secret scanning) match. The
+# tested value is always the stripped form.
 #
 # Public-safe by construction: only pattern SHAPES and synthetic canaries — never
 # an operator-specific value. This file is allowlisted in .gitleaks.toml's global
-# [allowlist] because its canaries deliberately match public rules.
+# [allowlist] and in the grep allowlist below because its canaries deliberately
+# match the rules it defines.
+
+# ── shared grep-pass path allowlist (consumed by bin/dmf-scan) ──
+# Mirrors bin/scrub-public-repos.sh ALLOWLIST_PATHS until the caller
+# switchover retires scrub's in-script copy (rollout §9 step 4); the §9.1
+# parity tool flags drift between the two in the meantime.
+[scan]
+allowlist_paths = [
+    'bin/scrub-public-repos\.sh',
+    'bin/check-public-commit-authors\.sh',
+    'bin/dmf-env-public-surface-gate\.sh',
+    'bin/export-scan\.sh',
+    '(^|/)\.gitignore$',
+    '(^|/)\.helmignore$',
+    '(^|/)\.gitleaks\.toml$',
+    '(^|/)\.github/CODEOWNERS$',
+    '(^|/)patterns/public-manifest\.toml$',
+    'docs/plans/DMF Workstream A .*Spec 2026-06-09\.md',
+    'docs/plans/DMF Workstream B .*Scrub Spec 2026-06-09\.md',
+    'docs/plans/DMF Workstream D .*Governance Execution Spec 2026-06-09\.md',
+    'docs/reviews/dmf-mxl-upstream-profile-and-contribution-review-2026-06-01\.md',
+    '(^|/)docs/DEVELOPMENT-AND-BUILD-RULES\.md$',
+    '(^|/)docs/decisions/[0-9]+',
+    'docs/architecture/DMF Release and Contribution Model\.md',
+    'docs/plans/DMF Release and Contribution Model Implementation Plan 2026-05-11\.md',
+    'docs/reviews/dmf-move1-gate2-ssh-credential-incident-2026-05-05\.md',
+    'docs/plans/DMF Public Repo Identity Leak Sweep 2026-05-11\.md',
+    'docs/handoffs/DMF Public Publish Readiness Handoff 2026-05-07\.md',
+    'k3s-lab-bootstrap/docs/repo-strategy\.md',
+]
 
 # ── generic-api-key: tune the default rule (override; no regex of our own) ──
 [[pattern]]
@@ -57,12 +109,14 @@ allowlist_paths = [
 ]
 
 # ── dmf-macos-metadata: macOS metadata leaking into the tracked tree ──
+# engines includes "pcre" since the scrub fold-in: the same shape was
+# scrub-public-repos.sh's IDENTITY_PATTERNS atom (consumed via git grep -P).
 [[pattern]]
 id = "dmf-macos-metadata"
 category = "identity"
 description = "macOS metadata file in tracked tree"
 regex = '\.DS_Store'
-engines = ["re2"]
+engines = ["re2", "pcre"]
 case_sensitive = true
 positive_canaries = [".DS_Store"]
 negative_canaries = ["DS_Store"]
@@ -111,3 +165,219 @@ allowlist_paths = [
     '^bin/export-scan\.sh$',
     '^docs/plans/DMF Umbrella Security Audit Remediation Spec',
 ]
+
+# ════════════════════════════════════════════════════════════════════════
+# Folded 1:1 from bin/scrub-public-repos.sh SECRET_PATTERNS (§4.3 follow-on
+# fold-in, landed with the §9.1 parity tool). Regex texts preserved VERBATIM
+# from the array atoms — consolidation with the gitleaks-born entries above
+# (e.g. dmf-dev-changeme vs dmf-dev-changeme-grep) is a later deliberate
+# change, guarded by the parity gate. All were consumed via git grep -P.
+# ════════════════════════════════════════════════════════════════════════
+
+[[pattern]]
+id = "dmf-pem-private-key"
+category = "secret"
+description = "PEM-armored private key"
+regex = '-----BEGIN.+PRIVATE KEY-----'
+engines = ["pcre"]
+case_sensitive = true
+positive_canaries = ["-----BEGIN OPENSSH PRIVATE KEY-----", "-----BEGIN RSA PRIVATE KEY-----"]
+negative_canaries = ["-----BEGIN PUBLIC KEY-----", "-----BEGIN CERTIFICATE-----"]
+[pattern.gitleaks]
+emit = false
+# The default private-key rule needs the full armored body incl. the END
+# marker; a bare BEGIN header (this shape) is NOT caught (proven 2026-07-13).
+covered_by = "git-grep"
+
+[[pattern]]
+id = "dmf-url-embedded-credentials"
+category = "secret"
+description = "credentials embedded in URL"
+regex = 'https?://[^/\s:]+:[^@\s<][^@\s]{3,}@'
+engines = ["pcre"]
+case_sensitive = true
+positive_canaries = ["https://deploy:s3cretpass99@git.example.com/repo.git"]
+negative_canaries = ["https://git.example.com/repo.git", "https://user:<placeholder>@example.com"]
+[pattern.gitleaks]
+emit = false
+covered_by = "git-grep"
+
+[[pattern]]
+id = "dmf-dev-changeme-grep"
+category = "secret"
+description = "known dev:changeme cred (LAN Forgejo dev creds)"
+regex = '\bdev:changeme\b'
+engines = ["pcre"]
+case_sensitive = true
+positive_canaries = ["dev:changeme"]
+negative_canaries = ["xdev:changeme", "dev:changemex"]
+[pattern.gitleaks]
+emit = false
+# The gitleaks-side twin is dmf-dev-changeme above (born from the old
+# .gitleaks.toml rule, unanchored). This entry preserves the scrub array's
+# \b-anchored PCRE atom verbatim for §9.1 parity.
+covered_by = "git-grep"
+
+[[pattern]]
+id = "dmf-vault-hvs-token"
+category = "secret"
+description = "Vault HMAC token"
+regex = '\bhvs\.[A-Za-z0-9_-]{20,}'
+engines = ["pcre"]
+case_sensitive = true
+positive_canaries = ["hvs.ABCDEFGHIJ~KLMNOPQRSTuvwx"]
+negative_canaries = ["hvs.short"]
+[pattern.gitleaks]
+emit = false
+# Default vault-service-token requires far longer tokens; this 20+ shape is
+# stricter and NOT default-covered (proven 2026-07-13).
+covered_by = "git-grep"
+
+[[pattern]]
+id = "dmf-vault-hvb-token"
+category = "secret"
+description = "Vault batch/service token"
+regex = '\bhvb\.[A-Za-z0-9_-]{20,}'
+engines = ["pcre"]
+case_sensitive = true
+positive_canaries = ["hvb.ABCDEFGHIJ~KLMNOPQRSTuvwx"]
+negative_canaries = ["hvb.short"]
+[pattern.gitleaks]
+emit = false
+covered_by = "git-grep"
+
+[[pattern]]
+id = "dmf-aws-access-key-id"
+category = "secret"
+description = "AWS access key id"
+regex = '\bAKIA[0-9A-Z]{16}\b'
+engines = ["pcre"]
+case_sensitive = true
+# NOT the AWS docs example value — that one is allowlisted inside the default
+# aws-access-token rule and would make the useDefault proof vacuous.
+positive_canaries = ["AKIA2E4XAMPL~7Q9WXYZB"]
+negative_canaries = ["AKIA12345", "akia2e4xampl7q9wxyzb"]
+[pattern.gitleaks]
+emit = false
+covered_by = "useDefault"
+
+[[pattern]]
+id = "dmf-github-pat"
+category = "secret"
+description = "GitHub personal access token"
+regex = '\bghp_[A-Za-z0-9]{36}\b'
+engines = ["pcre"]
+case_sensitive = true
+positive_canaries = ["ghp_abcDEF0123456789~abcDEF0123456789abcD"]
+negative_canaries = ["ghp_tooShort123"]
+[pattern.gitleaks]
+emit = false
+covered_by = "useDefault"
+
+[[pattern]]
+id = "dmf-gitlab-pat"
+category = "secret"
+description = "GitLab personal access token"
+regex = '\bglpat-[A-Za-z0-9_-]{20}'
+engines = ["pcre"]
+case_sensitive = true
+positive_canaries = ["glpat-abcDEF01234~56789-abc"]
+negative_canaries = ["glpat-short"]
+[pattern.gitleaks]
+emit = false
+covered_by = "useDefault"
+
+[[pattern]]
+id = "dmf-slack-bot-token"
+category = "secret"
+description = "Slack bot token"
+regex = '\bxoxb-[A-Za-z0-9-]{20,}'
+engines = ["pcre"]
+case_sensitive = true
+positive_canaries = ["xoxb-123456789012~-abcdefghijklmnopqrst"]
+negative_canaries = ["xoxb-short"]
+[pattern.gitleaks]
+emit = false
+covered_by = "useDefault"
+
+[[pattern]]
+id = "dmf-vault-client-token-literal"
+category = "secret"
+description = "Vault/bao client_token literal"
+regex = '"client_token"\s*:\s*"[a-z0-9-]{20,}"'
+engines = ["pcre"]
+case_sensitive = true
+positive_canaries = ['"client_token" : "abcde-12345-fghij-67890-klmno"']
+negative_canaries = ['"client_token" : "short"']
+[pattern.gitleaks]
+emit = false
+# generic-api-key catches high-entropy values only (entropy-gated) — a
+# low-entropy real token literal slips it (proven 2026-07-13), so the grep
+# pass is the coverage. NOT recorded useDefault.
+covered_by = "git-grep"
+
+[[pattern]]
+id = "dmf-approle-secret-id-literal"
+category = "secret"
+description = "AppRole secret_id literal"
+regex = '"secret_id"\s*:\s*"[a-z0-9-]{20,}"'
+engines = ["pcre"]
+case_sensitive = true
+positive_canaries = ['"secret_id" : "abcde-12345-fghij-67890-klmno"']
+negative_canaries = ['"secret_id" : "short"']
+[pattern.gitleaks]
+emit = false
+covered_by = "git-grep"
+
+[[pattern]]
+id = "dmf-age-recipient"
+category = "secret"
+description = "SOPS age recipient (public key, operator-setup fingerprint)"
+regex = '\bage1[0-9a-z]{58}\b'
+engines = ["pcre"]
+case_sensitive = true
+positive_canaries = ["age1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"]
+negative_canaries = ["age1qqq", "AGE1QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ"]
+[pattern.gitleaks]
+emit = false
+# The default pack has no age-recipient rule (proven 2026-07-13).
+covered_by = "git-grep"
+
+[[pattern]]
+id = "dmf-age-secret-key"
+category = "secret"
+description = "SOPS age secret key (identity)"
+regex = 'AGE-SECRET-KEY-1[0-9A-Z]{58}'
+engines = ["pcre"]
+case_sensitive = true
+positive_canaries = ["AGE-SECRET-KEY-1QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ"]
+negative_canaries = ["AGE-SECRET-KEY-1TOOSHORT"]
+[pattern.gitleaks]
+emit = false
+covered_by = "useDefault"
+
+# ── dmf-canary-sentinel: purpose-built acceptance-fixture sentinel ──
+# R1 spec §8 + §11 decision 3: the public acceptance rows seed THIS shape
+# (values assembled at runtime in fixtures, never committed as literals).
+[[pattern]]
+id = "dmf-canary-sentinel"
+category = "secret"
+description = "DMF acceptance-fixture canary sentinel (never a real secret)"
+regex = '\bDMF-CANARY-[0-9A-F]{12}\b'
+engines = ["re2", "pcre"]
+case_sensitive = true
+positive_canaries = ["DMF-CANARY-0123456789AB"]
+negative_canaries = ["DMF-CANARY-0123", "dmf-canary-0123456789ab"]
+[pattern.gitleaks]
+emit = true
+kind = "custom"
+comment = """
+Acceptance-fixture sentinel (R1 spec §8, §11 decision 3): a bespoke shape the
+trust-context acceptance matrix seeds into throwaway fixture repos to prove a
+known-bad value is stopped in every context. Never a real secret; fixture
+values are assembled at runtime so no committed file carries a matching
+literal."""
+tags = ["acceptance-fixture", "dmf"]
+[pattern.parity]
+status = "addition"
+reason = "purpose-built fixture sentinel; deliberately has no old-world counterpart"

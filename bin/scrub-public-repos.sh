@@ -141,6 +141,13 @@ ALLOWLIST_PATHS=(
     # by the pre-commit second pass running the local rules.
     '(^|/)\.gitleaks\.toml$'
     '(^|/)\.github/CODEOWNERS$'
+    # The pattern manifest is the source the gitleaks rules region + the
+    # dmf-scan grep passes are generated from: its synthetic canaries match
+    # the very rules it defines, by design. Public-safe by construction
+    # (shapes only — never operator values); same adjudication as the
+    # .gitleaks.toml allowlisting above. Keep in lock-step with the
+    # manifest's [scan].allowlist_paths (checked by bin/check-pattern-parity.py).
+    '(^|/)patterns/public-manifest\.toml$'
     'docs/plans/DMF Workstream A .*Spec 2026-06-09\.md'
     'docs/plans/DMF Workstream B .*Scrub Spec 2026-06-09\.md'
     'docs/plans/DMF Workstream D .*Governance Execution Spec 2026-06-09\.md'

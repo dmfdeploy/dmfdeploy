@@ -41,11 +41,24 @@ jobs:
         run: bash tests/worktree-regression.sh
       - name: gitleaks rules generator — drift check + self-test (R1 §4/§9)
         # --check: the .gitleaks.toml [[rules]] region matches the manifest.
-        # --self-test: per-engine canary MATCH tests (public tier; no gitleaks
-        # binary needed until emit=false/useDefault entries land at step 4).
+        # --self-test: per-engine canary MATCH tests + the useDefault coverage
+        # proof (positives caught, negatives not) — resolves the PINNED
+        # gitleaks (8.21.2 + sha256) itself, same binary guard.yml pins.
         run: |
           python3 bin/gen-gitleaks-rules.py --check
           python3 bin/gen-gitleaks-rules.py --self-test
+      - name: scan library self-test (R1 §5–§6; acceptance rows 10/11 + canaries)
+        # Hermetic fixture repos: §5.4 opt-out authorization, fail-closed
+        # missing-private-manifest, seeded-sentinel LEAK_FOUND through the
+        # tree/staged/range surfaces, worktree scanning, §4.2 redaction,
+        # ephemeral merged-config cleanup. Never reads operator data.
+        run: bin/dmf-scan self-test
+      - name: pattern parity gate — public tier (R1 §9.1)
+        # Structural old→new proof: every scrub in-script atom maps onto a
+        # manifest entry (category/regex-hash/engine/case), additions carry
+        # markers, and the scrub↔manifest grep allowlists stay lock-step.
+        # The private tier runs operator-locally (redacted), not here.
+        run: bin/check-pattern-parity.py --public
   check-docs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10

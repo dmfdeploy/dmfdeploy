@@ -114,4 +114,15 @@ paths = [
     '''^bin/export-scan\.sh$''',
     '''^docs/plans/DMF Umbrella Security Audit Remediation Spec''',
 ]
+
+# Acceptance-fixture sentinel (R1 spec §8, §11 decision 3): a bespoke shape the
+# trust-context acceptance matrix seeds into throwaway fixture repos to prove a
+# known-bad value is stopped in every context. Never a real secret; fixture
+# values are assembled at runtime so no committed file carries a matching
+# literal.
+[[rules]]
+id = "dmf-canary-sentinel"
+description = "DMF acceptance-fixture canary sentinel (never a real secret)"
+regex = '''\bDMF-CANARY-[0-9A-F]{12}\b'''
+tags = ["acceptance-fixture", "dmf"]
 # <<< DMF-GENERATED RULES <<<
