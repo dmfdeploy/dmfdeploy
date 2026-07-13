@@ -198,16 +198,28 @@ so drift is impossible, exactly like `generate-plans-index.sh` / `check-working-
 |---|---|---|
 | `patterns/public-manifest.toml` | **source** (tracked) | hand-authored |
 | `~/.dmfdeploy/pattern-manifest.private.toml` | **source** (operator-local) | hand-authored |
-| `.gitleaks.toml` (public rules) | **generated view** (tracked) | public manifest |
-| `.gitleaks.local.toml` (private rules) | **generated view** (gitignored) | private manifest |
+| `.gitleaks.toml` **`[[rules]]` region** (marker-fenced) | **generated view** (tracked) | public manifest |
+| `.gitleaks.toml` header prose + `[extend]`/global `[allowlist]` | **hand-authored** (tracked, *outside* the marker) | — |
+| `.gitleaks.local.toml` (private rules region) | **generated view** (gitignored) | private manifest |
 | scan-library git-grep passes | **read directly** from the manifests at runtime | both manifests |
 
 Note the collapse: the shell `*_PATTERNS`/`*_REGEX` includes **disappear**. The
 scan library reads the manifest directly for its `git grep` passes, so there is no
-longer a shell-array view to keep in lock-step — only the two gitleaks TOML
-configs remain as generated views, because gitleaks is a separate binary that
-requires its own config file. Three hand-synced representations → one source per
-trust tier + two mechanically-generated gitleaks configs.
+longer a shell-array view to keep in lock-step — only the gitleaks TOML configs
+remain as generated views, because gitleaks is a separate binary that requires its
+own config file. Three hand-synced representations → one source per trust tier +
+mechanically-generated gitleaks rule regions.
+
+**Hybrid (partial-file) generation — the gitleaks configs are NOT whole-file
+generated.** Each gitleaks config is split by a marker pair
+(`# >>> DMF-GENERATED RULES (do not edit) >>>` … `# <<< DMF-GENERATED RULES <<<`,
+mirroring `check-working-model-sync.sh`'s block markers). Everything a human tuned
+by hand — the file's prose header, `[extend] useDefault = true`, and the global
+`[allowlist]` — lives **above the marker and is never touched by the generator**.
+Only the `[[rules]]` region **between** the markers is generated from the manifest,
+and `--check` verifies **that region** byte-for-byte (the public file diffs
+literally, §4.2). This keeps the prose hand-editable, makes "byte-identical"
+well-defined at region scope, and leaves global gitleaks settings to a human.
 
 ---
 
@@ -230,11 +242,20 @@ case_sensitive = true              # explicit; generator emits the right flag pe
 severity       = "blocking"        # blocking | informational
 positive_canaries = ["XTOK-ABC1234567"]        # MUST match under every listed engine
 negative_canaries = ["xtok-lowercased", "XTOK-short"]   # MUST NOT match under any engine
-allowlist_paths   = ['''^\.gitleaks\.toml$''']
+
+# How this entry maps into the generated gitleaks [[rules]] region (§4.3):
+[pattern.gitleaks]
+emit                  = true        # false ⇒ covered by the default pack; no explicit rule
+kind                  = "custom"    # "custom" (own regex) | "override" (tune a default rule)
+tags                  = ["dmf"]
+comment               = "rendered verbatim as #-lines above the rule in the region"
+allowlist_description = "meta files that intentionally name the pattern"
+allowlist_paths       = ['''^\.gitleaks\.toml$''']
 ```
 
-Private patterns carry the same fields — including their canaries — in the
-operator-local private manifest, never here.
+Private patterns carry the same fields — including their canaries and a
+`[pattern.gitleaks]` sub-table where relevant — in the operator-local private
+manifest, never here.
 
 Design rules:
 
@@ -303,6 +324,52 @@ L204–209). Therefore:
   literal private diff, **refuses to run in CI or hooks** (same context signal as
   the opt-out gate, §5.4), and emits a loud banner. Never the default, never
   available in an automated context.
+
+### 4.3 gitleaks emission: markers, rule kinds, and `useDefault` coverage
+
+Because the gitleaks configs are **partially** generated (§3.2), the manifest→
+gitleaks mapping is explicit per entry via `[pattern.gitleaks]`, and the generated
+bytes are confined to the marker-fenced `[[rules]]` region:
+
+- **Markers.** The generator only rewrites the bytes between
+  `# >>> DMF-GENERATED RULES (do not edit) >>>` and `# <<< DMF-GENERATED RULES <<<`
+  in `.gitleaks.toml` / `.gitleaks.local.toml`. The prose header, `[extend]
+  useDefault`, and global `[allowlist]` sit above the opening marker and are
+  hand-authored. `--check` regenerates the region into a temp file and diffs **only
+  the region** (literal for public, redacted for private, §4.2).
+- **Per-rule prose is manifest metadata, not free bytes** (codex constraint):
+  a rule's explanatory comment lives in `[pattern.gitleaks].comment` and is
+  rendered verbatim as `#`-prefixed lines immediately above the rule inside the
+  region. Nothing inside the region is hand-typed — so region-level byte-identity
+  is well-defined (no stray comment can drift the diff).
+- **Three emission modes** (`[pattern.gitleaks].emit` / `.kind`):
+  1. `emit = true, kind = "custom"` — a full `[[rules]]` block with the entry's
+     `regex`, `description`, rendered `tags`, `comment`, and `[[rules.allowlists]]`.
+     (Today: `dmf-dev-changeme`, `dmf-macos-metadata`, `dmf-cloud-resource-id`.)
+  2. `emit = true, kind = "override"` — tunes a **default** rule by id, emits
+     **no regex**, only `[[rules.allowlists]]`. Reproduces today's `generic-api-key`
+     entry exactly. The manifest entry carries no `regex` in this mode.
+  3. `emit = false, covered_by = "useDefault"` — the shape is covered by the
+     default pack, so **no explicit gitleaks rule is emitted**; the entry still
+     exists for the scrub/git-grep pass parity (§9.1). (Today: `AKIA…`, `ghp_…`,
+     `glpat-…`, `xoxb-…`, PEM, embedded-URL creds, `hvs./hvb.` tokens.)
+- **`useDefault` coverage is PROVEN, never assumed** (binding): for every
+  `emit = false, covered_by = "useDefault"` entry, `--check`/`--self-test` runs the
+  entry's positive canaries (§4.1) through gitleaks configured **with the actual
+  merged config's `[extend] useDefault = true`** and asserts they are caught (and
+  negative canaries are not). If the default pack does not actually cover the shape,
+  the build fails `DRIFT_ERROR` — the entry cannot silently claim default coverage
+  it does not have.
+- **Sequencing (matches the (b) rollout):** the `emit = false, covered_by =
+  "useDefault"` entries — today's default-covered secret *shapes* now living in
+  scrub's `SECRET_PATTERNS` — are folded into the manifest **with the scrub caller
+  switchover + §9.1 parity landing (follow-on), not step 1.** Step 1 (the
+  `.gitleaks.toml` rules region) carries only the entries that emit explicit rules.
+  The proof mechanism ships in step 1 — the generator implements the merged-config
+  canary test — and simply has no `emit = false` entries to exercise until that
+  follow-on. This keeps step 1 a pure `.gitleaks.toml`-region add without importing
+  scrub's pattern set early, and closes the contract honestly: the named
+  `--check`/`--self-test` proof and the entries it validates land together.
 
 ---
 
@@ -498,10 +565,15 @@ bootstrap are independent — never let a step expect a private view that does n
 exist yet):**
 
 1. **Public bootstrap (pure add).** Land `patterns/public-manifest.toml` + the
-   generator/checker; the generator emits `.gitleaks.toml` **byte-identical** to
-   today's tracked file, `--check`-proven. **`.gitleaks.local.toml` is NOT
-   generated here** — its source does not exist yet, and no `--check` demands it.
-   No consumer switches; old gates still run.
+   generator/checker; the generator regenerates the **marker-fenced `[[rules]]`
+   region** of `.gitleaks.toml` **byte-identical** to today's region (§3.2, §4.3),
+   leaving the hand-authored prose header + `[extend] useDefault` + global
+   `[allowlist]` above the marker untouched. `--check` verifies the region
+   literally. **`.gitleaks.local.toml` is NOT generated here** — its source does
+   not exist yet, and no `--check` demands it. No consumer switches; old gates
+   still run. (The one-time change to the tracked `.gitleaks.toml` is the
+   insertion of the two marker comment lines around the existing, unchanged
+   `[[rules]]` — a reviewed no-op to the rules themselves.)
 2. **Private bootstrap (operator-local, separate).** The operator authors
    `~/.dmfdeploy/pattern-manifest.private.toml` from the existing shell include +
    `.gitleaks.local.toml`, generates `.gitleaks.local.toml` from it, and confirms
@@ -549,10 +621,14 @@ switches, a one-off parity checker must prove **structural** equality:
    **case-sensitively** (`git grep -nIE`, L123–126), so the *same* regex text was
    effectively matched two different ways depending on the consumer.
 3. Compare against the new manifest: **category, per-category count, a hash of each
-   normalized regex, the declared `engines`, *and* the effective case flag** must
-   all match. An old atom that was case-insensitive whose new `case_sensitive`
-   differs **fails** — otherwise identity coverage would silently narrow to
-   case-sensitive while regex text + engine coverage still "matched".
+   normalized regex, the declared `engines`, the effective case flag, *and* the
+   recorded gitleaks coverage** (`[pattern.gitleaks]`: explicit `custom`/`override`
+   vs `emit = false, covered_by = "useDefault"`, §4.3) must all match. An old atom
+   that was case-insensitive whose new `case_sensitive` differs **fails**; so does
+   an old shape that the default pack covered but the manifest now records as
+   emitting an explicit rule (or vice versa). Otherwise identity coverage could
+   silently narrow to case-sensitive, or a `useDefault`-covered shape could be
+   dropped, while regex text + engine coverage still "matched".
 4. Run each pattern's positive/negative canaries (§4.1) — and for every rule that
    was **case-insensitive** in the old world, the parity canaries **must include
    upper- and lower-case variants** of at least one positive canary, all required
@@ -602,3 +678,14 @@ consumers — including their per-consumer case handling — lost no coverage.
 3. **Canary value source = a bespoke `DMF-CANARY-…` sentinel rule** (public
    fixture) plus operator-local sentinels for the private tier — self-contained,
    no dependency on upstream gitleaks test-vector stability.
+4. **gitleaks configs are HYBRID (partial-file) generated, not whole-file**
+   (amended 2026-07-13, implementer report + codex concur). Only the marker-fenced
+   `[[rules]]` region is generated from the manifest; the prose header, `[extend]
+   useDefault`, and global `[allowlist]` are hand-authored above the marker.
+   Per-rule prose is `[pattern.gitleaks].comment` render metadata (§4.3), so
+   region byte-identity is well-defined. `useDefault`-covered secret shapes stay
+   manifest entries with `emit = false, covered_by = "useDefault"`, proven by
+   canary match tests against the merged `useDefault = true` config; default-rule
+   tuning (e.g. `generic-api-key`) uses `kind = "override"` (no regex). This
+   resolves the whole-file "byte-identical" over-constraint that the original
+   §3.2/§4/§9 wording implied.
