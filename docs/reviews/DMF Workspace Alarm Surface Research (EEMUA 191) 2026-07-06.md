@@ -50,7 +50,7 @@ primary standard.
 - Raw run output (session-scoped tmp; may not survive reboot):
   `…/tasks/w5px4wy2r.output` (final pass), `…/wc4z2c066.output` +
   `…/wat9stinm.output` (earlier passes) under
-  `/private/tmp/claude-502/-Users-loz-repos-dmfgithub-dmfdeploy-dmfdeploy/9dfb9f67-…/tasks/`.
+  `/private/tmp/<session-scoped harness tmp>/…/tasks/`.
   Workflow script: `…/workflows/scripts/deep-research-wf_3568056d-fd7.js`.
 - The 5 search angles: (1) Standards KPIs + priority distribution, (2) Alarm
   lifecycle + suppression semantics (IEC 62682 / ISA-18.2), (3) ISA-101 HMI
