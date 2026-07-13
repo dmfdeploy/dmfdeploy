@@ -54,7 +54,10 @@ real failures this session.
       restart. Don't wait forever on a wedged pane.
 
 ## After merge
-- [ ] **Honor the profile's close behavior** — close the tracker item manually if
-      the merge won't (cross-repo / rebase-severed), with a PR-linked comment.
+- [ ] **Honor the profile's close behavior** — where the profile has a close
+      reconciler, a qualified `Closes` ref auto-closes the tracker item as the norm
+      (cross-repo and rebase-severed cases included); close manually only as a
+      fallback (immediacy before the run, a missed run, an unqualified ref, or no
+      reconciler), with a PR-linked comment.
 - [ ] **Clean up** — delete the merged branch; remove the worktree; return agents to
       a clean default branch.
