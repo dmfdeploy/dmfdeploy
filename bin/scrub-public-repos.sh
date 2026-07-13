@@ -28,6 +28,8 @@
 set -uo pipefail
 
 UMBRELLA_DIR="${UMBRELLA_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
+# shellcheck source=bin/lib/dmf-repo-detect.sh
+. "$UMBRELLA_DIR/bin/lib/dmf-repo-detect.sh"
 PUBLIC_REPOS_DEFAULT=(. dmf-cms dmf-runbooks dmf-central dmf-infra dmf-media dmf-init dmf-env dmf-promsd)
 
 # Resolve a repo entry to a filesystem path: an absolute path or one containing a
@@ -177,7 +179,7 @@ scan_category() {
     echo "── $title"
     for repo in "${PUBLIC_REPOS[@]}"; do
         local rpath; rpath="$(repo_path "$repo")"
-        if [ ! -d "$rpath/.git" ]; then
+        if ! dmf_is_repo_root "$rpath"; then
             continue
         fi
         local rname="$repo"
@@ -248,7 +250,7 @@ echo "── ignored-but-tracked artifacts (informational)"
 ign_hits=0
 for repo in "${PUBLIC_REPOS[@]}"; do
     rpath="$(repo_path "$repo")"
-    if [ ! -d "$rpath/.git" ]; then
+    if ! dmf_is_repo_root "$rpath"; then
         continue
     fi
     rname="$repo"
