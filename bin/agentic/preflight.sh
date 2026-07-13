@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# bin/agentic/preflight.sh — agentic-harness tick-start fact dump.
+# MOTHBALLED 2026-06-04 (historical, fails closed): bin/agentic/preflight.sh — agentic-harness tick-start fact dump.
 #
 # Runs at the start of every `/agentic-tick`. Prints a structured facts
 # block on stdout the orchestrator reads to decide whether to proceed,
@@ -24,6 +24,11 @@
 #   docs/agentic/CONSTITUTION.md (Rule 5 self-hash; orchestrator compares)
 
 set -euo pipefail
+
+if [[ "${DMF_AGENTIC_OVERRIDE:-}" != "1" ]]; then
+    echo "mothballed 2026-06-04 — set DMF_AGENTIC_OVERRIDE=1 to run" >&2
+    exit 1
+fi
 
 UMBRELLA_DIR="${UMBRELLA_DIR:-$(cd "$(dirname "$0")/../.." && pwd)}"
 STATUS_MAX_AGE_SECONDS=1800   # 30 min

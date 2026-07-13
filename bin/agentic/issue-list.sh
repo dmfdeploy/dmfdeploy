@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# bin/agentic/issue-list.sh — list agent-opened Forgejo issues.
+# MOTHBALLED 2026-06-04 (historical, fails closed): bin/agentic/issue-list.sh — list agent-opened Forgejo issues.
 #
 # Iterates the 6 public repos for `label:agent-opened` and aggregates.
 # Read-only — does not modify any state.
@@ -20,6 +20,11 @@
 #   docs/plans/DMF Agentic Harness Plan 2026-05-11.md §Layer 4
 
 set -euo pipefail
+
+if [[ "${DMF_AGENTIC_OVERRIDE:-}" != "1" ]]; then
+    echo "mothballed 2026-06-04 — set DMF_AGENTIC_OVERRIDE=1 to run" >&2
+    exit 1
+fi
 
 UMBRELLA_DIR="${UMBRELLA_DIR:-$(cd "$(dirname "$0")/../.." && pwd)}"
 # shellcheck source=/dev/null
