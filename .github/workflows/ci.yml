@@ -23,7 +23,7 @@ jobs:
         run: |
           set -eu
           shopt -s nullglob
-          scripts=(bin/*.sh)
+          scripts=(bin/*.sh bin/lib/*.sh tests/*.sh)
           if [ ${#scripts[@]} -eq 0 ]; then
             echo "SKIP: no scripts found in bin/"
             exit 0
@@ -35,6 +35,10 @@ jobs:
         # Pure-local unit tests (no network/token) guarding the candidate
         # filter against false-close regressions (refs #47).
         run: bash bin/close-completed-issues.sh --self-test
+      - name: public-safety worktree regression (R1 §7)
+        # Proves the gates scan a git worktree instead of silently skipping it
+        # (public canary only; no operator-private include needed).
+        run: bash tests/worktree-regression.sh
   check-docs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10

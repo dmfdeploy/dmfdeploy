@@ -35,6 +35,8 @@
 set -uo pipefail
 
 UMBRELLA_DIR="${UMBRELLA_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
+# shellcheck source=bin/lib/dmf-repo-detect.sh
+. "$UMBRELLA_DIR/bin/lib/dmf-repo-detect.sh"
 
 # Publish targets: umbrella (`.`) + the 8 public components (dmf-env + dmf-promsd
 # joined the public set per the 2026-06-09 first-public-release plan).
@@ -82,7 +84,7 @@ check_repo() {
         *) [ -e "$UMBRELLA_DIR/$repo/.git" ] || repo_path="$(dirname "$UMBRELLA_DIR")/$repo" ;;
     esac
 
-    if [ ! -d "$repo_path/.git" ]; then
+    if ! dmf_is_repo_root "$repo_path"; then
         echo "MISSING:no-repo"
         return 1
     fi

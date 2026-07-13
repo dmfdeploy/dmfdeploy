@@ -19,6 +19,8 @@
 set -euo pipefail
 
 UMBRELLA_DIR="${UMBRELLA_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
+# shellcheck source=bin/lib/dmf-repo-detect.sh
+. "$UMBRELLA_DIR/bin/lib/dmf-repo-detect.sh"
 GITHUB_ORG="${DMF_GITHUB_ORG:-dmfdeploy}"
 EXPORT_ROOT="${EXPORT_ROOT:-/tmp/dmf-export}"
 
@@ -69,7 +71,7 @@ GH_NAME="$(gh_name "$REPO")" || die "'$REPO' is not in the importable set"
 SRC="$UMBRELLA_DIR/$REPO"
 [ -e "$SRC/.git" ] || SRC="$(dirname "$UMBRELLA_DIR")/$REPO"
 [ "$REPO" = "." ] && SRC="$UMBRELLA_DIR"
-[ -d "$SRC/.git" ] || die "no git repo at $SRC"
+dmf_is_repo_root "$SRC" || die "no git repo at $SRC"
 [ -f "$SRC/VERSION" ] || die "$REPO has no VERSION file"
 VERSION="$(tr -d '[:space:]' < "$SRC/VERSION")"
 [ -n "$VERSION" ] || die "$REPO VERSION is empty"
