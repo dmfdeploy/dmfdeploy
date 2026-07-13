@@ -19,10 +19,12 @@ the backlog-hygiene detector. Plan:
    (milestone + `component:*` + `workstream:*` labels; it lands on org
    Project #1). Non-trivial work also gets a plan doc in umbrella
    `docs/plans/` with `tracking_issue` frontmatter.
-2. **The completing PR closes the issue and flips the plan's frontmatter in
-   the same change.** From a *component* repo, reference umbrella issues
-   **fully qualified** — `Closes dmfdeploy/dmfdeploy#N` — a bare `#N` points
-   at that repo's own issue and silently misses.
+2. **The completing PR auto-closes its issue; flipping the plan's frontmatter
+   stays a manual step in that PR.** From a *component* repo, reference umbrella
+   issues **fully qualified** — `Closes dmfdeploy/dmfdeploy#N` — a bare `#N`
+   points at that repo's own issue and silently misses. The daily issue-close
+   reconciler closes from that qualified ref (cross-repo included); manual close
+   is a fallback (§6).
 3. **Never invent a local backlog** (TODO files, ad-hoc trackers, stale
    `docs/agentic/` queues). Issues are canonical for *liveness*, plan
    frontmatter for *design state*, ADRs for *decisions* (propose via a
@@ -96,8 +98,10 @@ the frontmatter must be flipped; frontmatter wins for design content.
   `date:`, `tracking_issue:` (issue URL), `executed:` / `superseded_by:` when
   applicable. `bin/check-docs.sh` (pre-commit + CI) rejects unparseable
   frontmatter and checks INDEX consistency.
-- The PR that completes a plan **closes the issue and flips the frontmatter in
-  the same change**.
+- The PR that completes a plan **auto-closes the issue** (the reconciler honors
+  its qualified `Closes` reference — see §6) **and must flip the plan frontmatter
+  in the same change**. The close is automated; the frontmatter flip is the
+  manual half and is never done for you.
 - Doc filenames are preserved verbatim (docs cross-reference by display name);
   don't rename without sweeping callers. Doc edits go in the umbrella; code
   edits in component repos.
@@ -114,6 +118,18 @@ the frontmatter must be flipped; frontmatter wins for design content.
   umbrella. Trivial changes may carry the `no-issue` label instead.
 - **Cross-repo batches:** one umbrella issue for the batch; every per-repo PR
   references it qualified.
+- **Issue close is automated — including cross-repo.** GitHub's native
+  auto-close never fires here (cross-repo closing references never fire, and our
+  bot-actor rebase auto-merge suppresses even same-repo keyword closes), so the
+  `bin/close-completed-issues.sh` reconciler — run by the `issue-close-reconciler`
+  workflow daily at 06:00 UTC (plus on-demand `workflow_dispatch`) — closes
+  umbrella issues from exactly the closing references GitHub itself parsed
+  (`closedByPullRequestsReferences`, cross-repo included). So **automated close
+  is the norm; manual close is a fallback** — for when you need it closed before
+  the next daily run, the reconciler missed it, or the reference wasn't qualified
+  (so GitHub never parsed it as a closing ref). The reconciler never touches plan
+  frontmatter: **flipping the frontmatter stays a manual duty in the completing
+  PR.**
 - **Approval = landing.** Every PR is armed with GitHub-native **rebase
   auto-merge** at open (`automerge.yml`); it merges the moment CODEOWNERS
   approval + all required status checks are satisfied, and the branch is
@@ -134,6 +150,7 @@ the frontmatter must be flipped; frontmatter wins for design content.
 | `bin/check-docs.sh` | umbrella | fails bad frontmatter; W2 → fail after backfill |
 | Branch ruleset: approval + CODEOWNERS + required status checks + rebase-only, stale approvals dismissed on push | all 9 repos | merge is impossible otherwise |
 | `automerge.yml` + `required_status_checks` ruleset | all 9 repos | approval-driven rebase auto-merge + branch auto-delete (`hold` label disarms) |
+| `bin/close-completed-issues.sh` via `issue-close-reconciler.yml` (daily 06:00 UTC + `workflow_dispatch`) | umbrella issues with a merged completing PR | auto-closes from GitHub-parsed closing refs (`closedByPullRequestsReferences`, cross-repo included); manual close is fallback; `--self-test` gated in CI |
 | `bin/check-backlog-hygiene.sh` (scheduled) | umbrella + component intake | weekly drift report |
 
 ## 8. New-repo bootstrap checklist

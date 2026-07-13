@@ -23,9 +23,12 @@ and is never a contribution path.)
    documentation rules fit together is
    [`docs/WORKING-MODEL.md`](docs/WORKING-MODEL.md) — read it once.
 3. **Do the work:** claim or open an issue; non-trivial work gets an on-disk
-   spec in `docs/plans/` carrying `tracking_issue` frontmatter; the PR that
-   completes it closes the issue and flips the plan's frontmatter in the same
-   change. (Issues are canonical for liveness; frontmatter for design state.)
+   spec in `docs/plans/` carrying `tracking_issue` frontmatter. The completing
+   PR carries a fully-qualified `Closes dmfdeploy/dmfdeploy#N` reference — the
+   daily `issue-close-reconciler` auto-closes the umbrella issue from it
+   (cross-repo included), and manual close is a fallback only. You still flip the
+   plan's frontmatter by hand in that same PR (the reconciler never touches it).
+   (Issues are canonical for liveness; frontmatter for design state.)
 4. Fork or branch, open a PR against `main`, CI green, commits **signed off**
    (see DCO below).
 
