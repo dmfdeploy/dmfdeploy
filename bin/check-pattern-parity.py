@@ -206,8 +206,16 @@ def gitleaks_local_rules(path, allow_missing):
                         f"legacy private gitleaks config not found: {path} — "
                         "required for private parity; pass --no-legacy-gitleaks "
                         "ONLY if no old private gitleaks source ever existed")
-    with open(path, "rb") as fh:
-        return tomllib.load(fh).get("rules", [])
+    with open(path, "r", encoding="utf-8") as fh:
+        text = fh.read()
+    if "# >>> DMF-GENERATED RULES" in text:
+        # Post-migration the file IS a generated view of the manifest, so the
+        # gitleaks side of this run proves nothing about the ORIGINAL
+        # hand-authored rules (codex P2). Say so loudly.
+        print("  NOTE: the legacy gitleaks file is a GENERATED view — this "
+              "run is not original-source evidence; point --legacy-gitleaks "
+              "at a pre-migration backup for migration proof")
+    return tomllib.loads(text).get("rules", [])
 
 
 # ── matching ──────────────────────────────────────────────────────────────
@@ -234,7 +242,14 @@ def match_atoms(atoms, manifest, redact, problems):
         if not candidates:
             problems.append(f"old atom has NO manifest entry: {label}")
             continue
-        entry = candidates[0]
+        # Same regex may exist twice with different case/engine recordings
+        # (per-consumer split) — prefer the candidate that matches this
+        # atom's flags before falling back to the first.
+        entry = next(
+            (e for e in candidates
+             if e.get("case_sensitive", True) == atom.case_sensitive
+             and atom.engine in e.get("engines", [])),
+            candidates[0])
         matched_ids.add(entry["id"])
         eid = entry["id"] if not redact else f"entry:{manifest_entry_key(entry)[:12]}"
         if atom.engine not in entry.get("engines", []):
