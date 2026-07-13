@@ -48,12 +48,12 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `bin/agentic/agent-status.sh` | MOTHBALLED 2026-06-04 (historical, fails closed): bin/agentic/agent-status.sh — in-flight task status file helper. |
 | `bin/agentic/install-agentic-hooks.sh` | MOTHBALLED 2026-06-04 (historical, fails closed): bin/agentic/install-agentic-hooks.sh — install agentic-harness git hooks into the umbrella and (optionally) every public component repo. |
 | `bin/agentic/issue-close.sh` | MOTHBALLED 2026-06-04 (historical, fails closed): bin/agentic/issue-close.sh — close an agent-opened Forgejo issue with a structured reason and ref. |
-| `bin/agentic/issue-list.sh` | bin/agentic/issue-list.sh — list agent-opened Forgejo issues. |
+| `bin/agentic/issue-list.sh` | MOTHBALLED 2026-06-04 (historical, fails closed): bin/agentic/issue-list.sh — list agent-opened Forgejo issues. |
 | `bin/agentic/issue-migrate-to-github.sh` | MOTHBALLED 2026-06-04 (historical, fails closed): bin/agentic/issue-migrate-to-github.sh — operator-invoked migration of public-safe agent-opened Forgejo issues to GitHub at v0.1.0 publish. |
 | `bin/agentic/issue-open.sh` | MOTHBALLED 2026-06-04 (historical, fails closed): bin/agentic/issue-open.sh — open a new agent-opened Forgejo issue. |
 | `bin/agentic/issue-promote.sh` | MOTHBALLED 2026-06-04 (historical, fails closed): bin/agentic/issue-promote.sh — promote a pickup:ready issue into backlog.yaml. |
 | `bin/agentic/postflight.sh` | MOTHBALLED 2026-06-04 (historical, fails closed): bin/agentic/postflight.sh — agentic-harness tick-end guard. |
-| `bin/agentic/preflight.sh` | bin/agentic/preflight.sh — agentic-harness tick-start fact dump. |
+| `bin/agentic/preflight.sh` | MOTHBALLED 2026-06-04 (historical, fails closed): bin/agentic/preflight.sh — agentic-harness tick-start fact dump. |
 
 ## dmf-cms — `dmf-cms/bin/`
 
