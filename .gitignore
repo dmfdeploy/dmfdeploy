@@ -112,3 +112,7 @@ secret_id.*
 
 # Operator-private gitleaks rules (identity/topology) — never track
 .gitleaks.local.toml
+
+# Python bytecode cache (bin/gen-gitleaks-rules.py etc.)
+__pycache__/
+*.pyc

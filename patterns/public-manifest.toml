@@ -1,0 +1,113 @@
+# DMF public-safety pattern manifest — PUBLIC tier (tracked, public-safe).
+#
+# Single source for the public scanning rules (R1 spec:
+# docs/plans/DMF Public-Safety Pattern Manifest Plan 2026-07-13.md).
+# bin/gen-gitleaks-rules.py renders the marker-fenced [[rules]] region of
+# .gitleaks.toml from the entries whose [pattern.gitleaks].emit == true.
+#
+# SCOPE (rollout step 1, §9): this manifest currently carries ONLY the entries
+# needed to generate the .gitleaks.toml rules region. The scrub SECRET_PATTERNS
+# (useDefault-covered + scrub-only shapes) and the operator-private tier are
+# folded in at later rollout steps (caller switch + private bootstrap); their
+# emit=false / covered_by entries land then, with useDefault coverage proven by
+# --self-test per §4.3.
+#
+# Public-safe by construction: only pattern SHAPES and synthetic canaries — never
+# an operator-specific value. This file is allowlisted in .gitleaks.toml's global
+# [allowlist] because its canaries deliberately match public rules.
+
+# ── generic-api-key: tune the default rule (override; no regex of our own) ──
+[[pattern]]
+id = "generic-api-key"
+category = "secret"
+[pattern.gitleaks]
+emit = true
+kind = "override"
+comment = "Per-rule allowlist for the default generic-api-key rule."
+allowlist_description = "docs/ prose references to secret/token concepts"
+allowlist_paths = ['^docs/']
+
+# ── dmf-dev-changeme: known LAN dev credential ──
+[[pattern]]
+id = "dmf-dev-changeme"
+category = "secret"
+description = "Known dev:changeme cred (LAN Forgejo dev credentials)"
+regex = 'dev:changeme'
+engines = ["re2"]
+case_sensitive = true
+positive_canaries = ["dev:changeme"]
+negative_canaries = ["dev:otherpass"]
+[pattern.gitleaks]
+emit = true
+kind = "custom"
+comment = "Catch the well-known LAN Forgejo dev credential."
+tags = ["lab-cred", "dmf"]
+allowlist_description = "docs that intentionally call out the dev:changeme smell"
+allowlist_paths = [
+    '^docs/architecture/DMF Release and Contribution Model\.md$',
+    '^docs/reviews/dmf-move1-gate2-ssh-credential-incident-2026-05-05\.md$',
+    '^docs/plans/DMF Public Repo Identity Leak Sweep 2026-05-11\.md$',
+    '^bin/scrub-public-repos\.sh$',
+    '^bin/dmf-env-public-surface-gate\.sh$',
+    '^bin/export-scan\.sh$',
+    '^docs/plans/DMF Workstream B .*Scrub Spec 2026-06-09\.md$',
+    '^docs/plans/DMF Workstream D .*Governance Execution Spec 2026-06-09\.md$',
+    '^docs/plans/DMF Workstream E1 .*Execution Spec 2026-06-09\.md$',
+    '^docs/plans/DMF Workstream A .*Spec 2026-06-09\.md$',
+]
+
+# ── dmf-macos-metadata: macOS metadata leaking into the tracked tree ──
+[[pattern]]
+id = "dmf-macos-metadata"
+category = "identity"
+description = "macOS metadata file in tracked tree"
+regex = '\.DS_Store'
+engines = ["re2"]
+case_sensitive = true
+positive_canaries = [".DS_Store"]
+negative_canaries = ["DS_Store"]
+[pattern.gitleaks]
+emit = true
+kind = "custom"
+comment = "Catch macOS metadata leaking into the tracked tree (.DS_Store, etc.)."
+tags = ["operator-identity", "dmf"]
+allowlist_description = "files that intentionally name the artifact"
+allowlist_paths = [
+    '^bin/scrub-public-repos\.sh$',
+    '^\.gitleaks\.toml$',
+    '^docs/plans/DMF Public Repo Identity Leak Sweep 2026-05-11\.md$',
+    '(^|/)\.gitignore$',
+    '(^|/)docs/DEVELOPMENT-AND-BUILD-RULES\.md$',
+]
+
+# ── dmf-cloud-resource-id: generic cloud resource-ID shape ──
+[[pattern]]
+id = "dmf-cloud-resource-id"
+category = "topology"
+description = "Aliyun/Hetzner cloud resource ID in tracked tree"
+regex = '\b(vpc|vsw|i|lb|rsp|eni|eip|sg|nat)-[a-z0-9]{12,}\b'
+engines = ["re2"]
+case_sensitive = true
+positive_canaries = ["vpc-abc123def456g"]
+negative_canaries = ["vpc-short", "VPC-abc123def456g"]
+[pattern.gitleaks]
+emit = true
+kind = "custom"
+comment = """
+Catch cloud-provider resource IDs (Aliyun VPC/VSwitch/ECS/SLB/vserver-group)
+that fingerprint the exact cloud account. These must appear only as
+placeholders (<aliyun-vpc-id>, etc.) in public docs. Generic shape — the
+account-specific patterns live in the gitignored .gitleaks.local.toml.
+Surfaced + tightened by umbrella #133 (the operator-private topology gate
+was blind to these; the rsp- vserver-group form was missed by the manual
+enumeration and only caught by the account-fingerprint sweep)."""
+tags = ["infrastructure-fingerprint", "dmf"]
+allowlist_description = "meta files that intentionally reference the scrub pattern itself"
+allowlist_paths = [
+    '^\.gitleaks\.toml$',
+    '^\.gitleaks\.local\.toml$',
+    '^bin/scrub-public-repos\.sh$',
+    '^bin/dmf-env-public-surface-gate\.sh$',
+    '^bin/export-scan\.sh$',
+    '^docs/plans/DMF Umbrella Security Audit Remediation Spec',
+]
