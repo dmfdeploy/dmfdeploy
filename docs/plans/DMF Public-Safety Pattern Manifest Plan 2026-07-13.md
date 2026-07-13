@@ -351,8 +351,16 @@ bytes are confined to the marker-fenced `[[rules]]` region:
      entry exactly. The manifest entry carries no `regex` in this mode.
   3. `emit = false, covered_by = "useDefault"` — the shape is covered by the
      default pack, so **no explicit gitleaks rule is emitted**; the entry still
-     exists for the scrub/git-grep pass parity (§9.1). (Today: `AKIA…`, `ghp_…`,
-     `glpat-…`, `xoxb-…`, PEM, embedded-URL creds, `hvs./hvb.` tokens.)
+     exists for the scrub/git-grep pass parity (§9.1). *(Amended 2026-07-13 at
+     the fold-in, from the empirical proof this same section demands: only
+     `AKIA…`, `ghp_…`, `glpat-…`, `xoxb-…`, and `AGE-SECRET-KEY…` are actually
+     default-covered on pinned 8.21.2. PEM **headers** (default `private-key`
+     needs the full armored body), embedded-URL creds, `hvs./hvb.` at the
+     scrub 20+-char shape (default needs far longer tokens), and the
+     `client_token`/`secret_id` literals (`generic-api-key` is entropy-gated —
+     a low-entropy real value slips it) are **not**; those carry
+     `covered_by = "git-grep"`, meaning the scan library's grep pass is the
+     coverage.)*
 - **`useDefault` coverage is PROVEN, never assumed** (binding): for every
   `emit = false, covered_by = "useDefault"` entry, `--check`/`--self-test` runs the
   entry's positive canaries (§4.1) through gitleaks configured **with the actual

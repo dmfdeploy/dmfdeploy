@@ -53,9 +53,16 @@ def load_manifest(path):
         die(CONFIG_ERROR, f"manifest not found: {path}")
     try:
         with open(path, "rb") as fh:
-            return tomllib.load(fh)
+            manifest = tomllib.load(fh)
     except (tomllib.TOMLDecodeError, OSError) as exc:
         die(CONFIG_ERROR, f"cannot parse {path}: {exc}")
+    for entry in manifest.get("pattern", []):
+        gl = entry.get("gitleaks", {})
+        if gl and not gl.get("emit", False) and \
+                gl.get("covered_by") not in ("useDefault", "git-grep"):
+            die(CONFIG_ERROR, f"entry {entry.get('id')}: emit=false requires "
+                              "covered_by = \"useDefault\" | \"git-grep\"")
+    return manifest
 
 
 def render_paths(paths):
@@ -188,12 +195,15 @@ def _regex_matches(pattern, text, ignore_case, extended):
 
 
 def _gitleaks_catches(value, config_path):
-    """True iff gitleaks (with the given config) flags `value` in a temp tree."""
+    """True iff gitleaks (with the given config) flags `value` in a temp tree.
+    The probe line is keyword-NEUTRAL ('x = ...') so entropy/keyword-gated
+    default rules (generic-api-key) can't piggyback on the probe's own wording
+    — the useDefault proof must hold on the bare value shape."""
     gl = _which_gitleaks()
     import tempfile
     with tempfile.TemporaryDirectory() as d:
         with open(os.path.join(d, "probe.txt"), "w", encoding="utf-8") as fh:
-            fh.write(f'secret = "{value}"\n')
+            fh.write(f'x = "{value}"\n')
         r = subprocess.run([gl, "detect", "--no-git", "--source", d,
                             "--config", config_path, "--no-banner", "--redact",
                             "--exit-code", "1"],
@@ -202,11 +212,18 @@ def _gitleaks_catches(value, config_path):
 
 
 def _which_gitleaks():
-    from shutil import which
-    gl = which("gitleaks")
-    if not gl:
-        die(CONFIG_ERROR, "gitleaks not found on PATH — required for --self-test")
-    return gl
+    """The PINNED gitleaks (one version + sha for every context, R1 §6) via
+    the scan library's resolver — never an unpinned system binary (default
+    rulesets drift between versions; that skew let placeholders through once)."""
+    sys.path.insert(0, os.path.join(HERE, "lib"))
+    try:
+        from dmf_scan import resolve_pinned_gitleaks, ScanError
+    except ImportError as exc:
+        die(CONFIG_ERROR, f"cannot import bin/lib/dmf_scan.py: {exc}")
+    try:
+        return resolve_pinned_gitleaks()
+    except ScanError as exc:
+        die(exc.cls, str(exc))
 
 
 def cmd_self_test(manifest):
@@ -227,8 +244,10 @@ def cmd_self_test(manifest):
         gl = entry.get("gitleaks", {})
         eid = entry["id"]
         engines = entry.get("engines", [])
-        pos = entry.get("positive_canaries", [])
-        neg = entry.get("negative_canaries", [])
+        # Stored canaries may carry the '~' splice (defeats provider
+        # push-protection matching on the committed manifest) — strip it.
+        pos = [v.replace("~", "") for v in entry.get("positive_canaries", [])]
+        neg = [v.replace("~", "") for v in entry.get("negative_canaries", [])]
         cs = entry.get("case_sensitive", True)
 
         if "regex" in entry:
@@ -261,11 +280,15 @@ def cmd_self_test(manifest):
                 else:
                     check(False, f"{eid}: unknown engine '{eng}'")
 
-        # useDefault coverage proof: prove the DEFAULT pack catches the shape.
+        # useDefault coverage proof: prove the DEFAULT pack catches the shape
+        # (positives caught, negatives NOT) against the real merged config.
         if gl.get("emit") is False and gl.get("covered_by") == "useDefault":
             for v in pos:
                 check(_gitleaks_catches(v, CONFIG),
                       f"{eid}: useDefault should catch '{v}' but did not")
+            for v in neg:
+                check(not _gitleaks_catches(v, CONFIG),
+                      f"{eid}: negative '{v}' should NOT be caught under useDefault")
 
     print(f"gen-gitleaks-rules self-test: {passed} passed, {failed} failed")
     return OK if failed == 0 else DRIFT_ERROR
