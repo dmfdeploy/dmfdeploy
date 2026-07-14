@@ -17,8 +17,11 @@ Before touching any DMF repo:
 
 1. `cd "$DMFDEPLOY_UMBRELLA" && git fetch && git pull` (umbrella)
 2. `bin/generate-status.sh` — writes `STATUS.local.md` (gitignored), then read it.
-3. Read the most recent file in [docs/handoffs/](docs/handoffs/) — it's the
-   prior session's intent, recorded for you.
+3. Read the **tracking issue you are claiming (including its comments)** —
+   issue threads are where in-flight progress lives (two-tier handoff model,
+   R4). Session-continuity notes are **operator-local**, outside this repo;
+   `docs/handoffs/` is a frozen archive (see its
+   [INDEX.md](docs/handoffs/INDEX.md)).
 4. Skim [docs/decisions/INDEX.md](docs/decisions/INDEX.md) — note any ADRs
    relevant to your task. Apply them.
 5. Run `git status` in any component repo (`../dmf-*`) you're about to touch.
@@ -85,7 +88,7 @@ Always verify kubectl context with `kubectl config current-context` before runni
 | What do these project words mean? | `docs/GLOSSARY.md` |
 | What's frozen / unproven / undecided? | `docs/OPEN-QUESTIONS.md` |
 | How must the operator console look/feel/behave? | `docs/design/DMF Console UX Constitution 2026-05-25.md` (principles + §3 hard gates; points to alarm/danger/audit/glossary specs in `docs/design/`) |
-| Who handed off what? | `docs/handoffs/` (most recent file is canonical) |
+| Who handed off what? | the tracking issue's comments (live); `docs/handoffs/` is a frozen pre-R4 archive ([INDEX](docs/handoffs/INDEX.md)) |
 | What changed during the rebuild? | `docs/sessions/DMF Rebuild Session Notes 2026-04-22.md` |
 
 ## Component repos

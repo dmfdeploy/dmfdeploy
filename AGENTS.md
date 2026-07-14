@@ -12,8 +12,11 @@ parent directory** (`../dmf-cms`, `../dmf-infra`, …) — not nested inside it.
 1. `git fetch && git pull` (umbrella)
 2. `bin/generate-status.sh` — writes `STATUS.local.md` (gitignored)
 3. Read `STATUS.local.md` — it's the local snapshot of what's happening across all 9 repos (umbrella + 8 components)
-4. Skim [docs/decisions/INDEX.md](docs/decisions/INDEX.md) — note any ADRs applicable to your task
-5. Read the most recent file in [docs/handoffs/](docs/handoffs/) — prior session's intent
+4. Read the tracking issue you are claiming, comments included — the live
+   handoff surface (R4); `docs/handoffs/` is a frozen archive
+   ([INDEX](docs/handoffs/INDEX.md)) and session-continuity notes are
+   operator-local (outside this repo)
+5. Skim [docs/decisions/INDEX.md](docs/decisions/INDEX.md) — note any ADRs applicable to your task
 
 ## What Lives Where
 
@@ -22,7 +25,7 @@ parent directory** (`../dmf-cms`, `../dmf-infra`, …) — not nested inside it.
 | What is the DMF Platform supposed to be? | `docs/THESIS.md`, then `docs/architecture/DMF Platform Plan.md` | Claude/Codex |
 | What's the active task? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues) + Active section of `docs/plans/INDEX.md` | Claude |
 | What's the strategic frame? | `docs/decisions/architectural-commitments-v1.md` (+ `docs/reviews/dmf-platform-technical-evaluation-2026-06-06.md`) | Claude |
-| Who handed off what? | `docs/handoffs/` (most recent) | Claude |
+| Who handed off what? | the tracking issue's comments (live); `docs/handoffs/` is a frozen pre-R4 archive | Claude |
 | What changed during rebuild? | `docs/sessions/` | Claude |
 | What decisions are binding? | `docs/decisions/INDEX.md` | Codex (for compliance audits) |
 
@@ -76,7 +79,7 @@ Cleanup is deferred; agents should flag these during reviews.
 
 **Use Claude for:**
 - **Planning & strategy** — new features, architectural decisions, multi-repo coordination
-- **Documentation** — writing ADRs, handoffs, README updates, high-level design docs
+- **Documentation** — writing ADRs, README updates, high-level design docs
 - **Secrets & policy** — anything involving OpenBao, auth, or deployment credentials (Codex skips these)
 - **One-off problem-solving** — quick bugs, script generation, interactive troubleshooting
 
