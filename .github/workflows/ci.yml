@@ -53,12 +53,15 @@ jobs:
         # tree/staged/range surfaces, worktree scanning, §4.2 redaction,
         # ephemeral merged-config cleanup. Never reads operator data.
         run: bin/dmf-scan self-test
-      - name: pattern parity gate — public tier (R1 §9.1)
-        # Structural old→new proof: every scrub in-script atom maps onto a
-        # manifest entry (category/regex-hash/engine/case), additions carry
-        # markers, and the scrub↔manifest grep allowlists stay lock-step.
-        # The private tier runs operator-locally (redacted), not here.
-        run: bin/check-pattern-parity.py --public
+      - name: acceptance matrix — public rows through the real callers (R1 §8)
+        # Seeded DMF-CANARY sentinel + synthetic private fixture exercised
+        # through the ACTUAL caller wiring: pre-commit/pre-push hooks, scrub,
+        # export-scan (fixture umbrella), the dmf-env gate, plus fail-closed
+        # row 10 and the §5.4 opt-out spoof row 11. The §9.1 parity gate that
+        # previously ran here completed its precondition role at the caller
+        # switchover (evidence on the tracking issue); the private rows run
+        # operator-locally via tests/acceptance-matrix.sh --private.
+        run: bash tests/acceptance-matrix.sh
   check-docs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10

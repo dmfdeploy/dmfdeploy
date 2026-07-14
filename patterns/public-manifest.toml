@@ -40,9 +40,9 @@
 # match the rules it defines.
 
 # ── shared grep-pass path allowlist (consumed by bin/dmf-scan) ──
-# Mirrors bin/scrub-public-repos.sh ALLOWLIST_PATHS until the caller
-# switchover retires scrub's in-script copy (rollout §9 step 4); the §9.1
-# parity tool flags drift between the two in the meantime.
+# THE one copy: scrub's in-script ALLOWLIST_PATHS array was retired at the
+# §9 step 4 caller switchover (its content was proven identical by the §9.1
+# parity gate first).
 [scan]
 allowlist_paths = [
     'bin/scrub-public-repos\.sh',
@@ -188,6 +188,11 @@ emit = false
 # The default private-key rule needs the full armored body incl. the END
 # marker; a bare BEGIN header (this shape) is NOT caught (proven 2026-07-13).
 covered_by = "git-grep"
+allowlist_description = "UI copy that names the PEM header as an input hint"
+# dmf-init's create wizard shows the OpenSSH header as an <input> placeholder
+# (frontend/src/create/ConfigureStep.tsx) — a UI string, not key material
+# (adjudicated 2026-07-14 at the caller switchover).
+allowlist_paths = ['^frontend/src/create/ConfigureStep\.tsx$']
 
 [[pattern]]
 id = "dmf-url-embedded-credentials"

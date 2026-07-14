@@ -97,51 +97,19 @@ else
   echo "  OK — no retired names in kept files"
 fi
 
-# ── 4. Content scan: umbrella custom rules + default gitleaks ──────
-# Tools missing → HARD FAIL (never skip). Scans ALL tracked files.
+# ── 4. Content scan: THIN CALLER of the shared scan library (R1 §6) ──
+# One implementation replaces the include-sourced greps + the unpinned
+# default-rules gitleaks pass (spec Inconsistency #4): manifest-driven grep
+# (private identity runs case-insensitively per its manifest entries, #137)
+# + PINNED gitleaks under the ephemeral merged public+private config.
+# HARDCODED dmf-env context; FAIL-CLOSED on a missing private manifest
+# (§5.3) — this gate's never-skip philosophy, now library-enforced.
 echo "━━━ Check 4: identity / topology / dev-secrets scan ━━━"
-command -v gitleaks >/dev/null 2>&1 || fail "gitleaks not found on PATH — required for content scan"
-
-# Custom DMF rules over ALL tracked files. Use `git grep` (not `rg`): ripgrep
-# skips hidden files by default, which would silently miss tracked hidden files
-# like .gitignore / .sops.yaml [codex]. git grep covers every tracked file.
-# Identity/topology alternations are operator-private — sourced from the
-# operator-local include (same source as bin/scrub-public-repos.sh).
-# Missing include → HARD FAIL, per this gate's never-skip philosophy.
-PRIVATE_PATTERNS_FILE="${DMF_SCRUB_PRIVATE_PATTERNS:-$HOME/.dmfdeploy/scrub-private-patterns.sh}"
-[ -f "$PRIVATE_PATTERNS_FILE" ] || fail "operator-private patterns not found at $PRIVATE_PATTERNS_FILE — required for identity/topology scan"
-# shellcheck source=/dev/null
-. "$PRIVATE_PATTERNS_FILE"
-SCAN_VIOLATIONS=""
-while IFS= read -r line; do
-  [ -n "$line" ] || continue
-  SCAN_VIOLATIONS="${SCAN_VIOLATIONS}  [identity] ${line}"$'\n'
-# -i: operator-name forms can leak title-cased (capitalized given/family
-# name), so match case-insensitively — aligned with scrub-public-repos.sh's
-# (?i) PCRE identity arrays (#137).
-done < <(cd "$TREE" && git grep -nIiE "$DMF_PRIVATE_IDENTITY_REGEX" 2>/dev/null || true)
-while IFS= read -r line; do
-  [ -n "$line" ] || continue
-  SCAN_VIOLATIONS="${SCAN_VIOLATIONS}  [topology] ${line}"$'\n'
-done < <(cd "$TREE" && git grep -nIE "$DMF_PRIVATE_TOPOLOGY_REGEX" 2>/dev/null || true)
-while IFS= read -r line; do
-  [ -n "$line" ] || continue
-  SCAN_VIOLATIONS="${SCAN_VIOLATIONS}  [dev-changeme] ${line}"$'\n'
-done < <(cd "$TREE" && git grep -nIE 'dev:changeme' 2>/dev/null || true)
-
-if command -v gitleaks >/dev/null 2>&1; then
-  if ! GL=$(cd "$TREE" && gitleaks detect --no-git --source . --no-banner 2>&1); then
-    while IFS= read -r line; do
-      case "$line" in *Finding:*|*File:*|*Secret:*|*RuleID:*) SCAN_VIOLATIONS="${SCAN_VIOLATIONS}  [gitleaks] ${line}"$'\n' ;; esac
-    done <<< "$GL"
-  fi
-fi
-
-if [ -n "$SCAN_VIOLATIONS" ]; then
-  printf '%s' "$SCAN_VIOLATIONS"
-  fail "content scan hits (see above)"
-else
+UMBRELLA_DIR="${UMBRELLA_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
+if "$UMBRELLA_DIR/bin/dmf-scan" tree "$TREE" --context dmf-env | sed 's/^/  /'; then
   echo "  OK — no identity/topology/dev-secrets leaks in kept files"
+else
+  fail "content scan hits or scan config error (see above)"
 fi
 
 # ── Result ─────────────────────────────────────────────────────────

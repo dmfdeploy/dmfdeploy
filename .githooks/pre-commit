@@ -16,48 +16,54 @@ set -euo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 
-# ── Secret scanning (runs in every repo, including component repos that
-#    opt into this hooks dir). Honors a .gitleaks.toml at the repo root.
-if command -v gitleaks >/dev/null 2>&1; then
+# ── Secret scanning (R1 §6 switchover: THIN CALLER of the shared library).
+# The umbrella (and any repo carrying bin/dmf-scan) scans staged changes via
+# the one implementation — manifest-driven grep pass + pinned gitleaks with
+# the ephemeral merged config — under the HARDCODED pre-commit context.
+# FAIL-CLOSED (§5.3): a missing private manifest refuses the commit; there is
+# no public-only escape here (§5.4). Operators/agents: the private manifest
+# lives at ~/.dmfdeploy/pattern-manifest.private.toml (see
+# bin/migrate-private-manifest.py). This gate sits ABOVE the STATUS_HOOK_SKIP
+# hatch — that hatch never skips secret scanning.
+if [ -x "$REPO_ROOT/bin/dmf-scan" ]; then
+    if ! "$REPO_ROOT/bin/dmf-scan" staged --repo "$REPO_ROOT" --context pre-commit; then
+        echo "" >&2
+        echo "[pre-commit] dmf-scan: staged changes refused (see class line above)" >&2
+        echo "  LEAK_FOUND:    remove the value (true FP: adjust the manifest via review)" >&2
+        echo "  CONFIG_ERROR:  fix the environment — never edit patterns to pass" >&2
+        echo "  bypass (rare): git commit --no-verify" >&2
+        exit 1
+    fi
+    # Generated-view drift (public region literal, private view redacted).
+    if ! "$REPO_ROOT/bin/dmf-scan" check >/dev/null 2>&1; then
+        echo "" >&2
+        echo "[pre-commit] generated gitleaks views drifted from the manifests — refusing commit" >&2
+        "$REPO_ROOT/bin/dmf-scan" check 2>&1 | sed 's/^/  /' >&2
+        echo "  public: bin/gen-gitleaks-rules.py --emit (stage .gitleaks.toml)" >&2
+        echo "  private: regenerate locally (bin/migrate-private-manifest.py --force --rewrite-legacy)" >&2
+        exit 1
+    fi
+# Legacy fallback for component repos that share this hooksPath but do not
+# carry the scan library yet (they keep the old two-pass gitleaks behavior
+# until the #73 cross-repo distribution lands).
+elif command -v gitleaks >/dev/null 2>&1; then
     if ! gitleaks protect --staged --no-banner --redact >/dev/null 2>&1; then
         echo "" >&2
         echo "[pre-commit] gitleaks: leak detected in staged changes — refusing commit" >&2
         echo "  inspect:        gitleaks protect --staged -v" >&2
-        echo "  allowlist FP:   edit .gitleaks.toml (path / regex)" >&2
-        echo "  bypass (rare):  git commit --no-verify" >&2
         exit 1
     fi
-    # Second pass: operator-private rules (identity/topology). The local
-    # config is gitignored; contributors without it simply skip this pass.
-    REPO_TOP="$(git rev-parse --show-toplevel)"
-    if [ -f "$REPO_TOP/.gitleaks.local.toml" ]; then
+    if [ -f "$REPO_ROOT/.gitleaks.local.toml" ]; then
         if ! gitleaks protect --staged --no-banner --redact \
-                --config "$REPO_TOP/.gitleaks.local.toml" >/dev/null 2>&1; then
+                --config "$REPO_ROOT/.gitleaks.local.toml" >/dev/null 2>&1; then
             echo "" >&2
             echo "[pre-commit] gitleaks (operator-private rules): identity/topology literal in staged changes — refusing commit" >&2
-            echo "  inspect:  gitleaks protect --staged -v --config .gitleaks.local.toml" >&2
             exit 1
         fi
     fi
 elif [ "${GITLEAKS_HOOK_QUIET:-0}" != "1" ]; then
     echo "[pre-commit] WARN: gitleaks not installed — skipping secret scan." >&2
     echo "             brew install gitleaks (silence with GITLEAKS_HOOK_QUIET=1)" >&2
-fi
-
-# gitleaks rules region ↔ manifest drift (R1 §4/§9). This is a PUBLIC-SAFETY gate,
-# so it sits with the gitleaks scan ABOVE the STATUS_HOOK_SKIP escape hatch — that
-# hatch is only for doc refresh/checks and must never skip a secret-scanning gate.
-# The marker-fenced [[rules]] region of .gitleaks.toml is generated from
-# patterns/public-manifest.toml; a manifest edit without regen (or a hand-edited
-# region) is refused.
-if [ -f "$REPO_ROOT/patterns/public-manifest.toml" ] && command -v python3 >/dev/null 2>&1; then
-    if ! python3 "$REPO_ROOT/bin/gen-gitleaks-rules.py" --check >/dev/null 2>&1; then
-        echo "" >&2
-        echo "[pre-commit] .gitleaks.toml rules region drifted from the manifest — refusing commit" >&2
-        python3 "$REPO_ROOT/bin/gen-gitleaks-rules.py" --check 2>&1 | sed 's/^/  /' >&2
-        echo "  run: bin/gen-gitleaks-rules.py --emit  (then stage .gitleaks.toml)" >&2
-        exit 1
-    fi
 fi
 
 # Only fire the umbrella-specific bits when umbrella scripts exist. Component

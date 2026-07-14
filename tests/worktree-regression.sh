@@ -35,6 +35,25 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Since the §9 step 4 switchover scrub is a thin fail-closed caller of
+# bin/dmf-scan: the scrub context REQUIRES a private manifest. Provide a
+# SYNTHETIC one (fixture pattern only — never operator data) so this test
+# stays hermetic in CI and never reads the operator's real manifest.
+cat > "$WORK/private-fixture.toml" <<'EOF'
+[[pattern]]
+id = "fixture-private-marker"
+category = "topology"
+description = "fixture private topology marker (synthetic)"
+regex = 'FIXTURE-PRIVATE-[0-9]{6}'
+engines = ["pcre", "re2"]
+case_sensitive = true
+positive_canaries = ["FIXTURE-PRIVATE-314159"]
+[pattern.gitleaks]
+emit = false
+covered_by = "git-grep"
+EOF
+export DMF_PATTERN_MANIFEST_PRIVATE="$WORK/private-fixture.toml"
+
 # ── Fixture: a repo whose tracked content holds a PUBLIC-matching canary ──
 # Assemble an AWS-access-key-shaped canary (scrub SECRET_PATTERNS: \bAKIA[0-9A-Z]{16}\b)
 # from parts, so the literal never appears in this committed test file.

@@ -33,26 +33,9 @@ die() { echo "FATAL: $*" >&2; exit 1; }
 [ "$#" -eq 1 ] || die "usage: bin/export-scan.sh <repo>"
 REPO="$1"
 
-# ── Pinned gitleaks — MUST match guard.yml's version so the pre-publish gate is
-# authoritative for what CI sees. NO system-gitleaks fallback (default rulesets drift
-# between versions; that skew let private-key placeholders through on 8.30.1 once).
-GL_VERSION="8.21.2"
-case "$(uname -s)/$(uname -m)" in
-    Darwin/arm64) GL_ASSET="gitleaks_${GL_VERSION}_darwin_arm64.tar.gz"; GL_SHA256="cad3de5dc9a4d5447d967a70a4d49499c557f04db028274cc324f9ff983f6502" ;;
-    Linux/x86_64) GL_ASSET="gitleaks_${GL_VERSION}_linux_x64.tar.gz";    GL_SHA256="5bc41815076e6ed6ef8fbecc9d9b75bcae31f39029ceb55da08086315316e3ba" ;;
-    *) die "no pinned gitleaks ${GL_VERSION} for $(uname -s)/$(uname -m) — add its checksum" ;;
-esac
-GL_DIR="${TMPDIR:-/tmp}/dmf-gitleaks-${GL_VERSION}"
-GL="${GL_DIR}/gitleaks"
-if [ ! -x "$GL" ]; then
-    mkdir -p "$GL_DIR"
-    curl -fsSLo "$GL_DIR/gl.tgz" "https://github.com/gitleaks/gitleaks/releases/download/v${GL_VERSION}/${GL_ASSET}" \
-        || die "gitleaks ${GL_VERSION} download failed"
-    echo "${GL_SHA256}  $GL_DIR/gl.tgz" | shasum -a 256 -c - >/dev/null 2>&1 || die "gitleaks ${GL_VERSION} sha256 mismatch"
-    tar -xzf "$GL_DIR/gl.tgz" -C "$GL_DIR" gitleaks || die "gitleaks extract failed"
-fi
-# Assert the resolved binary is exactly the pinned version (no silent drift).
-"$GL" version 2>/dev/null | grep -qx "$GL_VERSION" || die "pinned gitleaks is not ${GL_VERSION} (got: $("$GL" version 2>/dev/null))"
+# ── gitleaks pinning now lives in the shared scan library (R1 §6): ONE
+# pinned version + sha for every context, still matching guard.yml. The
+# library resolves/downloads it on demand; no in-script fallback exists.
 
 # GitHub repo name mapping (the 8 importable component repos; dmf-runbooks joined the
 # clean-import set after its public repo was deleted in the 2026-06-09 CI recovery).
@@ -103,13 +86,14 @@ echo "━━━ gates"
 fail=0
 run() { echo "── $1"; shift; if "$@"; then echo "  ✓"; else echo "  ✗ FAILED"; fail=1; fi; }
 
-run "scrub-public-repos --tree"        bash "$UMBRELLA_DIR/bin/scrub-public-repos.sh" --tree "$SCRATCH"
+# R1 §6 switchover: one library call replaces the separate scrub + gitleaks
+# steps — manifest-driven grep pass + pinned gitleaks (no-git, run WITH
+# cwd=scratch so paths stay repo-relative for the allowlists) under the
+# ephemeral merged public+private config, HARDCODED export-scan context,
+# fail-closed on a missing private manifest (§5.3).
+run "dmf-scan tree (grep + pinned gitleaks)" "$UMBRELLA_DIR/bin/dmf-scan" tree "$SCRATCH" --context export-scan
+run "dmf-scan range (main scope, 1 commit)"  "$UMBRELLA_DIR/bin/dmf-scan" range main --repo "$SCRATCH" --context export-scan
 run "check-public-commit-authors --tree" bash "$UMBRELLA_DIR/bin/check-public-commit-authors.sh" --tree "$SCRATCH"
-# gitleaks MUST run from inside the scratch with --source . so it emits REPO-RELATIVE
-# paths — otherwise absolute /tmp/... paths defeat the repos' path allowlists (codex).
-# Authoritative public gate = the no-git full-tree scan; also keep a git/log scan.
-run "gitleaks ${GL_VERSION} (no-git tree, relative)" bash -c "cd '$SCRATCH' && '$GL' detect --source . --no-git --config .gitleaks.toml --no-banner --redact"
-run "gitleaks ${GL_VERSION} (main scope, 1 commit)"  bash -c "cd '$SCRATCH' && '$GL' detect --log-opts=main --config .gitleaks.toml --no-banner --redact"
 run "check-public-repo-hygiene --tree" bash "$UMBRELLA_DIR/bin/check-public-repo-hygiene.sh" --tree "$SCRATCH"
 if [ "$REPO" = "dmf-env" ]; then
     run "dmf-env-public-surface-gate"  bash "$UMBRELLA_DIR/bin/dmf-env-public-surface-gate.sh" "$SCRATCH"
