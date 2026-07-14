@@ -3,6 +3,10 @@ name: frontmatter-sweep
 description: Protocol for applying YAML frontmatter to a large set of markdown files based on a triage table — single-source parsing, Python for reliability, reciprocal banners, and strict verification
 source: auto-skill
 extracted_at: '2026-06-10T17:00:00.000Z'
+type: incident-residue
+scope: docs
+owner: operator
+review_by: '2026-10-14'
 ---
 
 # Frontmatter Sweep Over Markdown Files

@@ -3,6 +3,10 @@ name: pr-review-feedback-response
 description: Protocol for reading PR review feedback, finding the PR branch (including in worktrees), applying targeted fixes, and pushing updates
 source: auto-skill
 extracted_at: '2026-06-13T05:43:58.499Z'
+type: durable-pattern
+scope: github
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # PR Review Feedback Response

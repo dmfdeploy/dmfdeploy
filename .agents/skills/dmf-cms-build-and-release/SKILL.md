@@ -1,6 +1,10 @@
 ---
 name: dmf-cms-build-and-release
 description: Build and release the DMF Console (dmf-cms). Encodes the only sanctioned path — VERSION-driven, image published to GHCR via publish-to-ghcr.sh, mirrored into cluster Zot by playbook 630, deployed by playbook 650. Never by hand. Pairs with the canonical doc at dmf-cms/docs/DEVELOPMENT-AND-BUILD-RULES.md.
+type: operational-procedure
+scope: dmf-cms
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # DMF Console — Build and Release

@@ -3,6 +3,10 @@ name: shared-checkout-task-impl
 description: Implement a single assigned task from a multi-task plan in a shared component checkout — verify branch, scope to your files only, build-verify, then commit
 source: auto-skill
 extracted_at: '2026-06-05T16:01:00Z'
+type: durable-pattern
+scope: agent-workflow
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # Single-Task Implementation in a Shared Checkout

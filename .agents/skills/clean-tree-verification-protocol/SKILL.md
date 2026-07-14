@@ -3,6 +3,10 @@ name: clean-tree-verification-protocol
 description: Verify build-fallback code paths from a clean export scratch, not the dirty working tree where ignored build artifacts mask the fallback
 source: auto-skill
 extracted_at: '2026-06-09T21:05:30.932Z'
+type: durable-pattern
+scope: verification
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # Clean-Tree Verification Protocol

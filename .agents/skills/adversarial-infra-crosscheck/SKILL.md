@@ -3,6 +3,10 @@ name: adversarial-infra-crosscheck
 description: Adversarial pressure-test of deployment feasibility analyses — verify resource margins, image availability, control-plane wiring, and strategic value before committing
 source: auto-skill
 extracted_at: '2026-06-05T12:30:00Z'
+type: durable-pattern
+scope: review-workflow
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # Adversarial Infrastructure Cross-Check

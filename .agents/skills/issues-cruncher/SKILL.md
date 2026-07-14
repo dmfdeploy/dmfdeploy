@@ -1,6 +1,10 @@
 ---
 name: issues-cruncher
 description: Orchestrate a multi-agent trio (Claude orchestrator + qwen implementer + codex adversary) to take a GitHub issue end-to-end — scope, branch, implement, cross-check, verify, PR, land — with evidence-gated conventions and risk-tiered ceremony. Use when asked to "crunch an issue", "pick up issue N with the trio", "orchestrate the agents on a backlog item", or to start fresh on the backlog.
+type: operational-procedure
+scope: agent-workflow
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # Issues Cruncher

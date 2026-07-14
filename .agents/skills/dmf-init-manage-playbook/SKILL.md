@@ -1,6 +1,10 @@
 ---
 name: dmf-init-manage-playbook
 description: Use dmf-init to restore a DMF sandbox env from a /tmp backup and iterate on ONE playbook via the Manage API (restore → lock → rerun-playbook → stream), without a full from-scratch bootstrap. For agents working on a single playbook/role (e.g. an Authentik blueprint, a vertical-security play) who need to re-apply and verify against the live env. Covers launch, restore, the repo-checkout-advance gotcha, streaming, source-of-truth verification, and teardown. Env slug rotates; current sandbox id under /tmp/dmf-init-montest.
+type: operational-procedure
+scope: live-env
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # DMF-init: restore-from-backup + manage playbook runs

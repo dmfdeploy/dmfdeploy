@@ -3,6 +3,10 @@ name: multi-repo-pr-submission
 description: Protocol for submitting coordinated PRs across multiple repos as a specific GitHub identity — branch creation, DCO-signed commits, push, and PR opening with check monitoring
 source: auto-skill
 extracted_at: '2026-06-10T08:39:57.165Z'
+type: durable-pattern
+scope: github
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # Multi-Repo PR Submission

@@ -3,6 +3,10 @@ name: dmf-infra-new-role-deployment
 description: Pattern for deploying a new monitoring/stack component to the k3s cluster via Ansible roles in dmf-infra — study sibling → mirror anatomy → static checks → parallel-safe commit
 source: auto-skill
 extracted_at: '2026-06-01T09:00:00.000Z'
+type: durable-pattern
+scope: dmf-infra
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # dmf-infra — New Component Role Deployment Pattern

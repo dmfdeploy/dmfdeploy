@@ -3,6 +3,10 @@ name: netbox-token-mint-sentinel
 description: Robust stdout capture pattern for NetBox token mints — avoids tail -n 1 fragility when manage.py shell emits banner lines
 source: auto-skill
 extracted_at: '2026-06-04T15:46:19.829Z'
+type: incident-residue
+scope: dmf-promsd
+owner: operator
+review_by: '2026-10-14'
 ---
 
 # NetBox Token Mint — Sentinel Capture Pattern

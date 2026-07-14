@@ -3,6 +3,10 @@ name: adr-gate-review
 description: Review ADRs that gate downstream implementation work — verify schema unambiguity, cross-links, and that downstream agents need zero further design input
 source: auto-skill
 extracted_at: '2026-06-04T09:30:00Z'
+type: durable-pattern
+scope: review-workflow
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # ADR Gate Review

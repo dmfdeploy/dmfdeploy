@@ -3,6 +3,10 @@ name: hardened-github-actions-multi-repo
 description: Create hardened, SHA-pinned GitHub Actions workflows (guard + per-stack ci) across multiple independent repos — resolve pins, create byte-identical files, run grep-proof verification
 source: auto-skill
 extracted_at: '2026-06-09T17:30:00.000Z'
+type: durable-pattern
+scope: github
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # Hardened GitHub Actions Multi-Repo Deployment

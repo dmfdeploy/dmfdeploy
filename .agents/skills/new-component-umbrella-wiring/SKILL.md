@@ -3,6 +3,10 @@ name: new-component-umbrella-wiring
 description: Checklist of every umbrella mechanic that must be updated when adding a new component repo to dmfdeploy
 source: auto-skill
 extracted_at: '2026-06-02T09:59:57.463Z'
+type: durable-pattern
+scope: umbrella
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # New Component Repo — Umbrella Wiring Checklist

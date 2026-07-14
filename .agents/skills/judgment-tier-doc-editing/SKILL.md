@@ -3,6 +3,10 @@ name: judgment-tier-doc-editing
 description: Protocol for executing judgment-tier doc edits from a detailed spec — block rewrites, banner insertions, path neutralization, strict STOP-on-mismatch rules, and conditional no-ops
 source: auto-skill
 extracted_at: '2026-06-10T10:19:11.702Z'
+type: durable-pattern
+scope: docs
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # Judgment-Tier Doc Editing

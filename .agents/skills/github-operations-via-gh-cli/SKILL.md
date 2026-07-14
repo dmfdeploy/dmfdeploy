@@ -3,6 +3,10 @@ name: github-operations-via-gh-cli
 description: Protocol for GitHub repo scaffolding, issue creation, and project board operations via the gh CLI — handling 401s, GraphQL quoting, and API limitations
 source: auto-skill
 extracted_at: '2026-06-10T17:15:00.000Z'
+type: durable-pattern
+scope: github
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # GitHub Operations via gh CLI

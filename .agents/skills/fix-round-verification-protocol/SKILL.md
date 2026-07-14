@@ -3,6 +3,10 @@ name: fix-round-verification-protocol
 description: Protocol for implementing ranked defect reviews where the orchestrator verifies DONE report claims before accepting; includes verification requirements for the worker
 source: auto-skill
 extracted_at: '2026-06-08T16:11:57.721Z'
+type: durable-pattern
+scope: agent-workflow
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # Fix Round Verification Protocol

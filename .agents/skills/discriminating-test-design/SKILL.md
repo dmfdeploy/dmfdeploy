@@ -3,6 +3,10 @@ name: discriminating-test-design
 description: Design tests that FAIL on old code and PASS on new code; use real-data dry-runs as independent verification for extractors/Matchers
 source: auto-skill
 extracted_at: '2026-06-12T15:30:00Z'
+type: durable-pattern
+scope: verification
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # Discriminating Test Design

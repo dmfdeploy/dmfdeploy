@@ -3,6 +3,10 @@ name: dmf-deploy-commit-workflow
 description: Conventional commit + DCO requirements and PR procedure for dmfdeploy/dmfdeploy
 source: auto-skill
 extracted_at: '2026-06-13T17:38:16.578Z'
+type: operational-procedure
+scope: umbrella
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # DMF Deploy Commit & PR Workflow

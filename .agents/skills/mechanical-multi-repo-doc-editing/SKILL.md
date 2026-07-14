@@ -3,6 +3,10 @@ name: mechanical-multi-repo-doc-editing
 description: Protocol for performing coordinated mechanical doc edits across multiple repos with verification — edits-only mode, no git operations, surgical replacements with grep-proof
 source: auto-skill
 extracted_at: '2026-06-10T07:58:58.524Z'
+type: durable-pattern
+scope: docs
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # Mechanical Multi-Repo Doc Editing

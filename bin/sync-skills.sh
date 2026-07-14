@@ -174,6 +174,33 @@ check() {
             if [ -n "$visibility" ]; then
                 case "$visibility" in operator-local|experimental) ;; *) echo "  ✗ $name: invalid visibility '$visibility'" >&2; fail=$((fail + 1)) ;; esac
             fi
+            # (2b) Decay-rubric metadata (R3, issue #225; rubric in
+            # .agents/skills/README.md). Missing/invalid fields FAIL; an
+            # overdue review_by only WARNS — a date rollover must never
+            # brick unrelated commits.
+            local fm_block skill_type review_by
+            fm_block="$(awk '/^---$/{n++; next} n==1{print} n>=2{exit}' "$skill_md")"
+            skill_type="$(printf '%s\n' "$fm_block" | sed -n 's/^type:[[:space:]]*//p' | head -1)"
+            review_by="$(printf '%s\n' "$fm_block" | sed -n "s/^review_by:[[:space:]]*'\{0,1\}\([0-9-]*\).*/\1/p" | head -1)"
+            case "$skill_type" in
+                durable-pattern|incident-residue|operational-procedure) ;;
+                "") echo "  ✗ $name: missing rubric 'type:' (see .agents/skills/README.md)" >&2; fail=$((fail + 1)) ;;
+                *)  echo "  ✗ $name: invalid rubric type '$skill_type'" >&2; fail=$((fail + 1)) ;;
+            esac
+            if ! printf '%s\n' "$fm_block" | grep -q '^scope:'; then
+                echo "  ✗ $name: missing rubric 'scope:'" >&2; fail=$((fail + 1))
+            fi
+            # owner must be the ROLE 'operator' — a personal identity here
+            # would leak into public trajectory (codex R3 P2: README claims
+            # all rubric keys are validated, so validate owner too).
+            if ! printf '%s\n' "$fm_block" | grep -q '^owner:[[:space:]]*operator[[:space:]]*$'; then
+                echo "  ✗ $name: rubric 'owner:' missing or not the role 'operator'" >&2; fail=$((fail + 1))
+            fi
+            if ! printf '%s' "$review_by" | grep -qE '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'; then
+                echo "  ✗ $name: missing/invalid rubric 'review_by:' (YYYY-MM-DD)" >&2; fail=$((fail + 1))
+            elif [ "$review_by" \< "$(date +%Y-%m-%d)" ]; then
+                echo "  ⚠ $name: review_by $review_by is overdue — re-validate or retire (rubric: .agents/skills/README.md)" >&2
+            fi
         done < <(canonical_names)
     else
         echo "  ✗ no canonical store at $CANON" >&2; fail=$((fail + 1))
