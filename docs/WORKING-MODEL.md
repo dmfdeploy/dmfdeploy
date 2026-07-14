@@ -138,6 +138,37 @@ the frontmatter must be flipped; frontmatter wins for design content.
   disarm auto-merge. Required-check lists live in each repo's branch ruleset;
   when CI job names change, update the ruleset in the same change.
 
+### Adversarial review gates (codex)
+
+Every non-trivial change is adversarially reviewed by an independent agent
+(codex) **before its PR opens** (PRs are final at open — auto-merge is armed).
+Two sanctioned forms:
+
+- **Interactive bridge** (agent-bridge tmux pane): for design and
+  implementation reviews that take multiple rounds — findings get fixed and
+  re-verified in delta rounds, and the reviewer may need approvals for its
+  own scratch reproductions. Reset the reviewer's session between rounds.
+- **One-shot `codex exec --sandbox read-only`** (R6,
+  [#229](https://github.com/dmfdeploy/dmfdeploy/issues/229)): for **routine**
+  gates — bounded, single-verdict reviews (a docs change, a mechanical sweep,
+  a small fix against a clear acceptance condition). Requirements, all
+  mandatory:
+  1. the sandbox is **read-only** (the reviewer proves, never mutates);
+  2. the prompt names an explicit acceptance condition and requires a final
+     standalone `CODEX GATE: PASS` / `CODEX GATE: FAIL <reason>` line — and
+     every acceptance item must be **verifiable under the read-only sandbox**
+     (diff inspection, grep, read-only git); checks that need to *execute*
+     tooling belong to CI, and the prompt cites their status instead of
+     asking the reviewer to run them (learned on this rule's own first use);
+  3. **reproducible capture**: the exact prompt, the repo SHA under review
+     (`git rev-parse HEAD`), the full command line, and the complete output
+     are retained together in the operator's review records (operator-local,
+     like all session records — public artifacts reference the verdict, not
+     the store).
+
+  A FAIL from a one-shot gate escalates to the interactive form for the fix
+  rounds; one-shot gates are never used to re-review their own findings.
+
 ## 7. How this is enforced (mechanics map)
 
 | Mechanism | Scope | Mode |
@@ -152,6 +183,7 @@ the frontmatter must be flipped; frontmatter wins for design content.
 | `automerge.yml` + `required_status_checks` ruleset | all 9 repos | approval-driven rebase auto-merge + branch auto-delete (`hold` label disarms) |
 | `bin/close-completed-issues.sh` via `issue-close-reconciler.yml` (daily 06:00 UTC + `workflow_dispatch`) | umbrella issues with a merged completing PR | auto-closes from GitHub-parsed closing refs (`closedByPullRequestsReferences`, cross-repo included); manual close is fallback; `--self-test` gated in CI |
 | `bin/check-backlog-hygiene.sh` (scheduled) | umbrella + component intake | weekly drift report |
+| Codex adversarial gate (§6: interactive bridge or one-shot `codex exec --sandbox read-only`) | non-trivial changes, pre-PR | operator discipline; prompt/SHA/command/output retained in operator-local review records |
 
 ## 8. New-repo bootstrap checklist
 
