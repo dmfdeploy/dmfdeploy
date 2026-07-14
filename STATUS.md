@@ -13,7 +13,8 @@ Edit this file only for shared operator notes; do not commit generated repo-stat
 For decisions, see [docs/decisions/](docs/decisions/INDEX.md).
 
 For active task specs, see [docs/plans/](docs/plans/).
-For most recent handoff, see [docs/handoffs/](docs/handoffs/).
+For live handoff state, read the claimed tracking issue's comments
+(two-tier model, R4); [docs/handoffs/](docs/handoffs/INDEX.md) is a frozen archive.
 For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/architecture/DMF%20Platform%20Plan.md).
 
 ## Operator notes (hand-edited — preserved across regenerations)

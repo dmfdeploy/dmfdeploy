@@ -208,6 +208,63 @@ else
     echo "  ✓ ADR file↔INDEX consistent"
 fi
 
+# ── HARD CHECK 4b: docs/handoffs/ is a FROZEN archive (R4, issue #227) ─
+# Session handoffs are two-tier since 2026-07-14: issue-bound progress goes
+# as tracking-issue comments (public), session-continuity notes are
+# operator-local. Any file here that is not in the freeze-time INDEX.md is
+# a new handoff trying to land in the archive — refuse it.
+
+echo "── check: docs/handoffs/ freeze (two-tier handoff model)"
+
+# Exact-membership check in one python pass (codex R4 round 1):
+#   - EVERY tracked/staged path under docs/handoffs/ is checked, not just
+#     *.md (a .txt/.yaml/image handoff must not slip the freeze);
+#   - membership is exact against the URL-decoded INDEX link TARGETS as
+#     relative paths, never substring (a subdir file reusing an indexed
+#     basename fails);
+#   - tracked + staged enumerations are deduped (one report per path).
+HANDOFF_REPORT="$(python3 - <<'PYEOF2'
+import os, re, subprocess, sys, urllib.parse
+
+index_path = "docs/handoffs/INDEX.md"
+if not os.path.isfile(index_path):
+    print(f"{index_path}: freeze index missing")
+    sys.exit(0)
+
+text = open(index_path, encoding="utf-8").read()
+allowed = {urllib.parse.unquote(m.group(1))
+           for m in re.finditer(r"\]\(([^)]+)\)", text)
+           if m.group(1) and not m.group(1).startswith(("http://", "https://", "#"))}
+allowed.add("INDEX.md")
+
+def paths(cmd):
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    return [p for p in r.stdout.split("\0") if p]
+
+seen = set()
+seen.update(paths(["git", "-c", "core.quotepath=false", "ls-files", "-z", "docs/handoffs/"]))
+seen.update(paths(["git", "-c", "core.quotepath=false", "diff", "--cached",
+                   "--name-only", "--no-renames", "--diff-filter=A", "-z",
+                   "--", "docs/handoffs/"]))
+for p in sorted(seen):
+    rel = os.path.relpath(p, "docs/handoffs")
+    if rel not in allowed:
+        print(f"{p}: not in the freeze index — docs/handoffs/ is a frozen "
+              "archive; issue-bound progress goes on the tracking issue, "
+              "session notes are operator-local (see docs/handoffs/INDEX.md)")
+PYEOF2
+)"
+
+if [ -n "$HANDOFF_REPORT" ]; then
+    echo "  ✗ handoffs freeze violated:" >&2
+    while IFS= read -r line; do
+        echo "    ${line}" >&2
+    done <<< "$HANDOFF_REPORT"
+    FAILED=1
+else
+    echo "  ✓ docs/handoffs/ archive is frozen (no new files)"
+fi
+
 # ── HARD CHECK 5: doc-to-doc relative .md link integrity (all of docs/) ─
 # Catches a rename/move/delete that breaks a cross-reference between docs —
 # enforcing the "don't rename without sweeping callers" rule (issue #84). Scope

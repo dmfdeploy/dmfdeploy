@@ -14,7 +14,9 @@ Before touching any DMF repo:
 
 1. `cd "$DMFDEPLOY_UMBRELLA" && git fetch && git pull` (umbrella)
 2. `bin/generate-status.sh` — writes `STATUS.local.md` (gitignored), then read it
-3. Read the most recent file in [docs/handoffs/](docs/handoffs/) — prior session intent
+3. Read the tracking issue you are claiming, comments included — that is the
+   live handoff surface (R4); `docs/handoffs/` is a frozen archive and
+   session-continuity notes are operator-local (outside this repo)
 4. Skim [docs/decisions/INDEX.md](docs/decisions/INDEX.md) — apply any ADRs relevant to your task
 5. Run `git status` in any sub-repo you're about to touch. **Ask the user
    before modifying any sub-repo with dirty (uncommitted) state.**

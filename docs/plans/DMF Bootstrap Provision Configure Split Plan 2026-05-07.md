@@ -97,7 +97,9 @@ Before implementation, read these files from the umbrella workspace:
 - `dmf-infra/docs/openbao-bootstrap-security-model.md` — separation of
   duties (root-token disposal, ops-admin, ESO AppRole), break-glass
   posture
-- the most recent handoff under `docs/handoffs/`
+- *(amended R4, 2026-07-14: this item originally pointed at the latest
+  committed handoff file; read the claimed tracking issue's comments
+  instead — `docs/handoffs/` is a frozen archive)*
 
 Before touching `dmf-infra`, also read:
 

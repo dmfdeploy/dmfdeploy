@@ -287,7 +287,8 @@ run this generator when you need the live repo-state snapshot._
 
 For decisions, see [docs/decisions/](docs/decisions/INDEX.md).
 For active task spec, see the most recent file in [docs/plans/](docs/plans/).
-For most recent handoff, see [docs/handoffs/](docs/handoffs/).
+For live handoff state, read the claimed tracking issue's comments
+(two-tier model, R4); [docs/handoffs/](docs/handoffs/INDEX.md) is a frozen archive.
 For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/architecture/DMF%20Platform%20Plan.md).
 
 ## Repo state
@@ -328,7 +329,8 @@ EOF
 
 **Boot ritual reminder:** when starting a session in any DMF repo,
 \`git fetch && git pull\` the umbrella, run \`bin/generate-status.sh\`, read
-this local snapshot, read the most recent handoff in \`docs/handoffs/\`, run
+this local snapshot, read the tracking issue you are claiming (comments
+included — the live handoff surface; \`docs/handoffs/\` is a frozen archive), run
 \`git status\` in any component repo (\`../dmf-*\`) you're about to touch, and
 ask the user before modifying any component repo with dirty state. Edit
 committed \`STATUS.md\` only for hand-maintained operator notes.

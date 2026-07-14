@@ -430,7 +430,9 @@ Read in this order before touching any code:
 1. `dmfdeploy/STATUS.md` — cross-repo state
 2. `dmfdeploy/CLAUDE.md` — boot ritual + workspace map
 3. `docs/decisions/INDEX.md` — ADR list, with attention to ADR-0008, 0009, 0020
-4. The most recent handoff under `docs/handoffs/`
+4. *(amended R4, 2026-07-14: this step originally pointed at the latest
+   committed handoff file; read the claimed tracking issue's comments
+   instead — `docs/handoffs/` is a frozen archive)*
 5. This plan
 6. For cluster ops: §0 of `.claude/skills/dmf-cluster-access/` skill
 7. For OpenBao: §0 of `.claude/skills/dmf-openbao-unseal/` skill

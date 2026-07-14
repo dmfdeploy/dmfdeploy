@@ -1,6 +1,6 @@
 # Contributing to dmfdeploy (umbrella)
 
-The umbrella workspace for the DMF Platform: consolidated knowledge base (`docs/`), ADRs, plans, handoffs, skills, and cross-repo status. Code lives in the component repos.
+The umbrella workspace for the DMF Platform: consolidated knowledge base (`docs/`), ADRs, plans, skills, and cross-repo status (handoffs are archived in `docs/handoffs/`; live progress is issue comments). Code lives in the component repos.
 
 This repo is part of the **DMF Platform**. GitHub is the canonical home and the
 single source of truth: all changes land via **Pull Request** against `main`.
@@ -108,7 +108,7 @@ first. If you need a secret, ask a maintainer — do not improvise a transport.
 ### MUST
 - Open changes as **GitHub PRs against `main`** with **signed-off** commits.
 - Use Conventional Commit messages and `<handle>/<short-slug>` topic branches.
-- Follow the boot ritual (read STATUS.md, handoffs, ADRs) before touching any DMF repo.
+- Follow the boot ritual (read STATUS.md, the claimed tracking issue's comments, ADRs) before touching any DMF repo.
 - Use **placeholder syntax** for all IPs / DNS / operator identity in every artifact.
 
 ### MUST NOT
