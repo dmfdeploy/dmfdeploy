@@ -3,6 +3,10 @@ name: adr-contract-wp-review
 description: Review implementation work packages against a frozen ADR contract — verify each WP faithfully implements the contract's schema, types, and behavior before downstream WPs proceed
 source: auto-skill
 extracted_at: '2026-06-04T12:00:00Z'
+type: durable-pattern
+scope: review-workflow
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # ADR Contract Work-Package Review

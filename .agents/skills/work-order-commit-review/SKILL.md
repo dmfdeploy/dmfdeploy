@@ -3,6 +3,10 @@ name: work-order-commit-review
 description: Review committed diffs against a work order's acceptance criteria — check correctness, test quality, scope creep, and edge cases before accepting
 source: auto-skill
 extracted_at: '2026-06-03T15:30:00Z'
+type: durable-pattern
+scope: review-workflow
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # Work-Order Commit Review

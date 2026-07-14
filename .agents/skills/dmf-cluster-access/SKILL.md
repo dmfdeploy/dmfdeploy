@@ -1,6 +1,10 @@
 ---
 name: dmf-cluster-access
 description: Operate against the live DMF lab cluster. The cluster is the truth — local kubectl is not. This skill encodes how to inspect, change, and recover state authoritatively. Env slug rotates; current id in umbrella STATUS.local.md (run bin/generate-status.sh).
+type: operational-procedure
+scope: live-env
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # DMF Cluster Access

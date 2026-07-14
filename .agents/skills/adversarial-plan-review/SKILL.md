@@ -3,6 +3,10 @@ name: adversarial-plan-review
 description: Structured adversarial review of implementation plans, specs, and decision documents — cite section refs, prioritize P1/P2/P3, verify against parent docs before judging
 source: auto-skill
 extracted_at: '2026-06-02T16:15:00Z'
+type: durable-pattern
+scope: review-workflow
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # Adversarial Plan Review

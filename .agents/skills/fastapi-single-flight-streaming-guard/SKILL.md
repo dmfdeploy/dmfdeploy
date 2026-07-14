@@ -3,6 +3,10 @@ name: fastapi-single-flight-streaming-guard
 description: Pattern for adding server-side single-flight concurrency guards to FastAPI streaming endpoints that perform side-effects (e.g., creating resources) to prevent duplicate work from concurrent/retried requests.
 source: auto-skill
 extracted_at: '2026-06-12T14:00:00.000Z'
+type: incident-residue
+scope: dmf-init
+owner: operator
+review_by: '2026-10-14'
 ---
 
 ## When to apply

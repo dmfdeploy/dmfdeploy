@@ -3,6 +3,10 @@ name: sandbox-harness-render-verify
 description: Verification discipline for DMF sandbox harness changes — render-level checks replace live cluster rollout for render-path-only modifications
 source: auto-skill
 extracted_at: '2026-06-05T15:42:00Z'
+type: durable-pattern
+scope: dmf-env
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # Sandbox Harness Render-Level Verification

@@ -3,6 +3,10 @@ name: script-mothball-hardening
 description: Mothball legacy script systems by classifying scripts as MUTATING vs READ-ONLY, inserting fail-closed guards, updating catalog metadata, and verifying
 source: auto-skill
 extracted_at: '2026-06-10T15:28:28.548Z'
+type: durable-pattern
+scope: umbrella
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # Script Mothball & Fail-Closed Hardening

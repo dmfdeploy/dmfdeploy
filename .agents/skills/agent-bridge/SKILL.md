@@ -1,6 +1,10 @@
 ---
 name: agent-bridge
 description: Send prompts to other AI agents running in tmux panes (Claude, codex, Qwen, gemini, etc.) and read their replies. Use when one agent needs to delegate to or consult another agent in the same tmux session, or when the user asks to "ask claude in the other pane", "send to codex", "talk to qwen", "have the other agent do X", or "let them collaborate". Keeps the conversation visible in the terminal so the user can observe and intervene.
+type: operational-procedure
+scope: agent-workflow
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # agent-bridge

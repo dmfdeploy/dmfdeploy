@@ -3,6 +3,10 @@ name: github-reconciler-script-pattern
 description: Build safe, dry-run-default bash reconciler scripts that query GitHub APIs, extract issue/PR references, and perform idempotent state changes — with self-test, shellcheck, actionlint, and real-data dry-run as independent checks
 source: auto-skill
 extracted_at: '2026-06-12T16:27:40.107Z'
+type: durable-pattern
+scope: github
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # GitHub Reconciler Script Pattern

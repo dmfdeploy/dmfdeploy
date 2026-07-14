@@ -3,6 +3,10 @@ name: e2e-harness-design-review
 description: Review E2E test harness design plans for host/container boundary correctness, playbook reuse collateral, UI automation fragility, statelessness claims, and pre-flight completeness
 source: auto-skill
 extracted_at: '2026-06-05T07:37:14Z'
+type: durable-pattern
+scope: review-workflow
+owner: operator
+review_by: '2027-01-14'
 ---
 
 # E2E Harness Design Review
