@@ -1,15 +1,17 @@
 ---
-status: active
+status: executed
 date: 2026-07-13
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/212
 ---
 # DMF Public-Safety Pattern Manifest Plan (2026-07-13)
 
-> **STATUS: ACTIVE — SPEC ONLY.** This round delivers the design; it changes no
-> scanner, hook, or workflow. Implementation is a separate dispatch after this
-> spec is codex-gated. Tracking: [#212](https://github.com/dmfdeploy/dmfdeploy/issues/212)
-> (sub-issue of [#206](https://github.com/dmfdeploy/dmfdeploy/issues/206), the
-> public-safety-scanning evaluation + its adversarial review).
+> **STATUS: EXECUTED (2026-07-14).** Landed across four codex-gated PRs:
+> #214/#215 (manifest + generator + worktree resolver), #219 (scan library,
+> §9.1 parity gate, public fold-in, DMF-CANARY sentinel), #220 (private
+> migration tool; migration executed, private parity green), and the caller
+> switchover + fail-closed flip + §8 acceptance matrix (the PR closing
+> [#212](https://github.com/dmfdeploy/dmfdeploy/issues/212), sub-issue of
+> [#206](https://github.com/dmfdeploy/dmfdeploy/issues/206)).
 
 ## 0. Problem in one paragraph
 

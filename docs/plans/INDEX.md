@@ -8,9 +8,8 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (4)
+## Active (3)
 
-- [DMF Public-Safety Pattern Manifest Plan 2026-07-13](DMF%20Public-Safety%20Pattern%20Manifest%20Plan%202026-07-13.md) — 2026-07-13
 - [DMF v0.2 Presentable Journey Execution Plan 2026-07-12](DMF%20v0.2%20Presentable%20Journey%20Execution%20Plan%202026-07-12.md) — 2026-07-12
 - [DMF v0.2 EBU Facility-Orchestration Re-anchor Plan 2026-07-07](DMF%20v0.2%20EBU%20Facility-Orchestration%20Re-anchor%20Plan%202026-07-07.md) — 2026-07-07
 - [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
@@ -26,8 +25,9 @@ shelved, kept for provenance.
 - [DMF Pre-Release Compliance Readiness Plan 2026-05-11](DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md) — 2026-05-11
 - [DMF Tier A Phase Execution Plan 2026-05-11](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — 2026-05-11
 
-## Executed (90)
+## Executed (91)
 
+- [DMF Public-Safety Pattern Manifest Plan 2026-07-13](DMF%20Public-Safety%20Pattern%20Manifest%20Plan%202026-07-13.md) — 2026-07-13
 - [DMF Console Information Architecture Implementation Plan 2026-07-03](DMF%20Console%20Information%20Architecture%20Implementation%20Plan%202026-07-03.md) — 2026-07-03
 - [DMF Console Wording and Media Workloads Page Plan 2026-07-03](DMF%20Console%20Wording%20and%20Media%20Workloads%20Page%20Plan%202026-07-03.md) — 2026-07-03
 - [DMF MXL Single-Node Revival Plan 2026-07-03](DMF%20MXL%20Single-Node%20Revival%20Plan%202026-07-03.md) — 2026-07-03

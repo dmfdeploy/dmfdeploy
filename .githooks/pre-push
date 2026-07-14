@@ -24,33 +24,43 @@ set -euo pipefail
 REPO_TOP="$(git rev-parse --show-toplevel)"
 ZERO="0000000000000000000000000000000000000000"
 
-if ! command -v gitleaks >/dev/null 2>&1; then
-    if [ "${GITLEAKS_HOOK_QUIET:-0}" != "1" ]; then
-        echo "[pre-push] WARN: gitleaks not installed — skipping secret scan." >&2
-        echo "           brew install gitleaks (silence with GITLEAKS_HOOK_QUIET=1)" >&2
-    fi
-    exit 0
-fi
-
-# Scan the commits described by a `git log` range/option string.
+# R1 §6 switchover: THIN CALLER of the shared scan library when this repo
+# carries it — one implementation, HARDCODED pre-push context, pinned gitleaks
+# with the ephemeral merged (public+private) config, FAIL-CLOSED on a missing
+# private manifest (§5.3; no public-only escape here, §5.4). Component repos
+# without bin/dmf-scan keep the legacy two-pass behavior below until the #73
+# cross-repo distribution lands.
 scan_range() {
     local range="$1"
+    if [ -x "$REPO_TOP/bin/dmf-scan" ]; then
+        if ! "$REPO_TOP/bin/dmf-scan" range "$range" --repo "$REPO_TOP" --context pre-push; then
+            echo "" >&2
+            echo "[pre-push] dmf-scan: push range refused (see class line above)" >&2
+            echo "  LEAK_FOUND:    remove the value from the commits (rebase/amend)" >&2
+            echo "  CONFIG_ERROR:  fix the environment — never edit patterns to pass" >&2
+            echo "  bypass (rare): git push --no-verify" >&2
+            return 1
+        fi
+        return 0
+    fi
+    if ! command -v gitleaks >/dev/null 2>&1; then
+        if [ "${GITLEAKS_HOOK_QUIET:-0}" != "1" ]; then
+            echo "[pre-push] WARN: gitleaks not installed — skipping secret scan." >&2
+        fi
+        return 0
+    fi
     if ! gitleaks detect --no-banner --redact --log-opts="$range" >/dev/null 2>&1; then
         echo "" >&2
         echo "[pre-push] gitleaks: leak detected in commits being pushed — refusing push" >&2
         echo "  inspect:        gitleaks detect --log-opts=\"$range\" -v" >&2
-        echo "  allowlist FP:   edit .gitleaks.toml (path / regex)" >&2
         echo "  bypass (rare):  git push --no-verify" >&2
         return 1
     fi
-    # Second pass: operator-private rules (identity/topology). The local config
-    # is gitignored; contributors without it simply skip this pass.
     if [ -f "$REPO_TOP/.gitleaks.local.toml" ]; then
         if ! gitleaks detect --no-banner --redact --log-opts="$range" \
                 --config "$REPO_TOP/.gitleaks.local.toml" >/dev/null 2>&1; then
             echo "" >&2
             echo "[pre-push] gitleaks (operator-private rules): identity/topology literal in commits being pushed — refusing push" >&2
-            echo "  inspect:  gitleaks detect --log-opts=\"$range\" -v --config .gitleaks.local.toml" >&2
             return 1
         fi
     fi

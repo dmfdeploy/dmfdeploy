@@ -30,6 +30,13 @@ entries with NO old counterpart must carry [pattern.parity] status="addition".
 Exit: 0 parity green; 4 DRIFT_ERROR on any mismatch; 3 CONFIG_ERROR.
 Green in --private mode is the hard precondition to the caller switchover
 (rollout §9 step 3).
+
+HISTORICAL AFTER THE SWITCHOVER (§9 steps 4-5, 2026-07-14): the old sources
+this tool parses were retired from the live callers — scrub no longer carries
+in-script arrays, so --public against a post-switchover checkout fails
+CONFIG_ERROR by design. Run it against a pre-switchover ref/backup when
+re-proving the migration; the ongoing gates are gen-gitleaks-rules --check/
+--self-test, dmf-scan self-test/check, and tests/acceptance-matrix.sh.
 """
 import argparse
 import hashlib
