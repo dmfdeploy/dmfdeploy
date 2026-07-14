@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # .githooks/pre-commit — local pre-commit gates for the umbrella.
 #
-# Runs staged secret scans, refreshes deterministic generated docs, and checks
-# documentation/frontmatter consistency before allowing the commit.
+# Runs staged secret scans and CHECK-ONLY, path-scoped doc gates before
+# allowing the commit. Never mutates or stages anything (R7): on drift it
+# refuses and points at bin/fix-docs.sh.
 #
 # Activate once per clone:
 #   git config core.hooksPath .githooks
@@ -83,57 +84,65 @@ fi
     exit 0
 }
 
-# Refresh the scripts catalog if a script header may have changed
-if [ -x "$REPO_ROOT/bin/generate-scripts-catalog.sh" ]; then
-    "$REPO_ROOT/bin/generate-scripts-catalog.sh" >/dev/null
-    if ! git diff --quiet -- docs/SCRIPTS.md 2>/dev/null; then
-        git add docs/SCRIPTS.md
-        echo "[pre-commit] docs/SCRIPTS.md auto-refreshed and staged"
-    fi
+# ── R7: the doc gates below are CHECK-ONLY and PATH-SCOPED. The hook never
+# mutates or stages anything (the old auto-refresh once ate sibling-repo
+# sections of SCRIPTS.md when run from a worktree); on drift it refuses and
+# points at bin/fix-docs.sh. Each gate fires only when the staged paths can
+# actually affect it, so code-only commits skip the doc machinery entirely.
+# --no-renames: a rename must surface BOTH paths (as D+A) — with rename
+# detection on, --name-only reports only the destination, so moving a file
+# OUT of a watched path never fired its gate (codex R7 P1-1).
+STAGED_PATHS="$(git diff --cached --name-only --no-renames --diff-filter=ACMRTD)"
+touches() { printf '%s\n' "$STAGED_PATHS" | grep -qE "$1"; }
+# Editing the hook itself re-arms every doc gate for this commit
+# (codex R7 P1-2: gate implementations are part of each gate's trigger).
+HOOK_CHANGED=0
+touches '^\.githooks/pre-commit$' && HOOK_CHANGED=1
+gate_on() { [ "$HOOK_CHANGED" = 1 ] || touches "$1"; }
+refuse() {  # refuse <label> <fix-hint> <recheck-cmd...>
+    local label="$1" hint="$2"; shift 2
+    echo "" >&2
+    echo "[pre-commit] ${label} — refusing commit" >&2
+    "$@" 2>&1 | sed 's/^/  /' >&2
+    echo "  fix: ${hint}" >&2
+    echo "  (STATUS_HOOK_SKIP=1 bypasses doc gates only — never secret scanning)" >&2
+    exit 1
+}
+
+if gate_on '^(bin/|tests/|docs/SCRIPTS\.md)' && [ -x "$REPO_ROOT/bin/generate-scripts-catalog.sh" ]; then
+    "$REPO_ROOT/bin/generate-scripts-catalog.sh" --check >/dev/null 2>&1 \
+        || refuse "docs/SCRIPTS.md is stale" "bin/fix-docs.sh && git add docs/SCRIPTS.md" \
+                  "$REPO_ROOT/bin/generate-scripts-catalog.sh" --check
 fi
 
-# Regenerate the plans index and run the doc gate
-if [ -x "$REPO_ROOT/bin/generate-plans-index.sh" ]; then
-    "$REPO_ROOT/bin/generate-plans-index.sh" >/dev/null
-    if ! git diff --quiet -- docs/plans/INDEX.md 2>/dev/null; then
-        git add docs/plans/INDEX.md
-        echo "[pre-commit] docs/plans/INDEX.md auto-refreshed and staged"
-    fi
+if gate_on '^(docs/plans/|bin/generate-plans-index\.sh$)' && [ -x "$REPO_ROOT/bin/generate-plans-index.sh" ]; then
+    "$REPO_ROOT/bin/generate-plans-index.sh" --check >/dev/null 2>&1 \
+        || refuse "docs/plans/INDEX.md is stale" "bin/fix-docs.sh && git add docs/plans/INDEX.md" \
+                  "$REPO_ROOT/bin/generate-plans-index.sh" --check
 fi
 
-if [ -x "$REPO_ROOT/bin/check-docs.sh" ]; then
-    if ! "$REPO_ROOT/bin/check-docs.sh" >/dev/null 2>&1; then
-        echo "" >&2
-        echo "[pre-commit] check-docs: doc gate failed — refusing commit" >&2
-        "$REPO_ROOT/bin/check-docs.sh" 2>&1 | sed 's/^/  /' >&2
-        echo "  fix frontmatter or STATUS_HOOK_SKIP=1 to bypass" >&2
-        exit 1
-    fi
+if gate_on '^(docs/|bin/check-docs\.sh$)' && [ -x "$REPO_ROOT/bin/check-docs.sh" ]; then
+    "$REPO_ROOT/bin/check-docs.sh" >/dev/null 2>&1 \
+        || refuse "check-docs: doc gate failed" "see findings above (frontmatter/links)" \
+                  "$REPO_ROOT/bin/check-docs.sh"
 fi
 
 # Working-model block sync (umbrella issue #32): copies of the agent-context
 # block must match docs/templates/working-model-block.md byte-for-byte.
-if [ -x "$REPO_ROOT/bin/check-working-model-sync.sh" ]; then
-    if ! "$REPO_ROOT/bin/check-working-model-sync.sh" --umbrella-only >/dev/null 2>&1; then
-        echo "" >&2
-        echo "[pre-commit] working-model block drifted — refusing commit" >&2
-        "$REPO_ROOT/bin/check-working-model-sync.sh" --umbrella-only 2>&1 | sed 's/^/  /' >&2
-        echo "  edit docs/templates/working-model-block.md, then re-paste copies" >&2
-        exit 1
-    fi
+if gate_on '^(CLAUDE\.md|AGENTS\.md|QWEN\.md|docs/templates/working-model-block\.md|bin/check-working-model-sync\.sh$)' \
+        && [ -x "$REPO_ROOT/bin/check-working-model-sync.sh" ]; then
+    "$REPO_ROOT/bin/check-working-model-sync.sh" --umbrella-only >/dev/null 2>&1 \
+        || refuse "working-model block drifted" "edit docs/templates/working-model-block.md, then re-paste copies" \
+                  "$REPO_ROOT/bin/check-working-model-sync.sh" --umbrella-only
 fi
 
 # Skills sync (ADR-0042): per-agent .claude/.qwen skill views are generated from
 # .agents/skills/ and must stay gitignored — nothing generated or un-promoted
 # (the _inbox) may be committed.
-if [ -x "$REPO_ROOT/bin/sync-skills.sh" ]; then
-    if ! "$REPO_ROOT/bin/sync-skills.sh" --check --umbrella-only >/dev/null 2>&1; then
-        echo "" >&2
-        echo "[pre-commit] skills out of sync with canonical — refusing commit" >&2
-        "$REPO_ROOT/bin/sync-skills.sh" --check --umbrella-only 2>&1 | sed 's/^/  /' >&2
-        echo "  run bin/sync-skills.sh to refresh, then stage and retry" >&2
-        exit 1
-    fi
+if gate_on '^(\.agents/|\.claude/|\.qwen/|bin/sync-skills\.sh$)' && [ -x "$REPO_ROOT/bin/sync-skills.sh" ]; then
+    "$REPO_ROOT/bin/sync-skills.sh" --check --umbrella-only >/dev/null 2>&1 \
+        || refuse "skills out of sync with canonical" "bin/sync-skills.sh --apply, then stage and retry" \
+                  "$REPO_ROOT/bin/sync-skills.sh" --check --umbrella-only
 fi
 
 exit 0

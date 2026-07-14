@@ -140,9 +140,11 @@ in the umbrella repo. The three rules that matter mid-task:
 - Component repos are independent gits — when you change cross-repo state,
   commit each repo separately with related messages so the history is
   navigable.
-- The umbrella's pre-commit hook refreshes deterministic generated docs
-  (`docs/SCRIPTS.md`, `docs/plans/INDEX.md`) and runs doc gates; don't bypass with `--no-verify` unless you have a
-  reason and document it.
+- The umbrella's pre-commit hook runs CHECK-ONLY doc gates (it never
+  regenerates or stages); when it refuses on stale generated docs
+  (`docs/SCRIPTS.md`, `docs/plans/INDEX.md`), run `bin/fix-docs.sh`, review,
+  and stage. Don't bypass with `--no-verify` unless you have a reason and
+  document it.
 
 ## End-of-session
 

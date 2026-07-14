@@ -39,6 +39,11 @@ jobs:
         # Proves the gates scan a git worktree instead of silently skipping it
         # (public canary only; no operator-private include needed).
         run: bash tests/worktree-regression.sh
+      - name: pre-commit gate scoping regression (R7)
+        # Rename sources fire their gates (--no-renames), gate implementation
+        # scripts are part of their own triggers, hook edits re-arm all gates,
+        # and the unrelated-file fast path stays fast.
+        run: bash tests/hook-scoping.sh
       - name: gitleaks rules generator — drift check + self-test (R1 §4/§9)
         # --check: the .gitleaks.toml [[rules]] region matches the manifest.
         # --self-test: per-engine canary MATCH tests + the useDefault coverage
