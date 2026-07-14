@@ -171,5 +171,23 @@ if [ "$MODE" = "check" ]; then
     exit 1
 fi
 
+# ── Section-loss guard (R7): from a linked WORKTREE (or a partial checkout)
+# the sibling component repos don't resolve, and a naive write silently DROPS
+# their sections — this once ate the sibling half of SCRIPTS.md. Refuse a
+# write that loses an existing '## ' section; retiring a repo for real is the
+# explicit override.
+if [ -f "$OUT" ]; then
+    lost="$(comm -23 <(grep '^## ' "$OUT" | sort) \
+                     <(printf '%s\n' "$new_content" | grep '^## ' | sort))"
+    if [ -n "$lost" ] && [ "${SCRIPTS_CATALOG_ALLOW_SECTION_LOSS:-0}" != "1" ]; then
+        echo "REFUSING to write $OUT — regeneration would LOSE section(s):" >&2
+        printf '%s\n' "$lost" | sed 's/^/  /' >&2
+        echo "Likely cause: running from a worktree/partial checkout where sibling" >&2
+        echo "repos don't resolve. Run from the canonical umbrella clone, or set" >&2
+        echo "SCRIPTS_CATALOG_ALLOW_SECTION_LOSS=1 if a repo was genuinely retired." >&2
+        exit 1
+    fi
+fi
+
 printf '%s\n' "$new_content" > "$OUT"
 echo "wrote $OUT"

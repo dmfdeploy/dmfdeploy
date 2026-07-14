@@ -46,16 +46,19 @@ local-only and will refresh next run; the committed operator notes section won't
 
 ### One-time hook install per clone
 
-A pre-commit hook runs staged secret scans, refreshes deterministic generated
-docs, and checks documentation/frontmatter consistency. Activate once:
+A pre-commit hook runs staged secret scans and CHECK-ONLY, path-scoped doc
+gates (generated docs current, frontmatter consistency) — since R7 it never
+mutates or stages anything; on drift it refuses and points at
+`bin/fix-docs.sh` (the one command that regenerates all generated artifacts —
+you review and stage). Activate once:
 
 ```bash
 bin/install-hooks.sh
 ```
 
 Sets `core.hooksPath = .githooks`. Per-clone setting, so re-run after each
-fresh clone. Skip umbrella doc refresh/check steps with
-`STATUS_HOOK_SKIP=1 git commit ...` for emergencies.
+fresh clone. Skip umbrella doc gates with `STATUS_HOOK_SKIP=1 git commit ...`
+for emergencies — that hatch never skips secret scanning.
 
 ## ⚠️ Cluster Target
 

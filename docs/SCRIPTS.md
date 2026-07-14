@@ -28,6 +28,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `bin/close-completed-issues.sh` | auto-close umbrella tracking issues whose completing PR has merged. |
 | `bin/dmf-env-public-surface-gate.sh` | fail-closed gate: is a dmf-env tree safe to publish as a generic env-tooling repo? |
 | `bin/export-scan.sh` | stage a CLEAN-HISTORY orphan export of one component repo and run every public-safety gate against that exact tree. Workstream A (first public release). |
+| `bin/fix-docs.sh` | regenerate every deterministic generated artifact in one shot. |
 | `bin/generate-plans-index.sh` | scan docs/plans/*.md for YAML frontmatter and produce docs/plans/INDEX.md, grouped by status (Active / Draft / Executed / Superseded / Historical), newest-first. Superseded rows include superseded_by links; executed rows include executed dates when present. |
 | `bin/generate-scripts-catalog.sh` | scan all DMF repos for shell scripts and produce docs/SCRIPTS.md, a single discoverable index. Each script's first non-shebang comment paragraph (consecutive `#` lines until the first blank `#`, with pure-decoration lines skipped) becomes its catalog entry. |
 | `bin/generate-status.sh` | regenerate STATUS.local.md at the umbrella root. |

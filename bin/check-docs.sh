@@ -12,16 +12,23 @@
 # verifiable offline).
 #
 # Usage:
-#   bin/check-docs.sh          # run all checks; exit 1 on any hard failure
-#   bin/check-docs.sh --check  # synonym for bare invocation (for CI)
+#   bin/check-docs.sh           # run all offline checks; exit 1 on any hard failure
+#   bin/check-docs.sh --check   # synonym for bare invocation (for CI)
+#   bin/check-docs.sh --online  # ALSO query GitHub for closed tracking issues
+#                               # (network + gh auth; never used by hooks/CI)
 
 set -euo pipefail
 
 UMBRELLA_DIR="${UMBRELLA_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 
+ONLINE=0
 for arg in "$@"; do
     case "$arg" in
-        --check|-h|--help)
+        # NB: --check must run the checks — it was once routed to the help
+        # text and exited 0 without checking anything (a fail-open synonym).
+        --check) ;;
+        --online) ONLINE=1 ;;
+        -h|--help)
             sed -n '/^# check-docs.sh/,/^$/p' "$0" | sed 's/^# \{0,1\}//'
             exit 0
             ;;
@@ -246,18 +253,25 @@ for rel in files:
             continue
         candidate = os.path.normpath(os.path.join(base, path_part))
         abs_candidate = os.path.abspath(candidate)
-        # Doc-to-doc only: the target must resolve to another file UNDER docs/.
-        # Links pointing outside docs/ (sibling repos like ../../dmf-infra/...,
-        # code, or generated/gitignored skill views) are a different concern and
-        # cannot be verified offline from the umbrella docs alone.
+        # Doc-to-doc = HARD: the target resolves to another file UNDER docs/.
+        # Targets OUTSIDE docs/ (sibling repos like ../../dmf-infra/..., code,
+        # generated skill views) are advisory only — they cannot be verified
+        # authoritatively from the umbrella alone, but a missing one is still
+        # worth a WARNING (this replaces the old per-link-subprocess W1 pass,
+        # which spawned python once per link and dominated hook time).
         if os.path.relpath(abs_candidate, docs_root).startswith(".."):
+            if not os.path.exists(abs_candidate):
+                print(f"WARN\t{rel}: unresolved out-of-docs link '{target}'")
             continue
         if not os.path.exists(abs_candidate):
             broken.append(f"{rel}: broken link '{target}' -> {candidate}")
 for line in broken:
-    print(line)
+    print(f"HARD\t{line}")
 PYEOF
 )"
+
+LINK_WARNINGS="$(printf '%s\n' "$LINK_REPORT" | sed -n 's/^WARN\t//p')"
+LINK_REPORT="$(printf '%s\n' "$LINK_REPORT" | sed -n 's/^HARD\t//p')"
 
 if [ -n "$LINK_REPORT" ]; then
     echo "  ✗ broken doc-to-doc links (rename/move/delete left a dangling reference):" >&2
@@ -276,34 +290,17 @@ echo "── warnings"
 
 warn_count=0
 
-# W1: Unresolved relative .md links in docs/plans/
-echo "  · checking unresolved relative links ..."
-while IFS= read -r -d '' filepath; do
-    # Extract markdown link targets: [text](target)
-    while IFS= read -r link_target; do
-        [ -z "$link_target" ] && continue
-        [[ "$link_target" == http* ]] && continue
-        [[ "$link_target" == mailto:* ]] && continue
-        [[ "$link_target" == "#"* ]] && continue
-        # URL-decode, then drop any #fragment
-        decoded="$(python3 -c "import urllib.parse,sys; print(urllib.parse.unquote(sys.argv[1]))" "$link_target" 2>/dev/null)" || continue
-        decoded="${decoded%%#*}"
-        [ -z "$decoded" ] && continue
-        # Only .md targets; skip regex-shaped/code false positives and
-        # paren-containing filenames (the ERE stops at the first ')')
-        [[ "$decoded" != *.md ]] && continue
-        [[ "$decoded" == *"("* ]] && continue
-        [[ "$decoded" == *"<"* ]] && continue
-        # Resolve relative to the file's directory
-        file_dir="$(dirname "$filepath")"
-        resolved="${file_dir}/${decoded}"
-        if [ ! -e "$resolved" ]; then
-            echo "    ⚠ ${filepath}: unresolved link '${link_target}' (looked for '${resolved}')"
-            warn_count=$((warn_count + 1))
-        fi
-    # BSD grep has no -P; -E plus explicit ](...) stripping is portable
-    done < <(grep -oE '\]\([^)]+\)' "$filepath" 2>/dev/null | sed -E 's/^\]\(//; s/\)$//' || true)
-done < <(git -c core.quotepath=false ls-files -z 'docs/plans/*.md' 2>/dev/null)
+# W1: unresolved out-of-docs .md links — produced by the SAME batch python
+# pass as hard check 5 (the old implementation spawned a python subprocess
+# per link and accounted for most of the gate's runtime).
+echo "  · checking unresolved out-of-docs links ..."
+if [ -n "$LINK_WARNINGS" ]; then
+    while IFS= read -r line; do
+        [ -z "$line" ] && continue
+        echo "    ⚠ ${line}"
+        warn_count=$((warn_count + 1))
+    done <<< "$LINK_WARNINGS"
+fi
 
 # W2 → HARD FAILURE since 2026-06-11 (working-model plan WP5, issue #32):
 # every active plan must carry a tracking_issue. The 2026-06-11 adjudication
@@ -322,8 +319,10 @@ while IFS=$'\t' read -r level filepath status _date _exec _sb; do
     fi
 done < <(parse_all_plans)
 
-# W3: Active plan whose tracking_issue is closed (only if gh available)
-if command -v gh >/dev/null 2>&1; then
+# W3: Active plan whose tracking_issue is closed — NETWORK (gh api per active
+# plan). Opt-in via --online only: never part of the hook/CI path (R7 keeps
+# the local gate fast and offline-deterministic).
+if [ "$ONLINE" = 1 ] && command -v gh >/dev/null 2>&1; then
     if gh auth status >/dev/null 2>&1; then
         echo "  · checking closed tracking issues ..."
         while IFS= read -r -d '' filepath; do
