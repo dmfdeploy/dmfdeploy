@@ -109,6 +109,55 @@ collect_repo() {
         "$name" "$branch" "$last_commit_short" "$last_commit_age" "$last_commit_msg" "$dirty" "$unpushed"
 }
 
+# ── Collect operator-local envs (ADR-0035 store) ─────────────────────────
+# Lists ~/.dmfdeploy/envs/<slug>/manifest.yaml metadata only (id, label,
+# provider, arch, created) — never key material or bundle contents. Disk
+# state is not liveness: a listed env's node may be gone (spot reclaim);
+# the cluster is the truth.
+collect_envs() {
+    local envs_dir="${DMFDEPLOY_ENVS_DIR:-$HOME/.dmfdeploy/envs}"
+
+    if [ ! -d "$envs_dir" ]; then
+        echo "_No operator-local env store (\`~/.dmfdeploy/envs/\`) on this machine._"
+        return
+    fi
+
+    local rows=""
+    local dir manifest
+    for dir in "$envs_dir"/*/; do
+        [ -d "$dir" ] || continue
+        manifest="$dir/manifest.yaml"
+        [ -f "$manifest" ] || continue
+        # First occurrence wins: the metadata: block precedes spec:, and both
+        # repeat provider/architecture keys.
+        rows+="$(awk '
+            /^[[:space:]]*name:/         && !n { sub(/.*name:[[:space:]]*/,"");         gsub(/"/,""); name=$0; n=1 }
+            /^[[:space:]]*label:/        && !l { sub(/.*label:[[:space:]]*/,"");        gsub(/"/,""); label=$0; l=1 }
+            /^[[:space:]]*provider:/     && !p { sub(/.*provider:[[:space:]]*/,"");     gsub(/"/,""); prov=$0; p=1 }
+            /^[[:space:]]*architecture:/ && !a { sub(/.*architecture:[[:space:]]*/,""); gsub(/"/,""); arch=$0; a=1 }
+            /^[[:space:]]*created:/      && !c { sub(/.*created:[[:space:]]*/,"");      gsub(/"/,""); created=$0; c=1 }
+            END {
+                if (name != "")
+                    printf("%s\t| `%s` | %s | %s | %s | %s |\n",
+                           created, name, label, prov, arch, created)
+            }' "$manifest")"$'\n'
+    done
+
+    if [ -z "${rows//[[:space:]]/}" ]; then
+        echo "_Env store present but no env manifests found._"
+        return
+    fi
+
+    echo "| Env | Label | Provider | Arch | Created |"
+    echo "|---|---|---|---|---|"
+    # Newest first by created date (the tab-prefixed sort key is stripped).
+    printf '%s' "$rows" | sort -r | cut -f2-
+
+    echo
+    echo "_Disk state, not liveness — newest first. Verify the node exists before_"
+    echo "_operating on an env (spot instances vanish without warning)._"
+}
+
 # ── Collect active plans from frontmatter ────────────────────────────────
 collect_active_plans() {
     local plans
@@ -301,6 +350,13 @@ EOF
     for repo in "${COMPONENT_REPOS[@]}"; do
         collect_repo "$repo" "$(component_path "$repo")"
     done
+
+    cat <<EOF
+
+## Operator-local envs (~/.dmfdeploy/envs — ADR-0035)
+
+EOF
+    collect_envs
 
     cat <<EOF
 
