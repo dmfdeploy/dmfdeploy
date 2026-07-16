@@ -222,8 +222,7 @@ bin/run-playbook.sh <env> \
     ../dmf-infra/k3s-lab-bootstrap/bootstrap-verify.yml
 ```
 
-Expected in an **awake** window: `failed=0`, all green, and the D8 passkey
-gate green. (See §8 for the one known asleep-window caveat on this play.)
+Expected: `failed=0`, all green, and the D8 passkey gate green.
 
 ---
 
@@ -356,16 +355,14 @@ becomes a footnote instead of a scramble.
 
 | Symptom you might see | What it is | Reference |
 |---|---|---|
-| The verifier play shows **1 failure** while AWX is asleep: `699-cms-smoke-test` "Verify AWX token is valid…" → **503** | That one task lacks the skip-when-asleep guard its siblings have. It is a **503 *because AWX is asleep***, not a platform fault — it flips to pass in an awake window. Run the verifier §4 *after* a Provision (awake) to see it green. | [dmfdeploy/dmfdeploy#233](https://github.com/dmfdeploy/dmfdeploy/issues/233) |
 | Provisioned instances show up **grouped as "Unassigned"** in the grid | Catalog deploys don't yet stamp a `workload:<slug>` tag, so the (correct) grouping logic has nothing to group them by. Cosmetic/legibility only — the workloads are fine. | launcher-stamping follow-up, [dmfdeploy/dmfdeploy#239](https://github.com/dmfdeploy/dmfdeploy/issues/239) |
 | The **first Console action right after a cold wake** returns a **5xx** | Possible transient: the first request can hit AWX in the instant before it's fully ready. **Just retry the click** — it succeeds. Defensive retry-on-first-5xx is tracked. | [dmfdeploy/dmfdeploy#134](https://github.com/dmfdeploy/dmfdeploy/issues/134) |
 | Someone asks "what if the node dies?" (spot reclaim) | The standing env's addressing is **sslip.io, derived from the node's public IP**, so a reclaimed/replaced node means a new address. **Recovery is restore-from-backup + re-converge** (restore the operator-local package, re-point addressing), not a resume-in-place. A deliberate tradeoff for cheap standing infra, not a bug. | env recovery notes (operator-local) |
 
 > **PRESENTER NOTE — if a beat stalls.** The two beats with real latency are
-> the **cold wake** (§3, ~60 s — expected) and the **verifier play** (§4/§8,
+> the **cold wake** (§3, ~60 s — expected) and the **verifier play** (§4,
 > a few minutes — optional). Everything else is interactive. If a click 5xxs,
-> retry it (#134). If the verifier shows the single 699 failure, confirm AWX
-> is awake (#233). Nothing here should send you off-script.
+> retry it (#134). Nothing here should send you off-script.
 
 ---
 
