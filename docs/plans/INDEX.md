@@ -8,8 +8,9 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (4)
+## Active (5)
 
+- [DMF L3 Run Preflight and Rollback Plan 2026-07-16](DMF%20L3%20Run%20Preflight%20and%20Rollback%20Plan%202026-07-16.md) — 2026-07-16
 - [DMF v0.2b Multi-Source Switch Spec 2026-07-15](DMF%20v0.2b%20Multi-Source%20Switch%20Spec%202026-07-15.md) — 2026-07-15
 - [DMF v0.2 Presentable Journey Execution Plan 2026-07-12](DMF%20v0.2%20Presentable%20Journey%20Execution%20Plan%202026-07-12.md) — 2026-07-12
 - [DMF v0.2 EBU Facility-Orchestration Re-anchor Plan 2026-07-07](DMF%20v0.2%20EBU%20Facility-Orchestration%20Re-anchor%20Plan%202026-07-07.md) — 2026-07-07
