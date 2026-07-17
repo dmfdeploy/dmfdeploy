@@ -20,6 +20,13 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ #243 delivered + #239 workload-tag trio MERGED; live proof next (2026-07-17)
+One orchestrator session (transcript thread #13, trio: claude1/claude2-on-Sonnet-5/codex) closed out both blocks:
+- **#243 (Workspace demo-readiness)**: dmf-cms#35 (PR-C Users human/machine split + two-signal break-glass: `akadmin` username OR `break-glass` group), #36 (PR-D — Users/Workflows off the Workspace body; invite-QR moved to /admin People), #37 (Zabbix-style duration on problem rows) — all merged. Level axis filed as **#244**.
+- **#239 (workload-tag stamping)**: 3-repo trio merged — dmf-cms#38 (optional `workload` slug on deploy → `extra_vars={"workload_slug":…}` through the WP3a-compatible seam + C5 parser consolidation), dmf-runbooks#16 (launchers ensure+stamp `workload:<slug>`; single-workload-wins via include-scoped merge prefixes; sequencing regression test), dmf-infra#47 (catalog JTs `ask_variables_on_launch: true` + drift reconcile — without it AWX silently drops launch extra_vars; also the #201 WP3a prerequisite, spec gap noted there).
+- **Remaining on #239** (next session, handoff in operator-local sessions-archive): live chain proof on `v5on-r8aw` (mirror sync → 693 converge → AWX-direct launch with a slug → grid groups under a named workload) → cms 0.16.0 release (brings the console Workload field live) → umbrella runbook §8 rough-edge-row deletion PR carrying `Closes dmfdeploy/dmfdeploy#239`.
+- Retro datapoint (operator-requested): 12 codex rounds, 5 FAILs, 9 real defects — incl. a live-reproduced Ansible fact-bleed that would have made the stamping feature strip its own tag.
+
 ### ✅ ADR-0046 — first-class Media Workload entity: all 4 code slices MERGED (2026-07-09)
 The ADR-0046 implementation workstream landed across **8 PRs in 4 repos**:
 - **Slice A** (dmf-runbooks#13): launcher tag preservation — `netbox_catalog_common` role with `merge_owned_tags` filter plugin; all 3 launcher roles (mxl, nmos-cpp, nmos-crosspoint) now preserve non-owned tags (`workload:*`) across provision/configure/finalise PATCH cycles.
