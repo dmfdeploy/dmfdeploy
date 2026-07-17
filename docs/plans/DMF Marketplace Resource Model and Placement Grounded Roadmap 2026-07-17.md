@@ -737,7 +737,7 @@ The proposal's Phase 0/1 largely exists here already:
 
 | RFC | Vehicle | Grounding |
 |---|---|---|
-| Media function packaging, catalog sources & trust tiers | **#204** (exists, not started) — post to Discussions Ideas | §8.2–8.3; pairs with ADR-0045 |
+| Media function packaging, catalog sources & trust tiers | **DONE** — RFC #248 converged (3 codex rounds → PASS) → **ADR-0047** closes #204 | §8.2–8.3; licence-presence question stays with ADR-0045 |
 | Licensing seam ratification | ADR-0045 RFC (named in #189 scope) | declared-but-not-enforced fields in v0.2 |
 | Catalog-secret lifecycle | #123 (RFC→ADR noted in-issue) | vendor functions need credential paths |
 | Console IAM design spec (vendor/tenant principals later build on it) | #186 (spec-first, no v0.2 build) | ADR-0028 chain |
