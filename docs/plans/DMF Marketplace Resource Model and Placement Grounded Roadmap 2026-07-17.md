@@ -8,10 +8,11 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/245
 > **STATUS: DRAFT — design-track roadmap; no implementation lands under this
 > doc.** Deliverable of umbrella
 > [#245](https://github.com/dmfdeploy/dmfdeploy/issues/245) (marketplace &
-> resource-placement RFC track). It anchors the RFC sequence — first:
-> [#204](https://github.com/dmfdeploy/dmfdeploy/issues/204) packaging /
-> catalog sources / trust tiers — and each RFC→ADR conversion flips its own
-> state, not this doc's.
+> resource-placement RFC track). It anchors the RFC sequence — first
+> extraction **complete**:
+> [#204](https://github.com/dmfdeploy/dmfdeploy/issues/204) → RFC
+> [#248](https://github.com/dmfdeploy/dmfdeploy/discussions/248) → ADR-0047
+> — and each RFC→ADR conversion flips its own state, not this doc's.
 
 **Provenance:** grounded revision (internally "v0.4") of an operator-side
 proposal draft ("v0.3", 2026-07-17, not in-repo — body references to
@@ -43,7 +44,9 @@ project has already seeded in four places**:
    requests, and media-tenant separation, with eight open questions and a
    "cheap-now hooks" list — most hooks still unimplemented.
 3. **Issue #204** — "RFC track: media function packaging, catalog sources &
-   trust tiers" (open, v0.2, not started) IS the marketplace work item.
+   trust tiers" was the marketplace work item (open and unstarted at analysis
+   time; since completed — RFC #248 converged into **ADR-0047**, which
+   closes it).
 4. **ADR-0045** — licensing as a reservable resource behind a
    `LicenceReservationProvider` seam (Proposed, declared-but-not-enforced).
 
@@ -122,10 +125,10 @@ Confirmed (with the record going further than v0.3 assumed in several cases):
 Partially true:
 
 - "Vendors publish to their own space; DMFDeploy promotes into trusted
-  catalogs" — 🔶 recorded as North-Star intent (Vendor Vision §7/§8, issue
-  #204 trust tiers, per-publisher Zot namespacing), but no mechanism exists;
-  the shipped catalog has no owner/publisher field, and the vetting/signing
-  gate is an open question.
+  catalogs" — 🔶 the *model* is now settled (ADR-0047: source classes,
+  promotion quorums, cosign at promotion, per-publisher Zot namespacing),
+  but no mechanism exists in code; the shipped catalog still has no
+  publisher field, and implementation has not started.
 
 Contradicted:
 
@@ -193,7 +196,7 @@ core does not depend on re-litigating a frozen decision.
 | Argo CD intended/considered for deployment | 🚫 Contradicted | AWX is the committed actuator; Argo hybrid is a named non-goal; revisit only via Discussion #112 Topic 6 RFC post-v0.2 |
 | "GitOps-based deployment" as established context | 🚫 | Actuation = AWX + Helm + NetBox tags. Git remains SoT for *definitions* (catalog YAML, charts) — that part stands |
 | NetBox as SoT for infrastructure and services | ✅ | Confirmed, plus: not a reservation ledger (ADR-0045); flows runtime-only (ADR-0037) |
-| Vendors publish → DMF promotes to trusted catalogs | 🔶 | Intent recorded (#204, Vendor Vision); zero mechanism built; governance/vetting open |
+| Vendors publish → DMF promotes to trusted catalogs | 🔶 | Model settled by ADR-0047 (source classes, quorums, signing at promotion); zero mechanism built yet |
 | Kubernetes scheduling insufficient | ✅ | Confirmed; but decided division is "NetBox scopes; k3s schedules; AWX reconciles" — no custom scheduler (ADR-0037) |
 | Workload profiles resembling cloud instance types | 🔶 | Prefigured as "media capability classes" (#112 Topic 5) and EBU "Resource Profile" (Design-stage output, explicitly deferred in the EBU Mapping); nothing implemented |
 | Licensing as allocatable resource | ✅ | ADR-0045 (Proposed): `LicenceReservationProvider` seam, declared-but-not-enforced in v0.2, **mock NetBox-tag pools explicitly rejected** |
@@ -300,7 +303,7 @@ Verified 2026-07-17. Absences were established by search, not assumption.
 | Resource pools | ❌ | Zero matches for `resource_pool` across all repos. Node roles are the only pooling primitive |
 | Capability registry | ❌ | No counterpart; capability-classes RFC (#112 Topic 5) unposted |
 | Instance types | ❌ (adjacent: ✅) | No per-workload instance type; ADR-0026 provider descriptors (Proposed) + ADR-0017 hardware profiles are the adjacent supply-side constructs |
-| Publisher/vendor onboarding | ❌ | No owner/vendor field in catalog schema; no vendor principal class; #204 not started |
+| Publisher/vendor onboarding | ❌ code (design settled) | No publisher field in the shipped schema; no vendor principal class; onboarding + quorum model decided in ADR-0047 §3, implementation not started |
 | Classed catalog sources | ❌ code (design settled) | Single first-party catalog in code; the source-class/promotion model is decided (ADR-0047), implementation not started |
 | Certification pipeline | ❌ | `grep certif` → TLS certificates only. Nearest existing discipline: digest-pinned images, health_probe gates, live-verify culture |
 | Signatures/SBOM/admission policy | ❌ deferred | Platform Plan Stage 5 hardening; cosign/Kyverno named as candidates, nothing deployed |
@@ -355,8 +358,9 @@ opinions; overriding any of them requires the stated process.
    Proposed, no work in flight). This does not settle *vendor/media* tenancy
    inside one facility — that axis is open (Vendor Vision). Namespace-grade
    isolation is for cooperating first/second-party workloads (per the
-   ADR-0027 safety-set analysis — Proposed prior art, to be ratified in the
-   #204/tenancy RFCs, not an accepted guardrail), never hostile tenants.
+   ADR-0027 safety-set analysis — Proposed prior art, since partially
+   ratified as ADR-0047's `generic-chart-policy/v1`; the tenancy remainder
+   is still not an accepted guardrail), never hostile tenants.
 6. **EBU taxonomy is mandatory vocabulary** (ADR-0003); "Media Workload" is
    reserved (ADR-0046). Use §4's translation table.
 7. **UX Constitution gates** bind any marketplace/deployment-request UI.
@@ -502,10 +506,10 @@ authored in git, projected onto chart values by the launcher — not free-form
 value overrides at request time. Extend that pattern rather than inventing an
 override taxonomy.
 
-One v0.3 requirement to carry forward by name (its §16.3): **a publisher must
-not be able to reduce a certified resource declaration in a later release
-without revalidation.** This anti-regression rule is an enforcement point the
-#204/certification RFCs must encode, not an override-syntax detail.
+One v0.3 requirement carried forward by name (its §16.3), and since encoded:
+**a publisher must not be able to reduce a certified resource declaration in
+a later release without revalidation.** This anti-regression rule is now an
+enforcement point in ADR-0047 §2, not an override-syntax detail.
 
 ### 8.4 Resource Profiles and capability classes (v0.3 §10–12)
 
@@ -684,9 +688,10 @@ as a certification enforcement point, not a packaging nicety.
 The five modes of v0.3 §14.1 map onto the recorded ladder:
 
 - Shared node / shared media node → ✅ today's model (namespaces; node roles
-  for media nodes). The ADR-0027 third-party safety set is Proposed prior
-  analysis — the right starting checklist when third-party code arrives,
-  pending ratification in the #204/tenancy RFCs, not an accepted guardrail.
+  for media nodes). The ADR-0027 third-party safety set was Proposed prior
+  analysis; its chart-facing half is now ratified as ADR-0047's
+  `generic-chart-policy/v1` (Appendix A), while the tenancy-mechanism
+  remainder (vClusters, dedicated pools) still awaits the tenancy work.
 - Exclusive device allocation → ❌ future (device plugins/SR-IOV named in the
   Vendor Vision; nothing built).
 - Dedicated vendor node → 🔶 the mechanism exists (ADR-0017 taints/labels
@@ -809,11 +814,12 @@ scheduled almost exactly it** — the v0.2b demo journey on the standing env:
   to the pre-run state; capacity visibly returns.
 - Audit: C5 quartet + run-scoped records throughout.
 
-Success criteria from v0.3 §36 that this does **not** yet cover — carry them
-as acceptance criteria on the Horizon-1 RFCs: release cannot enter the
-catalog without valid publisher/trust metadata (#204); profile→instance-type
-resolution (capability-classes RFC); a licence quantity actually reserved
-(first ADR-0045 provider).
+Success criteria from v0.3 §36 that this does **not** yet cover — carried
+forward as acceptance criteria on later work: release cannot enter the
+catalog without valid publisher/signature metadata (model settled by
+ADR-0047; lands with the catalog-source index implementation);
+profile→instance-type resolution (capability-classes RFC); a licence
+quantity actually reserved (first ADR-0045 provider).
 
 ---
 
@@ -830,10 +836,11 @@ resolution (capability-classes RFC); a licence quantity actually reserved
 | Shared-cluster tenancy for managed mode | No — cluster-per-tenant is the recorded Mode B constraint (Mode B itself remains Proposed) | ADR-0020 B.3 |
 | Immutability mechanism | Digest-pinning + git history | catalog schema; ADR-0013 |
 | Contribution/legal baseline | GitHub PRs + DCO; Conventional Commits | ADR-0041 |
+| Trust/source-class governance & signing gate | Settled — four axes, `project`/`vendor`/`community`, two-maintainer promotion quorum + one-maintainer emergency revoke, cosign/Sigstore at promotion (implementation not started) | ADR-0047 (closes #204) |
 
 ### Open with a scheduled vehicle
 
-Trust-tier governance & signing gate (#204); licence declaration semantics
+Licence declaration semantics
 (ADR-0045 RFC); catalog-secret lifecycle (#123); vendor/tenant principal
 model (#186 spec); reservation store (first ADR-0045 provider); staleness/
 confidence policy for capacity data (capability-classes RFC); EBU taxonomy
@@ -900,9 +907,10 @@ Added by the grounding:
   is either an existing issue or an RFC-to-be-posted; nothing here is
   actionable except through that pipeline.
 - **Single-operator bandwidth** — Horizons 1–2 are design-heavy; the record
-  shows design tracks (e.g. #204) sitting unstarted while execution tracks
-  move. Sequencing the four #112 RFCs one at a time (packaging first) is more
-  realistic than opening all lanes.
+  shows design tracks sitting unstarted while execution tracks move (#204
+  sat untouched for weeks, then converged to ADR-0047 in a day once picked
+  up). Sequencing the #112 RFCs one at a time — packaging done first,
+  capability-classes next — remains more realistic than opening all lanes.
 
 ---
 
