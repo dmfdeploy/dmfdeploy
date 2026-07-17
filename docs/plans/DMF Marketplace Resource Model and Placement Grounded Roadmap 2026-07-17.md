@@ -214,10 +214,10 @@ ADRs must use.**
 |---|---|---|
 | Application | **Media Function** (catalog entry) | ADR-0013, ADR-0046 |
 | Application (assembly of functions) | **Media Workload** | ADR-0046 (EBU Annex B Fig B1) |
-| Application release | **Media Function Package** — digest-pinned chart + image + catalog entry + probes + licence block + signature | Issue #204 (proposed unit) |
-| Marketplace | **Catalog** + **catalog sources & trust tiers** | ADR-0013 + #204 |
-| Catalog classes (Certified/LTS/Experimental/Vendor Preview/Customer Local) | **Trust tiers: sanctioned / vendor / testing / community-unsafe** | #204 |
-| Publisher | Publisher/origin dimension on catalog entries + per-publisher Zot namespace | #204 cheap-now hooks; Vendor Vision §8 |
+| Application release | **Media Function Package** — signed, digest-pinned chart + image closure + catalog entry + probes + licence block + provenance | ADR-0047 §2 |
+| Marketplace | **Catalog** + **classed catalog sources** | ADR-0013 + ADR-0047 |
+| Catalog classes (Certified/LTS/Experimental/Vendor Preview/Customer Local) | **Four axes** (ADR-0047 §1): source class `project` / `vendor` / `community`; promotion state `Draft→…→Revoked`; support attribute; launcher privilege. "Testing" is a derived console label for pre-`Approved` states, never a schema value | ADR-0047 (supersedes the draft-era `sanctioned/vendor/testing/community-unsafe` tiers) |
+| Publisher | `publisher` identity slug (ownership via the project-controlled catalog-source index) + `origin` provenance + per-publisher Zot namespace | ADR-0047 §7; Vendor Vision §8 |
 | Profile | **Resource Profile** (EBU Design-stage output: compute/network/storage/licence requirements) or **capability class** (`mxl.2x.large` style) | EBU Mapping vocabulary canon (deferred); #112 Topic 5 |
 | Infrastructure instance type | **Node role** (taints/labels, ADR-0017) + **provider descriptor** (ADR-0026) + hardware profile (CAX31/CCX13/Asahi) | ADR-0017/0026 |
 | Capability (discovered vs certified) | **Declared vs validated capability** | #112 Topic 5 (exact same distinction) |
@@ -290,7 +290,7 @@ Verified 2026-07-17. Absences were established by search, not assumption.
 | Concept (v0.3) | Status | Evidence |
 |---|---|---|
 | Function catalog + deploy chain | ✅ | §3.1 above; `dmf-media/catalog/*.yaml`, `dmf-cms/src/dmf_cms/catalog.py`, `dmf-runbooks/playbooks/launch-*.yml` |
-| Catalog metadata schema | ✅ (narrow) | key/display_name/summary/`ebu.*` (fail-closed one-of vertical\|media_function_type)/`mxl_flows`/provision/configure/finalise/dependencies. No publisher, no trust tier, no resource requests, no licence block yet |
+| Catalog metadata schema | ✅ (narrow) | key/display_name/summary/`ebu.*` (fail-closed one-of vertical\|media_function_type)/`mxl_flows`/provision/configure/finalise/dependencies. No publisher/source-class metadata, no resource requests, no licence block yet |
 | Deployment parameters at launch | 🔶 claimed | Console posts `body={}` today; #239 (claimed 2026-07-17; three coordinated PRs planned in the claiming comment, none opened yet) + v0.2b WP3a open the `extra_vars` seam; gotcha found: JTs seeded with `ask_variables_on_launch: false` silently ignore vars |
 | Deployment-intent contract | 🔶 spec'd | `topology_params` schema_version 1 (`sources[]`, `viewer.source_selection`, `target_facility`) — v0.2b spec; flagged as the future Design-surface input (#231) |
 | Placement | ✅ minimal | Chart-level `placementMode: single-node\|split-node`, nodeSelector/tolerations, `dmf.io/mxl` taint + `dmf.io/mxl-demo-role` labels (ADR-0017); NetBox records observed `placement.node`. No engine, no scoring, no multi-node decisions |
@@ -301,7 +301,7 @@ Verified 2026-07-17. Absences were established by search, not assumption.
 | Capability registry | ❌ | No counterpart; capability-classes RFC (#112 Topic 5) unposted |
 | Instance types | ❌ (adjacent: ✅) | No per-workload instance type; ADR-0026 provider descriptors (Proposed) + ADR-0017 hardware profiles are the adjacent supply-side constructs |
 | Publisher/vendor onboarding | ❌ | No owner/vendor field in catalog schema; no vendor principal class; #204 not started |
-| Trust-tiered catalogs | ❌ | Single first-party catalog; tiers proposed in #204 only |
+| Classed catalog sources | ❌ code (design settled) | Single first-party catalog in code; the source-class/promotion model is decided (ADR-0047), implementation not started |
 | Certification pipeline | ❌ | `grep certif` → TLS certificates only. Nearest existing discipline: digest-pinned images, health_probe gates, live-verify culture |
 | Signatures/SBOM/admission policy | ❌ deferred | Platform Plan Stage 5 hardening; cosign/Kyverno named as candidates, nothing deployed |
 | Runtime reconciliation | 🔶 split | Monitoring: real continuous reconcile (ADR-0038, dmf-promsd). Workloads: Operate-stage drift-detection smoke test only — no desired-state controller (deliberate, with Argo frozen) |
@@ -319,7 +319,8 @@ Two additional reality checks worth recording:
   chart/image + Forgejo launcher + its AWX JT." Those comments, plus the
   naming-convention auto-grant, are today's whole marketplace mechanism —
   and it is a good one:
-  adding a sanctioned function is already a pure-git operation.
+  adding a first-party (`project`-source) function is already a pure-git
+  operation.
 - **The catalog contract has resisted widening once before.** During Move 2
   the console's app-contract deliberately narrowed into a navigation manifest
   rather than widening into a service catalog. Marketplace work should expand
@@ -394,11 +395,11 @@ opinions; overriding any of them requires the stated process.
  │                     Publisher / Contributor side                      │
  │   git (catalog YAML, charts) │ OCI (images, charts) │ evidence        │
  └──────────────────────────────┬────────────────────────────────────────┘
-                                │ PR + promotion (trust tier)   [#204 RFC]
+                                │ PR + promotion (source class + state) [ADR-0047]
                                 ▼
  ┌───────────────────────────────────────────────────────────────────────┐
- │              Catalog sources & trust tiers  (git = SoT)               │
- │   sanctioned │ vendor │ testing │ community-unsafe        [#204]      │
+ │            Classed catalog sources  (git = SoT)                       │
+ │   project │ vendor │ community  (+ promotion states)   [ADR-0047]     │
  └──────────────────────────────┬────────────────────────────────────────┘
                                 │ deployment request (console, C5 reason)
                                 ▼
@@ -443,31 +444,35 @@ Reconciliation". The maxim becomes:
 > **The actuator (AWX) performs the approved deployment.**
 > k3s schedules within the approved scope; NetBox records what happened.
 
-### 8.2 Marketplace model → catalog sources & trust tiers
+### 8.2 Marketplace model → classed catalog sources (settled by ADR-0047)
 
-v0.3 §8's five catalog classes map onto #204's four trust tiers:
+This section's draft-era single "trust tier" axis converged, via RFC #248,
+into ADR-0047's **four axes**. v0.3 §8's five catalog classes map onto them:
 
-| v0.3 class | #204 tier | Notes |
+| v0.3 class | ADR-0047 mapping | Notes |
 |---|---|---|
-| Certified | sanctioned | project repo, project-signed |
-| Long-Term Support | sanctioned (policy attribute) | LTS is a support-lifecycle attribute of a sanctioned release, not a separate trust boundary — collapse it |
-| Experimental | testing | |
-| Vendor Preview | vendor | vendor-managed source, vendor-signed |
-| Customer Local | community-unsafe (or a customer-local source) | schema-valid + digest-pinned only, loud console labeling |
+| Certified | `project` source + `Certified` promotion state | project repo, project-signed |
+| Long-Term Support | support attribute `lts` on a `Stable` release line | maintenance commitment, not a trust boundary and not a commercial SLA |
+| Experimental | pre-`Approved` promotion states (`Draft`/`Candidate`) | surfaced as the derived "testing" console label |
+| Vendor Preview | `vendor` source, pre-`Approved` | vendor-managed source, vendor-signed, project-indexed |
+| Customer Local | `community` source | browse-only / disabled by default; audited trust-bypass to deploy |
 
-Two #204 constructs v0.3 lacked, both load-bearing:
+Two constructs v0.3 lacked, both load-bearing (now binding via ADR-0047):
 
 - **The playbook privilege boundary.** Custom launcher playbooks are
   arbitrary code executing in AWX with control-plane credentials. Therefore:
-  bespoke launchers are a sanctioned/vendor-tier privilege; lower tiers get a
-  **generic declarative launcher** (chart + values + netbox_service + probes
-  only). This single rule does most of the marketplace's security work and
-  should anchor the RFC.
-- **Promotion is a git operation.** Today "publishing" a sanctioned function
-  = a PR adding catalog YAML + chart/image to Zot + launcher + JT seeding.
-  Keep that shape: trust-tier promotion should be a reviewed git change of a
-  catalog-source reference (digest-pinned), giving provenance and revocation
-  via history for free — no separate promotion database.
+  **bespoke launchers are `project`-source-only** (ADR-0047 §4); every other
+  source class gets the **generic declarative launcher** (chart + values +
+  netbox_service + probes only) validated under `generic-chart-policy/v1`
+  (ADR-0047 Appendix A). This single rule does most of the marketplace's
+  security work.
+- **Promotion is a git operation.** Today "publishing" a first-party
+  function = a PR adding catalog YAML + chart/image to Zot + launcher + JT
+  seeding. That shape is kept: source/state promotion is a reviewed git
+  change of a digest-pinned catalog-source reference — plus, per ADR-0047
+  §6, one signed fail-closed revocation deny-list for current-state
+  enforcement (history proves what happened; the deny-list says what is
+  denied now).
 
 On the marketplace *portal* question (v0.3 §8.4: Backstage, Devtron, etc.),
 this document's recommendation — not a settled decision — is to deprioritise
@@ -483,7 +488,8 @@ multi-publisher ecosystem materialises.
 
 v0.3 §9's required contents map to: the existing catalog schema (✅ identity,
 digest-pinned image, chart source, health/readiness, AWX wiring) plus the
-#204/ADR-0045 deltas (🔶 publisher/origin/trust_tier, licence block,
+ADR-0047/ADR-0045 deltas (🔶 publisher/origin — source class lives in the
+catalog-source index, never on packages — licence block,
 signature/provenance refs, validation evidence) plus the L3 delta
 (🔶 `resources.requests` declarations — WP0 makes these mandatory-fail-closed
 for capacity-gated entries). OCI-as-transport is not an open question in
@@ -654,7 +660,8 @@ already climbs implicitly:
 
 1. **Now**: schema validation (fail-closed catalog loader), digest-pinning,
    health probes, live-verify discipline, codex cross-check culture.
-2. **#204 RFC**: signature + provenance verification per trust tier;
+2. **ADR-0047** (was the #204 RFC): cosign/Sigstore signature + provenance
+   verification at promotion, per source class;
    forbidden-privileges check via the generic-launcher boundary.
 3. **Later (Stage-5 hardening)**: cosign/Kyverno admission of signed images
    (already named in the Platform Plan as deferred).
@@ -664,13 +671,13 @@ already climbs implicitly:
    the project's standing "false guarantees" ethic (declared-but-not-enforced
    marking) applies to certification language too.
 
-Two v0.3 items carried forward by name rather than silently absorbed:
-the release **promotion state machine** (Draft → Candidate → Approved →
-Certified → Stable → Revoked, v0.3 §22.1) and its unanswered governance
-question — what exactly distinguishes Approved, Certified and Stable —
-belong in the #204 RFC as the promotion-state model behind trust tiers;
-and the anti-regression rule from §8.3 above is a certification enforcement
-point, not a packaging nicety.
+Two v0.3 items carried forward by name rather than silently absorbed — and
+since settled: the release **promotion state machine** (Draft → Candidate →
+Approved → Certified → Stable → Revoked, v0.3 §22.1) and the
+Approved/Certified/Stable distinction are now defined in ADR-0047 §3
+(with two-maintainer promotion quorums and a one-maintainer emergency
+revoke); the anti-regression rule from §8.3 above is encoded in ADR-0047 §2
+as a certification enforcement point, not a packaging nicety.
 
 ### 8.11 Isolation and multi-tenancy (v0.3 §14)
 
@@ -744,12 +751,12 @@ The proposal's Phase 0/1 largely exists here already:
 | Media capability classes & Resource Profile mapping | **new RFC** (named in #112, unposted) | §8.4–8.5; absorb v0.3 §10–12 content |
 | License & resource pool model (generalisation) | **new RFC** (named in #112, unposted) | §8.6; absorb v0.3 §15 typology |
 
-Cheap-now hooks (`publisher`/`origin`/`trust_tier` catalog-schema fields;
-per-publisher Zot namespace convention): #204's issue text flags these as
-possibly landing ahead of the ADR, but the Presentable Journey plan treats
-#204 as a design-only lane — landing any hook early needs an explicit call
-on the issue, not this document's say-so. The owned-tag namespace bounding
-is already shipped (`merge_owned_tags`).
+Schema hooks (`publisher`/`origin` fields; per-publisher Zot namespace
+convention): **settled by ADR-0047 §7** — note there is deliberately no
+`trust_tier` package field; source class lives in the project-controlled
+catalog-source index. Implementation ordering is post-ADR work under #245
+(the catalog-source index is the first deliverable). The owned-tag
+namespace bounding is already shipped (`merge_owned_tags`).
 
 ### Horizon 2 — post-v0.2 build (needs a v0.3 milestone; some items need commitment amendments)
 
@@ -757,7 +764,9 @@ is already shipped (`merge_owned_tags`).
   enforced; decides the reservation store).
 - Capability-class validation harness (declared → validated supply; the
   first "certified capability" instances).
-- Generic declarative launcher (the trust-tier privilege boundary made real).
+- Generic declarative launcher + `generic-chart-policy/v1` ingestion
+  validation (ADR-0047's privilege boundary made real — vendor
+  deployability is gated on it).
 - Reservation objects beyond the run lock (v0.3 §19 state machine, scoped by
   the pool model RFC).
 - Vendor principal class + first vendor-tier catalog source (Vendor Vision
@@ -783,7 +792,7 @@ commercial metering. v0.3 §32 Phase 5 content lives here.
 v0.3 §36 asked for a narrow end-to-end scenario. **The project has already
 scheduled almost exactly it** — the v0.2b demo journey on the standing env:
 
-- One sanctioned application: the `videotest` Media Workload
+- One `project`-source application: the `videotest` Media Workload
   (`mxl-videotestsrc` + `mxl-videotest-view`) + `nmos-crosspoint`
   (Phase 1 visible-only) on the 3-CPU sandbox node.
 - Declared requirements: chart `resources.requests` (L3 WP0) + declared
@@ -836,12 +845,13 @@ directly constrains co-location modeling).
 Every v0.3 §33 question not settled or scheduled above is routed here, by
 owning RFC, so nothing silently vanishes:
 
-**→ #204 packaging/trust-tiers RFC:** publisher eligibility ("who may become
-a publisher") and approver roles; the Approved/Certified/Stable promotion
-semantics (v0.3 §22.1 state machine); per-catalog support commitments;
-Helm-as-mandatory-baseline vs operator-bundle representation; offline bundle
-construction (with ADR-0036's deferred installer bundle); the
-anti-regression rule on certified declarations (§8.3).
+**→ settled by ADR-0047** (was routed to the #204 RFC): publisher
+eligibility and approver quorum (§3 — two maintainers, no self-quorum);
+Approved/Certified/Stable semantics (§3); support commitments (support
+attribute `none`/`best_effort`/`lts`); Helm-as-mandatory-baseline with
+operator bundles excluded from the generic path (§2); the offline bundle's
+*shape* (§6 — construction tooling stays deferred with ADR-0036); signature
+standard cosign/Sigstore (§2); the anti-regression rule (§2).
 
 **→ capability-classes RFC:** override permission policy and profile
 governance; vendor-specific capability representation and implication
@@ -898,10 +908,10 @@ Added by the grounding:
 
 ## 13. Process guide — how to advance this document (new)
 
-1. **Post the packaging/trust-tiers RFC (#204) to Discussions › Ideas**,
-   using §8.2–8.3 + v0.3 §8–9 as source material. Follow the #190→ADR-0046
-   template: revisioned RFC body, codex cross-check rounds, author decision
-   comment, acceptance announcement, then the ADR PR.
+1. ~~Post the packaging/trust-tiers RFC (#204) to Discussions › Ideas~~ —
+   **done 2026-07-17**: RFC #248 (3 codex rounds → PASS) → author decision
+   comment → **ADR-0047** (closes #204), following the #190→ADR-0046
+   template exactly.
 2. **Ratify ADR-0045** (licensing) via its pending RFC — it is the keystone
    for every later pool/reservation concept.
 3. **Post the capability-classes RFC** (#112 Topic 5 + this doc §8.4–8.5) —
