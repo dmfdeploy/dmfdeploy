@@ -82,9 +82,10 @@ the frontmatter must be flipped; frontmatter wins for design content.
 
 ## 4. Discussions
 
-- **Q&A** — questions; **Ideas** — early proposals not yet RFC-shaped;
+- **Q&A** — questions; **Ideas** — early proposals *and* RFC threads (the
+  pre-ADR pipeline; no separate RFC category exists — see #246);
   **Announcements** — one thread per merged ADR (back-catalog covered by the
-  pinned "Decision record" index thread, #27); **RFC** — the pre-ADR pipeline.
+  pinned "Decision record" index thread, #27).
 - **RFC → ADR:** substantial cross-cutting decisions start as an RFC thread →
   converge → ADR PR (copy `docs/decisions/0000-template.md`, next free number,
   reciprocal supersession links) → announcement thread on merge. Small

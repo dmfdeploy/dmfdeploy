@@ -37,8 +37,9 @@ and is never a contribution path.)
 Cross-cutting decisions live as ADRs in `docs/decisions/` (see
 [INDEX.md](docs/decisions/INDEX.md)). To propose one:
 
-1. Open an **RFC thread** in Discussions (category: *RFC*) describing context,
-   options, and your recommendation. Substantial design debate happens there.
+1. Open an **RFC thread** in Discussions (category: *Ideas*) describing
+   context, options, and your recommendation. Substantial design debate
+   happens there.
 2. When it converges, write the ADR (copy `docs/decisions/0000-template.md`,
    next free number) and open a PR linking the RFC thread.
 3. When the ADR merges, post an **announcement thread** in Discussions for that
