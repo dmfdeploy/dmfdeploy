@@ -20,6 +20,36 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ Deploy/teardown reliability track: 3 of 4 landed same-day (2026-07-18)
+Operator live-testing on the Aliyun sandbox reported unreliable media-function
+deploy/teardown (post-wake failures + suspected concurrency). A code trace
+confirmed both and split the problem into 4 issues; a trio session
+(claude1/claude2/codex, transcript threads #18–#20) landed three:
+- **#134** (dmf-cms#39): first post-wake AWX call now retried on transient 5xx
+  **and** `URLError` (the connection-reset variant was mis-bucketed as
+  "Unexpected error"); sanitized "AWX unreachable" terminal state.
+- **#24** (dmf-cms#40): per-entry lifecycle lock, three guards in one lock
+  namespace — `get_or_create_exclusive` (deploy↔teardown 409), cross-JT
+  running-job guard on all four launch paths, and the `/api/workflows`
+  generic-launch bypass closed via fail-closed JT→lifecycle mapping (codex
+  P1 — the Activity JobsLane launches exactly those JTs). 3 gate rounds,
+  21 discriminating tests.
+- **#254** (dmf-infra#48): `max_concurrent_jobs: 1` on `dmf-catalog-cg` via
+  the InstanceGroup REST API (extra_settings can't set it), guarded pre-apply
+  (0 = unlimited in AWX — refused) and post-apply (readback assert).
+- **⚠️ NOT YET LIVE**: the #254 cap takes effect on the next playbook-693 run
+  against the env (operator lane); next live deploy/teardown session on the
+  sandbox is the real-world validation of the whole track.
+- **#255** (open, dmf-runbooks): NetBox service-tags RMW guard — the remaining
+  corruption mechanism for non-console launch paths; wants the #196 uri-stub
+  harness direction.
+- **Gotcha recurrence**: agent-bridge #210 false-DRIFT fired again (orchestrator
+  `read codex`/`ping codex` argv poisons pane classification; a work order was
+  lost to it + a session restart). Workaround: peers reply via pane id, don't
+  poll `read <role>` mid-session.
+- v0.2 critical path unchanged and now better-founded: **L3 build (#202 WPs) →
+  J1 switch beat (#201)** on the hardened deploy/teardown plumbing.
+
 ### ✅ Marketplace track: grounded roadmap + RFC #248 + ADR-0047 landed end-to-end (2026-07-17)
 One session took an operator-side architecture proposal to an accepted ADR (transcript threads #14–#17):
 - **Grounded roadmap** (PR #247, new track issue **#245**): `docs/plans/DMF Marketplace Resource Model and Placement Grounded Roadmap 2026-07-17.md` — verified current-state map (exists/partial/absent, evidence-tagged), constraint register, EBU/ADR vocabulary reconciliation, horizon roadmap anchored to the live backlog, full open-decision routing. Built via 5 research agents + a 5-lane adversarial citation audit (16 corrections) + a codex doc round (9 findings, all applied). Key verdict on the source proposal: 8/10 context claims confirmed, 1 partial, 1 contradicted (assumed Argo/GitOps — AWX is the frozen actuator).
