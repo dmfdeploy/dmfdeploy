@@ -20,6 +20,15 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ Marketplace track: grounded roadmap + RFC #248 + ADR-0047 landed end-to-end (2026-07-17)
+One session took an operator-side architecture proposal to an accepted ADR (transcript threads #14–#17):
+- **Grounded roadmap** (PR #247, new track issue **#245**): `docs/plans/DMF Marketplace Resource Model and Placement Grounded Roadmap 2026-07-17.md` — verified current-state map (exists/partial/absent, evidence-tagged), constraint register, EBU/ADR vocabulary reconciliation, horizon roadmap anchored to the live backlog, full open-decision routing. Built via 5 research agents + a 5-lane adversarial citation audit (16 corrections) + a codex doc round (9 findings, all applied). Key verdict on the source proposal: 8/10 context claims confirmed, 1 partial, 1 contradicted (assumed Argo/GitOps — AWX is the frozen actuator).
+- **RFC #248** (packaging, catalog sources & trust tiers, was #204): posted to Ideas, converged in 3 codex rounds (10 → 6 → 0 findings → PASS); author decision comment settled all seven §5 questions.
+- **ADR-0047** (PR #251, merged after 2 operator review rounds that caught roadmap/ADR vocabulary drift): four-axis trust model (source classes `project`/`vendor`/`community`; promotion states with "testing" as derived label; support attribute; launcher privilege), **bespoke launchers `project`-source-only** + `generic-chart-policy/v1` normative appendix, 2-maintainer promotion quorum + 1-maintainer emergency revoke, signed fail-closed revocation deny-list, offline signed update bundles (shape fixed, tooling deferred), cosign/Sigstore at promotion. Licence-presence enforcement deliberately left to ADR-0045. Announced as #252.
+- **Gotcha**: PR #251's same-repo `Closes #204` did **not** auto-close on merge — closed manually (working-model fallback); watch whether this recurs.
+- **Also landed**: #246 (RFC threads → Ideas; WORKING-MODEL + CONTRIBUTING aligned, PR #250).
+- **Next on the track (#245)**: capability-classes RFC gated on L3 WP0 (#202); ADR-0045 licensing RFC can run parallel; first ADR-0047 implementation deliverable is the project-controlled catalog-source index.
+
 ### ✅ #243 delivered + #239 workload-tag trio MERGED; live proof next (2026-07-17)
 One orchestrator session (transcript thread #13, trio: claude1/claude2-on-Sonnet-5/codex) closed out both blocks:
 - **#243 (Workspace demo-readiness)**: dmf-cms#35 (PR-C Users human/machine split + two-signal break-glass: `akadmin` username OR `break-glass` group), #36 (PR-D — Users/Workflows off the Workspace body; invite-QR moved to /admin People), #37 (Zabbix-style duration on problem rows) — all merged. Level axis filed as **#244**.
