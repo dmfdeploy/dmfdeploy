@@ -82,6 +82,13 @@ provision:
     name: nmos-cpp
     version: 0.1.0
     source: oci://zot.zot.svc.cluster.local:5000/dmf/charts/nmos-cpp
+  resources:                     # OPTIONAL (2026-07-18, umbrella #202 WP0):
+    requests:                    # aggregate EFFECTIVE demand of the entry's
+      cpu: 100m                  # rendered workload — scheduler formula
+      memory: 128Mi              # max(Σ init, Σ steady) + pod overhead,
+                                 # × replicas — NOT a per-container
+                                 # ResourceRequirements object. Grammar:
+                                 # whole millicores; whole Ki|Mi|Gi memory.
   netbox_service:
     name: nmos-cpp
     protocol: tcp
@@ -126,6 +133,16 @@ dependencies: []                  # e.g. [ "ptp-monitor" ] for media functions
 - `dependencies` is informational v1 (a TODO list dmf-cms shows the
   operator). v2 may enforce ordering or block deployment until deps
   are `lifecycle:active`. Do not over-design v1.
+- `provision.resources` (optional; added 2026-07-18 for the L3 run
+  preflight, umbrella #202 WP0) is the **console tier's demand input**:
+  the console reads only mounted catalog YAML — it has no Helm/OCI chart
+  reader — so entries whose charts declare container requests mirror the
+  **aggregate effective demand** here (scheduler accounting:
+  `max(Σ init-container, Σ steady-state) + pod overhead`, multiplied by
+  replicas), in a fail-closed grammar (whole millicores; whole binary
+  Ki/Mi/Gi). The source repo's `bin/check-catalog-demand.py` CI gate
+  keeps this figure equal to the chart render — the catalog never
+  free-hands a number the chart doesn't back.
 
 ---
 

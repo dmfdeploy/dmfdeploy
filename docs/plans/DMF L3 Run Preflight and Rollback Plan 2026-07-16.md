@@ -282,6 +282,21 @@ Decisions embedded here:
   authority for per-source demand; an under-declaration is a chart bug L3 surfaces
   (via §3.2(a) fail-closed), not something L3 silently tolerates.
 
+> **WP0 build note (2026-07-18).** The console tier cannot read chart values (no
+> Helm/OCI reader in dmf-cms — it loads only the mounted catalog YAML), so WP0
+> also added the **`provision.resources.requests` demand profile** to the mxl
+> catalog entries: the aggregate *effective* demand of the entry's rendered
+> workload (scheduler accounting — `max(Σ init, Σ steady) + overhead`,
+> × replicas), in a fail-closed grammar (whole millicores; whole binary
+> Ki/Mi/Gi), equality-gated against the chart render by dmf-media's
+> `bin/check-catalog-demand.py` in CI. This is the concrete form of §5's
+> "demand computable from the catalog entry"; WP1 consumes it. Canonical field
+> definition: `docs/architecture/DMF Function Catalog Model.md` §2. Sizing note:
+> the initial values are lean placeholders — no honest sizing fits the
+> documented node state today; umbrella **#258** (live scheduling proof +
+> platform-request audit) is the authority on fit and gates chart publish and
+> the J1 demo.
+
 ### 3.3 Refuse vs warn — decision: **refuse by default (fail-closed), operator override with reason**
 
 - **Default: refuse.** A NO-FIT verdict **blocks the launch** and returns the
