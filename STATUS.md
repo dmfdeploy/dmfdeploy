@@ -20,6 +20,27 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### 🚧 L3 build started — WP0 PR set open, codex GATE:PASS (2026-07-18)
+The #202 L3 build began at **WP0** (declare the missing resource requests so
+the capacity preflight can't sum zero). Trio session (claude1 orchestrator /
+claude2 implementer / codex adversary — roster now standing, qwens retired):
+- **Open PRs, pending operator review:** dmf-media#17 (chart requests on all
+  9 containers + catalog `provision.resources` demand profile + CI
+  render-equality gate, chart 0.3.0), dmf-infra#49 (dmf-catalog-cg worker
+  requests 250m/512Mi + narrow asserts), dmf-runbooks#17 (**hold label** —
+  pin 0.3.0, merge only after publish+seed), umbrella #260 (init-accounting
+  correction; #259 already merged).
+- **Key finding (codex, 4-round arc):** *no honest sizing fits the current
+  node* — platform baseline ~2.4 CPU requests of ~3 allocatable; WP0 landed
+  lean placeholders and **#258** (live scheduling proof + platform-request
+  audit) now gates chart publish, the runbooks pin, and J1.
+- **New cross-repo contract:** catalog entries may carry
+  `provision.resources.requests` (aggregate effective demand; initContainers
+  refused fail-closed by the dmf-media CI gate) — the console preflight's
+  demand input for WP1. Canonical: Function Catalog Model §2.
+- **Next:** WP1 (console early tier, dmf-cms) is design-unblocked; WP0 PRs +
+  #260 need review; #258 needs a live session.
+
 ### ✅ Deploy/teardown reliability track: 3 of 4 landed same-day (2026-07-18)
 Operator live-testing on the Aliyun sandbox reported unreliable media-function
 deploy/teardown (post-wake failures + suspected concurrency). A code trace
