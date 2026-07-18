@@ -84,10 +84,11 @@ provision:
     source: oci://zot.zot.svc.cluster.local:5000/dmf/charts/nmos-cpp
   resources:                     # OPTIONAL (2026-07-18, umbrella #202 WP0):
     requests:                    # aggregate EFFECTIVE demand of the entry's
-      cpu: 100m                  # rendered workload — scheduler formula
-      memory: 128Mi              # max(Σ init, Σ steady) + pod overhead,
-                                 # × replicas — NOT a per-container
-                                 # ResourceRequirements object. Grammar:
+      cpu: 100m                  # rendered workload — steady-state container
+      memory: 128Mi              # sum + pod overhead, × replicas — NOT a
+                                 # per-container ResourceRequirements object.
+                                 # initContainers are refused fail-closed by
+                                 # the CI gate (see field notes). Grammar:
                                  # whole millicores; whole Ki|Mi|Gi memory.
   netbox_service:
     name: nmos-cpp
@@ -137,12 +138,17 @@ dependencies: []                  # e.g. [ "ptp-monitor" ] for media functions
   preflight, umbrella #202 WP0) is the **console tier's demand input**:
   the console reads only mounted catalog YAML — it has no Helm/OCI chart
   reader — so entries whose charts declare container requests mirror the
-  **aggregate effective demand** here (scheduler accounting:
-  `max(Σ init-container, Σ steady-state) + pod overhead`, multiplied by
-  replicas), in a fail-closed grammar (whole millicores; whole binary
-  Ki/Mi/Gi). The source repo's `bin/check-catalog-demand.py` CI gate
-  keeps this figure equal to the chart render — the catalog never
-  free-hands a number the chart doesn't back.
+  **aggregate effective demand** here (steady-state container sum + pod
+  overhead, multiplied by replicas), in a fail-closed grammar (whole
+  millicores; whole binary Ki/Mi/Gi). **initContainers are refused
+  fail-closed by the gate**: Kubernetes schedules sequential inits at the
+  per-resource highest *single* init request vs the app-container sum
+  (never an init sum), and restartable sidecars cumulatively — a naive
+  emulation would silently certify wrong demand, so init accounting must
+  be added deliberately when a chart first needs it. The source repo's
+  `bin/check-catalog-demand.py` CI gate keeps this figure equal to the
+  chart render — the catalog never free-hands a number the chart doesn't
+  back.
 
 ---
 

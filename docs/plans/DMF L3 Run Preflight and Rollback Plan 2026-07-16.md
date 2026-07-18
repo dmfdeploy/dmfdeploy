@@ -243,9 +243,13 @@ requests over pods **bound to the target node**, `Running` **or** `Pending`
 (a node-bound pending over-request still consumes schedulable budget), joined to
 the node via `kube_pod_info{node="…"}` — **not** all `Pending` pods globally (an
 unschedulable-elsewhere pod must not be charged to this node). Per pod the demand
-is `max(Σ init-container requests, Σ container requests)` (init and steady-state do
-not co-reside) **plus** pod `overhead` when present — mirroring the scheduler's own
-accounting. CPU and memory computed independently. The launcher tier applies the
+mirrors the scheduler's own accounting: for sequential init containers, the
+per-resource **maximum of any single init request vs the sum of app-container
+requests** — never an init-container *sum* — with restartable (sidecar) init
+containers accounted cumulatively per their newer semantics; **plus** pod
+`overhead` when present. (Corrected 2026-07-18, codex WP0 round 3 — the original
+wording here said `max(Σ init, Σ containers)`, which is not what the scheduler
+computes.) CPU and memory computed independently. The launcher tier applies the
 same accounting against live pod specs.
 
 **Fail closed on absent budget declarations (codex P1-2) — load-bearing.** Verified
@@ -286,9 +290,10 @@ Decisions embedded here:
 > Helm/OCI reader in dmf-cms — it loads only the mounted catalog YAML), so WP0
 > also added the **`provision.resources.requests` demand profile** to the mxl
 > catalog entries: the aggregate *effective* demand of the entry's rendered
-> workload (scheduler accounting — `max(Σ init, Σ steady) + overhead`,
-> × replicas), in a fail-closed grammar (whole millicores; whole binary
-> Ki/Mi/Gi), equality-gated against the chart render by dmf-media's
+> workload (steady-state container sum + pod overhead, × replicas; the CI gate
+> refuses initContainers fail-closed until scheduler-accurate init accounting
+> is deliberately added), in a fail-closed grammar (whole millicores; whole
+> binary Ki/Mi/Gi), equality-gated against the chart render by dmf-media's
 > `bin/check-catalog-demand.py` in CI. This is the concrete form of §5's
 > "demand computable from the catalog entry"; WP1 consumes it. Canonical field
 > definition: `docs/architecture/DMF Function Catalog Model.md` §2. Sizing note:
