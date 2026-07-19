@@ -606,6 +606,52 @@ reports `monitoring-drain-pending`, §4.6 — a soft state, not a rollback failu
   audit/verify discipline elsewhere (a POST-400 that might be "already done" is
   re-read and asserted, not assumed).
 
+> **WP2 build note (2026-07-19) — console run tracking, dirty-facility model,
+> and the WP3 wire contracts.** The console (dmf-cms) now tracks every
+> console-originated run to its AWX-terminal state (async **and** the shipped
+> sync mode): `LAUNCHED → RUNNING → RUN_COMPLETE | RUN_FAILED |
+> FAILED_ROLLBACK_REQUIRED | ROLLBACK_INCOMPLETE | RUN_STATUS_UNKNOWN`.
+> Contract points the build fixed beyond this section's text:
+> - **Dirty states block the facility.** `FAILED_ROLLBACK_REQUIRED`,
+>   `ROLLBACK_INCOMPLETE`, and `RUN_STATUS_UNKNOWN` (a *started* run whose
+>   watcher lost AWX terminality — crash/timeout/read-loss; its surfaces are
+>   unknown, so it is dirty, and it never claims `FAILED_ROLLBACK_REQUIRED`
+>   because that state's auto-trigger contract must not fire while the job
+>   might still run) are terminal for dedupe/GC but **advisory-blocking** for
+>   new deploys, teardowns, and unrelated rollbacks. The **matching rollback
+>   passes** (keyed on the run's hydrated identity, below). The advisory block
+>   expires with the console op TTL — the launcher lock + snapshot staleness
+>   (WP3) stay authoritative.
+> - **No teardown exemption.** This section's "one run per facility at a
+>   time, refused not queued" is enforced literally in the advisory tier too —
+>   cross-target teardown-vs-teardown is also refused (an earlier build draft
+>   exempted it; codex round-2 removed the divergence).
+> - **Run identity wire contract.** A run's identity is its launch
+>   `l3_request_id` (deploy/teardown jobs). A **rollback job's** target is
+>   `l3_run_id`; its own `l3_request_id` is the rollback *dispatch*
+>   correlator, never the snapshot target. The console hydrates a reattached
+>   job's identity from the job's own `extra_vars` (hex-32-validated;
+>   unprovable identity → no auto-rollback, operator resolves), and a shared
+>   rollback-JT reattach requires `l3_run_id` to match the requested run —
+>   else `already-active-other-run`, zero attribution.
+> - **`DMF_L3_OUTCOME` marker contract (launcher → console).** The WP3
+>   launcher reports its outcome as the **final non-empty stdout line**:
+>   `DMF_L3_OUTCOME: <token> [key=value …]` with tokens
+>   `facility-busy | no-fit | missing-budget | no-snapshot | stale-snapshot |
+>   rollback_complete | rollback_incomplete`. Pre-mutation refusal tokens
+>   never trigger rollback. A rollback is `RUN_COMPLETE` only on **successful
+>   AWX job AND exact `rollback_complete` marker** — any other combination is
+>   `ROLLBACK_INCOMPLETE` (never false-green). kv detail is
+>   allowlist-sanitized (`surfaces ⊆ {netbox,helm,monitoring}`, hex-32 ids)
+>   before any operator surface.
+> - **Rollback command.** `POST /api/runs/{run_id}/rollback` (operator +
+>   reason, C5) launches the `media-rollback-run` JT (registered by WP3) with
+>   `{l3_run_id, l3_rollback_reason, l3_request_id}`; auto-trigger fires only
+>   from a **confirmed** started-then-failed deploy (`l3.auto_rollback`,
+>   fail-safe-on), deduped against manual dispatch. The generic
+>   `/api/workflows` endpoint refuses lifecycle-mapped JTs
+>   (`use-catalog-endpoint`) — it was an L3 bypass.
+
 ### 4.6 What "clean pre-run state" verification means (the acceptance gate)
 
 The acceptance gate requires "a clean pre-run state (NetBox + Helm + monitoring all
