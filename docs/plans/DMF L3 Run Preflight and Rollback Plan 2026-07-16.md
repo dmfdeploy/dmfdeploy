@@ -175,6 +175,19 @@ for direct runs is ADR-0010 (who may invoke `run-playbook.sh` at all), not a tok
 **Rejected: a new admission webhook / controller** — out of scope, generalises
 beyond the single-node lane, and #202 is operational safety, not a scheduler.
 
+> **WP1 build note (2026-07-19) — kill switch + fail-closed dependency.** The
+> console tier ships with exactly one **documented, default-on kill switch**:
+> `l3.enabled` (env `DMF_CONSOLE_L3_ENABLED`, Helm `l3.enabled`). Disabling it
+> is an explicit operational exception — the deploy proceeds with an audited
+> `capacity-skipped` C5 outcome and a `l3_preflight_verdict: skipped` envelope
+> (still carrying `l3_request_id`, so launcher-side refusals stay correlatable).
+> The parser is fail-safe-on: only an explicit `false` disables; a typo'd value
+> logs loudly and stays enabled. **Prometheus being unconfigured while the tier
+> is enabled is NOT a skip** — it is a fail-closed `budget-unavailable` refusal
+> (KSM/Prometheus is a hard dependency of this tier, per §3.2); the same
+> refusal covers empty KSM metric families and any query failure. No data
+> never reads as fit.
+
 ### 3.2 What preflight measures — decision: **node allocatable vs (sum of existing pod requests + the run's incremental requests), CPU and memory, with an EE-headroom reserve**
 
 Preflight computes, for the run's `target_facility` node(s):
@@ -251,6 +264,19 @@ containers accounted cumulatively per their newer semantics; **plus** pod
 wording here said `max(Σ init, Σ containers)`, which is not what the scheduler
 computes.) CPU and memory computed independently. The launcher tier applies the
 same accounting against live pod specs.
+
+> **WP1 build note (2026-07-19) — the console tier is a conservative UPPER
+> BOUND, not scheduler-exact.** kube-state-metrics does not expose init
+> containers' `restartPolicy`, so the console cannot distinguish sequential
+> inits (scheduler takes the highest single init vs the app sum) from
+> restartable sidecars (accounted cumulatively). The console tier therefore
+> charges each existing pod `Σ app-container requests + Σ init-container
+> requests + overhead` — the upper bound of both semantics. This deliberately
+> over-counts sequential inits, biasing toward refusal (fail-closed); it can
+> produce a console-NO-FIT that the launcher's scheduler-accurate recompute
+> (WP3, live pod specs) overturns — the expected divergence path of §3.1
+> already covers that. `kube_pod_overhead_*` metrics carry no `node` label;
+> the console filters them through the node's eligible pod set instead.
 
 **Fail closed on absent budget declarations (codex P1-2) — load-bearing.** Verified
 shipped reality: the `mxl-fabrics-demo` chart templates declare **no container
