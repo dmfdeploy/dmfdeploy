@@ -186,11 +186,16 @@ beyond the single-node lane, and #202 is operational safety, not a scheduler.
 > any other token logs loudly and stays enabled. **Prometheus being
 > unconfigured while the tier is enabled is NOT a skip** — it is a fail-closed
 > `budget-unavailable` refusal (KSM/Prometheus is a hard dependency of this
-> tier, per §3.2); the same refusal covers any query failure, malformed or
-> non-positive/non-finite metric values, and **empty allocatable or
-> liveness-sentinel families** (`kube_node_status_allocatable`,
-> `kube_pod_info`, `kube_pod_status_phase`, and an empty bound∩running
-> intersection). Empty *demand* families (app/init/overhead requests) are
+> tier, per §3.2); the same refusal covers any query failure, malformed rows,
+> and **empty allocatable or liveness-sentinel families**
+> (`kube_node_status_allocatable`, `kube_pod_info`,
+> `kube_pod_status_phase{…} == 1`, and an empty bound∩(Running|Pending)
+> intersection). The scalar rule splits exactly: **negative or non-finite
+> values refuse everywhere; zero additionally refuses for allocatable and
+> for returned liveness-sentinel rows** (the phase query carries the
+> contract's `== 1`, so a returned zero row is malformed by construction) —
+> **but zero remains a valid demand value** (a container may declare a
+> 0 request). Empty *demand* families (app/init/overhead requests) are
 > legitimately sparse — best-effort pods declare nothing — and are not
 > refused. No data never reads as fit.
 
