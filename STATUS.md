@@ -20,6 +20,32 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### 🚧 L3 build: WP0+WP1 merged, WP2 built — console side complete (2026-07-19)
+The #202 L3 critical path advanced three WPs in two days (trio:
+claude1/claude2/codex; qwens retired from the roster):
+- **Merged:** WP0 (resource declarations, dmf-media#17 + dmf-infra#49 +
+  umbrella #259/#260) and WP1 (console capacity preflight, dmf-cms#41 +
+  umbrella #262). WP1 arc: 5 rounds / 15 findings (fail-open holes in a
+  fail-closed design: unconfigured-Prometheus skip, empty-KSM false-FIT,
+  negative-scalar headroom, truthiness override).
+- **Open, pending review:** WP2 (dmf-cms#42 — run tracking to
+  operation-terminal in both modes, dirty-facility advisory lock,
+  `POST /api/runs/{run_id}/rollback`, confirmed-failure auto-trigger,
+  `DMF_L3_OUTCOME` surfacing; closes #263) + umbrella #265 (the §4.5 WP3
+  wire contracts). WP2 arc: 5 rounds / 19 findings — reattachment identity
+  was the deepest seam (dispatch correlators masquerading as run ids,
+  wrong-run false-green on the shared rollback JT).
+- **Gates unchanged:** #258 (live scheduling proof) holds chart publish, the
+  630 digest pin, dmf-runbooks#17, and J1. Follow-up: #264 (AWX client
+  bounds).
+- **Next:** WP3 — the authoritative launcher first-play + snapshot/rollback
+  play (dmf-runbooks + dmf-infra JT), implementing the frozen #265
+  contracts; then WP4 (monitoring drain verify) closes the #202 acceptance
+  gate.
+- **Ops note:** agent-bridge #210 false-DRIFT recurred (a peer held a
+  finished report against a misclassified pane); memory updated — check a
+  quiet implementer's scrollback, pre-authorize pane-id fallback in WOs.
+
 ### 🚧 L3 build started — WP0 PR set open, codex GATE:PASS (2026-07-18)
 The #202 L3 build began at **WP0** (declare the missing resource requests so
 the capacity preflight can't sum zero). Trio session (claude1 orchestrator /
