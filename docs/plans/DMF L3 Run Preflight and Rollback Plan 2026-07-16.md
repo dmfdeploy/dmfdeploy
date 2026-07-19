@@ -608,9 +608,12 @@ reports `monitoring-drain-pending`, §4.6 — a soft state, not a rollback failu
 
 > **WP2 build note (2026-07-19) — console run tracking, dirty-facility model,
 > and the WP3 wire contracts.** The console (dmf-cms) now tracks every
-> console-originated run to its AWX-terminal state (async **and** the shipped
-> sync mode): `LAUNCHED → RUNNING → RUN_COMPLETE | RUN_FAILED |
-> FAILED_ROLLBACK_REQUIRED | ROLLBACK_INCOMPLETE | RUN_STATUS_UNKNOWN`.
+> console-originated run to an **operation-terminal** outcome (async **and**
+> the shipped sync mode): `LAUNCHED → RUNNING → RUN_COMPLETE | RUN_FAILED |
+> FAILED_ROLLBACK_REQUIRED | ROLLBACK_INCOMPLETE | RUN_STATUS_UNKNOWN` —
+> operation-terminal, not necessarily AWX-terminal: `RUN_STATUS_UNKNOWN`
+> records precisely that AWX terminality was *not* observed (the job may
+> still be running), which is why it is dirty.
 > Contract points the build fixed beyond this section's text:
 > - **Dirty states block the facility.** `FAILED_ROLLBACK_REQUIRED`,
 >   `ROLLBACK_INCOMPLETE`, and `RUN_STATUS_UNKNOWN` (a *started* run whose
