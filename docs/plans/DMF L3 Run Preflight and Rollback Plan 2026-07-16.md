@@ -471,6 +471,42 @@ blind teardown (which would delete pre-existing records/releases and violate
 ADR-0046's preserve-non-owned rule). With no snapshot there is no safe subtraction,
 so the honest action is manual escalation.
 
+> **WP3 build note (2026-07-19) — launcher-tier contract amendments (codex
+> WP3 round 1).** Three deliberate deviations/refinements from the frozen
+> text above, made during the authoritative-tier build:
+> - **Marker transport is AWX job events, not stdout.** Real ansible
+>   callback output wraps `debug` messages (no bare `DMF_L3_OUTCOME: …`
+>   line ever exists in job stdout), so the WP2 stdout-tail parsing could
+>   never match a real job. The launcher emits every marker through a
+>   single dedicated task named **`dmf-l3-outcome`**; the console reads
+>   `/api/v2/jobs/{id}/job_events/` filtered by that task name and parses
+>   the message from the structured event — bound to structure, not
+>   callback rendering, and a stronger provenance anchor than any stdout
+>   heuristic. Job stdout is fetched only for the human-readable §3.4
+>   report. (Supersedes both the WP2 final-line note and the interim
+>   last-match-in-tail draft.)
+> - **The launcher snapshot's monitoring surface is the NetBox-derived
+>   projection** (monitoring custom fields + `monitoring:probe` tag per
+>   record), **not** the §4.1 live PromSD/Prometheus target baseline — the
+>   EE cannot assume off-cluster PromSD reachability. Consequence, stated
+>   honestly: the launcher **cannot verify monitoring drain**, so the
+>   rollback play's terminal is at best `rollback_incomplete
+>   surfaces=monitoring` — **`rollback_complete` is unreachable in WP3**;
+>   only WP4's console-side live drain verification (which does have
+>   PromSD/Prometheus access) can complete a rollback per §4.6. The #202
+>   acceptance gate therefore closes only with WP4, by design.
+> - **Lock fencing.** The facility lock records a per-attempt identity
+>   (`attempt_id`, distinct from `run_id`); there is **no within-TTL
+>   reclaim, not even by the same run** (a retry waits for the prior
+>   attempt's terminal release or TTL expiry); reclaim/release deletes are
+>   preconditioned on the read lock's UID + holder attempt (never delete a
+>   lock you don't own); `facility-busy` is **not overridable**
+>   (`l3_override` covers capacity verdicts only, §3.3 — the lock is
+>   load-bearing for snapshot-diff soundness, §4.5); every play path
+>   releases via block/rescue/always, so only a hard crash leaves the lock
+>   to TTL expiry. Teardown playbooks participate lock-only (no capacity,
+>   no snapshot).
+
 ### 4.2 NetBox rollback — build on the teardown/finalise plays, with one added primitive
 
 The existing prior art is the three **`teardown-*.yml`** plays + each role's
