@@ -181,12 +181,18 @@ beyond the single-node lane, and #202 is operational safety, not a scheduler.
 > is an explicit operational exception — the deploy proceeds with an audited
 > `capacity-skipped` C5 outcome and a `l3_preflight_verdict: skipped` envelope
 > (still carrying `l3_request_id`, so launcher-side refusals stay correlatable).
-> The parser is fail-safe-on: only an explicit `false` disables; a typo'd value
-> logs loudly and stays enabled. **Prometheus being unconfigured while the tier
-> is enabled is NOT a skip** — it is a fail-closed `budget-unavailable` refusal
-> (KSM/Prometheus is a hard dependency of this tier, per §3.2); the same
-> refusal covers empty KSM metric families and any query failure. No data
-> never reads as fit.
+> The parser is fail-safe-on: only the explicit disable tokens
+> `false`/`0`/`no` (case-insensitive) disable; `true`/`1`/`yes`/unset enable;
+> any other token logs loudly and stays enabled. **Prometheus being
+> unconfigured while the tier is enabled is NOT a skip** — it is a fail-closed
+> `budget-unavailable` refusal (KSM/Prometheus is a hard dependency of this
+> tier, per §3.2); the same refusal covers any query failure, malformed or
+> non-positive/non-finite metric values, and **empty allocatable or
+> liveness-sentinel families** (`kube_node_status_allocatable`,
+> `kube_pod_info`, `kube_pod_status_phase`, and an empty bound∩running
+> intersection). Empty *demand* families (app/init/overhead requests) are
+> legitimately sparse — best-effort pods declare nothing — and are not
+> refused. No data never reads as fit.
 
 ### 3.2 What preflight measures — decision: **node allocatable vs (sum of existing pod requests + the run's incremental requests), CPU and memory, with an EE-headroom reserve**
 
