@@ -440,6 +440,20 @@ runs stay **rollbackable** — the "all runs" guarantee (§3.1) covers cleanup, 
 just the gate — and the launcher's recompute (§3.1) is the authority regardless of
 what the envelope claims.
 
+> **WP3 build note (2026-07-20, codex WP3 round 3, corrects this paragraph).** For
+> the "all runs are rollbackable" guarantee above to hold, a direct off-cluster
+> run **must be able to write the lock + snapshot in-cluster**, which needs an API
+> credential the EE-internal SA token does not provide off-cluster. So the direct
+> path now **requires `l3_kube_api_url` + `l3_kube_api_token`** and **refuses
+> fail-closed (`lock-unavailable`, not overridable)** without them — the earlier
+> draft's "proceed lockless + unrollbackable" escape is **removed** (a run L3 can
+> neither lock nor snapshot cannot honour either half of #202, so it is not
+> permitted rather than silently unprotected). There is no `snapshot=skipped`
+> path; every direct run that proceeds is locked and snapshotted exactly like a
+> console run. This is the honest reading of the "all runs" guarantee: *all runs
+> that are allowed to proceed* are rollbackable, and an un-snapshottable direct
+> run is refused up front.
+
 **Persistence + lifecycle — an in-cluster run-scoped ConfigMap (codex P2-1).** The
 launcher writes the snapshot (small structured JSON) to a run-scoped ConfigMap
 `dmf-run-<run_id>` in the workload namespace (idiomatic alongside `mxl-coordinator`),
