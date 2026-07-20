@@ -495,17 +495,44 @@ so the honest action is manual escalation.
 >   only WP4's console-side live drain verification (which does have
 >   PromSD/Prometheus access) can complete a rollback per §4.6. The #202
 >   acceptance gate therefore closes only with WP4, by design.
-> - **Lock fencing.** The facility lock records a per-attempt identity
->   (`attempt_id`, distinct from `run_id`); there is **no within-TTL
->   reclaim, not even by the same run** (a retry waits for the prior
->   attempt's terminal release or TTL expiry); reclaim/release deletes are
->   preconditioned on the read lock's UID + holder attempt (never delete a
->   lock you don't own); `facility-busy` is **not overridable**
->   (`l3_override` covers capacity verdicts only, §3.3 — the lock is
->   load-bearing for snapshot-diff soundness, §4.5); every play path
->   releases via block/rescue/always, so only a hard crash leaves the lock
->   to TTL expiry. Teardown playbooks participate lock-only (no capacity,
->   no snapshot).
+> - **Lock fencing (as implemented, codex rounds 1–2).** The facility lock
+>   records a per-attempt identity (`attempt_id`, distinct from `run_id`);
+>   there is **no within-TTL reclaim, not even by the same run**;
+>   acquisition retries the atomic create a bounded number of times on the
+>   409-then-empty race and otherwise refuses (`facility-busy`, never
+>   overridable — `l3_override` covers capacity verdicts only, §3.3);
+>   reclaim/release deletes are preconditioned on the read lock's UID +
+>   holder attempt (never delete a lock you don't own). **Holder
+>   liveness:** before each mutating stage the holder re-reads the lock,
+>   fails immediately if fenced out (never mutating past a lost lock), and
+>   renews `created_at` via a resourceVersion-preconditioned update — this
+>   bounds, but does not eliminate, the window between a TTL-expiry steal
+>   and the old holder's next checkpoint (residual risk stated, not hidden).
+>   Every playbook wraps the post-acquire lifecycle in an outer
+>   block/rescue/always: success terminalizes the snapshot
+>   (`run_complete`), a mutation-state-aware rescue terminalizes it
+>   honestly (`superseded` pre-mutation — only for a snapshot the attempt
+>   itself created — or `failed_rollback_required` post-mutation), and the
+>   always releases only a lock the attempt owns; a hard crash leaves the
+>   lock to TTL expiry. A snapshot-name collision on create is fail-closed
+>   (resumable only for a same-run in-progress baseline; an attempt never
+>   terminalizes a baseline it did not create), and **every later mutating
+>   run — teardowns included — supersedes all older rollback-eligible
+>   snapshots** at its just-before-mutation point. Teardown playbooks
+>   participate lock-only (no capacity, no snapshot capture) and enforce
+>   the scoped-writer token like every other NetBox-touching flow.
+> - **v1 identity contract (§4.1 amendment, codex round-2 P2-3).** Until
+>   #201 WP3a lands `topology_params.target_facility`, the snapshot's
+>   `dmf.io/facility` label is the **node display name** and
+>   `dmf.io/owner` is the supplied `l3_owner` extra_var, else the AWX job
+>   id, else `direct` — an explicit, dated deviation from the frozen
+>   `target_facility`/console-subject fields, not an oversight. Known
+>   residual (flagged, unresolved): with `ask_variables_on_launch` enabled,
+>   reserved-internal extra vars are rejected at entry, but the outcome
+>   emitter's include-vars calling convention can still be shadowed by a
+>   caller-supplied `l3_outcome_token` (the play still fails correctly;
+>   only the marker token field is spoofable by a trusted-boundary AWX
+>   caller). Tracked for a later hardening round.
 
 ### 4.2 NetBox rollback — build on the teardown/finalise plays, with one added primitive
 
