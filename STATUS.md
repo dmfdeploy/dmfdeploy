@@ -20,6 +20,34 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ L3 build COMPLETE: WP4 landed — the #202 acceptance gate is fully built and gated (2026-07-23)
+**WP4 (console-side monitoring drain verification) passed its codex arc
+(5 rounds, GATE:PASS) and is up as 3 PRs pending operator review:**
+dmf-cms#44 (drain.py decision core + promsd.py seam + bounded drain poll +
+verify-drain endpoint; 530 → 654 tests; **closes #202 on merge**),
+dmf-media#18 (nmos-cpp declares its diverging `cluster_service:
+nmos-cpp-registry` launcher identity in the catalog), umbrella #270 (§4.3
+build note + plan → `executed`).
+- **The design in one line:** the console can't read the launcher's
+  snapshot ConfigMap, but PromSD targets are a pure projection of NetBox —
+  so drain verification is **projection-consistency** (expected targets
+  from the run's catalog identity; live NetBox only for the
+  retained-exact-match exclusion), polled against PromSD `/sd/probe` +
+  Prometheus active targets, both-must-agree, fail-closed everywhere.
+- **Arc lesson worth keeping:** the WP1 HTTP-200-empty class recurred at
+  every new read seam (cold-PromSD 200-`[]`, malformed envelopes,
+  unreadable rows, truthy-but-unparseable identities). The closing
+  principle: **validate every identity with the matcher's own parser** —
+  truthiness is never the criterion. Also: codex correctly reversed one of
+  my dispositions (superseded rollback attempts keep their raw launcher
+  outcome; only the directly-verified op takes the console-originated
+  `rollback_complete` exception).
+- **Follow-ups:** #271 (WP5 report polish + runbook wiring, WP6
+  switch-path preflight — the plan's explicit deferrables). #258 still
+  gates chart publish, the runbooks 0.3.0 pin, and J1; #264 unchanged.
+- Worktrees `~/worktrees/dmf-cms-l3-wp4` (branch) + `dmf-media-l3-wp4`
+  remain until the PRs merge; scratch review worktrees cleaned.
+
 ### ✅ L3 build: WP0–WP3 landed — only WP4 (monitoring drain verify) left for the #202 gate (2026-07-20)
 The #202 L3 critical path is four work-packages deep. **WP3 (authoritative
 launcher tier) landed today** after the deepest codex arc of the build
