@@ -8,9 +8,8 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (5)
+## Active (4)
 
-- [DMF L3 Run Preflight and Rollback Plan 2026-07-16](DMF%20L3%20Run%20Preflight%20and%20Rollback%20Plan%202026-07-16.md) — 2026-07-16
 - [DMF v0.2b Multi-Source Switch Spec 2026-07-15](DMF%20v0.2b%20Multi-Source%20Switch%20Spec%202026-07-15.md) — 2026-07-15
 - [DMF v0.2 Presentable Journey Execution Plan 2026-07-12](DMF%20v0.2%20Presentable%20Journey%20Execution%20Plan%202026-07-12.md) — 2026-07-12
 - [DMF v0.2 EBU Facility-Orchestration Re-anchor Plan 2026-07-07](DMF%20v0.2%20EBU%20Facility-Orchestration%20Re-anchor%20Plan%202026-07-07.md) — 2026-07-07
@@ -28,8 +27,9 @@ shelved, kept for provenance.
 - [DMF Pre-Release Compliance Readiness Plan 2026-05-11](DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md) — 2026-05-11
 - [DMF Tier A Phase Execution Plan 2026-05-11](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — 2026-05-11
 
-## Executed (91)
+## Executed (92)
 
+- [DMF L3 Run Preflight and Rollback Plan 2026-07-16](DMF%20L3%20Run%20Preflight%20and%20Rollback%20Plan%202026-07-16.md) — 2026-07-16
 - [DMF Public-Safety Pattern Manifest Plan 2026-07-13](DMF%20Public-Safety%20Pattern%20Manifest%20Plan%202026-07-13.md) — 2026-07-13
 - [DMF Console Information Architecture Implementation Plan 2026-07-03](DMF%20Console%20Information%20Architecture%20Implementation%20Plan%202026-07-03.md) — 2026-07-03
 - [DMF Console Wording and Media Workloads Page Plan 2026-07-03](DMF%20Console%20Wording%20and%20Media%20Workloads%20Page%20Plan%202026-07-03.md) — 2026-07-03

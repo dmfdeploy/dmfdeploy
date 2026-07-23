@@ -1,5 +1,5 @@
 ---
-status: active
+status: executed
 date: 2026-07-16
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/202
 ---
@@ -610,6 +610,54 @@ that L3 deleted them. **Staleness caveat (stated so it is not a surprise):** the
 is a bounded lag (~45s PromSD TTL + ~30s Prom SD refresh ≈ up to ~75s) between the
 §4.2 clear and target drain; verification polls until drained or a timeout (then
 reports `monitoring-drain-pending`, §4.6 — a soft state, not a rollback failure).
+
+> **WP4 build note (2026-07-23) — console-side drain verification as
+> implemented (dmf-cms#44 + dmf-media#18; codex arc rounds 1–5, GATE:PASS).**
+> Contract points fixed during the build, beyond this section's text:
+> - **Projection-consistency, not snapshot-diff.** The console cannot read
+>   the launcher's snapshot ConfigMap (no k8s client), so the expected
+>   drain set derives from the **run/catalog identity**: the rollback op's
+>   run_id → the unambiguous correlated deploy op → its catalog entry's
+>   `netbox_service` (with **optional catalog `cluster_service`/
+>   `cluster_namespace` overrides** — nmos-cpp declares
+>   `cluster_service: nmos-cpp-registry` because its launcher identity
+>   diverges from its NetBox record name; RFC-1123-validated,
+>   whole-declaration fail-closed). Live NetBox custom_fields are consulted
+>   **only** for the retained-exact-match exclusion: a record still tagged
+>   `monitoring:probe` whose fields compose exactly the run identity is
+>   legitimately retained; every other combination leaves the run identity
+>   drain-expected.
+> - **Eligibility is exact**: successful AWX job + `rollback_incomplete`
+>   marker + `surfaces={monitoring}` (duplicate `surfaces=` keys are
+>   ineligible). Every ineligible case keeps pre-WP4 classification
+>   byte-for-byte.
+> - **Every seam is fail-closed with validated shapes** (the WP1
+>   HTTP-200-empty lesson, applied 3×): NetBox list envelope
+>   (count-authoritative, `limit=2` pagination guard), PromSD `/readyz`
+>   canonical body + nested target-group shapes, Prometheus strict
+>   envelope + non-empty-activeTargets liveness sentinel — and **every
+>   identity string is validated with the matcher's own parser**
+>   (`_strip_to_host` must yield a non-empty host; truthiness is not the
+>   criterion). Unverifiable ⇒ `monitoring-drain-pending` (the single soft
+>   token, console-originated, outside the launcher `_KV_DETAIL_TOKENS`
+>   registry), never an upgrade.
+> - **Terminal resolution is facility-coherent and provenance-honest**: the
+>   directly-verified rollback op takes the **single console-originated
+>   `l3_outcome=rollback_complete` exception** (+
+>   `detail=monitoring-drain-verified`); the correlated deploy op resolves
+>   `RUN_FAILED` + `detail=rollback-verified` (a failed deploy never
+>   becomes RUN_COMPLETE); superseded rollback attempts resolve
+>   `RUN_FAILED` with their **raw launcher outcome retained** +
+>   `detail=superseded-by-verified-rollback`. Correlation is re-derived at
+>   finalize time — on ambiguity nothing upgrades
+>   (`correlation-changed-mid-poll`). `POST /api/runs/{run_id}/verify-drain`
+>   (operator + reason, C5) re-checks once with a three-branch contract
+>   (200 not-drained / 409 correlation-changed / 200 finalized).
+> - **v1-accepted limitation (deliberate)**: target matching is
+>   **host-only** — port/path-aware matching would require deriving the
+>   expected port, and a wrong derivation makes a live target invisible
+>   (false-green); host-only over-matching errs only toward soft-pending.
+>   J1 has one probe per Service host.
 
 ### 4.4 Helm rollback — idempotent uninstall of the run's release set
 
