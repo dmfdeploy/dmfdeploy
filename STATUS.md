@@ -20,6 +20,32 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ #258 CLOSED: live calibration done, release chain landed, J1 unblocked (2026-07-24)
+One marathon day on the J3 env (v5on-r8aw) took #258 from claim to close:
+- **Live measurement**: idle platform / source-only / full-shape / per-container
+  sustained samples. Headlines: source CPU **doubles under consumption**
+  (428→872m; writer 810m); the view pod's biggest consumer is the **status
+  preview pipeline (157m)**, not the target (35m); NetBox/Prometheus were
+  requesting 500m/200m while using ~11m each.
+- **Calibration shipped**: chart **0.3.1** (dmf-media#19 — per-container
+  measured requests/limits, per-role shared-container resolution, domain-fill
+  documented), platform trims (dmf-infra#51/#52/#53 — the #52 lesson:
+  sustained samples can't see burst profiles; NetBox OOM'd at a
+  measurement-derived limit), release alignment (dmf-infra#54 — committed
+  630 digest, full #277 JT-contract audit, runbooks **v0.3.0 pin** + the
+  pin mechanism itself).
+- **The live run found and fixed a 3-bug EE-portability class** the 130-test
+  harness structurally couldn't see (#272 None-sentinel, #273 type_debug/
+  AnsibleUnsafeText, #274 filed as the CI core-matrix guard, #275 renderer
+  str-ification of filter inputs) — every refusal en route was honest,
+  zero false-greens across every gate layer all day.
+- **Closing proof**: teardown + fresh calibrated launches through the gate —
+  source fit (demand 450, headroom 1190), viewer fit (demand 225, headroom
+  740). The operator's fit decision + escalation trigger are on #258:
+  trimmed to the floor; resident registry/crosspoint add-ons = second node.
+- Open: #274 (CI matrix), #276 (zero-request tail), NetBox token rotation
+  offer (transcript exposure, operator's call). J1 (#203 runbook) is next.
+
 ### ✅ L3 build COMPLETE: WP4 landed — the #202 acceptance gate is fully built and gated (2026-07-23)
 **WP4 (console-side monitoring drain verification) passed its codex arc
 (5 rounds, GATE:PASS) and is up as 3 PRs pending operator review:**
