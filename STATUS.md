@@ -20,6 +20,24 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ dmf-cms 0.16.0 RELEASED + DEPLOYED: the L3 console surfaces are live (2026-07-24)
+Trio-run release (claude2 implementer, codex adversary — 2 gates, both
+GATE:PASS first round): version-bump PR dmf-cms#45 → tag `v0.16.0` on the
+merged HEAD → GHCR publish (digest `6aa6c2b2…`) → 630 Zot mirror → 650
+Helm deploy on `v5on-r8aw` → `verify-cluster.sh` PASS (image match,
+rollout, healthz). First release carrying all four #202 L3 WPs
+(dmf-cms#41–44); the three new API routes (deploy preflight,
+`runs/{id}/rollback`, `runs/{id}/verify-drain`) answer 401-behind-OIDC on
+the env. **Interactive click-test of the four L3 surfaces is still an
+operator step** (OIDC login).
+- **#279 found + fixed en route**: the 2026-07-23 flag was real —
+  `media-rollback-run` existed in AWX but was invisible to `dmf-cms-svc`
+  (697's grant-reconcile regex missed rollback-named JTs). dmf-infra#55
+  (one-line regex fix) merged, 697 re-run, live-verified: console user now
+  lists the rollback JT (9 → 10 visible).
+- Next per the 2026-07-24 handoff: queue #274 + #276 trio work orders,
+  then J1 (#203 demo runbook + #201 v0.2b multi-source switch).
+
 ### ✅ #258 CLOSED: live calibration done, release chain landed, J1 unblocked (2026-07-24)
 One marathon day on the J3 env (v5on-r8aw) took #258 from claim to close:
 - **Live measurement**: idle platform / source-only / full-shape / per-container
