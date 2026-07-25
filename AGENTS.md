@@ -10,8 +10,8 @@ parent directory** (`../dmf-cms`, `../dmf-infra`, …) — not nested inside it.
 **Before any non-trivial change:**
 
 1. `git fetch && git pull` (umbrella)
-2. `bin/generate-status.sh` — writes `STATUS.local.md` (gitignored)
-3. Read `STATUS.local.md` — it's the local snapshot of what's happening across all 9 repos (umbrella + 8 components)
+2. `bin/generate-status.sh` — writes `STATUS.digest.local.md` (short boot-read) + the full `STATUS.local.md` (both gitignored)
+3. Read the **digest** (`STATUS.digest.local.md`) — the short snapshot across all 9 repos; open the full `STATUS.local.md` only for the one section you need (context economy)
 4. Read the tracking issue you are claiming, comments included — the live
    handoff surface (R4); `docs/handoffs/` is a frozen archive
    ([INDEX](docs/handoffs/INDEX.md)) and session-continuity notes are
@@ -82,6 +82,26 @@ Cleanup is deferred; agents should flag these during reviews.
 - **Documentation** — writing ADRs, README updates, high-level design docs
 - **Secrets & policy** — anything involving OpenBao, auth, or deployment credentials (Codex skips these)
 - **One-off problem-solving** — quick bugs, script generation, interactive troubleshooting
+
+## Model & context economy (cost discipline)
+
+Correctness discipline is enforced by hooks and gates; **cost/focus discipline is on you.**
+Keep sessions lean:
+
+- **Model routing.** The main loop runs the strongest model (Opus); **spawn workflow / implementer
+  subagents on Sonnet**, mechanical or bulk passes on Haiku. Reserve high reasoning-effort for the
+  hardest verify / judge steps only. On a Fable usage limit, fall back to Opus.
+- **Subagent vs inline.** Each subagent is a **full context reload** (5 subagents ≈ 5 full loads).
+  Spawn one only when you need *fresh / isolated context* or *parallel fan-out*; do it **inline**
+  when you already hold the context. Don't fan out for a single quick lookup.
+- **Read less.** Read the **`STATUS.digest.local.md`** boot-read, not the full ~190 KB snapshot;
+  open a doc's relevant section, not the whole file. Repeated codebase re-exploration is the
+  dominant token cost — prefer a targeted `Explore` subagent that returns a *conclusion* over
+  dumping files into the main context.
+- **Bound the loop.** The `Stop` hook (`bin/session-budget.sh`) prints a soft-budget warning once a
+  session runs long (`DMF_SESSION_TOOL_BUDGET`) — treat it as a cue to wrap up, compact, or narrow scope.
+- **WIP.** Don't open new work faster than it lands; `bin/check-backlog-hygiene.sh` flags too many
+  concurrent active plans (`DMF_WIP_LIMIT`).
 
 ## Agent Context Files
 

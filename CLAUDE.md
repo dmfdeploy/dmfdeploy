@@ -16,7 +16,9 @@ longer nested inside the umbrella.
 Before touching any DMF repo:
 
 1. `cd "$DMFDEPLOY_UMBRELLA" && git fetch && git pull` (umbrella)
-2. `bin/generate-status.sh` — writes `STATUS.local.md` (gitignored), then read it.
+2. `bin/generate-status.sh` — writes `STATUS.digest.local.md` (short boot-read) **and**
+   the full `STATUS.local.md` (both gitignored). **Read the digest**; open the full
+   snapshot only for the one section you need — it can be very large (context economy).
 3. Read the **tracking issue you are claiming (including its comments)** —
    issue threads are where in-flight progress lives (two-tier handoff model,
    R4). Session-continuity notes are **operator-local**, outside this repo;

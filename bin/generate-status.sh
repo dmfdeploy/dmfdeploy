@@ -393,7 +393,52 @@ committed \`STATUS.md\` only for hand-maintained operator notes.
 EOF
 }
 
+# ── Compose digest (short boot-read; full detail stays in STATUS.local.md) ──
+# Repo table + envs + active plans + a HEAD of the operator notes only. Skips
+# the (potentially huge) full operator-notes dump and the recent-activity log —
+# open STATUS.local.md for those. Assumes fetch already ran (DO_FETCH=0 caller).
+compose_digest() {
+    local timestamp notes_lines
+    timestamp="$(date -u '+%Y-%m-%d %H:%M UTC')"
+
+    cat <<EOF
+# DMF Status — digest
+
+_Auto-generated $timestamp by \`bin/generate-status.sh\` (gitignored). Short boot-read;_
+_open [STATUS.local.md](STATUS.local.md) for recent activity + the full operator notes._
+
+## Repo state
+
+| Repo | Branch | Last commit | Subject | Dirty | Unpushed |
+|---|---|---|---|---|---|
+EOF
+    collect_repo "dmfdeploy (umbrella)" "$UMBRELLA_DIR"
+    for repo in "${COMPONENT_REPOS[@]}"; do
+        collect_repo "$repo" "$(component_path "$repo")"
+    done
+
+    printf '\n## Operator-local envs (~/.dmfdeploy/envs — ADR-0035)\n\n'
+    collect_envs
+
+    printf '\n## Active plans\n\n'
+    collect_active_plans
+
+    notes_lines="$(extract_human_section | wc -l | tr -d ' ')"
+    printf '\n## Operator notes — head (full %s-line section in STATUS.local.md)\n\n' "$notes_lines"
+    extract_human_section | head -40
+
+    printf '\n---\n_Digest only. Boot ritual: read this; open STATUS.local.md by section on demand._\n'
+}
+
 # ── Write ────────────────────────────────────────────────────────────────
 new_content="$(compose_status)"
 printf '%s\n' "$new_content" > "$STATUS_FILE"
 echo "wrote $STATUS_FILE"
+
+# Also write a short digest for the session boot-read (full detail is above).
+# The fetch already happened during compose_status — don't re-hit the network.
+DIGEST_FILE="$UMBRELLA_DIR/STATUS.digest.local.md"
+DO_FETCH=0
+digest_content="$(compose_digest)"
+printf '%s\n' "$digest_content" > "$DIGEST_FILE"
+echo "wrote $DIGEST_FILE"

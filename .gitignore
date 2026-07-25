@@ -49,6 +49,8 @@ __MACOSX/
 
 # Local live repo-state snapshot generated from committed STATUS.md notes.
 /STATUS.local.md
+# Short boot-read digest (subset of STATUS.local.md) — also generated, gitignored.
+/STATUS.digest.local.md
 
 # Qwen artifacts
 .qwen/*.orig
