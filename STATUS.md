@@ -20,6 +20,28 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ #276 APPLIED LIVE + #274 CI matrix built: the L3 budget is honest now (2026-07-25)
+Trio work orders, both codex-gated:
+- **#276 (request honesty)**: dmf-infra#56 merged + applied to `v5on-r8aw` —
+  all 22 zero-request platform containers now declare measured requests
+  (requests-only, zero limits; values frozen from the #258 sample archive).
+  Node allocation went 1585m/3.6Gi → 2125m (70%)/~7.3Gi (~50%) declared;
+  J1's second source still fits (~900m headroom). Apply surfaced two
+  footguns, filed: **#281** (standalone vertical plays silently drop the
+  #93 sandbox-profile right-sizing facts — bit us live: authentik-worker
+  briefly lost its requests) and **#282** (loki-gateway hard anti-affinity
+  deadlocks single-node rollouts). cert-manager values need
+  `-e cert_manager_force_helm_upgrade=true` on existing envs (install-once
+  by design).
+- **#274 (CI core matrix)**: dmf-runbooks#23 **awaiting operator
+  approval** — both l3-harness legs green on the PR's own CI run (~16min).
+  Building it caught two latent test-portability bugs (type_debug
+  self-check debt from #273; scenario 9 asserting a no_log-censored
+  message that 2.20 leaks but 2.15 censors) — fixed in the same PR,
+  codex-verified incl. mutation testing. Bonus finds recorded in the
+  transcript thread: 2.20's [ERROR] diagnostic echoes fail_msg despite
+  no_log; nested `command: ansible-playbook` resolves via PATH.
+
 ### ✅ dmf-cms 0.16.0 RELEASED + DEPLOYED: the L3 console surfaces are live (2026-07-24)
 Trio-run release (claude2 implementer, codex adversary — 2 gates, both
 GATE:PASS first round): version-bump PR dmf-cms#45 → tag `v0.16.0` on the
