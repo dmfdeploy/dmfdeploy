@@ -18,6 +18,7 @@
 # Exit: 0 = no findings, 1 = one or more findings detected.
 # Env overrides:
 #   DMF_TRIAGE_DAYS  — staleness threshold for untriaged component issues (default 7)
+#   DMF_WIP_LIMIT    — max concurrent active plans before a WIP finding (default 3)
 
 set -uo pipefail
 
@@ -170,6 +171,31 @@ check_untriaged_component_issues() {
     [ "$found_any" -eq 0 ] && echo "  · no untriaged component-repo issues"
 }
 
+# ── Check 4: WIP cap (concurrent active plans) ────────────────────────────
+# Focus/scope discipline: too many `status: active` plan docs in flight signals
+# work spawning faster than it lands. Offline (frontmatter only, no gh calls).
+check_wip_cap() {
+    echo "── check 4: WIP cap (concurrent active plans)"
+
+    local limit="${DMF_WIP_LIMIT:-3}"
+    local plan_dir="$UMBRELLA_DIR/docs/plans"
+    [ -d "$plan_dir" ] || { skipped "docs/plans directory not found"; return; }
+
+    local active=0 plan_file fm status
+    for plan_file in "$plan_dir"/*.md; do
+        [ -f "$plan_file" ] || continue
+        fm="$(sed -n '/^---$/,/^---$/p' "$plan_file" 2>/dev/null)" || continue
+        status="$(echo "$fm" | sed -n 's/^status:[[:space:]]*\([^[:space:]]*\).*/\1/p' | head -1)"
+        [ "$status" = "active" ] && active=$((active + 1))
+    done
+
+    if [ "$active" -gt "$limit" ]; then
+        finding "WIP over limit: ${active} active plans (limit ${limit}) — finish or close in-flight work before opening new. Override: DMF_WIP_LIMIT."
+    else
+        echo "  · WIP OK (${active} active plan(s), limit ${limit})"
+    fi
+}
+
 # ── Main ──────────────────────────────────────────────────────────────────
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
     sed -n '/^# check-backlog-hygiene/,/^$/p' "$0" | sed 's/^# \{0,1\}//'
@@ -179,6 +205,7 @@ fi
 check_umbrella_labels
 check_active_plans
 check_untriaged_component_issues
+check_wip_cap
 
 echo ""
 if [ "$TOTAL_FINDINGS" -eq 0 ]; then
