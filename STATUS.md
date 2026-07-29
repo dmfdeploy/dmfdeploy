@@ -20,6 +20,47 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ J1 DEPLOYS + the media path was strangled, not starved (2026-07-29)
+Full handoff: `~/DMF-J1-MEDIA-PATH-HANDOFF-2026-07-29.md` (operator-local).
+Tooling preserved at `~/dmf-j1-artifacts-2026-07-29/`.
+
+- **#299 applied live**: platform CPU requests calibrated down **−390m** (dmf-infra#63),
+  verified at ground truth with the L3 gate's OWN parser (`l3_budget.l3_pod_demand`):
+  existing `1450m → 1060m`, exactly as predicted. The big win was structural — init
+  containers at chart-default 100m were setting the *whole pod's* request via
+  `max(sum(app), max(init))`, e.g. netbox-worker's `wait-for-backend` **poll loop**
+  reserving 100m over a 10m app. #258/#276 had only ever trimmed app containers.
+  No limit and no memory request changed anywhere.
+- **#298 + #297 merged** (dmf-infra#64): the wake gate now requires drain COMPLETE
+  (zero terminating pods), not `readyReplicas`. Live AWX Postgres data refuted *both*
+  candidate root causes — the replacement pod was never killed (jobs 304/305 succeeded
+  on it); the harm is admitting work while the OUTGOING generation tears down,
+  corrupting in-flight receptor work units.
+- **J1 TOPOLOGY DEPLOYS** through the clean flow, no override: 3 mxl pods, gate passed.
+- **The finding that matters (#301 → #302)**: the viewer had no preview because the media
+  path was **CFS-throttled against its own quota while the node sat at 68%**. Raising the
+  limits made the node **less** busy — `2049m → 1622m`. A throttled real-time pipeline
+  burns CPU on retries/PTS re-adjustment/dropped grains, i.e. work it does *because* it is
+  late. **A saturated-looking node may be a strangled one** — so any utilization-based
+  admission rule must read the throttling counter too, or it will refuse work that fits.
+  CPU limits are now removed from the media path (dmf-media#24, chart 0.4.1, re-pinned in
+  dmf-infra#65); **memory limits kept** (not compressible — the #258 NetBox OOM lesson).
+- ⚠️ **#302 is now load-bearing, not a refinement.** With CPU limits gone, *requests* are
+  the only contention protection left, and they understate reality (`writer` requests 370m
+  / measures 414–624m). Setting them honestly pushes J1 back to `no-fit` **by ~92m,
+  decided entirely by a transient EE job pod**. That tension is the design question.
+- **#306: `media-switch-source` is structurally broken and has NEVER run** — its PHASE 2
+  `helm upgrade` omits the CHART argument (one job in the AWX DB, ever; it failed).
+  codex's implementation-ready design is in the issue. Lesson worth keeping: an elaborate
+  safety argument in a task name is not evidence the task runs.
+- Also filed: **#303** (upstream `termination_grace_period_seconds` preStop drain hook),
+  **#304** (REST-only plays need a Lease hold — `activity_stream` provably cannot see
+  admin-driven or idempotent API work), **#305** (commit the render regression test).
+- 🛑 **Two traps for whoever is next**: apply via the **wrappers, never standalone plays**
+  (#281 silently strips the #93 right-sizing facts), and **merging is not acceptance** —
+  #298/#299/#301 are all `Refs` not `Closes` and stay open pending the ≥2h soak and live
+  proof.
+
 ### ✅ #276 APPLIED LIVE + #274 CI matrix built: the L3 budget is honest now (2026-07-25)
 Trio work orders, both codex-gated:
 - **#276 (request honesty)**: dmf-infra#56 merged + applied to `v5on-r8aw` —
