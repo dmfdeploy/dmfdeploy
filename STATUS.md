@@ -20,6 +20,40 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ Trio close-out: switch argv bug dead, reaper fixed live, guards landed, env clean (2026-07-29 evening)
+Orchestrated continuation of the morning arc below. Full records live on the umbrella
+issues and the agent-transcripts threads #32–#37; operator-local tooling still at
+`~/dmf-j1-artifacts-2026-07-29/`.
+
+- **Closed with live evidence:** #299 (2h soak PASS on intent — observed throttling proven
+  **pre-existing** via 7-day timelines spanning the actual request-cut timestamps; chronic
+  platform throttling split out to #314), #301 (fresh deploy from git on chart 0.4.1,
+  preview from the chart, no patches), #312 (Lease owner-only shrink fix applied live:
+  wake→sleep **11m21s vs ~25m** pre-fix, verified across four wake cycles), #298 (drain-gate
+  proven under real sleep/wake cycling — deploy from fully-drained sleep in **119s**).
+- **#306 switch:** the original chart-argument bug is **dead** — fix landed (dmf-runbooks#29),
+  released as **0.4.2** (#30 + tag), AWX project re-pinned (dmf-infra#67, synced `7bd0958a5`).
+  Live retry: Helm **accepted the upgrade for the first time ever** (revision 2 created) and
+  `--rollback-on-failure` protected the release when `--wait` expired. Remaining defect is
+  scoped: a 90s-timeout-vs-pod-turnover race + helm's spurious rollback-failed verdict
+  (rollback converged seconds after the window) — evidence + design-round agenda on the issue.
+  Failed-switch **recovery paths documented on #311** (the coordinator's 3-key conjunction;
+  when the one-key hand-restore works vs when only redeploy does).
+- **Also landed:** dmf-infra#66 (reaper fix), #68 (runaway-workload guards — log-rate/CPU
+  alerts + never-silent drop alerting; **live synthetic verification still pending**, #313),
+  dmf-media#26 (mxl sink TOO_EARLY pacing patch — compiled via full ARM64 docker build;
+  **image release step still pending**, #308).
+- **New issues from tonight's evidence:** #314 (platform CFS throttling at tiny avg usage),
+  #315 (unpinned upstream MXL ref), #316 (Forgejo pull-mirror races the release chain),
+  #317 (ingress gate budget vs AWX cold boot).
+- **Env `v5on-r8aw`: torn down clean** — 0 releases/pods, lock free, AWX asleep, node idle.
+  Gotchas paid for: apply the autoscale tag while AWX sleeps → transient half-awake
+  (CR fit-override side effect); a saturated mxl data plane can starve the AWX ingress
+  warmup (the #309 trap in miniature) — quiet it with `kubectl -n mxl scale deploy --all --replicas=0`.
+- **Process:** trio ran 4 WO arcs (306/312/308/313) through adversarial gates — **9 real
+  defects caught pre-merge**. New standing protocols: implementer `/clear` at WO-arc
+  boundaries; codex machine-notes at `~/.codex/AGENTS.md` (pytest via uvx etc.).
+
 ### ✅ J1 DEPLOYS + the media path was strangled, not starved (2026-07-29)
 Full handoff: `~/DMF-J1-MEDIA-PATH-HANDOFF-2026-07-29.md` (operator-local).
 Tooling preserved at `~/dmf-j1-artifacts-2026-07-29/`.
