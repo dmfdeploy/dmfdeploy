@@ -135,29 +135,59 @@ clear_pane_opt() { tmux set-option -pu -t "$1" "$2" 2>/dev/null || true; }
 # BEST-EFFORT only (process inspection is racy under load) — used to seed
 # `register` and to warn in `doctor`/`assert_identity`, NEVER as routing truth.
 detect_agent() {
-  local pane="$1" cmd pid args=""
+  local pane="$1" cmd pid
   cmd=$(pane_field "$pane" pane_current_command)
   pid=$(pane_field "$pane" pane_pid)
-  # Collect the pane process + a few generations of descendants' argv.
+
+  # 1) Trust the pane's OWN foreground command first — the most reliable
+  #    signal and immune to what transient child commands are doing.
+  case "$cmd" in
+    codex|codex-*)                    echo codex;  return ;;
+    qwen)                             echo qwen;   return ;;
+    gemini)                           echo gemini; return ;;
+    claude)                           echo claude; return ;;
+  esac
+  # Claude Code reports its own version (e.g. 2.1.211) as pane_current_command.
+  if grep -qiE '^[0-9]+\.[0-9]+\.[0-9]+$' <<<"$cmd"; then echo claude; return; fi
+
+  # 2) Otherwise scan the process tree, but classify each process ONLY by its
+  #    executable (argv[0]) — and, for an interpreter, the script it runs
+  #    (argv[1]). NEVER by trailing arguments: a transient tool that merely
+  #    mentions an agent name in its args (`agent-bridge send codex`,
+  #    `cat codex-notes.md`, `grep qwen ...`) must not be misread as that agent.
+  #    This is the fix for the argv-pollution false-DRIFT that bounced replies
+  #    to a pane whose own commands referenced another agent (umbrella #210).
+  local frontier="$pid" next p line exe a1
   if [[ -n "$pid" ]]; then
-    local frontier="$pid" next p
-    args=$(ps -o command= -p "$pid" 2>/dev/null || true)
-    for _ in 1 2 3 4; do
+    for _ in 0 1 2 3 4; do
+      for p in $frontier; do
+        line=$(ps -o command= -p "$p" 2>/dev/null || true)
+        [[ -n "$line" ]] || continue
+        exe=$(basename "${line%% *}")            # argv[0] basename
+        a1="${line#* }"; a1="${a1%% *}"          # argv[1] (script, for interpreters)
+        case "$exe" in
+          codex|codex-*)  echo codex;  return ;;
+          qwen)           echo qwen;   return ;;
+          gemini)         echo gemini; return ;;
+          claude)         echo claude; return ;;
+          node|deno|bun|python|python3|python3.*)
+            case "$a1" in
+              *codex*)  echo codex;  return ;;
+              *qwen*)   echo qwen;   return ;;
+              *gemini*) echo gemini; return ;;
+              *claude*) echo claude; return ;;
+            esac ;;
+        esac
+      done
       next=""
       for p in $frontier; do next="$next $(pgrep -P "$p" 2>/dev/null || true)"; done
       next=$(echo $next)
       [[ -z "$next" ]] && break
-      for p in $next; do args+=$'\n'"$(ps -o command= -p "$p" 2>/dev/null || true)"; done
       frontier="$next"
     done
   fi
-  local hay="$cmd"$'\n'"$args"
-  if   grep -qiE '(^|/| )codex([- ]|$)'            <<<"$hay"; then echo codex
-  elif grep -qiE '/qwen([ /]|$)|(^| )qwen([ /]|$)' <<<"$hay"; then echo qwen
-  elif grep -qiE 'gemini'                          <<<"$hay"; then echo gemini
-  elif grep -qiE '(^|/| )claude([ /]|$)'           <<<"$hay"; then echo claude
-  elif grep -qiE '^[0-9]+\.[0-9]+\.[0-9]+$'        <<<"$cmd"; then echo claude   # Claude Code reports its version as the command
-  elif grep -qiE '(^|/| )-?(zsh|bash|sh|fish)( |$)' <<<"$cmd"; then echo shell
+
+  if grep -qiE '(^|/| )-?(zsh|bash|sh|fish)( |$)' <<<"$cmd"; then echo shell
   else echo unknown; fi
 }
 
