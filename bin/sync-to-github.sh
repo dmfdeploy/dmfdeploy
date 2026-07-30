@@ -83,7 +83,7 @@ github_repo_name() {
 
 # Publish targets: umbrella (`.`) + 6 public components. dmf-env stays private;
 # dmf-promsd is a component repo but NOT yet on the public-publish path (add it
-# here + to github_repo_name() only when that path is decided — see TODOS.md).
+# here + to github_repo_name() only when that path is decided — tracked in the umbrella issues).
 PUBLIC_REPOS=(. dmf-cms dmf-runbooks dmf-central dmf-infra dmf-media dmf-init)
 
 DRY_RUN=0

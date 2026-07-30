@@ -2666,7 +2666,8 @@ the cross-track session wrap (Phase 3 + wizard + aliyun-123) is in the
 **`init-wizard.sh`** shipped in `dmf-env/bin/` — interactive greenfield
 env wizard. Five in-flight bugs (charset, SOPS tmp-name, YAML quoting,
 SIGPIPE, zombie-write) all fixed in sequence; five v2 hardening items
-captured in [TODOS §init-wizard.sh follow-ups](TODOS.md) (manifest
+captured in TODOS §init-wizard.sh follow-ups (file retired 2026-06-10
+into the umbrella issues) (manifest
 stub, terraform scaffold, group_vars completeness, tf-apply.sh tfvars
 discovery, .sops.yaml hygiene).
 
