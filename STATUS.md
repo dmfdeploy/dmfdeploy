@@ -20,6 +20,47 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ THE SWITCH WORKS — attempt #3 passed live; console-truth arc shipped; 0.4.3 + 0.17.5 released (2026-07-30)
+
+The v0.2b goal line: `media-switch-source` source-a→source-b completed through the
+console clean flow, operator-witnessed (the ball rendered). Full evidence on #306
+(closed) and #308 (closed). Trio ran 8 WO/gate arcs; 11 blocking defects caught
+pre-merge, zero escaped.
+
+- **#308 closed with live acceptance:** pacing-fixed image re-cut as v1.0.3 (new
+  digest, manifest list) + chart 0.4.2 published; 630 gained `zot_seed_force`
+  (re-copy + dual-ref node-cache prune, dmf-infra#70 — live-proven first run);
+  status log firehose 40k lines/min → **0**, status CPU 333–452m → **165m**
+  (legit encode; 160m request stands), promtail quiescent, viewer-role 403 ✓.
+- **#306 closed:** design round froze "helm rc is diagnostic-only" → dmf-runbooks
+  **0.4.3** (waitless upgrade, direct k8s_info verification 10/120/120 as the
+  timing contract, 4-criteria rollback verification, 11 mutant-verified test
+  scenarios) → re-pin (dmf-infra#71) + 693 → attempt #3 passed inside even the
+  old 120s console budget.
+- **Console truth arc (evening):** the stale SOURCE card + wrong dropdown after
+  the switch (#321) exposed the console returning catalog selection as live
+  truth. Design round ruled: runtime truth from observation, never catalog;
+  NetBox stays declarative (no write-back, ADR-0037). dmf-cms **0.17.5**
+  deployed: observed-flow `active_source` + provenance, server-side write-seam
+  gate (409s on unknown/stale/already-active, 15s frozen window), frontend
+  TOCTOU closed, sanitized switch-outcome enums, 20-token registry with the
+  sibling drift test re-enabled. Live-verified: card/dropdown/API all truthful.
+- **Evening incident cluster:** receptor worker-stream deaths killed 3 jobs incl.
+  a switch play mid-execution → leaked facility lock (cleared) + quiesced media
+  path; **#311's recovery ladder validated live** (target restart → key
+  republish → one-key patch, frozen→picture <3min). b→a switch-back acceptance
+  **parked on #327** (receptor escalation). Also filed: #319 (starved-SoT
+  banner), #320/#321 (partially delivered in 0.17.5, close on the parked
+  acceptance), #322/#323 (coordinator-truth sidecar, structured outcomes),
+  #326 (console launches into AWX cold boot).
+- **Front door cleaned (#324/#325):** TODOS.md and wizard-spike/ removed from
+  the public root. New standing protocols: hold-label at fix-round dispatch on
+  approved PRs (the PR-59 mid-round auto-merge incident); env delivery runs
+  from the local branch, repo ceremony rides async.
+- **Env state:** J1 healthy on source-b (preview live), AWX re-sleeps via the
+  fixed reaper, OpenBao unsealed, all checkouts clean on main, zero stale
+  branches/worktrees local or remote.
+
 ### ✅ Trio close-out: switch argv bug dead, reaper fixed live, guards landed, env clean (2026-07-29 evening)
 Orchestrated continuation of the morning arc below. Full records live on the umbrella
 issues and the agent-transcripts threads #32–#37; operator-local tooling still at
