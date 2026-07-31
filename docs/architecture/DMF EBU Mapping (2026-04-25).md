@@ -218,7 +218,9 @@ Existing `playbooks/30-media-base.yml` retired in favour of the per-layer split.
 - **Flow Domains** (EBU §Media Exchange) — modeling in NetBox + manifest schema.
 - **Multi-cluster Container Orchestration** (EBU "subject to further study") — homelab has central + sites; revisit when ArgoCD lands.
 - **Resource Profile schema** — concrete field list for the manifest; tracked in Open Questions doc.
-- **MXL SDK integration** — github.com/dmf-mxl/mxl; no longer deferred — the SDK
-  is compiled into a demo image (`dmf-media/docker/mxl-fabrics`) and running; the
-  4xx playbook skeleton itself remains unbuilt.
+- **MXL SDK integration into the numbered 4xx playbooks** — github.com/dmf-mxl/mxl.
+  `400-mxl-prereq.yml` and `410-libfabric.yml` are still stubs. SDK *compilation*
+  is already done — it is built into `dmf-media/docker/mxl-fabrics` and was
+  exercised in the 2026-07-30 switch (see the 2026-07-31 note above) — but
+  nothing in this layer's playbook skeleton drives it yet.
 - **Joint Task Force on DMF (JT-DMF)** — referenced in white paper; track for industry alignment.
