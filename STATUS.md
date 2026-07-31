@@ -20,6 +20,62 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ THE SWITCH WORKS BOTH WAYS — b→a accepted on a mitigated stack; 0.4.4 released and live (2026-07-31)
+
+The reverse switch closed the loop: `source-b → source-a` driven from the console by
+the operator, job 509 successful in 70.9s, coordinator clean, preview live. **#320 and
+#321 closed on that evidence.** The day's spine was making the switch *survivable* and
+its outcomes *legible*.
+
+- **#327 — receptor job-kills mitigated, root cause honestly still UNPROVEN.** The
+  kubelet-log-rotation hypothesis was **refuted** (streams were 21 KB–470 KB against a
+  10Mi threshold; zero rotation events in-window) and the "AWX pods cycled at 17:28Z"
+  premise turned out never to have happened — the reaper was exonerated. The real
+  mechanism: receptor exhausting a **hard-coded 5-retry** pod-log budget. Fix delivered
+  as `RECEPTOR_KUBE_RETRY_COUNT=60` on a **digest-pinned** control-plane EE
+  (`awx-ee@sha256:eaab9b09…`, receptor **1.6.5**), because upstream stopped publishing
+  versioned `awx-ee` tags in July 2024 and the knob only exists from receptor 1.6.0.
+  Live proof: **20 chronic EOF events during the acceptance window, zero fatal.**
+- **The apply was blocked by latent drift, not by the change.** The first 640 run broke
+  every operator reconcile; the delegated hunt proved **both new CR fields innocent** —
+  reconciles were 422-ing at `Apply Resources` on `storage/persistent`, where the role
+  default `projects_storage_access_mode: ReadWriteMany` collided with the immutable
+  `ReadWriteOnce` projects PVC. Weeks-old drift, surfaced by the first CR-changing
+  reconcile in weeks. Env-side override applied; repo fix tracked in **#330**.
+- **0.4.4 released and verified live (#323).** The switch play now emits a structured
+  `DMF_L3_SWITCH_OUTCOME` on **every** terminal exit. The gate caught a **P1**: the
+  event was both forgeable and suppressible via `extra_vars` (they outrank task vars),
+  so a caller could silence or author the console's own truth. Fixed with a play-owned
+  guard ahead of the lock emitting a Jinja-free literal. Delivered via tag `v0.4.4` →
+  project re-pin → 693, and **verified from the AWX projects PVC on the node** (VERSION
+  0.4.4, all three new files present) rather than from sync status — closing the
+  2026-07-29 trap where a merged fix silently never ran.
+- **Also landed:** #315 (MXL upstream SHA pinned, fail-closed before patching), #316
+  (Forgejo mirror-sync + ref assert before project sync — it raced the ~1h mirror
+  interval), #317 (AWX cold-boot gate budget), #311 (media-path recovery runbook, its
+  commands *executed* against the live cluster during review), #324, and #285
+  presentation-debt fixes across five docs — the "zero media-domain code" and
+  "scaffold only" claims are gone, corrected in both directions without overstating.
+- **Rotated:** the leaked NetBox catalog token (deleted from the ORM, re-minted,
+  OpenBao patched, all 9 catalog JTs re-stamped, scoped API read verified 200).
+
+**Open follow-ups from today's evidence:** #330 (RWO-safe PVC default + 640 wait
+budget), #332 (the same outcome-forgery still live on launch/teardown/rollback — and
+an in-repo comment *claims* it is closed, which is the durable half of the defect),
+dmf-runbooks#35 (marker fields render unsanitized; a newline can splice the console
+parse). #331 was filed and **closed as incorrect** — dmf-runbooks *is* ruleset-protected
+and the PR *was* approved; `branches/main/protection` 404s for ruleset-protected repos,
+which produced a confident wrong conclusion.
+
+**Method note worth keeping:** five separate findings today shared one shape — an
+explanation that fit the observed outcome and was not the mechanism (rotation,
+our CR fields, the reserved-vars comment, the protection 404, a yamllint scare).
+The reflex that caught them was naming the probe that would *falsify* the hypothesis
+and running that one. Layered review earned its keep: the operator's own review caught
+two overstatements in a truth-in-docs PR, the implementer caught a defect adjacent to
+its assignment (#332), and the adversary caught the P1 — none of the three would have
+caught all three.
+
 ### ✅ THE SWITCH WORKS — attempt #3 passed live; console-truth arc shipped; 0.4.3 + 0.17.5 released (2026-07-30)
 
 The v0.2b goal line: `media-switch-source` source-a→source-b completed through the
