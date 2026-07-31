@@ -125,8 +125,20 @@ Same codebase, profile-driven deploy.
 - ✅ OpenBao operator retrieval path (ops-admin user, app-admin-reader policy, helper script)
 - ✅ AWX deployed with operator (commissioning loop wiring still pending — AWX ↔ NetBox ↔ Forgejo integration not yet functional)
 - ⚠️ All admin UIs reachable from the public internet through single Traefik (no private lane, no wg3)
-- ❌ Zero media-domain code (NMOS, 2110, PTP, flows)
+- ⚠️ Media-domain code now exists (catalog, Helm charts, compiled MXL image in
+  `dmf-media`; launcher/switch playbooks in `dmf-runbooks`) — but the numbered
+  4xx/5xx playbooks and roles are still stubs
 - ❌ No CMS — the landing page is a link portal, not a CMS
+
+> **Updated 2026-07-31.** The "Zero media-domain code" line above was accurate
+> when this snapshot was written and has since gone stale; it is corrected in
+> place above. `dmf-media` ships catalog
+> metadata and Helm charts plus a compiled upstream MXL SDK image
+> (`docker/mxl-fabrics`), and `dmf-runbooks` carries the launcher/switch
+> playbooks that run them. A live source switch (two sources, one viewer, one
+> ARM node) was proven 2026-07-30. What remains unbuilt: `dmf-media`'s numbered
+> 4xx/5xx playbooks and its ebu-list / flow-exporters / ptp-monitor /
+> netbox-media-plugin / media-controllers roles are still stubs.
 
 ## 4. Structural issues to resolve BEFORE next cluster deploy
 

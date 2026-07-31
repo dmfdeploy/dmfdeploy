@@ -66,8 +66,6 @@ calls this the project's systemic risk.
   ([#19](https://github.com/dmfdeploy/dmfdeploy/issues/19)).
 - **Sandbox teardown leaves the node dirty** — no decommission step
   ([#18](https://github.com/dmfdeploy/dmfdeploy/issues/18)).
-- **Dynamic monitoring residue** — catalog-launcher target stamping + per-app
-  probe tuning ([#5](https://github.com/dmfdeploy/dmfdeploy/issues/5)).
 
 ## Undecided — open architectural questions
 

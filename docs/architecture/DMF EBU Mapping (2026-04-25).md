@@ -48,8 +48,17 @@ Design → Plan → Provision → Configure → Operate → Finalise & Review
 | `~/repos/dmf-infra/k3s-lab-bootstrap/` | Layers 2 (Host Platform), 3 (Container Platform), 6 (Application & UI) + verticals (Security, Monitoring, Orchestration, Control) |
 | `~/repos/dmf-env/` | Inventories + Resource Profile manifests (EBU "Design" lifecycle output) at `manifests/<env>.yaml`. First manifest: `manifests/hetzner-arm.yaml` (2026-04-26). Inventory under `inventories/<env>/` is currently maintained by hand alongside the manifest; codegen TBD per Open Questions §EBU-3. No playbooks/roles. |
 | `~/repos/dmf-central/` | vertical-security artifacts deployed to a federated central Cluster (Authentik, OpenBao, Harbor/Zot) |
-| `~/repos/dmf-media/` | Layers 4 (Media Exchange), 5 (Media Functions) — currently reserved skeleton |
+| `~/repos/dmf-media/` | Layers 4 (Media Exchange), 5 (Media Functions) — catalog metadata, Helm charts, and a compiled MXL image now live; numbered 4xx/5xx playbook skeleton and roles still stub |
 | `~/repos/dmf-cms/` | Layer 6 artifact (operator UI) — consumed by `dmf-infra/playbooks/650-dmf-cms.yml` |
+
+> **Updated 2026-07-31.** dmf-media's Layer 4/5 scope is no longer a reserved
+> skeleton across the board: catalog metadata, Helm charts, and a compiled
+> upstream MXL SDK image (`docker/mxl-fabrics`) now live in dmf-media, and
+> dmf-runbooks carries the launcher/switch playbooks that run them — a live
+> source switch (two sources, one viewer, one ARM node) was proven 2026-07-30.
+> What is still unbuilt: dmf-media's numbered 4xx/5xx playbooks and its
+> ebu-list / flow-exporters / ptp-monitor / netbox-media-plugin /
+> media-controllers roles remain stubs.
 
 ---
 
@@ -170,7 +179,7 @@ shared services that all federated Clusters consume.
 
 ---
 
-## Playbook new layout (dmf-media) — reserved skeleton
+## Playbook new layout (dmf-media) — still a skeleton
 
 | New | Notes |
 |---|---|
@@ -209,5 +218,7 @@ Existing `playbooks/30-media-base.yml` retired in favour of the per-layer split.
 - **Flow Domains** (EBU §Media Exchange) — modeling in NetBox + manifest schema.
 - **Multi-cluster Container Orchestration** (EBU "subject to further study") — homelab has central + sites; revisit when ArgoCD lands.
 - **Resource Profile schema** — concrete field list for the manifest; tracked in Open Questions doc.
-- **MXL SDK integration** — github.com/dmf-mxl/mxl; deferred behind 4xx skeleton.
+- **MXL SDK integration** — github.com/dmf-mxl/mxl; no longer deferred — the SDK
+  is compiled into a demo image (`dmf-media/docker/mxl-fabrics`) and running; the
+  4xx playbook skeleton itself remains unbuilt.
 - **Joint Task Force on DMF (JT-DMF)** — referenced in white paper; track for industry alignment.

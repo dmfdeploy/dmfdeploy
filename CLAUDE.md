@@ -101,10 +101,10 @@ Each is a separate git repo with its own remote:
 - `dmf-infra/` — generic Ansible playbooks/roles. Active. Public.
 - `dmf-env/` — **generic env tooling**: `bin/` scripts, `terraform/modules/` + generic per-provider roots (`terraform/<provider>/`), neutral `tasks/`/`templates/`. Per-env state (inventory, manifest, bundle, tfvars, SSH keys, TF state) is **operator-local** under `~/.dmfdeploy/envs/<env>/` — nothing per-env is committed (ADR-0035, 2026-06-01). Live env id is in generated `STATUS.local.md`.
 - `dmf-central/` — central services (scaffold, Phase 0 step 5).
-- `dmf-media/` — media-domain catalog metadata + (future) Layer 5 roles. Currently scaffold; `nmos-cpp` role relocated to `dmf-runbooks` per 2026-05-06 Path A pivot.
+- `dmf-media/` — media-domain catalog metadata, Helm charts, and a compiled MXL image; numbered 4xx/5xx playbooks/roles still stub. Active; `nmos-cpp` role relocated to `dmf-runbooks` per 2026-05-06 Path A pivot.
 - `dmf-runbooks/` — thin AWX launcher playbooks + currently-authoritative `nmos-cpp` role (ADR-0014, ADR-0016). Active.
 - `dmf-init/` — **Day-0 stateless init/bootstrap container** (React + FastAPI, HTTPS/secure-context) that wraps `dmf-env`'s wizard + `bin/` toolchain behind a localhost web UI, with a passphrase-wrapped backup/restore lifecycle delivered as browser downloads + file-upload restore (sandbox-first; the earlier dual-remote rclone model was removed 2026-06-08). Spec in `docs/plans/DMF Init Bootstrap Container Plan 2026-06-02.md`. Public-safe.
-- `dmf-promsd/` — **NetBox-driven Prometheus service-discovery** component (dynamic monitoring targets from NetBox SoT). Active; model in ADR-0038 + `docs/plans/DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04.md`. Catalog launcher stamping + probe tuning are open (tracked in [umbrella issue #5](https://github.com/dmfdeploy/dmfdeploy/issues/5)).
+- `dmf-promsd/` — **NetBox-driven Prometheus service-discovery** component (dynamic monitoring targets from NetBox SoT). Active; model in ADR-0038 + `docs/plans/DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04.md`. Catalog launcher stamping + probe tuning closed 2026-07-03 ([umbrella issue #5](https://github.com/dmfdeploy/dmfdeploy/issues/5)).
 
 ## Conventions
 
