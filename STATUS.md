@@ -20,6 +20,36 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ v0.19.0 LIVE + the Control-vertical ruling executed (2026-08-02)
+
+Operator verdict on the new UI: "massive progress." The day's spine was the operator's
+systematic PR #66 audit (three review rounds, all answered through adversarially gated
+fix arcs) and their **vocabulary ruling: Operate sits in the Control vertical per the
+EBU Facility Orchestration Model — not a sixth stage of the orchestration flow; the
+three verticals (Control/Monitor/Security) should eventually be represented in the
+Workspace** (tracked: umbrella #345, v0.2).
+
+- **dmf-cms v0.19.0 released and verified live on the demo env** — ships #65 (S1
+  polish), #67 (L3 token registry), #66 (guided sequential flow + three review-round
+  isError/membership hardening fixes), #68 (the Control-vertical vocabulary stack:
+  strip regrouped to five orchestration chips + a Control group holding Operate;
+  every checked-in Operate-is-a-stage claim retired). Verification went to the
+  running container's imageID digest (== GHCR arm64 manifest, byte-exact) AND the
+  regrouped strip on rendered pixels (playwright).
+- **Two defect-class trackers filed from the fix-round sweeps:** #343 (react-query
+  consumers rendering retained data as current after a failed refetch — repo-wide
+  table, ~21 open consumers, severity headliner MxlDetailPanel's silently-freezing
+  live metrics) and #344 (reporter-fed keyed state outliving child rows — departed
+  entries can permanently wedge whole-rail busy gates in ConfigureStage/Provision/
+  Finalise). Fix scheduling is an operator call; both compete with the demo.
+- **Release-tooling gaps recorded on #338:** verify-cluster.sh cannot auth on
+  sandbox envs (plain ssh, no -i passthrough); the Keychain ghcr.io token died —
+  the gh-token stdin path is the working publish route.
+- Session record: LAN transcripts issue #62; operator-local handoff
+  DMF-TRIO-HANDOFF-2026-08-02-PM.md carries the SSH-key lessons (the env root key
+  is the group_vars-pinned aliyun-keys .pem — NOT in ~/.ssh, NOT in the sops bundle)
+  and the autonomy provisions pending operator apply.
+
 ### ✅ THE SWITCH WORKS BOTH WAYS — b→a accepted on a mitigated stack; 0.4.4 released and live (2026-07-31)
 
 The reverse switch closed the loop: `source-b → source-a` driven from the console by
