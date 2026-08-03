@@ -20,6 +20,43 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ Arc 2b delete-permanently LIVE — v0.20.0 + runbooks 0.4.5 on the demo env (2026-08-03)
+
+The full "delete permanently" feature shipped end to end: a `finalise-purge` AWX
+launcher that permanently removes a finalised workload's NetBox residue, and the
+console endpoint + Finalise fork that drives it. Six PRs merged; the release chain
+ran to the live env and was verified hop by hop.
+
+- **Live and verified:** dmf-runbooks `v0.4.5`, dmf-cms `v0.20.0`. The running pod's
+  `imageID` resolves to the arm64 child of the exact index published to GHCR, and
+  inside the container the purge route and the final hardening rounds' helpers are
+  loaded — the gated code is what serves, not merely a pod with the right label.
+- **The safety story is the point.** Eleven adversarial gate rounds (launcher 4,
+  console 7) caught roughly twenty defects before any of it reached the cluster.
+  Four console rounds probed fail-open, pagination, parsing, typing and TOCTOU and
+  reached a clean PASS — and then the **operator found a tenancy escape by review**.
+  Once authorization was named as an explicit gate axis it yielded defects in three
+  consecutive rounds: cross-tenant tag-only dispatch, partial-visibility dispatch
+  whose global Tag delete would destroy another tenant's grouping, and cross-tenant
+  operation-metadata disclosure. **Standing lesson: for a destructive endpoint,
+  authorization must be a named axis in the gate request — the functional axes will
+  certify a safe-looking hole.**
+- Two rounds found defects introduced by the immediately preceding fix, which is why
+  the last change **replaced** the completeness-of-authority rule (one shared
+  membership predicate, strict set equality, superset ⇒ 422, any other inequality ⇒
+  fail-closed 409) instead of patching the comparison again.
+- **Operational discoveries:** playbook 693 does *not* wake AWX — with scale-to-zero
+  its first run burned the 900s cap and blamed a nonexistent mux hang; wake via the
+  autoscale `ensure-awake` seam first. The AWX service token cannot read job
+  templates (returns count 0 for *all* of them), so never read that as absence. This
+  env's inventory pins `ansible_user: root`, not the documented `k3s-admin`.
+- **Filed/parked:** #359 (`/api/operations/{id}` has no tenant scope check —
+  pre-existing, affects every action), #357 (deferred hygiene sweep), #355 reopened
+  after umbrella #354 was reverted: its merged artifacts tripped the very
+  pointer-direction rule they introduced, found by the cross review its `hold` label
+  had been meant to secure — the PR was merged over a live `hold` by orchestrator
+  error, then reverted by operator decision.
+
 ### ✅ Demo-journey UI track opened — Arc 1 wizard IA + Arc 2a one-template catalog LIVE (2026-08-02 PM)
 
 The operator's UI feedback became the **demo-journey UI track (umbrella #347, four
