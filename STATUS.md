@@ -20,6 +20,37 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ Demo-journey UI track opened — Arc 1 wizard IA + Arc 2a one-template catalog LIVE (2026-08-02 PM)
+
+The operator's UI feedback became the **demo-journey UI track (umbrella #347, four
+arcs)**, design-reviewed against the Console UX Constitution + ADR-0046 + the EBU
+white paper. Two arcs shipped in one evening session; four PRs merged.
+
+- **Arc 1 — wizard IA (dmf-cms #70 MERGED):** one-step-at-a-time flow, EBU-colored
+  rail as navigation, Control:Operate outside the ordinal, heroes removed, breadcrumb
+  topbar, icon-only sidebar, #344 mirrors. 1 adversarial-gate FAIL + fix round,
+  2 operator live-review rounds (sidebar tooltip clipping; cross-workload state
+  bleed → keyed WorkloadWizard remount), 1 comment-class micro round.
+- **Arc 2a — template authority (dmf-media #30, dmf-cms #71, #72 MERGED):** operator
+  ruling — catalog = template authority; reduce at the SoT, never fake in the
+  frontend. Single-template catalog reduction + topology-aware demand checker +
+  the `source_profile` demand contract + cms capacity fix (N × source + viewer,
+  409/422 taxonomy) + SMPTE wordmark. 5 operator review rounds, 7 findings, all
+  fixed and independently gate-verified. **Playbook 650 re-ran through the
+  sanctioned lane; the one-template catalog is LIVE and node-verified** — the
+  Design step offers exactly the three-pod MXL viewer because that is all the
+  SoT contains.
+- **dmf-cms main (`7d7200f`) is UNRELEASED — the env still runs 0.19.0.** Deploy
+  order already satisfied: new topology live, old cms lenient; the topology
+  ConfigMap must stay ahead of the cms release, and it now is. 0.20 release +
+  630/650 puts the wizard on the env for filming.
+- Issues: #347 (track), #348 (data-testid contract), #349 (wordmark, closed via
+  #72), #350 (topology-blind /api/catalog demand). **Autonomy milestone: zero
+  operator `!` relays all session — read-ssh and run-playbook lanes clear the
+  classifier.** Session record + handoff: operator-local. Next: Arc 2b
+  delete-permanently (specced,
+  CONSULT-D1b), explicit-facility selection, Arc 3 Operate scheduler, Arc 4 polish.
+
 ### ✅ v0.19.0 LIVE + the Control-vertical ruling executed (2026-08-02)
 
 Operator verdict on the new UI: "massive progress." The day's spine was the operator's
@@ -45,8 +76,8 @@ Workspace** (tracked: umbrella #345, v0.2).
 - **Release-tooling gaps recorded on #338:** verify-cluster.sh cannot auth on
   sandbox envs (plain ssh, no -i passthrough); the Keychain ghcr.io token died —
   the gh-token stdin path is the working publish route.
-- Session record: LAN transcripts issue #62; operator-local handoff
-  DMF-TRIO-HANDOFF-2026-08-02-PM.md carries the SSH-key lessons (the env root key
+- Session record: operator-local; the 2026-08-02-PM handoff carries
+  the SSH-key lessons (the env root key
   is the group_vars-pinned aliyun-keys .pem — NOT in ~/.ssh, NOT in the sops bundle)
   and the autonomy provisions pending operator apply.
 
@@ -149,7 +180,7 @@ pre-merge, zero escaped.
 
 ### ✅ Trio close-out: switch argv bug dead, reaper fixed live, guards landed, env clean (2026-07-29 evening)
 Orchestrated continuation of the morning arc below. Full records live on the umbrella
-issues and the agent-transcripts threads #32–#37; operator-local tooling still at
+issues and operator-local records; operator-local tooling still at
 `~/dmf-j1-artifacts-2026-07-29/`.
 
 - **Closed with live evidence:** #299 (2h soak PASS on intent — observed throttling proven
