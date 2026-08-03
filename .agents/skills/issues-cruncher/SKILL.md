@@ -37,15 +37,6 @@ it — do not inline its content here.
    code changes.
 7. **Human approval gate** for destructive / migration / costed-cloud / public-publish
    / dependency-license actions. Green ≠ mergeable if rules can be bypassed.
-8. **Anti-churn rules travel in the dispatch, verbatim.** Every WO and every gate
-   request carries the five rules from `references/anti-churn-rules.md` — comment
-   fidelity, ownership-move lifecycle test, counts-as-pasted-output, sibling sweep,
-   premise citation (`references/anti-churn-rules.md`, the delimited
-   DISPATCH-PAYLOAD block). **Never cite them from memory**: roughly two thirds
-   of one session's gate findings were self-inflicted, and the root cause was
-   rules decaying from "remembered convention" within the same session. The
-   adversary has **no memory store** — it reads canonical skills natively
-   (ADR-0042) but nothing memory-resident reaches it.
 
 ## The loop (8 phases)
 
@@ -60,13 +51,11 @@ it — do not inline its content here.
    shape, `file:line`, acceptance criteria, **explicit discriminating-test
    requirement**).
 2. **Branch** — from the adapter's default branch; isolate via worktree if needed.
-3. **Dispatch to implementer** — hand the implementer the brief **with the five
-   anti-churn rules pasted verbatim** (`references/anti-churn-rules.md`); gate the
-   commit until cross-check + verify pass (`references/implementer-primer.md`).
+3. **Dispatch to implementer** — hand qwen the brief; gate the commit until
+   cross-check + verify pass (`references/implementer-primer.md`).
 4. **Cross-check (conditional)** — invoke codex only on risk signals / low
    confidence; treat its verdict as a second angle, not a gate
-   (`references/adversary-primer.md`). The gate request carries the same five
-   rules, and records the exchange per `agent-conversation-recording`.
+   (`references/adversary-primer.md`).
 5. **Verify** *(orchestrator — local / pre-commit)* — on disk; run tests via the
    project's runner; run the **discrimination check**; lint; **clean-tree** verify
    from a *local export* (`git archive`/`ls-tree`) where built artifacts can mask
@@ -103,15 +92,12 @@ round. (`references/tiers.md`)
 | `references/orchestrator-primer.md` | Your lane, in depth |
 | `references/implementer-primer.md` | qwen's lane (authored by qwen) |
 | `references/adversary-primer.md` | codex's lane (authored by codex) |
-| `references/anti-churn-rules.md` | Phases 3–5 — the five rules pasted verbatim into every WO and gate dispatch |
 
 ## Reuse (compose, don't duplicate)
 
 This skill is the orchestrator spine over existing implementer/verification skills
-in the canonical store `.agents/skills/` (never a generated `.claude/`/`.qwen/`
-view): `cold-agent-execution`, `fix-round-verification-protocol`,
-`clean-tree-verification-protocol`, `multi-repo-pr-submission`,
-`work-order-commit-review`, `adversarial-infra-crosscheck`,
-`discriminating-test-design`, `agent-conversation-recording`.
+in `dmfdeploy/.qwen/skills/`: `orchestrated-lifter-workflow`,
+`fix-round-verification-protocol`, `clean-tree-verification-protocol`,
+`multi-repo-pr-submission`, `work-order-commit-review`, `adversarial-infra-crosscheck`.
 Reference them; do not restate them. (Flagship instance of the canonical
 cross-agent skills effort, umbrella issue #46.)
