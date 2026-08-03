@@ -44,8 +44,9 @@ white paper. Two arcs shipped in one evening session; four PRs merged.
   order already satisfied: new topology live, old cms lenient; the topology
   ConfigMap must stay ahead of the cms release, and it now is. 0.20 release +
   630/650 puts the wizard on the env for filming.
-- Issues: #347 (track), #348 (data-testid contract), #349 (wordmark, closed via
-  #72), #350 (topology-blind /api/catalog demand). **Autonomy milestone: zero
+- Issues: #347 (track), #348 (data-testid contract), #349 (wordmark — shipped in
+  dmf-cms#72, closed manually 2026-08-03: the PR's `Refs` doesn't auto-close),
+  #350 (topology-blind /api/catalog demand). **Autonomy milestone: zero
   operator `!` relays all session — read-ssh and run-playbook lanes clear the
   classifier.** Session record + handoff: operator-local. Next: Arc 2b
   delete-permanently (specced,
