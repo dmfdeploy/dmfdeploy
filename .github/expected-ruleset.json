@@ -1,5 +1,4 @@
 {
-  "bypass_actor_count": 0,
   "conditions": {
     "ref_name": {
       "exclude": [],

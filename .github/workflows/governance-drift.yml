@@ -31,7 +31,6 @@ name: governance-drift
 on:
   schedule:
     - cron: "0 7 * * *"  # daily 07:00 UTC
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -48,7 +47,8 @@ jobs:
 
       - name: Assert the live ruleset against the committed expectation
         env:
-          # Falls back to GITHUB_TOKEN so the failure mode is a loud exit 2
-          # ("could not read the live ruleset") rather than a silent skip.
-          GH_TOKEN: ${{ secrets.RULESET_READ_TOKEN || secrets.GITHUB_TOKEN }}
+          # The repo-scoped GITHUB_TOKEN only. No PAT: ADR-0007 forbids secrets
+          # in environment variables, and an Administration-scoped token here
+          # was reachable by PR-controlled code.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bin/check-ruleset-drift.sh

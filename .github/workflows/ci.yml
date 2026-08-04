@@ -62,6 +62,12 @@ jobs:
               sys.exit('required_status_checks must be a non-empty list')
           print('expectation well-formed:', len(d['required_status_checks']), 'required checks')
           "
+      - name: ruleset drift assertion regressions (#368)
+        # Case E is the one that matters: the original design was
+        # mutation-tested across eight cases and still shipped a fail-open,
+        # because every case mutated the EXPECTATION and none degraded the API
+        # RESPONSE. Hermetic — stubs gh, no network or token.
+        run: bash tests/ruleset-drift.sh
       - name: sync-skills stale generated view regression (#364)
         # A generated view surviving its canonical skill is a live instruction
         # surface (ADR-0042). Proves --check fails on a dangling view symlink,
