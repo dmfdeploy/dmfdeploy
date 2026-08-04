@@ -109,7 +109,7 @@ Fail-closed. Arg = dmf-env tree (default `dmf-env`). Model on `bin/scrub-public-
    fixtures fail closed [codex].)
 2. **Ban list:** `inventories/`, `manifests/`, `envs/`, `agentic/`, `.qwen/`,
    `*.tfstate*`, `*.tfvars`, `*.pem`, `*.key`, `secret_id*`, `openbao-*`, `*shamir*`, `.env`, `.env.*`, non-empty SOPS bundle.
-3. **Retired-name content scan:** FAIL on `aliyun-media|hetzner-arm|<env>|aliyun-123|aws-sample|mxl-media` or path strings `inventories/`/`manifests/`.
+3. **Retired-name content scan:** FAIL on `aliyun-media|hetzner-arm|<retired-env-id-set: assemble from the operator-local env store — never inline the ids>|aliyun-123|aws-sample|mxl-media` or path strings `inventories/`/`manifests/`.
 4. **Content scan, deterministic [codex]:** (a) run the three umbrella custom
    regexes (`dmf-operator-identity`, `dmf-internal-topology`, `dmf-dev-changeme`,
    copied verbatim from `<umbrella>/.gitleaks.toml`) via `rg` over the tree;
@@ -131,7 +131,7 @@ Fail-closed. Arg = dmf-env tree (default `dmf-env`). Model on `bin/scrub-public-
       full-clean can affect unseal/remove path resolution — this is the only safety
       net with no live env.)
 - [ ] retired-name + identity sweep (**iterate §3 until this reports ONLY the 4 B2 docs** [codex]):
-  `git -C dmf-env grep -nIE 'aliyun-media|hetzner-arm|<env>|aliyun-123|aws-sample|mxl-media|inventories/|manifests/|<identity-and-topology-pattern-set: assemble from bin/scrub-public-repos.sh categories 2+3>|dev:changeme'`
+  `git -C dmf-env grep -nIE 'aliyun-media|hetzner-arm|<retired-env-id-set: assemble from the operator-local env store — never inline the ids>|aliyun-123|aws-sample|mxl-media|inventories/|manifests/|<identity-and-topology-pattern-set: assemble from bin/scrub-public-repos.sh categories 2+3>|dev:changeme'`
   → must show ONLY README.md / CLAUDE.md / QWEN.md / terraform/README.md (the 4 B2 docs claude rewrites). Flag anything else.
 - [ ] gate: `bin/dmf-env-public-surface-gate.sh dmf-env` → paste; the ONLY failures may be those 4 B2 docs.
 - [ ] **Do NOT commit.** Flag anything ambiguous.
