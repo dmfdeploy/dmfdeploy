@@ -56,6 +56,6 @@ outcome is decided here, before and after the lifting.
   clean up branch + worktree.
 
 ## Composes
-`.qwen/skills/work-order-commit-review` (diff-vs-acceptance) and
+`.agents/skills/work-order-commit-review` (diff-vs-acceptance) and
 `fix-round-verification-protocol` (orchestrator side: re-verify every claim, rank
 defects P0/P1/P2) are your verification companions — reference them.
