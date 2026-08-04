@@ -18,7 +18,13 @@
 # Operational tools — high-leverage on every workflow
 /bin/                          @dmfdeploy/maintainers
 
-# Agent runtime config — defines what agents may do
+# Canonical agent skills — the instructions every agent reads (ADR-0042).
+# .claude/skills/ and .qwen/skills/ are GENERATED views and gitignored, so a
+# rule on them would not cover the source; this is the tracked one.
+/.agents/                      @dmfdeploy/maintainers
+
+# Agent runtime config — subagent definitions and harness settings, which also
+# define what agents may do. (.claude/skills/ is gitignored; the rest is tracked.)
 /.claude/                      @dmfdeploy/maintainers
 
 # CI / GitHub workflows
