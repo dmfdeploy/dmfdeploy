@@ -34,11 +34,27 @@ MODE="${1:---staged}"
 TREE="${2:-$UMBRELLA_DIR}"
 
 # ── derive the identifier list from live state ──────────────────────────────
-if [ ! -d "$ENVS_DIR" ]; then
-    # No local env store: nothing to derive, and nothing that could leak from
-    # state that does not exist here. Announced rather than silent — a quiet
-    # skip is indistinguishable from a clean run, which is the failure this
-    # whole gate exists to avoid.
+# ABSENT and INACCESSIBLE are different verdicts, and [ -d ] alone conflates
+# them: it is false for a store that truly does not exist, but equally for one
+# sitting behind an unsearchable data root, or a path that exists as something
+# other than a directory. Only genuine absence may skip; anything else means
+# the gate cannot establish what the store holds and must refuse — a real
+# store with a real identifier can sit exactly behind such a failure.
+if [ -d "$ENVS_DIR" ]; then
+    :  # store present — proceed to enumeration below
+elif [ -e "$ENVS_DIR" ] || [ -L "$ENVS_DIR" ]; then
+    echo "FAIL(2): $ENVS_DIR exists but is not a directory — a malformed env store" >&2
+    echo "  is not an absent one. Refusing to skip." >&2
+    exit 2
+elif [ -e "$DATA_ROOT" ] && { [ ! -d "$DATA_ROOT" ] || [ ! -x "$DATA_ROOT" ]; }; then
+    echo "FAIL(2): $DATA_ROOT exists but cannot be searched — whether an env store" >&2
+    echo "  is behind it cannot be established. Refusing to skip." >&2
+    exit 2
+else
+    # No data root at all, or a searchable one with no envs/ inside: genuinely
+    # no local env state. Announced rather than silent — a quiet skip is
+    # indistinguishable from a clean run, which is the failure this whole gate
+    # exists to avoid.
     echo "check-live-env-leak: no env store at $ENVS_DIR — nothing to derive, skipping."
     echo "  (this gate protects the machine that holds env state; CI cannot run it)"
     exit 0

@@ -167,6 +167,26 @@ else
     bad "M: binary leak caught but the output echoed forbidden content"
 fi
 
+# N: an env-store path that exists as a FILE is malformed, not absent — the
+# skip must not fire. [ -d ] alone read it as "no store" and exited 0.
+mkdir -p "$WORK/rootN"; : > "$WORK/rootN/envs"
+rc_n="$(DMF_DATA_ROOT="$WORK/rootN" "$GATE" --tree "$WORK/tree" >/dev/null 2>&1; echo $?)"
+[ "$rc_n" = "2" ] && ok "N: malformed store (a file) fails closed, not skipped" \
+                  || bad "N: FAIL-OPEN — file-shaped store skipped as absent (exit $rc_n)"
+
+# O: a data root that exists but cannot be searched must fail closed — a real
+# store with real identifiers can sit exactly behind it. Skipped as root.
+if [ "$(id -u)" = "0" ]; then
+    echo "  · O skipped: running as root, mode 000 is still searchable"
+else
+    mkdir -p "$WORK/rootO/envs/$FIXTURE_ID"
+    chmod 000 "$WORK/rootO"
+    rc_o="$(DMF_DATA_ROOT="$WORK/rootO" "$GATE" --tree "$WORK/tree" >/dev/null 2>&1; echo $?)"
+    chmod 755 "$WORK/rootO"
+    [ "$rc_o" = "2" ] && ok "O: unsearchable data root fails closed, not skipped" \
+                      || bad "O: FAIL-OPEN — store behind a 000 root skipped as absent (exit $rc_o)"
+fi
+
 # ctrl: a missing store must ANNOUNCE the skip, not pass silently.
 out="$(run "$WORK/nonexistent")"
 if printf '%s' "$out" | grep -qi 'no env store'; then
