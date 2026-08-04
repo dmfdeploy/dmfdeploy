@@ -91,6 +91,40 @@ else
     bad "G: FAIL-OPEN — staged leak missed when absent from the worktree (exit $rc_staged)"
 fi
 
+# H: an UNREADABLE env store must exit 2, never read as an empty list. The
+# fail-open here was concrete: find's stderr was discarded inside a process
+# substitution, so a store the gate could not read derived zero identifiers and
+# a leaking tree passed clean. Skipped as root, where mode 000 still reads.
+if [ "$(id -u)" = "0" ]; then
+    echo "  · H skipped: running as root, mode 000 is still readable"
+else
+    # a leaking tree, so a regression would surface as exit 0 or 1 — never 2
+    printf 'doc naming env %s\n' "$FIXTURE_ID" > "$WORK/tree/dirty.md"
+    git -C "$WORK/tree" add -A 2>/dev/null
+    chmod 000 "$WORK/store/envs"
+    rc_h="$(rc "$WORK/store")"
+    chmod 755 "$WORK/store/envs"
+    if [ "$rc_h" = "2" ]; then
+        ok "H: unreadable env store fails closed (exit 2)"
+    else
+        bad "H: FAIL-OPEN — unreadable store read as empty (exit $rc_h)"
+    fi
+    rm -f "$WORK/tree/dirty.md"; git -C "$WORK/tree" add -A 2>/dev/null
+fi
+
+# I: --tree on a directory that is not a git repository must exit 2. git grep
+# fails there (exit >=2); swallowing that reported an unscannable tree as clean.
+mkdir -p "$WORK/plain"; printf 'doc naming env %s\n' "$FIXTURE_ID" > "$WORK/plain/x.md"
+rc_i="$(DMF_DATA_ROOT="$WORK/store" "$GATE" --tree "$WORK/plain" >/dev/null 2>&1; echo $?)"
+[ "$rc_i" = "2" ] && ok "I: unscannable tree fails closed (exit 2)" \
+                  || bad "I: non-repo tree reported clean (exit $rc_i)"
+
+# J: --staged outside a repository must exit 2 — enumeration failure is not
+# an empty stage.
+rc_j="$(DMF_DATA_ROOT="$WORK/store" UMBRELLA_DIR="$WORK/plain" "$GATE" --staged >/dev/null 2>&1; echo $?)"
+[ "$rc_j" = "2" ] && ok "J: staged enumeration failure fails closed (exit 2)" \
+                  || bad "J: staged outside a repo reported clean/empty (exit $rc_j)"
+
 # ctrl: a missing store must ANNOUNCE the skip, not pass silently.
 out="$(run "$WORK/nonexistent")"
 if printf '%s' "$out" | grep -qi 'no env store'; then

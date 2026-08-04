@@ -44,11 +44,22 @@ if [ ! -d "$ENVS_DIR" ]; then
     exit 0
 fi
 
+# The enumeration's own failure must be visible. An earlier revision piped find
+# through a process substitution with stderr discarded, so an UNREADABLE env
+# store produced an empty list and the gate exited 0 — a live identifier walked
+# through because the gate could not look and said nothing about it. pipefail is
+# set, so a find failure survives the sort.
+store_list="$(find "$ENVS_DIR" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort)" || {
+    echo "FAIL(2): cannot enumerate the env store at $ENVS_DIR — refusing to treat" >&2
+    echo "  an unreadable store as an empty one. Fix permissions and retry." >&2
+    exit 2
+}
+
 ids=()
 while IFS= read -r d; do
     [ -n "$d" ] || continue
     ids+=("$(basename "$d")")
-done < <(find "$ENVS_DIR" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort)
+done <<< "$store_list"
 
 if [ "${#ids[@]}" -eq 0 ]; then
     echo "check-live-env-leak: env store present but holds no envs — nothing to match."
@@ -59,9 +70,17 @@ fi
 pattern="$(printf '%s\n' "${ids[@]}" | paste -sd'|' -)"
 [ -n "$pattern" ] || { echo "FAIL(2): derived an empty pattern from $ENVS_DIR" >&2; exit 2; }
 
+# Scan errors must fail closed, and "no match" must not be conflated with
+# "could not look". grep and git grep exit 1 for a clean no-match and >=2 for a
+# real error, so the two are distinguished explicitly everywhere below — an
+# earlier revision discarded these statuses, so a scan that could not run
+# reported clean.
 case "$MODE" in
     --staged)
-        files="$(git -C "$UMBRELLA_DIR" diff --cached --name-only --diff-filter=ACMR 2>/dev/null)"
+        files="$(git -C "$UMBRELLA_DIR" diff --cached --name-only --diff-filter=ACMR 2>/dev/null)" || {
+            echo "FAIL(2): could not enumerate staged files in $UMBRELLA_DIR." >&2
+            exit 2
+        }
         [ -n "$files" ] || { echo "check-live-env-leak: nothing staged."; exit 0; }
         # Read the INDEX blob and nothing else. An earlier revision first
         # required the worktree path to be a regular file, which made the gate
@@ -69,15 +88,34 @@ case "$MODE" in
         # commit still carries the leak from the index while the check reported
         # clean. The worktree is not what gets committed — the index is.
         # --diff-filter=ACMR already excludes deletions, so no guard is needed.
-        hits="$(printf '%s\n' "$files" | while IFS= read -r f; do
-                   [ -n "$f" ] || continue
-                   git -C "$UMBRELLA_DIR" show ":$f" 2>/dev/null \
-                     | grep -nIE "$pattern" 2>/dev/null \
-                     | sed "s|^|${f}:|" | cut -d: -f1,2
-               done)"
+        # The loop runs in the MAIN shell, not a command-substitution subshell,
+        # so a per-file read failure can abort the run instead of vanishing.
+        hits=""
+        while IFS= read -r f; do
+            [ -n "$f" ] || continue
+            blob="$(git -C "$UMBRELLA_DIR" show ":$f" 2>/dev/null)" || {
+                echo "FAIL(2): could not read the staged blob for '$f' — refusing to" >&2
+                echo "  treat an unreadable file as a clean one." >&2
+                exit 2
+            }
+            h="$(printf '%s\n' "$blob" | grep -nIE "$pattern")" ; rc=$?
+            if [ "$rc" -ge 2 ]; then
+                echo "FAIL(2): scan error on the staged blob for '$f'." >&2
+                exit 2
+            fi
+            [ "$rc" -eq 0 ] && hits+="$(printf '%s\n' "$h" | sed "s|^|${f}:|" | cut -d: -f1,2)"$'\n'
+        done <<< "$files"
+        hits="${hits%$'\n'}"
         ;;
     --tree)
-        hits="$(git -C "$TREE" grep -nIE "$pattern" -- . 2>/dev/null | cut -d: -f1,2)"
+        h="$(git -C "$TREE" grep -nIE "$pattern" -- . 2>/dev/null)" ; rc=$?
+        if [ "$rc" -ge 2 ]; then
+            echo "FAIL(2): git grep failed in $TREE (not a repository, or unreadable) —" >&2
+            echo "  refusing to report a tree it could not scan as clean." >&2
+            exit 2
+        fi
+        hits=""
+        [ "$rc" -eq 0 ] && hits="$(printf '%s\n' "$h" | cut -d: -f1,2)"
         ;;
     *) echo "usage: $0 [--staged | --tree <dir>]" >&2; exit 2 ;;
 esac
