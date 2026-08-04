@@ -55,11 +55,13 @@ jobs:
           python3 -c "
           import json,sys
           d=json.load(open('$f'))
-          need=['name','target','enforcement','conditions','bypass_actor_count','rule_types','required_status_checks','pull_request']
+          need=['name','target','enforcement','conditions','rule_types','required_status_checks','pull_request']
           missing=[k for k in need if k not in d]
           if missing: sys.exit('expectation missing keys: '+', '.join(missing))
           if not isinstance(d['required_status_checks'],list) or not d['required_status_checks']:
               sys.exit('required_status_checks must be a non-empty list')
+          if 'bypass_actor_count' in d:
+              sys.exit('expectation carries bypass_actor_count, which the drift check does NOT read — remove it')
           print('expectation well-formed:', len(d['required_status_checks']), 'required checks')
           "
       - name: ruleset drift assertion regressions (#368)
