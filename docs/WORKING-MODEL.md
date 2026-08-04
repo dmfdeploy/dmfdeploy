@@ -138,6 +138,25 @@ the frontmatter must be flipped; frontmatter wins for design content.
   *Request changes* for non-landing feedback, or add the **`hold`** label to
   disarm auto-merge. Required-check lists live in each repo's branch ruleset;
   when CI job names change, update the ruleset in the same change.
+- **What `hold` does, exactly — and what it deliberately does not.** `hold` is
+  the submitter's way to stop a PR merging *automatically* when it should be
+  looked at first. Review still proceeds; if approved, the PR would otherwise
+  become auto-merge eligible, which is not always wanted. `automerge.yml`
+  implements this and runs `gh pr merge --disable-auto` whenever the label is
+  present.
+  **A deliberate merge by a maintainer stays open by design.** The label does
+  not, and must not, block the merge button — that path is the point of getting
+  a review without auto-landing. Do **not** "harden" `hold` into a required
+  check that blocks merging: that breaks the flow it exists to enable, and it
+  would be fixing the half that already works.
+  Umbrella #354 merged on 2026-08-03 with `hold` still applied, before the
+  cross review the label was gating had run. The mechanism did not fail —
+  `auto_merge` was `null`, so auto-merge was never armed and the label had done
+  its job. It was merged by hand. **That makes it a sequencing judgment, not a
+  missing guard**, and no mechanism substitutes for the judgment: before
+  merging a held PR, confirm the thing it was gating has actually happened.
+  If you want an automated gate for the review itself, the honest shape is a
+  required status check bound to the head SHA (a push voids it) — not a label.
 
 ### Adversarial review gates (codex)
 
@@ -161,11 +180,28 @@ Two sanctioned forms:
      (diff inspection, grep, read-only git); checks that need to *execute*
      tooling belong to CI, and the prompt cites their status instead of
      asking the reviewer to run them (learned on this rule's own first use);
-  3. **reproducible capture**: the exact prompt, the repo SHA under review
-     (`git rev-parse HEAD`), the full command line, and the complete output
-     are retained together in the operator's review records (operator-local,
-     like all session records — public artifacts reference the verdict, not
-     the store).
+  3. **reproducible capture**: capture the exact prompt, the repo SHA under
+     review (`git rev-parse HEAD`), the full command line, and the complete
+     output, together and operator-local.
+
+  **What may leave the operator's machine.** Public artifacts — issues, PRs,
+  commit messages, ADRs, plan docs, this file — carry **outcomes and findings
+  only**. "The gate returned FAIL with four findings" is a fact about the work
+  and is fine. A description of where or how the capture is kept is not, and
+  "the location is only described, not named" is not a defence. The asymmetry
+  binds this document too, which is why the paragraph above states what to
+  capture and says nothing about the store.
+
+  Two rules follow, both learned the hard way:
+  - **Scrub before publishing, never after.** GitHub retains body and comment
+    edit revisions and shows them to anyone who can read the artifact, so
+    editing does not unpublish. A PR body and a commit message are public
+    artifacts under this rule exactly like the diff is.
+  - **Check the property that was named, not the one that is easy to run.** A
+    word-boundary grep for hosts, paths and identifiers answers a *literal*
+    question. Whether prose lets a reader infer the existence and nature of a
+    non-public store is a *semantic* one. Passing the first and declaring the
+    second clean is how umbrella #354 shipped and had to be reverted.
 
   A FAIL from a one-shot gate escalates to the interactive form for the fix
   rounds; one-shot gates are never used to re-review their own findings.
