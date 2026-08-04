@@ -57,10 +57,21 @@ command -v jq   >/dev/null 2>&1 || { echo "FAIL(2): jq not available" >&2; exit 
 # fail closed rather than let a body like {"message":"Not Found"} flow into the
 # comparison.
 API="${DMF_RULESET_API:-https://api.github.com}"
-http_code="$(curl -sS -o /tmp/dmf-ruleset.$$ -w '%{http_code}' \
+# mktemp, not a PID-derived name. $$ is predictable, so on a shared host another
+# user can pre-create it as a symlink and turn curl's write into a same-user
+# file clobber. The body is public, so this is not secret leakage — it is a
+# write-target hazard. Creation failing must abort rather than fall through to a
+# guessable path, and the trap is installed BEFORE curl so an interrupt cannot
+# leave residue.
+tmp="$(mktemp "${TMPDIR:-/tmp}/dmf-ruleset.XXXXXX" 2>/dev/null)" || {
+    echo "FAIL(2): could not create a temporary file — refusing to use a predictable path." >&2
+    exit 2
+}
+trap 'rm -f "$tmp"' EXIT INT TERM
+http_code="$(curl -sS -o "$tmp" -w '%{http_code}' \
              -H 'Accept: application/vnd.github+json' \
              "$API/repos/$REPO/rulesets/$RULESET_ID" 2>/dev/null || echo 000)"
-live_raw="$(cat /tmp/dmf-ruleset.$$ 2>/dev/null || true)"; rm -f /tmp/dmf-ruleset.$$
+live_raw="$(cat "$tmp" 2>/dev/null || true)"
 if [ "$http_code" != "200" ]; then
     echo "FAIL(2): could not read the ruleset for $REPO ($RULESET_ID) — HTTP $http_code." >&2
     printf '%s\n' "$live_raw" | head -3 | sed 's/^/  /' >&2
