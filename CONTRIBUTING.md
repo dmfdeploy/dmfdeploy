@@ -4,9 +4,8 @@ The umbrella workspace for the DMF Platform: consolidated knowledge base (`docs/
 
 This repo is part of the **DMF Platform**. GitHub is the canonical home and the
 single source of truth: all changes land via **Pull Request** against `main`.
-(The full pre-publish history lives in a LAN-only `dmfdeploy-archive` Forgejo
-repo, reachable as a read-only `archive` git remote — it is **not** an upstream
-and is never a contribution path.)
+(The full pre-publish history is retained in a private read-only archive — it
+is **not** an upstream and is never a contribution path.)
 
 ## New contributor path
 
