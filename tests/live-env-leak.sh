@@ -234,6 +234,14 @@ else
     bad "R: tree-mode filename leak (exit $rc_r) or identifier echoed"
 fi
 
+# S: a DANGLING data-root symlink is a store configured on an unavailable
+# volume — inaccessible, not absent. -e follows the link and read it as
+# missing, so the gate skipped while a leaking tree passed.
+ln -s "$WORK/no-such-volume" "$WORK/dangling-root"
+rc_s="$(DMF_DATA_ROOT="$WORK/dangling-root" "$GATE" --tree "$WORK/tree" >/dev/null 2>&1; echo $?)"
+[ "$rc_s" = "2" ] && ok "S: dangling data-root symlink fails closed, not skipped" \
+                  || bad "S: FAIL-OPEN — unavailable store read as absent (exit $rc_s)"
+
 # ctrl: a missing store must ANNOUNCE the skip, not pass silently.
 out="$(run "$WORK/nonexistent")"
 if printf '%s' "$out" | grep -qi 'no env store'; then

@@ -46,7 +46,10 @@ elif [ -e "$ENVS_DIR" ] || [ -L "$ENVS_DIR" ]; then
     echo "FAIL(2): $ENVS_DIR exists but is not a directory — a malformed env store" >&2
     echo "  is not an absent one. Refusing to skip." >&2
     exit 2
-elif [ -e "$DATA_ROOT" ] && { [ ! -d "$DATA_ROOT" ] || [ ! -x "$DATA_ROOT" ]; }; then
+elif { [ -e "$DATA_ROOT" ] || [ -L "$DATA_ROOT" ]; } && { [ ! -d "$DATA_ROOT" ] || [ ! -x "$DATA_ROOT" ]; }; then
+    # -L as well as -e: -e follows a symlink, so a DANGLING data-root link —
+    # a store configured on a volume that is not mounted — reads as absent
+    # and skipped. Configured-but-unavailable is inaccessible, not absent.
     echo "FAIL(2): $DATA_ROOT exists but cannot be searched — whether an env store" >&2
     echo "  is behind it cannot be established. Refusing to skip." >&2
     exit 2
