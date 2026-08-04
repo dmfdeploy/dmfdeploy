@@ -44,6 +44,12 @@ jobs:
         # scripts are part of their own triggers, hook edits re-arm all gates,
         # and the unrelated-file fast path stays fast.
         run: bash tests/hook-scoping.sh
+      - name: sync-skills stale generated view regression (#364)
+        # A generated view surviving its canonical skill is a live instruction
+        # surface (ADR-0042). Proves --check fails on a dangling view symlink,
+        # a stale --copy directory, and a de-targeted view — it previously
+        # passed all three, reporting the invariant as holding either way.
+        run: bash tests/sync-skills-prune.sh
       - name: gitleaks rules generator — drift check + self-test (R1 §4/§9)
         # --check: the .gitleaks.toml [[rules]] region matches the manifest.
         # --self-test: per-engine canary MATCH tests + the useDefault coverage

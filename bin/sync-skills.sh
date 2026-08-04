@@ -79,8 +79,13 @@ PY
 }
 
 # Does skill <dir> target agent <name>? (absent agents: ⇒ all agents.)
+# Fail closed on an unreadable SKILL.md: skill_meta prints an empty agents= on
+# OSError, which is indistinguishable from a legitimately absent agents: key —
+# and "absent ⇒ all agents" would then materialize a malformed skill to every
+# view. No readable SKILL.md ⇒ targets nothing.
 targets_agent() {
     local skill_md="$1" agent="$2" line agents=""
+    [ -f "$skill_md" ] || return 1
     while IFS= read -r line; do
         case "$line" in agents=*) agents="${line#agents=}" ;; esac
     done < <(skill_meta "$skill_md")
@@ -107,7 +112,12 @@ apply() {
         # Prune stale entries (skill gone, or no longer targets this agent).
         # Leave Claude's internal .system/ dir alone.
         for entry in "$viewdir"/*; do
-            [ -e "$entry" ] || continue
+            # -L as well as -e: views are symlinks by default, and deleting the
+            # canonical skill leaves a DANGLING link. -e follows the link and is
+            # false for one, so an -e-only guard skipped exactly the entry that
+            # most needs pruning — content withdrawn for a policy reason would
+            # survive in a path agents still read.
+            [ -e "$entry" ] || [ -L "$entry" ] || continue
             name="$(basename "$entry")"
             [ "$name" = ".system" ] && continue
             if [ ! -d "$CANON/$name" ] || ! targets_agent "$CANON/$name/SKILL.md" "$agent"; then
@@ -241,7 +251,13 @@ PY
     fi
 
     # (4) Local view drift (skipped where views are absent, e.g. CI checkout).
-    local agent viewdir name
+    #     Checked in BOTH directions. Forward alone (every canonical skill has a
+    #     view) can only report a MISSING view, so it passed identically before
+    #     and after a canonical skill was removed while its views survived — a
+    #     check that cannot fail in the direction that matters tests nothing.
+    #     The reverse pass catches a view left by a delete, a rename, a
+    #     de-targeting, or a stale --copy directory.
+    local agent viewdir name entry
     for agent in "${AGENTS[@]}"; do
         viewdir="$BASE/.$agent/skills"
         [ -d "$viewdir" ] || { echo "  · .$agent/skills absent (regenerate with --apply)"; continue; }
@@ -249,6 +265,21 @@ PY
             targets_agent "$CANON/$name/SKILL.md" "$agent" || continue
             [ -e "$viewdir/$name" ] || { echo "  ✗ .$agent/skills/$name missing (run --apply)" >&2; fail=$((fail + 1)); }
         done < <(canonical_names)
+        for entry in "$viewdir"/*; do
+            [ -e "$entry" ] || [ -L "$entry" ] || continue
+            name="$(basename "$entry")"
+            [ "$name" = ".system" ] && continue
+            if [ ! -d "$CANON/$name" ]; then
+                echo "  ✗ .$agent/skills/$name is stale — no canonical skill (run --apply)" >&2
+                fail=$((fail + 1))
+            elif ! targets_agent "$CANON/$name/SKILL.md" "$agent"; then
+                echo "  ✗ .$agent/skills/$name no longer targets $agent (run --apply)" >&2
+                fail=$((fail + 1))
+            elif [ -L "$entry" ] && [ ! -e "$entry" ]; then
+                echo "  ✗ .$agent/skills/$name is a dangling symlink (run --apply)" >&2
+                fail=$((fail + 1))
+            fi
+        done
     done
 
     if [ "$fail" -gt 0 ]; then
