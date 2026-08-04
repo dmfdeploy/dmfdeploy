@@ -44,7 +44,7 @@ resolver `bin/lib/_resolve_env_paths.sh`.
 - **Per-env SSH keys:** wizard **generates** an ed25519 keypair per env (default); **skippable** bring-your-own-key override remains.
 - **Key storage:** **private key in the per-env sops bundle** (encrypted at rest; portable via age/sops; avoids the 0600-on-DrvFS fragility flagged for the WSL2/sandbox lane). Public key as a non-secret per-env file. Privkey materialized to an ephemeral 0600 temp at runtime (mirrors `run-playbook.sh`'s vars-file pattern).
 - **Terraform root:** one **generic per-provider root** in dmf-env (`terraform/hetzner/`) reading operator-local manifest + tfvars + per-env state by variable. No per-env `.tf` committed.
-- **Legacy envs** (`aliyun*`, `hetzner-arm`, `wobe-9n0c`): **all defunct** — delete in-repo artifacts wholesale and retire the resolver's legacy branch. No migration, no dual-path.
+- **Legacy envs** (`aliyun*`, `hetzner-arm`, `<env>`): **all defunct** — delete in-repo artifacts wholesale and retire the resolver's legacy branch. No migration, no dual-path.
 
 ## Outcome
 

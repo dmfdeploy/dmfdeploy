@@ -29,7 +29,7 @@ holding lifecycle state. Six architectural assumptions tested:
 
 | # | Assumption | Verdict | Evidence |
 |---|---|---|---|
-| 1 | NMOS IS-04/05 deploys on commodity ARM k3s | ✅ Confirmed | registry + 2 nodes Running on `<env>`; full cold-cycle gate on `y834-bcwe` (2026-05-29) |
+| 1 | NMOS IS-04/05 deploys on commodity ARM k3s | ✅ Confirmed | registry + 2 nodes Running on `<env>`; full cold-cycle gate on `<env-b>` (2026-05-29) |
 | 2 | Catalog YAML schema accommodates a real L5 function | ✅ Confirmed (additive growth only) | `dmf-media/catalog/nmos-cpp.yaml`; later gained `provision.namespace` + `monitoring:` — no reshape |
 | 3 | Configure-as-distinct-stage holds | ✅ Confirmed — **stage split moved from wrapper to role** | Path A pivot (ADR-0014/0016, 2026-05-06) |
 | 4 | dmf-cms drives the lifecycle through AWX | ✅ Confirmed (new failure modes found + mostly fixed) | Console→AWX catalog deploy/teardown re-verified 2026-05-29 |
@@ -75,7 +75,7 @@ not a failure — see Q3 and §Bonus learnings.
 under k3s flannel CNI. On fresh env `<env>` (2026-05-29) the **registry
 StatefulSet + 2 node Deployments reached Running**, driven through the catalog
 loop with zero galaxy egress (STATUS §"WP1S Phase 3/4 proven"); the same loop was
-re-verified as part of the **full cold-cycle v0.1 gate on `y834-bcwe`** (Sandbox
+re-verified as part of the **full cold-cycle v0.1 gate on `<env>`** (Sandbox
 v0.1 Gate handoff §0).
 
 The build was real work, not a pull. Footguns (carried forward from
@@ -144,7 +144,7 @@ the role-stage + AWX-launcher shape.
 ## Q4 — Can dmf-cms drive the lifecycle through AWX?
 
 **Yes — the browser → Console → AWX → catalog deploy/teardown loop is
-operator-confirmed.** Re-verified end-to-end on `y834-bcwe` and `<env>`
+operator-confirmed.** Re-verified end-to-end on `<env-a>` and `<env-b>`
 (2026-05-29), grounded on live `kubectl`/`awx-manage`, not buffered stdout.
 
 This piece exercised the AWX path harder than Move 2's single runbook, and **four
@@ -152,7 +152,7 @@ new failure modes surfaced** — all real, most fixed:
 
 1. **Catalog Deploy 403 (scoped writer).** The `nmos-cpp` role's NetBox PATCH was
    denied because it fell back to a read-only token. Fixed by the **scoped catalog
-   writer** (ADR-0032), verified on `wobe-9n0c`/`9y6o-zn0t` (2026-05-27). Pre-2026-05-27
+   writer** (ADR-0032), verified on `<env>`/`<env>` (2026-05-27). Pre-2026-05-27
    envs carry the skew — re-run 691+693 (see memory `adr0032_catalog_teardown_skew`).
 2. **Offline galaxy egress.** `media-launch` triggered `ansible-galaxy install
    netbox.netbox` against public galaxy.ansible.com, breaking the self-contained

@@ -2,10 +2,10 @@
 status: historical
 date: 2026-05-22
 ---
-# DMF g2r6-foa9 Configure-Verify Follow-Ups Plan
+# DMF `<env>` Configure-Verify Follow-Ups Plan
 
 **Date:** 2026-05-22
-**Trigger:** First successful `bootstrap-configure.yml` on `g2r6-foa9`
+**Trigger:** First successful `bootstrap-configure.yml` on `<env>`
 (PLAY RECAP `ok=651 changed=20 failed=0 rescued=0 ignored=0` at
 log `/tmp/dmf-playbook-logs/bootstrap-configure-20260522-133918.log`).
 **Status:** Open — items to be picked up after the two-identity admin
@@ -104,7 +104,7 @@ behaviour change.
 ### Short answer
 
 **No Docker on the cluster.** Docker daemon is not installed on any
-g2r6-foa9 node. The cluster runs k3s, which embeds containerd as its
+`<env>` node. The cluster runs k3s, which embeds containerd as its
 CRI. The in-cluster execution environment is the `ansible-runner` pod
 (per ADR-0025) pulling a purpose-built AWX EE image from
 cluster-internal Zot, executed by containerd.
@@ -113,7 +113,7 @@ cluster-internal Zot, executed by containerd.
 
 | Component | Where it runs | Container runtime |
 |---|---|---|
-| **k3s nodes** | Hetzner CAX21 ARM64 (`g2r6-foa9-node-01..03`) | containerd (k3s-embedded) |
+| **k3s nodes** | Hetzner CAX21 ARM64 (`<env>-node-01..03`) | containerd (k3s-embedded) |
 | **EE image build** | Operator workstation (macOS arm64) | Colima (Docker-compatible) — runs ansible-builder |
 | **EE image push to Zot** | Operator workstation | skopeo (daemon-free) — refactored 2026-05-21 from the prior Docker-on-control-node antipattern |
 | **EE image consumption** | In-cluster `ansible-runner` Pod + AWX-spawned launchers | containerd, image pulled from cluster-internal Zot |
@@ -136,13 +136,13 @@ cluster-internal Zot, executed by containerd.
 
 ### Open verification questions (not blocking)
 
-- **Is the `ansible-runner` Deployment running on g2r6-foa9?** Not yet
+- **Is the `ansible-runner` Deployment running on `<env>`?** Not yet
   confirmed in this session (operator preference: avoid SSH onto the
   control node unless required). Verify on next operator-driven
   inspection:
 
   ```bash
-  bin/run-playbook.sh g2r6-foa9 \
+  bin/run-playbook.sh <env> \
     ../dmf-infra/k3s-lab-bootstrap/playbooks/050-ansible-runner.yml --check
   ```
 
@@ -196,13 +196,13 @@ The retired-cluster doc cleanup (CLAUDE.md, `.claude/skills/dmf-cluster-access/`
 
 ### Symptom
 
-Operator expected the g2r6-foa9 bootstrap bundle (env-specific
+Operator expected the `<env>` bootstrap bundle (env-specific
 secrets, SOPS-encrypted env file, age key, etc.) at
 `/Volumes/<operator>/secure/dmf-bootstrap/` — the path their
 `~/.config/dmf/env` exports as `DMF_BOOTSTRAP_BUNDLE_DIR` and the
 path used as the encrypted secure-store across the platform. The
 bundle was not there. Symptom surfaced when running
-`bin/run-playbook.sh g2r6-foa9 ../dmf-infra/k3s-lab-bootstrap/playbooks/vertical-security/110-authentik.yml`
+`bin/run-playbook.sh <env> ../dmf-infra/k3s-lab-bootstrap/playbooks/vertical-security/110-authentik.yml`
 without overriding the env var — the wrapper errored on missing
 bundle dir.
 
@@ -216,14 +216,14 @@ bundle dir.
 └── *.sops.yaml
 
 /Users/<operator>/secure/dmf-bootstrap/      ← workstation disk, NOT the configured path
-├── g2r6-foa9/             (2026-05-21 09:20)
-├── g2r6-foa9.sops.yaml    (2026-05-21 11:24)
-├── z4ud-sy22/             (2026-05-20 14:47 — discarded env)
-└── z4ud-sy22.sops.yaml
+├── <env>/             (2026-05-21 09:20)
+├── <env>.sops.yaml    (2026-05-21 11:24)
+├── <env>/             (2026-05-20 14:47 — discarded env)
+└── <env>.sops.yaml
 ```
 
 Both fresh envs created during this session (the discarded
-`z4ud-sy22` and the active `g2r6-foa9`) landed on the workstation
+`<env>` and the active `<env>`) landed on the workstation
 disk, not the encrypted USB volume. All three retired envs are on
 the USB volume.
 
@@ -257,14 +257,14 @@ allow full takeover of the env's cluster.
 
 ```bash
 # with /Volumes/<operator>/secure mounted
-mv /Users/<operator>/secure/dmf-bootstrap/g2r6-foa9 \
-   /Volumes/<operator>/secure/dmf-bootstrap/g2r6-foa9
-mv /Users/<operator>/secure/dmf-bootstrap/g2r6-foa9.sops.yaml \
-   /Volumes/<operator>/secure/dmf-bootstrap/g2r6-foa9.sops.yaml
+mv /Users/<operator>/secure/dmf-bootstrap/<env> \
+   /Volumes/<operator>/secure/dmf-bootstrap/<env>
+mv /Users/<operator>/secure/dmf-bootstrap/<env>.sops.yaml \
+   /Volumes/<operator>/secure/dmf-bootstrap/<env>.sops.yaml
 
-# also delete the discarded z4ud-sy22 if not already removed
-rm -rf /Users/<operator>/secure/dmf-bootstrap/z4ud-sy22 \
-       /Users/<operator>/secure/dmf-bootstrap/z4ud-sy22.sops.yaml
+# also delete the discarded <env> if not already removed
+rm -rf /Users/<operator>/secure/dmf-bootstrap/<env> \
+       /Users/<operator>/secure/dmf-bootstrap/<env>.sops.yaml
 ```
 
 After move, the existing `~/.config/dmf/env`
@@ -291,7 +291,7 @@ isolation isn't worth the operational overhead.
 the platform is optimised for *learning whether the architecture survives
 contact with reality*, not for hardening. The operational overhead of
 keeping the USB volume mounted at every wizard invocation — and the
-silent-bifurcation failure mode it created on g2r6-foa9 — outweighs the
+silent-bifurcation failure mode it created on `<env>` — outweighs the
 removable-media isolation benefit at this stage. FileVault remains the
 disk-layer guarantee.
 
@@ -302,7 +302,7 @@ disk-layer guarantee.
 export DMF_BOOTSTRAP_BUNDLE_DIR=$HOME/secure/dmf-bootstrap
 ```
 
-Optionally delete the discarded `z4ud-sy22` directory + `.sops.yaml` from
+Optionally delete the discarded `<env>` directory + `.sops.yaml` from
 the workstation-disk location once the env-removal is otherwise clean.
 The retired envs (`aliyun/`, `aliyun-123/`, `hetzner-arm/`) on the USB
 volume can stay where they are — they are read-only history.

@@ -7,19 +7,19 @@ executed: 2026-05-13
 
 > **SUPERSEDED 2026-05-23** — implementation landed `dmf-infra@209601d`
 > on 2026-05-13 (same day this brief was written) and was verified live on
-> g2r6-foa9 on 2026-05-23. See
+> `<env>` on 2026-05-23. See
 > [`docs/handoffs/DMF OpenBao AppRole-Reconciler Live Verification Handoff 2026-05-23.md`](../handoffs/DMF%20OpenBao%20AppRole-Reconciler%20Live%20Verification%20Handoff%202026-05-23.md)
 > for the verification matrix.
 >
 > **§6 (Existing Cluster Recovery Requirement) remains an active reference**
 > — it is the only documented procedure for adding the `approle-reconciler`
 > identity to an OpenBao instance that was initialised before
-> `dmf-infra@209601d` (2026-05-13). g2r6-foa9 and any future env created
+> `dmf-infra@209601d` (2026-05-13). `<env>` and any future env created
 > from a wizard after that date does not need §6. Pre-2026-05-13 clusters
 > (none are currently live; aliyun-123 + hetzner-arm + aliyun are retired)
 > would.
 
-**Status:** Implementation landed `dmf-infra@209601d` 2026-05-13; verified live on g2r6-foa9 2026-05-23
+**Status:** Implementation landed `dmf-infra@209601d` 2026-05-13; verified live on `<env>` 2026-05-23
 **Primary repo:** `dmf-infra`
 **Umbrella decision:** [ADR-0021](../decisions/0021-openbao-approle-reconciler-identity.md)
 **Parent plan:** [DMF OpenBao AppRole-Write Reconciler Plan 2026-05-13](DMF%20OpenBao%20AppRole-Write%20Reconciler%20Plan%202026-05-13.md)

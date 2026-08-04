@@ -9,12 +9,12 @@ date: 2026-06-01
 **idempotently against a live env to upgrade it to the current `main`**.
 
 **Origin:** investigating a failing catalog teardown on the Hetzner env
-`g2r6-foa9` (provisioned 2026-05-21). The teardown bug was root-caused and
+`<env>` (provisioned 2026-05-21). The teardown bug was root-caused and
 fixed, but doing so exposed that **upgrade-in-place does not currently work for
 existing (cloud-lane) envs** — the subject of this doc.
 
 **Status:** assessment only. No mechanism code changed yet. Live forward-fixes
-were applied to `g2r6-foa9` (see §5). Companion agent-memories:
+were applied to `<env>` (see §5). Companion agent-memories:
 `project_seedbao_bundle_set_bug`, `project_adr0032_catalog_teardown_skew`,
 `project_unseal_openbao_use_pty_bug`.
 
@@ -41,7 +41,7 @@ were applied to `g2r6-foa9` (see §5). Companion agent-memories:
   fixed so it actually persists new secrets (§3.1). Plus failure-masking (§3.2)
   and hard-halt ordering (§3.3). The pieces exist; they are not yet an automated,
   idempotent whole.
-- **`g2r6-foa9`: wipe and redeploy — do NOT rehabilitate it.** It is a
+- **`<env>`: wipe and redeploy — do NOT rehabilitate it.** It is a
   throwaway May-21 test env now carrying (a) the manual MXL spike Deployment
   override (`915-mxl-cms-override`), and (b) a half-applied set of forward-fixes
   from this session. Its drift is *organic and non-representative*, so it is a
@@ -97,11 +97,11 @@ decoupled from the role default). B and C are gated behind the keystone bug (§3
 
 ### 3.1 Keystone: `seed-bao` `bundle_set` fails on the cloud lane
 
-`bin/bootstrap-secrets.sh seed-bao g2r6-foa9` **aborts (real exit 1)** at the
+`bin/bootstrap-secrets.sh seed-bao <env>` **aborts (real exit 1)** at the
 ADR-0033 zot-svc write-back. Evidence:
 - Log ends exactly at `apps.zot.service_password: absent in bundle — generating
   … and writing it back…`; the follow-on `generated and persisted` never prints.
-- Bundle `~/secure/dmf-bootstrap/g2r6-foa9.sops.yaml` mtime **unchanged**
+- Bundle `~/secure/dmf-bootstrap/<env>.sops.yaml` mtime **unchanged**
   (still May-21); no `.tmp` leftover; no error echoed → it fails at the
   decrypt→python→tmp step (`bundle_set`, ~line 254) *before* the `sops --encrypt`
   guard (which would echo and leave a `.tmp`).
@@ -123,7 +123,7 @@ generated secret) before committing to a fix.
 `bundle_sops_config_file()` only checks for a *co-located*
 `$(dirname bundle)/.sops.yaml`. Cloud bundles live in `~/secure/dmf-bootstrap/`
 with **no** co-located `.sops.yaml`; the SOPS creation-rules live **repo-level**
-in `dmf-env/.sops.yaml` (`path_regex: '.*/g2r6-foa9\.sops\.yaml$'`). This would
+in `dmf-env/.sops.yaml` (`path_regex: '.*/<env>\.sops\.yaml$'`). This would
 make the re-encrypt CWD-dependent — but since the failure appears to precede the
 encrypt, treat this as a *secondary* hardening, not the proven cause. The
 **sandbox lane works** (co-located `.sops.yaml` per env; earlier fix
@@ -194,7 +194,7 @@ Detail in `project_unseal_openbao_use_pty_bug`.
 
 ---
 
-## 5. Live state left on `g2r6-foa9` (this session)
+## 5. Live state left on `<env>` (this session)
 
 All forward-progress / idempotent; nothing broken further:
 - ✅ OpenBao **unsealed** (`100-openbao.yml`).

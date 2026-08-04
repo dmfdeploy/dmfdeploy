@@ -6,7 +6,7 @@ executed: 2026-05-23
 # DMF App Admin Account Drift Audit and Realignment Plan
 
 > **SUPERSEDED 2026-05-23** — the 6-flag override tax was an `aliyun-123`-
-> specific artefact and was retired when that env was retired. `g2r6-foa9`
+> specific artefact and was retired when that env was retired. `<env>`
 > (wizard-fresh) runs `bootstrap-configure` with **zero** `-e` overrides;
 > live admin identity audit
 > (`dmf-infra/k3s-lab-bootstrap/playbooks/audit-admin-identities.yml`)
@@ -22,7 +22,7 @@ executed: 2026-05-23
 **Date:** 2026-05-14
 **Author:** session-collaborative (Claude + qwen-right + operator)
 **Status:** Plan + audit template — implementation closed 2026-05-23
-**Scope env:** `aliyun-123` (retired); `g2r6-foa9` confirmed clean 2026-05-23
+**Scope env:** `aliyun-123` (retired); `<env>` confirmed clean 2026-05-23
 
 ---
 

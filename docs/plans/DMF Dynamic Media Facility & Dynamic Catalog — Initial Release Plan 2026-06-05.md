@@ -25,7 +25,7 @@ The acceptance bar for the initial release (the demo): a reviewer watching the c
 
 ## 1. Why now — the live evidence
 
-The `mxl-hello` live verify (env `u1u3-c7rz`, 2026-06-05) proved the catalog→AWX→helm→pod→live-MXL-flow path **and exposed three gaps**, each fixed by hand on the cluster, each the same root: *the catalog-launcher infra was hardwired to the first function (nmos-cpp) and never generalized* — exactly the [ADR-0027](../decisions/0027-catalog-instance-vs-definition-separation.md) "bootstrap-RBAC conflation":
+The `mxl-hello` live verify (env `<env>`, 2026-06-05) proved the catalog→AWX→helm→pod→live-MXL-flow path **and exposed three gaps**, each fixed by hand on the cluster, each the same root: *the catalog-launcher infra was hardwired to the first function (nmos-cpp) and never generalized* — exactly the [ADR-0027](../decisions/0027-catalog-instance-vs-definition-separation.md) "bootstrap-RBAC conflation":
 
 1. **Console Deploy 404** — `dmf-cms-svc` had no role on the new JTs; `697`'s grant (`cms_awx_catalog_job_templates`) is a *separate hardcoded list*. (`lookup_job_template_by_name` → None → 404 before AWX is invoked.)
 2. **AWX job 403** — launcher SA `nmos:nmos-cpp-launcher` Role is scoped to the `nmos` namespace only; it can't operate in `mxl`.
@@ -108,7 +108,7 @@ Codex reconsidered and **endorses (ii) Argo-for-k8s + AWX/console-glue** — han
 - **One shared catalog-launcher ServiceAccount** in a fixed namespace; **reconcile-managed RoleBindings** into each target namespace (Role limited to what Helm-deployed media workloads need) + an AWX pod-manager RoleBinding per target namespace. AWX Container Group uses the shared SA; target namespaces bind it.
 - **Not** a cluster-scoped launcher (destroys least-priv; makes every catalog entry cluster-admin-adjacent).
 - **Not** per-function SAs yet (precise but adds CG/JT/token churn — save for untrusted 3rd-party).
-- This **replaces today's hand-applied** `dmf-catalog-launcher-ns-read` ClusterRole + bespoke `mxl` Role (applied live on `u1u3-c7rz`) with a reconcile-generated, reproducible set.
+- This **replaces today's hand-applied** `dmf-catalog-launcher-ns-read` ClusterRole + bespoke `mxl` Role (applied live on `<env>`) with a reconcile-generated, reproducible set.
 
 ## 6. Console — Media Workloads page + Sync Catalog
 

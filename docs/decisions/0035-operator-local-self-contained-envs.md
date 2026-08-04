@@ -58,7 +58,7 @@ Consequences for keys and lifecycle:
 
 This **changes dmf-env's documented role** from "private inventory + Terraform
 Layer-1" to "generic env tooling + modules." Legacy in-repo cloud envs
-(`aliyun*`, `hetzner-arm`, `wobe-9n0c`) are all defunct and are deleted
+(`aliyun*`, `hetzner-arm`, `<env>`) are all defunct and are deleted
 wholesale; the resolver's legacy branch is retired.
 
 ## Consequences

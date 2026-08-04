@@ -184,7 +184,7 @@ select the sequence:
   `bootstrap-sandbox-configure.yml`, and `bootstrap-sandbox-verify.yml`. Exact
   names can change, but the sequence must be explicit and reviewable.
 - **Leave the current bootstrap wrappers as the lab/reference path** until the
-  sandbox is green. They represent the `g2r6-foa9` style flow and should not be
+  sandbox is green. They represent the `<env>` style flow and should not be
   broken while WP1S is being established.
 - **Use profile capability variables**, not provider-name conditionals, for the
   shared playbooks and roles. Initial variables should look like:
@@ -397,7 +397,7 @@ Findings surfaced + fixed (all gate-relevant):
 - [WP3](DMF%20OSS%20v0.1%20WP3%20In-Cluster%20Platform%20Services%202026-05-25.md) — sandbox services trim (no Headscale; ntfy optional/stub).
 - [WP4](DMF%20OSS%20v0.1%20WP4%20CMS%20User%20Administration%202026-05-25.md) — seeded admin passkey login + backend role guards (trimmed).
 - [WP5](DMF%20OSS%20v0.1%20WP5%20Release%20Verification%20and%20Tagging%202026-05-25.md) — sandbox row of the verification matrix (gates the tag).
-- [WP-LAB](DMF%20OSS%20v0.1%20WP-LAB%20g2r6-foa9%20Reference%20Delta%202026-05-25.md) — harvest known-good settings from the live lab.
+- [WP-LAB](DMF%20OSS%20v0.1%20WP-LAB%20Reference%20Delta%202026-05-25.md) — harvest known-good settings from the live lab.
 
 ## 11. Done definition
 

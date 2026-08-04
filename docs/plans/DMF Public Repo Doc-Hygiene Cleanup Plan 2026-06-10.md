@@ -68,10 +68,10 @@ All line numbers verified against working trees on 2026-06-10. Severity:
 - 🔴 **MXL spike/handoff leak (D1):**
   - `dmf-infra`: `playbooks/910-mxl-media-nodes.yml`, `playbooks/915-mxl-cms-override.yml`,
     `docs/mxl-media-nodes-plan.md` — banners "SPIKE … NOT for main", live slug
-    `g2r6-foa9`, Aliyun/tailnet topology.
+    `<env>`, Aliyun/tailnet topology.
   - `dmf-media`: `docs/mxl-fabrics-runbook.md`, `docs/mxl-fabrics-workstream-c-handoff.md`
     — "Branch for ALL work: feat/mxl-single-node-spike (must NOT merge to main)",
-    `g2r6-foa9`, `aliyun-media-0[12]`, "GREEN 2026-05-30".
+    `<env>`, `aliyun-media-0[12]`, "GREEN 2026-05-30".
 - 🟡 **MXL product wording** (KEEP the artifacts, scrub wording): `dmf-cms`
   `docs/mxl-flows-page.md` + `frontend/.../MxlFlows.tsx`; `dmf-media`
   `charts/mxl-fabrics-demo/*`, `docker/mxl-fabrics/*` — generic provider/tailnet
@@ -157,7 +157,7 @@ ADR-0017). Steps:
    already captured** (notably the **GREEN 2026-05-30 operational result** and
    the workstream-C handoff specifics: join workflow, taints, route persistence).
 2. Capture the unique narrative in `docs/sessions/DMF MXL Fabrics Spike Result
-   2026-05-30.md` (sanitized: `<env>` for `g2r6-foa9`, `<media-node-N>` for node
+   2026-05-30.md` (sanitized: `<env>` for the env identifier, `<media-node-N>` for node
    names, generic provider). Cross-link the existing plans/ADR.
 3. Commit to umbrella (LAN). This unblocks the public removals.
 
@@ -243,7 +243,7 @@ ADR-0017). Steps:
 ## 7. Acceptance per PR
 - `git -C <repo> grep -n "lkirc"` → 0 (dmf-infra).
 - `git -C <repo> grep -n "all 6 repos"` → 0.
-- No `g2r6-foa9` / `feat/mxl-single-node-spike` / "NOT for main" in tracked files
+- No `<env>` / `feat/mxl-single-node-spike` / "NOT for main" in tracked files
   of `dmf-infra` and `dmf-media`.
 - No broken intra-repo markdown links (link-check).
 - CI `guard` + `ci` green on the PR.

@@ -22,7 +22,7 @@ Phases 2–4) is independent and tracked separately. **Lane B — the
 catalog-launcher half — is not yet implemented.** Code still SSHes to
 the control node with a hardcoded Hetzner private-IP map.
 
-**Why now:** g2r6-foa9 bootstrapped green end-to-end on 2026-05-22. The
+**Why now:** `<env>` bootstrapped green end-to-end on 2026-05-22. The
 hardcoded Hetzner private-IP map at
 `dmf-runbooks/playbooks/launch-nmos-cpp.yml:28-34` is a per-env
 band-aid that will break on every new cloud. Lane B deletes the
@@ -60,11 +60,11 @@ Also already-answered (from ADR-0025 plan §8, batch 2026-05-19):
 
 Before Lane B implementation starts, the implementer MUST:
 
-1. **Park dirty g2r6-foa9 bundle.** `dmf-env` has 4 uncommitted files
-   (`.sops.yaml`, `inventories/g2r6-foa9/`, `manifests/g2r6-foa9.yaml`).
-   Commit with subject `chore(g2r6-foa9): commit wizard bundle` ONLY
+1. **Park dirty `<env>` bundle.** `dmf-env` has 4 uncommitted files
+   (`.sops.yaml`, `inventories/<env>/`, `manifests/<env>.yaml`).
+   Commit with subject `chore(<env>): commit wizard bundle` ONLY
    if operator authorizes; otherwise stash with
-   `git stash push -m 'g2r6-foa9 bundle pre-Lane-B'`. Do NOT modify
+   `git stash push -m '<env> bundle pre-Lane-B'`. Do NOT modify
    or discard the bundle.
 2. **Push unpushed clean commits** in `dmf-cms` (2), `dmf-central` (1),
    `dmf-media` (1) — confirmed clean per STATUS; operator authorizes
@@ -217,8 +217,8 @@ bootstrap.
   match GHCR pushes.)
 
 **Verification gate (Phase 3):**
-- On g2r6-foa9, manual re-run:
-  `bin/run-playbook.sh g2r6-foa9 ../dmf-infra/k3s-lab-bootstrap/playbooks/630-zot-seed-platform.yml`
+- On `<env>`, manual re-run:
+  `bin/run-playbook.sh <env> ../dmf-infra/k3s-lab-bootstrap/playbooks/630-zot-seed-platform.yml`
 - Idempotent (HEAD-check shortcut for already-mirrored images).
 - Zot UI / CLI: `oras repo list zot.zot.svc.cluster.local:5000` shows
   `dmf/nmos-cpp-registry`, `dmf/nmos-cpp-node`, `dmf/charts/nmos-cpp`.
@@ -309,12 +309,12 @@ remains needed for those JTs).
   `awx_ee_catalog_*` referencing ADR-0025 §8.7(b).
 
 **Verification gate (Phase 4):**
-- On g2r6-foa9, re-run the awx-integration role.
+- On `<env>`, re-run the awx-integration role.
 - AWX UI shows the DMF EE registered, the Container Group present, and
   both `media-*` JTs pinned to both.
 - Single `Read AWX control-node SSH privkey from OpenBao` task remains
   in main.yml (grep + assert in implementer's reply).
-- `bin/run-playbook.sh g2r6-foa9 ../dmf-infra/k3s-lab-bootstrap/playbooks/693-awx-integration.yml`
+- `bin/run-playbook.sh <env> ../dmf-infra/k3s-lab-bootstrap/playbooks/693-awx-integration.yml`
   is idempotent.
 
 **Commit:** `feat(awx-integration): EE registration + Container Group
@@ -421,11 +421,11 @@ ADR-0025 Lane B` in `dmf-runbooks`.
 
 ---
 
-## Phase 6 — End-to-end verification on g2r6-foa9
+## Phase 6 — End-to-end verification on `<env>`
 
 Implementer runs (or operator runs and reports back):
 
-1. `bin/run-playbook.sh g2r6-foa9
+1. `bin/run-playbook.sh <env>
    ../dmf-infra/k3s-lab-bootstrap/bootstrap-configure.yml` →
    `failed=0`. Re-runs Stage 4b (seeds new NMOS images + chart) and
    Phase 4 (AWX integration creates EE + CG + pins JTs).
@@ -440,7 +440,7 @@ Implementer runs (or operator runs and reports back):
    - `helm list -n nmos` → `nmos-cpp` release at chart version `0.1.0`.
    - `kubectl -n nmos get statefulset,deployment,svc,configmap,pvc`
      → matches expected count: 1 STS, 2 Deps, 3 Svcs, 4 CMs, 1 PVC.
-   - `curl -k https://<g2r6-foa9-ingress>/api/catalog/nmos-cpp` →
+   - `curl -k https://<<env>-ingress>/api/catalog/nmos-cpp` →
      `lifecycle: active` in NetBox.
    - `kubectl -n nmos exec deploy/nmos-cpp-node-1 -- curl -s
      http://nmos-cpp-registry/x-nmos/query/v1.3/nodes/` → 200 OK with
@@ -459,7 +459,7 @@ outputs in the handoff doc.
 **Finding during Phase 6 execution.** The original plan assumed pods
 would pull EE / NMOS images from
 `zot.zot.svc.cluster.local:5000/dmf/...` per ADR-0023 cluster-internal
-service DNS. Two issues surfaced during live runs against g2r6-foa9:
+service DNS. Two issues surfaced during live runs against `<env>`:
 
 1. **The role default `awx_ee_catalog_image` was the example placeholder
    `registry.dmf.example.com/dmf/awx-ee`** rather than the
@@ -492,7 +492,7 @@ container image pull URLs that containerd processes on the node side.
 Zot Service `clusterIP:` + node-side `/etc/hosts` entries**:
 
 1. Zot Service spec sets `clusterIP:` to a fixed value (`10.43.165.105`
-   on g2r6-foa9, the current allocation; pin to avoid drift on Service
+   on `<env>`, the current allocation; pin to avoid drift on Service
    recreation).
 2. A task in `base/k3s` writes `<pinned-clusterIP>
    zot.zot.svc.cluster.local` to `/etc/hosts` on every node, sourced
@@ -588,7 +588,7 @@ Add a `<!-- HUMAN-START -->` block entry at the top:
 > from in-cluster Zot via AWX EE pod in `nmos` ns. Hardcoded Hetzner
 > private-IP map deleted. ADR-0025 Accepted; ADR-0016 fully superseded
 > for `media-*` JTs (Path A retained for 693-class). Verified on
-> g2r6-foa9 (job <id>, helm release `nmos-cpp@0.1.0`).
+> `<env>` (job <id>, helm release `nmos-cpp@0.1.0`).
 
 ### 7g — TODOS.md sweep
 
@@ -653,7 +653,7 @@ After Phase 7 verifies:
    load-bearing.
 2. Read the boot ritual files (CLAUDE.md, STATUS.md, the 2026-05-22
    handoffs).
-3. Execute Pre-flight (commit g2r6-foa9 bundle if operator authorized;
+3. Execute Pre-flight (commit `<env>` bundle if operator authorized;
    push the 4 clean unpushed commits; refresh STATUS).
 4. Execute Phases 1–8 in order. Do NOT parallelize phases — gates
    matter. Within a phase, parallelize file edits where independent.
@@ -697,7 +697,7 @@ Sub-repos as siblings.
 - The latest accepted ADR pattern: ADR-0024 (landed 2026-05-22).
 
 **End-state success condition (single sentence):**
-On g2r6-foa9, `media-launch-nmos-cpp` succeeds end-to-end via an
+On `<env>`, `media-launch-nmos-cpp` succeeds end-to-end via an
 in-cluster AWX EE pod (no SSH, no hardcoded IPs), `helm list -n nmos`
 shows `nmos-cpp@0.1.0`, ADR-0025 is Accepted, ADR-0016 fully
 superseded for `media-*` JTs, and STATUS.md records the landing.

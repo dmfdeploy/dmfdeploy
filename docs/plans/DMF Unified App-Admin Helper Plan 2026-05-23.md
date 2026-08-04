@@ -76,7 +76,7 @@ Three concrete signals converged this session:
 1. **2026-05-23 — Authentik Secret-name miswire (dmf-infra@f434e8a).**
    `verify-oidc-admin-bridge.yml` hardcoded `authentik-runtime` as the
    default K8s Secret name; the role default is `authentik-env`. The
-   verifier failed cleanly on g2r6-foa9 only because the playbook was
+   verifier failed cleanly on `<env>` only because the playbook was
    wired into `bootstrap-verify.yml` minutes earlier. STATUS notes:
    *"the Secret-name drift is exactly the failure mode the unified
    helper would make structurally impossible"* (dmfdeploy@26594a4). A
@@ -418,7 +418,7 @@ plan-explicit rule.
 - [ ] Helper README documents that downstream consumers must
       `no_log: true` any `uri:` / `command:` task that uses the resolved
       password.
-- [ ] Test: run `bootstrap-configure.yml` on g2r6-foa9 with
+- [ ] Test: run `bootstrap-configure.yml` on `<env>` with
       `ANSIBLE_VERBOSITY=2`; grep transcript for any 8-character bao
       token fragment or known-password substring. Expect zero matches.
 
@@ -480,12 +480,12 @@ netbox-sot / PR 3.5; HIGH-2 dropped PR 6's verifier rewrite half).
 
 | PR | Scope | Effort | Verification |
 |---|---|---|---|
-| **1a** | **Pure refactor, no new feature + 191 post-task cleanup.** (1) Drop inline OpenBao login from `common/app-admin-facts` (lines 13-84 today); add `common/openbao-session` as documented pre-condition. (2) Update existing materialize consumers (110-authentik × 2, 191-zot-oidc `roles:` block × 1) to include openbao-session immediately before app-admin-facts. (3) Refactor 191-zot-oidc.yml `post_tasks:` validation block (lines 49-89) onto the established session-pod facts — drops bespoke breakglass JSON load + inline `bao write auth/userpass/login/ops-admin` + token-extraction `sed` + standalone `bao kv get`; replaced by one `include_role: common/openbao-session` + one `bao kv get` task using `_openbao_session_pod` + `_openbao_session_client_token`. Materialize behaviour byte-identical end-to-end. | 1.5-2h | Re-run 110-authentik + 191-zot-oidc on g2r6-foa9 → `failed=0`. `bootstrap-verify.yml` byte-identical with pre-PR baseline (modulo the 191 post-task log lines). |
+| **1a** | **Pure refactor, no new feature + 191 post-task cleanup.** (1) Drop inline OpenBao login from `common/app-admin-facts` (lines 13-84 today); add `common/openbao-session` as documented pre-condition. (2) Update existing materialize consumers (110-authentik × 2, 191-zot-oidc `roles:` block × 1) to include openbao-session immediately before app-admin-facts. (3) Refactor 191-zot-oidc.yml `post_tasks:` validation block (lines 49-89) onto the established session-pod facts — drops bespoke breakglass JSON load + inline `bao write auth/userpass/login/ops-admin` + token-extraction `sed` + standalone `bao kv get`; replaced by one `include_role: common/openbao-session` + one `bao kv get` task using `_openbao_session_pod` + `_openbao_session_client_token`. Materialize behaviour byte-identical end-to-end. | 1.5-2h | Re-run 110-authentik + 191-zot-oidc on `<env>` → `failed=0`. `bootstrap-verify.yml` byte-identical with pre-PR baseline (modulo the 191 post-task log lines). |
 | **1b** | **New `app_admin_mode: live-read` mode** (read-only path; no write, no password generation, no email defaulting). Add `app_admin_fallback_candidates:` paired-dict list parameter alongside scalar fallbacks. README documents both modes; tests against a non-production fixture (no live cluster). No consumer migration yet. | 1-1.5h | Fixture-driven unit tests; no live-cluster gate. |
-| 2 | Migrate 698 (Forgejo half) onto helper live-read mode. Drop ~50 lines of inlined OpenBao read. | 30min | Standalone 698 rerun on g2r6-foa9; rotate the token first so consumer-path tasks actually execute (lesson from dmf-infra@29ca24b). |
-| 3 | Migrate `forgejo-bootstrap` role. Replace direct `forgejo_admin_username` / `_password` reads with helper live-read. Service-password `openssl rand -base64 24` retained (service != admin). | 1h | 692-forgejo-bootstrap rerun on g2r6-foa9. |
+| 2 | Migrate 698 (Forgejo half) onto helper live-read mode. Drop ~50 lines of inlined OpenBao read. | 30min | Standalone 698 rerun on `<env>`; rotate the token first so consumer-path tasks actually execute (lesson from dmf-infra@29ca24b). |
+| 3 | Migrate `forgejo-bootstrap` role. Replace direct `forgejo_admin_username` / `_password` reads with helper live-read. Service-password `openssl rand -base64 24` retained (service != admin). | 1h | 692-forgejo-bootstrap rerun on `<env>`. |
 | 4 | **Docs-only — ADR-0024 amendment + STATUS update + convergence-queue note + 697 documentation pass.** Promote the deferred §Alternative; update §Enforcement to list both `materialize` and `live-read` modes with migrated consumers; STATUS HUMAN-START note pointing at the closing handoff; convergence-queue collapse to DONE marker. Document the K8s-Secret/OpenBao split for 697 — confirm `common/admin-identity-resolve` remains the right helper there (different backend). No code touches. | 30min | Doc-only. `git grep -E "secret/apps/.*/admin"` shows no bespoke reads outside `common/app-admin-facts/`. |
-| 5 | End-to-end: `bootstrap-verify.yml` on g2r6-foa9 — all four imported plays `failed=0`. `audit-admin-identities.yml` (invoking helper in `live-read` mode per §Audit integration) confirms no drift. Capture log. Optionally: one fresh-wizard-env greenfield run as gold-standard validation. | 30min (g2r6-foa9) + ~60min (optional fresh wizard) | One full bootstrap-verify run. |
+| 5 | End-to-end: `bootstrap-verify.yml` on `<env>` — all four imported plays `failed=0`. `audit-admin-identities.yml` (invoking helper in `live-read` mode per §Audit integration) confirms no drift. Capture log. Optionally: one fresh-wizard-env greenfield run as gold-standard validation. | 30min (`<env>`) + ~60min (optional fresh wizard) | One full bootstrap-verify run. |
 
 **Total in-repo effort:** ~4-5h spread over 1-2 sessions.
 
@@ -551,10 +551,10 @@ netbox-sot / PR 3.5; HIGH-2 dropped PR 6's verifier rewrite half).
       codex MEDIUM-5; runtime-path reads at `secret/apps/.*/runtime` in
       netbox / netbox-sot / 696 / 697 / 698 / awx-integration are
       explicitly out of scope and excluded from this grep.)**
-- [ ] `bootstrap-verify.yml` on g2r6-foa9 → `failed=0` across all four
+- [ ] `bootstrap-verify.yml` on `<env>` → `failed=0` across all four
       imported plays.
 - [ ] `audit-admin-identities.yml` passes no-drift assertions on
-      g2r6-foa9 after migration (5 apps: awx, forgejo, netbox, zot,
+      `<env>` after migration (5 apps: awx, forgejo, netbox, zot,
       authentik).
 - [ ] 191-zot-oidc.yml `post_tasks:` validation block uses
       `common/openbao-session` (no bespoke `bao write
@@ -611,7 +611,7 @@ recommendation on each; operator is the final word.
      NetBox / netbox-sot / verifier-rewrite items.
    - claude-top: agrees. *"Independently revertable beats unified-but-large."*
 4. **Live-test cadence.**
-   - Plan recommends: each PR verifies on g2r6-foa9; optional fresh
+   - Plan recommends: each PR verifies on `<env>`; optional fresh
      wizard env after PR 5 (was PR 7 pre-v3) as gold-standard greenfield
      validation.
    - claude-top: agrees. *"Don't gate every PR on a fresh wizard run."*

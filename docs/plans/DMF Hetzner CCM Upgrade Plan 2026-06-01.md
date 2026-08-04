@@ -33,7 +33,7 @@ Cause: Hetzner is phasing out the `"datacenter"` API property in favor of
 Changelog: https://docs.hetzner.cloud/changelog#2025-12-16-phasing-out-datacenters
 Tracking issue: https://github.com/hetznercloud/hcloud-cloud-controller-manager/issues/1146#issuecomment-3919929223
 
-`k3s-infra-lab` is the `hcloud_context` of the current live env **`g2r6-foa9`**.
+`k3s-infra-lab` is the `hcloud_context` of the current live env **`<env>`**.
 
 ---
 
@@ -51,7 +51,7 @@ Hetzner envs:
 **No inventory overrides `hcloud_ccm_version`** — every Hetzner env inherits the
 `v1.26.0` default. Envs wire the task in via `cluster_ingress_provider_tasks`:
 
-- `dmf-env/inventories/g2r6-foa9/group_vars/all/main.yml:30` (current live env;
+- `dmf-env/inventories/<env>/group_vars/all/main.yml:30` (current live env;
   `hcloud_context: "k3s-infra-lab"` at :12, `hcloud_ccm_network` at :36)
 - `dmf-env/inventories/hetzner-arm/group_vars/all/main.yml:24` (template/profile)
 
@@ -114,7 +114,7 @@ g2r6 wipe+redeploy is imminent anyway: do **Path 2** as part of that redeploy
 
 ---
 
-## 5. Live `g2r6-foa9` handling (decided)
+## 5. Live `<env>` handling (decided)
 
 Operator decision (2026-06-01): **leave g2r6 / tear it down.** g2r6 is throwaway,
 mid-rehab with organic drift (see STATUS.md "Upgrade-in-place BLOCKED + g2r6

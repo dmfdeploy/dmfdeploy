@@ -275,7 +275,7 @@ ADR-0031/ADR-0018 are flagged inline and summarized in §1.10.
   consistent and restated here so WP1's network/LB/IAM provisioning leaves
   room for them (LB ports for Headscale, KMS key + node-profile grant for
   WP2). **No conflict.**
-- **Keeping `g2r6-foa9` (Hetzner) live as the lab:** explicitly sanctioned by
+- **Keeping `<env>` (Hetzner) live as the lab:** explicitly sanctioned by
   ADR-0031 ("Non-AWS providers may remain in the repository as lab, legacy, or
   experimental paths"). AWS is built as a separate greenfield env. **No
   conflict.**

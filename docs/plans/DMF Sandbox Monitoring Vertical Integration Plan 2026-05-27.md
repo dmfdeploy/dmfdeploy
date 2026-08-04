@@ -15,7 +15,7 @@ LibreNMS, snmp-exporter, netdisco. **Flagged:** Promtail (see Open Question 1).
 
 ---
 
-## 1. Why it's broken today (diagnosis, 9y6o-zn0t)
+## 1. Why it's broken today (diagnosis, `<env>`)
 
 - Hitting `grafana.deploy.dmf.test` returns the **landing page**, because **no
   monitoring stack is deployed** — there is no `monitoring` namespace; Prometheus,
@@ -138,7 +138,7 @@ set and skips librenms/snmp/netdisco:
 
 | WS | Work | Owner |
 |---|---|---|
-| **A** | `base/grafana` local-CA OIDC trust (CA-mount, gate on local-ca); live-deploy + verify Grafana login on 9y6o-zn0t | **claude** (owns the gate-2 pattern; did netbox+zot) |
+| **A** | `base/grafana` local-CA OIDC trust (CA-mount, gate on local-ca); live-deploy + verify Grafana login on `<env>` | **claude** (owns the gate-2 pattern; did netbox+zot) |
 | **B** | Sandbox-scaled storage/retention/resource values for prometheus + loki (+ grafana PVC check); RWO access-mode audit | **claude** drafts values ↔ **claude-bottom** lands them in the wizard/profile |
 | **C** | Make `dmf_monitoring_profile` a real gate (minimal vs full) in the monitoring vertical | **claude-bottom** (sandbox-lane/profile area) |
 | **D** | Wire monitoring into the sandbox bootstrap wrappers + wizard sandbox inventory template (rebuild persistence) | **claude-bottom** (owns sandbox bootstrap + dmf-env wizard) |
@@ -204,15 +204,15 @@ Related: `[[project_dmf_sandbox_local_vm]]`, `[[project_cms_authentik_backchanne
 ## 9. 2026-05-28 scope-lock addendum (operator brief)
 
 Operator brief 2026-05-28: "implement the monitoring stack in the sandbox env,
-sized to fit. Reference g2r6-foa9 (outdated but has full stack running). Decide
-9y6o-zn0t modify/delete freely. Make sure complete stack incl. host (Lima VM
+sized to fit. Reference `<env>` (outdated but has full stack running). Decide
+`<env>` modify/delete freely. Make sure complete stack incl. host (Lima VM
 cpu/ram/disk). Don't overcomplicate. claude-bottom is freshly cleared — instruct
 them to implement. Commit regularly."
 
 **Scope (locked, supersedes Open Questions 1–3):**
-- **Complete stack = 4 helm-deployed components** (matches g2r6-foa9 live):
+- **Complete stack = 4 helm-deployed components** (matches `<env>` live):
   Prometheus + Loki + Grafana + Promtail. **Promtail IN** (resolves Open Q1).
-  LibreNMS / snmp-exporter / netdisco **OUT** (g2r6-foa9 doesn't run them either).
+  LibreNMS / snmp-exporter / netdisco **OUT** (`<env>` doesn't run them either).
 - **Host metrics covered by the Prometheus chart's bundled DaemonSets** —
   `node-exporter` (host CPU/RAM/disk/network/filesystem) + `kube-state-metrics`.
   Both are sub-charts of the `prometheus` 25.x chart; no extra play needed.
@@ -220,10 +220,10 @@ them to implement. Commit regularly."
   `full` adds librenms/snmp/netdisco (later, not now); `none` skips all. Sandbox
   default `minimal`; cloud lane `full`.
 
-**Target env: 9y6o-zn0t (MODIFY in place, do NOT delete).** Yesterday's catalog-token
+**Target env: `<env>` (MODIFY in place, do NOT delete).** Yesterday's catalog-token
 + NetBox CA fixes are live there; clean install of monitoring on top works fine.
 
-**Sandbox sizing (mirror g2r6-foa9 reference; fits the 60GiB / 4CPU / 10GiB Lima VM):**
+**Sandbox sizing (mirror `<env>` reference; fits the 60GiB / 4CPU / 10GiB Lima VM):**
 - Prometheus PVC `5Gi`, retention `7d` (cluster fact STATUS §3.5 uses 6h on the
   reference — too aggressive; 7d is operator-friendly given headroom). Reduce
   scrape interval if memory pressures.
@@ -234,7 +234,7 @@ them to implement. Commit regularly."
   stack). Comfortable. **Verify with `df -h` on the node before locking** (claude-bottom).
 - Resource requests/limits: capped low (server-side budget; see ref values).
 
-**Reference (g2r6-foa9 live, 2026-05-28 inventory):**
+**Reference (`<env>` live, 2026-05-28 inventory):**
 ```
 HELM RELEASES (ns monitoring)
   prometheus  chart=prometheus-25.8.0  app=v2.48.0  PVC=5Gi (RWO, longhorn)
@@ -266,7 +266,7 @@ single-replica everywhere (single node), Loki single-binary mode.
   wizard sandbox inventory template (same block as `netbox_media_access_mode`)
   AND/OR via `dmf_monitoring_profile`-aware overrides in the monitoring roles'
   defaults. Either is fine; the wizard block is most consistent with prior fixes.
-- **W5 — Live deploy on 9y6o-zn0t**: re-run the post-seed (or the individual
+- **W5 — Live deploy on `<env>`**: re-run the post-seed (or the individual
   monitoring plays via `run-playbook.sh`); verify (§6).
 
 **Verification (§6 from above) still applies**, plus: node-exporter scrapes the
@@ -283,4 +283,4 @@ Push to LAN Forgejo after each.
 DONE / BLOCKED back to `claude` (pane 2) via
 `~/.claude/skills/agent-bridge/bin/agent-bridge send claude "<status>"` so the
 loop closes as notifications, not poll-and-read. `claude` (pane 2) verifies live
-on 9y6o-zn0t after each milestone.
+on `<env>` after each milestone.

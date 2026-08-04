@@ -81,7 +81,7 @@ Live verification must include probes that `ops-admin` still receives `deny` or
 Until a CI policy audit exists, enforcement is via code review, live probes, and
 the acceptance criteria in the AppRole reconciler plan.
 
-**Verified live on `g2r6-foa9` 2026-05-23** via
+**Verified live on `<env>` 2026-05-23** via
 `dmf-infra/k3s-lab-bootstrap/playbooks/verify-openbao-identity-model.yml`
 (read-shaped assertion playbook). The verifier confirms: three identity
 logins succeed (ops-admin / policy-reconciler / approle-reconciler); five

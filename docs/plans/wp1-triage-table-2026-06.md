@@ -158,13 +158,13 @@ active/draft is executed-or-historical (codex finding: allowlist-first).
 | DMF Dynamic Media Facility & Dynamic Catalog — Initial Release Plan 2026-06-05.md | 2026-06-05 | SHELVED by architectural-commitments-v1; future direction only |
 | DMF Elastic Media Nodes and Cloud Cost Controller Plan 2026-06-01.md | 2026-06-01 | frozen by v0.1 commitment |
 | DMF Forgejo Repo Hosting and Migration Plan.md | 2026-05-11 (import) | Forgejo retired to archive 2026-06-10 |
-| DMF g2r6-foa9 Configure-Verify Follow-Ups Plan 2026-05-22.md | 2026-05-22 | ⚠ env long gone; open items absorbed/stale |
+| DMF `<env>` Configure-Verify Follow-Ups Plan 2026-05-22.md | 2026-05-22 | ⚠ env long gone; open items absorbed/stale |
 | DMF Idempotent Upgrade-in-Place Mechanism — Findings and Plan 2026-06-01.md | 2026-06-01 | FROZEN (commitments); mitigations landed, root cause unproven |
 | DMF Init Wizard Expansion Survey 2026-05-13.md | 2026-05-13 | point-in-time survey |
 | DMF MXL On-Demand Media Function Cycle Plan 2026-06-01.md | 2026-06-01 | MXL spike paused by commitment gate |
 | DMF MXL Single-Node Loopback Execution Plan 2026-05-29.md | 2026-05-29 | partial execution; paused; as-built in docs/sessions/ |
 | DMF Media Workloads — NetBox-Driven Media Function Inventory Plan 2026-06-03.md | 2026-06-03 | ⚠ approved model but shelved with dynamic-catalog freeze |
-| DMF OSS v0.1 WP-LAB g2r6-foa9 Reference Delta 2026-05-25.md | 2026-05-25 | reference env long gone |
+| DMF OSS v0.1 WP-LAB `<env>` Reference Delta 2026-05-25.md | 2026-05-25 | reference env long gone |
 | DMF OSS v0.1 WP1 AWS Provider Profile 2026-05-25.md | 2026-05-25 | multi-provider frozen for v0.1 |
 | DMF OpenBao Policy-Writer Session Separation Plan 2026-05-13.md | 2026-05-13 | ⚠ proposed, never picked up |
 | DMF RPi Flypack Appliance Implementation Plan 2026-05-13.md | 2026-05-13 | flypack profile deferred (scaffolds reserved) |

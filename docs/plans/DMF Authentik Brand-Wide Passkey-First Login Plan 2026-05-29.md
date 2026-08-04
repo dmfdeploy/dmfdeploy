@@ -123,7 +123,7 @@ brick a cold bootstrap:
 
 Apply on the live env (current env id in `STATUS.md`). If Authentik is already
 running, a single `110-authentik.yml` re-apply is enough. If the target VM is
-freshly (re)created with no cluster yet — as `y834-bcwe`'s Lima VM is at time of
+freshly (re)created with no cluster yet — as `<env>`'s Lima VM is at time of
 writing (deleted + recreated empty 2026-05-29) — this is a **full cold
 bootstrap**, and the blueprint changes apply as part of that run. Either way the
 checks below are what to confirm afterward:

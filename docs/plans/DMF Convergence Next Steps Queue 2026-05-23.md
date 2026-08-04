@@ -8,7 +8,7 @@ date: 2026-05-23
 **Origin:** End of a long convergence session. The original prompt was
 "converge project sprawl + reduce open ADR queue"; that pass landed.
 ADR-0021 then closed as a doc-rebase rather than implementation (the code
-already shipped 2026-05-13 + was live-verified on g2r6-foa9). This doc
+already shipped 2026-05-13 + was live-verified on `<env>`). This doc
 captures the four candidate next steps surfaced at that point so a future
 session can pick up cleanly.
 
@@ -21,7 +21,7 @@ contact with reality?" (ADR-0004).
 
 ## #1 — App-admin drift realignment
 
-**DONE 2026-05-23** — audit on `g2r6-foa9` found no drift (the 6-flag tax
+**DONE 2026-05-23** — audit on `<env>` found no drift (the 6-flag tax
 was an `aliyun-123` artefact, retired with the env). New
 `audit-admin-identities.yml` playbook ships in `dmf-infra` for future
 envs; 698 refactored to read Forgejo username from
@@ -114,7 +114,7 @@ greenfield test that needs operator coordination (new env spin-up is a
 **Risks.**
 
 - Touching the admin-identity surface during bootstrap is high-blast-
-  radius. Stage the changes; rerun on g2r6-foa9 (current live env)
+  radius. Stage the changes; rerun on `<env>` (current live env)
   before declaring done.
 - The current 6-flag override list works — there is no incident, only
   friction. Don't break what works; the goal is to *remove* the
@@ -128,9 +128,9 @@ greenfield test that needs operator coordination (new env spin-up is a
 
 **DONE 2026-05-23** (`dmf-infra@596b28b`) — wired in alongside
 `audit-admin-identities.yml` (§#1 byproduct) and `verify-oidc-admin-bridge.yml`
-(ADR-0024 PR2). End-to-end run on g2r6-foa9 with
+(ADR-0024 PR2). End-to-end run on `<env>` with
 `--skip-tags verify-oidc-bridge`: `ok=86 changed=3 failed=0`.
-**Real finding surfaced**: OIDC verifier fails on g2r6-foa9 because
+**Real finding surfaced**: OIDC verifier fails on `<env>` because
 `authentik-runtime` Secret is missing `AUTHENTIK_BOOTSTRAP_TOKEN` —
 new entry in STATUS as "Open finding — Authentik runtime token."
 
@@ -154,7 +154,7 @@ future env's post-seed run automatically exercise the AC-5 deny matrix
   already wired (ADR-0024 PR2 may or may not have done this).
 
 **Effort estimate:** ~15 minutes + a single bootstrap-verify rerun on
-g2r6-foa9 to confirm.
+`<env>` to confirm.
 
 **Entry points:**
 - `dmf-infra/k3s-lab-bootstrap/bootstrap-verify.yml` (per the Tier 1
@@ -164,7 +164,7 @@ g2r6-foa9 to confirm.
 
 **Acceptance criteria.**
 
-- `bootstrap-verify.yml` on g2r6-foa9 runs the AC-5 matrix and reports
+- `bootstrap-verify.yml` on `<env>` runs the AC-5 matrix and reports
   `failed=0`.
 - Both `verify-*` playbooks are referenced from the wrapper.
 

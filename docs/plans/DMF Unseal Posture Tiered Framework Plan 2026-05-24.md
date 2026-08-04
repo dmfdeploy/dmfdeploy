@@ -437,7 +437,7 @@ same mess we have today. **With them, it is the actual control.**
 The framework needs operator decisions on these before becoming binding
 architecture:
 
-1. **HA raft migration plan.** When does the live `g2r6-foa9` env
+1. **HA raft migration plan.** When does the live `<env>` env
    migrate from single-replica to 3-replica raft? Or is the migration
    gated on the next env spin-up?
 2. **Default tier confirmation.** Plan recommends **Tier 2** as default.

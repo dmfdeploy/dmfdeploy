@@ -15,7 +15,7 @@ superseded_by: "DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25.
 >
 > Under WP0: the v0.1 **release gate** is `sandbox-single-node` (generic ARM64
 > Debian single host), **not** AWS. AWS (`aws-arm64-multi-node`) is a secondary
-> eligible-if-ready lane that never gates. `g2r6-foa9` is reference/regression
+> eligible-if-ready lane that never gates. `<env>` is reference/regression
 > only. This Mission is kept for context (its AWS/boot/services material is
 > reused under the re-scoped WPs); **do not treat its sequence or gates as
 > binding.**

@@ -37,7 +37,7 @@ might want to filter, group, or report (NetBox, manifest, inventory vars).
 
 | Field | Shape | Generated? | Used as path? | Visible in NetBox? |
 |---|---|---|---|---|
-| `env_id` | `[a-z0-9]{4}-[a-z0-9]{4}` (e.g. `nb1k-7q3m`) | wizard auto-generates | **yes — the only path identifier** | yes (cluster name + custom field) |
+| `env_id` | `[a-z0-9]{4}-[a-z0-9]{4}` (e.g. `<env>`) | wizard auto-generates | **yes — the only path identifier** | yes (cluster name + custom field) |
 | `env_label` | free text, optional (e.g. `production-lab`) | operator-supplied, may be empty | no — never in a path | yes (site display name + custom field) |
 | `provider` | enum `hetzner` \| `aliyun` (NetBox enum also allows `aws`) | operator-selected | no | yes (custom field, plus device manufacturer) |
 | `architecture` | enum `arm64` \| `amd64` | operator-selected | no | yes (custom field) |
@@ -127,7 +127,7 @@ with env_id today; preserve.
   `${DMF_BOOTSTRAP_BUNDLE_DIR}/<id>.sops.yaml` or
   `dmf-env/inventories/<id>/` exists — regenerate up to N=10 times.
 - Replace operator `env_name` prompt at line 512 with:
-  - auto-generate `env_id` and echo it ("Generated env id: nb1k-7q3m");
+  - auto-generate `env_id` and echo it ("Generated env id: `<env>`");
   - `prompt_default "Optional human label" ""` → `env_label`.
 - Move `PROVIDER` prompt above the env_id echo for narrative flow; extend
   choices to `hetzner|aliyun|aws` (`init-wizard.sh:526`). For `aws`,
@@ -248,10 +248,10 @@ with env_id today; preserve.
    `hetzner-arm`, no custom-field patches attempted because the source
    vars are empty. Confirm via NetBox API: `GET /api/dcim/sites/?name=DMF%20hetzner-arm`.
 3. **New-env NetBox shape (paper test, no real cloud)** — point
-   born-inventory at a stub topology with `env_id=nb1k-7q3m`,
+   born-inventory at a stub topology with `env_id=<env>`,
    `env_label="production-lab"`, `provider=hetzner`,
    `architecture=arm64`. Site name = `"DMF production-lab"`,
-   cluster name = `nb1k-7q3m`, custom fields populated.
+   cluster name = `<env>`, custom fields populated.
 4. **Schema doc** — extend
    `dmf-env/inventories/example/group_vars/all/main.yml` and add a
    short paragraph to `docs/architecture/DMF Platform Plan.md`

@@ -40,7 +40,7 @@ lane_classes:
     before the AWS row can pass, but the AWS row is informational and never
     gates v0.1 (ADR-0031 Profile 2).
   lab-only: >-
-    Used only by the `g2r6-foa9` reference/regression lab (Profile 3). Not a
+    Used only by the `<env>` reference/regression lab (Profile 3). Not a
     release profile; exempt from v0.1 release scrutiny. Recorded here for
     completeness and drift tracking, NOT as a release gate.
   optional: >-

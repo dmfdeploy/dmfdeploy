@@ -7,7 +7,7 @@ superseded_by: "DMF MXL Single-Node Loopback Execution Plan 2026-05-29.md"
 > **Superseded by** [DMF MXL Single-Node Loopback Execution Plan 2026-05-29.md](DMF%20MXL%20Single-Node%20Loopback%20Execution%20Plan%202026-05-29.md) — see frontmatter.
 
 > **2026-05-29 execution cross-ref:** This plan's **D1 = option A** scope is
-> now being executed. The locked decisions, the live `g2r6-foa9` survey,
+> now being executed. The locked decisions, the live `<env>` survey,
 > the shared terraform-module change (node-role heterogeneity), agent-join,
 > build-first sequencing, and the Stage 1 / Stage 2 split are recorded in
 > [DMF MXL Single-Node Loopback Execution Plan (2026-05-29)](./DMF%20MXL%20Single-Node%20Loopback%20Execution%20Plan%202026-05-29.md).

@@ -2,20 +2,20 @@
 status: historical
 date: 2026-05-25
 ---
-# DMF OSS v0.1 WP-LAB — `g2r6-foa9` Reference Delta
+# DMF OSS v0.1 WP-LAB — `<env>` Reference Delta
 
 **Status:** Active — reference/regression aid (not a release profile)
 **Date:** 2026-05-25
 **Author:** Claude (planning sweep, under ADR-0031 framing)
 **Anchor:** [WP0 Release Contract & Profile Matrix](DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md)
 **Related ADR:** [ADR-0031](../decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md) (Profile 3)
-**Profile:** `g2r6-foa9` — **live reference / regression lab, NOT a release profile**
+**Profile:** `<env>` — **live reference / regression lab, NOT a release profile**
 
 ---
 
 ## 0. What this doc is (and is not)
 
-This is **not** a release work package. `g2r6-foa9` (the live 3-node Hetzner
+This is **not** a release work package. `<env>` (the live 3-node Hetzner
 CAX21 ARM64 lab) is explicitly preserved as the maintainer's reference and
 regression environment. It is **never** release-scrutinized and **never** ships
 as a v0.1 profile.
@@ -44,7 +44,7 @@ needs — so we know what to **copy**, what to **trim**, and what to **defer**.
 
 ## 2. The delta table
 
-| Concern | `g2r6-foa9` (lab) | `sandbox-single-node` (gate) | Action |
+| Concern | `<env>` (lab) | `sandbox-single-node` (gate) | Action |
 |---|---|---|---|
 | Nodes | 3-node Hetzner CAX21 ARM64 | 1 ARM64 Debian host | **Trim** to single node. Harvest k3s + role settings that are node-count-agnostic. |
 | Storage | Longhorn (replicated) + backup target | `local-path` | **Trim** Longhorn; reuse PVC sizing/class intent where it maps to local-path. |
@@ -96,7 +96,7 @@ Concrete settings to lift, because the lab already has them working on ARM64:
 When WP1S work hits a failure that looks like a platform bug rather than a
 trim artifact:
 
-1. Reproduce the same step on `g2r6-foa9`.
+1. Reproduce the same step on `<env>`.
 2. If it works on the lab but not the sandbox → the cause is in a **trim** (a
    role made conditional, local-path vs Longhorn, local-CA vs DNS-01). Localize
    there before suspecting the component.

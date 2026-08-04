@@ -38,7 +38,7 @@ ADR-0031 makes v0.1 a **profile matrix**, and the manifest mirrors it exactly:
 |---|---|---|
 | `sandbox-required` | `sandbox-single-node` profile — the **release gate**. | **Yes.** |
 | `aws-required` | `aws-arm64-multi-node` secondary lane. | No — informational unless it also passes. |
-| `lab-only` | `g2r6-foa9` reference/regression lab. | No — reference only. |
+| `lab-only` | `<env>` reference/regression lab. | No — reference only. |
 | `optional` | Shippable but not gate-required (e.g. monitoring). | Only if actually shipped in a release lane. |
 | `deferred` | Out of v0.1 scope (scaffold/future). | Excluded. |
 

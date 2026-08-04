@@ -17,7 +17,7 @@ superseded_by: "DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md"
 **Related ADR:** [ADR-0031](../decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md) (Accepted; this doc is its WP0 acceptance artifact)
 **Supersedes (as binding sequence):** [DMF OSS v0.1 Release Mission 2026-05-25.md](DMF%20OSS%20v0.1%20Release%20Mission%202026-05-25.md) (now superseded draft)
 **Premise basis:** [DMF OSS v0.1 Contributor Replicability Premise Pass 2026-05-25.md](DMF%20OSS%20v0.1%20Contributor%20Replicability%20Premise%20Pass%202026-05-25.md)
-**Work packages:** [WP1S](DMF%20OSS%20v0.1%20WP1S%20Single-Node%20Sandbox%20Lane%202026-05-25.md) · [WP-LAB](DMF%20OSS%20v0.1%20WP-LAB%20g2r6-foa9%20Reference%20Delta%202026-05-25.md) · [WP1A](DMF%20OSS%20v0.1%20WP1%20AWS%20Provider%20Profile%202026-05-25.md) · [WP2](DMF%20OSS%20v0.1%20WP2%20Bootstrap%20Independence%202026-05-25.md) · [WP3](DMF%20OSS%20v0.1%20WP3%20In-Cluster%20Platform%20Services%202026-05-25.md) · [WP4](DMF%20OSS%20v0.1%20WP4%20CMS%20User%20Administration%202026-05-25.md) · [WP5](DMF%20OSS%20v0.1%20WP5%20Release%20Verification%20and%20Tagging%202026-05-25.md)
+**Work packages:** [WP1S](DMF%20OSS%20v0.1%20WP1S%20Single-Node%20Sandbox%20Lane%202026-05-25.md) · [WP-LAB](DMF%20OSS%20v0.1%20WP-LAB%20Reference%20Delta%202026-05-25.md) · [WP1A](DMF%20OSS%20v0.1%20WP1%20AWS%20Provider%20Profile%202026-05-25.md) · [WP2](DMF%20OSS%20v0.1%20WP2%20Bootstrap%20Independence%202026-05-25.md) · [WP3](DMF%20OSS%20v0.1%20WP3%20In-Cluster%20Platform%20Services%202026-05-25.md) · [WP4](DMF%20OSS%20v0.1%20WP4%20CMS%20User%20Administration%202026-05-25.md) · [WP5](DMF%20OSS%20v0.1%20WP5%20Release%20Verification%20and%20Tagging%202026-05-25.md)
 
 ---
 
@@ -50,7 +50,7 @@ is what produced the stale AWS-as-gate framing.
 | **Atomic playbook** | A reusable playbook that installs or configures one platform capability (`300-k3s.yml`, `320-cert-manager.yml`, `640-awx.yml`, etc.). Atomic playbooks should stay shared across lanes wherever possible. They may read profile capability variables, but they should not be forked per provider unless behavior is genuinely different. |
 | **Lane wrapper** | A profile-specific orchestration entrypoint that selects which atomic playbooks run, in what order, for a lane. Wrappers make sequence differences explicit: sandbox can skip Longhorn/object backups/Headscale while AWS can add S3/SNS/KMS/Headscale work without cloning every atomic playbook. |
 | **Profile capability variables** | Manifest/inventory variables that describe what a lane needs (`dmf_storage_backend`, `dmf_ingress_mode`, `dmf_object_storage_enabled`, etc.). Prefer capability variables over provider-name conditionals so future lanes can reuse the same behavior. |
-| **Reference / regression lab** | A live environment used to compare behavior, harvest working settings, and catch regressions. It is **not** release-scrutinized and never ships as a profile. `g2r6-foa9` (the 3-node Hetzner ARM lab) is this. |
+| **Reference / regression lab** | A live environment used to compare behavior, harvest working settings, and catch regressions. It is **not** release-scrutinized and never ships as a profile. `<env>` (the 3-node Hetzner ARM lab) is this. |
 | **Secondary eligible-if-ready lane** | A release profile that gets real work but is **never** allowed to gate or delay the release. It ships in the v0.1 tag only if it passes its gates without holding up the sandbox lane. `aws-arm64-multi-node` is this. |
 
 ---
@@ -64,7 +64,7 @@ to right now.
 |---|---|---|---|
 | **`sandbox-single-node`** | **Release gate.** Default docs path. v0.1 cannot be tagged unless this passes its gates from a fresh clone. | Generic ARM64 Debian single host: local VM, bare metal, or cheap VPS. First live implementation harness is local Lima. | The claim is generic single-node ARM64 Debian. Lima is *how we build it first*, not *what we promise*. |
 | **`aws-arm64-multi-node`** | **Secondary, eligible-if-ready.** Real work, never gating. Ships in the tag only if it catches up without delaying sandbox. | ARM64 EC2 (Graviton), self-managed k3s (ADR-0018), Route53 / S3 / SNS / KMS, in-cluster Headscale + ntfy. | Terraform skeleton is **`tofu validate`-clean and template-complete, NOT plan-proven.** A real plan/apply needs an operator-named AWS profile + real Route53 zone + read-only preflight. See [WP1A](DMF%20OSS%20v0.1%20WP1%20AWS%20Provider%20Profile%202026-05-25.md). |
-| **`g2r6-foa9`** (and successors) | **Live reference / regression lab.** Not a release profile. | 3-node Hetzner CAX21 ARM64, with maintainer-specific deps (Cloudflare, B2, JuiceFS, Keychain shares, external Headscale, Tailscale). | No release claim. Used to compare against sandbox requirements and harvest known-good settings. See [WP-LAB](DMF%20OSS%20v0.1%20WP-LAB%20g2r6-foa9%20Reference%20Delta%202026-05-25.md). |
+| **`<env>`** (and successors) | **Live reference / regression lab.** Not a release profile. | 3-node Hetzner CAX21 ARM64, with maintainer-specific deps (Cloudflare, B2, JuiceFS, Keychain shares, external Headscale, Tailscale). | No release claim. Used to compare against sandbox requirements and harvest known-good settings. See [WP-LAB](DMF%20OSS%20v0.1%20WP-LAB%20Reference%20Delta%202026-05-25.md). |
 
 **Center of gravity:** `sandbox-single-node`. If a choice ever arises between
 polishing the AWS lane and making the sandbox lane concrete, the sandbox lane
@@ -126,7 +126,7 @@ Aligned with [ADR-0031 §Common gates](../decisions/0031-oss-v0-1-sandbox-and-aw
 |---|---|
 | `sandbox-single-node` | Local CA issued + trust documented; explicit `dmf.test` host mappings resolve; local-path storage works; OpenBao boots without operator-Mac / JuiceFS / Keychain material; AWX runs at low concurrency without starving the node; seeded admin passkey login. **No** Longhorn, **no** object-storage backup, **no** Headscale, **no** SNS/KMS/Route53, monitoring trimmed/optional. |
 | `aws-arm64-multi-node` | Route53 DNS-01 TLS; S3 read/write; SNS publish; AWS KMS auto-unseal; in-cluster Headscale wired to Authentik/OIDC at `hs.<base_domain>`; in-cluster ntfy at `ntfy.<base_domain>`; multi-node scheduling. |
-| `g2r6-foa9` | **None — not release-scrutinized.** Used as a behavioral reference only. |
+| `<env>` | **None — not release-scrutinized.** Used as a behavioral reference only. |
 
 ### 4.3 Release version manifest (mandatory common gate / release artifact)
 
@@ -189,7 +189,7 @@ WP0  ── Release Contract & Profile Matrix .................. THIS DOC (ancho
  ├─▶ WP1S  Single-Node Sandbox Lane ........................ FIRST ACTIONABLE ★
  │     the v0.1 release gate; immediate implementation center
  │
- ├── WP-LAB  g2r6-foa9 Reference Delta ..................... parallel, reference
+ ├── WP-LAB  <env> Reference Delta ..................... parallel, reference
  │     compare lab → sandbox; harvest known-good settings
  │
  ├── WP1A  AWS ARM64 Multi-Node Lane ....................... parallel, secondary
@@ -206,7 +206,7 @@ WP0  ── Release Contract & Profile Matrix .................. THIS DOC (ancho
 |---|---|---|
 | **WP0** | this doc | Anchor: vocabulary, lanes, contract, gates, trims, sequence. |
 | **WP1S** | [Single-Node Sandbox Lane](DMF%20OSS%20v0.1%20WP1S%20Single-Node%20Sandbox%20Lane%202026-05-25.md) | **First actionable.** The release gate. Lima Debian harness -> generic ARM64 Debian single-node claim. |
-| **WP-LAB** | [g2r6-foa9 Reference Delta](DMF%20OSS%20v0.1%20WP-LAB%20g2r6-foa9%20Reference%20Delta%202026-05-25.md) | Reference/regression delta. Not a release profile. |
+| **WP-LAB** | [`<env>` Reference Delta](DMF%20OSS%20v0.1%20WP-LAB%20Reference%20Delta%202026-05-25.md) | Reference/regression delta. Not a release profile. |
 | **WP1A** | [AWS Provider Profile](DMF%20OSS%20v0.1%20WP1%20AWS%20Provider%20Profile%202026-05-25.md) | Secondary lane. Bannered; Terraform validate-clean, not plan-proven. |
 | **WP2** | [Bootstrap Independence](DMF%20OSS%20v0.1%20WP2%20Bootstrap%20Independence%202026-05-25.md) | Split: sandbox-local seed for the gate; KMS/SSM/SNS for AWS. Kiosk = follow-on. |
 | **WP3** | [In-Cluster Platform Services](DMF%20OSS%20v0.1%20WP3%20In-Cluster%20Platform%20Services%202026-05-25.md) | Split: sandbox trims Headscale + heavy ntfy; AWS gets in-cluster Headscale/OIDC + ntfy + SNS. |

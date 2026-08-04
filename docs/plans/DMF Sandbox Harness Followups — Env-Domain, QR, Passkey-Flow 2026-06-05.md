@@ -15,7 +15,7 @@ do them in any order. Pairs with `docs/plans/DMF Sandbox E2E Test Harness Plan
   `bootstrap` (drive dmf-init's API) → `verify` (reuse `bootstrap-sandbox-verify.yml`).
 - **Component repos** are siblings inside the umbrella `~/repos/dmfdeploy/`
   (`dmf-env`, `dmf-infra`, `dmf-init`, …), each its own git repo on `main`.
-- **A live sandbox env exists** (id rotates, e.g. `gn0f-iteu`; current one under
+- **A live sandbox env exists** (id rotates, e.g. `<env>`; current one under
   `/tmp/dmf-init-montest/envs/<env>/`, VM `dmf-sandbox` via `limactl list`). The
   fixed test operator is **`montest-op`** / `montest@dmf.test`.
 - **Iterate WITHOUT a full rollout.** To re-run a playbook against the live env

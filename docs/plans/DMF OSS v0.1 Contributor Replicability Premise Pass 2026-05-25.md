@@ -28,7 +28,7 @@ The operator has confirmed (2026-05-25 chat):
 - **Hard constraint:** v0.1 is an **initial minimal system that contributors
   can replicate**. It is **not** a replacement for the current Hetzner
   architecture, not a deprecation of the work spent landing ADR-0028 /
-  ADR-0024 / ADR-0021, and not a demotion of the live `g2r6-foa9` setup
+  ADR-0024 / ADR-0021, and not a demotion of the live `<env>` setup
   to second-class status.
 - **Future direction unchanged:** Multi-provider remains the eventual goal
   (per `project_multi_provider_resource_selection` memory and ADR-0026).
@@ -116,8 +116,8 @@ sandbox deploy.**
   *whether the existing Hetzner working setup can be re-derived as a
   generic single-node profile* without rebuilding most of it on AWS
   first.
-- **Critical reframe:** Under this persona, the existing **`g2r6-foa9`
-  Hetzner setup is closer to v0.1 than the AWS plan is.** g2r6-foa9
+- **Critical reframe:** Under this persona, the existing **`<env>`
+  Hetzner setup is closer to v0.1 than the AWS plan is.** `<env>`
   already proves the loop on a single ARM64 box. The v0.1 work could be
   primarily *documentation hygiene + install-script cleanup + secrets
   bootstrapping without the operator Mac* — i.e., a much smaller WP2 +
@@ -232,7 +232,7 @@ framing. Key convergence points:
    - `sandbox-single-node` — v0.1 release gate, primary docs path.
    - `aws-arm64-multi-node` — parallel lane, eligible for v0.1 only if
      it catches up without delaying the sandbox.
-   - `g2r6-foa9` — live lab / regression reference, **not** a release
+   - `<env>` — live lab / regression reference, **not** a release
      profile and explicitly preserved as the operator's testbed.
 3. **Claim split** — v0.1 sandbox claims contributor-replicable
    end-to-end install/auth/operator workflow; v0.1 AWS multi-node (if
@@ -285,7 +285,7 @@ Decision is preserved at §Historical draft of the ADR for context.
 ## 5. Things I am explicitly *not* recommending
 
 - Not recommending discarding the current Hetzner setup or the
-  `g2r6-foa9` lab. The lab is explicitly preserved as Profile 3
+  `<env>` lab. The lab is explicitly preserved as Profile 3
   (reference, not release).
 - Not recommending discarding ADR-0028 / ADR-0024 / ADR-0021 /
   ADR-0011 / ADR-0015 / ADR-0030 work. All remain in force.

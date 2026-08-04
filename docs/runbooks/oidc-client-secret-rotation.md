@@ -46,7 +46,7 @@ the consuming app's Secret path.
 ## TL;DR
 
 ```bash
-# Substitute: <env> with the live env (current: g2r6-foa9)
+# Substitute: <env> with the live env (current id: see the generated STATUS.local.md)
 #             <provider> with the Authentik provider name (e.g. "DMF Console")
 #             <secret-path> with the OpenBao path (e.g. secret/apps/dmf-cms/oidc)
 #             <namespace>/<secret> with the consuming K8s Secret
@@ -268,7 +268,7 @@ envs. When this happens:
    incident.
 2. **Bound the deferral** — only defer if the env will be torn down
    before the deferred risk could plausibly be exercised. Hetzner
-   experiment envs (current: `g2r6-foa9`) typically have lifetimes of
+   experiment envs (current: `<env>`) typically have lifetimes of
    days to weeks; deferring rotation for an OIDC client_secret on such
    an env is bounded by the env teardown.
 3. **Track the deferral** — note in STATUS that the rotation was

@@ -173,7 +173,7 @@ The build playbook runs on the operator workstation or an on-cluster Kaniko Job 
 
 ### Lane B — Catalog Helm path (NMOS first; pattern for future media functions) ✅ Landed 2026-05-23
 
-Lane B landed on `g2r6-foa9`: AWX `media-launch-nmos-cpp` job 131 succeeded,
+Lane B landed on `<env>`: AWX `media-launch-nmos-cpp` job 131 succeeded,
 the Helm release `nmos-cpp` is deployed in `nmos`, images are pulled from
 cluster-internal Zot, and the launcher uses an explicit `k8s_info` readiness
 gate before the NetBox lifecycle tag flip. The original work breakdown is

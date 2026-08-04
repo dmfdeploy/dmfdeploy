@@ -126,7 +126,7 @@ up without delaying the sandbox lane**. Not gating.
 - This profile may use AWS KMS auto-unseal as its release-default boot
   posture. The sandbox profile is **not** required to do so.
 
-### Profile 3 — `g2r6-foa9` and successors (live lab / regression reference)
+### Profile 3 — `<env>` and successors (live lab / regression reference)
 
 Explicitly preserved as the maintainer's live lab and regression reference.
 **Not** a release profile.
@@ -224,7 +224,7 @@ Does **not** replace or deprecate:
   low-friction default lane that matches the actual operator-stated persona
   (trusted friends, GitHub-discovery contributors, possible vlog audience,
   self-hosted single-node sandbox as near-term goal).
-- **Positive** — The Hetzner lab (`g2r6-foa9` and successors) is freed from
+- **Positive** — The Hetzner lab (`<env>` and successors) is freed from
   the contradictory expectation of being both the experimental playground and
   the release contract. The lab keeps moving; v0.1 release scrutiny does not
   apply to it.
@@ -327,7 +327,7 @@ Re-acceptance criteria met:
   on this profile passing the verification matrix.
 - [x] `aws-arm64-multi-node` is the secondary lane; eligible for v0.1
   inclusion if ready, never gating.
-- [x] `g2r6-foa9` and successor labs are lab/regression reference, not
+- [x] `<env>` and successor labs are lab/regression reference, not
   release profiles, and are exempt from v0.1 release scrutiny.
 - [x] Open decisions O1–O6 are closed (DNS/TLS, reference catalog,
   sandbox Headscale, MFA-by-profile, ADR-0026 timing, release artifact
