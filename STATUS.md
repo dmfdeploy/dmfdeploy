@@ -1376,7 +1376,7 @@ is a human browser ceremony, not automatable). Everything else in
 `bootstrap-sandbox-verify.yml` passed (incl. OIDC admin bridge: 7 apps, DMF
 groups scope). Env `<env>` left running at a clean slate for the operator to
 enroll passkeys + drive the Console loop (gate #2) if desired. Teardown:
-`rm -rf ~/.dmfdeploy/envs/`<env>`` + `limactl delete -f dmf-sandbox`.
+`rm -rf ~/.dmfdeploy/envs/<env>` + `limactl delete -f dmf-sandbox`.
 
 ### 🟢 Break-glass-email hijack class fix landed (ADR-0024 §4) — `zy9q-1015` live-remediated (2026-05-28 close)
 
