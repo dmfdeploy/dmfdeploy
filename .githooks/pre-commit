@@ -73,10 +73,21 @@ fi
 # skip it. The identifier list is derived from live env state on every run —
 # never typed in — so it follows env rotation instead of going stale.
 if [ -x "$REPO_ROOT/bin/check-live-env-leak.sh" ]; then
-    if ! "$REPO_ROOT/bin/check-live-env-leak.sh" --staged >/dev/null 2>&1; then
+    # Run ONCE, capturing output and status together. The earlier wiring ran a
+    # silenced first pass and re-ran on failure — which discarded the script's
+    # own skip announcement, so "no env store, gate skipped" printed nothing and
+    # the bypass was silent, defeating the announce-don't-be-silent design.
+    # The || arm keeps set -e from aborting on a non-zero gate status before
+    # anything is printed — a silent refusal is as bad as a silent skip.
+    _leak_rc=0
+    _leak_out="$("$REPO_ROOT/bin/check-live-env-leak.sh" --staged 2>&1)" || _leak_rc=$?
+    case "$_leak_out" in
+        *"no env store"*|*"skipping"*) printf '%s\n' "$_leak_out" ;;
+    esac
+    if [ "$_leak_rc" -ne 0 ]; then
         echo "" >&2
-        "$REPO_ROOT/bin/check-live-env-leak.sh" --staged >&2
-        echo "[pre-commit] live environment identifier in staged changes — refusing commit" >&2
+        printf '%s\n' "$_leak_out" >&2
+        echo "[pre-commit] live environment identifier gate refused the commit" >&2
         exit 1
     fi
 fi

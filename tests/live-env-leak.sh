@@ -125,6 +125,17 @@ rc_j="$(DMF_DATA_ROOT="$WORK/store" UMBRELLA_DIR="$WORK/plain" "$GATE" --staged 
 [ "$rc_j" = "2" ] && ok "J: staged enumeration failure fails closed (exit 2)" \
                   || bad "J: staged outside a repo reported clean/empty (exit $rc_j)"
 
+# K: a staged filename containing the old sed delimiter must not hide a leak.
+# The prefix was once built as a sed program from the path, so 'a|b.md' broke
+# the pipeline and the failed substitution reported a MATCHING blob as clean.
+K="$WORK/pipe"; rm -rf "$K"; mkdir -p "$K"
+git -C "$K" init --quiet 2>/dev/null
+printf 'doc naming env %s\n' "$FIXTURE_ID" > "$K/a|b.md"
+git -C "$K" add -A 2>/dev/null
+rc_k="$(DMF_DATA_ROOT="$WORK/store" UMBRELLA_DIR="$K" "$GATE" --staged >/dev/null 2>&1; echo $?)"
+[ "$rc_k" = "1" ] && ok "K: leak caught in a pipe-delimiter filename" \
+                  || bad "K: FAIL-OPEN — pipe-named staged leak missed (exit $rc_k)"
+
 # ctrl: a missing store must ANNOUNCE the skip, not pass silently.
 out="$(run "$WORK/nonexistent")"
 if printf '%s' "$out" | grep -qi 'no env store'; then
