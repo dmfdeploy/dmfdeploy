@@ -73,6 +73,24 @@ mkdir -p "$WORK/empty/envs"
 [ "$(rc "$WORK/empty")" = "0" ] && ok "E: empty env store matches nothing" \
                                 || bad "E: empty store produced matches"
 
+# G: --staged must read the INDEX, not the worktree. Stage a leaking file, then
+# delete it from the worktree: the commit would still carry the leak from the
+# index, so a gate that consults the worktree reports clean while the leak
+# lands. This is the exact skip an earlier `[ -f <worktree path> ]` guard
+# created.
+G="$WORK/staged"; rm -rf "$G"; mkdir -p "$G"
+git -C "$G" init --quiet 2>/dev/null
+git -C "$G" config user.email t@e; git -C "$G" config user.name t
+printf 'doc naming env %s\n' "$FIXTURE_ID" > "$G/leak.md"
+git -C "$G" add leak.md 2>/dev/null
+rm -f "$G/leak.md"                     # staged, but absent from the worktree
+rc_staged="$(DMF_DATA_ROOT="$WORK/store" UMBRELLA_DIR="$G" "$GATE" --staged >/dev/null 2>&1; echo $?)"
+if [ "$rc_staged" = "1" ]; then
+    ok "G: --staged reads the index, catching a worktree-deleted staged leak"
+else
+    bad "G: FAIL-OPEN — staged leak missed when absent from the worktree (exit $rc_staged)"
+fi
+
 # ctrl: a missing store must ANNOUNCE the skip, not pass silently.
 out="$(run "$WORK/nonexistent")"
 if printf '%s' "$out" | grep -qi 'no env store'; then
