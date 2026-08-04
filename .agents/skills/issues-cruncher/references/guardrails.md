@@ -26,7 +26,7 @@ real failures this session.
       (different agent, or orchestrator-authored test against the implementer's fix).
 - [ ] **Clean-tree path** for artifact-fallback repos: verify from a clean export,
       not the dirty tree where built artifacts mask the fallback
-      (`.qwen/skills/clean-tree-verification-protocol`).
+      (`.agents/skills/clean-tree-verification-protocol`).
 
 ## After push / at PR
 - [ ] **Fresh-checkout verify the *pushed* branch** (requires the push first — this

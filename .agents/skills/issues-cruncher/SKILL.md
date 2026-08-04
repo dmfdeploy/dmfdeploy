@@ -37,6 +37,12 @@ it — do not inline its content here.
    code changes.
 7. **Human approval gate** for destructive / migration / costed-cloud / public-publish
    / dependency-license actions. Green ≠ mergeable if rules can be bypassed.
+8. **Anti-churn rules travel in the dispatch, verbatim.** Every WO (phase 3) and
+   every gate request (phase 4) carries the five rules from
+   `references/anti-churn-rules.md` — paste exactly the delimited
+   `DISPATCH-PAYLOAD` block, nothing else. **Never cite them from memory or
+   paraphrase**: recall is not enforcement, and a paraphrase is a different
+   instruction from the one that was reviewed.
 
 ## The loop (8 phases)
 
@@ -87,6 +93,7 @@ round. (`references/tiers.md`)
 | `references/github-adapter.md` | Phase 0/7 — CI + tracker truth, close-keyword probing, merge guard |
 | `references/dmf-profile.md` | This environment's concrete profile facts |
 | `references/tiers.md` | Phase 1 — risk-signal tiers + checkpoint gates |
+| `references/anti-churn-rules.md` | Phases 3–4 — the five rules pasted verbatim into every WO and gate dispatch (hard gate 8) |
 | `references/guardrails.md` | Phases 5–7 — the hard-gate checklist in full |
 | `references/harness-ops.md` | agent-bridge operation (liveness, flush, hung-agent policy) |
 | `references/orchestrator-primer.md` | Your lane, in depth |
@@ -96,8 +103,12 @@ round. (`references/tiers.md`)
 ## Reuse (compose, don't duplicate)
 
 This skill is the orchestrator spine over existing implementer/verification skills
-in `dmfdeploy/.qwen/skills/`: `orchestrated-lifter-workflow`,
-`fix-round-verification-protocol`, `clean-tree-verification-protocol`,
-`multi-repo-pr-submission`, `work-order-commit-review`, `adversarial-infra-crosscheck`.
+in the canonical store `.agents/skills/`: `fix-round-verification-protocol`,
+`clean-tree-verification-protocol`, `multi-repo-pr-submission`,
+`work-order-commit-review`, `adversarial-infra-crosscheck`.
 Reference them; do not restate them. (Flagship instance of the canonical
 cross-agent skills effort, umbrella issue #46.)
+
+> Cite skills from `.agents/skills/` — never from a `.claude/` or `.qwen/` view.
+> Those are generated and gitignored (ADR-0042), so a citation into one points at
+> a path that may not exist in a fresh clone.
