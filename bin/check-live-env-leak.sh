@@ -103,7 +103,17 @@ case "$MODE" in
                 echo "FAIL(2): scan error on the staged blob for '$f'." >&2
                 exit 2
             fi
-            [ "$rc" -eq 0 ] && hits+="$(printf '%s\n' "$h" | sed "s|^|${f}:|" | cut -d: -f1,2)"$'\n'
+            # Prefix the filename in pure shell. An earlier revision built a sed
+            # program from the path ("s|^|$f:|"), so a filename containing the
+            # delimiter broke the pipeline — and the failed substitution yielded
+            # an empty string, reporting a MATCHING blob as clean. Data must
+            # never become program text.
+            if [ "$rc" -eq 0 ]; then
+                while IFS= read -r match_line; do
+                    [ -n "$match_line" ] || continue
+                    hits+="${f}:${match_line%%:*}"$'\n'
+                done <<< "$h"
+            fi
         done <<< "$files"
         hits="${hits%$'\n'}"
         ;;
