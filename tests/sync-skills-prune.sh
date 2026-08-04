@@ -8,11 +8,17 @@
 #      entry that most needs pruning.
 #   B  a stale --copy DIRECTORY (canonical gone) must be detected.
 #   C  a view whose skill no longer TARGETS that agent must be detected.
-#   D  an unreadable canonical SKILL.md must not read as "targets all agents"
+#   D  a MISSING canonical SKILL.md must not read as "targets all agents"
 #      (skill_meta prints an empty agents= on OSError, indistinguishable from a
 #      legitimately absent agents: key). NOTE: this case also fails on the
 #      pre-fix script, because check step (2) independently flags a missing
-#      SKILL.md — it does not isolate the fail-closed change.
+#      SKILL.md — it does not isolate the fail-closed change. Case E does.
+#   E  an UNREADABLE-but-present SKILL.md must not materialize the skill into a
+#      view it does not target. A `-f` test passes for such a file, so the
+#      empty agents= from the OSError handler still read as "all agents" and
+#      --apply projected a qwen-only skill into the claude view. Asserts on
+#      --apply's actual output, not on --check, because that is the surface
+#      that puts a malformed skill in front of an agent.
 #   ctrl  a clean tree still passes (the fix must not fire false positives).
 #
 # Why this matters beyond hygiene: per ADR-0042 the generated views are what
@@ -80,7 +86,25 @@ build "agents: [qwen]"
 expect "C: de-targeted view detected" 1 "$(check_rc)"
 
 build ""; rm -f "$ROOT/.agents/skills/alpha/SKILL.md"
-expect "D: unreadable SKILL.md fails closed" 1 "$(check_rc)"
+expect "D: missing SKILL.md fails closed" 1 "$(check_rc)"
+
+# E: present but unreadable. Must not project a qwen-only skill into .claude/.
+# Skipped as root, where a mode-000 file is still readable and the fixture
+# cannot express the condition.
+build "agents: [qwen]"
+rm -rf "$ROOT/.claude/skills/alpha"          # not targeted; start from truth
+chmod 000 "$ROOT/.agents/skills/alpha/SKILL.md"
+if cat "$ROOT/.agents/skills/alpha/SKILL.md" >/dev/null 2>&1; then
+    echo "  · E skipped: SKILL.md still readable after chmod 000 (running as root?)"
+else
+    "$SCRIPT" --repo "$ROOT" --apply >/dev/null 2>&1
+    if [ -e "$ROOT/.claude/skills/alpha" ] || [ -L "$ROOT/.claude/skills/alpha" ]; then
+        bad "E: unreadable SKILL.md projected into a view it does not target"
+    else
+        ok "E: unreadable SKILL.md fails closed (not projected)"
+    fi
+fi
+chmod 644 "$ROOT/.agents/skills/alpha/SKILL.md" 2>/dev/null || true
 
 echo "sync-skills-prune: $pass passed, $fail failed"
 [ "$fail" -eq 0 ] || exit 1

@@ -63,7 +63,10 @@ visibility = ""
 try:
     text = open(p, encoding="utf-8").read()
 except OSError:
-    print("agents="); print("visibility="); sys.exit(0)
+    # Explicit read-failure signal. Emitting only empty values here is
+    # indistinguishable from a file that legitimately declares no agents:,
+    # which means "all agents" — so callers could not fail closed.
+    print("read_error=1"); print("agents="); print("visibility="); sys.exit(0)
 m = re.match(r"^---\n(.*?)\n---", text, re.DOTALL)
 block = m.group(1) if m else ""
 a = re.search(r"^agents:\s*(.+)$", block, re.MULTILINE)
@@ -79,16 +82,22 @@ PY
 }
 
 # Does skill <dir> target agent <name>? (absent agents: ⇒ all agents.)
-# Fail closed on an unreadable SKILL.md: skill_meta prints an empty agents= on
-# OSError, which is indistinguishable from a legitimately absent agents: key —
-# and "absent ⇒ all agents" would then materialize a malformed skill to every
-# view. No readable SKILL.md ⇒ targets nothing.
+# Fail closed when SKILL.md is missing OR unreadable. "Absent agents: ⇒ all
+# agents" means an empty agents= cannot be distinguished from a read failure by
+# value alone, so skill_meta emits read_error=1 and this checks it explicitly.
+# A -f test is not sufficient: a file that exists but cannot be opened (mode
+# 000, bad ACL) passes -f, and the empty agents= would then materialize a
+# malformed skill into EVERY view. No readable SKILL.md ⇒ targets nothing.
 targets_agent() {
-    local skill_md="$1" agent="$2" line agents=""
+    local skill_md="$1" agent="$2" line agents="" read_error=""
     [ -f "$skill_md" ] || return 1
     while IFS= read -r line; do
-        case "$line" in agents=*) agents="${line#agents=}" ;; esac
+        case "$line" in
+            agents=*)     agents="${line#agents=}" ;;
+            read_error=*) read_error="${line#read_error=}" ;;
+        esac
     done < <(skill_meta "$skill_md")
+    [ -n "$read_error" ] && return 1
     [ -z "$agents" ] && return 0
     case ",$agents," in *",$agent,"*) return 0 ;; *) return 1 ;; esac
 }
