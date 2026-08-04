@@ -187,10 +187,11 @@ Two sanctioned forms:
   **What may leave the operator's machine.** Public artifacts — issues, PRs,
   commit messages, ADRs, plan docs, this file — carry **outcomes and findings
   only**. "The gate returned FAIL with four findings" is a fact about the work
-  and is fine. A description of where or how the capture is kept is not, and
-  "the location is only described, not named" is not a defence. The asymmetry
-  binds this document too, which is why the paragraph above states what to
-  capture and says nothing about the store.
+  and is fine. The full public-surface rule — including the one further
+  sentence a public artifact may carry about records — is stated once, in the
+  `agent-conversation-recording` skill (§ Pointer direction). This document
+  defers to it rather than restating it: two statements of one rule drift,
+  and drift in this rule is how a violation ships.
 
   Two rules follow, both learned the hard way:
   - **Scrub before publishing, never after.** GitHub retains body and comment
@@ -199,9 +200,9 @@ Two sanctioned forms:
     artifacts under this rule exactly like the diff is.
   - **Check the property that was named, not the one that is easy to run.** A
     word-boundary grep for hosts, paths and identifiers answers a *literal*
-    question. Whether prose lets a reader infer the existence and nature of a
-    non-public store is a *semantic* one. Passing the first and declaring the
-    second clean is how umbrella #354 shipped and had to be reverted.
+    question; the pointer-direction rule asks a *semantic* one — what a reader
+    can infer from the prose. Passing the first and declaring the second clean
+    is how umbrella #354 shipped and had to be reverted.
 
   A FAIL from a one-shot gate escalates to the interactive form for the fix
   rounds; one-shot gates are never used to re-review their own findings.
