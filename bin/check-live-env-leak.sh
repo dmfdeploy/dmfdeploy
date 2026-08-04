@@ -139,6 +139,14 @@ case "$MODE" in
                 done <<< "$h"
             fi
         done <<< "$files"
+        # Filenames are content too: a file NAMED with a live identifier
+        # carries it into the tree even when every byte inside is clean.
+        while IFS= read -r f; do
+            [ -n "$f" ] || continue
+            for _id in "${ids[@]}"; do
+                case "$f" in *"$_id"*) hits+="${f} (the filename itself)"$'\n'; break ;; esac
+            done
+        done <<< "$files"
         hits="${hits%$'\n'}"
         ;;
     --tree)
@@ -151,6 +159,18 @@ case "$MODE" in
         fi
         hits=""
         [ "$rc" -eq 0 ] && hits="$(printf '%s\n' "$h" | cut -d: -f1,2)"
+        # Filenames are content too — same rule as the staged mode.
+        names="$(git -C "$TREE" ls-files 2>/dev/null)" || {
+            echo "FAIL(2): could not list tracked files in $TREE." >&2
+            exit 2
+        }
+        while IFS= read -r f; do
+            [ -n "$f" ] || continue
+            for _id in "${ids[@]}"; do
+                case "$f" in *"$_id"*) hits+=$'\n'"${f} (the filename itself)"; break ;; esac
+            done
+        done <<< "$names"
+        hits="${hits#$'\n'}"
         ;;
     *) echo "usage: $0 [--staged | --tree <dir>]" >&2; exit 2 ;;
 esac
@@ -164,5 +184,11 @@ echo "FAIL(1): a LIVE environment identifier appears in the content being commit
 echo "  Public repos must not carry live-environment specifics. Redact to a" >&2
 echo "  placeholder, keeping the surrounding rationale." >&2
 echo "  Locations (the identifier itself is deliberately not printed):" >&2
+# A reported PATH can itself contain an identifier — a file named after one —
+# so every hit line is redacted before printing. Pure substitution: the
+# identifier list never becomes program text.
+for _id in "${ids[@]}"; do
+    hits="${hits//"$_id"/<env>}"
+done
 printf '%s\n' "$hits" | sed 's/^/      /' >&2
 exit 1

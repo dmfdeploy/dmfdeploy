@@ -81,8 +81,11 @@ if [ -x "$REPO_ROOT/bin/check-live-env-leak.sh" ]; then
     # anything is printed — a silent refusal is as bad as a silent skip.
     _leak_rc=0
     _leak_out="$("$REPO_ROOT/bin/check-live-env-leak.sh" --staged 2>&1)" || _leak_rc=$?
+    # Surface EVERY skip variant the gate can announce — "no env store" and
+    # "holds no envs" are different messages, and matching only one made the
+    # other a silent bypass. Clean runs stay quiet like the other gates.
     case "$_leak_out" in
-        *"no env store"*|*"skipping"*) printf '%s\n' "$_leak_out" ;;
+        *"no env store"*|*"holds no envs"*|*"skipping"*) printf '%s\n' "$_leak_out" ;;
     esac
     if [ "$_leak_rc" -ne 0 ]; then
         echo "" >&2

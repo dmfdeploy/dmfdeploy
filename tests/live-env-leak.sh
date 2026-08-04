@@ -187,6 +187,53 @@ else
                       || bad "O: FAIL-OPEN — store behind a 000 root skipped as absent (exit $rc_o)"
 fi
 
+# P: the HOOK must surface the gate's skip announcements — both variants. The
+# wiring once matched only "no env store", so an existing-but-empty store
+# ("holds no envs") was a silent bypass. Hook-level: runs the real pre-commit
+# from a fixture repo carrying the gate, since the hook skips repos without it.
+HOOK="$UMBRELLA_DIR/.githooks/pre-commit"
+PFIX="$WORK/hookfix"; rm -rf "$PFIX"; mkdir -p "$PFIX/bin"
+git -C "$PFIX" init --quiet 2>/dev/null
+cp "$GATE" "$PFIX/bin/check-live-env-leak.sh"; chmod +x "$PFIX/bin/check-live-env-leak.sh"
+mkdir -p "$WORK/emptystore/envs"
+p_out="$(cd "$PFIX" && DMF_DATA_ROOT="$WORK/emptystore" GITLEAKS_HOOK_QUIET=1 bash "$HOOK" 2>&1)"; p_rc=$?
+if [ "$p_rc" = "0" ] && printf '%s' "$p_out" | grep -q 'holds no envs'; then
+    ok "P: hook surfaces the empty-store skip announcement"
+else
+    bad "P: silent bypass — hook exit $p_rc, announcement absent"
+fi
+
+# Q: a file NAMED with a live identifier is a leak even with clean content —
+# the name reaches the tree. And the refusal must REDACT the identifier from
+# the reported path, or the report itself violates the no-print guarantee.
+Q="$WORK/idname"; rm -rf "$Q"; mkdir -p "$Q"
+git -C "$Q" init --quiet 2>/dev/null
+printf 'perfectly clean content\n' > "$Q/${FIXTURE_ID}-notes.md"
+git -C "$Q" add -A 2>/dev/null
+rc_q="$(DMF_DATA_ROOT="$WORK/store" UMBRELLA_DIR="$Q" "$GATE" --staged >/dev/null 2>&1; echo $?)"
+out_q="$(DMF_DATA_ROOT="$WORK/store" UMBRELLA_DIR="$Q" "$GATE" --staged 2>&1)"
+if [ "$rc_q" = "1" ] && ! printf '%s' "$out_q" | grep -q "$FIXTURE_ID" \
+   && printf '%s' "$out_q" | grep -q '<env>'; then
+    ok "Q: id-named staged file caught, path redacted in the report"
+elif [ "$rc_q" != "1" ]; then
+    bad "Q: FAIL-OPEN — identifier-carrying filename passed (exit $rc_q)"
+else
+    bad "Q: caught, but the report echoed the identifier"
+fi
+
+# R: same rule in --tree mode.
+R="$WORK/idname-tree"; rm -rf "$R"; mkdir -p "$R"
+git -C "$R" init --quiet 2>/dev/null
+printf 'clean\n' > "$R/${FIXTURE_ID}.cfg"
+git -C "$R" add -A 2>/dev/null
+rc_r="$(DMF_DATA_ROOT="$WORK/store" "$GATE" --tree "$R" >/dev/null 2>&1; echo $?)"
+out_r="$(DMF_DATA_ROOT="$WORK/store" "$GATE" --tree "$R" 2>&1)"
+if [ "$rc_r" = "1" ] && ! printf '%s' "$out_r" | grep -q "$FIXTURE_ID"; then
+    ok "R: id-named file caught in tree mode, report redacted"
+else
+    bad "R: tree-mode filename leak (exit $rc_r) or identifier echoed"
+fi
+
 # ctrl: a missing store must ANNOUNCE the skip, not pass silently.
 out="$(run "$WORK/nonexistent")"
 if printf '%s' "$out" | grep -qi 'no env store'; then
