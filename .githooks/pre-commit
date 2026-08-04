@@ -67,6 +67,20 @@ elif [ "${GITLEAKS_HOOK_QUIET:-0}" != "1" ]; then
     echo "             brew install gitleaks (silence with GITLEAKS_HOOK_QUIET=1)" >&2
 fi
 
+# Live environment identifier (umbrella issue #361). Deliberately placed with
+# the secret scans and ABOVE the STATUS_HOOK_SKIP hatch: this is a
+# public-surface gate, not a doc-hygiene one, so the emergency hatch must not
+# skip it. The identifier list is derived from live env state on every run —
+# never typed in — so it follows env rotation instead of going stale.
+if [ -x "$REPO_ROOT/bin/check-live-env-leak.sh" ]; then
+    if ! "$REPO_ROOT/bin/check-live-env-leak.sh" --staged >/dev/null 2>&1; then
+        echo "" >&2
+        "$REPO_ROOT/bin/check-live-env-leak.sh" --staged >&2
+        echo "[pre-commit] live environment identifier in staged changes — refusing commit" >&2
+        exit 1
+    fi
+fi
+
 # Only fire the umbrella-specific bits when umbrella scripts exist. Component
 # repos use the same hooksPath only if their operators opt in; we don't want to
 # break them silently if they happen to share a config.
