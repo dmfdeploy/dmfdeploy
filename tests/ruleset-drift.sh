@@ -15,7 +15,7 @@
 #   E  a PARTIAL API response exits 2 — never compares a subset and calls it OK
 #   F  an expectation carrying a field the check does not read exits 2
 #
-# Hermetic: stubs `gh` on PATH so no network or token is involved.
+# Hermetic: stubs `curl` on PATH so no network or credential is involved.
 set -uo pipefail
 
 UMBRELLA_DIR="${UMBRELLA_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
@@ -35,14 +35,20 @@ FULL='{"name":"main-protection","target":"branch","enforcement":"active",
 {"type":"pull_request","parameters":{"required_approving_review_count":1,"require_code_owner_review":true}},
 {"type":"required_status_checks","parameters":{"required_status_checks":[{"context":"ci"},{"context":"dco"}]}}]}'
 
-# gh stub: emits whatever fixture the test selected.
-cat > "$WORK/bin/gh" <<'STUB'
+# curl stub: writes the selected fixture to -o and echoes the status to stdout,
+# matching the real invocation's `-o <file> -w '%{http_code}'`.
+cat > "$WORK/bin/curl" <<'STUB'
 #!/usr/bin/env bash
-[ -f "$GH_STUB_BODY" ] || { echo "stub: no body" >&2; exit 1; }
-[ "${GH_STUB_FAIL:-0}" = "1" ] && { echo '{"message":"Not Found"}' >&2; exit 1; }
-cat "$GH_STUB_BODY"
+out=""; prev=""
+for a in "$@"; do [ "$prev" = "-o" ] && out="$a"; prev="$a"; done
+if [ "${GH_STUB_FAIL:-0}" = "1" ]; then
+  [ -n "$out" ] && printf '%s' '{"message":"Not Found"}' > "$out"
+  printf '404'; exit 0
+fi
+[ -n "$out" ] && cat "$GH_STUB_BODY" > "$out"
+printf '200'
 STUB
-chmod +x "$WORK/bin/gh"
+chmod +x "$WORK/bin/curl"
 
 run() { PATH="$WORK/bin:$PATH" UMBRELLA_DIR="$WORK/repo" GH_STUB_BODY="$1" GH_STUB_FAIL="${2:-0}" \
         "$GATE" >/dev/null 2>&1; echo $?; }
@@ -67,6 +73,25 @@ cp "$WORK/exp-good.json" "$WORK/repo/.github/expected-ruleset.json"
 
 # D: cannot read at all.
 [ "$(run "$WORK/full.json" 1)" = "2" ] && ok "D: unreadable ruleset exits 2" || bad "D: did not fail closed"
+
+# D2: isolates the HTTP STATUS check. D alone does not: with the status check
+# removed, a {"message":"Not Found"} body still trips the presence checks, so D
+# passes for the wrong reason. Here the body is a VALID ruleset served with a
+# non-200 status — presence checks would happily accept it, so only an explicit
+# status check can reject it. A cached or errored response must never be
+# compared as if it were live.
+cat > "$WORK/bin/curl" <<'STUB'
+#!/usr/bin/env bash
+out=""; prev=""
+for a in "$@"; do [ "$prev" = "-o" ] && out="$a"; prev="$a"; done
+[ -n "$out" ] && cat "$GH_STUB_BODY" > "$out"
+printf '%s' "${GH_STUB_CODE:-200}"
+STUB
+chmod +x "$WORK/bin/curl"
+rc="$(PATH="$WORK/bin:$PATH" UMBRELLA_DIR="$WORK/repo" GH_STUB_BODY="$WORK/full.json" \
+      GH_STUB_CODE=500 "$GATE" >/dev/null 2>&1; echo $?)"
+[ "$rc" = "2" ] && ok "D2: a valid body with a non-200 status exits 2" \
+                || bad "D2: non-200 accepted — status not checked (exit $rc)"
 
 # E: THE ORIGINAL FAIL-OPEN, restated for the token-free design.
 # A response omitting bypass_actors is now EXPECTED — the check does not read

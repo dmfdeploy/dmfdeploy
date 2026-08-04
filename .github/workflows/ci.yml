@@ -45,10 +45,11 @@ jobs:
         # and the unrelated-file fast path stays fast.
         run: bash tests/hook-scoping.sh
       - name: ruleset expectation is well-formed (#368)
-        # UNPRIVILEGED on purpose. The live comparison needs an Administration
-        # PAT and therefore runs only from trusted refs in governance-drift.yml;
-        # this step validates the committed expectation's shape with no secret
-        # in scope, so PR-controlled code never sees a privileged token.
+        # Shape check only. The live comparison runs on a schedule in
+        # governance-drift.yml and is credential-free — it reads the public
+        # ruleset endpoint unauthenticated. No PAT is required anywhere, and
+        # none may be added: an Administration-scoped token was withdrawn for
+        # being fail-open and reachable by PR-controlled code (#368).
         run: |
           set -eu
           f=.github/expected-ruleset.json

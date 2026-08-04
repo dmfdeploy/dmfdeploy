@@ -7,7 +7,12 @@
 # required check or turn off code-owner review and nothing would notice.
 # Anti-degradation belongs in a deterministic assertion, not in a role.
 #
-# ── TOKEN-FREE BY DESIGN, AND WHY ───────────────────────────────────────────
+# ── CREDENTIAL-FREE BY DESIGN, AND WHY ──────────────────────────────────────
+# This reads the PUBLIC ruleset endpoint with no credential at all — no PAT and
+# no GITHUB_TOKEN. Verified: the unauthenticated response yields a projection
+# IDENTICAL to the authenticated one for every field compared here, so
+# authenticating buys nothing and only creates custody to get wrong.
+#
 # An earlier revision took an Administration-scoped PAT so it could also assert
 # bypass_actors. That was withdrawn for two independent reasons:
 #
@@ -19,7 +24,11 @@
 #      minutes BEFORE the PAT existed, certifying zero bypass actors with a
 #      token that cannot see them.
 #   2. ADR-0007 (Accepted) forbids secrets in environment variables, which is
-#      how a PAT reaches a workflow step.
+#      how a PAT reaches a workflow step. Note that GITHUB_TOKEN is a secret
+#      too — a GitHub App installation token — so exporting it as GH_TOKEN
+#      would sit under the same ban. Calling that arrangement "token-free"
+#      while exporting a secret was the wording this file previously used, and
+#      it was wrong. Nothing is exported now.
 #
 # So this covers exactly the fields any authenticated caller can read, and does
 # NOT claim to cover bypass actors. That gap is printed rather than hidden — a
@@ -41,14 +50,22 @@ EXPECTED="$UMBRELLA_DIR/.github/expected-ruleset.json"
 MODE="check"
 [ "${1:-}" = "--write" ] && MODE="write"
 
-command -v gh >/dev/null 2>&1 || { echo "FAIL(2): gh not available — cannot read the live ruleset" >&2; exit 2; }
-command -v jq >/dev/null 2>&1 || { echo "FAIL(2): jq not available" >&2; exit 2; }
+command -v curl >/dev/null 2>&1 || { echo "FAIL(2): curl not available — cannot read the ruleset" >&2; exit 2; }
+command -v jq   >/dev/null 2>&1 || { echo "FAIL(2): jq not available" >&2; exit 2; }
 
-live_raw="$(gh api "repos/$REPO/rulesets/$RULESET_ID" 2>&1)" || {
-    echo "FAIL(2): could not read the ruleset for $REPO ($RULESET_ID)." >&2
+# Unauthenticated, public endpoint. Status is checked explicitly: a non-200 must
+# fail closed rather than let a body like {"message":"Not Found"} flow into the
+# comparison.
+API="${DMF_RULESET_API:-https://api.github.com}"
+http_code="$(curl -sS -o /tmp/dmf-ruleset.$$ -w '%{http_code}' \
+             -H 'Accept: application/vnd.github+json' \
+             "$API/repos/$REPO/rulesets/$RULESET_ID" 2>/dev/null || echo 000)"
+live_raw="$(cat /tmp/dmf-ruleset.$$ 2>/dev/null || true)"; rm -f /tmp/dmf-ruleset.$$
+if [ "$http_code" != "200" ]; then
+    echo "FAIL(2): could not read the ruleset for $REPO ($RULESET_ID) — HTTP $http_code." >&2
     printf '%s\n' "$live_raw" | head -3 | sed 's/^/  /' >&2
     exit 2
-}
+fi
 
 # Every field compared must be PRESENT, not merely truthy. A missing key must
 # fail closed rather than project to a benign-looking default — that is exactly
@@ -101,7 +118,7 @@ fi
 
 if [ "$live" = "$expected" ]; then
     echo "OK: ruleset matches the committed expectation ($REPO ruleset $RULESET_ID)"
-    echo "NOTE: bypass actors are NOT covered by this check (token-free by design)."
+    echo "NOTE: bypass actors are NOT covered by this check (credential-free by design)."
     echo "      Audit them manually: Settings → Rules → main-protection → Bypass list."
     exit 0
 fi
