@@ -99,7 +99,7 @@ current experiment sprawl.
 | **Version manifest — arch** | Every shipped `sandbox-required`/`aws-required` runtime image has a `linux/arm64` manifest (`arch_arm64: confirmed`). |
 | **Version manifest — refs pinned** | No `component_repos[].current_observed_ref` is still `provisional` at tag time without an explicit operator waiver. |
 
-### 4.1 Sandbox-row result — `imc1-cyh4`, 2026-05-29 (machine path PASS)
+### 4.1 Sandbox-row result — `<env>`, 2026-05-29 (machine path PASS)
 
 First execution of the sandbox row, on a fresh cold rollout (Lima Debian VM +
 wizard env). **Machine path PASS:** fresh bootstrap (pre-seed 309/0, seed-bao
@@ -115,17 +115,17 @@ Outstanding before the row is a full PASS:
 
 Resolved since first run:
 - **Passkey browser-Console catalog path** (gate item 2) — **operator-confirmed
-  end-to-end on imc1-cyh4 2026-05-29** (human → browser → Console → AWX
+  end-to-end on `<env>` 2026-05-29** (human → browser → Console → AWX
   deploy/teardown, attributed to `dmf-cms-svc`).
 - CMS deploy/teardown **double-launch guard** shipped in dmf-cms `0.9.2`
-  (backend idempotency + frontend in-flight gate; verified on imc1-cyh4).
+  (backend idempotency + frontend in-flight gate; verified on `<env>`).
 
 Follow-up logged (not gating): **deploy↔finalise race** — near-simultaneous
 opposite actions race (different JTs, not covered by the same-action dedup);
 fix = per-entry cross-action lock. See WP1S §8.1.
 
 Findings + fixes are catalogued in
-[WP1S §8.1](DMF%20OSS%20v0.1%20WP1S%20Single-Node%20Sandbox%20Lane%202026-05-25.md#81-proven-on-imc1-cyh4-2026-05-29--machine-path--findings).
+[WP1S §8.1](DMF%20OSS%20v0.1%20WP1S%20Single-Node%20Sandbox%20Lane%202026-05-25.md#81-proven-on-env-2026-05-29--machine-path--findings).
 The §4 matrix above remains the AWS-row seed.
 
 ---

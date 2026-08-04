@@ -10,7 +10,7 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/166
 > alert suite, static probe lanes, AWX monitoring-apply lane, `195-are-we-ok-verify`)
 > and [#38](https://github.com/dmfdeploy/dmf-infra/pull/38) (WP-E + WP-G: verdict +
 > Platform-services dashboards, DMF/System provider split; re-land of #37, which
-> auto-merged into its stacked base). Live-verified on the `aoka-9dat` cloud sandbox
+> auto-merged into its stacked base). Live-verified on the `<env>` cloud sandbox
 > (fail-soft path: full rule suite with Alertmanager disabled). Open follow-ups are
 > tracked on issue #166: `dmf-runbooks/docs/alerts.md` runbook targets, AM inhibition
 > for warn/crit duplicate names, OQ-5 threshold baselining.

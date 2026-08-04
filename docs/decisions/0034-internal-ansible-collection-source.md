@@ -3,10 +3,10 @@
 **Status:** **Accepted (2026-05-29)** — mechanism locked to Forgejo-git
 (operator delegated the Zot-vs-Forgejo choice). The no-public-galaxy posture is
 binding now and partially proven: the v0.1 EE-bake interim is live and verified
-offline on `imc1-cyh4` (FIX 2). The permanent Forgejo-git internal source is
+offline on `<env>` (FIX 2). The permanent Forgejo-git internal source is
 tracked for implementation by the WP below; this ADR records the decision, not
 its completion.
-**Deciders:** @<handle>, Claude (orchestrator), Claude (implementer, imc1-cyh4 diagnosis)
+**Deciders:** @<handle>, Claude (orchestrator), Claude (implementer, `<env>` diagnosis)
 **Touches:** [ADR-0030](0030-console-i18n-and-airgap-posture.md) (air-gap/offline posture),
 [ADR-0031](0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md) (self-contained sandbox release gate),
 [ADR-0025](0025-ansible-in-cluster-pods-and-catalog-helm.md) (in-cluster EE),
@@ -14,7 +14,7 @@ its completion.
 
 ## Context
 
-On a fresh `sandbox-single-node` rollout (`imc1-cyh4`, 2026-05-29) the
+On a fresh `sandbox-single-node` rollout (`<env>`, 2026-05-29) the
 DMF Console catalog deploy failed. Root-cause chain: the Console launch
 depended on a NetBox inventory sync, which depended on an AWX
 `project_update` of the `awx-automation` project. The project update ran
@@ -85,7 +85,7 @@ launch (the exact mechanism that surfaced this bug).
   mirror update + EE rebuild, a deliberate (slower) process.
 - **Negative** — Two-layer story (EE-baked runtime + internal mirror for
   project sync) is more to document than "just fetch from Galaxy."
-- **Neutral** — The v0.1 EE-bake unblock (FIX 2 on `imc1-cyh4`) is a
+- **Neutral** — The v0.1 EE-bake unblock (FIX 2 on `<env>`) is a
   strict subset of this decision, so it is not wasted work.
 
 ## Alternatives considered

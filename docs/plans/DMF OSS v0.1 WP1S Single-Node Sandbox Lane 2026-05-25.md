@@ -10,7 +10,7 @@ superseded_by: "DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md"
 > sequencing is dropped (cloud claims are a named non-goal), and the remaining
 > gate (stranger-reproducibility) is carried by the successor plan (issue #36).
 
-**Status:** Active — **first actionable work package** after WP0. **Phase 3 (AWX fit) + Phase 4 (catalog loop, machine path) PROVEN on `imc1-cyh4` 2026-05-29** (see §8.1). **Operator-confirmed end-to-end on `imc1-cyh4` 2026-05-29** (passkey browser → Console → AWX deploy/teardown). Remaining before a v0.1 tag: a formal non-maintainer fresh-clone replicability run.
+**Status:** Active — **first actionable work package** after WP0. **Phase 3 (AWX fit) + Phase 4 (catalog loop, machine path) PROVEN on `<env>` 2026-05-29** (see §8.1). **Operator-confirmed end-to-end on `<env>` 2026-05-29** (passkey browser → Console → AWX deploy/teardown). Remaining before a v0.1 tag: a formal non-maintainer fresh-clone replicability run.
 **Date:** 2026-05-25
 **Author:** Claude (planning sweep, under ADR-0031 framing)
 **Anchor:** [WP0 Release Contract & Profile Matrix](DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md)
@@ -329,9 +329,9 @@ From a fresh clone, on a fresh ARM64 Debian single-node host:
 This list is the source for the **sandbox row** of the WP5 matrix, and the
 sandbox row **gates the v0.1 tag**.
 
-### 8.1 Proven on `imc1-cyh4` (2026-05-29) — machine path + findings
+### 8.1 Proven on `<env>` (2026-05-29) — machine path + findings
 
-A full cold rollout on a fresh Lima Debian VM + wizard env (`imc1-cyh4`,
+A full cold rollout on a fresh Lima Debian VM + wizard env (`<env>`,
 throwaway identity `marty-mcfly` / `delorean.dmf.test`) exercised this gate.
 **Machine path PASS:** items 1, 3, 4, 5, 7, 8, 9 verified — the `nmos-cpp`
 catalog loop runs deploy → health → lifecycle → teardown **end-to-end,
@@ -339,7 +339,7 @@ offline, attributed to `dmf-cms-svc`** over multiple cycles. Item 2 (passkey
 **browser** Console login) is **operator-confirmed (2026-05-29)**: the full
 human → browser → Console → AWX deploy/teardown path works, attributed to
 `dmf-cms-svc`. Item 6 (documented reset) is the one-`rm` teardown from the
-consolidation work. **Net: gate functionally met on imc1-cyh4; the remaining
+consolidation work. **Net: gate functionally met on `<env>`; the remaining
 pre-tag item is a formal non-maintainer fresh-clone run.**
 
 Findings surfaced + fixed (all gate-relevant):
@@ -365,7 +365,7 @@ Findings surfaced + fixed (all gate-relevant):
 - **Deploy↔finalise race** (follow-up, not built) — deploy (JT `media-launch`)
   and finalise (JT `media-finalise`) are *different* templates, so the 0.9.2
   same-action dedup does NOT serialize them; firing them ~1s apart raced on
-  imc1-cyh4 (jobs 92+96) into pods-up + tag `active` with a no-op finalise.
+  `<env>` (jobs 92+96) into pods-up + tag `active` with a no-op finalise.
   Fix direction: per-catalog-entry cross-action lock. Not a path failure.
 
 ---

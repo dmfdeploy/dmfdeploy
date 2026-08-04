@@ -78,9 +78,7 @@ Workspace** (tracked: umbrella #345, v0.2).
   sandbox envs (plain ssh, no -i passthrough); the Keychain ghcr.io token died —
   the gh-token stdin path is the working publish route.
 - Session record: operator-local; the 2026-08-02-PM handoff carries
-  the SSH-key lessons (the env root key
-  is the group_vars-pinned aliyun-keys .pem — NOT in ~/.ssh, NOT in the sops bundle)
-  and the autonomy provisions pending operator apply.
+  the SSH-key lessons and the autonomy provisions pending operator apply.
 
 ### ✅ THE SWITCH WORKS BOTH WAYS — b→a accepted on a mitigated stack; 0.4.4 released and live (2026-07-31)
 
@@ -181,8 +179,8 @@ pre-merge, zero escaped.
 
 ### ✅ Trio close-out: switch argv bug dead, reaper fixed live, guards landed, env clean (2026-07-29 evening)
 Orchestrated continuation of the morning arc below. Full records live on the umbrella
-issues and operator-local records; operator-local tooling still at
-`~/dmf-j1-artifacts-2026-07-29/`.
+issues and operator-local records; the supporting tooling is retained
+operator-local.
 
 - **Closed with live evidence:** #299 (2h soak PASS on intent — observed throttling proven
   **pre-existing** via 7-day timelines spanning the actual request-cut timestamps; chronic
@@ -205,7 +203,7 @@ issues and operator-local records; operator-local tooling still at
 - **New issues from tonight's evidence:** #314 (platform CFS throttling at tiny avg usage),
   #315 (unpinned upstream MXL ref), #316 (Forgejo pull-mirror races the release chain),
   #317 (ingress gate budget vs AWX cold boot).
-- **Env `v5on-r8aw`: torn down clean** — 0 releases/pods, lock free, AWX asleep, node idle.
+- **Env `<env>`: torn down clean** — 0 releases/pods, lock free, AWX asleep, node idle.
   Gotchas paid for: apply the autoscale tag while AWX sleeps → transient half-awake
   (CR fit-override side effect); a saturated mxl data plane can starve the AWX ingress
   warmup (the #309 trap in miniature) — quiet it with `kubectl -n mxl scale deploy --all --replicas=0`.
@@ -214,8 +212,7 @@ issues and operator-local records; operator-local tooling still at
   boundaries; codex machine-notes at `~/.codex/AGENTS.md` (pytest via uvx etc.).
 
 ### ✅ J1 DEPLOYS + the media path was strangled, not starved (2026-07-29)
-Full handoff: `~/DMF-J1-MEDIA-PATH-HANDOFF-2026-07-29.md` (operator-local).
-Tooling preserved at `~/dmf-j1-artifacts-2026-07-29/`.
+Full handoff: operator-local. Supporting tooling preserved operator-local.
 
 - **#299 applied live**: platform CPU requests calibrated down **−390m** (dmf-infra#63),
   verified at ground truth with the L3 gate's OWN parser (`l3_budget.l3_pod_demand`):
@@ -256,7 +253,7 @@ Tooling preserved at `~/dmf-j1-artifacts-2026-07-29/`.
 
 ### ✅ #276 APPLIED LIVE + #274 CI matrix built: the L3 budget is honest now (2026-07-25)
 Trio work orders, both codex-gated:
-- **#276 (request honesty)**: dmf-infra#56 merged + applied to `v5on-r8aw` —
+- **#276 (request honesty)**: dmf-infra#56 merged + applied to `<env>` —
   all 22 zero-request platform containers now declare measured requests
   (requests-only, zero limits; values frozen from the #258 sample archive).
   Node allocation went 1585m/3.6Gi → 2125m (70%)/~7.3Gi (~50%) declared;
@@ -280,7 +277,7 @@ Trio work orders, both codex-gated:
 Trio-run release (claude2 implementer, codex adversary — 2 gates, both
 GATE:PASS first round): version-bump PR dmf-cms#45 → tag `v0.16.0` on the
 merged HEAD → GHCR publish (digest `6aa6c2b2…`) → 630 Zot mirror → 650
-Helm deploy on `v5on-r8aw` → `verify-cluster.sh` PASS (image match,
+Helm deploy on `<env>` → `verify-cluster.sh` PASS (image match,
 rollout, healthz). First release carrying all four #202 L3 WPs
 (dmf-cms#41–44); the three new API routes (deploy preflight,
 `runs/{id}/rollback`, `runs/{id}/verify-drain`) answer 401-behind-OIDC on
@@ -295,7 +292,7 @@ operator step** (OIDC login).
   then J1 (#203 demo runbook + #201 v0.2b multi-source switch).
 
 ### ✅ #258 CLOSED: live calibration done, release chain landed, J1 unblocked (2026-07-24)
-One marathon day on the J3 env (v5on-r8aw) took #258 from claim to close:
+One marathon day on the J3 env (`<env>`) took #258 from claim to close:
 - **Live measurement**: idle platform / source-only / full-shape / per-container
   sustained samples. Headlines: source CPU **doubles under consumption**
   (428→872m; writer 810m); the view pod's biggest consumer is the **status
@@ -464,7 +461,7 @@ One session took an operator-side architecture proposal to an accepted ADR (tran
 One orchestrator session (transcript thread #13, trio: claude1/claude2-on-Sonnet-5/codex) closed out both blocks:
 - **#243 (Workspace demo-readiness)**: dmf-cms#35 (PR-C Users human/machine split + two-signal break-glass: `akadmin` username OR `break-glass` group), #36 (PR-D — Users/Workflows off the Workspace body; invite-QR moved to /admin People), #37 (Zabbix-style duration on problem rows) — all merged. Level axis filed as **#244**.
 - **#239 (workload-tag stamping)**: 3-repo trio merged — dmf-cms#38 (optional `workload` slug on deploy → `extra_vars={"workload_slug":…}` through the WP3a-compatible seam + C5 parser consolidation), dmf-runbooks#16 (launchers ensure+stamp `workload:<slug>`; single-workload-wins via include-scoped merge prefixes; sequencing regression test), dmf-infra#47 (catalog JTs `ask_variables_on_launch: true` + drift reconcile — without it AWX silently drops launch extra_vars; also the #201 WP3a prerequisite, spec gap noted there).
-- **Remaining on #239** (next session, handoff in operator-local sessions-archive): live chain proof on `v5on-r8aw` (mirror sync → 693 converge → AWX-direct launch with a slug → grid groups under a named workload) → cms 0.16.0 release (brings the console Workload field live) → umbrella runbook §8 rough-edge-row deletion PR carrying `Closes dmfdeploy/dmfdeploy#239`.
+- **Remaining on #239** (next session, handoff in operator-local sessions-archive): live chain proof on `<env>` (mirror sync → 693 converge → AWX-direct launch with a slug → grid groups under a named workload) → cms 0.16.0 release (brings the console Workload field live) → umbrella runbook §8 rough-edge-row deletion PR carrying `Closes dmfdeploy/dmfdeploy#239`.
 - Retro datapoint (operator-requested): 12 codex rounds, 5 FAILs, 9 real defects — incl. a live-reproduced Ansible fact-bleed that would have made the stamping feature strip its own tag.
 
 ### ✅ ADR-0046 — first-class Media Workload entity: all 4 code slices MERGED (2026-07-09)
@@ -533,7 +530,7 @@ C5 record), overview retirement, and the `media-engineers` surface group
 (gate numbering resumes at **G23**). First frontend test harness (vitest)
 added — local-only, not yet in CI (recorded v0.2 seam, with per-subject
 console-local activity records). **0.13.0 is DEPLOYED to the live env
-(aoka-9dat)** (operator-authorized, 2026-07-05): GHCR publish (arm64 digest
+(`<env>`)** (operator-authorized, 2026-07-05): GHCR publish (arm64 digest
 `sha256:ef6dc6a2…`) → 630 seed (`1 image(s) need seeding (dmf-cms)`) → 650
 Helm deploy, both green via the Manage lane (checkpoints 20+21 sealed);
 verified live by the 0.13.0-only `/api/workspace/health` route answering 401
@@ -1252,20 +1249,20 @@ empty today) or a fresh env id — dovetails with the §4.1 fresh-clone gate.
 **Rollback gotcha (in plan):** the brand-patch lever does NOT auto-revert on
 template removal (blueprints don't GC) — needs an explicit reset entry.
 
-### 🟢 Sandbox gate #2 — catalog path OPERATOR-CONFIRMED end-to-end on imc1-cyh4 (2026-05-29)
+### 🟢 Sandbox gate #2 — catalog path OPERATOR-CONFIRMED end-to-end on `<env>` (2026-05-29)
 
 Operator completed the passkey browser-Console pass: enrolled passkeys, logged in,
 and drove deploy/teardown through the Console → AWX. The full
 **human → browser → Console → AWX → nmos-cpp deploy/teardown** path is confirmed
 working, attributed to `dmf-cms-svc`. Combined with the machine-path proof, the
-`sandbox-single-node` gate is functionally met on imc1-cyh4; the remaining item
+`sandbox-single-node` gate is functionally met on `<env>`; the remaining item
 before a v0.1 tag is a **formal fresh-clone-by-a-non-maintainer** replicability
 run (this was maintainer-driven).
 
 **Follow-up logged (not built): deploy↔finalise race.** Catalog deploy
 (`media-launch`, JT14) and finalise (`media-finalise`, JT15) are *different* job
 templates, so the 0.9.2 same-action dedup guard does NOT serialize them. Firing
-them ~1s apart raced on imc1-cyh4 (jobs 92+96): finalise ran before the deploy's
+them ~1s apart raced on `<env>` (jobs 92+96): finalise ran before the deploy's
 Helm release existed → no-op (`changed=0`) → deploy won → pods up + tag `active`
 with a "successful" finalise that tore down nothing (Catalog correctly showed
 `active`). Resolution: re-run finalise when nothing is racing. Fix direction:
@@ -1281,7 +1278,7 @@ was still running. Deploy had the same latent gap.
 Shipped in **dmf-cms 0.9.2** (commits `c9deb90` feature + `2464c0b` release;
 `ghcr.io/dmfdeploy/dmf-cms:0.9.2` digest
 `sha256:ba780f3a116ccec1207e11a6dda5bccb9e4cd893c87c94abfc8d167fa2fd4d6b`;
-630-mirrored + 650-deployed on imc1-cyh4):
+630-mirrored + 650-deployed on `<env>`):
 - **Backend (real guard):** `api_catalog_deploy/teardown` call new
   `awx.find_active_job_for_template` before launching; an in-flight job
   (new/pending/waiting/running) for the target template is returned idempotently
@@ -1297,9 +1294,9 @@ passkey session (operator pass). Known out-of-scope gap: sub-second find→launc
 TOCTOU isn't locked (reported clicks were 2s apart; frontend disable closes the
 single-session case) — follow-up if DB-level locking is wanted.
 
-### 🟢 AWX scoped-token identity (FIX 1) + offline catalog loop (FIX 2) landed on imc1-cyh4 (2026-05-29)
+### 🟢 AWX scoped-token identity (FIX 1) + offline catalog loop (FIX 2) landed on `<env>` (2026-05-29)
 
-Two live-diagnosed fixes on the fresh sandbox env `imc1-cyh4`, both verified offline.
+Two live-diagnosed fixes on the fresh sandbox env `<env>`, both verified offline.
 
 **FIX 1 — machine tokens minted AS the scoped svc identity (dmf-infra `64cd035`).**
 AWX binds token ownership to the *authenticating* principal (not the URL user-id
@@ -1324,7 +1321,7 @@ the catalog JTs — inventory_update was still using the default EE → "unknown
 plugin nb_inventory"). EE bumped to **0.1.1** and published:
 - `ghcr.io/dmfdeploy/awx-ee:0.1.1` digest `sha256:867faa97ed7391befe599ca0ad96fab1f6dfeeddb25b542c79229b6434ee9b51`
   (built via colima docker-build, mirrored to cluster Zot by 630).
-Verified offline on imc1-cyh4: media-launch → project_update + inventory_update
+Verified offline on `<env>`: media-launch → project_update + inventory_update
 + deploy all successful with **zero galaxy egress**, driven by the dmf-cms-svc
 token; nmos-cpp registry+2 nodes Running; media-finalise teardown clean.
 Permanent internal-collection-source = ADR-0034 (Forgejo-git), separate WP.
@@ -1332,9 +1329,9 @@ Footgun flagged: 630's EE-tag fallback is decoupled from the role default
 (must hand-sync) — candidate for a single source of truth.
 
 
-### 🟢 WP1S Phase 3 (AWX single-node fit) + Phase 4 (catalog loop) PROVEN on fresh env `imc1-cyh4` (2026-05-29)
+### 🟢 WP1S Phase 3 (AWX single-node fit) + Phase 4 (catalog loop) PROVEN on fresh env `<env>` (2026-05-29)
 
-Full cold rollout on a fresh Lima VM + wizard env (`imc1-cyh4`, operator
+Full cold rollout on a fresh Lima VM + wizard env (`<env>`, operator
 `marty-mcfly` / `delorean.dmf.test`, throwaway test identity). Prior env
 `zy9q-1015` torn down; `wobe-9n0c` kept as reference.
 
@@ -1377,9 +1374,9 @@ path (legacy reuse kept behind `ENV_NAME=`).
 needs ≥2 confirmed operator passkeys; `marty-mcfly` has 0 (WebAuthn enrollment
 is a human browser ceremony, not automatable). Everything else in
 `bootstrap-sandbox-verify.yml` passed (incl. OIDC admin bridge: 7 apps, DMF
-groups scope). Env `imc1-cyh4` left running at a clean slate for the operator to
+groups scope). Env `<env>` left running at a clean slate for the operator to
 enroll passkeys + drive the Console loop (gate #2) if desired. Teardown:
-`rm -rf ~/.dmfdeploy/envs/imc1-cyh4` + `limactl delete -f dmf-sandbox`.
+`rm -rf ~/.dmfdeploy/envs/`<env>`` + `limactl delete -f dmf-sandbox`.
 
 ### 🟢 Break-glass-email hijack class fix landed (ADR-0024 §4) — `zy9q-1015` live-remediated (2026-05-28 close)
 
