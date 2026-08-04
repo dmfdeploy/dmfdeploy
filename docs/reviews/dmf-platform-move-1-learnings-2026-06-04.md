@@ -29,7 +29,7 @@ holding lifecycle state. Six architectural assumptions tested:
 
 | # | Assumption | Verdict | Evidence |
 |---|---|---|---|
-| 1 | NMOS IS-04/05 deploys on commodity ARM k3s | ✅ Confirmed | registry + 2 nodes Running on `imc1-cyh4`; full cold-cycle gate on `y834-bcwe` (2026-05-29) |
+| 1 | NMOS IS-04/05 deploys on commodity ARM k3s | ✅ Confirmed | registry + 2 nodes Running on `<env>`; full cold-cycle gate on `y834-bcwe` (2026-05-29) |
 | 2 | Catalog YAML schema accommodates a real L5 function | ✅ Confirmed (additive growth only) | `dmf-media/catalog/nmos-cpp.yaml`; later gained `provision.namespace` + `monitoring:` — no reshape |
 | 3 | Configure-as-distinct-stage holds | ✅ Confirmed — **stage split moved from wrapper to role** | Path A pivot (ADR-0014/0016, 2026-05-06) |
 | 4 | dmf-cms drives the lifecycle through AWX | ✅ Confirmed (new failure modes found + mostly fixed) | Console→AWX catalog deploy/teardown re-verified 2026-05-29 |
@@ -72,7 +72,7 @@ not a failure — see Q3 and §Bonus learnings.
 ## Q1 — Does NMOS IS-04/05 deploy on commodity ARM k3s?
 
 **Yes.** Sony `nmos-cpp` built from source on ARM64 (Colima) and ran cleanly
-under k3s flannel CNI. On fresh env `imc1-cyh4` (2026-05-29) the **registry
+under k3s flannel CNI. On fresh env `<env>` (2026-05-29) the **registry
 StatefulSet + 2 node Deployments reached Running**, driven through the catalog
 loop with zero galaxy egress (STATUS §"WP1S Phase 3/4 proven"); the same loop was
 re-verified as part of the **full cold-cycle v0.1 gate on `y834-bcwe`** (Sandbox
@@ -144,7 +144,7 @@ the role-stage + AWX-launcher shape.
 ## Q4 — Can dmf-cms drive the lifecycle through AWX?
 
 **Yes — the browser → Console → AWX → catalog deploy/teardown loop is
-operator-confirmed.** Re-verified end-to-end on `y834-bcwe` and `imc1-cyh4`
+operator-confirmed.** Re-verified end-to-end on `y834-bcwe` and `<env>`
 (2026-05-29), grounded on live `kubectl`/`awx-manage`, not buffered stdout.
 
 This piece exercised the AWX path harder than Move 2's single runbook, and **four
@@ -165,7 +165,7 @@ new failure modes surfaced** — all real, most fixed:
    (`find_active_job_for_template` backend guard + frontend in-flight gate).
 4. **Deploy↔finalise cross-action race.** The 0.9.2 guard dedupes the *same*
    action only; deploy (`media-launch`, JT14) and finalise (`media-finalise`, JT15)
-   are different JTs, so firing them ~1s apart races (observed `imc1-cyh4`, jobs
+   are different JTs, so firing them ~1s apart races (observed `<env>`, jobs
    92/96: finalise ran before the deploy's Helm release existed → no-op teardown;
    deploy won; end state pods Running + tag `active` + a finalise that reported
    success but tore down nothing). **Still open** — needs a per-entry cross-action

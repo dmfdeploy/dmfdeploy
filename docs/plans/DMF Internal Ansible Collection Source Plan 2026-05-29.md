@@ -5,7 +5,7 @@ date: 2026-05-29
 # DMF Internal Ansible Collection Source Plan (2026-05-29)
 
 **Status:** PLAN — not yet implemented. Opened as the permanent follow-up to the
-v0.1 EE-bake unblock (FIX 2 on `imc1-cyh4`).
+v0.1 EE-bake unblock (FIX 2 on `<env>`).
 **ADR:** [ADR-0034](../decisions/0034-internal-ansible-collection-source.md) — no public
 Ansible Galaxy at runtime; internal collection source.
 **Touches:** [ADR-0030](../decisions/0030-console-i18n-and-airgap-posture.md),
@@ -16,7 +16,7 @@ Ansible Galaxy at runtime; internal collection source.
 
 `project_update` in AWX runs `ansible-galaxy collection install -r
 collections/requirements.yml`, which by default reaches
-`https://galaxy.ansible.com`. On `imc1-cyh4` this timed out and cascaded
+`https://galaxy.ansible.com`. On `<env>` this timed out and cascaded
 into a failed Console catalog deploy (job 29 → inventory sync 31 →
 project update 32). Public Galaxy egress violates the ADR-0030 air-gap
 posture and the ADR-0031 self-contained sandbox release gate.
@@ -78,4 +78,4 @@ first-class (see ADR-0034 §Decision).
 ## 6. Related
 
 - `[[reference_sandbox_standalone_playbook_profile_gap]]`
-- ADR-0034; the `imc1-cyh4` FIX 2 EE-bake unblock (interim).
+- ADR-0034; the `<env>` FIX 2 EE-bake unblock (interim).

@@ -84,7 +84,7 @@ fallback*** — it creates split desired state and makes the helper the AWX repl
 i.e. exactly the hack this design avoids — used **only** if Phase 0 proves CR-zero impossible.
 **Do not set born-asleep in the sandbox profile until this passes.**
 
-### Live evidence (2026-06-19, env `2czo-i1d1`, RPi 4B / 8 GB arm64)
+### Live evidence (2026-06-19, env `<env>`, RPi 4B / 8 GB arm64)
 
 Captured during a real `dmf-init` bootstrap (post-#93 bundle, NetBox right-sizing holding) —
 seeds the Phase-0 evidence and confirms the problem framing:
@@ -105,7 +105,7 @@ seeds the Phase-0 evidence and confirms the problem framing:
 - **Aside (separate bug, not this plan):** NetBox v4.5 v2-token mint crashed once with
   `value too long for character varying(12)` (`users/models/tokens.py`); track separately.
 
-### Phase-0 execution evidence (2026-06-19, env `2czo-i1d1`, RPi 4B 8 GB arm64) — VERDICT: **PASS**
+### Phase-0 execution evidence (2026-06-19, env `<env>`, RPi 4B 8 GB arm64) — VERDICT: **PASS**
 
 Step 1 spike executed live and **codex-signed-off**. `web_replicas:0`/`task_replicas:0` +
 `*_manage_replicas:true` is the **operator-native, reconcile-safe** control plane on
@@ -295,7 +295,7 @@ the issue **and** flips this doc to `status: executed` in the same change.
   DMF code in **two passes** (2026-06-18 P1/P2/P3 + 2026-06-19 `awx-presence` state machine,
   hardened Phase-0 evidence, the independent §E ingress gate, 697/698 reorder test, Lease
   single-flight/fail-open, ADR-0043 boundary) — all folded in. **Live evidence** added from a
-  real Pi 4 bootstrap (env `2czo-i1d1`). Implementation is being orchestrated by the
+  real Pi 4 bootstrap (env `<env>`). Implementation is being orchestrated by the
   **claude-top** agent running the issues-cruncher trio (qwen = implementer, codex =
   adversary) on a shared worktree; nothing implemented yet at time of writing.
 - **Key code touchpoints to re-read before building:** dmf-infra
@@ -316,7 +316,7 @@ the issue **and** flips this doc to `status: executed` in the same change.
 ## Execution result (2026-06-20) — `status: executed`
 
 Implemented by the issues-cruncher trio (claude orchestrator + qwen implementer + codex
-adversary) and validated live on RPi 4B / 8 GB env `qluc-xwie`.
+adversary) and validated live on RPi 4B / 8 GB env `<env>`.
 
 **Landed code/docs (each `Refs`/`Closes` dmfdeploy/dmfdeploy#97):**
 - **WS2** awx-presence role + explicit-scalar CR replica knobs + flag-gated bootstrap

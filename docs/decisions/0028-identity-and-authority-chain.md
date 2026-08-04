@@ -54,7 +54,7 @@ as binding architecture. The model has five contract statements
     `description` field or a user-scoped URL path — creating a token as
     an admin/break-glass account with a service-account description
     yields an **admin-owned** token, and every action taken with it is
-    attributed to that admin. Empirically verified on AWX (`imc1-cyh4`,
+    attributed to that admin. Empirically verified on AWX (`<env>`,
     2026-05-29): the DMF Console's catalog launches were running as
     `awx-break-glass` because its token, though named `dmf-cms-svc-token`,
     was created by the admin. Correct provisioning: set+persist the
