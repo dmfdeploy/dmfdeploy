@@ -3,30 +3,31 @@ name: governance-drift
 # Asserts the live branch ruleset against .github/expected-ruleset.json.
 #
 # The ruleset is what makes every other gate binding — required checks,
-# code-owner review, linear history, zero bypass actors. Nothing asserted it,
-# so a dropped required check or an added bypass actor would go unnoticed
-# (umbrella issue #368). Anti-degradation belongs in a deterministic assertion
-# rather than in a role: a check cannot forget.
+# code-owner review, linear history. Nothing asserted it, so a dropped required
+# check or code-owner review turned off would go unnoticed (umbrella #368).
+# Anti-degradation belongs in a deterministic assertion rather than in a role:
+# a check cannot forget.
 #
-# TOKEN: reading a ruleset needs repository ADMINISTRATION READ, which the
-# default GITHUB_TOKEN does not carry. Supply a fine-grained PAT with that
-# permission as the repo secret RULESET_READ_TOKEN. Without it the step exits 2
-# (could not run) and the job FAILS — it never reports clean when it could not
-# actually look.
+# TOKEN-FREE, DELIBERATELY. Do NOT add a PAT to make this cover more.
+# An earlier revision took an Administration-scoped PAT so it could also assert
+# bypass_actors. It was withdrawn for two independent reasons:
 #
-# NO pull_request TRIGGER, DELIBERATELY. This workflow hands a privileged PAT to
-# bin/check-ruleset-drift.sh, which lives in the repo and is therefore
-# PR-controlled. On a pull_request event a same-repository PR receives secrets,
-# so a PR editing that script — or this file — could exfiltrate the token;
-# persist-credentials: false does nothing about an environment secret. An
-# earlier revision made that worse by listing the script in a paths filter, so
-# the malicious edit was exactly what triggered the privileged run.
+#   1. It was FAIL-OPEN. The endpoint returns 200 while omitting bypass_actors
+#      for a caller that may not read it, and `.bypass_actors | length` is 0 for
+#      an absent field — so an unreadable value looked like a verified-empty
+#      one. A run reported the ruleset healthy seventeen minutes before the PAT
+#      existed.
+#   2. ADR-0007 (Accepted) forbids secrets in environment variables, which is
+#      how a PAT reaches a step. A PAT here was also reachable by PR-controlled
+#      code, via both the pull_request trigger and workflow_dispatch's
+#      branch selector.
 #
-# The privileged read therefore runs ONLY from trusted refs: schedule (always
-# the default branch) and manual dispatch. The trust boundary is code review.
-# PR-time validation of the expectation file is unprivileged and lives in
-# ci.yml, where no secret is in scope. Gating with an `if:` was rejected — one
-# typo re-exposes the token, whereas an absent trigger cannot.
+# Hence: schedule only — no pull_request, no workflow_dispatch — and the
+# repo-scoped GITHUB_TOKEN, which reads the publicly visible fields.
+# BYPASS ACTORS ARE NOT COVERED; the script says so on every success. Audit them
+# manually at Settings → Rules → main-protection → Bypass list.
+#
+# PR-time validation of the expectation is unprivileged and lives in ci.yml.
 
 on:
   schedule:
