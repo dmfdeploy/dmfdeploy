@@ -77,7 +77,11 @@ pattern="$(printf '%s\n' "${ids[@]}" | paste -sd'|' -)"
 # reported clean.
 case "$MODE" in
     --staged)
-        files="$(git -C "$UMBRELLA_DIR" diff --cached --name-only --diff-filter=ACMR 2>/dev/null)" || {
+        # ACMRT, not ACMR: T is a type change, e.g. a symlink replaced by a
+        # regular file. That staged blob is committed like any other, and with
+        # T omitted the gate enumerated no path for it — a leak rode through in
+        # a shape the filter did not name.
+        files="$(git -C "$UMBRELLA_DIR" diff --cached --name-only --diff-filter=ACMRT 2>/dev/null)" || {
             echo "FAIL(2): could not enumerate staged files in $UMBRELLA_DIR." >&2
             exit 2
         }
@@ -98,7 +102,11 @@ case "$MODE" in
                 echo "  treat an unreadable file as a clean one." >&2
                 exit 2
             }
-            h="$(printf '%s\n' "$blob" | grep -nIE "$pattern")" ; rc=$?
+            # -a, not -I: binary content is scanned too. A live identifier in
+            # any committed byte is a leak — archives, images, compiled blobs
+            # all carry embedded strings. Output stays file:line, so binary
+            # noise (and the identifier itself) is never echoed.
+            h="$(printf '%s\n' "$blob" | grep -naE "$pattern")" ; rc=$?
             if [ "$rc" -ge 2 ]; then
                 echo "FAIL(2): scan error on the staged blob for '$f'." >&2
                 exit 2
@@ -118,7 +126,8 @@ case "$MODE" in
         hits="${hits%$'\n'}"
         ;;
     --tree)
-        h="$(git -C "$TREE" grep -nIE "$pattern" -- . 2>/dev/null)" ; rc=$?
+        # -a, not -I: same binary policy as the staged mode above.
+        h="$(git -C "$TREE" grep -naE "$pattern" -- . 2>/dev/null)" ; rc=$?
         if [ "$rc" -ge 2 ]; then
             echo "FAIL(2): git grep failed in $TREE (not a repository, or unreadable) —" >&2
             echo "  refusing to report a tree it could not scan as clean." >&2

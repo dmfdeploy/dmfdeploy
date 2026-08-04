@@ -136,6 +136,37 @@ rc_k="$(DMF_DATA_ROOT="$WORK/store" UMBRELLA_DIR="$K" "$GATE" --staged >/dev/nul
 [ "$rc_k" = "1" ] && ok "K: leak caught in a pipe-delimiter filename" \
                   || bad "K: FAIL-OPEN — pipe-named staged leak missed (exit $rc_k)"
 
+# L: a staged TYPE CHANGE must be scanned. A symlink replaced by a regular
+# file is a T entry; --diff-filter=ACMR omitted T, so that staged blob was
+# committed without the gate enumerating its path.
+L="$WORK/typechange"; rm -rf "$L"; mkdir -p "$L"
+git -C "$L" init --quiet 2>/dev/null
+git -C "$L" config user.email t@e 2>/dev/null; git -C "$L" config user.name t 2>/dev/null
+ln -s /dev/null "$L/thing"
+git -C "$L" add -A 2>/dev/null; git -C "$L" commit -qm init 2>/dev/null
+rm "$L/thing"; printf 'doc naming env %s\n' "$FIXTURE_ID" > "$L/thing"
+git -C "$L" add -A 2>/dev/null
+rc_l="$(DMF_DATA_ROOT="$WORK/store" UMBRELLA_DIR="$L" "$GATE" --staged >/dev/null 2>&1; echo $?)"
+[ "$rc_l" = "1" ] && ok "L: leak caught across a symlink-to-file type change" \
+                  || bad "L: FAIL-OPEN — staged type change not scanned (exit $rc_l)"
+
+# M: BINARY content must be scanned. grep -I treated a binary blob as clean,
+# so an identifier embedded in an archive, image, or compiled artifact rode
+# through. Output must still leak neither the identifier nor binary noise.
+M="$WORK/binary"; rm -rf "$M"; mkdir -p "$M"
+git -C "$M" init --quiet 2>/dev/null
+printf 'BIN\x00HEAD env %s tail\x00\x01\n' "$FIXTURE_ID" > "$M/blob.bin"
+git -C "$M" add -A 2>/dev/null
+rc_m="$(DMF_DATA_ROOT="$WORK/store" "$GATE" --tree "$M" >/dev/null 2>&1; echo $?)"
+out_m="$(DMF_DATA_ROOT="$WORK/store" "$GATE" --tree "$M" 2>&1)"
+if [ "$rc_m" = "1" ] && ! printf '%s' "$out_m" | grep -qE "$FIXTURE_ID|HEAD"; then
+    ok "M: leak caught in binary content, output still clean"
+elif [ "$rc_m" != "1" ]; then
+    bad "M: FAIL-OPEN — binary leak treated as clean (exit $rc_m)"
+else
+    bad "M: binary leak caught but the output echoed forbidden content"
+fi
+
 # ctrl: a missing store must ANNOUNCE the skip, not pass silently.
 out="$(run "$WORK/nonexistent")"
 if printf '%s' "$out" | grep -qi 'no env store'; then
