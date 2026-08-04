@@ -48,8 +48,9 @@ ran to the live env and was verified hop by hop.
 - **Operational discoveries:** playbook 693 does *not* wake AWX — with scale-to-zero
   its first run burned the 900s cap and blamed a nonexistent mux hang; wake via the
   autoscale `ensure-awake` seam first. The AWX service token cannot read job
-  templates (returns count 0 for *all* of them), so never read that as absence. This
-  env's inventory pins `ansible_user: root`, not the documented `k3s-admin`.
+  templates (returns count 0 for *all* of them), so never read that as absence. An
+  env's inventory may pin an `ansible_user` other than the one the docs assume —
+  read it from the inventory rather than trusting the documented default.
 - **Filed/parked:** #359 (`/api/operations/{id}` has no tenant scope check —
   pre-existing, affects every action), #357 (deferred hygiene sweep), #355 reopened
   after umbrella #354 was reverted: its merged artifacts tripped the very
