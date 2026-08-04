@@ -24,6 +24,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `bin/check-docs.sh` | offline documentation gate for the DMF umbrella. Hard-fails on missing/broken frontmatter, dangling superseded_by targets, stale plans index, inconsistent ADR file↔INDEX cross-references, or a broken doc-to-doc relative .md link anywhere under docs/ (issue #84). Prints warnings for issues that don't block (missing tracking_issue, unresolved links, closed tracking issues). |
 | `bin/check-public-commit-authors.sh` | verify every commit author/committer on every public DMF Platform repo matches the public-identity allowlist. |
 | `bin/check-public-repo-hygiene.sh` | bin/check-public-repo-hygiene.sh — per-repo Tier A.2 hygiene gate. |
+| `bin/check-ruleset-drift.sh` | assert the live branch ruleset against a committed expectation (umbrella issue #368). |
 | `bin/check-working-model-sync.sh` | keep the working-model block from drifting. |
 | `bin/close-completed-issues.sh` | auto-close umbrella tracking issues whose completing PR has merged. |
 | `bin/dmf-env-public-surface-gate.sh` | fail-closed gate: is a dmf-env tree safe to publish as a generic env-tooling repo? |

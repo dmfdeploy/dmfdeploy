@@ -1,0 +1,46 @@
+name: governance-drift
+
+# Asserts the live branch ruleset against .github/expected-ruleset.json.
+#
+# The ruleset is what makes every other gate binding — required checks,
+# code-owner review, linear history, zero bypass actors. Nothing asserted it,
+# so a dropped required check or an added bypass actor would go unnoticed
+# (umbrella issue #368). Anti-degradation belongs in a deterministic assertion
+# rather than in a role: a check cannot forget.
+#
+# TOKEN: reading a ruleset needs repository ADMINISTRATION READ, which the
+# default GITHUB_TOKEN does not carry. Supply a fine-grained PAT with that
+# permission as the repo secret RULESET_READ_TOKEN. Without it the step exits 2
+# (could not run) and the job FAILS — it never reports clean when it could not
+# actually look.
+
+on:
+  schedule:
+    - cron: "0 7 * * *"  # daily 07:00 UTC
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/expected-ruleset.json'
+      - 'bin/check-ruleset-drift.sh'
+      - '.github/workflows/governance-drift.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  ruleset-drift:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Assert the live ruleset against the committed expectation
+        env:
+          # Falls back to GITHUB_TOKEN so the failure mode is a loud exit 2
+          # ("could not read the live ruleset") rather than a silent skip.
+          GH_TOKEN: ${{ secrets.RULESET_READ_TOKEN || secrets.GITHUB_TOKEN }}
+        run: bin/check-ruleset-drift.sh
