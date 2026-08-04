@@ -8,7 +8,7 @@ name: governance-drift
 # Anti-degradation belongs in a deterministic assertion rather than in a role:
 # a check cannot forget.
 #
-# TOKEN-FREE, DELIBERATELY. Do NOT add a PAT to make this cover more.
+# CREDENTIAL-FREE, DELIBERATELY. Do NOT add a token to make this cover more.
 # An earlier revision took an Administration-scoped PAT so it could also assert
 # bypass_actors. It was withdrawn for two independent reasons:
 #
@@ -22,8 +22,12 @@ name: governance-drift
 #      code, via both the pull_request trigger and workflow_dispatch's
 #      branch selector.
 #
-# Hence: schedule only — no pull_request, no workflow_dispatch — and the
-# repo-scoped GITHUB_TOKEN, which reads the publicly visible fields.
+# Hence: schedule only — no pull_request, no workflow_dispatch — and NO
+# credential at all. The check reads the public endpoint unauthenticated; its
+# projection is identical to the authenticated one for every compared field, so
+# authenticating buys nothing. GITHUB_TOKEN is itself a secret (a GitHub App
+# installation token), so exporting it would sit under the same ADR-0007 ban
+# used to reject the PAT — calling that "token-free" would repeat the error.
 # BYPASS ACTORS ARE NOT COVERED; the script says so on every success. Audit them
 # manually at Settings → Rules → main-protection → Bypass list.
 #
@@ -47,9 +51,4 @@ jobs:
           persist-credentials: false
 
       - name: Assert the live ruleset against the committed expectation
-        env:
-          # The repo-scoped GITHUB_TOKEN only. No PAT: ADR-0007 forbids secrets
-          # in environment variables, and an Administration-scoped token here
-          # was reachable by PR-controlled code.
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bin/check-ruleset-drift.sh
