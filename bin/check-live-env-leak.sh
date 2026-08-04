@@ -63,8 +63,14 @@ case "$MODE" in
     --staged)
         files="$(git -C "$UMBRELLA_DIR" diff --cached --name-only --diff-filter=ACMR 2>/dev/null)"
         [ -n "$files" ] || { echo "check-live-env-leak: nothing staged."; exit 0; }
+        # Read the INDEX blob and nothing else. An earlier revision first
+        # required the worktree path to be a regular file, which made the gate
+        # skippable: stage a leaking file, delete it from the worktree, and the
+        # commit still carries the leak from the index while the check reported
+        # clean. The worktree is not what gets committed — the index is.
+        # --diff-filter=ACMR already excludes deletions, so no guard is needed.
         hits="$(printf '%s\n' "$files" | while IFS= read -r f; do
-                   [ -f "$UMBRELLA_DIR/$f" ] || continue
+                   [ -n "$f" ] || continue
                    git -C "$UMBRELLA_DIR" show ":$f" 2>/dev/null \
                      | grep -nIE "$pattern" 2>/dev/null \
                      | sed "s|^|${f}:|" | cut -d: -f1,2
