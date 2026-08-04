@@ -13,17 +13,25 @@ name: governance-drift
 # permission as the repo secret RULESET_READ_TOKEN. Without it the step exits 2
 # (could not run) and the job FAILS — it never reports clean when it could not
 # actually look.
+#
+# NO pull_request TRIGGER, DELIBERATELY. This workflow hands a privileged PAT to
+# bin/check-ruleset-drift.sh, which lives in the repo and is therefore
+# PR-controlled. On a pull_request event a same-repository PR receives secrets,
+# so a PR editing that script — or this file — could exfiltrate the token;
+# persist-credentials: false does nothing about an environment secret. An
+# earlier revision made that worse by listing the script in a paths filter, so
+# the malicious edit was exactly what triggered the privileged run.
+#
+# The privileged read therefore runs ONLY from trusted refs: schedule (always
+# the default branch) and manual dispatch. The trust boundary is code review.
+# PR-time validation of the expectation file is unprivileged and lives in
+# ci.yml, where no secret is in scope. Gating with an `if:` was rejected — one
+# typo re-exposes the token, whereas an absent trigger cannot.
 
 on:
   schedule:
     - cron: "0 7 * * *"  # daily 07:00 UTC
   workflow_dispatch:
-  pull_request:
-    branches: [main]
-    paths:
-      - '.github/expected-ruleset.json'
-      - 'bin/check-ruleset-drift.sh'
-      - '.github/workflows/governance-drift.yml'
 
 permissions:
   contents: read

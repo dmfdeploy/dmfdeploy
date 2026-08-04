@@ -44,6 +44,24 @@ jobs:
         # scripts are part of their own triggers, hook edits re-arm all gates,
         # and the unrelated-file fast path stays fast.
         run: bash tests/hook-scoping.sh
+      - name: ruleset expectation is well-formed (#368)
+        # UNPRIVILEGED on purpose. The live comparison needs an Administration
+        # PAT and therefore runs only from trusted refs in governance-drift.yml;
+        # this step validates the committed expectation's shape with no secret
+        # in scope, so PR-controlled code never sees a privileged token.
+        run: |
+          set -eu
+          f=.github/expected-ruleset.json
+          python3 -c "
+          import json,sys
+          d=json.load(open('$f'))
+          need=['name','target','enforcement','conditions','bypass_actor_count','rule_types','required_status_checks','pull_request']
+          missing=[k for k in need if k not in d]
+          if missing: sys.exit('expectation missing keys: '+', '.join(missing))
+          if not isinstance(d['required_status_checks'],list) or not d['required_status_checks']:
+              sys.exit('required_status_checks must be a non-empty list')
+          print('expectation well-formed:', len(d['required_status_checks']), 'required checks')
+          "
       - name: sync-skills stale generated view regression (#364)
         # A generated view surviving its canonical skill is a live instruction
         # surface (ADR-0042). Proves --check fails on a dangling view symlink,
