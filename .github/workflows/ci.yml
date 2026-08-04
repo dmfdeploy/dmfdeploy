@@ -77,6 +77,13 @@ jobs:
         # a stale --copy directory, and a de-targeted view — it previously
         # passed all three, reporting the invariant as holding either way.
         run: bash tests/sync-skills-prune.sh
+      - name: live environment identifier gate (#361)
+        # A shape rule cannot work here: env ids are 8 chars drawn uniformly
+        # from [a-z0-9], so they are indistinguishable by shape from ordinary
+        # tokens. The gate matches identifiers that actually exist, DERIVED from
+        # the env store at run time so it follows rotation. Hermetic fixture —
+        # never reads operator state.
+        run: bash tests/live-env-leak.sh
       - name: gitleaks rules generator — drift check + self-test (R1 §4/§9)
         # --check: the .gitleaks.toml [[rules]] region matches the manifest.
         # --self-test: per-engine canary MATCH tests + the useDefault coverage
