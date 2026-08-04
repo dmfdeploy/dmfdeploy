@@ -6,12 +6,12 @@ executed: 2026-05-13
 # DMF OpenBao AppRole-Write Reconciler Plan — 2026-05-13
 
 > **SUPERSEDED 2026-05-23** — implementation landed `dmf-infra@209601d`
-> on 2026-05-13 and was verified live on g2r6-foa9 on 2026-05-23. See
+> on 2026-05-13 and was verified live on `<env>` on 2026-05-23. See
 > [`docs/handoffs/DMF OpenBao AppRole-Reconciler Live Verification Handoff 2026-05-23.md`](../handoffs/DMF%20OpenBao%20AppRole-Reconciler%20Live%20Verification%20Handoff%202026-05-23.md)
 > for the verification matrix and closure notes. This plan is retained as
 > the historical record of the design exploration that led to ADR-0021.
 
-**Status:** Decided — Option C selected (ADR-0021); landed `dmf-infra@209601d` 2026-05-13; verified live on g2r6-foa9 2026-05-23
+**Status:** Decided — Option C selected (ADR-0021); landed `dmf-infra@209601d` 2026-05-13; verified live on `<env>` 2026-05-23
 **Owner:** next agent
 **Tier:** Tier A (vertical-resilience cannot complete without this)
 **Predecessor:** [DMF OpenBao Policy-Writer Session Separation Plan 2026-05-13](DMF%20OpenBao%20Policy-Writer%20Session%20Separation%20Plan%202026-05-13.md) (landed, this plan extends)

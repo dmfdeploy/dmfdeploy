@@ -18,7 +18,7 @@ superseded_by: "DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md"
 >   row passes from a fresh clone. Source list: [WP1S §8](DMF%20OSS%20v0.1%20WP1S%20Single-Node%20Sandbox%20Lane%202026-05-25.md).
 > - **`aws-arm64-multi-node` row — informational** unless it also passes, at
 >   which point it joins the release tag. Never blocks.
-> - **`g2r6-foa9` row — reference only.** Not a release pass/fail.
+> - **`<env>` row — reference only.** Not a release pass/fail.
 > - Add a **`linux/arm64` image-availability gate** (every shipped image has an
 >   arm64 manifest) and a **sandbox resource/memory sanity** check (AWX kept and
 >   running at low concurrency, Longhorn removed, `local-path` in use).

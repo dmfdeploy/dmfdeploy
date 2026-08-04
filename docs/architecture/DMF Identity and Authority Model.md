@@ -217,7 +217,7 @@ shadow_account_behaviour: suppress | sanction | not-observed
 sanctioned_exception_reason: <text or "none">
 evidence:
   - <file:line refs from the app's role / blueprint>
-  - <observation against g2r6-foa9 if relevant>
+  - <observation against <env> if relevant>
 ```
 
 The `shadow_account_behaviour` field is required (operator refinement

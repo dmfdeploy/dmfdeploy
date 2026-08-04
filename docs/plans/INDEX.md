@@ -148,11 +148,11 @@ shelved, kept for provenance.
 - [DMF MXL On-Demand Media Function Cycle Plan 2026-06-01](DMF%20MXL%20On-Demand%20Media%20Function%20Cycle%20Plan%202026-06-01.md) — 2026-06-01
 - [DMF MXL Single-Node Loopback Execution Plan 2026-05-29](DMF%20MXL%20Single-Node%20Loopback%20Execution%20Plan%202026-05-29.md) — 2026-05-29
 - [DMF Vendor Multi-Tenancy Vision 2026-05-29](DMF%20Vendor%20Multi-Tenancy%20Vision%202026-05-29.md) — 2026-05-29
-- [DMF OSS v0.1 WP-LAB g2r6-foa9 Reference Delta 2026-05-25](DMF%20OSS%20v0.1%20WP-LAB%20g2r6-foa9%20Reference%20Delta%202026-05-25.md) — 2026-05-25
+- [DMF OSS v0.1 WP-LAB Reference Delta 2026-05-25](DMF%20OSS%20v0.1%20WP-LAB%20Reference%20Delta%202026-05-25.md) — 2026-05-25
 - [DMF OSS v0.1 WP1 AWS Provider Profile 2026-05-25](DMF%20OSS%20v0.1%20WP1%20AWS%20Provider%20Profile%202026-05-25.md) — 2026-05-25
 - [DMF Unseal Posture Tiered Framework Plan 2026-05-24](DMF%20Unseal%20Posture%20Tiered%20Framework%20Plan%202026-05-24.md) — 2026-05-24
 - [DMF Convergence Next Steps Queue 2026-05-23](DMF%20Convergence%20Next%20Steps%20Queue%202026-05-23.md) — 2026-05-23
-- [DMF g2r6-foa9 Configure-Verify Follow-Ups Plan 2026-05-22](DMF%20g2r6-foa9%20Configure-Verify%20Follow-Ups%20Plan%202026-05-22.md) — 2026-05-22
+- [DMF Lab Env Configure-Verify Follow-Ups Plan 2026-05-22](DMF%20Lab%20Env%20Configure-Verify%20Follow-Ups%20Plan%202026-05-22.md) — 2026-05-22
 - [DMF Zot Cluster-Wide Pull-Through Cache Plan 2026-05-21](DMF%20Zot%20Cluster-Wide%20Pull-Through%20Cache%20Plan%202026-05-21.md) — 2026-05-21
 - [DMF Aliyun-123 Lifecycle-Configure Follow-Ups Plan 2026-05-17](DMF%20Aliyun-123%20Lifecycle-Configure%20Follow-Ups%20Plan%202026-05-17.md) — 2026-05-17
 - [DMF Init Wizard Expansion Survey 2026-05-13](DMF%20Init%20Wizard%20Expansion%20Survey%202026-05-13.md) — 2026-05-13

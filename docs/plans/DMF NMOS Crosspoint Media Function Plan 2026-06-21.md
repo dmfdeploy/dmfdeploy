@@ -13,7 +13,7 @@ against live upstream commit `564ca41`, 2026-06-20)
 **Tracking:** [dmfdeploy/dmfdeploy#108](https://github.com/dmfdeploy/dmfdeploy/issues/108) (closed 2026-06-22)
 
 **Status:** **Executed 2026-06-22.** Phase 1 (visible-first) validated live
-end-to-end on sandbox env `sl2p-e8sm`: catalog **Deploy** button → AWX autowake →
+end-to-end on sandbox env `<env>`: catalog **Deploy** button → AWX autowake →
 JT → Helm → `wss` → registry subscriptions → matrix with both nmos-cpp mock
 nodes, plus a full teardown→redeploy lifecycle. Switching stays Phase 2 (MXL).
 Live validation surfaced + fixed: `ws://` mixed-content, nmos-cpp registry `:81`

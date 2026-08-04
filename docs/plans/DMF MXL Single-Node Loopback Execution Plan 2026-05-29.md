@@ -19,8 +19,8 @@ date: 2026-05-29
 **Executes:** [ADR-0017](../decisions/0017-mxl-intra-host-data-plane.md)
 §Enforcement, scope = the 2026-05-17 plan's **D1 = option A** (single video
 loopback demo), nothing wider.
-**Target env:** the **live `g2r6-foa9` Hetzner cloud cluster** (cluster domain `dmf.example.com` in public prose),
-*not* the sandbox lane. (`zy9q-1015` in STATUS.md is a local sandbox env —
+**Target env:** the **live `<env>` Hetzner cloud cluster** (cluster domain `dmf.example.com` in public prose),
+*not* the sandbox lane. (`<env>` in STATUS.md is a local sandbox env —
 a different lane; do not confuse the two.)
 
 ---
@@ -31,7 +31,7 @@ a different lane; do not confuse the two.)
 |---|---|---|
 | Scope | First-cut sample-function scope | **Minimal loopback only** (2026-05-17 D1=A): `gst-testsrc → tmpfs domain → fake-reader + mxl-info`. Proves the *plumbing*, registers nothing in NMOS. |
 | Crosspoint | `nmos_crosspoint` routing UI | **Out of scope.** It routes registered NMOS senders; the minimal demo registers none. Sequenced after the future `nmos-cpp ↔ MXL` adapter. See §6. |
-| Processor node | How to obtain it | **Add a 4th node — never repurpose** an existing g2r6-foa9 node. See survey §2. |
+| Processor node | How to obtain it | **Add a 4th node — never repurpose** an existing `<env>` node. See survey §2. |
 | Node shape | Instance type | **Hetzner CAX31** (8 vCPU / 16 GB / armv8.2-a, ~€10/mo). 16 GB for tmpfs headroom per ADR-0017 §5. |
 | Node role | etcd member or worker? | **Agent (worker), not an etcd server.** Keeps etcd at 3 (odd, healthy); isolates MXL faults from the control plane. |
 | Node labels/taint | Placement contract | `dmf.io/role=mxl-processor` + taint `dmf.io/mxl=true:NoSchedule` (ADR-0017 §5). |
@@ -42,7 +42,7 @@ a different lane; do not confuse the two.)
 
 ---
 
-## 2. Live-cluster survey (g2r6-foa9, 2026-05-29) — why we add, not repurpose
+## 2. Live-cluster survey (`<env>`, 2026-05-29) — why we add, not repurpose
 
 Read-only survey via SSH to the control node (`k3s-admin@<control-node-public-ip>`,
 node-01), using the node's own kubeconfig. No secrets touched.
@@ -51,9 +51,9 @@ node-01), using the node's own kubeconfig. No secrets touched.
 
 ```
 NAME                ROLES                       VERSION        TYPE
-g2r6-foa9-node-01   control-plane,etcd,master   v1.30.6+k3s1   CAX21
-g2r6-foa9-node-02   control-plane,etcd,master   v1.30.6+k3s1   CAX21
-g2r6-foa9-node-03   control-plane,etcd,master   v1.30.6+k3s1   CAX21
+<env>-node-01   control-plane,etcd,master   v1.30.6+k3s1   CAX21
+<env>-node-02   control-plane,etcd,master   v1.30.6+k3s1   CAX21
+<env>-node-03   control-plane,etcd,master   v1.30.6+k3s1   CAX21
 ```
 
 The inventory's `[k3s_control] = node-01` was a red herring (ansible
@@ -105,7 +105,7 @@ module** (used by *every* Hetzner env), not just editing the manifest.
 - **Paired dmf-infra bootstrap change:** node-04 joins k3s **as an agent**,
   a join shape the bootstrap currently never performs (all nodes are
   servers today).
-- Manifest extension (`manifests/g2r6-foa9.yaml`): a new optional node
+- Manifest extension (`manifests/<env>.yaml`): a new optional node
   group declaring `server_type: cax31`, `count: 1`, role `agent`, label
   `dmf.io/role=mxl-processor`, taint `dmf.io/mxl=true:NoSchedule`.
 
@@ -120,7 +120,7 @@ node-04 carries `dmf.io/mxl=true:NoSchedule`. Decide per workload:
 | node-exporter, promtail | **Yes** — processor must be observable | add explicit toleration |
 | Longhorn | **No** — MXL is tmpfs, no PVCs here | leave untolerated |
 | flannel/CNI, kube-proxy, hcloud CCM | Yes (auto) | already tolerate-all |
-| Hetzner LB `g2r6-foa9-traefik` target pool | **No** | node-04 runs no Traefik; verify the CCM target selector **excludes** the tainted node or LB traffic routed there black-holes |
+| Hetzner LB `<env>-traefik` target pool | **No** | node-04 runs no Traefik; verify the CCM target selector **excludes** the tainted node or LB traffic routed there black-holes |
 
 ---
 
@@ -142,7 +142,7 @@ Piece 2 (provision node-04)  →  Piece 5 (build v1.0.1 arm64 images on node-04,
 Blast radius = node-04 only (isolated tainted agent). Closes most of
 ADR-0017 §Enforcement.
 
-- **dmf-env** — module heterogeneity (§3) + `g2r6-foa9.yaml` node group +
+- **dmf-env** — module heterogeneity (§3) + `<env>.yaml` node group +
   rendered inventory; `tofu apply` adds node-04.
 - **dmf-infra** — agent-join; `roles/modules/media/mxl/` (taint/label +
   reaper CronJob).
@@ -156,7 +156,7 @@ ADR-0017 §Enforcement.
 > through tmpfs; it does **not** read-and-republish. A true loopback
 > function is custom code, deliberately out of this scope.
 
-**Stage 1 acceptance:** `bin/run-playbook.sh g2r6-foa9 …` stands up node-04
+**Stage 1 acceptance:** `bin/run-playbook.sh <env> …` stands up node-04
 and the demo pod-group; `mxl-info -l` shows the flow with an advancing head
 index; the reaper CronJob runs green every minute. Existing control-plane
 workload unmoved.
@@ -380,7 +380,7 @@ entry uses a node-level **persistent** domain; revisit at multi-domain.
   (no registry). On restart, a leftover test ns `mxl-reaper-chart` may resurface
   — delete it; and re-run the in-chart reaper deploy to confirm `d0eb1cc`.
 - **Hetzner node (closes #1):** when ARM capacity returns, from the dmf-env
-  worktree run `bin/tf-apply.sh g2r6-foa9 plan -var
+  worktree run `bin/tf-apply.sh <env> plan -var
   publish_lb_dns_records=true -out=<plan>` then `apply` — sweep
   `server_type` (cax21/cax31) × `location` (nbg1/fsn1/hel1) via the
   manifest's `node_groups` entry until one DC has stock. **Never commit the

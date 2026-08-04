@@ -61,7 +61,7 @@ identical; only the stdout capture changes.
 
 ## Task B — ESO token-path / finding #5 (investigate, then fix)
 
-**Symptom (observed live on `montest`, env `8f2y-sgg7`):** after FIX5 landed, a
+**Symptom (observed live on `montest`, env `<env>`):** after FIX5 landed, a
 re-run of playbook 691 did **not** repopulate
 `secret/apps/netbox/runtime#promsd_api_token` in OpenBao — it stayed **empty** —
 so the ESO-projected K8s secret was empty and the adapter pod had its token

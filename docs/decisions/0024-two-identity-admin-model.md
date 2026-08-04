@@ -17,7 +17,7 @@ exceptions) is preserved and still referenced by 0028.
 The DMF Platform's per-app admin identity has been spec'd informally since the
 2026-05-08 Pre-Bao Bootstrap Secrets Design and observed in practice across
 six bootstrapped envs, but the model was never codified. On 2026-05-22 the
-`697-cms-awx-token.yml` playbook failed against the greenfield `g2r6-foa9`
+`697-cms-awx-token.yml` playbook failed against the greenfield `<env>`
 env with HTTP 401 from AWX, because its admin-user fallback chain defaulted
 to the literal `awx-local-admin` while the rest of the role tree resolves
 the same value through `vault_bootstrap_admin_username | default('dmfadmin')`.
@@ -79,14 +79,14 @@ Adopt the **two-identity admin model** explicitly across the DMF Platform:
    <app>-<dmf_env_id>@<cert_manager_cluster_domain>
    ```
 
-   Examples on env `zy9q-1015` (`cert_manager_cluster_domain =
+   Examples on env `<env>` (`cert_manager_cluster_domain =
    e2e.dmf.test`):
 
-   - `netbox-zy9q-1015@e2e.dmf.test`
-   - `forgejo-zy9q-1015@e2e.dmf.test`
-   - `awx-zy9q-1015@e2e.dmf.test`
-   - `grafana-zy9q-1015@e2e.dmf.test`
-   - `zot-zy9q-1015@e2e.dmf.test`
+   - `netbox-<env>@e2e.dmf.test`
+   - `forgejo-<env>@e2e.dmf.test`
+   - `awx-<env>@e2e.dmf.test`
+   - `grafana-<env>@e2e.dmf.test`
+   - `zot-<env>@e2e.dmf.test`
 
    Authentik keeps its bootstrap-convention email `akadmin@<base-domain>`
    (per the sanctioned exception above; akadmin is the Authentik admin
@@ -110,7 +110,7 @@ Adopt the **two-identity admin model** explicitly across the DMF Platform:
    break-glass row — username stays `<app>-break-glass` but the profile,
    social_auth link, and role bindings become the operator's. The
    break-glass account is now compromised AND the operator is being
-   used routinely (C4 violation in spirit). Observed live on `zy9q-1015`
+   used routinely (C4 violation in spirit). Observed live on `<env>`
    2026-05-28: NetBox break-glass row showed `Username =
    netbox-break-glass`, `Full Name = <full-name>`, `Email = <redacted-email>`,
    `Superuser = ✓`, with the `(netbox-break-glass, oidc, <full-name>)`
@@ -135,7 +135,7 @@ Adopt the **two-identity admin model** explicitly across the DMF Platform:
      via the app's API/manage.py plus deletion of any
      `(<app>-break-glass, oidc, <operator-sub>)` UserSocialAuth row
      that the email-collision hijack created. The procedure for
-     `zy9q-1015` (run interactively on 2026-05-28) is captured at
+     `<env>` (run interactively on 2026-05-28) is captured at
      `docs/reviews/DMF Passkey Invitation Policy Alignment Survey
      2026-05-28.md` § next-steps.
 
@@ -163,7 +163,7 @@ Adopt the **two-identity admin model** explicitly across the DMF Platform:
   helper's K8s-Secret scope means it doesn't help NetBox or Forgejo;
   those apps stay on their OpenBao-read patterns (no regression — they
   were never broken).
-- **Neutral** — Greenfield envs (g2r6-foa9 and future wizard-generated
+- **Neutral** — Greenfield envs (`<env>` and future wizard-generated
   envs) see the same effective behaviour: helper resolves the K8s Secret,
   which carries the wizard-set values, identical to the prior vault-only
   chain.

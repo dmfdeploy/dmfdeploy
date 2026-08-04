@@ -26,7 +26,7 @@ that cross-app HTTP wiring uses cluster-internal service DNS from in-cluster
 callers.
 
 Lane B of the 2026-05-19 convergence plan proved this shape end-to-end on
-`g2r6-foa9` on 2026-05-23. `media-launch-nmos-cpp` ran in an AWX Container
+`<env>` on 2026-05-23. `media-launch-nmos-cpp` ran in an AWX Container
 Group EE pod, installed the NMOS Helm chart from in-cluster Zot into the
 `nmos` namespace, flipped the NetBox lifecycle tag to active, and the NMOS
 Query API returned HTTP 200 with the mock nodes registered. Implementation

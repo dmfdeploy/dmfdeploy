@@ -11,7 +11,7 @@ date: 2026-05-27
 
 ## Problem
 
-On `wobe-9n0c` (local-CA TLS lane, base domain `boxsand.dmf.test`):
+On `<env>` (local-CA TLS lane, base domain `boxsand.dmf.test`):
 
 - New `dmf-cms` pod is **CrashLoopBackOff**. Startup lifespan `_bootstrap_console_groups`
   (`main.py:123`) calls the Authentik management API over `https://auth.boxsand.dmf.test`;
@@ -122,7 +122,7 @@ seeding rather than crashlooping the whole console. Flag for review; keep minima
 - Build → publish to GHCR (`publish-to-ghcr.sh`) → mirror into cluster Zot (playbook 630)
   → deploy (playbook 650). Operator-gated steps (GHCR creds, cluster secrets) flagged.
 
-### E. Verify on `wobe-9n0c`
+### E. Verify on `<env>`
 - New pod reaches Running (no crashloop) — group bootstrap succeeds over internal API.
 - Login end-to-end: browser hits **public** authorize; pod does token + userinfo over
   **internal** plain HTTP; session built from userinfo; lands authenticated.
@@ -134,7 +134,7 @@ seeding rather than crashlooping the whole console. Flag for review; keep minima
 1. dmf-cms code + chart + tests (one PR) → codex review of the diff.
 2. dmf-infra cms role wiring (one PR).
 3. Release 0.9.1 + deploy.
-4. Live verification on `wobe-9n0c`.
+4. Live verification on `<env>`.
 
 ## Out of scope / follow-ups
 - Real ID-token validation (signature + canonical public `iss` + nonce) — the back-channel

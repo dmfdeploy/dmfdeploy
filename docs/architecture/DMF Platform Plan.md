@@ -647,7 +647,7 @@ operator portal. The init wizard now writes four orthogonal fields:
 
 | Field | Shape | Generated? | Used as path? | Surfaces in NetBox? |
 |---|---|---|---|---|
-| `env_id`       | `[a-z0-9]{4}-[a-z0-9]{4}` (e.g. `nb1k-7q3m`) | wizard auto | **yes** — the only path identifier | yes (cluster name + custom field `dmf_env_id`) |
+| `env_id`       | `[a-z0-9]{4}-[a-z0-9]{4}` (e.g. `<env>`) | wizard auto | **yes** — the only path identifier | yes (cluster name + custom field `dmf_env_id`) |
 | `env_label`    | free text, optional (e.g. `production-lab`)  | operator    | no — never in a path                | yes (site display name + custom field `dmf_env_label`) |
 | `provider`     | enum `hetzner` \| `aliyun` \| `aws`           | operator    | no                                  | yes (custom field `dmf_provider`, selection set; drives `manufacturer`) |
 | `architecture` | enum `arm64` \| `amd64`                       | operator    | no                                  | yes (custom field `dmf_architecture`, selection set) |

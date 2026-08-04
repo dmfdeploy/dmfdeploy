@@ -130,7 +130,7 @@ Two options:
        name: dmf-bootstrap-passkey-identification
    ```
    These can be deleted from the blueprint after one successful
-   round-trip on every live env (`g2r6-foa9`, current sandbox env).
+   round-trip on every live env (`<env>`, current sandbox env).
    Worth committing them in their own paragraph block so the cleanup
    intent is visible.
 
@@ -183,7 +183,7 @@ On a fresh sandbox (post-implementation):
   `prompt_data.email` to look up.
 - **Blueprint cleanup of legacy entries on environments that won't
   be rebuilt.** Currently:
-  - `g2r6-foa9` (cloud) and the current sandbox env both have the
+  - `<env>` (cloud) and the current sandbox env both have the
     identification stage applied. Both need the new blueprint
     applied after this lands. The declarative `state: absent`
     cleanup handles both.
@@ -211,7 +211,7 @@ PR doesn't change two things at once.
 
 The implementation diff is small (1 file, ~30 lines net) but the
 verification matrix is non-trivial (browser-side WebAuthn). Plan one
-focused session on `zy9q-1015` or a fresh sandbox.
+focused session on `<env>` or a fresh sandbox.
 
 ## Commit shape
 

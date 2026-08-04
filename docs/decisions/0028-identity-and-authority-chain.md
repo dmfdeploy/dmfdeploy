@@ -76,7 +76,7 @@ ADR-0024 §3 across seven apps):
    already satisfy C4, so the local admin remains dormant break-glass).
 
 No fourth exception emerged. The **AWX shadow superuser**
-(`<operator>22daa48fb6594ba3` observed in `g2r6-foa9`) is explicitly
+(`<operator>22daa48fb6594ba3` observed in `<env>`) is explicitly
 **not** a sanctioned exception. It is the deterministic consequence of
 a username collision between the local bootstrap admin and the
 SAML-projected operator identity given AWX's default SOCIAL_AUTH
@@ -129,12 +129,12 @@ where a forged request could affect live production output.
      Grafana was evaluated separately and intentionally retained as the
      sanctioned `admin` exception; no Grafana code change is required.
   3. D2 bootstrap-convergence verifier landed in `dmf-infra@0f9e7f0`
-     and passed live on `g2r6-foa9`.
+     and passed live on `<env>`.
   4. D8 operational defaults (monthly drill doc, ≥2 passkeys per human,
      short OIDC token lifetimes, verifier hook) landed in
      `dmf-infra@2dcafb9`; `dmf-env@4ae3971` aligned the passkey
      enrollment helper with the new count-based gate. Live adoption on
-     `g2r6-foa9` remains an operational rollout step.
+     `<env>` remains an operational rollout step.
   5. OIDC client_secret rotation runbook lives at
      [`docs/runbooks/oidc-client-secret-rotation.md`](../runbooks/oidc-client-secret-rotation.md).
 - **Neutral** — Multi-user model remains explicitly deferred

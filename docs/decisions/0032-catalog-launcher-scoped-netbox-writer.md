@@ -2,7 +2,7 @@
 
 **Status:** Accepted
 **Date:** 2026-05-27
-**Deciders:** @<handle> (raised the least-privilege question during the wobe-9n0c catalog-deploy debugging session), with Claude investigation
+**Deciders:** @<handle> (raised the least-privilege question during the `<env>` catalog-deploy debugging session), with Claude investigation
 **Refines:** [ADR-0028](0028-identity-and-authority-chain.md) C3 (scoped service accounts for machine-to-machine). Related: [ADR-0013](0013-media-function-catalog-model.md) (catalog model — NetBox runtime lifecycle tag), [ADR-0025](0025-ansible-in-cluster-pods-and-catalog-helm.md) (in-cluster launchers), [ADR-0007](0007-secrets-never-in-argv.md).
 
 ## Context

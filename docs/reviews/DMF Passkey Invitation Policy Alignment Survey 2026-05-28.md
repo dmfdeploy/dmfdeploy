@@ -1,7 +1,7 @@
 # DMF Passkey Invitation — Policy Alignment Survey
 
 **Date:** 2026-05-28
-**Trigger:** While verifying Plan A v2 self-heal on `zy9q-1015`, a second
+**Trigger:** While verifying Plan A v2 self-heal on `<env>`, a second
 invitation `console-<operator-user>-202605281628` appeared in the Authentik DB
 alongside the bootstrap `dmf-bootstrap-passkey` invitation the script
 manages. Investigation surfaced that there are **two parallel
@@ -177,7 +177,7 @@ This is a violation of ADR-0028 **C3** ("Native service accounts are allowed onl
 
 ### E. Script-side parsing bug found and fixed during today's session
 
-BSD sed alternation (`\|`) doesn't work without `-E`. The first iteration of today's self-heal script always re-triggered the mini-playbook because `INVITATION_LIVE` parsed as empty under BSD sed. Caught in live verification on `zy9q-1015`, fixed before push (`69c6075` shipped with `sed -nE`). No lingering issue.
+BSD sed alternation (`\|`) doesn't work without `-E`. The first iteration of today's self-heal script always re-triggered the mini-playbook because `INVITATION_LIVE` parsed as empty under BSD sed. Caught in live verification on `<env>`, fixed before push (`69c6075` shipped with `sed -nE`). No lingering issue.
 
 ### F. ADR-0007 §2 inheritance (unchanged)
 
@@ -207,7 +207,7 @@ surfaced unexpectedly: `secret/apps/<app>/admin.email` was being seeded
 with the operator's real email for every non-Authentik app, and the
 apps' OIDC/SAML pipelines were merging the operator's first sign-in
 into the break-glass User row via `associate_by_email`. Observed live
-on `zy9q-1015` after the operator's first NetBox SSO: NetBox showed
+on `<env>` after the operator's first NetBox SSO: NetBox showed
 `Username = netbox-break-glass`, `Full Name = <operator-user>`, `Email =
 <operator-email>`, `Superuser = ✓`, with a UserSocialAuth row binding
 <operator-user>'s OIDC `sub` to the break-glass user. Same shape of bug as the
@@ -215,7 +215,7 @@ AWX shadow-superuser issue ADR-0028 lines 66-70 catalogued, only via
 the email field. Fix: canonical pattern `<app>-<dmf_env_id>@<base-domain>`
 applied at both layers (seed-bao auto-heal + role defaults) and
 codified in ADR-0024 §4. Live-state remediation applied for the
-`zy9q-1015` env (NetBox / Forgejo / AWX break-glass User rows
+`<env>` env (NetBox / Forgejo / AWX break-glass User rows
 patched, hijacked UserSocialAuth row deleted).
 
 ## Outstanding follow-ups (pick up next session)

@@ -7,7 +7,7 @@ date: 2026-06-05
 **Date:** 2026-06-05
 **Status:** DISCUSSION NOTES (not a plan yet) — "discuss further" per operator. Captures the
 problem, the live evidence, the candidate mechanisms, and open questions.
-**Trigger:** the single-node `mxl-hello` live verify (env `u1u3-c7rz`) exposed that adding a
+**Trigger:** the single-node `mxl-hello` live verify (env `<env>`) exposed that adding a
 deployable media function to the catalog is **bootstrap-coupled** — it needs laptop playbook
 re-runs and hits a chain of "hardwired to nmos-cpp" gaps.
 **Inputs:** Claude + codex cross-check (AWX RBAC / org-scoping); ADR-0025 (in-cluster Helm /
@@ -127,6 +127,6 @@ in-cluster reconcile is the actuator, and nothing is hand-applied.
 
 - **Done now (live unblock only):** JT Execute grant (live + 697 code fix `fd597b4`) and
   launcher `mxl` RBAC (live, least-priv, **no code change**). These get mxl-hello deployable
-  on `u1u3-c7rz`; they are NOT the durable mechanism.
+  on `<env>`; they are NOT the durable mechanism.
 - **Durable:** Moves 1–3 above. To be designed in the follow-up discussion and likely captured
   as an ADR superseding the static catalog model (and folding in ADR-0027).

@@ -13,7 +13,7 @@ path (`seed-bao`), Ansible export var (`vault_*` in `export-vars`), and per-env
 
 The 5th touchpoint is hand-rolled — `hetzner-arm` has
 `tailscale.yml` / `openbao.yml` / `eso.yml` / `bootstrap.yml`; wizard-generated
-envs have none of them. The recent `z4ud-sy22` rollout proved the failure
+envs have none of them. The recent `<env>` rollout proved the failure
 mode: the Tailscale authkey was collected, bundled, and exported, but no
 per-env binding was rendered, so pre-seed died on the `base/tailscale`
 assertion.
@@ -100,7 +100,7 @@ ADR-0008; descriptors *reference* them, never embed them.
    provider-shaped code yet.*
 2. The Python wizard renders
    `dmf-env/inventories/<env_id>/group_vars/all/tailscale.yml` from the
-   descriptor for at least one **live** env (e.g. `g2r6-foa9` —
+   descriptor for at least one **live** env (e.g. `<env>` —
    `hetzner-arm` is retired so the original byte-for-byte anchor no
    longer applies; equivalence against any live env's existing
    hand-rolled `tailscale.yml` is sufficient).

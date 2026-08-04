@@ -34,7 +34,7 @@ don't start over*. That intent is real and has been pursued release over release
 But the **session / launch-token layer was never hardened to match**, and it is
 the seam that breaks the goal.
 
-**Incident (env `piot-j6hv`, 2026-06-25 → 26).** A Pi-class run failed at the
+**Incident (env `<env>`, 2026-06-25 → 26).** A Pi-class run failed at the
 `configure` step ~12 h after container start (resume cursor:
 `failed_step_id=configure`, `final_status=error`, 2026-06-26 04:48 UTC). The
 container was healthy and **never restarted**. Yet the operator was locked out:
@@ -261,7 +261,7 @@ is fetched once on mount and failures are **silently ignored**
 
 ## Resume guide
 
-State at authoring: incident diagnosed; operator env `piot-j6hv` recovered via
+State at authoring: incident diagnosed; operator env `<env>` recovered via
 out-of-band `docker restart the dmf-init container` + fresh launch token + UI resume from
 `configure`; a host-side rescue copy of the env was taken as insurance. Issue
 **#150** filed (v0.1-polish, `component:dmf-init` + `workstream:hardening`).

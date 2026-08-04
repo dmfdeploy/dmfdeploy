@@ -8,7 +8,7 @@ executed: 2026-05-27
 **Status:** Ready (pending codex cross-check), implements [ADR-0032](../decisions/0032-catalog-launcher-scoped-netbox-writer.md)
 **Repos:** dmf-infra (netbox-sot + awx-integration), dmf-runbooks (nmos-cpp launcher)
 
-## Root cause (confirmed live on wobe-9n0c)
+## Root cause (confirmed live on `<env>`)
 
 Catalog Deploy (`media-launch-nmos-cpp`, job 40) failed at the first NetBox call
 ("Fetch existing NetBox tags") with **403**. The token is **valid** (same token
@@ -58,7 +58,7 @@ violation (ADR-0032).
   now. Verified: provision.yml DOES `POST /ipam/services/` (needs `add_service`).
 - teardown-nmos-cpp: same token swap.
 
-### D. Apply + verify on wobe-9n0c
+### D. Apply + verify on `<env>`
 1. Re-run `691-netbox-sot` (creates dmf-catalog-svc + perms + token; adds
    extras.tag view to cms-svc).
 2. Re-run the `awx-integration` configure step (re-wires catalog JT extra_vars).

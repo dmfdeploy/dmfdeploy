@@ -102,8 +102,8 @@ ADR number — needs verification.
   the scope table "will be simplified… Tracked as a follow-up amendment" once
   Lane C lands. Open loop.
 - **Env-slug churn.** ADRs anchor evidence to ephemeral env ids: `hetzner-arm`,
-  `aliyun-123` (both retired), `g2r6-foa9` (0031's "live lab"), `z4ud-sy22`, and
-  `wobe-9n0c` (0032, 2026-05-27). These age fast by design — 0024/0026 already
+  `aliyun-123` (both retired), `<env>` (0031's "live lab"), `<env>`, and
+  `<env>` (0032, 2026-05-27). These age fast by design — 0024/0026 already
   carry "retired" notes, but it's a recurring maintenance tax.
 
 ---

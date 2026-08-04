@@ -870,7 +870,7 @@ Orchestrated lift→review→fix on `dmf-infra` (codex lift, qwen-left review, C
 
 The full **NetBox-driven dynamic monitoring** feature (WP0–WP8 + **ADR-0038 incl.
 Amendment A**) shipped and was **validated live end-to-end** via a from-scratch
-dmf-init bootstrap on the `montest` sandbox (env `8f2y-sgg7`): Prometheus now probes
+dmf-init bootstrap on the `montest` sandbox (env `<env>`): Prometheus now probes
 **10 platform apps discovered from NetBox tags, all `up`**. New component repo
 **`dmf-promsd`** (the http_sd adapter); image published → `ghcr.io/dmfdeploy/dmf-promsd:0.1.3`
 (**operator: flip the package to public**). **8 deploy-time findings** surfaced — 7 fixed
@@ -895,7 +895,7 @@ Policy locked: **pre-public/solo → everything on `main`, no feature branches.*
   Create clones `dmf-cms@main` (=0.10.0) and 630/650 resolve `cms_image_tag` natively.
 - **Media Workloads** model recorded: **ADR-0037** (amends ADR-0027 — instances in NetBox,
   not a CRD; flows stay runtime-only) + `docs/plans/DMF Media Workloads … 2026-06-03.md`.
-- **Clean restart:** disposable `fl21-cbq0` abandoned; old `dmf-init-demo` container removed;
+- **Clean restart:** disposable `<env>` abandoned; old `dmf-init-demo` container removed;
   `dmf-sandbox` Lima VM recreated (fresh). dmf-init now runs on a **dedicated `dmf-init`
   colima profile** (2CPU/4GiB/40GiB), not `default`.
 - **Next (operator):** fresh dmf-init Create against the new VM → bootstraps latest `main` +
@@ -909,7 +909,7 @@ Bootstrap-Pause UX Tasks Handoff 2026-06-03.md`. Orchestrated codex(lift)→Clau
 incl. live builder checks)→qwen(review); pushed `dmf-init main` `5b41950..7456014`
 (T1 payloads+metadata, T2 UI per-OS CA cmds+download/hosts+DNS note/clickable enroll
 link/per-pause Verify&Continue, T3 `GET /api/bootstrap/passkey/{run_id}`).
-**Full from-scratch E2E (env `fl21-cbq0`, fresh blank VM, operator drove it in the
+**Full from-scratch E2E (env `<env>`, fresh blank VM, operator drove it in the
 browser): all 11 steps DONE → "Bootstrap verified, #2+#3 sealed", verify failed=0**;
 pauses completed via the new UI; passkey Verify&Continue gated on the live poll.
 **#9 RESOLVED:** ran `@main` with NO sidesteps and configure passed `ok=694 failed=0`
@@ -918,7 +918,7 @@ pauses completed via the new UI; passkey Verify&Continue gated on the live poll.
 form re-submit creates duplicate orphan envs; two-click start is non-obvious. Deferred
 (NOT dmf-init): dmf-cms `0.9.2` `add_user_to_group` crashloop persists (masked by fallback
 pod + weak `699` smoke test) → ships with the dmf-cms version bump.
-**Manage TEARDOWN action also validated (with a fix):** drove it via the UI on `fl21-cbq0`
+**Manage TEARDOWN action also validated (with a fix):** drove it via the UI on `<env>`
 — lock + re-backup (cp#4 sealed) worked, but `remove-env.sh` refused the rm-rf because its
 guards hardcoded `~/.dmfdeploy/envs/` (didn't honor `DMF_DATA_ROOT`, same family as #1).
 FIXED+pushed dmf-env `feat/wizard-non-interactive` `c43401b` (DMF_DATA_ROOT-honoring base,
@@ -1203,7 +1203,7 @@ validate/remove → `5a53e1c` delete-defunct+helpers. Umbrella: ADR-0035 + plan 
 bash -n, key round-trip) but no fresh env has been stood up on it. Next: operator
 runs `bin/init-wizard.sh hetzner` (generate-key) → should reach a saved `plan.bin`
 with **dmf-env staying clean** → `tf-apply <env> apply` → bootstrap → `--remove`.
-**Cleanup nit:** stale untracked `terraform/{aliyun,aliyun-123,g2r6-foa9,hetzner-arm}/`
+**Cleanup nit:** stale untracked `terraform/{aliyun,aliyun-123,<env>,hetzner-arm}/`
 dirs (gitignored `.terraform/` + tfstate backups) — `rm -rf` them.
 
 ### 🟢 Upgrade-mechanism + CCM + teardown-script fixes LANDED (2026-06-01, UNPUSHED)
@@ -1236,9 +1236,9 @@ env via `upgrade-in-place.sh`; validate the unseal rewrite live; extend
 Full detail + push commands:
 [`docs/handoffs/DMF Upgrade-Mechanism + CCM + Teardown-Script Fixes Handoff 2026-06-01.md`](docs/handoffs/DMF%20Upgrade-Mechanism%20%2B%20CCM%20%2B%20Teardown-Script%20Fixes%20Handoff%202026-06-01.md).
 
-### 🟢 g2r6-foa9 + Aliyun media nodes TORN DOWN (2026-06-01)
+### 🟢 `<env>` + Aliyun media nodes TORN DOWN (2026-06-01)
 
-`g2r6-foa9` (Hetzner) and the two `aliyun-media-01/02` MXL-spike nodes are
+`<env>` (Hetzner) and the two `aliyun-media-01/02` MXL-spike nodes are
 **destroyed** (operator-decided wipe). Verified clean: no g2r6 servers / network
 / LB in `k3s-infra-lab`; Aliyun `tofu destroy` = 14 resources gone. Shared SSH
 key `k3s-hetzner` **preserved** (it's `prevent_destroy`'d shared lab infra — must
@@ -1253,7 +1253,7 @@ survive env teardowns).
   against the LB's network *ID* field, so it always says "not attached; skipping"
   and the private subnet/network destroy then hangs ~20min and times out. Manual
   fix: `hcloud --context k3s-infra-lab load-balancer detach-from-network
-  g2r6-foa9-traefik --network g2r6-foa9-private`, then re-run destroy. (The CCM
+  <env>-traefik --network <env>-private`, then re-run destroy. (The CCM
   LB is data-sourced in TF — detach, don't delete, until destroy completes.)
 
 **Rebuild prerequisite (MANDATORY before any new Hetzner env):** bump
@@ -1282,7 +1282,7 @@ at `/if/flow/default-authentication-flow/`. Cold bootstrap unaffected (enrollmen
 runs on its own `require_unauthenticated` flow). Plan +  ADR amendment in umbrella.
 
 **Open:** human passkey gate (portal + an app land on the picker, no username
-form) needs a cold bootstrap on the recreated `y834-bcwe` VM (deleted+recreated
+form) needs a cold bootstrap on the recreated `<env>` VM (deleted+recreated
 empty today) or a fresh env id — dovetails with the §4.1 fresh-clone gate.
 **Rollback gotcha (in plan):** the brand-patch lever does NOT auto-revert on
 template removal (blueprints don't GC) — needs an explicit reset entry.
@@ -1371,7 +1371,7 @@ Footgun flagged: 630's EE-tag fallback is decoupled from the role default
 
 Full cold rollout on a fresh Lima VM + wizard env (`<env>`, operator
 `marty-mcfly` / `delorean.dmf.test`, throwaway test identity). Prior env
-`zy9q-1015` torn down; `wobe-9n0c` kept as reference.
+`<env>` torn down; `<env>` kept as reference.
 
 **Catalog loop PASS** (driven via AWX API — Console browser path needs operator
 passkeys, see below): `media-launch-nmos-cpp` (job 9, 38.6s) → health (IS-04
@@ -1404,7 +1404,7 @@ re-encrypt paths: needed `--config` to the sibling per-env `.sops.yaml` AND the
 temp file named = bundle basename (so it matches the creation_rule in both
 lanes) + guarded `mv` + bash-3.2-safe. See [[project_sandbox_sops_config_class_bug]].
 
-**`recreate-sandbox-vm.sh` — `dmf-env b3dffcd`.** Was hardwired to `wobe-9n0c` /
+**`recreate-sandbox-vm.sh` — `dmf-env b3dffcd`.** Was hardwired to `<env>` /
 no-wizard reuse; now env-agnostic + VM-first→emit-IP for the fresh-wizard cold
 path (legacy reuse kept behind `ENV_NAME=`).
 
@@ -1416,11 +1416,11 @@ groups scope). Env `<env>` left running at a clean slate for the operator to
 enroll passkeys + drive the Console loop (gate #2) if desired. Teardown:
 `rm -rf ~/.dmfdeploy/envs/<env>` + `limactl delete -f dmf-sandbox`.
 
-### 🟢 Break-glass-email hijack class fix landed (ADR-0024 §4) — `zy9q-1015` live-remediated (2026-05-28 close)
+### 🟢 Break-glass-email hijack class fix landed (ADR-0024 §4) — `<env>` live-remediated (2026-05-28 close)
 
 Mid-audit on the passkey enrollment story, operator surfaced a deeper
 architectural concern: the wizard-defined operator user (`<operator-user>` on
-`zy9q-1015`) is meant to be admin/superuser in every OIDC-backed app
+`<env>`) is meant to be admin/superuser in every OIDC-backed app
 via the `ops-admin` group projection (ADR-0024 §2, ADR-0028 C1), but
 NetBox was showing `Username = netbox-break-glass`, `Full Name = <operator-user>`,
 `Email = <handle>@gmail.com`, `Superuser = ✓` after the first OIDC
@@ -1448,13 +1448,13 @@ catalogued, via the email field instead of the username.
   re-amending ADR-0024 §4).
 - **umbrella `64fdbb1`** — ADR-0024 §4 amendment codifies the pattern,
   the collision vector (social_auth pipelines + email as merge key
-  with file pointers), and live evidence from the `zy9q-1015` hijack.
+  with file pointers), and live evidence from the `<env>` hijack.
 
-**Live-state remediation on `zy9q-1015`:**
+**Live-state remediation on `<env>`:**
 - OpenBao `secret/apps/{forgejo,netbox,grafana,awx,zot}/admin.email`
   migrated to canonical via re-seed (auto-heal log shows each transition).
 - NetBox: `netbox-break-glass.email` patched to
-  `netbox-zy9q-1015@e2e.dmf.test` via `manage.py shell`; the hijacked
+  `netbox-<env>@e2e.dmf.test` via `manage.py shell`; the hijacked
   `UserSocialAuth(user=netbox-break-glass, provider='oidc', uid='<operator-user>')`
   row deleted so `<operator-user>`'s next OIDC sign-in creates a fresh `<operator-user>`
   user instead of re-merging.
@@ -1498,7 +1498,7 @@ Survey doc
   posture across script + role debug + Console response + ntfy push).
   Should be one co-ordinated cross-repo PR, not piecewise.
 
-### 🟢 Passkey enrollment self-heal landed on sandbox env `zy9q-1015` (2026-05-28)
+### 🟢 Passkey enrollment self-heal landed on sandbox env `<env>` (2026-05-28)
 
 Operator hit "Invalid invite/invite not found" on the bootstrap passkey URL.
 Root cause: `bin/get-passkey-enrollment-url.sh` returned the OpenBao-cached
@@ -1527,7 +1527,7 @@ Fix shipped (Plan A v2 from the design pass):
   `--read-only` to opt out of self-heal. `$DMF_INFRA_REPO` overrides the
   `../dmf-infra` sibling-checkout default.
 
-Verified on `zy9q-1015`:
+Verified on `<env>`:
 
 | Case | Behavior |
 |---|---|
@@ -1548,27 +1548,27 @@ captures the follow-up to drop the username prompt from the enrollment
 flow (option 2: swap identification stage for `user_write` in
 `never_create` mode reading the invitation's `fixed_data`). Land after the
 current self-heal path is verified end-to-end across both passkey
-enrollments on `zy9q-1015`.
+enrollments on `<env>`.
 
-### 🧹 Sandbox env `9y6o-zn0t` torn down — ready for fresh e2e rollout (2026-05-28)
+### 🧹 Sandbox env `<env>` torn down — ready for fresh e2e rollout (2026-05-28)
 
 Operator brief: "fresh end to end sandbox rollout, pls teardown and remove the
 current sandbox env completely including the artifacts." Done.
 
-Wiped (mirrors yesterday's `cht6-781p` / `e7qm-gxig` purge pattern, plus the
+Wiped (mirrors yesterday's `<env>` / `<env>` purge pattern, plus the
 Lima-VM host-side state which the cloud purges didn't need):
 - **Workstation artifacts:**
-  - `dmf-env/inventories/9y6o-zn0t/` — removed
-  - `dmf-env/manifests/9y6o-zn0t.yaml` — removed
-  - `dmf-env/.sops.yaml` 9y6o-zn0t rule — reverted (was uncommitted working-tree addition; now matches HEAD)
-  - `$DMF_BOOTSTRAP_BUNDLE_DIR/9y6o-zn0t.sops.yaml` (encrypted bundle) — removed
-  - `~/.secure/9y6o-zn0t/` (OpenBao breakglass JSON) — removed
+  - `dmf-env/inventories/<env>/` — removed
+  - `dmf-env/manifests/<env>.yaml` — removed
+  - `dmf-env/.sops.yaml` `<env>` rule — reverted (was uncommitted working-tree addition; now matches HEAD)
+  - `$DMF_BOOTSTRAP_BUNDLE_DIR/<env>.sops.yaml` (encrypted bundle) — removed
+  - `~/.secure/<env>/` (OpenBao breakglass JSON) — removed
 - **Lima VM `dmf-sandbox` (<sandbox-node-ip>), substrate intact:**
   - `sudo /usr/local/bin/k3s-uninstall.sh` — k3s + containerd + /var/lib/{rancher,kubelet} swept; binary gone
   - `/etc/rancher` — removed
   - `/etc/hosts` DMF local-CA block (8 host entries from `321-local-ca-trust`) — removed via the `blockinfile` marker
   - Disk reclaim 22→3 GiB used (54 GiB free of 59)
-- Other DMF envs (`g2r6-foa9`, `wobe-9n0c`, retired cloud envs) untouched.
+- Other DMF envs (`<env>`, `<env>`, retired cloud envs) untouched.
 - macOS Keychain: nothing to clean — sandbox profile sets
   `openbao_breakglass_distribution_enabled: false`, so no keychain shares were
   ever written for this env (the pre-existing `openbao-breakglass-share-3` is
@@ -1597,11 +1597,11 @@ other 9 jobs are byte-identical to chart-default.
 - dmf-infra `c2f33ee`, pushed to LAN.
 - Re-deployed on both lanes via the wrapper; configmap-reload sidecar picks up
   the new ConfigMap on its sync (~60s), or POST `/-/reload` to trigger immediately.
-- **Sandbox (9y6o-zn0t):** `job=prometheus health=up scrapeUrl=…/prometheus/metrics`. Counts: **11/11 up, 0 down** (was 10 up, 1 down).
-- **Cloud (g2r6-foa9):** same fix verified. Counts: **20/20 up, 0 down** (was 19 up, 1 down).
+- **Sandbox (`<env>`):** `job=prometheus health=up scrapeUrl=…/prometheus/metrics`. Counts: **11/11 up, 0 down** (was 10 up, 1 down).
+- **Cloud (`<env>`):** same fix verified. Counts: **20/20 up, 0 down** (was 19 up, 1 down).
 - Refresh `scrape_configs.yml.j2` when bumping the prometheus chart version.
 
-### 🟢 Sandbox monitoring vertical IN + live-verified on 9y6o-zn0t (2026-05-28)
+### 🟢 Sandbox monitoring vertical IN + live-verified on `<env>` (2026-05-28)
 
 Operator brief: implement the complete monitoring stack on the sandbox env,
 sized to fit, including host (Lima VM) CPU/RAM/disk. Driven by claude-bottom
@@ -1632,11 +1632,11 @@ landed across three commits (+ STATUS), all on `main`, pushed to LAN Forgejo.
   `prometheus_alertmanager_enabled: false` (sandbox has no ntfy/watchdog URLs;
   role asserts those when enabled). Same hygiene-class as `netbox_media_access_mode`
   (16bc35b) — rendered into the inventory so standalone reruns stay fit. Verified
-  ~37 GiB free on 9y6o-zn0t before locking; 11 GiB monitoring PVCs is comfortable.
-  Also patched the live `9y6o-zn0t/group_vars/all/main.yml` (untracked env dir,
+  ~37 GiB free on `<env>` before locking; 11 GiB monitoring PVCs is comfortable.
+  Also patched the live `<env>/group_vars/all/main.yml` (untracked env dir,
   operator's call to commit) with the same sizing + the missing
   `netbox_media_access_mode: ReadWriteOnce` (closes the STATUS 2026-05-27 gap).
-- **W5 — Live deploy on 9y6o-zn0t (verification gates per plan §6):**
+- **W5 — Live deploy on `<env>` (verification gates per plan §6):**
   1. ✅ `monitoring` ns: grafana, loki-0, loki-canary (DS), loki-gateway,
      promtail (DS), prometheus-server, prometheus-kube-state-metrics,
      prometheus-prometheus-node-exporter (DS) — all 1/1 Running, 0 restarts.
@@ -1657,16 +1657,16 @@ landed across three commits (+ STATUS), all on `main`, pushed to LAN Forgejo.
 - **Cosmetic note (pre-existing, not a sandbox issue):** prometheus self-scrape
   `job=prometheus localhost:9090` shows `down` — chart default points at
   `localhost:9090` but the server is running under the `/prometheus` subpath.
-  Same on g2r6-foa9 reference. Doesn't affect other targets, Grafana, or
+  Same on `<env>` reference. Doesn't affect other targets, Grafana, or
   datasource health.
 - **Rebuild path (Gap D from plan):** wired into post-seed; provable on next
   clean rebuild. Not exercised this session (operator brief was "modify
-  9y6o-zn0t in place"); the gate is structural (declarative `when:`).
+  `<env>` in place"); the gate is structural (declarative `when:`).
 
-### 🟢 Catalog NMOS deploy 403 + NetBox OIDC login 500 — both fixed & live-verified on 9y6o-zn0t (2026-05-27)
+### 🟢 Catalog NMOS deploy 403 + NetBox OIDC login 500 — both fixed & live-verified on `<env>` (2026-05-27)
 
 Operator reported the catalog page's NMOS deploy failing (AWX job #9) on the fresh
-e2e env `9y6o-zn0t`, plus a NetBox Authentik login error. Diagnosed both live
+e2e env `<env>`, plus a NetBox Authentik login error. Diagnosed both live
 (read-only) and conferred with claude-bottom via agent-bridge before fixing. Two
 dmf-infra commits on `main`, **committed not pushed** (operator pushes to LAN Forgejo):
 `17a54e0` (awx-integration) + `1bb3ee2` (netbox).
@@ -1682,7 +1682,7 @@ dmf-infra commits on `main`, **committed not pushed** (operator pushes to LAN Fo
   vault-file path), split the set_fact so the catalog token is always set and the awx
   token is never clobbered. **Verified:** re-ran 693 → JT carries the scoped token (200 on
   extras.tags), `media-launch-nmos-cpp` job 18 **successful** end-to-end (nmos registry+2
-  nodes Running, NetBox service → `lifecycle:active`). It "passed" on wobe-9n0c only
+  nodes Running, NetBox service → `lifecycle:active`). It "passed" on `<env>` only
   because the awx token there was empty.
 - **Issue 2 — NetBox OIDC login 500 = WP1S gate-2 NetBox half (`1bb3ee2`).** `/oauth/login/oidc/`
   500'd: python-social-auth does server-side OIDC discovery against the Authentik public
@@ -1695,7 +1695,7 @@ dmf-infra commits on `main`, **committed not pushed** (operator pushes to LAN Fo
   Gated on `dmf_tls_mode==local-ca`. **Verified:** pod discovery 200s, `/oauth/login/oidc/`
   → 302 to the public authorize URL (front-channel intact). Interactive passkey click-through
   is the operator's to confirm.
-- **⚠️ Inventory hygiene gap (dmf-env, NOT yet fixed):** the `9y6o-zn0t` inventory carries
+- **⚠️ Inventory hygiene gap (dmf-env, NOT yet fixed):** the `<env>` inventory carries
   most sandbox capability vars directly but **misses `netbox_media_access_mode: ReadWriteOnce`**
   (set only by `bootstrap-sandbox-profile.yml`). Running `610-netbox.yml` standalone (outside
   the sandbox wrappers) defaults to RWM → helm fails patching the bound RWO `netbox-media` PVC
@@ -1741,16 +1741,16 @@ itself so it can't run in the EE pod).
 - **MERGED + pushed to `main`** (2026-05-27): umbrella `08537c3` (ADR/plan/INDEX/STATUS),
   dmf-infra `0e9e38e`, dmf-env `e2763d9` + shellcheck fix `3796a38` + **init-wizard fix
   `7a7504b`**. FF merges; feature branches retained; untracked ADR portfolio review left intact.
-- **Live e2e exposed a real gap → fixed (`7a7504b`):** the fresh env `e7qm-gxig` failed
+- **Live e2e exposed a real gap → fixed (`7a7504b`):** the fresh env `<env>` failed
   pre-seed/331 with `vault_zot_service_password | mandatory` undefined. Root cause: ADR-0033
   added the field to `bootstrap-secrets.sh cmd_init`, but env creation actually runs through
   `init-wizard.sh render_bundle`, which was NOT patched — so wizard'd bundles lacked
   `apps.zot.service_password`. (Miss in the original review: cmd_init was assumed to be the
   creation path; the wizard is.) Wizard now generates it alongside the other 32-char secrets.
-- **Sandbox test envs PURGED for a clean e2e** (operator-confirmed): cht6-781p + e7qm-gxig
+- **Sandbox test envs PURGED for a clean e2e** (operator-confirmed): `<env>` + `<env>`
   fully removed (inventories, manifests, `.sops.yaml` rules, SOPS bundles, OpenBao keys).
-  wobe-9n0c, cloud envs, and the Lima VM `dmf-sandbox` left intact.
-- **e2e #2 on fresh env `9y6o-zn0t` got to post-seed ok=228, exposed a 2nd workstation→ingress
+  `<env>`, cloud envs, and the Lima VM `dmf-sandbox` left intact.
+- **e2e #2 on fresh env `<env>` got to post-seed ok=228, exposed a 2nd workstation→ingress
   bug → fixed (dmf-infra `5c4d04a`):** the cms role's "Assert dmf-cms image present in Zot"
   HEAD check was `delegate_to: localhost`, so it ran on the Mac, which can't resolve
   `registry.<domain>` on the no-Tailscale sandbox lane (`urlopen: nodename nor servname`).
@@ -1788,7 +1788,7 @@ itself so it can't run in the EE pod).
   3. Minor cosmetic: zot role's reachability msg (`tasks/main.yml:389`) + zot-mirror README
      still name `admin`; harmless, defer.
 
-### 🟢 ADR-0032 — catalog NetBox scoped writer DEPLOYED + verified on wobe-9n0c (2026-05-27)
+### 🟢 ADR-0032 — catalog NetBox scoped writer DEPLOYED + verified on `<env>` (2026-05-27)
 
 Catalog Deploy (`media-launch-nmos-cpp`) was failing 403 and the console showed
 "unknown". Root cause: read-only NetBox svc accounts lacked `extras.tag`, and the
@@ -1839,9 +1839,9 @@ the operator flagged. Fix per [ADR-0032](docs/decisions/0032-catalog-launcher-sc
   post-seed; netbox-sot gated `enabled:false`); residual verify-playbook refs are
   hygiene-only, deferred.
 
-### 🟢 WP1S gate #2 — CMS Authentik front/back-channel split DEPLOYED + live-verified on wobe-9n0c (2026-05-27)
+### 🟢 WP1S gate #2 — CMS Authentik front/back-channel split DEPLOYED + live-verified on `<env>` (2026-05-27)
 
-Login on `wobe-9n0c` 500'd and a new dmf-cms pod was CrashLoopBackOff. Root cause
+Login on `<env>` 500'd and a new dmf-cms pod was CrashLoopBackOff. Root cause
 (confirmed via live traceback): the dmf-cms pod doesn't trust the local CA, so every
 server-side HTTPS call to `https://auth.boxsand.dmf.test` hit
 `CERTIFICATE_VERIFY_FAILED` — startup group-bootstrap (Authentik mgmt API) crashed
@@ -1858,7 +1858,7 @@ via an explicit front/back-channel split. Plan + pattern:
 - **Shipped 0.9.1** — dmf-cms `16dfd91` (tag `v0.9.1`) + dmf-infra `539f789`, both on
   `main`, pushed to forgejo-<operator>. Image `ghcr.io/dmfdeploy/dmf-cms:0.9.1` → mirrored to
   Zot (630) → deployed (650). 7 new tests green; codex diff review PASS (no P1).
-- **LIVE-VERIFIED on wobe-9n0c:** pod `dmf-cms-5cf8df699c-*` 1/1 Running, 0 restarts,
+- **LIVE-VERIFIED on `<env>`:** pod `dmf-cms-5cf8df699c-*` 1/1 Running, 0 restarts,
   image `registry.boxsand.dmf.test/dmf-cms:0.9.1`; **no `CERTIFICATE_VERIFY_FAILED`**,
   "Application startup complete"; `/auth/login` via Traefik → **302** to
   `https://auth.boxsand.dmf.test/.../authorize` with `redirect_uri=https://console.boxsand.dmf.test/auth/callback`
@@ -1887,10 +1887,10 @@ to the bundled k3s Traefik**; codex-reviewed and implemented:
   CA read via `k8s_info`); Forgejo CA-trust mount; ingress-class collapse in the
   sandbox prelude. Cloud/lab defaults untouched.
 - **dmf-env `9b691a3`** — `external_base_url`→`https://<base-domain>`,
-  ingress classes→`traefik` (wizard + wobe-9n0c inventory), manifest
+  ingress classes→`traefik` (wizard + `<env>` inventory), manifest
   `public_lane/private_lane`→single `local_lane`.
 
-**Proven on wobe-9n0c (codified path, no live hacks):** 321 reruns clean
+**Proven on `<env>` (codified path, no live hacks):** 321 reruns clean
 (in-cluster `auth.<domain>` resolves, node trusts CA); `620-forgejo` reaches
 Ready with external `https` verify (`validate_certs:true`) passing,
 `configure-gitea` exit 0. Codex verdict: accepted for WP1S proof progression.
@@ -1987,7 +1987,7 @@ cloud/lab assumptions to condition for single-node-local, one link at a time:
   (committed). **This dmf-sandbox env is transitional and will be retired** (see
   env-model decision below).
 - **Env-model decision (2026-05-26):** sandbox envs get **cloud-parity identity**
-  — an auto opaque `xxxx-xxxx` `dmf_env_id` (like cloud `g2r6-foa9`) used as the
+  — an auto opaque `xxxx-xxxx` `dmf_env_id` (like cloud `<env>`) used as the
   inventory dir + bundle + env_id, **plus** a user-set **subdomain label** →
   `base_domain = <label>.dmf.test`. `dmf_provider: sandbox`. The Lima VM
   `dmf-sandbox` is the *host* (separate from env_id). `dmfadmin` (bootstrap_admin)
@@ -2053,9 +2053,9 @@ landed the full identity & authority architecture in one session:
 
 **Incident note (2026-05-24, experiment-phase risk acceptance per [ADR-0004](docs/decisions/0004-experiment-phase-stance.md)):**
 during claude-top's `env|grep` probe of the live dmf-cms pod on
-`g2r6-foa9`, `DMF_CONSOLE_OIDC_CLIENT_SECRET` surfaced to the agent
+`<env>`, `DMF_CONSOLE_OIDC_CLIENT_SECRET` surfaced to the agent
 transcript. Operator decision: **defer rotation for this env only** —
-`g2r6-foa9` is a short-lived test env, not Mode-B / Mode-C / real-user.
+`<env>` is a short-lived test env, not Mode-B / Mode-C / real-user.
 Risk closes at env teardown. Runbook documents the procedure for the
 case where deferral is not available. For any future env serving real
 users, rotation is binding per the runbook.
@@ -2070,10 +2070,10 @@ users, rotation is binding per the runbook.
   disabled, OIDC auto-login is the routine path, and the chart-default
   local admin is dormant break-glass only.
 - **Done 2026-05-24:** D2 bootstrap-convergence verifier playbook
-  (`dmf-infra@0f9e7f0`) with live PASS on `g2r6-foa9`.
+  (`dmf-infra@0f9e7f0`) with live PASS on `<env>`.
 - **Mostly done 2026-05-24/25:** D8 operational hardening implementation
   landed (`dmf-infra@2dcafb9`) and the enrollment helper was aligned in
-  `dmf-env@4ae3971`. Live adoption on `g2r6-foa9` is with Claude:
+  `dmf-env@4ae3971`. Live adoption on `<env>` is with Claude:
   apply Authentik TTLs, mint the next passkey invitation, enroll the
   second passkey, then run the D8 verifier.
 - **Postponed pending further review:** ADR-0029 draft — *Tiered Unseal
@@ -2089,7 +2089,7 @@ users, rotation is binding per the runbook.
   **PR 1a / 1b / 2 / 3 landed 2026-05-24** (`dmf-infra` commits
   `30dfad5`, `52b261d`, `bc6699b` + `2e13cb3`, `f74533b`; main,
   pushed). PR 4 (STATUS sweep + ADR-0024 amendment) and PR 5
-  (`g2r6-foa9` `bootstrap-verify.yml` rerun) are also complete.
+  (`<env>` `bootstrap-verify.yml` rerun) are also complete.
 
 ### ✅ Unified App-Admin Helper Plan v3 — PRs 1a / 1b / 2 / 3 landed (2026-05-24)
 
@@ -2149,7 +2149,7 @@ relied on cross-layer mixing must supply paired credentials.
   (`110-authentik.yml`, `191-zot-oidc.yml`, `698-cms-netbox-forgejo-tokens.yml`,
   `692-forgejo-bootstrap.yml`).
 - Fixture test passes (ok=36, failed=0).
-- **PR 5 live verification on g2r6-foa9: PASS (2026-05-24).**
+- **PR 5 live verification on `<env>`: PASS (2026-05-24).**
   - `bootstrap-verify.yml`: `ok=102 changed=3 failed=0 skipped=5`.
     All four imported plays clean
     (`verify-openbao-identity-model`, `audit-admin-identities`,
@@ -2186,14 +2186,14 @@ repeating for any architecture-scale work going forward.
 
 ### Current live test env
 
-**`g2r6-foa9`** — Hetzner CAX21 ARM64, nbg1, cluster domain
+**`<env>`** — Hetzner CAX21 ARM64, nbg1, cluster domain
 `<lan-host>`. Substitute this into every `<env-name>` placeholder
 in the skills + canonical docs. Three Tailscale nodes at `<tailscale-hetzner-node-ips>`;
 SSH key `~/.ssh/id_ed25519_k3s_hetzner` with `ansible_user=k3s-admin`.
 Retired envs still present in `dmf-env/inventories/`: `hetzner-arm`,
 `aliyun`, `aliyun-123` (history; do not push to).
 
-### ✅ dmf-cms v0.9.0 landed in g2r6-foa9 (2026-05-23)
+### ✅ dmf-cms v0.9.0 landed in `<env>` (2026-05-23)
 
 The May 12 commits (`cb3aef3` backend module, `328f857` live React /catalog
 + Deploy/Teardown UI, `1b4c259`/`0addc19` ConfigMap plumbing, `a959778`
@@ -2206,7 +2206,7 @@ Release artefacts:
 - Forgejo: `dmf-cms@8f9ba75` + tag `v0.9.0`
 - GHCR: `ghcr.io/dmfdeploy/dmf-cms:0.9.0` @ `sha256:006e4b2f...`
 - Zot mirror: `registry.<lan-host>/dmf-cms:0.9.0`
-- Deployment: `dmf-cms-659787d687-q6zx5` Running 1/1 on `g2r6-foa9-node-03`
+- Deployment: `dmf-cms-659787d687-q6zx5` Running 1/1 on `<env>-node-03`
 
 ### ✅ Build/release drift swept (2026-05-23)
 
@@ -2235,11 +2235,11 @@ vs USB tfvars per the 2026-05-22 §D plan) surfaced in dmf-env CLAUDE.md.
 ### 📌 Bundle-dir decision — Option 2 for the experiment phase (2026-05-23)
 
 `DMF_BOOTSTRAP_BUNDLE_DIR` reconfigured to `$HOME/secure/dmf-bootstrap` —
-the workstation-disk path where the g2r6-foa9 wizard actually wrote. The
+the workstation-disk path where the `<env>` wizard actually wrote. The
 encrypted USB volume requirement is dropped for the duration of the
 experiment phase per [ADR-0004](docs/decisions/0004-experiment-phase-stance.md);
 FileVault remains the disk-layer guarantee. Decision and revisit gates
-recorded in [`docs/plans/DMF g2r6-foa9 Configure-Verify Follow-Ups Plan 2026-05-22.md`](docs/plans/DMF%20g2r6-foa9%20Configure-Verify%20Follow-Ups%20Plan%202026-05-22.md) §D.
+recorded in [`docs/plans/DMF <env> Configure-Verify Follow-Ups Plan 2026-05-22.md`](docs/plans/DMF%20Lab%20Env%20Configure-Verify%20Follow-Ups%20Plan%202026-05-22.md) §D.
 
 **Revisit when any one holds:**
 - ADR-0020 Mode B implementation begins (managed-service trust story
@@ -2252,7 +2252,7 @@ recorded in [`docs/plans/DMF g2r6-foa9 Configure-Verify Follow-Ups Plan 2026-05-
 **Operator-side action (outside this repo):** edit `~/.config/dmf/env` to
 `export DMF_BOOTSTRAP_BUNDLE_DIR=$HOME/secure/dmf-bootstrap`. Retired envs
 (`aliyun/`, `aliyun-123/`, `hetzner-arm/`) on the USB volume stay where
-they are; the discarded `z4ud-sy22` directory under `$HOME/secure/dmf-bootstrap/`
+they are; the discarded `<env>` directory under `$HOME/secure/dmf-bootstrap/`
 can be removed.
 
 **Wizard hardening still wanted** (separate `dmf-env` commit, not
@@ -2260,7 +2260,7 @@ blocking): warn-or-fail in `init-wizard.sh` when a `/Volumes/*/dmf-bootstrap/`
 exists but the resolved dir is under `$HOME` — surfaces the split posture
 if the USB ever gets remounted before a wizard run.
 
-### ✅ Lane B Chart 0.1.1 landed end-to-end on g2r6-foa9 (2026-05-23)
+### ✅ Lane B Chart 0.1.1 landed end-to-end on `<env>` (2026-05-23)
 
 The chart-bump followup closed in one session. Chart `nmos-cpp` is now at
 `0.1.1` with cluster-internal Zot DNS image-repo defaults; helm release
@@ -2358,7 +2358,7 @@ scope per `dmf-cluster-access` §0 secrets discipline):**
    Then make the GitHub package public via the Packages UI.
 
 2. **In-cluster Forgejo pull-mirror + AWX project sync** (Step 7) — needs
-   Forgejo + AWX admin creds via `bin/get-admin-cred.sh g2r6-foa9 <app>`,
+   Forgejo + AWX admin creds via `bin/get-admin-cred.sh <env> <app>`,
    run in a separate terminal so the secrets don't enter agent transcripts:
    ```bash
    # set fj_user/fj_pass + awx_user/awx_pass via stdin reads
@@ -2378,7 +2378,7 @@ scope per `dmf-cluster-access` §0 secrets discipline):**
    cd "$DMFDEPLOY_UMBRELLA/dmf-env"
    ANSIBLE_LOCAL_TEMP=/tmp/.ansible ANSIBLE_REMOTE_TEMP=/tmp/.ansible \
      DMF_BOOTSTRAP_BUNDLE_DIR="$HOME/secure/dmf-bootstrap" \
-     ./bin/run-playbook.sh g2r6-foa9 \
+     ./bin/run-playbook.sh <env> \
      ../dmf-infra/k3s-lab-bootstrap/playbooks/630-zot-seed-platform.yml
    ```
 
@@ -2442,7 +2442,7 @@ active. The hardcoded Hetzner private-IP `ansible_host` band-aid is removed.
 ADR-0025 is Accepted; ADR-0016 is fully superseded for `media-*` JTs and
 retained for 693-class infrastructure plays only.
 
-Verified on `g2r6-foa9`: AWX job 131 succeeded at 2026-05-23T11:48Z; Helm
+Verified on `<env>`: AWX job 131 succeeded at 2026-05-23T11:48Z; Helm
 release `nmos-cpp` is deployed in `nmos` as chart `nmos-cpp-0.1.0` (revision
 4); NMOS registry + two mock-node workloads are Ready and the Query API
 returned HTTP 200 with mock nodes registered.
@@ -2495,7 +2495,7 @@ Grafana (`admin`).
   `inventories/aliyun/` correspond to torn-down clusters. Many doc
   references remain (historical plans are fine to leave; CLAUDE.md and
   `.claude/skills/dmf-cluster-access/`, `dmf-openbao-unseal/` are
-  forward-looking and should be re-pointed at `g2r6-foa9`). Separate
+  forward-looking and should be re-pointed at `<env>`). Separate
   cleanup task — not part of ADR-0024 work.
 
 ### ✅ dmf-runbooks Path A public publish landed (2026-05-22)
@@ -2515,7 +2515,7 @@ Operator -> LAN Forgejo (<lan-forgejo-host>/<handle>/dmf-runbooks)
                 |
                 | pull-mirror (forgejo_mirror_repos, 1h interval)
                 v
-            per-cluster in-cluster Forgejo (g2r6-foa9 live; future envs auto)
+            per-cluster in-cluster Forgejo (<env> live; future envs auto)
                 |
                 v
             AWX project sync -> catalog JT create
@@ -2547,12 +2547,12 @@ Operator -> LAN Forgejo (<lan-forgejo-host>/<handle>/dmf-runbooks)
   the mirror subsystem. Includes new
   `tasks/ensure-mirror-repo.yml` with GET-check + DELETE-if-not-mirror +
   POST-migrate idempotency.
-- 692-forgejo-bootstrap.yml on g2r6-foa9 verified idempotent (no
+- 692-forgejo-bootstrap.yml on `<env>` verified idempotent (no
   destructive action against live mirror, mirror_updated unchanged).
 
 **Bootstrap unblock signal:** AWX catalog JT create step in
 `awx-integration/tasks/main.yml:1085` (the original blocker that
-triggered this whole work stream) **succeeded** on g2r6-foa9's
+triggered this whole work stream) **succeeded** on `<env>`'s
 bootstrap-configure run. The role-default + mirror combo closed the
 loop. A separate downstream failure (`697-cms-awx-token.yml` AWX 401
 on `dmf-cms-svc` lookup, likely AWX admin password drift) now gates
@@ -2565,7 +2565,7 @@ followup.
   used "lab Forgejo on Hetzner" as the canonical target name; reality
   is the LAN one. Doc correction worth landing.
 - `forgejo.<lan-host>` resolves to `<tailscale-hetzner-node-ips>` =
-  g2r6-foa9 in-cluster Forgejo (downstream consumer, not push target).
+  `<env>` in-cluster Forgejo (downstream consumer, not push target).
 - The 5 remaining public repos (umbrella `dmfdeploy`, `dmf-cms`,
   `dmf-central`, `dmf-infra`, `dmf-media`) follow the same procedure but
   each needs its own pre-publish leak audit. Scrub already found 200+
@@ -2701,7 +2701,7 @@ Session handoff:
   in-cluster". When that lands, ADR-0023's §Scope caveat collapses.
 
 **Override list — retired 2026-05-23.** The historical 6-flag tax was an
-`aliyun-123` artefact. `g2r6-foa9` (wizard-fresh) ran `bootstrap-configure`
+`aliyun-123` artefact. `<env>` (wizard-fresh) ran `bootstrap-configure`
 with **zero** `-e` overrides and reached `failed=0`. `vault_bootstrap_admin_username`
 is seeded from the SOPS bundle by `dmf-env/bin/bootstrap-secrets.sh:926`
 and exported consistently to all roles via `run-playbook.sh`, so the live
@@ -2722,11 +2722,11 @@ for the audit findings and 698 refactor closure.
    aliyun-123-compatible creds — surfaced when fixing
    `get-passkey-enrollment-url.sh` resolver)
 
-### ✅ ADR-0021 approle-reconciler verified on g2r6-foa9 (2026-05-23)
+### ✅ ADR-0021 approle-reconciler verified on `<env>` (2026-05-23)
 
 The "Tier A blocker, Option C selected (2026-05-13)" framing was stale.
 Implementation landed `dmf-infra@209601d` on the same day the brief was
-written; g2r6-foa9 was bootstrapped 2026-05-21 with the code in place;
+written; `<env>` was bootstrapped 2026-05-21 with the code in place;
 2026-05-23 convergence pass verified the chain end-to-end. Tier A
 bootstrap-correctness gate is closed; AC-5 separation holds on the live
 cluster.
@@ -2755,7 +2755,7 @@ AC-5 matrix + ESO positive checks. Tagged `vertical-security`.
 alongside `audit-admin-identities.yml` (vertical-security) and
 `verify-oidc-admin-bridge.yml` (vertical-identity, ADR-0024 PR2). The
 existing resilience-verify import is preserved. End-to-end run on
-g2r6-foa9: `ok=86 changed=3 failed=0` (no skip-tags needed after the
+`<env>`: `ok=86 changed=3 failed=0` (no skip-tags needed after the
 follow-on fixes below). Two findings surfaced and were retired in the
 same session — see ✅ block below.
 
@@ -2775,7 +2775,7 @@ today's various handoffs landed; one was reframed after investigation.
 
 **On the SSH-path "drift":** investigation showed
 `awx_control_node_ssh_privkey_path: /Volumes/<operator>/secure/awx-control-node.privkey`
-in g2r6-foa9's inventory is **not** broken under the Option-2 bundle-dir
+in `<env>`'s inventory is **not** broken under the Option-2 bundle-dir
 decision. Option 2 scoped to `DMF_BOOTSTRAP_BUNDLE_DIR` only; the
 encrypted USB volume `/Volumes/<operator>/secure/` remains mounted for
 OpenBao break-glass (`openbao_key_path`, `openbao_juicefs_mount_path`,
@@ -2790,7 +2790,7 @@ echo SSH targets (e.g. `unseal-openbao.sh --status`) print the
 control-node public IP by design. Per dmf-cluster-access §0, those IPs
 are operator-identity tokens that shouldn't enter agent transcripts.
 Twice this session I echoed cluster IPs inadvertently
-(`cat inventories/g2r6-foa9/hosts.ini` early on, and the unseal-openbao
+(`cat inventories/<env>/hosts.ini` early on, and the unseal-openbao
 status check later). Either run such wrappers in a separate terminal,
 or pipe output through a filter that masks the SSH-target line. Add to
 the dmf-cluster-access skill as a "don't" pattern in the next touch.
@@ -2804,7 +2804,7 @@ surfaced two issues. Both retired via `dmf-infra@f434e8a`:
    `verify_authentik_runtime_secret` default to `authentik-runtime`,
    but the authentik role default for `authentik_runtime_secret_name`
    is `authentik-env` (matches the ExternalSecret target). On
-   g2r6-foa9 the verifier was looking at a Secret name that didn't
+   `<env>` the verifier was looking at a Secret name that didn't
    exist; the actual `authentik-env` Secret contained the
    `AUTHENTIK_BOOTSTRAP_TOKEN` correctly. **Fixed:** default brought
    in line with the role.
@@ -2827,7 +2827,7 @@ OIDC admin bridge verified:
   - all OAuth2 providers expose the 'DMF groups' scope
 ```
 
-`bootstrap-verify.yml` now runs `failed=0` end-to-end on g2r6-foa9
+`bootstrap-verify.yml` now runs `failed=0` end-to-end on `<env>`
 including the OIDC bridge play.
 
 This finding is also illustrative for the unified-app-admin-helper

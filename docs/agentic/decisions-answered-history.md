@@ -150,7 +150,7 @@ Status: answered 2026-05-12 — A. Tag-driven, single import per entry. Mirrors 
 
 **Applied** 2026-05-17 (`dmf-infra@a891ecb`): `lifecycle-configure.yml`
 shipped tag-driven; verified end-to-end on `aliyun-123` and again on
-`g2r6-foa9`.
+`<env>`.
 
 ---
 
@@ -209,7 +209,7 @@ Status: answered 2026-05-12 — B. ConfigMap mounted at pod start. No runtime Fo
 ```
 
 **Applied** 2026-05-12 (`dmf-cms@1b4c259` + `0addc19`) and live in v0.9.0
-(`dmf-cms@8f9ba75`, deployed to `g2r6-foa9` 2026-05-23).
+(`dmf-cms@8f9ba75`, deployed to `<env>` 2026-05-23).
 
 ---
 
@@ -357,7 +357,7 @@ Status: answered 2026-05-19 — A. Broad ADR-0025. Convergence story stays toget
 ```
 
 **Applied** 2026-05-23: ADR-0025 (broad scope) promoted from Proposed to
-Accepted after Lane B's end-to-end success on `g2r6-foa9`. ADR-0026 ended
+Accepted after Lane B's end-to-end success on `<env>`. ADR-0026 ended
 up being authored on 2026-05-20 for an unrelated topic (Provider Descriptors).
 
 ---

@@ -9,11 +9,11 @@ asked to plan-only for now.
 
 **Scope:** consolidate all per-env artifacts the wizard creates for a **sandbox**
 env into one user-home dir, and rename it from `~/.secure` to `~/.dmfdeploy`.
-Cloud envs (`g2r6-foa9`, `wobe-9n0c`, future cloud) are **out of scope** — they
+Cloud envs (`<env>`, `<env>`, future cloud) are **out of scope** — they
 keep the current layout.
 
 **Migration:** new sandbox envs created after this lands use the new layout.
-`zy9q-1015` (in-flight at plan time, created under the old layout) is **left
+`<env>` (in-flight at plan time, created under the old layout) is **left
 alone** and rolls forward to teardown on its own.
 
 ---
@@ -136,7 +136,7 @@ not using any of those conventions — just one operator-private dot-dir.
   A per-env `.sops.yaml` at `${env_root}/.sops.yaml` is found correctly when
   encrypting `${env_root}/bundle.sops.yaml`. **No conflict** with the repo's
   `dmf-env/.sops.yaml` because they're in different parent trees.
-- **`zy9q-1015` rolls forward on the old layout** (operator's decision). The dual-
+- **`<env>` rolls forward on the old layout** (operator's decision). The dual-
   path resolver in (2) + (3) + (4) keeps it working. When that env is torn down
   the old paths can be deprecated.
 - **WSL2 path normalization** — `~/.dmfdeploy/` resolves to the WSL2 user's home
@@ -160,9 +160,9 @@ not using any of those conventions — just one operator-private dot-dir.
    correctly from `~/.dmfdeploy/envs/<env>/`.
 3. `bin/bootstrap-secrets.sh doctor <new_env>` passes (sops decrypts via the
    per-env `.sops.yaml`).
-4. `bin/run-playbook.sh g2r6-foa9 …` still works (cloud env continues using
+4. `bin/run-playbook.sh <env> …` still works (cloud env continues using
    the old paths via fallback).
-5. `bin/run-playbook.sh zy9q-1015 …` still works (old sandbox env on old paths
+5. `bin/run-playbook.sh <env> …` still works (old sandbox env on old paths
    via fallback).
 6. Teardown of a NEW sandbox env: `rm -rf ~/.dmfdeploy/envs/<env_id>` and
    nothing else — verified by re-running init-wizard.sh and checking git status
@@ -190,5 +190,5 @@ not using any of those conventions — just one operator-private dot-dir.
 - `[[project_dmf_sandbox_local_vm]]`
 - `[[feedback_plans_as_project_docs]]` (this plan lives where qwen + future agents can find it)
 - STATUS 2026-05-27 §A "Sandbox test envs PURGED" — the teardown pain this plan addresses
-- STATUS 2026-05-28 §🧹 "Sandbox env 9y6o-zn0t torn down" — the proof-of-pain from
+- STATUS 2026-05-28 §🧹 "Sandbox env `<env>` torn down" — the proof-of-pain from
   the most recent teardown (5 separate `rm`s + tracked-file edit)

@@ -15,7 +15,7 @@ Total footprint ~2GB. The test-posture PVC was sized 15Gi
 (`init-wizard.sh` POSTURE map, commit `8959f15`); production 20Gi.
 
 The open architectural question — surfaced when sizing Zot for
-g2r6-foa9 — is whether to broaden Zot's role to **cache every image
+`<env>` — is whether to broaden Zot's role to **cache every image
 the cluster pulls**, not just DMF-built ones. Concretely:
 configure containerd `/etc/rancher/k3s/registries.yaml` to mirror
 upstream registries (docker.io, ghcr.io, quay.io, registry.k8s.io)
@@ -91,4 +91,4 @@ mirror docker.io through Zot in pull-through mode. Measure cache-miss
 vs cache-hit pull latency. Decide based on data whether the
 operational win justifies the storage cost.
 
-Out of scope for current g2r6-foa9 rollout.
+Out of scope for current `<env>` rollout.

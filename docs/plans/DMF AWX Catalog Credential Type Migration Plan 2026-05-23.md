@@ -225,7 +225,7 @@ Next session:
 3. Modify `awx_catalog_job_templates` default + JT-create/PATCH POSTs
    to consume `extra_credentials` list.
 4. Add the post-attach cleanup loop.
-5. Run 693 against g2r6-foa9, walk the 5 verification checks above.
+5. Run 693 against `<env>`, walk the 5 verification checks above.
 6. Land in a single commit `fix(awx-integration): migrate catalog JT
    NetBox tokens to Custom Credential Type` with reference back to
    this plan doc.

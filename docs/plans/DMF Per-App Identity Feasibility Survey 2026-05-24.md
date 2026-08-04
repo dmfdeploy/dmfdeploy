@@ -7,7 +7,7 @@ date: 2026-05-24
 **Date:** 2026-05-24
 **Owner:** claude-top (per agent-bridge delegation from claude-bottom, 2026-05-24)
 **Status:** Complete — ready to fold into [DMF Identity and Authority Model](../architecture/DMF%20Identity%20and%20Authority%20Model.md) §7 and to seed ADR-0028.
-**Live env probed:** `g2r6-foa9` (Hetzner CAX21 ARM64, nbg1), read-only.
+**Live env probed:** `<env>` (Hetzner CAX21 ARM64, nbg1), read-only.
 **Pairs with:** [ADR-0024 — Two-Identity Admin Model](../decisions/0024-two-identity-admin-model.md);
 [2026-05-23 App-Admin Drift Realignment Handoff](../handoffs/DMF%20App-Admin%20Drift%20Realignment%20Handoff%202026-05-23.md);
 `dmf-infra/k3s-lab-bootstrap/playbooks/audit-admin-identities.yml`.
@@ -66,7 +66,7 @@ Per app:
    OIDC/SAML provider + application object in
    `dmf-infra/k3s-lab-bootstrap/roles/stack/operator/authentik/templates/blueprints/20-app-providers.yaml.j2`
    with `ops-admin` projection (where applicable).
-3. **Live read-only probe against `g2r6-foa9`** — listed full user table
+3. **Live read-only probe against `<env>`** — listed full user table
    (not just admin assertion) for each app via `kubectl exec` from the
    control node. Read-only commands only; no secrets emitted to argv,
    per ADR-0007. Patterns mirror
@@ -117,7 +117,7 @@ evidence:
       authentik_bootstrap_admin_username: akadmin
   - dmf-infra/k3s-lab-bootstrap/roles/stack/operator/authentik/templates/blueprints/16-passwordless-bootstrap.yaml.j2:172
       "# exists. Password remains available for break-glass and akadmin only."
-  - g2r6-foa9 live user enumeration (read-only, 2026-05-24):
+  - <env> live user enumeration (read-only, 2026-05-24):
       akadmin (superuser, active), break-glass (superuser, active),
       <operator> (superuser, active, passkey-enrolled),
       ak-outpost-aa1e939a9e0a4195a4173376e352626d (service, active)
@@ -178,7 +178,7 @@ evidence:
   - dmf-infra/k3s-lab-bootstrap/roles/stack/operator/authentik/templates/blueprints/20-app-providers.yaml.j2
       AWX SAML provider with ops-admin group projected via
       "goauthentik.io/providers/saml/groups" property mapping
-  - g2r6-foa9 live user enumeration (read-only, 2026-05-24):
+  - <env> live user enumeration (read-only, 2026-05-24):
       <operator> (superuser, active, bootstrap-admin),
       <operator>22daa48fb6594ba3 (superuser, active, SAML shadow),
       awx-svc (non-superuser, active, machine-identity),
@@ -197,17 +197,17 @@ non-trivial:
   pipeline replacement; the customisation lands in `extra_settings`
   in the AWX CR template, which is achievable but requires
   AWX-version-compatible pipeline definitions and live testing
-  against `g2r6-foa9` — out of scope for a docs-only survey.
+  against `<env>` — out of scope for a docs-only survey.
 - *Rename local admin*: set the role default to `awx-break-glass`, or
   use an inventory override during a migration window, re-run the AWX
   role, and migrate the existing local admin's ownership of jobs/tokens
   to the renamed account. Simple in concept, destructive on an existing
   env. Most cleanly executed at the next greenfield bootstrap rather
-  than on `g2r6-foa9`.
+  than on `<env>`.
 
 The architectural fix landed in `dmf-infra@c426dc0` as the ADR-0028 D3
 follow-on. For this survey, AWX is classified `sanction` so that the
-historical live state on `g2r6-foa9` is understood as a collision
+historical live state on `<env>` is understood as a collision
 artefact, not a fourth exception.
 
 **Service accounts are correctly classified.** `awx-svc` and
@@ -238,7 +238,7 @@ evidence:
       (preferred_username = <operator>, matches the local superuser)
   - dmf-infra/k3s-lab-bootstrap/roles/stack/operator/netbox/templates/values.yml.j2:50-58
       netbox.sso_pipeline_roles.set_role projects ops-admin → is_superuser+is_staff
-  - g2r6-foa9 live user enumeration (read-only, 2026-05-24):
+  - <env> live user enumeration (read-only, 2026-05-24):
       <operator> (superuser, active),
       awx-netbox (non-superuser, active, machine-identity),
       dmf-cms-svc (non-superuser, active, machine-identity),
@@ -281,7 +281,7 @@ evidence:
       role's vault_bootstrap_admin_* chain
   - dmf-infra/k3s-lab-bootstrap/roles/stack/operator/authentik/templates/blueprints/20-app-providers.yaml.j2
       Forgejo OAuth2 provider with DMF groups scope mapping
-  - g2r6-foa9 live user enumeration (read-only, 2026-05-24, gitea admin user list):
+  - <env> live user enumeration (read-only, 2026-05-24, gitea admin user list):
       <operator> (admin, active),
       forgejo-svc (non-admin, active, machine-identity),
       dmf-cms-svc (non-admin, active, machine-identity)
@@ -323,7 +323,7 @@ evidence:
       handled by playbooks/vertical-security/191-zot-oidc.yml
   - dmf-infra/k3s-lab-bootstrap/roles/stack/operator/authentik/templates/blueprints/20-app-providers.yaml.j2:282-318
       Zot OAuth2 provider + application present in the blueprint
-  - g2r6-foa9 live htpasswd enumeration (read-only, 2026-05-24):
+  - <env> live htpasswd enumeration (read-only, 2026-05-24):
       admin   (single user in the htpasswd file)
 ```
 
@@ -366,7 +366,7 @@ evidence:
       adminPassword + envFromSecret pattern for the OIDC env vars
   - dmf-infra/k3s-lab-bootstrap/roles/stack/operator/authentik/templates/blueprints/20-app-providers.yaml.j2
       Grafana OAuth2 provider with DMF groups scope mapping
-  - g2r6-foa9 live (read-only, 2026-05-24):
+  - <env> live (read-only, 2026-05-24):
       K8s secret `grafana` admin-user field = `admin`
       (full grafana.db user table not enumerable read-only without a
       sidecar; design-level confidence based on the chart's
@@ -427,7 +427,7 @@ evidence:
   - dmf-infra/k3s-lab-bootstrap/roles/stack/operator/authentik/templates/blueprints/20-app-providers.yaml.j2:240-278
       DMF Console OIDC provider uses dmf-passkey-login auth flow
       (passkey-only per ADR-0015)
-  - g2r6-foa9 live (read-only, 2026-05-24):
+  - <env> live (read-only, 2026-05-24):
       dmf-cms namespace runs deployment/dmf-cms (no statefulset, no
       database, no PVC — confirmed by `kubectl get
       deploy,svc,statefulset` returning only the deployment)
@@ -485,7 +485,7 @@ implementation plan should pick up:
    Implementation: introduce an `awx_admin_user: awx-break-glass`
    override in the env inventory (or in role defaults guarded by an
    ADR-0028 feature flag), execute on next greenfield bootstrap, plan
-   a one-time migration for `g2r6-foa9` (ownership reassignment of
+   a one-time migration for `<env>` (ownership reassignment of
    jobs/tokens from current `<operator>` superuser to the new
    break-glass account before re-running the AWX role). Eliminates the
    shadow-superuser class entirely. Owner: ADR-0028 implementation
@@ -534,9 +534,9 @@ explicitly.
   `docs/architecture/DMF Identity and Authority Model.md`, will fold
   the §1 matrix into §7 of that doc on receipt of the agent-bridge
   notification.
-- **Live observation env:** `g2r6-foa9` (read-only kubectl exec via
-  SSH to control node `g2r6-foa9-node-03` at the public IP for that
-  env's host — concrete value in `dmf-env/inventories/g2r6-foa9/hosts.ini`).
+- **Live observation env:** `<env>` (read-only kubectl exec via
+  SSH to control node `<env>-node-03` at the public IP for that
+  env's host — concrete value in `dmf-env/inventories/<env>/hosts.ini`).
 - **Operator concept gate:** the platform operator (single-operator
   scope per architecture model §1).
 - **Three-reviewer pattern continuation:** this survey is the
