@@ -115,6 +115,48 @@ When setting a field, only set it if the corresponding option exists. For labels
 - **Discussion pinning** — `pinDiscussion` mutation does not exist in the standard GraphQL schema. Operator must pin via web UI.
 - Default categories are seeded automatically: Announcements, General, Ideas, Polls, Q&A, Show and tell.
 
+## PR creation and CI guard pitfalls
+
+### The issue-link guard needs a QUALIFIED reference from a component repo
+
+The `guard / issue-link` job greps the PR **body** for a tracking-issue
+reference, and the two regexes differ:
+
+| Repo | Accepted | Bare `#N` |
+|---|---|---|
+| umbrella (`dmfdeploy/dmfdeploy`) | `(dmfdeploy/dmfdeploy)?#N` — slug optional | passes |
+| every component repo | `dmfdeploy/dmfdeploy#N` — slug required | **fails** |
+
+So from a component repo `Closes #20` fails the gate *and* silently targets that
+repo's own issue #20 rather than the umbrella backlog. Always write
+`Closes dmfdeploy/dmfdeploy#N` / `Refs dmfdeploy/dmfdeploy#N` in a component PR
+body. `dmfdeploy/dmf-env#20` also fails — it is not the umbrella backlog.
+
+Trivial change with no issue? Add the `no-issue` label, which the job honours
+before it ever reads the body.
+
+### Editing the PR body does not re-fire the guard
+
+`guard.yml` declares `pull_request: branches: [main]` with **no `types:`**, so it
+gets the GitHub defaults — `opened`, `synchronize`, `reopened`. **`edited` is not
+among them**, so `gh pr edit --body` alone never re-runs the check: the failing
+verdict from the original event stands, and the PR looks permanently broken.
+
+Two ways to re-fire, both default types:
+
+- **close + reopen** — fires `reopened`.
+- **push any commit** — fires `synchronize`, and the fresh event payload carries
+  the *current* body, so a body fix and a content fix land in one run.
+
+Prefer the push when the PR needs a content change anyway; it avoids both a
+close/reopen cycle and an empty commit. Verified on umbrella #360 (2026-08-04):
+the body was edited to add the missing reference, then a content commit pushed —
+the `synchronize` run read the updated body and `issue-link` passed.
+
+The same trigger list explains why a **label** change does not re-evaluate these
+jobs either: `labeled`/`unlabeled` are not defaults, so adding `no-issue` to a
+already-failed PR needs the same re-fire.
+
 ## Reply format
 
 When reporting completion, include:
