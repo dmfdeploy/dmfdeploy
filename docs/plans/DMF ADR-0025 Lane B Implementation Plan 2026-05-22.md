@@ -440,7 +440,7 @@ Implementer runs (or operator runs and reports back):
    - `helm list -n nmos` → `nmos-cpp` release at chart version `0.1.0`.
    - `kubectl -n nmos get statefulset,deployment,svc,configmap,pvc`
      → matches expected count: 1 STS, 2 Deps, 3 Svcs, 4 CMs, 1 PVC.
-   - `curl -k https://<<env>-ingress>/api/catalog/nmos-cpp` →
+   - `curl -k https://<env-ingress>/api/catalog/nmos-cpp` →
      `lifecycle: active` in NetBox.
    - `kubectl -n nmos exec deploy/nmos-cpp-node-1 -- curl -s
      http://nmos-cpp-registry/x-nmos/query/v1.3/nodes/` → 200 OK with
