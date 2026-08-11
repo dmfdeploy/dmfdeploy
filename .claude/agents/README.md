@@ -19,7 +19,6 @@ When you submit work to Claude Code:
 | **Architecture Reviewer** | Opus | System design, cross-repo boundaries, EBU layer decisions, refactoring scope |
 | **Kubernetes Operator** | Sonnet | k3s manifests, Helm charts, cluster bootstrap, pod troubleshooting |
 | **Security & Secrets** | Opus | OpenBao, OIDC, RBAC, threat modeling, credentials, privilege review |
-| **Frontend & UX** | Sonnet | React components, dmf-cms console, design system compliance, dashboards |
 | **Network & Media** | Opus | NMOS, ST2110, multicast, media flows, broadcast orchestration |
 | **Test Runner** | Sonnet | Tests, CI failures, linting, type errors, regressions |
 | **Quick Fixer** | Haiku | Typos, formatting, import cleanup, trivial mechanical changes |
