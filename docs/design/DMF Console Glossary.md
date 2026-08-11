@@ -21,15 +21,27 @@ Per Art. 12, definitions are **tri-lingual — `en` / `zh-Hans` / `zh-Hant`** (e
 | PTP | industry | The clock that keeps every device in the facility perfectly in time. |
 | ST 2110 | industry | The standard for sending professional video/audio as separate streams over IP. |
 | AWX job | system | An automation run on the platform; an implementation detail — surface the *outcome*, not the job. |
-| EBU layer / vertical / lifecycle | dmf-internal | DMF's internal architecture map. **Not yet shown to operators** — needs proof it matches their mental model. Where per-entry values must be inspectable (Catalog), they sit behind a collapsed "System details" affordance, never default-level (#173 WP1). |
+| EBU layer / vertical | dmf-internal | DMF's internal architecture map. **Not shown to operators** — no workflow has yet proved it matches their mental model. Where per-entry values must be inspectable (Catalog), they sit behind a collapsed "System details" affordance, never default-level (#173 WP1). |
+| Lifecycle **stage names** — Design, Plan, Provision, Configure, Finalise | dmf-internal → operator-native (**promoted**, 2026-08-11) | The five steps an operator works through to put a workload on air. Promoted on the Arc 4 evidence (#347): the stages became the console's primary navigation and an operator moves through them in order, one at a time — the "real operator workflow" Art. 3 demands. They are ordinary English words for what the operator is *doing*, which is the test Art. 3 actually sets; "Layer 5" is not, and does not graduate. **The names alone graduate — the framing does not.** No "EBU", layer numbers, vertical names or `lifecycle:` prefixes appear at default level; those remain behind "System details". |
 | Media Function | industry → operator-native (promoting) | One deployable media-processing capability (e.g. a test-pattern source, a viewer). ADR-0037 §6 records the Media Workloads page as the real-workflow evidence promoting this term out of `dmf-internal`. |
 | Media Workload | industry → operator-native (promoting) | The set of deployed Media Function instances doing a job — what is running, how many, and where. Page name per ADR-0037; the assembly/graph sense arrives with the runtime flow overlay. |
 | Facilities | operator | The sites and rooms the platform manages; nav label (was "Facility", #173 WP1). |
 | Media stack (by node) | operator | Plain heading for the per-node view of what is running at each level of a media host — replaces the default-level "EBU DMF layer stack" heading (#173 WP1). |
 
 ## Wording-pass log
+- **2026-08-11 (#347, Arc 4):** lifecycle **stage names** promoted `dmf-internal` →
+  operator-native and shown at default level as the console's primary navigation; the EBU
+  **layer/vertical** ontology explicitly did *not* graduate with them. This records a
+  divergence from the pre-Arc-4 reading of Art. 3, made deliberately by operator ruling
+  rather than by drift: the measured anti-pattern Art. 3 names is
+  `Layer 5 · orchestration · configure` — a raw taxonomy triple shown as metadata — not the
+  ordinary English words for the steps an operator performs. The rail keeps the words and
+  drops the framing.
 - **2026-07-04 (#173 WP1):** nav `Facility` → `Facilities`; MxlFlows h1 `EBU DMF layer stack` → `Media stack by node` (+ "6-layer teaching grid" empty-state line neutralized); Catalog per-entry `Layer N · vertical · owner` line demoted into a collapsed "System details" affordance; Catalog hero "lifecycle status" → "deployment status". Row captions inside the (WP4-retiring) MxlFlows grid intentionally untouched (plan OQ-3, minimal-copy call).
 
 ## Open questions
-- Does any EBU-ontology term ever belong at default level? Requires evidence from a real operator workflow (Art. 3).
+- ~~Does any EBU-ontology term ever belong at default level?~~ **Answered in part, 2026-08-11
+  (#347).** The lifecycle **stage names** do — promoted on the Arc 4 evidence above. The
+  **layer and vertical** ontology does not, and no workflow has yet argued for it. The
+  question stays open for those two.
 - Single source of truth so definitions don't drift between tooltip, glossary, and docs.
