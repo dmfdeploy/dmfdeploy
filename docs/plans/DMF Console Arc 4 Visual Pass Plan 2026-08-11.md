@@ -20,7 +20,8 @@ filmable is therefore on the critical path to the only outcome that counts: an o
 completing the journey unaided.
 
 A supplied mockup informs the visual register. It is **inspiration, not authority** — the
-ADRs and the specs in `docs/design/` win wherever they disagree.
+**accepted** ADRs and the specs in `docs/design/` win wherever they disagree. "Accepted" is
+load-bearing: a Proposed ADR is not authority for this pass either (see §3).
 
 ## 2. Operator rulings
 
@@ -62,6 +63,11 @@ locales designed and tested from day one. No i18n library exists in the frontend
 this pass adds and changes English literals without a translation seam. CSS `text-transform`
 addresses literal casing only, not new copy. This pass does not close that gap.
 
+**Authority note.** ADR-0030 (console i18n and air-gap posture) is **Proposed**, not
+Accepted, and Art. 12 sits outside the Constitution's current hard-gate subset. Neither is
+cited here as binding. The self-hosted-font constraint above stands on Art. 15, which is
+Constitution text, rather than on ADR-0030.
+
 ## 4. Work packages
 
 | WP | Repo | Summary |
@@ -97,6 +103,11 @@ tile rather than a stretched square. Introduce a typed, route-scoped header slot
 explicit layout contract (height, overflow, narrow and laptop behaviour); register nothing
 into it in this package.
 
+Wordmark: exactly **one** accessible brand name must be exposed. The adjacent logo glyph
+becomes decorative (`alt=""`) when the visible wordmark renders, and carries the name when
+it stands alone. Today's glyph already has an `alt` of the brand name, so adding visible
+wordmark text without this correction yields a duplicate name in the accessibility tree.
+
 ### WP-3 — workload surfaces
 
 Workload detail registers the rail and its header action into the slot, because it already
@@ -107,7 +118,15 @@ default-level accessibility tree separately from disclosure contents — collaps
 elements remain in the DOM, so a whole-DOM grep cannot express this. The header action comes
 from the runtime action model and only when exactly one eligible primary action exists; the
 Provision step renders a deploy control per eligible catalog entry, so a source-level count
-proves nothing. When an action is promoted, its whole loop moves with it. The create wizard
+proves nothing. When an action is promoted, its whole loop moves with it.
+
+The rail's presence and behaviour differ by route, and this is a behaviour constraint rather
+than an implementation detail: **absent** on the create route; **step-selecting** on workload
+detail; **present on the Operate route with Operate selected and its stage entries
+navigational**. Acceptance is an App/Shell integration test covering all three, not a rail
+unit test — a unit test cannot observe route-scoped mounting.
+
+The create wizard
 gets a non-persisted, tab-lifetime draft store, cleared on successful provision, explicit
 cancel, and logout — session storage would contradict the draft-loss warning the page
 renders.
@@ -125,9 +144,25 @@ affordance — not a `title=` tooltip.
 
 No workflow in the console repo currently references npm, node, vitest or the frontend, and
 the vitest run is not a typecheck or a build. A frontend that does not compile can reach
-`main` with auto-merge armed. Add install, test and build to CI, and run the Python suite
-from the repo's own virtualenv after clearing the built static app. CI must fail on a
-deliberately introduced type error.
+`main` with auto-merge armed.
+
+Add exactly `npm ci`, `npm test`, and `npm run build` to CI — `npm ci` specifically, because
+`npm install` would permit lockfile drift and reopen the reproducibility gap this package
+exists to close. Run the Python suite from the repo's own virtualenv after clearing the
+built static app. CI must fail on a deliberately introduced type error.
+
+### WP-6 — release
+
+**Fix #338 as the preferred prerequisite rather than routing around the release wrapper.**
+The known workaround — calling the umbrella publisher directly — bypasses the component
+publisher's `VERSION == IMAGE_TAG` guard and contradicts the wrapper-only release contract,
+trading a false-failure annoyance for a silently weaker release path. If the operator elects
+the workaround anyway, the plan must name the exact source and destination tags and add an
+explicit VERSION/tag equality check in its place.
+
+Acceptance: the running pod reports the new version from **inside the container**, and its
+image digest resolves to the arm64 child of the published index. An ingress 200 is not
+acceptance — a catch-all login shell answers 200 for paths that do not exist.
 
 ### WP-10 — the forcing function
 
