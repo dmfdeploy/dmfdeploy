@@ -1,9 +1,42 @@
 # ADR-0032: Catalog launchers mutate NetBox via a scoped writer service account, never the admin token
 
-**Status:** Accepted
+**Status:** Accepted (amended 2026-08-13 — `delete` added on `ipam.service` + `extras.tag` for `media-finalise-purge`; see Amendment below)
 **Date:** 2026-05-27
 **Deciders:** @<handle> (raised the least-privilege question during the `<env>` catalog-deploy debugging session), with Claude investigation
 **Refines:** [ADR-0028](0028-identity-and-authority-chain.md) C3 (scoped service accounts for machine-to-machine). Related: [ADR-0013](0013-media-function-catalog-model.md) (catalog model — NetBox runtime lifecycle tag), [ADR-0025](0025-ansible-in-cluster-pods-and-catalog-helm.md) (in-cluster launchers), [ADR-0007](0007-secrets-never-in-argv.md).
+
+## Amendment (2026-08-13, dmfdeploy/dmfdeploy#347)
+
+The original scope below (`view`/`add`/`change` on `ipam.service`, `view`/`add`
+on `extras.tag`, explicitly **no** `delete`) predates `media-finalise-purge`
+(Arc 2b delete-permanently, added later in 2026). Every launcher this ADR was
+originally scoped against only ever *patches* a lifecycle tag — "teardown
+returns a record to recorded-but-not-running, it does not remove it."
+`finalise-purge` is categorically different: it is the first and only
+launcher that actually **deletes** an `ipam.service` record and its
+`extras.tag`, a capability this account was never granted.
+
+Discovered live (2026-08-13): the delete-permanently operator flow ran the
+full AWX job to completion, but NetBox's own `ObjectPermission` model
+silently rejected both DELETE calls (403, hidden by the launcher's
+`no_log`/`ignore_errors` on that call — see
+`dmf-runbooks/roles/netbox_catalog_common/tasks/_purge_delete_one_member.yml`
+and `purge_workload_tag.yml`). The workload's residual records stayed
+present; the playbook's own fail-closed final-read assert correctly refused
+to report success rather than lying about it (`DMF_L3_PURGE_OUTCOME:
+refused detail=final-read`) — the gate did its job, the permission grant
+was just never widened to cover the new capability.
+
+**Amended scope:** `delete` added to both `catalog-service-writer`
+(`ipam.service`) and `catalog-tag-writer` (`extras.tag`) in
+`dmf-infra/k3s-lab-bootstrap/roles/stack/operator/netbox-sot/defaults/main.yml`
+— narrowly, to the same two models this account already writes. No other
+model, no staff/superuser bit, `dcim.device` stays view-only. The existing
+`691-netbox-sot.yml` reconcile task already updates `ObjectPermission`
+actions/object-types/group-binding idempotently — re-running it is
+sufficient; no new provisioning task was needed. The Decision section below
+is left as originally written for the historical record; this amendment is
+the current source of truth for the permission matrix.
 
 ## Context
 
