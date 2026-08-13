@@ -59,9 +59,14 @@ see `dmf-cluster-access` §0.
 
 ## 1. The contract in one paragraph
 
-`VERSION` at the repo root is the **single source of truth**. Five files are derived
-from it (`pyproject.toml`, `frontend/package.json`, `charts/dmf-cms/Chart.yaml` ×2 fields,
-`charts/dmf-cms/values.yaml` `image.tag`). The image carries the same tag at every
+`VERSION` at the repo root is the **single source of truth**. Six files are derived
+from it (`pyproject.toml`, `frontend/package.json`, `frontend/package-lock.json` ×2
+fields, `charts/dmf-cms/Chart.yaml` ×2 fields, `charts/dmf-cms/values.yaml`
+`image.tag`) — `sync-version.sh` learned to sync the lockfile 2026-08-13
+(dmfdeploy/dmfdeploy#338's verify-cluster.sh half surfaced it via `lkirc`
+review during the 0.21.0 release: the lockfile's own embedded version was
+stale since 0.17.1 across several prior releases without breaking `npm ci`,
+just leaving release metadata inconsistent). The image carries the same tag at every
 hop — `ghcr.io/dmfdeploy/dmf-cms:<VERSION>` (canonical public source) and
 `registry.dmf.example.com/dmf-cms:<VERSION>` (cluster-internal Zot mirror). No
 `latest`, no `v` prefix, no `-dirty`/`-rc` suffixes. Bumping `VERSION` is the
@@ -280,7 +285,7 @@ For broader cluster operations, use the `dmf-cluster-access` skill.
 
 | Script | Purpose | When to run |
 |---|---|---|
-| `scripts/sync-version.sh` | Propagate VERSION → 5 derived files; `--check` for CI | Every PR; after manual VERSION edit |
+| `scripts/sync-version.sh` | Propagate VERSION → 6 derived files (incl. `frontend/package-lock.json` since 2026-08-13); `--check` for CI | Every PR; after manual VERSION edit |
 | `scripts/build-image.sh` | Build a single tag locally; refuses dirty/duplicate | Rarely directly — `release.sh` calls it with `--no-push` |
 | `scripts/release.sh` | End-to-end: bump → sync → commit → tag → build (no push) | Every release |
 | `scripts/publish-to-ghcr.sh` | Push the locally-built image to `ghcr.io/dmfdeploy/dmf-cms:<VERSION>` | After every `release.sh` |
