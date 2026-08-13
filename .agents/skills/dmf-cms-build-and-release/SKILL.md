@@ -59,9 +59,10 @@ see `dmf-cluster-access` §0.
 
 ## 1. The contract in one paragraph
 
-`VERSION` at the repo root is the **single source of truth**. Six files are derived
-from it (`pyproject.toml`, `frontend/package.json`, `frontend/package-lock.json` ×2
-fields, `charts/dmf-cms/Chart.yaml` ×2 fields, `charts/dmf-cms/values.yaml`
+`VERSION` at the repo root is the **single source of truth**. Five files are derived
+from it, checked as seven version-string fields (`pyproject.toml`,
+`frontend/package.json`, `frontend/package-lock.json` ×2 fields,
+`charts/dmf-cms/Chart.yaml` ×2 fields, `charts/dmf-cms/values.yaml`
 `image.tag`) — `sync-version.sh` learned to sync the lockfile 2026-08-13
 (dmfdeploy/dmfdeploy#338's verify-cluster.sh half surfaced it via `lkirc`
 review during the 0.21.0 release: the lockfile's own embedded version was
@@ -130,7 +131,7 @@ the full design-system contract.
 ```bash
 cd ~/repos/dmfdeploy/dmf-cms
 
-# 1. Versions in sync across the 5 files
+# 1. Versions in sync across the 5 derived files (7 version-string fields)
 scripts/sync-version.sh --check
 
 # 2. Working tree clean (or know what you're keeping)
@@ -285,7 +286,7 @@ For broader cluster operations, use the `dmf-cluster-access` skill.
 
 | Script | Purpose | When to run |
 |---|---|---|
-| `scripts/sync-version.sh` | Propagate VERSION → 6 derived files (incl. `frontend/package-lock.json` since 2026-08-13); `--check` for CI | Every PR; after manual VERSION edit |
+| `scripts/sync-version.sh` | Propagate VERSION → 5 derived files / 7 version-string fields (incl. `frontend/package-lock.json` ×2 since 2026-08-13); `--check` for CI | Every PR; after manual VERSION edit |
 | `scripts/build-image.sh` | Build a single tag locally; refuses dirty/duplicate | Rarely directly — `release.sh` calls it with `--no-push` |
 | `scripts/release.sh` | End-to-end: bump → sync → commit → tag → build (no push) | Every release |
 | `scripts/publish-to-ghcr.sh` | Push the locally-built image to `ghcr.io/dmfdeploy/dmf-cms:<VERSION>` | After every `release.sh` |
