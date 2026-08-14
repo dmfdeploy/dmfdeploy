@@ -406,6 +406,7 @@ ssh k3s-admin@<control-node-public-ip> \
 | ConfigMap change didn't take effect | Pod doesn't auto-rollout | `rollout restart deploy/<name>` (explicit) |
 | LibreNMS `lnms` command says permission denied | Don't run `lnms` as root | `su -s /bin/sh librenms -c '/opt/librenms/lnms <cmd>'` |
 | `community.hashi_vault` not found in playbook | Wrapper exports vars instead — playbook should use `vault_*` vars from `-e @file` | `bin/run-playbook.sh` already handles this |
+| ESO `ClusterSecretStore` stuck failing `auth/approle/login` (403, or surfaced as a reconciliation error), cluster-wide, ExternalSecrets stale | AppRole SecretID TTL (30d) expired; the resulting failed logins tripped OpenBao's AppRole lockout (on by default unless tuned off) — not a credential leak or ACL break | Re-run `vertical-orchestration/110-eso-secret-rotation.yml` now — its restart can't extend the *active* lockout, though rotating doesn't end it either. Time the wait from the failed attempt that crossed the threshold, not the first locked response you see, and verify the actual duration yourself — don't assume a number. Detail + evidence: STATUS.md's matching operator note |
 
 ---
 
