@@ -73,22 +73,48 @@ capability into a separate identity.
 each carrying a `constraints` filter:
 
 - `catalog-service-delete`: `{"tags__name__startswith": "workload:"}` —
-  **allows** deleting an `ipam.service` record only if it carries at least
-  one tag matching `workload:*`; **forbids** deleting any service with no
-  workload assignment (which is never a legitimate purge target regardless
-  of anything else).
+  **allows** deleting an `ipam.service` record only if it *currently* carries
+  at least one tag matching `workload:*`; **forbids** deleting any service
+  bearing no such tag at the moment of the DELETE call.
 - `catalog-tag-delete`: `{"name__startswith": "workload:"}` — `extras.Tag`'s
   own `name` field is a plain `CharField`, not a many-to-many relation, so
   this **allows** deleting only `Tag` objects literally named
   `workload:<slug>`; it **forbids** deleting any `lifecycle:*`, `app:*`,
   `dmf-catalog`, or other tag — the account can never remove platform-wide
-  tag taxonomy, only a workload's own assignment tag.
+  tag taxonomy, only a `workload:*` assignment tag.
 - `view`/`add`/`change` on both models are **unchanged and still
   unconstrained** (Decision §1) — those actions apply to a record before a
   launcher has tagged it (at creation) or need to reach any record the
   launcher already manages (at patch time), so constraining them the same
   way would break every catalog CREATE/PATCH, including outside
   finalise-purge.
+
+**Residual risk, found by adversarial review (codex, 2026-08-14) and not
+closeable within this design — stated precisely rather than left implicit:**
+because `catalog-tag-writer` keeps unconstrained `add` on `extras.tag` and
+`catalog-service-writer` keeps unconstrained `change` on `ipam.service` (both
+necessarily, per the point above), the *same* `dmf-catalog-svc` token can
+manufacture delete-eligibility for a record that was never actually a purge
+candidate: create a `workload:<arbitrary>` tag, attach it to any existing
+`ipam.service` record via `change`, then delete that record because it now
+matches `tags__name__startswith: "workload:"`. The `catalog-tag-delete`
+constraint has the same shape of gap: it makes every `workload:*` Tag object
+deletable by name alone, not only the one tied to the workload actually being
+purged — a compromised token isn't limited to deleting the tag for the
+workload it has a legitimate reason to touch. This constraint therefore does
+**not** provide a hermetic guarantee against a *maliciously used* token; what
+it closes is the blast radius lkirc actually named — an accidental, careless,
+or narrowly-compromised use hitting arbitrary unrelated NetBox records with
+no `workload:*` involvement at all, which is the realistic failure mode a
+scoped-but-multi-action writer account can meaningfully defend against. A
+deliberate escalation now costs the attacker two extra, auditable NetBox
+writes (tag create + service retag) instead of zero — real, but not a closed
+door. Closing it fully would require either a materially different identity
+model (a separate, even-more-restricted account for `workload:*` tag
+creation, which the operator's direction for this amendment explicitly ruled
+out reaching for by default) or a detective control (alerting on
+tag-create-then-delete in short succession on this account). Neither is
+implemented here; flagged as follow-up, not resolved.
 
 **What this constraint deliberately does *not* cover, and why:** it does
 **not** additionally require the record's lifecycle to be
@@ -130,14 +156,23 @@ only the app layer can ever see.
 
 Verification: `yamllint`, `ansible-lint` (production profile), and
 `ansible-playbook --syntax-check` all pass on the `dmf-infra` change; the
-templated NetBox provisioning script was rendered locally for all five
-`netbox_sot_catalog_permissions` entries and each syntax-checked as valid
-Python. Live positive proof (`delete-permanently` still works end to end)
-and negative proof (a non-workload-tagged or otherwise ineligible record's
-delete is rejected by NetBox's own RBAC, not just the playbook's app-layer
-check) are the operator's to run directly against real infra before this
-amendment's status can be called verified — not something a documentation
-or ansible-role change can establish on its own.
+templated NetBox provisioning script was rendered locally for all
+`netbox_sot_catalog_permissions` entries (plus adversarial inputs — a JSON
+boolean, embedded quotes/backslashes/newlines in a constraint value) and each
+syntax-checked and evaluated as correct Python. An adversarial codex review
+of the `dmf-infra` diff found and this amendment fixed one real templating
+bug (constraints were rendered as raw JSON tokens pasted into Python source —
+correct for today's plain-string values by coincidence of overlapping
+syntax, but `true`/`false`/`null` would `NameError` and only quotes were
+escaped, not backslashes/newlines; fixed by `json.loads()`-ing a properly
+string-escaped payload instead) and one real, not-closeable-here scope gap
+(the residual risk documented just above) — both taken seriously rather than
+argued away. Live positive proof (`delete-permanently` still works end to
+end) and negative proof (a non-workload-tagged or otherwise ineligible
+record's delete is rejected by NetBox's own RBAC, not just the playbook's
+app-layer check) are the operator's to run directly against real infra
+before this amendment's status can be called verified — not something a
+documentation or ansible-role change can establish on its own.
 
 ## Context
 
