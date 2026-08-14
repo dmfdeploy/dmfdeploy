@@ -55,6 +55,66 @@ Merged: dmfdeploy#393, dmf-infra#82/#83, dmf-runbooks#41/#42.
   original reason this whole thread started). Full handoff:
   `~/dmf-handoffs/DMF Arc4 ADR-0032 Amendment 3 Handoff 2026-08-14.md`.
 
+### ⚠️ Env-wide OpenBao/ESO AppRole lockout — resolved, but can recur (2026-08-14)
+
+Any DMF env living 30 days without a `lifecycle-provision` pass will hit an
+OpenBao AppRole SecretID TTL expiry, and the resulting failed logins from
+External Secrets Operator can trip OpenBao's AppRole lockout (on by default
+unless a mount tune or the `(BAO|VAULT)_DISABLE_USER_LOCKOUT` env var turns it
+off) — presenting as every `ExternalSecret` cluster-wide going stale/unsynced,
+sometimes surfaced by ESO as a reconciliation error rather than a raw 403. Not
+a credential leak, not an ACL break. See `dmf-cluster-access` skill's pitfalls
+table for the one-line recovery rule; detail and evidence below.
+
+- **Rotation is safe to run immediately but doesn't end the lockout.** A
+  blocked login is rejected before OpenBao checks the credential, so a fresh
+  SecretID has no effect until the window clears on its own — and the
+  rotation playbook's ESO restart cannot extend the *currently active*
+  lockout. That is a source-code fact (a blocked request never reaches the
+  code path that records a failed attempt), not a timing inference. It is
+  **not** a blanket "restart is harmless": once the window clears, an
+  actually-invalid credential starts a brand new lockout same as always.
+- **Time the wait from the threshold-crossing attempt, not the first locked
+  response you see.** The attempt that crosses the threshold still validates
+  normally and returns a plain credential error; only the *next* attempt gets
+  the locked response. Waiting from the first 403 you observe overshoots.
+- **The old "~20 min" figure was never verified — don't repeat it.**
+  `lockout_duration` defaults to 15m when nothing overrides it; this env's
+  IaC sets no `user_lockout_config`, but that doesn't rule out a persisted
+  `auth tune`, host-level config, or the disable-lockout env var above (which
+  turns the feature off entirely — a different situation from a long
+  duration). The live value was **not read**: `ops_admin` is denied on
+  `sys/auth/approle/tune`. Read it yourself with a token that holds
+  `sys/auth` access before trusting any number.
+- **Lockout is keyed on alias + mount, not just role_id.** For AppRole the
+  alias identifier is the `role_id`, scoped to that specific auth mount's
+  accessor — the same `role_id` re-enabled at a different path is a
+  different lockout key entirely.
+- **Verification basis.** 2026-08-14, throwaway pod on the identical OpenBao
+  2.5.2 image digest, `bao server -dev` (in-memory storage, not raft), 3
+  paired control/treatment trials — this corroborates one source-determined
+  code branch (`vault/request_handling.go:1573-1589`: the lockout gate
+  returns before the routing call that would validate the credential; the
+  failed-attempt recorder further down the same file only fires on an
+  `ErrInvalidCredentials` result from that routing call), not three
+  independent replications of the live env. Confirmed live: a valid SecretID
+  is rejected during an active lockout (rules out "rotation bypasses it"),
+  and rejected attempts don't measurably extend the window beyond the ~10s
+  observation margin (the "never extends it" claim is the source-code fact
+  above; the run itself only bounds it to ~10s). Not tested: lockout
+  persistence across a process restart, seal/unseal, raft replay, or leader
+  change; nor the effect of a locked-out attempt on a use-count-limited
+  SecretID (`secret_id_num_uses=0`, unlimited, was used in the probe).
+- **The real incident's recovery gap is an observation, not an explanation.**
+  Restart 13:53:16Z, last logged ESO failure 14:01:49Z, first successful
+  reconcile 14:15:48Z. We have no evidence tying that ~14min unlogged gap to
+  ESO's own retry/backoff behavior or to anything else — treat it as
+  uninstrumented, not as a mechanism, and don't re-derive "~20 min" from it.
+
+Full root-cause detail is kept operator-side; this note is the public
+heads-up. Systemic gap still open: rotation has no pre-expiry
+schedule/alert.
+
 ### ✅ Arc 2b delete-permanently LIVE — v0.20.0 + runbooks 0.4.5 on the demo env (2026-08-03)
 
 The full "delete permanently" feature shipped end to end: a `finalise-purge` AWX
