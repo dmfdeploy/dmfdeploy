@@ -1,6 +1,6 @@
 # ADR-0032: Catalog launchers mutate NetBox via a scoped writer service account, never the admin token
 
-**Status:** Accepted (amended 2026-08-13 — `delete` added on `ipam.service` + `extras.tag` for `media-finalise-purge`; amended again 2026-08-14 — that `delete` grant object-scoped to workload-tagged records; see Amendments below)
+**Status:** Accepted (amended 2026-08-13 — `delete` added on `ipam.service` + `extras.tag` for `media-finalise-purge`; amended again 2026-08-14 — that `delete` grant object-scoped to workload-tagged records; amended a third time, same day — `delete` moved off `dmf-catalog-svc` entirely, onto a new delete-only `dmf-catalog-purge-svc` identity; see Amendments below)
 **Date:** 2026-05-27
 **Deciders:** @<handle> (raised the least-privilege question during the `<env>` catalog-deploy debugging session), with Claude investigation
 **Refines:** [ADR-0028](0028-identity-and-authority-chain.md) C3 (scoped service accounts for machine-to-machine). Related: [ADR-0013](0013-media-function-catalog-model.md) (catalog model — NetBox runtime lifecycle tag), [ADR-0025](0025-ansible-in-cluster-pods-and-catalog-helm.md) (in-cluster launchers), [ADR-0007](0007-secrets-never-in-argv.md).
@@ -174,6 +174,107 @@ app-layer check) are the operator's to run directly against real infra
 before this amendment's status can be called verified — not something a
 documentation or ansible-role change can establish on its own.
 
+**Superseded by Amendment 3 below**: lkirc rejected this amendment's
+constraint-only design twice, on exactly the residual risk documented above
+— asked for it closed, not documented. Amendment 3 closes it.
+
+## Amendment 3 (2026-08-14, dmfdeploy/dmfdeploy#347)
+
+The residual risk Amendment 2 documented as accepted-not-closed —
+`dmf-catalog-svc`'s necessary `add`/`change` on the same two models making
+its `delete` grant self-manufacturable — is exactly what lkirc flagged again
+on Amendment 2's own review: "the delete predicate remains self-satisfiable
+by this same token." The operator's direction: fix this for real, by
+identity separation, not a detective control or a documented waiver.
+
+**Amended scope:** `delete` is removed from `dmf-catalog-svc` entirely.
+`catalog-service-writer`/`catalog-tag-writer` revert to exactly their
+original ADR-0032 scope — `view`/`add`/`change` on `ipam.service`,
+`view`/`add` on `extras.tag`, no `delete` at all. The Amendment-2-era
+`catalog-service-delete`/`catalog-tag-delete` entries are retired (not just
+undeclared — an explicit idempotent cleanup task removes the corresponding
+`ObjectPermission` rows on an already-provisioned instance; simply dropping
+them from the role's declared permission list would have left them silently
+in place, since the reconcile loop only ever creates/updates what it is
+given, never prunes what it no longer sees).
+
+`media-finalise-purge` moves to a **new, genuinely delete-only identity**:
+`dmf-catalog-purge-svc` (group `dmf-catalog-purge`), granted:
+- `view` (unconstrained) on `ipam.service` + `extras.tag` — needed for the
+  launcher's own preflight reads and readback-confirms.
+- `delete` on `ipam.service`, constrained `{"tags__name__startswith":
+  "workload:"}` — Amendment 2's constraint, unchanged, reused as-is.
+- `delete` on `extras.tag`, constrained `{"name__startswith": "workload:"}`
+  — likewise reused unchanged.
+- **No `add`, no `change`, on either model.** This is the entire point: this
+  identity cannot create a tag or retag a service, so it cannot manufacture
+  its own delete-eligibility. Amendment 2's constraint is now a real bound on
+  what this token can do, not a filter a sibling capability on the *same*
+  token could route around.
+
+**Verified against the actual task include graph, not assumed:** every task
+`media-finalise-purge` (`dmf-runbooks/playbooks/finalise-purge.yml`) invokes
+— `netbox_catalog_common`'s `purge_workload_records`/`purge_workload_tag`/
+`purge_final_read`, plus every `l3_run_guard` task in its call path
+(`lock_only`, `teardown_pre_mutation`, `lock_checkpoint`, `lock_release`,
+`release`, `fault_inject`, `_emit_purge_outcome`, `purge_outcome_guard`,
+`gate_rescue`) — was read, not grepped-and-trusted. Its entire NetBox surface
+is `GET` (list, by-id, tag-by-name) and `DELETE` on `ipam.service` and
+`extras.tag`; no `POST`, no `PATCH`, no `dcim.device` read (that lookup is
+CREATE-time only, attaching a fresh service to its parent device — a launcher
+this playbook never behaves like). The facility lock itself is a Kubernetes
+ConfigMap `PUT`/`DELETE` (`l3_run_guard/tasks/lock_checkpoint.yml`,
+`lock_release.yml`) against `_l3_api_url`, a wholly separate API from
+NetBox — locking needs nothing from this account beyond the token being
+non-empty (`_assert_netbox_token.yml` is a structural presence check, never
+a live NetBox call). `dmf-catalog-purge-svc`'s scope is therefore both
+necessary and sufficient for everything this launcher actually does.
+
+**Token plumbing:** `netbox-sot` mints and persists the new token to the
+same `secret/apps/netbox/runtime` OpenBao secret, key `netbox_purge_token`
+(mint-if-absent, OpenBao-reuse-on-rerun — byte-same idempotency shape as the
+existing `netbox_catalog_token` gate). `awx-integration` reads it from the
+same `bao kv get` that already fetches `netbox_catalog_token` (no second
+round-trip) and wires it into `media-finalise-purge`'s own JT `extra_vars`
+as `vault_netbox_purge_token` — every *other* catalog launcher JT is
+unchanged, still on `vault_netbox_catalog_token`. `finalise-purge.yml`'s
+play-scope `netbox_api_token` mapping now sources
+`vault_netbox_purge_token` instead — its header already anticipated
+per-launcher token isolation being reachable this way. The `dmf-runbooks`
+integration test suite (`tests/l3-finalise-purge-execution.yml`, ~18
+nested real-playbook invocations including the dedicated blank-token
+refusal probe) was updated in lockstep and re-run locally against the stub
+NetBox/K8s harness — a suite left on the old var name would have kept
+passing while silently testing a var the playbook no longer reads.
+
+**What this closes, precisely:** the self-manufactured-eligibility path
+Amendment 2 left open. `dmf-catalog-purge-svc` cannot create a
+`workload:<anything>` tag or attach one to a service — it has no `add`/
+`change` capability on either model, full stop — so there is no path by
+which this token can make an ineligible record eligible before deleting it.
+Combined with Amendment 2's constraint (reused unchanged), delete is now
+bound to records that were *already*, independently, `workload:*`-tagged —
+not records this same token chose to tag moments before deleting them.
+
+**What this still does not close, unchanged from Amendment 2, and for the
+same reason:** whether a workload is *currently* active/running remains
+outside NetBox's own queryable data (a live NetBox+Prometheus join per
+ADR-0013) and stays exclusively enforced by `resolve_purge_target`'s own
+preflight. That was never a gap this identity split could address, and
+isn't claimed to be one.
+
+Verification: `yamllint roles/stack/operator/netbox-sot/
+roles/stack/operator/awx-integration/`, `ansible-lint playbooks/ -p`
+(production profile), and `ansible-playbook --syntax-check` on every
+`dmf-infra` playbook all pass. The templated purge-permission provisioning
+script was rendered locally (including the multi-model `catalog-purge-reader`
+entry) and syntax/runtime-checked the same way as Amendment 2's constraints.
+`dmf-runbooks`' `tests/l3-finalise-purge-execution.yml` — the real,
+stub-backed integration suite for this exact playbook, ~18 nested
+`ansible-playbook` subprocess invocations — was run locally end to end
+against the updated var. Live proof against real infra (both directions,
+plus lkirc's gate) remains the operator's, as with every prior amendment.
+
 ## Context
 
 ADR-0028 C3 binds: *"Machines use scoped service accounts… scoped, named, documented, and stored in OpenBao."* But `netbox-sot` provisions the catalog-relevant service accounts **read-only** (`dmf-cms-svc`→`dmf-cms-readonly`, `awx-svc`→`awx-readonly`). The steady-state catalog launchers (e.g. `media-launch-nmos-cpp`, run in-cluster as the AWX identity per ADR-0025) must **write** NetBox — create/apply the ADR-0013 lifecycle tag on the function's `ipam.service` record. With no scoped writer available, the nmos-cpp launcher authenticated with `netbox_admin_token` (NetBox superuser), and on a fresh sandbox where that token was empty it fell back to the read-only token and 403'd at the first write. The real tension: a steady-state automated action was using superuser custody to paper over a missing least-privilege identity — exactly the posture C3 forbids.
@@ -193,7 +294,11 @@ ADR-0028 C3 binds: *"Machines use scoped service accounts… scoped, named, docu
 
 ## Consequences
 
-- **Positive** — Catalog deploys run under a named, audited, minimally-scoped identity. Closes the C3 gap. The blast radius of the AWX/catalog plane shrinks from "NetBox superuser" to a token that can only ever touch two models (`ipam.service`, `extras.tag`) plus read `dcim.device`. **Stale as of Amendment 1/2 — corrected here:** it is no longer accurate to say a compromised token "can touch lifecycle tags on services, nothing more." As of Amendment 1 (2026-08-13) the token can also **delete** `ipam.service`/`extras.tag` records; as of Amendment 2 (2026-08-14) that delete is object-scoped to records carrying a `workload:*` tag (an `ipam.service` delete) or literally named `workload:<slug>` (an `extras.tag` delete) — a compromised token cannot delete anything outside that shape, but `view`/`add`/`change` on both models remain unconstrained across every record of those two types the account can reach, as they always have been (§1). The actual current blast radius: create/patch any `ipam.service` or `extras.tag` record (including flipping a lifecycle tag on one that isn't the token's own), plus delete any record that is or was workload-assigned — never anything outside those two models, never dcim/other apps, never staff/superuser.
+- **Positive** — Catalog deploys run under named, audited, minimally-scoped identities. Closes the C3 gap. **Rewritten for Amendment 3 (2026-08-14) — the AWX/catalog plane is now TWO identities, not one, each with a materially narrower blast radius than "NetBox superuser":**
+  - `dmf-catalog-svc` (every catalog launcher except finalise-purge): can create or patch any `ipam.service`/`extras.tag` record — e.g. flip a lifecycle tag, attach a tag, create a new service record — but, as of this amendment, **cannot delete anything at all**. No `delete` action on any model.
+  - `dmf-catalog-purge-svc` (`media-finalise-purge` only): can **delete** an `ipam.service`/`extras.tag` record, but only one already carrying/matching a `workload:*` tag (Amendment 2's constraint) — and, critically, **cannot create or patch anything**, on either model. It cannot manufacture a record's eligibility before deleting it; the constraint is a real bound on this identity, not a filter a sibling capability could route around (Amendment 1/2's own residual risk, now closed).
+  - Neither identity ever reaches `dcim.device` write, staff, or superuser. `dcim.device` stays `dmf-catalog-svc`-view-only, unchanged (§1).
+  This corrects two prior versions of this paragraph in turn: Amendment 1 made "flip a lifecycle tag, nothing more" stale by adding delete to the shared token; Amendment 2's constraint narrowed but did not remove that same-token delete capability; Amendment 3 removes it from the shared token entirely and gives the narrower capability its own, non-mutating identity.
 - **Negative** — One more service account + permission set to provision and keep in sync; lifecycle tags must be guaranteed-present at bootstrap (a new ordering obligation on `netbox-sot`). Launcher refactor + token re-provision is multi-repo work.
 - **Neutral** — Read paths already used the read-only svc tokens; only the write path changes. The admin token still exists (bootstrap/break-glass), just not in steady-state hands.
 
@@ -205,7 +310,7 @@ ADR-0028 C3 binds: *"Machines use scoped service accounts… scoped, named, docu
 
 ## Enforcement
 
-- `netbox-sot` owns the `dmf-catalog-svc` + `dmf-catalog-writer` permission set and the baseline lifecycle tags; a `bootstrap-verify`-class assertion confirms the account exists, is non-superuser, and its permissions are limited to the allowed models.
+- `netbox-sot` owns the `dmf-catalog-svc` + `dmf-catalog-writer` permission set, the `dmf-catalog-purge-svc` + `dmf-catalog-purge` permission set (Amendment 3), and the baseline lifecycle tags; a `bootstrap-verify`-class assertion confirms both accounts exist, are non-superuser, and their permissions are limited to the allowed models — for `dmf-catalog-purge-svc` specifically, that its `actions` never include `add` or `change` on any model, which is the entire property Amendment 3 depends on.
 - Review gate on `dmf-runbooks` launchers and `awx-integration` defaults: any `netbox_admin_token` (or other superuser/admin token) referenced from a steady-state launcher path is a violation — flag against this ADR.
 - Discipline until the verifier lands; the audit-admin-identities / bootstrap-convergence verifier (ADR-0028 D2) is the natural home for the automated check.
 
