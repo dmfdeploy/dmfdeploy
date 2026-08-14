@@ -20,6 +20,41 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ ADR-0032 Amendment 3 — finalise-purge identity split LIVE, both proofs passed (2026-08-14)
+
+The `dmf-catalog-svc` self-manufactured-eligibility gap lkirc caught twice on
+Amendment 2 (delete constrained by tag, but the same token's necessary
+add/change let it manufacture that tag on an arbitrary record) is closed for
+real: `media-finalise-purge` now runs under a new, genuinely delete-only
+identity (`dmf-catalog-purge-svc` — no add/change on either model at all).
+Merged: dmfdeploy#393, dmf-infra#82/#83, dmf-runbooks#41/#42.
+
+- **Live-verified both directions.** Positive: real console delete-permanently
+  → AWX job 894 → `DMF_L3_PURGE_OUTCOME: success` → confirmed gone. Negative:
+  a raw NetBox-RBAC probe (bypassing the app layer) confirmed
+  `dmf-catalog-svc` refused delete on BOTH an untagged and a
+  `workload:*`-tagged record (delete is fully stripped, not just
+  constrained), and `dmf-catalog-purge-svc` correctly toggled
+  refuse-untagged/allow-tagged.
+- **Live verification was blocked for most of the session by an unrelated
+  release/pin sequencing gap, not a code bug** (worth remembering as its own
+  class of trap): dmf-infra's AWX project pin for `dmf-runbooks` was still
+  `v0.4.5` when PR#82 changed the JT's `extra_vars` contract to expect code
+  that only landed on `v0.4.6` — every real job ran stale code and refused
+  deterministically. Fixed by the documented rollout chain (release → tag →
+  re-pin → re-run 693 with `RUNBOOK_TIMEOUT=5400`, see the
+  `awx-693-does-not-wake-awx` memory).
+- **Separate cluster-wide incident found mid-investigation:** an ESO/OpenBao
+  AppRole SecretID TTL expiry (30-day, matches env age) tripped OpenBao's
+  default AppRole lockout — resolved live. Public heads-up + recovery
+  procedure: dmfdeploy#394 — **still open**, lkirc caught a real sequencing
+  bug in the documented recovery steps themselves (the rotation playbook's
+  own last step restarts ESO, triggering a login attempt during the stated
+  "no further attempts" wait window). Not yet fixed — see that PR.
+- **Not yet started:** WP-10 (hand the console to an outside tester, the
+  original reason this whole thread started). Full handoff:
+  `~/dmf-handoffs/DMF Arc4 ADR-0032 Amendment 3 Handoff 2026-08-14.md`.
+
 ### ✅ Arc 2b delete-permanently LIVE — v0.20.0 + runbooks 0.4.5 on the demo env (2026-08-03)
 
 The full "delete permanently" feature shipped end to end: a `finalise-purge` AWX
