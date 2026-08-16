@@ -108,22 +108,26 @@ DMF_ENV="$(dirname "$DMFDEPLOY_UMBRELLA")/dmf-env"      # sibling checkout
 | **Media namespace clean of this template (mandatory — see below)** | confirm no instance of **MXL Test-Pattern Viewer** is already deployed on this facility | Design (§2) offers the template at all — see the paragraph below |
 
 **This precondition is mandatory, not a nicety — it will block the journey
-outright if skipped.** With a single-entry catalog, if any Media Function
-instance from **MXL Test-Pattern Viewer** is already deployed (lifecycle
-**active**) anywhere on this facility, the Design step's "Use this
-template" control is withheld entirely: a badge reads *"Already deployed"*
-and the on-screen line is, verbatim, *"Already deployed on this facility,
-so it can't start a new workload here."* (`CreateWorkload.tsx` TemplatePicker
-— source-verified). There is no second template to fall back to, and
+outright if skipped.** With a single-entry catalog, Design reads this
+template's status as **one aggregate value across all three of its member
+services** — the receiver and both sources
+(`src/dmf_cms/catalog.py get_lifecycle_status()` — fail-closed, no partial
+success: any one service read erroring reports `error` for the whole
+entry; the three services disagreeing, e.g. a genuinely partial prior
+deploy or teardown, reports `unknown` rather than picking a side). Only
+when **all three services agree `active`** does the aggregate itself read
+`active`, and only then does the Design step's "Use this template" control
+withhold itself entirely: a badge reads *"Already deployed"* and the
+on-screen line is, verbatim, *"Already deployed on this facility, so it
+can't start a new workload here."* (`CreateWorkload.tsx` TemplatePicker —
+source-verified). There is no second template to fall back to, and
 provisioning a second workload is already forbidden by this journey's own
-one-workload scope above — so an unclean facility doesn't just make the
-demo messier, it makes §2 impossible to finish. Before you begin: confirm
-the facility is clean (ask the operator, or check yourself once logged
-in — Design will tell you). If a prior deploy is still standing, tear it
-down (§6a) first — a successful Teardown flips the entry's lifecycle tag
-to `bootstrapped`, which clears this gate on its own (source-confirmed;
-full mechanism and citations in §6a). **Delete permanently is not
-required between runs.**
+one-workload scope above — so a facility where this template already
+reads `active` doesn't just make the demo messier, it makes §2 impossible
+to finish. Before you begin: confirm the facility is clean (ask the
+operator, or check yourself once logged in — Design will tell you). If a
+prior deploy is still standing, a Teardown clears this gate — the full
+mechanism and citations are in §6a, not repeated here.
 
 **(UNVERIFIED — the "Expected" column above is carried forward from the
 previous edit of this file and was not independently re-checked against
@@ -388,11 +392,14 @@ and would misstate this one; time and count it fresh on the live walk (§9).
 
 ## 4. Operate — the live view
 
-**Action.** The materialising screen (§3) swaps itself out for the
-workload's own page once the grouped inventory can read the record —
-which can happen while the launch job is still running, or lag briefly
-after the job finishes; it is not simply "once Provision completes." Once
-you're there: near the top, a **lifecycle badge** names the last completed stage in
+**Action. (UNVERIFIED — this handoff's exact timing has not been watched
+happen; the mechanism below is source-derived, not observed.)** The
+materialising screen (§3) swaps itself out for the workload's own page once
+the grouped inventory can read the record — which can happen while the
+launch job is still running, or only after the job finishes; it is not
+simply "once Provision completes," and this rewrite has no measurement of
+how long any gap between the two might be. Once you're there: near the
+top, a **lifecycle badge** names the last completed stage in
 plain-past-tense wording — not what you might expect. The console's own
 grammar: at the *Provision* position the badge reads **"planned"**
 (design+plan settled, deploy still ahead); once the deploy has actually run
@@ -544,32 +551,25 @@ edit — teardown alone is no longer the only ending.
   member **and** the workload's own tag are gone.
 
 Teardown leaves the record standing (recorded but not running — reusable
-later). **This is source-confirmed, not inferred:** the Design step's gate
-is literally `const deployed = entry.lifecycle === 'active'`
-(`CreateWorkload.tsx` TemplatePicker); the catalog entry's `configure`
-action tags success as `lifecycle:active`
+later). **This is source-confirmed, not inferred:** Design's gate reads
+this template's status as one aggregate value across all three of its
+member services (`src/dmf_cms/catalog.py get_lifecycle_status()` —
+fail-closed, no partial success: any read error reports `error`; any
+disagreement across the three reports `unknown`; only when all three agree
+does that shared value come back), and `CreateWorkload.tsx` TemplatePicker
+withholds "Use this template" only when that aggregate reads exactly
+`active`. The catalog entry's `configure` action stamps each member
+service `lifecycle:active` on success
 (`dmf-media catalog/mxl-videotest-view.yaml:79-83`), and its `finalise`
-action — `playbooks/teardown-mxl-fabrics-demo.yml` — tags success as
-`lifecycle:bootstrapped` (`dmf-media catalog/mxl-videotest-view.yaml:89-93`).
-`bootstrapped` is not `active`, so a successful Teardown clears the
-"Already deployed" gate on its own — **Delete permanently is not required
-between runs.** What's still unverified is the *round trip*, not the
-mapping: that the teardown job actually succeeds, the tag actually lands,
-and the Design step's own read actually picks it up promptly — confirm
-that chain on the live walk (§9); the mapping itself needs no further
-checking.
-
-This makes the journey **repeatable between takes without builder help** —
-which directly serves #383's unaided-completion bar: a reader who takes a
-wrong turn, or a presenter re-running the demo, can Teardown and start
-straight over from §2 with nothing more. Delete permanently goes further,
-removing the source-of-truth record outright rather than just flipping the
-tag back — with no way to undo that. Use Teardown alone if you plan to run
-this journey again soon (the common case); Delete permanently only if you
-want no residue left at all. Either one satisfies §0's mandatory
-precondition for a next run — with a single-entry catalog, either is
-effectively "empty" for this demo's purposes, even though Delete
-permanently is the only one that removes the record itself.
+action — `playbooks/teardown-mxl-fabrics-demo.yml` — stamps each member
+`lifecycle:bootstrapped` on success
+(`dmf-media catalog/mxl-videotest-view.yaml:89-93`). `bootstrapped` is not
+`active`, so once every member is back to `bootstrapped` the aggregate can
+no longer read `active`, and the gate clears. What's still unverified is
+the *round trip*, not the mapping: that a real Teardown job actually
+succeeds and stamps every member, and that Design's own read picks the
+change up promptly — confirm that chain on the live walk (§9); the mapping
+itself needs no further checking.
 
 **6b. The audit trail — Activity → History.** There is no Activity icon in
 the rail — like Catalog, the route still exists, it's simply not linked
@@ -608,15 +608,20 @@ nothing in dmf-cms or dmf-runbooks ties a media pod's lifecycle to AWX's
 own, so it keeps running whether AWX is asleep or awake (the §3
 architecture note, from the same source, holds regardless of §6c).
 
-**6d. Workload independence — the closing line, *only* if §6c held.** If
-(and only if) you watched AWX actually go back to sleep in §6c: with AWX
-asleep and the media pieces still running (if you chose Teardown rather
-than an immediate Delete permanently), you have the whole thesis in one
-frame — the platform provisions on demand, attributes and audits every
-change, runs the media decoupled from its own control plane, and — this
-last part, now confirmed live — scales the control plane to zero when idle,
-at no cost to what's running. If §6c hasn't actually been observed yet,
-skip this closing beat rather than asserting it.
+**6d. Workload independence — an aside for *before* you tear anything
+down.** This is not the next step after 6a/6b/6c in execution order — it
+only works while the workload is still running, i.e. any time during §4
+(Operate) or §5 (Switch), *before* you ever click Teardown in 6a. Once
+Teardown runs, the media pieces stop running too (6a's own note: one click
+removes all three pieces), so this observation is no longer available —
+don't try to make it after the fact. If, in that earlier window, you *also*
+watched AWX re-idle to zero on its own (§6c) while the workload kept
+running: you have the whole thesis in one frame — the platform provisions
+on demand, attributes and audits every change, runs the media decoupled
+from its own control plane, and scales the control plane to zero when
+idle, at no cost to what's running. If you never watched AWX re-idle while
+the workload was still up, skip this closing beat rather than asserting
+it.
 
 ---
 
@@ -715,11 +720,15 @@ wrong), and only then consider closing #379.
       (see §6c's own caveat). Only then time the window and decide whether
       it's worth stating a number in the runbook, or leaving it qualitative
       as written here. Do not present §6d until this box is checked.
-- [ ] §0/§2/§6a — The lifecycle-tag mapping is source-confirmed
-      (`entry.lifecycle === 'active'` gate; `finalise` tags
-      `lifecycle:bootstrapped` on success) — what's still open is the round
-      trip: run a real Teardown and confirm the job succeeds, the tag
-      actually lands, and Design's own read picks it up in time to
-      re-offer "Use this template" for a next workload.
+- [ ] §0/§2/§6a — The lifecycle-tag mapping and its all-three-must-agree
+      aggregate rule (`get_lifecycle_status()`) are source-confirmed — what's
+      still open is the round trip: run a real Teardown and confirm the job
+      succeeds, every member is actually stamped `bootstrapped`, and
+      Design's own read picks up the change in time to re-offer "Use this
+      template" for a next workload.
+- [ ] §6d — Confirm this really is only observable pre-Teardown: watch
+      AWX re-idle while the workload is still Operating (§4) or mid-Switch
+      (§5), and confirm the media pieces really do stop once Teardown runs
+      in 6a (already asserted from source in 6a; watch it happen).
 - [ ] Read the whole file aloud as if you were the named outsider from #383
       and flag anywhere a term still isn't explained before it's needed.
