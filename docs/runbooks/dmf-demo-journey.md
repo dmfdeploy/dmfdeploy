@@ -26,8 +26,10 @@ until §9 is cleared.
 **Scope note.** The console's demo catalog was reduced to **one template**
 on 2026-08-03 (Arc 2a) — provisioning it launches a small *topology*, not a
 single piece (see the glossary below). The **Switch** beat, a placeholder in
-every previous edit of this file, **shipped** in dmf-runbooks 0.4.4 and went
-live 2026-07-31 — it is a real beat now, §5. This runbook is part of the v0.2
+every previous edit of this file, is **present in dmf-runbooks' committed
+source since 0.4.4** and wired into the console — it is a real beat now, §5
+(§379's known-stale table dates it live on the env 2026-07-31; this rewrite
+did not watch it run — see §5's own note and §9). This runbook is part of the v0.2
 presentable-journey track
 ([dmfdeploy/dmfdeploy#200](https://github.com/dmfdeploy/dmfdeploy/issues/200),
 [#347](https://github.com/dmfdeploy/dmfdeploy/issues/347)) and its exit
@@ -39,8 +41,9 @@ this file is written for, not just a presenter narrating to a room.
 [`dmf-deploy-quickstart.md`](dmf-deploy-quickstart.md) — *not* repeated here).
 This runbook starts at "the cluster is up; now show it off."
 
-**Intent model:** `docs/processes/README.md` (BPMN 2.0) for *why* each beat
-exists; this file is the *how* to present it.
+**Intent model:** `docs/processes/README.md` (BPMN 2.0 — a standard
+process-diagram notation) for *why* each beat exists; this file is the *how*
+to present it.
 
 ---
 
@@ -55,7 +58,7 @@ internal vocabulary as unearned until it's explained too).
 
 | Term | In one line |
 |---|---|
-| **Media workload** | One production's worth of pieces (here: a video source and a receiver) that the console manages, audits, and shows a lifecycle for as a single group. |
+| **Media workload** | One production's worth of pieces (here: two synthetic test-pattern sources and one receiver) that the console manages, audits, and shows a lifecycle for as a single group. |
 | **Facility** | The physical/virtual site the workload runs on. This demo has exactly one. |
 | **Flow** | One stream of video moving from a source to a receiver. This demo's flow is a synthetic test pattern, not a real camera. |
 | **Source / viewer (receiver)** | A source *produces* a flow; a viewer (also called a receiver) *receives and displays* one. |
@@ -103,6 +106,11 @@ DMF_ENV="$(dirname "$DMFDEPLOY_UMBRELLA")/dmf-env"      # sibling checkout
 | Demo persona has the right role | (see below) | persona holds **engineer** (or admin) capability |
 | AWX is asleep at rest | (informational) | expected — the first Provision click wakes it; see §3 |
 | Media namespace clean (optional reset) | ask the operator, or leave prior workloads running | a clean `mxl` namespace makes the "materialises from nothing" beat in §3 land harder |
+
+**(UNVERIFIED — the "Expected" column above is carried forward from the
+previous edit of this file and was not independently re-checked against
+source or against a live env this round; confirm each row on the next live
+walk, §9.)**
 
 **Two operational gotchas learned since the last edit of this file** (from
 [#379](https://github.com/dmfdeploy/dmfdeploy/issues/379)'s own scope — not
@@ -165,9 +173,10 @@ pitfalls that runbook covers in full.
 
 **One workload only.** This journey deliberately walks **one** media
 workload through the full lifecycle and stops. With a single-template
-catalog, provisioning a **second** workload runs into NetBox
-record-adoption behaviour that is deliberately out of scope for this demo —
-do not create a second workload, on camera or off it.
+catalog, provisioning a **second** workload can collide with inventory
+records the first one already created — a known limitation of the
+single-template catalog, out of scope for this demo. **Do not create a
+second workload, on camera or off it.**
 
 ---
 
@@ -180,8 +189,9 @@ the login.
 
 **Action.** Open `https://console.<env-base-domain>/` in a private/incognito
 window. Click **Sign in**. The browser offers the passkey picker; choose the
-demo persona's authenticator and complete the WebAuthn ceremony (Touch ID /
-security-key touch).
+demo persona's authenticator and complete the WebAuthn ceremony — the
+standard passkey handshake, no typing involved (Touch ID / security-key
+touch).
 
 **Expected result.** You land on the Console **Workspace** home as the demo
 persona (a fictitious demo identity, e.g. `marty-mcfly` — never a real
@@ -247,10 +257,13 @@ today, **one entry**: **"MXL Test-Pattern Viewer."** Its on-screen summary
 reads, verbatim: *"Media eXchange Layer consumer for the cross-host fabrics
 demo: the receiver target exposes the received flow and preview from the
 paired source over libfabric tcp. This is the view / receiver half of the
-split demo."* In plain terms: this is the one thing you can deploy, and it
-is the **receiving** half of a source/receiver pair — provisioning it also
-brings its two sources along for the ride (that's the "topology" from
-Terms, above; more in §3). Click **Use this template**.
+split demo."* In plain terms: "libfabric tcp" just names the low-level
+networking transport carrying the test video between pods, and "cross-host"
+means it still works when those pods land on different nodes — the part
+that matters for you is simpler than either: this is the one thing you can
+deploy, and it is the **receiving** half of a source/receiver pair —
+provisioning it also brings its two sources along for the ride (that's the
+"topology" from Terms, above; more in §3). Click **Use this template**.
 
 > **PRESENTER NOTE — jargon on this screen (non-blocking, but real).** That
 > summary sentence is quoted, not paraphrased, and it is denser than this
@@ -268,10 +281,16 @@ there is no workload-to-facility field to pick from anywhere in the
 platform. Click **Confirm placement**, then **Next →**.
 
 Clicking **Next** again lands you on **Provision** — that's §3, next. If you
-click ahead to **Configure** or **Finalise & Review** out of curiosity,
-each renders only its locked reason (*"Locked for the whole draft — nothing
-has been provisioned yet, so there is nothing to configure/tear down."*) —
-nothing runs yet, so there is genuinely nothing else to show.
+click ahead to **Configure** or **Finalise & Review** out of curiosity, each
+renders only its own locked reason — two distinct strings, not one merged
+sentence:
+
+- Configure: *"Locked for the whole draft — nothing has been provisioned
+  yet, so there is nothing to configure."*
+- Finalise & Review: *"Locked for the whole draft — nothing has been
+  provisioned yet, so there is nothing to finalise or tear down."*
+
+Nothing runs yet, so there is genuinely nothing else to show.
 
 ---
 
@@ -282,10 +301,12 @@ chain** — wake the automation plane, run a real job, materialise **three**
 pieces of the workload at once.
 
 **Action.** On the Provision step, click **▶ Provision now**. A confirm
-panel opens: *"Provision this workload now? Deploys MXL Test-Pattern Viewer
-via its AWX job template and records it as workload:`<slug>`."* Type a
-**reason** — the textarea placeholder says why: *"Reason (required, recorded
-in the audit trail)"* — and click **Confirm provision**.
+panel opens, title and description as two distinct pieces of copy — title:
+*"Provision this workload now?"*; description, verbatim: *"Deploys MXL
+Test-Pattern Viewer via its AWX job template and records it as
+workload:`<slug>`. Operator-gated: your reason is recorded in the audit
+trail."* Type a **reason** — the textarea placeholder says why: *"Reason
+(required, recorded in the audit trail)"* — and click **Confirm provision**.
 
 **Expected result — watch it unfold, in order.**
 **Everything after this line is inferred from source, not observed live —
@@ -303,7 +324,7 @@ confirm every claim in this list against §9 before trusting it on camera.**
    here** — they measured a single-piece deploy, and this build launches
    three pieces in the same job, which is not the same shape of work.
 3. **The wizard hands off to a "Provisioning" screen.** You'll see *"Deploy
-   accepted"* and a live job-status line (states like *Waking automation* →
+   accepted."* and a live job-status line (states like *Waking automation* →
    *Launching job* → a ticking AWX job status). This screen is deliberately
    honest about the gap between "accepted" and "exists": the workload's
    record only appears once the launcher stamps it, which happens
@@ -321,18 +342,16 @@ You can narrate the wait with the cluster view if a terminal is on screen —
 ssh <ssh-target> 'sudo k3s kubectl get pods -n mxl -w'
 ```
 
-Expected: pods for the receiver and both sources appear and converge to
-Running. **Exact pod/container counts per piece are not restated here** —
-the previous edit's specific numbers described a different, one-piece
-deploy and would misstate this one; time and count it fresh on the live
-walk (§9).
+**(UNVERIFIED — convergence behaviour, not observed this round.)** Expected:
+pods for the receiver and both sources appear and converge to Running.
+**Exact pod/container counts per piece are not restated here** — the
+previous edit's specific numbers described a different, one-piece deploy
+and would misstate this one; time and count it fresh on the live walk (§9).
 
 > **PRESENTER NOTE — ARCHITECTURE (non-blocking).** **AWX is the *actuator*,
 > not the runtime.** It provisions the workload and then gets out of the
 > way: the media workload runs decoupled from AWX's own wake/sleep cycle —
-> you'll see this made concrete in §6. A second Provision click landing
-> mid-idle-countdown simply resets the wake window rather than racing a
-> second wake, so back-to-back provisions are safe.
+> you'll see this made concrete in §6.
 
 > **PRESENTER NOTE — SECURITY (non-blocking).** The reason you typed is not
 > cosmetic: **writes are reason-required** — a missing/empty reason is
@@ -362,7 +381,8 @@ Plan, Provision, Configure, Finalise & Review — plus a separately-grouped
 deliberately *not* a sixth chip in that row — it's something you watch, not
 a step you work through). Click **Operate**.
 
-**Expected result.**
+**Expected result.** **(UNVERIFIED — this whole block is traced from
+source, not watched on screen; confirm every bullet in §9.)**
 
 - A **Live view** grid with **three tiles** — the receiver and both sources.
   The two source tiles' names may render as their raw internal identifiers
@@ -414,9 +434,14 @@ a step you work through). Click **Operate**.
 
 ## 5. Switch — re-point the receiver's source
 
-This beat **did not exist** in any previous edit of this file — it shipped
-in dmf-runbooks 0.4.4 and went live 2026-07-31. It lives on the **Configure**
-chip, not on Operate: Operate is deliberately read-only and only links out
+This beat **did not exist** in any previous edit of this file. Its
+implementation is present in dmf-runbooks' committed source
+(`playbooks/switch-mxl-fabrics-demo.yml`, shipped by 0.4.4) and wired into
+the console's Configure stage — that much is a source fact, verified this
+round. #379's own known-stale table dates it live on the env 2026-07-31;
+this rewrite did not watch it run, so treat "live" as unconfirmed until §9.
+It lives on the **Configure** chip, not on Operate: Operate is deliberately
+read-only and only links out
 to this step (its own copy: *"Source selection happens at the Configure
 step — changing this workload's source is a configure-time re-point
 performed by an automation job, not real-time flow control."*).
@@ -426,10 +451,12 @@ performed by an automation job, not real-time flow control."*).
 instance>`**, the current active source is shown in mono text (e.g.
 `source-a`). If a **Switch source** button is offered, click it.
 
-**Expected result — the arm panel.** Title: *"Switch active source."*
-Description, verbatim: *"Coarse reconfigure/reconnect actuator — not a live
-IS-05 switch. Re-points this viewer to a different source and is recorded in
-the audit trail with your reason."* In plain terms: this is **not** the
+**Expected result — the arm panel (UNVERIFIED — behaviour/appearance not
+watched live; the copy below is source-verified, the rest is not).** Title,
+verbatim: *"Switch active source"*. Description, verbatim: *"Coarse
+reconfigure/reconnect actuator — not a live IS-05 switch. Re-points this
+viewer to a different source and is recorded in the audit trail with your
+reason."* In plain terms: this is **not** the
 instant, frame-accurate crosspoint a real broadcast IS-05 switch (Terms,
 above) performs — it's a slower, automation-driven re-point that genuinely
 restarts the receiver against the new source. A **Target source** dropdown
@@ -490,17 +517,25 @@ edit — teardown alone is no longer the only ending.
 Teardown leaves the record standing (recorded but not running — reusable
 later); Delete permanently removes it from the source of truth outright,
 with no way back. Use Teardown if you plan to show the workload again;
-Delete permanently if you want to close the loop all the way back to the
-empty grid this journey started from.
+Delete permanently if you want *this* workload gone from the grid for
+good — it returns this one workload to absent, not necessarily the whole
+grid to empty (§0 explicitly permits leaving other, pre-existing workloads
+running throughout this journey).
 
-**6b. The audit trail — Activity → History.** Open **Activity**, then
-**History** (URL `.../activity/history`).
+**6b. The audit trail — Activity → History.** There is no Activity icon in
+the rail — like Catalog, the route still exists, it's simply not linked
+from anywhere in the nav (the same S1 IA cut). Type the URL directly:
+`https://console.<env-base-domain>/activity/history`.
 
 - **Expected.** The **"Console actions"** panel lists this session's writes
-  — a row per action, titled in operator language (e.g. *"Deployed
-  mxl-videotest-view,"* *"Switched source on `<instance>`,"* *"Tore down
-  `<instance>,"* or *"Deleted `<slug>` permanently"*) — each showing the
-  outcome, the **reason you typed**, in quotes, and
+  — a row per action, titled in operator language. Deploy/teardown rows are
+  keyed to the *catalog entry*, e.g. *"Deployed mxl-videotest-view"* /
+  *"Tore down mxl-videotest-view"* (there being only one entry, that string
+  is also the receiver's own instance name here — don't read that as a
+  coincidence the console intends). The switch row is keyed to the
+  *instance* you switched: *"Switched source on `<instance>`."* The purge
+  row is keyed to the workload slug: *"Deleted `<slug>` permanently."* Each
+  row shows the outcome, the **reason you typed**, in quotes, and
   **`<persona> (<role>) · request <id>`**.
 - **Honest scope (say this).** This panel is the actions taken **from this
   console in this browser**, correlated by request id — it deliberately
@@ -508,23 +543,31 @@ empty grid this journey started from.
   queryable audit store yet. The durable, facility-wide record is the
   server-side structured log line the backend emits on every write.
 
-**6c. Autonomous re-idle (scale-to-zero).** Leave AWX untouched after you're
-done. It scales itself back to zero on its own reaper loop, a few minutes
-after the last write — **do not quote a specific grace-period number here**;
-that timing lives in the AWX autoscale helper, a component outside
-dmf-cms/dmf-runbooks that this rewrite could not check, and repeating an old
-number unverified is exactly the failure mode this rewrite is trying to
-avoid. What *is* architectural, not timing: **the running media pieces are
-unaffected** — they keep running straight through AWX re-idling, because the
-media runtime is decoupled from AWX's own wake/sleep cycle (the §3
-architecture note, made concrete).
+**6c. Autonomous re-idle (scale-to-zero) — architectural expectation, not yet
+observed.** By design, AWX is meant to scale itself back to zero on its own
+some time after the last write, with no operator action — the "actuates,
+then sleeps" story §3 sets up. **This rewrite could not confirm that it
+actually happens**: the component that runs this reaper loop lives outside
+dmf-cms and dmf-runbooks, the only two repos this rewrite could read, so
+neither the mechanism nor any timing number could be re-derived from source
+(the previous edit's "300s grace / 60s poll" numbers are dropped, not
+carried forward, for the same reason). Do not narrate this as something
+you've watched happen, and do not quote a number, until §9 confirms it
+live. What the source *does* support without that caveat: **the running
+media pieces are architecturally independent of AWX's wake/sleep state** —
+nothing in dmf-cms or dmf-runbooks ties a media pod's lifecycle to AWX's
+own, so it keeps running whether AWX is asleep or awake (the §3
+architecture note, from the same source, holds regardless of §6c).
 
-**6d. Workload independence — the closing line.** With AWX asleep and the
-media pieces still running (if you chose Teardown rather than an immediate
-Delete permanently), you've shown the whole thesis in one frame: the
-platform provisions on demand, attributes and audits every change, runs the
-media decoupled from its own control plane, and scales the control plane to
-zero when idle — at no cost to what's running.
+**6d. Workload independence — the closing line, *only* if §6c held.** If
+(and only if) you watched AWX actually go back to sleep in §6c: with AWX
+asleep and the media pieces still running (if you chose Teardown rather
+than an immediate Delete permanently), you have the whole thesis in one
+frame — the platform provisions on demand, attributes and audits every
+change, runs the media decoupled from its own control plane, and — this
+last part, now confirmed live — scales the control plane to zero when idle,
+at no cost to what's running. If §6c hasn't actually been observed yet,
+skip this closing beat rather than asserting it.
 
 ---
 
@@ -538,7 +581,7 @@ of a scramble.
 |---|---|---|
 | Design step's two source pieces show *"This function key isn't in the current catalog… may have been removed"* | False for topology-spawned sources — see §4's presenter note. Cosmetic/legibility only. | not yet filed as of this rewrite — flag for the surface owner |
 | Provisioned instances show up **grouped as "Unassigned"** in the grid | The launcher hasn't stamped a `workload:<slug>` tag onto every member, so the grouping logic has nothing to group them by. Cosmetic/legibility only. | [dmfdeploy/dmfdeploy#239](https://github.com/dmfdeploy/dmfdeploy/issues/239) |
-| The **first Console action right after a cold wake** returns a **5xx** | Possible transient: the first request can hit AWX in the instant before it's fully ready. **Just retry the click** — it succeeds. | [dmfdeploy/dmfdeploy#134](https://github.com/dmfdeploy/dmfdeploy/issues/134) |
+| The **first Console action right after a cold wake** returns a **5xx** | Possible transient: the first request can hit AWX in the instant before it's fully ready. Retrying the click is the **documented recovery** for this — unverified whether it always resolves; confirm on the live walk (§9) before promising it as a sure thing. | [dmfdeploy/dmfdeploy#134](https://github.com/dmfdeploy/dmfdeploy/issues/134) |
 | Someone asks "what if the node dies?" (spot reclaim) | Not hypothetical — it happened to this env while this rewrite was being written. The standing env's addressing is derived from the node's public IP, so a reclaimed/replaced node means a new address. **Recovery is restore-from-backup + re-converge**, not a resume-in-place. | env recovery notes (operator-local) |
 
 > **PRESENTER NOTE — if a beat stalls.** The two beats with real latency are
@@ -584,15 +627,26 @@ wrong), and only then consider closing #379.
 - [ ] §3 — Time the wake + provision, start to a Running workload, on
       *this* build (three pieces in one job). Record the real number here
       and replace every "unverified/do not quote" caveat in §3 with it.
+- [ ] §3 — Confirm pods/instances for the receiver and both sources
+      actually appear in the inventory and converge to Running — not just
+      that the AWX job itself reports success.
 - [ ] §3 — Confirm the materializing screen's copy and that the handoff to
       the real workload page happens automatically, with no manual refresh.
 - [ ] §4 — Confirm the lifecycle badge really reads "provisioned" (not
       "configured") in the window right after Provision, before health
       settles.
+- [ ] §4 — Confirm the live view grid renders exactly three tiles, and
+      record each tile's actual rendered name/identifier for the receiver
+      and both sources — the two source names were predicted from source,
+      not observed.
 - [ ] §4 — Confirm both source tiles read "Sidecar live · no preview on
       this side" (not "No live view for this function" — the two captions
       mean different things and this rewrite could not confirm which one a
       topology-spawned source actually gets).
+- [ ] §4 — Open the live detail modal and confirm the exact stat fields
+      shown (head index, latency, format, grain rate, role, provider, MXL
+      version, node) and that they visibly update at roughly the claimed
+      ~5×/s.
 - [ ] §4 — Confirm the burnt-in clock overlay actually ticks visibly on the
       receiver's live preview.
 - [ ] §4 — Reproduce the Design-step false "removed from catalog" message
@@ -607,8 +661,10 @@ wrong), and only then consider closing #379.
 - [ ] §6b — Confirm the Activity → History rows render with the exact
       titles/quoting described here for at least: a deploy, a switch, a
       teardown, and a delete-permanently.
-- [ ] §6c — Time the actual re-idle window on this env and decide whether
+- [ ] §6c — Confirm AWX actually re-idles to zero on its own at all — this
+      rewrite could not verify the reaper mechanism exists as described
+      (see §6c's own caveat). Only then time the window and decide whether
       it's worth stating a number in the runbook, or leaving it qualitative
-      as written here.
+      as written here. Do not present §6d until this box is checked.
 - [ ] Read the whole file aloud as if you were the named outsider from #383
       and flag anywhere a term still isn't explained before it's needed.
