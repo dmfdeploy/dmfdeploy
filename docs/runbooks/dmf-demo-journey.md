@@ -105,7 +105,23 @@ DMF_ENV="$(dirname "$DMFDEPLOY_UMBRELLA")/dmf-env"      # sibling checkout
 | Operator passkeys enrolled | `cd "$DMF_ENV" && bin/get-passkey-enrollment-url.sh <env>` | `confirmed passkeys: 2/2 (ADR-0028 D8, live)` |
 | Demo persona has the right role | (see below) | persona holds **engineer** (or admin) capability |
 | AWX is asleep at rest | (informational) | expected — the first Provision click wakes it; see §3 |
-| Media namespace clean (optional reset) | ask the operator, or leave prior workloads running | a clean `mxl` namespace makes the "materialises from nothing" beat in §3 land harder |
+| **Media namespace clean of this template (mandatory — see below)** | confirm no instance of **MXL Test-Pattern Viewer** is already deployed on this facility | Design (§2) offers the template at all — see the paragraph below |
+
+**This precondition is mandatory, not a nicety — it will block the journey
+outright if skipped.** With a single-entry catalog, if any Media Function
+instance from **MXL Test-Pattern Viewer** is already deployed (lifecycle
+**active**) anywhere on this facility, the Design step's "Use this
+template" control is withheld entirely: a badge reads *"Already deployed"*
+and the on-screen line is, verbatim, *"Already deployed on this facility,
+so it can't start a new workload here."* (`CreateWorkload.tsx` TemplatePicker
+— source-verified). There is no second template to fall back to, and
+provisioning a second workload is already forbidden by this journey's own
+one-workload scope above — so an unclean facility doesn't just make the
+demo messier, it makes §2 impossible to finish. Before you begin: confirm
+the facility is clean (ask the operator, or check yourself once logged
+in — Design will tell you). If a prior deploy is still standing, tear it
+down (§6a) first — teardown alone should clear this gate, see §6a's own
+note.
 
 **(UNVERIFIED — the "Expected" column above is carried forward from the
 previous edit of this file and was not independently re-checked against
@@ -182,10 +198,12 @@ second workload, on camera or off it.**
 
 ## 1. Log in
 
-Passkey **enrollment is done beforehand** (the persona already has 2/2
-confirmed devices — you verified this in §0 pre-flight; the full ceremony
-lives in [`passkey-enrollment.md`](passkey-enrollment.md)). This beat is just
-the login.
+Passkey **enrollment must be done beforehand** — the persona needs 2/2
+confirmed devices before you start. That is §0's own pre-flight check; this
+rewrite could not independently confirm it, so treat it as a pending check,
+not a completed one, until §0/§9 clears it. The full ceremony lives in
+[`passkey-enrollment.md`](passkey-enrollment.md). This beat is just the
+login, on the assumption that check already passed.
 
 **Action.** Open `https://console.<env-base-domain>/` in a private/incognito
 window. Click **Sign in**. The browser offers the passkey picker; choose the
@@ -236,6 +254,10 @@ environment the page reads:
 
 > No Media Function instances in your scope.
 
+(If it doesn't — if a tile is already there — stop and resolve it per §0's
+mandatory precondition before continuing; Design, next, will not let you
+select the template past an existing active deploy.)
+
 Click **Create media workload** (top-right, blue). This opens
 `/media-workloads/new` — a step-by-step wizard. **There is no chip-row rail
 on this page** (that only appears once the workload is real, from §3
@@ -253,7 +275,7 @@ that resolves to a valid identity (lowercase letters, digits, hyphens; can't
 start or end with a hyphen; 40 chars max) and click **Next →**.
 
 **Step 2 — Design.** This is the console's whole **catalog** (see Terms) —
-today, **one entry**: **"MXL Test-Pattern Viewer."** Its on-screen summary
+today, **one entry**: **"MXL Test-Pattern Viewer"**. Its on-screen summary
 reads, verbatim: *"Media eXchange Layer consumer for the cross-host fabrics
 demo: the receiver target exposes the received flow and preview from the
 paired source over libfabric tcp. This is the view / receiver half of the
@@ -364,13 +386,16 @@ and would misstate this one; time and count it fresh on the live walk (§9).
 
 ## 4. Operate — the live view
 
-**Action.** Once Provision completes, you're on the workload's own page.
-Near the top, a **lifecycle badge** names the last completed stage in
+**Action.** The materialising screen (§3) swaps itself out for the
+workload's own page once the grouped inventory can read the record —
+which can happen while the launch job is still running, or lag briefly
+after the job finishes; it is not simply "once Provision completes." Once
+you're there: near the top, a **lifecycle badge** names the last completed stage in
 plain-past-tense wording — not what you might expect. The console's own
 grammar: at the *Provision* position the badge reads **"planned"**
 (design+plan settled, deploy still ahead); once the deploy has actually run
 it reads **"provisioned"**; once everything is healthy and flowing it reads
-**"configured."** *(Read that last one twice — a workload that just deployed
+**"configured"**. *(Read that last one twice — a workload that just deployed
 successfully will likely say "provisioned," and "configured" is what a
 **healthy, running** workload says, not what the Configure step's own name
 would suggest.)*
@@ -394,14 +419,16 @@ source, not watched on screen; confirm every bullet in §9.)**
   Per dmf-media's own source comments, the test pattern carries a **burnt-in
   clock overlay** meant to visibly tick — point at it to prove the frame is
   live, not a thumbnail, once you've confirmed it on the live walk.
-- **Both source tiles read "Sidecar live · no preview on this side."** A
+- **Both source tiles read "Sidecar live · no preview on this side".** A
   source *produces* the pattern; it has nothing incoming to preview, so the
   platform says so rather than showing a blank or a fake image. **Call this
   out** — it's a correctness signal, not a missing feature, and it now
   applies to *two* tiles instead of one.
 - Click any tile to open the **live detail modal**: a larger live preview
-  plus flow stats — head index, latency, format, grain rate, role, provider,
-  MXL version, node — ticking roughly 5×/s while open.
+  plus nine flow stats — head index, latency, format, grain rate, role,
+  provider, MXL version, **Active**, and **Node (NetBox)** (labelled that
+  way on purpose — it's the NetBox-recorded placement, never the sidecar's
+  own self-report) — ticking roughly 5×/s while open.
 
 > **PRESENTER NOTE — a real gotcha if you open the Design step (non-blocking
 > but worth knowing).** If you click back to the **Design** chip to show the
@@ -515,12 +542,19 @@ edit — teardown alone is no longer the only ending.
   member **and** the workload's own tag are gone.
 
 Teardown leaves the record standing (recorded but not running — reusable
-later); Delete permanently removes it from the source of truth outright,
-with no way back. Use Teardown if you plan to show the workload again;
-Delete permanently if you want *this* workload gone from the grid for
-good — it returns this one workload to absent, not necessarily the whole
-grid to empty (§0 explicitly permits leaving other, pre-existing workloads
-running throughout this journey).
+later) — and per the catalog entry's own teardown job, its lifecycle tag
+flips back to `bootstrapped` on success, which is what actually clears the
+"Already deployed" gate §0 describes: after a Teardown, the template should
+be selectable again for a next workload (this specific chain — teardown
+success → gate clears — is inferred from the catalog entry's own
+`on_success_tag` mapping, not watched happen; confirm it on the live walk,
+§9). Delete permanently goes further, removing the source-of-truth record
+outright rather than just flipping it back. Use Teardown alone if you plan
+to run this journey again soon; Delete permanently if you want no residue
+left at all. Either one satisfies §0's mandatory precondition for a next
+run — with a single-entry catalog, either is effectively "empty" for this
+demo's purposes, even though Delete permanently is the only one that
+removes the record itself.
 
 **6b. The audit trail — Activity → History.** There is no Activity icon in
 the rail — like Catalog, the route still exists, it's simply not linked
@@ -533,8 +567,8 @@ from anywhere in the nav (the same S1 IA cut). Type the URL directly:
   *"Tore down mxl-videotest-view"* (there being only one entry, that string
   is also the receiver's own instance name here — don't read that as a
   coincidence the console intends). The switch row is keyed to the
-  *instance* you switched: *"Switched source on `<instance>`."* The purge
-  row is keyed to the workload slug: *"Deleted `<slug>` permanently."* Each
+  *instance* you switched: *"Switched source on `<instance>`"*. The purge
+  row is keyed to the workload slug: *"Deleted `<slug>` permanently"*. Each
   row shows the outcome, the **reason you typed**, in quotes, and
   **`<persona> (<role>) · request <id>`**.
 - **Honest scope (say this).** This panel is the actions taken **from this
@@ -643,10 +677,10 @@ wrong), and only then consider closing #379.
       this side" (not "No live view for this function" — the two captions
       mean different things and this rewrite could not confirm which one a
       topology-spawned source actually gets).
-- [ ] §4 — Open the live detail modal and confirm the exact stat fields
+- [ ] §4 — Open the live detail modal and confirm all nine stat fields
       shown (head index, latency, format, grain rate, role, provider, MXL
-      version, node) and that they visibly update at roughly the claimed
-      ~5×/s.
+      version, Active, Node (NetBox)) and that they visibly update at
+      roughly the claimed ~5×/s.
 - [ ] §4 — Confirm the burnt-in clock overlay actually ticks visibly on the
       receiver's live preview.
 - [ ] §4 — Reproduce the Design-step false "removed from catalog" message
@@ -666,5 +700,9 @@ wrong), and only then consider closing #379.
       (see §6c's own caveat). Only then time the window and decide whether
       it's worth stating a number in the runbook, or leaving it qualitative
       as written here. Do not present §6d until this box is checked.
+- [ ] §0/§2/§6a — Confirm the "Already deployed" gate end to end: that an
+      existing active deploy of this template really does withhold "Use
+      this template" as described, and that Teardown alone (without Delete
+      permanently) really does clear it for a next run.
 - [ ] Read the whole file aloud as if you were the named outsider from #383
       and flag anywhere a term still isn't explained before it's needed.
