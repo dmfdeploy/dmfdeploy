@@ -20,6 +20,49 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ Sandbox env rebuilt from scratch after a spot reclamation (2026-08-16)
+
+The standing sandbox env's node was **reclaimed by the cloud provider for
+capacity reasons** (an ordinary preemptible-instance interruption, nothing to
+do with the account). A replacement was created and taken through the full
+bootstrap chain: pre-seed → seed-bao → post-seed → configure → verify, all
+**green, zero fatals**, including the ADR-0028 D8 two-passkey gate. The current
+env id and its concrete details are in the generated `STATUS.local.md`.
+
+Three things worth knowing before the next env goes down:
+
+- **A reclamation notice only reaches the account notification channel, never
+  the ECS API.** `DescribeInstanceHistoryEvents` returns nothing for an
+  already-released instance, so no automation can poll for it — ask the
+  operator to check their provider notifications. Daily per-instance billing
+  data pins *when* a node stopped, but never *why*.
+- **There is no backup path that survives node loss, and none is claimed.**
+  `dmf-env` has no backup/package script (the packaged backup/restore lifecycle
+  belongs to **dmf-init**, and does not apply to a CLI-built env). An env
+  archive covers only the operator-local directory — sops bundle, unseal
+  material, inventory, SSH keys. Cluster state (NetBox DB, AWX DB, OpenBao
+  storage, PVCs) lives only on the node. **Node loss always means re-bootstrap**,
+  plus re-pointing addressing for IP-derived sslip.io envs. The mitigation is
+  that the chain is automated and runs clean end to end.
+- **Encrypt-to-age is only a real backup if the age key is also off-machine.**
+  An archive encrypted to the workstation's own sops key is unopenable after
+  workstation loss. Both the archive and an offline copy of the key now live on
+  the break-glass media, and the restore path was verified by decrypting **from
+  that media alone** — not assumed.
+
+Also landed: the demo-journey runbook rewrite is up as a **draft** PR
+(dmfdeploy#397, refs dmfdeploy#379). It is deliberately not mergeable yet — it
+was written against committed source while no env was available, so every
+expected result is marked unverified and §9 is a live-walk checklist that must
+be cleared against a live env before merge.
+
+**Still open, unfiled:** the console's Design stage joins workload functions to
+the catalog by exact key, so the demo template's topology-spawned source
+instances render a false *"this function key isn't in the current catalog"*
+message. Since the one-template reduction made that topology the only supported
+demo path, this is on the mainline, not an edge case — an outside tester will
+meet it.
+
 ### ✅ ADR-0032 Amendment 3 — finalise-purge identity split LIVE, both proofs passed (2026-08-14)
 
 The `dmf-catalog-svc` self-manufactured-eligibility gap lkirc caught twice on
