@@ -126,8 +126,10 @@ one-workload scope above — so a facility where this template already
 reads `active` doesn't just make the demo messier, it makes §2 impossible
 to finish. Before you begin: confirm the facility is clean (ask the
 operator, or check yourself once logged in — Design will tell you). If a
-prior deploy is still standing, a Teardown clears this gate — the full
-mechanism and citations are in §6a, not repeated here.
+prior deploy is still standing, resolve it before the journey; a
+successful Teardown is mapped to stamping every member `bootstrapped`, but
+confirm the fresh Design read on the live walk (§9) — full mechanism and
+citations are in §6a, not repeated here.
 
 **(UNVERIFIED — the "Expected" column above is carried forward from the
 previous edit of this file and was not independently re-checked against
