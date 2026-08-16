@@ -344,6 +344,33 @@ model is readable by that other identity — `awx-readonly` does hold
 `dcim.site` view — the gap was never that the data was unreadable
 platform-wide, only that this identity couldn't read it.)
 
+**Current effective permission matrix, all four amendments applied.**
+Decision §1 above is the *original* record and is deliberately left
+unedited (this ADR's own convention); it now undercounts by one model and
+says nothing about the second identity Amendment 3 introduced. This table
+is the single place that reflects both — derived directly from the
+committed `dmf-infra` source
+(`k3s-lab-bootstrap/roles/stack/operator/netbox-sot/defaults/main.yml`,
+`netbox_sot_catalog_permissions` and `netbox_sot_catalog_purge_permissions`,
+branch `fix/399-catalog-site-reader` @ `cf30fb8`), not re-derived from this
+ADR's own prose:
+
+| Object type | Actions | Constraint | Identity |
+|---|---|---|---|
+| `ipam.service` | view, add, change | — | `dmf-catalog-svc` |
+| `extras.tag` | view, add | — | `dmf-catalog-svc` |
+| `dcim.device` | view | — | `dmf-catalog-svc` |
+| `dcim.site` | view | — | `dmf-catalog-svc` |
+| `ipam.service` | view | — | `dmf-catalog-purge-svc` |
+| `extras.tag` | view | — | `dmf-catalog-purge-svc` |
+| `ipam.service` | delete | `tags__name__startswith: "workload:"` | `dmf-catalog-purge-svc` |
+| `extras.tag` | delete | `name__startswith: "workload:"` | `dmf-catalog-purge-svc` |
+
+`dmf-catalog-svc` (group `dmf-catalog-writer`) never holds `delete` on
+anything; `dmf-catalog-purge-svc` (group `dmf-catalog-purge`) never holds
+`add` or `change` on anything — the two invariants Amendment 3 and
+Amendment 2's constraint respectively depend on, both still holding.
+
 Verification: negative check unchanged from every prior amendment's own
 posture — the catalog identity still cannot write or delete `dcim.site` (no
 `add`/`change`/`delete` action granted, this or any prior amendment). Live
@@ -361,11 +388,16 @@ ADR-0028 C3 binds: *"Machines use scoped service accounts… scoped, named, docu
 **Catalog launchers (and any steady-state automation that mutates NetBox) authenticate with a dedicated, narrowly-scoped NetBox *writer* service account — never the NetBox admin/superuser token.** Concretely:
 
 1. `netbox-sot` provisions a catalog writer service account (`dmf-catalog-svc`) in a `dmf-catalog-writer` group whose object permissions are limited to exactly the three models the launchers touch (verified against the nmos-cpp role, all stages + the live deploy):
+
+   **[Amended — this list is the original 2026-05-27 record, left as written per this ADR's own convention (Amendment 1: "the Decision section below is left as originally written for the historical record"). It has since been amended four times; as of Amendment 4 the grant covers a fourth model, `dcim.site`, so "exactly the three models" is no longer accurate. Do not read the list below as current — see Amendment 4's consolidated current-matrix table.]**
+
    - `ipam.service`: **view, add, change** — a launcher *creates* the per-deployment service record at provision (`POST /ipam/services/`) and *patches* its lifecycle tag at configure/teardown (`PATCH`).
    - `extras.tag`: **view, add** — a launcher creates the per-function `app:<key>` tag (e.g. `app:nmos-cpp`) which is *not* in the bootstrap taxonomy; the `lifecycle:*` tags are pre-created by `netbox-sot`.
    - `dcim.device`: **view** (read-only) — a launcher looks up the parent load-balancer device (`dmf-traefik`) to attach the service to. No write on dcim.
    No superuser/staff, no dcim *write*, no tag `change`/`delete`. Token minted to OpenBao under the `<system>-token-<purpose>` convention and wired into the catalog JT extra_vars by `awx-integration`.
 2. Launchers drop the `netbox_admin_token` input **across all stages** (provision/configure/finalise) and use the scoped catalog token for every NetBox call — reads and writes.
+
+   **[Amended — as of Amendment 3 (2026-08-14), this no longer covers every launcher: `media-finalise-purge` authenticates as a second, separate identity (`dmf-catalog-purge-svc`, its own `vault_netbox_purge_token`), not the single scoped catalog token described here. See Amendment 4's consolidated current-matrix table, which lists both identities.]**
 3. The platform-wide `lifecycle:*` tags stay pre-created at bootstrap (`netbox-sot`). **Tightening follow-up:** pre-create per-function `app:<key>` tags at bootstrap too (born-inventory already reconciles catalog entries), which would let the writer drop `extras.add_tag` and shrink to `extras.view_tag`. Deferred — the launcher's create-if-missing is idempotent and keeps `netbox-sot` decoupled from the function list for now.
 4. The NetBox admin/superuser token is **bootstrap/break-glass only** (per ADR-0028 C4 sanctioned-exception posture) and must not appear in any steady-state JT, role default, or runtime secret consumed by a launcher.
 
