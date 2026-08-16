@@ -1,6 +1,6 @@
 # ADR-0032: Catalog launchers mutate NetBox via a scoped writer service account, never the admin token
 
-**Status:** Accepted (amended 2026-08-13 — `delete` added on `ipam.service` + `extras.tag` for `media-finalise-purge`; amended again 2026-08-14 — that `delete` grant object-scoped to workload-tagged records; amended a third time, same day — `delete` moved off `dmf-catalog-svc` entirely, onto a new delete-only `dmf-catalog-purge-svc` identity; see Amendments below)
+**Status:** Accepted (amended 2026-08-13 — `delete` added on `ipam.service` + `extras.tag` for `media-finalise-purge`; amended again 2026-08-14 — that `delete` grant object-scoped to workload-tagged records; amended a third time, same day — `delete` moved off `dmf-catalog-svc` entirely, onto a new delete-only `dmf-catalog-purge-svc` identity; amended a fourth time, 2026-08-16 — `view` on `dcim.site` added to `dmf-catalog-writer` for the L3 topology guard's site-agreement read; see Amendments below)
 **Date:** 2026-05-27
 **Deciders:** @<handle> (raised the least-privilege question during the `<env>` catalog-deploy debugging session), with Claude investigation
 **Refines:** [ADR-0028](0028-identity-and-authority-chain.md) C3 (scoped service accounts for machine-to-machine). Related: [ADR-0013](0013-media-function-catalog-model.md) (catalog model — NetBox runtime lifecycle tag), [ADR-0025](0025-ansible-in-cluster-pods-and-catalog-helm.md) (in-cluster launchers), [ADR-0007](0007-secrets-never-in-argv.md).
@@ -274,6 +274,83 @@ stub-backed integration suite for this exact playbook, ~18 nested
 `ansible-playbook` subprocess invocations — was run locally end to end
 against the updated var. Live proof against real infra (both directions,
 plus lkirc's gate) remains the operator's, as with every prior amendment.
+
+## Amendment 4 (2026-08-16, dmfdeploy/dmfdeploy#399)
+
+Media workload creation failed deterministically on any clean environment:
+the L3 topology guard's first NetBox call — `GET /api/dcim/sites/`, listing
+the env's own facility identity — 403'd, because `dmf-catalog-writer` was
+never granted `view` on `dcim.site`. Diagnosed live (AWX job event record:
+`403`, empty `job_explanation`/`result_traceback`, failing inside the
+playbook before any rescue path) and adversarially confirmed; full evidence
+chain on [dmfdeploy/dmfdeploy#399](https://github.com/dmfdeploy/dmfdeploy/issues/399).
+
+**Not a regression from Amendment 3.** The timeline is a latent mismatch,
+not new breakage: the `media-*` catalog job-template lane was swept onto
+the scoped-writer-only token on 2026-07-20 (dropping the fallback admin
+token), and `l3_run_guard`'s topology-validation site read landed five days
+later, 2026-07-25 — three weeks before Amendment 3's identity split. The
+permission gap predates every prior amendment on this ADR; it simply had no
+topology-carrying launch to exercise it until the single-template demo
+catalog made the topology path the only supported one.
+
+**Amended scope:** a new `catalog-site-reader` ObjectPermission — `view` on
+`dcim.site`, bound to `dmf-catalog-writer` — added to
+`netbox_sot_catalog_permissions` in
+`dmf-infra/k3s-lab-bootstrap/roles/stack/operator/netbox-sot/defaults/main.yml`,
+adjacent to `catalog-device-reader`. No write, no delete, no staff/superuser
+bit, no change to any existing grant. The existing catalog-permission
+reconcile loop (`691-netbox-sot.yml`, the same idempotent
+create-or-update-by-name task Amendment 1 already relied on) applies it on
+the next run; no new provisioning task was needed.
+
+**Directly precedented.** This is the same shape as the existing
+`catalog-device-reader` grant (Decision §1): *"the launcher looks up the
+parent load-balancer device (dmf-traefik) to attach the service to. View
+only — no write."* The site read is identical in kind — a read-only lookup
+the launcher needs to complete a fail-closed validation before any media
+work runs, not a new capability class for this identity.
+
+**Deliberately left unconstrained (operator ruling).** Amendment 2 set a
+precedent on this ADR for object-level `constraints` — on `delete`. Applying
+that same instinct here, e.g. scoping visible sites to the env's own, would
+be wrong, for two reasons:
+
+1. **A constrained read cannot support the check it's for.**
+   `topology_validate.yml` asserts *site agreement* — that the env's own
+   facility identity matches what the topology expects. An identity that
+   can only ever see one site would pass that assertion unconditionally,
+   because it is structurally incapable of observing disagreement. A check
+   that is green because it is blind is worse than no check.
+2. **The intended direction moves the other way.** The console's Plan step
+   is meant to become a real facility picker, with an environment owning
+   one-or-more `Site`s scoped by `cf_dmf_env_id`. A single-site constraint
+   imposed now would have to be undone for that to work. Recorded here as
+   directional context only — it opens no scope beyond this amendment's own
+   grant, and implements nothing toward that picker.
+
+**ADR-0032 Decision §2 is preserved, not touched.** Decision §2 states
+launchers use the scoped catalog token for every NetBox call, "reads and
+writes" — one principal per job, which is what makes the single-principal
+audit story and [ADR-0028](0028-identity-and-authority-chain.md) C3.1
+attribution hold. This amendment keeps that: `dmf-catalog-svc` gains one
+more read-only model; it remains the only NetBox identity a
+topology-carrying launch ever authenticates as. The rejected alternative —
+routing just this read through the existing read-only `awx-netbox`
+identity — was rejected precisely because it would have broken that
+contract: two NetBox principals inside one job is a real audit boundary
+ADR-0028 C3.1 would require documenting, not a free routing choice. (The
+model is readable by that other identity — `awx-readonly` does hold
+`dcim.site` view — the gap was never that the data was unreadable
+platform-wide, only that this identity couldn't read it.)
+
+Verification: negative check unchanged from every prior amendment's own
+posture — the catalog identity still cannot write or delete `dcim.site` (no
+`add`/`change`/`delete` action granted, this or any prior amendment). Live
+proof — a topology-carrying launch completes on a clean environment — is
+the operator's to run against real infra, per #399's own acceptance
+criteria, not something a documentation or ansible-role change can
+establish on its own.
 
 ## Context
 
