@@ -120,8 +120,10 @@ one-workload scope above — so an unclean facility doesn't just make the
 demo messier, it makes §2 impossible to finish. Before you begin: confirm
 the facility is clean (ask the operator, or check yourself once logged
 in — Design will tell you). If a prior deploy is still standing, tear it
-down (§6a) first — teardown alone should clear this gate, see §6a's own
-note.
+down (§6a) first — a successful Teardown flips the entry's lifecycle tag
+to `bootstrapped`, which clears this gate on its own (source-confirmed;
+full mechanism and citations in §6a). **Delete permanently is not
+required between runs.**
 
 **(UNVERIFIED — the "Expected" column above is carried forward from the
 previous edit of this file and was not independently re-checked against
@@ -542,19 +544,32 @@ edit — teardown alone is no longer the only ending.
   member **and** the workload's own tag are gone.
 
 Teardown leaves the record standing (recorded but not running — reusable
-later) — and per the catalog entry's own teardown job, its lifecycle tag
-flips back to `bootstrapped` on success, which is what actually clears the
-"Already deployed" gate §0 describes: after a Teardown, the template should
-be selectable again for a next workload (this specific chain — teardown
-success → gate clears — is inferred from the catalog entry's own
-`on_success_tag` mapping, not watched happen; confirm it on the live walk,
-§9). Delete permanently goes further, removing the source-of-truth record
-outright rather than just flipping it back. Use Teardown alone if you plan
-to run this journey again soon; Delete permanently if you want no residue
-left at all. Either one satisfies §0's mandatory precondition for a next
-run — with a single-entry catalog, either is effectively "empty" for this
-demo's purposes, even though Delete permanently is the only one that
-removes the record itself.
+later). **This is source-confirmed, not inferred:** the Design step's gate
+is literally `const deployed = entry.lifecycle === 'active'`
+(`CreateWorkload.tsx` TemplatePicker); the catalog entry's `configure`
+action tags success as `lifecycle:active`
+(`dmf-media catalog/mxl-videotest-view.yaml:79-83`), and its `finalise`
+action — `playbooks/teardown-mxl-fabrics-demo.yml` — tags success as
+`lifecycle:bootstrapped` (`dmf-media catalog/mxl-videotest-view.yaml:89-93`).
+`bootstrapped` is not `active`, so a successful Teardown clears the
+"Already deployed" gate on its own — **Delete permanently is not required
+between runs.** What's still unverified is the *round trip*, not the
+mapping: that the teardown job actually succeeds, the tag actually lands,
+and the Design step's own read actually picks it up promptly — confirm
+that chain on the live walk (§9); the mapping itself needs no further
+checking.
+
+This makes the journey **repeatable between takes without builder help** —
+which directly serves #383's unaided-completion bar: a reader who takes a
+wrong turn, or a presenter re-running the demo, can Teardown and start
+straight over from §2 with nothing more. Delete permanently goes further,
+removing the source-of-truth record outright rather than just flipping the
+tag back — with no way to undo that. Use Teardown alone if you plan to run
+this journey again soon (the common case); Delete permanently only if you
+want no residue left at all. Either one satisfies §0's mandatory
+precondition for a next run — with a single-entry catalog, either is
+effectively "empty" for this demo's purposes, even though Delete
+permanently is the only one that removes the record itself.
 
 **6b. The audit trail — Activity → History.** There is no Activity icon in
 the rail — like Catalog, the route still exists, it's simply not linked
@@ -700,9 +715,11 @@ wrong), and only then consider closing #379.
       (see §6c's own caveat). Only then time the window and decide whether
       it's worth stating a number in the runbook, or leaving it qualitative
       as written here. Do not present §6d until this box is checked.
-- [ ] §0/§2/§6a — Confirm the "Already deployed" gate end to end: that an
-      existing active deploy of this template really does withhold "Use
-      this template" as described, and that Teardown alone (without Delete
-      permanently) really does clear it for a next run.
+- [ ] §0/§2/§6a — The lifecycle-tag mapping is source-confirmed
+      (`entry.lifecycle === 'active'` gate; `finalise` tags
+      `lifecycle:bootstrapped` on success) — what's still open is the round
+      trip: run a real Teardown and confirm the job succeeds, the tag
+      actually lands, and Design's own read picks it up in time to
+      re-offer "Use this template" for a next workload.
 - [ ] Read the whole file aloud as if you were the named outsider from #383
       and flag anywhere a term still isn't explained before it's needed.
