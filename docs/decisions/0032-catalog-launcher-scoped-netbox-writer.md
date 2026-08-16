@@ -417,6 +417,8 @@ ADR-0028 C3 binds: *"Machines use scoped service accounts… scoped, named, docu
 2. **Give the existing `awx-svc` write permissions.** Rejected as the primary path — `awx-svc` is the inventory-sync identity (`awx-readonly`); widening it to write conflates two roles. A purpose-named `dmf-catalog-svc` keeps scopes legible. (Acceptable fallback only if a separate account proves disproportionate.)
 3. **Let launchers create tags on demand with the writer token.** Rejected as default — requires `extras.add_tag` in the steady-state scope. Pre-creating tags at bootstrap keeps the launcher's permission to a single model (`ipam.service`).
 
+   **[Amended — "a single model" reflected the original two-model scope this account held at ADR-authoring time; it no longer holds as of Amendment 4, which adds a second read-only model (`dcim.site`) on top of the pre-existing `dcim.device` view. See Amendment 4's consolidated current-matrix table.]**
+
 ## Enforcement
 
 - `netbox-sot` owns the `dmf-catalog-svc` + `dmf-catalog-writer` permission set, the `dmf-catalog-purge-svc` + `dmf-catalog-purge` permission set (Amendment 3), and the baseline lifecycle tags; a `bootstrap-verify`-class assertion confirms both accounts exist, are non-superuser, and their permissions are limited to the allowed models — for `dmf-catalog-purge-svc` specifically, that its `actions` never include `add` or `change` on any model, which is the entire property Amendment 3 depends on.
