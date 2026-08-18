@@ -34,6 +34,12 @@ load-bearing: a Proposed ADR is not authority for this pass either (see §3).
    eligible primary action exists at runtime.
 6. Green stays "ok". A different accent carries primary action.
 7. Operate sits inline at the end of the rail, visually distinct.
+   > **SUPERSEDED (2026-08-18, dmfdeploy#414):** withdrawn. Operate is removed from the
+   > rail entirely — no inline rendering, no Control group, nothing adjacent that reads as
+   > a sixth key. The route contract inverts instead: the bare workload URL
+   > (`/media-workloads/:slug`) becomes the workload's home (the live view), the guided
+   > flow moves to its own `/setup` route, and `/operate` survives only as a compatibility
+   > redirect. Recorded in `docs/design/DMF Console Glossary.md`'s wording-pass log.
 8. Stage names stay visible; all EBU taxonomy framing leaves default level.
 9. The sidebar stays icon-only.
 10. Workspace keeps both pinned widgets; health leads with one calm line.
@@ -43,6 +49,13 @@ load-bearing: a Proposed ADR is not authority for this pass either (see §3).
 Rulings 4, 7 and 8 soften Arc 1 decisions (rail as fully-painted primary nav;
 Control:Operate outside the ordinal). That is deliberate and must be stated in the PRs
 rather than left to read as drift.
+
+> **SUPERSEDED IN PART (2026-08-19, dmfdeploy#414 sweep):** ruling 7's own softening
+> of Arc 1's "Control:Operate outside the ordinal" placement is itself withdrawn — see
+> ruling 7 above. Operate is no longer inline on the rail in any form, softened or
+> otherwise; the current design removes it from the rail structurally rather than
+> continuing to render it with a lighter treatment. Rulings 4 and 8 are unaffected and
+> still describe current design.
 
 ## 3. Binding constraints
 
@@ -103,6 +116,19 @@ tile rather than a stretched square. Introduce a typed, route-scoped header slot
 explicit layout contract (height, overflow, narrow and laptop behaviour); register nothing
 into it in this package.
 
+> **SUPERSEDED IN PART (2026-08-19, dmfdeploy#414 sweep):** two separate corrections to
+> the relocation instruction above, neither of them dmfdeploy#414 itself. (1) Colour on
+> the rail tracks SELECTION, never stage identity — a ruling made during this same work
+> package's own implementation, recorded in `LifecycleStrip.tsx`'s docstring ("COLOUR
+> TRACKS SELECTION, NOT STAGE IDENTITY"). The six colours WERE relocated into
+> `lib/stagePalette.ts` exactly as this paragraph specifies, but are unused as rail key
+> fills — kept defined only for reversibility; three selection/openable/locked
+> brightness levels carry the rail instead. (2) dmfdeploy#414 (2026-08-18) separately
+> removed Operate from the rail entirely, so even a per-stage scheme would now cover
+> five keys, not six. This paragraph's literal instruction (relocate six colours into
+> tokens plus a module) was carried out in full; its implicit premise — that a per-stage
+> palette would keep painting the rail — did not hold, for a reason that predates #414.
+
 Wordmark: exactly **one** accessible brand name must be exposed. The adjacent logo glyph
 becomes decorative (`alt=""`) when the visible wordmark renders, and carries the name when
 it stands alone. Today's glyph already has an `alt` of the brand name, so adding visible
@@ -125,6 +151,13 @@ than an implementation detail: **absent** on the create route; **step-selecting*
 detail; **present on the Operate route with Operate selected and its stage entries
 navigational**. Acceptance is an App/Shell integration test covering all three, not a rail
 unit test — a unit test cannot observe route-scoped mounting.
+
+> **SUPERSEDED (2026-08-18, dmfdeploy#414):** the route contract this paragraph names is
+> withdrawn along with ruling 7 above. The bare workload URL is now home (rail present, no
+> chip selected, its entries navigate to `/setup#<step>`); the guided flow moved to its own
+> `/setup` route (rail present, step-selecting, as this paragraph still correctly describes
+> for that route); `/operate` is a compatibility redirect only. `railRouteContract.test.tsx`
+> covers the current three-route behaviour end to end.
 
 The create wizard
 gets a non-persisted, tab-lifetime draft store, cleared on successful provision, explicit
