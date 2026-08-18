@@ -5,6 +5,7 @@ type: operational-procedure
 scope: cross-repo
 owner: operator
 review_by: '2027-02-18'
+source_ref: https://github.com/dmfdeploy/dmfdeploy/issues/401
 ---
 
 # AWX wake + dmf-runbooks release
