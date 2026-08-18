@@ -17,7 +17,7 @@ the moment it fails.** That is the point of this file.
 
 ---
 
-## §0 Read first — the four traps
+## §0 Read first — the five traps
 
 1. **`kubectl scale` does NOT wake AWX.** `awx-operator` reconciles
    `awx-task`/`awx-web` against the AWX custom resource and reverts a manual
@@ -34,6 +34,11 @@ the moment it fails.** That is the point of this file.
 4. **`count: 0` from the AWX API is not absence.** Console/service tokens are
    RBAC-scoped and return zero for objects they cannot see. Never read it as
    "the object does not exist" — verify on disk instead (§4).
+5. **A second `/ensure-awake` returns 200 and renews nothing.** The wake window
+   lives on an owner-scoped Lease; a later caller is a different holder, so it
+   waits for readiness and returns the existing lease untouched. Both outcomes
+   are HTTP 200 and differ only in the response *body*. A repeated-call
+   keep-alive therefore does not hold AWX open (§1).
 
 ---
 
@@ -59,23 +64,49 @@ The token is never printed and never enters `argv`, so **no rotation is
 required afterwards** — unlike retrieving it from OpenBao, which would make
 this session compromised for that secret's lifetime.
 
-`/ensure-awake` is single-flight and resets the wake window, so calling it
-repeatedly is safe and is exactly how you hold AWX open.
+`/ensure-awake` is single-flight: it is safe to call repeatedly, and it is how
+you wake AWX. It is **not** a keep-alive — see below.
 
 ### Holding it awake for a long run
 
-For anything that may exceed the grace period while making no mutations
-(trap 2), run a keep-alive alongside it — re-call `/ensure-awake` every ~120s.
-Either that, or raise the grace period for the duration:
+**A repeated `/ensure-awake` loop does NOT extend the window. Do not use one.**
+
+The helper holds an owner-scoped `coordination.k8s.io/Lease` carrying
+`min_awake_until`. The holder identity is per-request
+(`awx-autoscale-<pid>-<thread>`), so a *later* call is a different holder, and
+`create_or_update` acquires **only if the lease is expired or already ours** —
+otherwise it returns the existing lease **unchanged** and merely waits for
+readiness. `min_awake_until` is never pushed out.
+
+It is structurally useless rather than mistuned: the Lease is written with
+`leaseDurationSeconds = MAX_STARTUP_WAIT + GRACE_PERIOD` (defaults 1200 + 300 =
+**1500s**), so any keep-alive interval short enough to matter falls inside an
+active lease and takes the non-holder path every time.
+
+**How to tell which path you got** — log the response *body*, not just the
+status code:
+
+- `{"ok":true,"detail":"awake and ready"}` — you were the holder; the window
+  was written.
+- `{"ok":true,"detail":"awake (holder ... woke)"}` — non-holder; **nothing was
+  renewed**. Both are HTTP 200, so a status-only log cannot tell them apart.
+  Confirm in the helper's audit log: `ensure_awake_non_holder`.
+
+**The procedure that actually works** is to widen the grace period for the
+duration of the run, then put it back:
 
 ```bash
 kubectl -n awx set env deploy/awx-autoscale AWX_AUTOSCALE_GRACE_PERIOD=5400
+# ... run the long playbook ...
+kubectl -n awx set env deploy/awx-autoscale AWX_AUTOSCALE_GRACE_PERIOD=300
 ```
 
-**If you raise it, put it back to the repo default afterwards.** A long grace
-defeats the scale-to-zero behaviour the demo narrative depends on — the
-presenter is meant to show AWX re-idling to zero. A live `set env` is also not
-persisted: the next `awx-autoscale-deploy.yml` run reverts it.
+Read the value back both times rather than trusting the write.
+
+**Always revert it.** A long grace defeats the scale-to-zero behaviour the demo
+narrative depends on — the presenter is meant to show AWX re-idling to zero. A
+live `set env` is also not persisted: the next `awx-autoscale-deploy.yml` run
+reverts it, so the cluster and the repo default silently disagree until then.
 
 ### Readiness is not `readyReplicas`
 
