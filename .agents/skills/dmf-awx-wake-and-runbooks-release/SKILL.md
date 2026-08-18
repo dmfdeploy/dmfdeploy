@@ -1,6 +1,6 @@
 ---
 name: dmf-awx-wake-and-runbooks-release
-description: Wake AWX correctly before any playbook that talks to its API, and ship a dmf-runbooks change all the way to a cluster (tag → Forgejo mirror → AWX project pin → 693 → verify). Encodes the four traps that make this look like it worked when it did not. Use before running 693/640 or any AWX-API playbook, and for every dmf-runbooks release.
+description: Wake AWX correctly before any playbook that talks to its API, and ship a dmf-runbooks change all the way to a cluster (tag → Forgejo mirror → AWX project pin → 693 → verify). Encodes the six traps that make this look like it worked when it did not. Use before running 693/640 or any AWX-API playbook, and for every dmf-runbooks release.
 type: operational-procedure
 scope: cross-repo
 owner: operator
@@ -17,7 +17,7 @@ the moment it fails.** That is the point of this file.
 
 ---
 
-## §0 Read first — the five traps
+## §0 Read first — the six traps
 
 1. **`kubectl scale` does NOT wake AWX.** `awx-operator` reconciles
    `awx-task`/`awx-web` against the AWX custom resource and reverts a manual
@@ -39,6 +39,11 @@ the moment it fails.** That is the point of this file.
    waits for readiness and returns the existing lease untouched. Both outcomes
    are HTTP 200 and differ only in the response *body*. A repeated-call
    keep-alive therefore does not hold AWX open (§1).
+6. **Reverting `AWX_AUTOSCALE_GRACE_PERIOD` does not shorten an already-written
+   wake window.** The floor is persisted on the Lease and the reaper reads it
+   from there, so it survives both the pod restart and the revert. Reading the
+   env var back is not evidence the cluster re-idles — read the Lease
+   annotation (§1).
 
 ---
 
@@ -92,19 +97,49 @@ status code:
   renewed**. Both are HTTP 200, so a status-only log cannot tell them apart.
   Confirm in the helper's audit log: `ensure_awake_non_holder`.
 
-**The procedure that actually works** is to widen the grace period for the
-duration of the run, then put it back:
+**The procedure that works** is to widen the grace period for the duration of
+the run — but it has two sharp edges, and **reverting the env var alone does not
+undo it**.
 
 ```bash
+# 1. widen — this ROLLS the helper pod: the value is read once at process
+#    start, so it does not apply until the new pod is Ready.
 kubectl -n awx set env deploy/awx-autoscale AWX_AUTOSCALE_GRACE_PERIOD=5400
-# ... run the long playbook ...
+kubectl -n awx rollout status deploy/awx-autoscale --timeout=120s   # REQUIRED
+
+# 2. wake (§1 above), then run the long playbook
+
+# 3. narrow again
 kubectl -n awx set env deploy/awx-autoscale AWX_AUTOSCALE_GRACE_PERIOD=300
+kubectl -n awx rollout status deploy/awx-autoscale --timeout=120s
+
+# 4. CLEAR THE PERSISTED FLOOR — step 3 alone is not enough (see below).
+#    Only when no work is in flight.
+kubectl -n awx delete lease awx-autoscale-wake
 ```
 
-Read the value back both times rather than trusting the write.
+**Why step 4 exists.** `/ensure-awake` persists `min_awake_until` as an
+annotation on the `awx-autoscale-wake` Lease, and the reaper's sleep
+precondition is `now > min_awake_until` **read from that Lease** — not from the
+current env var. A floor written while the grace was 5400 therefore survives
+both the pod restart and the revert: AWX stays awake until that timestamp
+regardless of what the Deployment now says. Deleting the Lease is the supported
+clear — `get_min_awake_until()` returns `0.0` when it is absent, and
+`create_or_update` recreates it on the next wake. Do it only with no active
+work, so the reaper does not sleep AWX out from under a running job.
 
-**Always revert it.** A long grace defeats the scale-to-zero behaviour the demo
-narrative depends on — the presenter is meant to show AWX re-idling to zero. A
+**Verify the floor, not the env var:**
+
+```bash
+kubectl -n awx get lease awx-autoscale-wake -o jsonpath='{.metadata.annotations}'
+```
+
+An absent Lease, or a `min_awake_until` in the past, is the real "restored"
+signal. Reading back `AWX_AUTOSCALE_GRACE_PERIOD=300` proves only what the
+*next* wake will write.
+
+**Always restore it.** A long grace defeats the scale-to-zero behaviour the demo
+narrative depends on — the presenter is meant to show AWX re-idling to zero. The
 live `set env` is also not persisted: the next `awx-autoscale-deploy.yml` run
 reverts it, so the cluster and the repo default silently disagree until then.
 
