@@ -20,6 +20,73 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ Three demo-path console defects fixed, two releases shipped (2026-08-18)
+
+The mainline demo path had two bugs that made a beat impossible rather than
+merely ugly, plus one that misdescribed the operator's own workload. All three
+are fixed, adversarially gated, merged, and two are confirmed live on the
+cluster.
+
+- **#402 — the Switch source control died 15s after Configure rendered.** The
+  freshness gate compared a frozen `observed_at` against an advancing clock, so
+  the 15s window was a one-shot fuse per page load rather than a rolling check.
+  Both halves were needed: a renewal interval *and* a bounded retry, because
+  `retry: false` made one transient failed poll indistinguishable from a dead
+  flow. The fail-closed gate itself was correct and survives untouched.
+  Confirmed live: control present across 30s, and the Switch beat completed end
+  to end for the first time (`source-a` → `source-b`, receiver re-deployed).
+- **#403 — teardown left the stage claiming a job was still running, forever.**
+  Root-caused live: the tracker could only be cleared by observing `launched`, a
+  *transient* state, while the operation actually settles at `run_complete`.
+  Nothing handled the real terminal states, so the busy flag never fell. Fixed in
+  the shared component, so Provision and Materializing are covered too.
+- **#401 — topology-spawned sources missed every catalog-keyed lookup.** Fixed
+  across three repos: the launcher now records the parent/source relationship as
+  NetBox tags, the catalog carries one shared display noun, and the console
+  *reads* both. Confirmed live — sources render as "MXL Test-Pattern Source ·
+  source-a" with no false catalog warning.
+
+**Releases:** `dmf-cms 0.21.1 → 0.23.0` and `dmf-runbooks v0.4.6 → v0.4.7`, with
+the AWX project re-pinned (dmf-infra) and verified in AWX's own checkout rather
+than from the playbook's `changed=0`.
+
+**The layering principle that reshaped #401, worth restating:** media-function
+and template specifics do not belong in dmf-cms. The launcher owns the rules and
+records facts in NetBox; the catalog declares identity; the console reads both
+and hardcodes nothing. The operative test is *"if a new media function is added
+tomorrow, does dmf-cms need editing?"* The first #401 work order failed it — it
+had the console re-derive the launcher's instance-naming contract — and was
+withdrawn before any code landed.
+
+**Five issues filed from things found along the way:** #407 (purge tracker
+misses two terminal states), #408 (Provision keeps no record of how a deploy
+ended), #411 (Clear for deployment promises an automation lane that does not
+exist — there is no converger; the drift playbook only *detects*), #412 (the
+forward path leads from a running workload to teardown and never to the live
+view), and #387 was confirmed pre-existing rather than newly broken.
+
+**New skill:** `dmf-awx-wake-and-runbooks-release` — how to wake AWX correctly
+and ship a runbooks change to a cluster. It took three review rounds because two
+of its own claims were wrong: a repeated `/ensure-awake` loop renews nothing (the
+wake window is owner-scoped, a later caller is a different holder), and reverting
+`AWX_AUTOSCALE_GRACE_PERIOD` does not shorten an already-written floor (it is
+persisted on the Lease and survives both the pod restart and the revert). Both
+were verified against the helper and against the live cluster before the fix.
+
+**Method note, since it recurred all day:** roughly seven checks looked green and
+were measuring nothing — a status-only log that could not distinguish two
+outcomes, a piped exit code that was `tail`'s, a scrub that scanned an empty
+string, a poll count taken while the tab was backgrounded. Every one was caught
+the same way: by a counter proving the check *could* fail, by reading actual
+output instead of an exit status, or by verifying at the layer that governs
+rather than the one that reports.
+
+**Still open for the operator:** the #383 passkey enrollment (the named outsider
+still cannot log in, and this gates the demo exit criterion); PR #397, the
+runbook rewrite, now **unblocked** since #402 and #401 have landed; and the
+`Clear for deployment` copy in #411, which currently tells the operator something
+untrue.
+
 ### ✅ Sandbox env rebuilt from scratch after a spot reclamation (2026-08-16)
 
 The standing sandbox env's node was **reclaimed by the cloud provider for
