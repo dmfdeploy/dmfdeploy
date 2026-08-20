@@ -20,6 +20,74 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ dmf-cms 0.25.0 shipped and deployed; enrollment proven end-to-end (2026-08-20)
+
+`0.25.0` is built, published to GHCR, mirrored by 630 and deployed by 650 on the
+standing sandbox env. Four PRs landed to get there (dmf-cms#106, #107, #108,
+#109).
+
+**The demo's enrollment blocker is closed and proven, not argued.** A non-admin
+account minted its own passkey enrollment URL from the console, opened it on an
+iPhone, enrolled into Apple Passwords and logged in passwordless. Authentik
+records the device creation against the enrollment flow and a subsequent
+`auth_webauthn_pwl` login. The endpoint had been gated on `admin` despite being
+entirely self-scoped — no request body, no target-user parameter — so no
+non-admin human could satisfy ADR-0028 D8 through the console at all
+(dmfdeploy#423).
+
+**The C5 audit record did not exist in any deployment until today.** `main.py`
+never configured logging and uvicorn configures only its own loggers, so every
+application `logger.info()` fell through to `logging.lastResort` (floor WARNING)
+and was discarded — the ADR-0028 C5 line included. Code correct, tests passing,
+runtime artifact absent (dmfdeploy#425). It earned its keep the same afternoon:
+untangling who triggered which lifecycle action during a live incident was only
+possible because four actors' writes were finally attributable.
+
+Making that record real turned a latent flaw into a live one, which is worth
+remembering as a pattern: externally-influenced values reached line-oriented
+logs unescaped, so a path parameter carrying an encoded newline could forge an
+audit line. Swept across the package — 39 sites over four modules, plus a new
+dependency-free `log_safety.py`. One of those sites had been introduced that
+same morning by our own earlier fix, which moved an upstream error body out of a
+JSON response and into a `%s` log line: a disclosure vector closed and an
+injection vector opened in a single edit.
+
+**Two things still gate the outsider walk (dmfdeploy#383), neither fixed:**
+
+- **dmfdeploy#424 — the awx-operator can wedge and stop reconciling.** Observed
+  live: the CR read `web=1 task=1` while the Deployments sat at `0`, with the
+  operator looping on a `cache miss: PodList` error. The autoscaler was working
+  correctly and nothing below it acted. Trigger is an ordering race — a reaper
+  sleep and a wake landing two seconds apart, after which the operator applies
+  the already-superseded sleep and never converges back. A launcher pod started
+  and was killed five seconds in. Recovery is
+  `kubectl -n awx rollout restart deploy/awx-operator-controller-manager`, which
+  is exactly the kind of intervention #383's "unaided" criterion forbids, and
+  the console shows nothing but a spinner while it happens. The issue's earlier
+  readiness-timing hypothesis is corrected there — today's failure had normal
+  readiness and died anyway.
+- **Passkeys do not survive an env rebuild.** The WebAuthn RP ID is
+  origin-derived and the sandbox base domain is IP-derived, so every rebuild
+  invalidates every enrolled credential, including the operator's own admin
+  login. A private-CA cert is also a hard blocker for WebAuthn on any device
+  that has not installed the CA, since the origin is not a secure context.
+  Pinning a stable, publicly-resolvable domain is the durable answer, but it is
+  a domain migration rather than a cert swap: `cert_manager_cluster_domain`
+  feeds every OIDC redirect URI and every image reference, so it belongs in a
+  fresh env bootstrap. Parked with the operator's Cloudflare credentials
+  unread.
+
+**Backlog corrected where it had drifted.** dmfdeploy#418 was reopened — the
+daily reconciler had closed it off a `Closes` ref belonging to a PR that was
+subsequently reverted, so the backlog claimed a live defect was fixed
+(dmfdeploy#426 files that gap). dmf-cms#105 was closed as superseded: its
+merge-base is the reverted half-fix, so rebasing it re-introduces what the
+revert removed — verified, the rebase fails on the first commit and that commit
+carries seven `navigate(` call sites against zero on `main`. **Its branch
+`fix/418-teardown-purge-landing` is deliberately preserved** as the reference
+for dmfdeploy#422; do not prune it. dmfdeploy#389 and #342 also carried premises
+that are no longer true and now say so.
+
 ### ✅ Sandbox env rebuilt from scratch after a spot reclamation (2026-08-16)
 
 The standing sandbox env's node was **reclaimed by the cloud provider for
