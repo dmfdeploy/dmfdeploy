@@ -57,15 +57,30 @@ injection vector opened in a single edit.
 - **dmfdeploy#424 — the awx-operator can wedge and stop reconciling.** Observed
   live: the CR read `web=1 task=1` while the Deployments sat at `0`, with the
   operator looping on a `cache miss: PodList` error. The autoscaler was working
-  correctly and nothing below it acted. Trigger is an ordering race — a reaper
-  sleep and a wake landing two seconds apart, after which the operator applies
-  the already-superseded sleep and never converges back. A launcher pod started
-  and was killed five seconds in. Recovery is
-  `kubectl -n awx rollout restart deploy/awx-operator-controller-manager`, which
-  is exactly the kind of intervention #383's "unaided" criterion forbids, and
-  the console shows nothing but a spinner while it happens. The issue's earlier
-  readiness-timing hypothesis is corrected there — today's failure had normal
-  readiness and died anyway.
+  correctly and nothing below it acted.
+
+  **The trigger is a stale reconcile, not a narrow ordering race.** An earlier
+  reading recorded it as a reaper sleep and a wake landing two seconds apart;
+  a full reproduction on 2026-08-20 had them **8m39s apart** and failed
+  identically. The operator was still working through the *sleep* reconcile
+  when the wake arrived, then applied the superseded state — its own
+  `managedFields` record it scaling both Deployments to `0` fifty-seven seconds
+  after the CR had been patched awake. So the exposure window is the operator's
+  entire reconcile duration, measured at **9–10 minutes**, and it opens after
+  every sleep; any wake landing inside it gets a stale apply. The `cache miss`
+  loop is not the fault — it is the reconcile's pod-wait task polling every ~6s
+  for pods the operator itself has just deleted, which is why a healthy
+  operator emits the same line during every normal reconcile.
+
+  It does **not** self-heal (watched for 6m40s), and recovery is
+  `kubectl -n awx rollout restart deploy/awx-operator-controller-manager`,
+  which itself costs a further full reconcile — so the operator-visible outage
+  is roughly the wedge plus another ten minutes. That is exactly the kind of
+  intervention #383's "unaided" criterion forbids, and the console shows
+  nothing but a spinner throughout (filed separately as dmfdeploy#428).
+  Mitigation is open and held as dmf-infra#86: a divergence alert (validated
+  against this reproduction) plus a wider reaper grace period, which reduces
+  how often the window opens but cannot narrow it.
 - **Passkeys do not survive an env rebuild.** The WebAuthn RP ID is
   origin-derived and the sandbox base domain is IP-derived, so every rebuild
   invalidates every enrolled credential, including the operator's own admin
