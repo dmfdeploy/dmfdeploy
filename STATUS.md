@@ -20,6 +20,71 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ⚠️ dmfdeploy#424 mitigated and deployed — but NOT fixed (2026-08-20, later)
+
+**Read this before concluding #424 is done.** Two PRs merged and are live on the
+sandbox env, so the merged history reads like a fix. It is not one. The wedge is
+unchanged and still reproducible; what shipped makes it rarer and makes it
+visible to whoever is watching alerts.
+
+**What is live on the env now:**
+
+- **dmf-infra#86** — idle-reaper grace period `300s → 900s`, and a new
+  `AWXReplicaDivergence` Prometheus alert (fires when the AWX CR requests
+  non-zero replicas while the Deployment has zero *Available* for most of a
+  trailing 20m window). Verified in the running pod, not just applied:
+  `AWX_AUTOSCALE_GRACE_PERIOD=900` and the helper's own reaper log emits
+  `grace_period=900`.
+- **dmf-infra#87** — a fix for a defect in #86, found by deploying it.
+
+**Route C was taken first and came back empty.** `ansible/awx-operator#1022` was
+closed 2022-10-17 with no fix version and environment-specific causes, so there
+is no operator version to upgrade to. The `cache miss: PodList` line is not the
+fault and cannot be an alert condition: it is the reconcile's own pod-wait task
+polling every ~6s, which a healthy operator does on every normal reconcile.
+
+**B1's value is smaller than it looks, and that is deliberate framing.** The
+exposure window is the operator's whole reconcile duration (9–10 min), opening
+after *every* sleep — not the 2-second ordering race originally recorded. So a
+wider grace period cannot narrow the window; it only reduces how often the
+window is opened. Worse, the dangerous idle-gap band is always roughly
+`[grace, grace+10min]` — raising the grace period *moves* that band rather than
+shrinking it. At 900s the exposed gaps are ~15–25 minutes. Chosen over 3600s
+deliberately (2026-08-20 operator call) with more testing to follow.
+
+**B2 is the piece that earns its place**, and it is already showing correct
+behaviour on live data: a transient blip during a deploy produced a task-side
+ratio of 0.05 and correctly did *not* fire, well under the 0.7 threshold.
+
+**Option A (post-wake watchdog) is deferred, not dismissed**, and its open
+question is the one that needs an answer before anyone builds it: **may the
+autoscaler restart the operator?** Real privilege, real blast radius — and the
+observed recoveries needed an operator restart rather than another CR patch, so
+a watchdog that only re-patches may not converge. Deferral now rests on
+dmfdeploy#428 carrying the operator-facing half, **not** on the wedge being
+rare. It is not rare.
+
+**A trap worth inheriting: synthetic rule tests prove correctness, not
+robustness to real data.** The #86 alert passed a promtool suite that
+hand-supplied one series per operand. Live kube-state-metrics supplies N — and
+during its own rollout there were briefly two scrape targets, so the
+`* on(namespace)` join hit `many-to-many matching not allowed` and the rule
+**stopped evaluating entirely** rather than degrading. #87 fixes it with
+`max by (namespace)` on all four selectors and adds a duplicate-target test
+case. The same alert has now been bitten twice in this way — first label
+compatibility, then cardinality — and both only appeared against a live
+cluster. `promtool check rules` returns SUCCESS on the broken version; only
+`promtool test rules` catches it, so a CI syntax gate would never have flagged
+this.
+
+**Also done:** the AWX job list was cleared for the demo walk (five failed
+records; their contents are preserved in a comment on dmfdeploy#424 first,
+including that two of them failed with *different* error text for the same
+underlying event — grepping for "reaped" would have missed half). And
+**dmfdeploy#428** is filed for the console half: an operation whose actuator is
+unavailable returns `202 Accepted` and spins forever with no surface saying so,
+which is cause-independent and is what an outsider actually collides with.
+
 ### ✅ dmf-cms 0.25.0 shipped and deployed; enrollment proven end-to-end (2026-08-20)
 
 `0.25.0` is built, published to GHCR, mirrored by 630 and deployed by 650 on the
