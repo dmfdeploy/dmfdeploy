@@ -163,7 +163,15 @@ detect_agent() {
       for p in $frontier; do
         line=$(ps -o command= -p "$p" 2>/dev/null || true)
         [[ -n "$line" ]] || continue
-        exe=$(basename "${line%% *}")            # argv[0] basename
+        # argv[0] basename via parameter expansion, NOT `basename`. The walk
+        # starts at the pane's root process, which under tmux is always the
+        # login shell — and BSD `ps` reports a login shell's argv[0] with its
+        # traditional leading dash ("-zsh"). BSD `basename` parses that as an
+        # option and fails ("illegal option -- z"). `set -e` is not inherited
+        # into command substitutions, so the failure was silent: `exe` ended up
+        # empty and the walk limped on, which is why `doctor` still printed a
+        # table but classified real agent panes as `shell`.
+        exe="${line%% *}"; exe="${exe#-}"; exe="${exe##*/}"
         a1="${line#* }"; a1="${a1%% *}"          # argv[1] (script, for interpreters)
         case "$exe" in
           codex|codex-*)  echo codex;  return ;;
