@@ -37,20 +37,37 @@ The publish pipeline touches GHCR credentials, Zot credentials (read by playbook
    `curl -d '{"password":"..."}'`). It lands in shell history and `ps` output.
    `publish-to-ghcr.sh` accepts the GHCR token via stdin; use that path.
 
-   **The ordinary `gh` token works — no extra ceremony, no dedicated PAT, no
-   Keychain entry** (operator-confirmed 2026-08-21):
+   **Your existing `gh` login is normally enough — no dedicated PAT and no
+   Keychain entry** — *provided that login carries `write:packages`*, which
+   `bin/publish-image-to-ghcr.sh` requires. `gh auth token` returns whatever
+   credential is currently configured; it does **not** guarantee the scope, and
+   an under-scoped login fails at `docker login`/push rather than up front.
+
+   **Check the scope before you rely on it:**
+
+   ```bash
+   gh auth status                       # look for 'write:packages' in the scopes line
+   gh auth refresh -s write:packages    # add it if absent (interactive, one-off)
+   ```
+
+   Then publish, token via stdin:
 
    ```bash
    # ✅ token from stdin, no argv exposure
    gh auth token | GHCR_USER="<github-username>" scripts/publish-to-ghcr.sh
    ```
 
-   Earlier revisions of this skill prescribed a macOS Keychain lookup
-   (`security find-generic-password -s "ghcr.io" …`). That is **no longer the
-   recommended path** — a stale/under-scoped Keychain entry produced a
-   `denied` on push and sent one session hunting a credential that was never
-   needed. `gh auth token` already carries `write:packages`. Piping via stdin
-   is the part that matters and is kept; the Keychain step was the ceremony.
+   If you would rather not widen the `gh` login's scope, both fallbacks remain
+   valid: a dedicated PAT with `write:packages` piped in the same way, or the
+   interactive prompt (`scripts/publish-to-ghcr.sh` with no stdin).
+
+   Earlier revisions prescribed a macOS Keychain lookup
+   (`security find-generic-password -s "ghcr.io" …`) as *preferred*. That is
+   **no longer the recommended default** — a stale/under-scoped Keychain entry
+   produced a `denied` on push and sent one session hunting a credential it did
+   not need. Note the failure mode is the same one to watch for above: the
+   problem was never *where* the token came from, it was the **scope**. Piping
+   via stdin is the part that carries the security property and is kept.
 
 3. **Never invoke `get-admin-cred.sh` (or any other secret-printing tool) through
    an AI agent.** The conversation transcript captures the value. If you need a
@@ -209,7 +226,11 @@ The release path has three steps after `release.sh`. Each is idempotent.
 ```bash
 cd ~/repos/dmfdeploy/dmf-cms
 
-# Preferred — the ordinary gh token, piped via stdin (no argv exposure)
+# Preconditions: the gh login must carry write:packages (see §0 rule 2).
+gh auth status                       # confirm 'write:packages' is in the scopes
+gh auth refresh -s write:packages    # only if it is absent
+
+# Preferred — your gh token, piped via stdin (no argv exposure)
 gh auth token | GHCR_USER="<github-username>" scripts/publish-to-ghcr.sh
 
 # Or interactive (token typed at the umbrella helper's prompt)
