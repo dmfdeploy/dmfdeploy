@@ -35,13 +35,22 @@ The publish pipeline touches GHCR credentials, Zot credentials (read by playbook
 
 2. **Never put a registry password in argv** (`docker login -u user -p pass`,
    `curl -d '{"password":"..."}'`). It lands in shell history and `ps` output.
-   `publish-to-ghcr.sh` accepts the GHCR token via stdin; use that path:
+   `publish-to-ghcr.sh` accepts the GHCR token via stdin; use that path.
+
+   **The ordinary `gh` token works — no extra ceremony, no dedicated PAT, no
+   Keychain entry** (operator-confirmed 2026-08-21):
 
    ```bash
-   # ✅ token from stdin, no argv exposure (macOS Keychain example)
-   security find-generic-password -s "ghcr.io" -a "<github-username>" -w \
-     | GHCR_USER="<github-username>" scripts/publish-to-ghcr.sh
+   # ✅ token from stdin, no argv exposure
+   gh auth token | GHCR_USER="<github-username>" scripts/publish-to-ghcr.sh
    ```
+
+   Earlier revisions of this skill prescribed a macOS Keychain lookup
+   (`security find-generic-password -s "ghcr.io" …`). That is **no longer the
+   recommended path** — a stale/under-scoped Keychain entry produced a
+   `denied` on push and sent one session hunting a credential that was never
+   needed. `gh auth token` already carries `write:packages`. Piping via stdin
+   is the part that matters and is kept; the Keychain step was the ceremony.
 
 3. **Never invoke `get-admin-cred.sh` (or any other secret-printing tool) through
    an AI agent.** The conversation transcript captures the value. If you need a
@@ -200,9 +209,8 @@ The release path has three steps after `release.sh`. Each is idempotent.
 ```bash
 cd ~/repos/dmfdeploy/dmf-cms
 
-# Token via macOS Keychain (preferred — no argv exposure)
-security find-generic-password -s "ghcr.io" -a "<github-username>" -w \
-  | GHCR_USER="<github-username>" scripts/publish-to-ghcr.sh
+# Preferred — the ordinary gh token, piped via stdin (no argv exposure)
+gh auth token | GHCR_USER="<github-username>" scripts/publish-to-ghcr.sh
 
 # Or interactive (token typed at the umbrella helper's prompt)
 scripts/publish-to-ghcr.sh
