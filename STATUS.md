@@ -20,6 +20,51 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### 🚀 dmf-cms 0.26.0 released and live — console honesty fixes shipped, product-feel work still open (2026-08-21, evening)
+
+**Four console defect fixes are deployed and verified in a browser on the
+sandbox env**, not merely merged: §A (the 15s poll no longer tears down the live
+view, and a failed background refetch no longer asserts uncaveated "not
+configured" / "workload not found"), §B (personal menu dismisses on outside
+click, Escape, focus-out and its own Settings link), §F(b) (a job row's verb
+derives from the same outcome its badge renders — "Removed X … Running" cannot
+recur), §G (copy sweep: boilerplate removed, imperatives replaced with
+statements, a sentence that rendered **four** times at once reduced to one).
+
+Verified by digest, not by tag: the running pod's `imageID` equals GHCR's arm64
+digest. A full lifecycle was then walked in a real browser — create → provision →
+live view → teardown → permanent delete. **The env is clean**; the walk workload
+was permanently deleted.
+
+**Read this before concluding the console round is done.** It is not. What
+shipped removes things the console was doing *wrong*. Every "looks like a
+product" item the operator raised is still outstanding:
+
+- **§C** form fields — re-measured live and unchanged: nothing focused on load,
+  field **1295px** wide, fill **~1.03:1** against its own panel, **0.667px**
+  border, UA default focus ring. There is no shared `Input` primitive; that
+  absence is the cause.
+- **§D** button hierarchy — teal means "mutates the backend", not "do this
+  next". **Correction to #432's own text:** `.btn-danger` is *not* unused —
+  `Delete permanently` is red. The real finding is that `⏏ Teardown` (98×29) is
+  styled identically to `← Previous` (91×29). The product knows how to signal
+  danger and applies it inconsistently.
+- **§E / #390** persistent operation status, and the entry surfaces + rail
+  repaint, all untouched.
+
+**§C and §D compound and are the agreed next round:** on first load the create
+screen has *no* forward action at all, and `Next →` appears only after filling
+the field that is effectively invisible.
+
+**Scope deferred to [#436](https://github.com/dmfdeploy/dmfdeploy/issues/436)**
+(new): Recent-changes rows labelled by AWX job template, and workload display
+names title-cased from the slug. Neither is fixable in the frontend — no
+workload identity travels on the jobs wire, the teardown launch path passes no
+`extra_vars` at all, and no friendly name is persisted server-side.
+
+Full detail, the trio runbook, and the release runbook are in the operator-local
+handoff for the evening of 2026-08-21.
+
 ### ✅ #424 and the passkey/RP-ID fragility are NOT demo blockers — operator ruling (2026-08-21)
 
 **This supersedes the "two things still gate the outsider walk" list in the
