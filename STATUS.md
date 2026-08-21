@@ -20,6 +20,27 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### ✅ #424 and the passkey/RP-ID fragility are NOT demo blockers — operator ruling (2026-08-21)
+
+**This supersedes the "two things still gate the outsider walk" list in the
+2026-08-20 entry below.** Both were tested carefully by the operator and judged
+acceptable for the outsider demo (dmfdeploy#383):
+
+- **dmfdeploy#424** — the awx-operator stale-reconcile wedge. Still open, still
+  not root-caused, mitigations as recorded below. Not a demo gate.
+- **Passkeys do not survive an env rebuild** (origin-derived WebAuthn RP ID).
+  Still true, still parked. Not a demo gate.
+
+Neither is fixed and neither entry below is withdrawn — what changed is the
+**classification**, not the engineering state. They remain open items on their
+own merits; they no longer block #383 and no work should be scoped or sequenced
+around them as blockers.
+
+Consequence for the console: the #383 exit criterion is now gated on
+**console-side work only**. The live-walk defect cluster (dmfdeploy#428, #430,
+#422/#418, #421, #420, #408, #344, #343, #342) and the Arc 4 tail (#347 WP-9/10)
+are what stand between here and a named outsider completing the journey.
+
 ### ⚠️ dmfdeploy#424 mitigated and deployed — but NOT fixed (2026-08-20, later)
 
 **Read this before concluding #424 is done.** Two PRs merged and are live on the
@@ -118,6 +139,10 @@ JSON response and into a `%s` log line: a disclosure vector closed and an
 injection vector opened in a single edit.
 
 **Two things still gate the outsider walk (dmfdeploy#383), neither fixed:**
+
+> **⛔ SUPERSEDED 2026-08-21 — see the top entry.** The operator tested both and
+> ruled neither is a demo blocker. The technical description below stands and
+> both items remain open; only the "gates #383" classification is withdrawn.
 
 - **dmfdeploy#424 — the awx-operator can wedge and stop reconciling.** Observed
   live: the CR read `web=1 task=1` while the Deployments sat at `0`, with the
