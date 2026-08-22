@@ -45,12 +45,18 @@ All seven now render through one component with an opaque border token at
 
 #### What the tests and the adversarial gate could not see
 
-The gate found one genuine defect — and a better one than filed, after being
-pushed back on: the promotion condition ignored lock state, so **Configure and
-Finalise, locked for an entire draft, both rendered a promoted `Next`**. Simply
-pressing through the wizard hit it.
+The gate found one genuine defect, **during the 0.27.0 round and before it
+shipped** — and a better one than filed, after being pushed back on. As first
+written, the promotion condition ignored lock state, so **Configure and
+Finalise, locked for an entire draft, would both have rendered a promoted
+`Next`**; simply pressing through the wizard would have hit it. The clamp that
+prevents it is part of 0.27.0, which is why the table above records the fixed
+behaviour rather than the defect — the two describe the same release at
+different points in its making, not a contradiction.
 
-Everything else came from looking at a rendered screen:
+That is also the one defect in this sequence a gate caught rather than a
+browser, and worth noting why: it was reachable by reasoning about state. The
+rest needed eyes —
 
 - a destructive control shipped **below the contrast floor the same release
   imposed** — its text passed comfortably at 6.65:1 while its *boundary* sat at
