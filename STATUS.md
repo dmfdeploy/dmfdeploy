@@ -20,6 +20,87 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+### 🚀 dmf-cms 0.27.0 → 0.29.0 — the console's action surfaces, and what only a browser caught (2026-08-22)
+
+**Four releases, each deployed and digest-verified, each walked in a real
+browser afterwards.** The verification that mattered was not the test count.
+
+| release | what shipped |
+|---|---|
+| **0.27.0** | the first shared form-field primitive; button hierarchy split into weight and danger; `Next` never promoted on a locked step |
+| **0.27.1** | danger-tier readability — solid border, and an icon that inherits its button's colour |
+| **0.28.0** | reversed the `Next` promotion on Design/Plan; larger confirm popovers; a loud in-progress message after provisioning |
+| **0.29.0** | capped the confirm popover width; the same loud message for teardown |
+
+Every one verified by **digest** — the running pod's `imageID` equal to the
+published arm64 digest — not by tag. Tests went 719 → 760, reconciled at every
+step; each new test was checked against **the preceding commit** rather than the
+release baseline, because several of these revise work from the same day.
+
+**§C's real deliverable was the primitive, not the numbers.** There had been no
+shared form field: every control hand-rolled its own styling, which is why one
+sat at ~1.03:1 against its own panel, unfocused, and as wide as its container.
+All seven now render through one component with an opaque border token at
+3.64:1, a real focus ring, a width cap, and focus on entry.
+
+#### What the tests and the adversarial gate could not see
+
+The gate found one genuine defect — and a better one than filed, after being
+pushed back on: the promotion condition ignored lock state, so **Configure and
+Finalise, locked for an entire draft, both rendered a promoted `Next`**. Simply
+pressing through the wizard hit it.
+
+Everything else came from looking at a rendered screen:
+
+- a destructive control shipped **below the contrast floor the same release
+  imposed** — its text passed comfortably at 6.65:1 while its *boundary* sat at
+  2.45:1, so the button had no readable edge
+- an emoji glyph that renders in its own font's colours and ignores the button's
+  white text
+- the promotion landing on the control that navigates to a **locked** step,
+  while the commitment that advances the draft looked like a back action
+- a confirm popover **1988px wide**, its description on one unwrapped line —
+  `min-w` bounds a minimum, and nothing bounded the maximum
+
+That last one is the field defect one level further out: **sized by container,
+not content.** The field was capped; the panel around it never was.
+
+#### Two measurements that were true and wrong
+
+Contrast ratio is **luminance-only**, and red carries the smallest luminance
+weight of the three channels — so saturated red on a near-black panel clears the
+number while the edge a person perceives is a hue boundary rather than a
+lightness one. A destructive control was defended twice on that basis and read
+badly both times. It now uses the same filled treatment as permanent delete; the
+distinction between the two moved to **friction**, which is the stronger channel
+— one still requires typing the workload identifier.
+
+A "0.667px sub-pixel border" recorded as a defect was **browser zoom snapping a
+1px border**. The border was always 1px; its *colour* was the defect. The tell
+was present and missed — the same reading reported a whole `2px` outline, and no
+single scale factor produces both.
+
+#### Deliberately not built
+
+- **A remedial call-to-action on locked steps** — a better answer than what
+  shipped, and design work on a wizard surface with a known replacement.
+  Recorded with walk evidence, and explicitly marked not-to-be-picked-up.
+- **An in-progress message for permanent delete.** Provision and teardown
+  describe something that continues to exist; a purge destroys the thing that
+  would host the message, and nothing in the workload model reports a purge to
+  any other page. It was built, verified, and withdrawn rather than invent
+  progress that is not observed. That makes permanent delete a **dependency** of
+  the operation-status work rather than a cheap pickup.
+- **Switch source** is not in the same category and should not inherit a
+  "takes a few minutes" message — its in-flight state is a pending flag, not a
+  polled job, and nobody has measured it.
+
+#### Still open
+
+The failed-launch path carries no loud layer — whether it should is a copy
+decision about how the product speaks when things go wrong. The catalog page's
+own teardown control was descoped as off the demo path.
+
 ### 🚀 dmf-cms 0.26.0 released and live — console honesty fixes shipped, product-feel work still open (2026-08-21, evening)
 
 **Four console defect fixes are deployed and verified in a browser on the
