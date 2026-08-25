@@ -27,12 +27,21 @@ FREEZE table. Frozen ≠ abandoned: each entry names its re-open trigger.
 
 **Does the EBU taxonomy survive a genuinely two-function, shared-data-plane
 case?** The MXL spike (src + view fabric) is the designed pressure test
-([#9](https://github.com/dmfdeploy/dmfdeploy/issues/9)). Its single-node control
-chain is code-complete; **live verification is paused** pending an env. The
-console-side Flows view and catalog entries are also absent
-([#17](https://github.com/dmfdeploy/dmfdeploy/issues/17)). Until this runs live,
-thesis-killer #3 is open — the one experiment-phase question that was never
-answered.
+([#9](https://github.com/dmfdeploy/dmfdeploy/issues/9)), which remains open.
+
+**What has changed since this entry was written:** the console-side Flows view
+and the catalog entry now exist — `dmf-cms`'s `mxl.py` and MXL detail panel, and
+`dmf-media`'s `mxl-videotest-view` entry — and
+[#17](https://github.com/dmfdeploy/dmfdeploy/issues/17), cited here as evidence
+they were absent, closed on 2026-07-05. The entry has since been deployed and
+torn down repeatedly on a sandbox env through the console's own lifecycle, with
+the viewer's preview rendering live.
+
+**So the blocker has moved, and it is worth being precise about where.** This is
+no longer "it has never run". What is still missing is the *assessment*: nobody
+has judged the running two-function case against the EBU taxonomy and written
+down whether the taxonomy held. Until that judgement exists, thesis-killer #3 is
+open — but it is now open for want of analysis, not for want of an environment.
 
 ## Built but unproven — live-verification debt
 
