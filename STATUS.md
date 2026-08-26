@@ -20,6 +20,77 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 ## Operator notes (hand-edited — preserved across regenerations)
 
 <!-- HUMAN-START -->
+
+### 🔓 Scope-freeze carve-out — the lifecycle rail (2026-08-26)
+
+**This entry is the authority for the carve-out.** The issue comment reproduced
+below is corroborating evidence captured here, not a live authority — editing it
+later changes nothing. Any further exception requires a new decision and a new
+commit on `main`.
+
+| | |
+|---|---|
+| decision | one narrow exception to the standing scope freeze, for the lifecycle rail |
+| tracked by | `dmfdeploy/dmfdeploy#449` (folds in `#405`) |
+| design | `docs/plans/DMF Console UI Round Plan 2026-08-21.md` §3 |
+| authored by | the repository owner — verify `user.login` on the comment via the API |
+| comment id | `5422083134` |
+| server timestamp | `2026-08-26T07:33:38Z` — created == updated, unedited at pin time |
+| body sha256 | `8e4a638f560d4f33932562d4e1b16b7dde5878858ce11312f5e289b8fbcbcd44` |
+
+The digest is over the exact comment body, UTF-8, **with no trailing newline**.
+Piping `--jq .body` into `shasum` appends one and yields a different digest; use:
+
+```bash
+gh api repos/dmfdeploy/dmfdeploy/issues/comments/5422083134 \
+  | python3 -c "import json,sys,hashlib; print(hashlib.sha256(json.load(sys.stdin)['body'].encode()).hexdigest())"
+```
+
+**Verbatim snapshot of the authorising decision:**
+
+> Scope-freeze carve-out — the lifecycle rail
+>
+> Decision, 2026-08-26. The standing scope freeze remains in force. I am granting one narrow, named exception to it, recorded here and pinned in STATUS.md.
+>
+> What is authorised
+>
+> The lifecycle rail repaint tracked by this issue, implementing the design already settled in docs/plans/DMF Console UI Round Plan 2026-08-21.md §3, with dmfdeploy/dmfdeploy#405 folded in.
+>
+> Why
+>
+> The lifecycle rail is a fundamental concept in this product, not a cosmetic surface. It is the primary on-screen expression of the workload journey, and it is how the project demonstrates its reading of the EBU Dynamic Media Facility reference architecture. Getting it right is a prerequisite to presenting the platform to anyone outside it, so it should not wait behind the freeze.
+>
+> Start condition
+>
+> Work may begin once this comment exists and its text and hash are committed to the operator-notes section of STATUS.md on main. Implementation must reference that commit.
+>
+> End condition
+>
+> The exception ends when §3's scope is delivered — the state grammar, equal columns, and a rail that reports completeness on the workload home. It does not extend to follow-on work discovered during implementation.
+>
+> Explicitly NOT authorised
+>
+> This exception covers the rail and nothing adjacent:
+>
+> - not the MXL full-rate live-view work — that remains a decision, deferred
+> - not dmfdeploy/dmfdeploy#244, the disclosure Level axis — that stays in the next milestone
+> - not entry surfaces or the copy doctrine from the same plan
+> - not the canvas direction, which remains postponed
+> - not completeness-regression semantics — that is a backend derivation change under ADR-0046 and is out of scope by design
+> - no new ADRs, no consolidation-bundle work, and no work on any frozen v0.1 non-goal
+>
+> What is unchanged
+>
+> The freeze itself, and every architectural non-goal listed in docs/OPEN-QUESTIONS.md, each of which keeps its own re-open trigger and still requires a dated amendment to architectural-commitments-v1. Milestone membership never authorises a frozen item.
+>
+> Any further exception requires a new decision and a new pinned commit. Editing this comment does not extend it.
+
+**What is NOT authorised** — restated so the exclusions travel with the authority:
+not the MXL live-view work (a deferred decision), not `#244`, not entry surfaces
+or the copy doctrine, not the canvas, not completeness-regression semantics
+(ADR-0046), no new ADRs, no consolidation-bundle work, and no work on any frozen
+v0.1 non-goal. Milestone membership never authorises a frozen item.
+
 ### 🚀 dmf-cms 0.27.0 → 0.29.0 — the console's action surfaces, and what only a browser caught (2026-08-22)
 
 **Four releases, each deployed and digest-verified, each walked in a real
