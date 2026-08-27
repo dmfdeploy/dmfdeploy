@@ -291,8 +291,10 @@ the gap; they do not enforce.
 7. **Auto-merge + branch auto-delete** — enable
    `allow_auto_merge` + `delete_branch_on_merge` in repo settings; arm
    `automerge.yml` (WP8 pattern: `pull_request_target`, `hold` label disarms).
-8. **Labels + project** — adopt `component:*` / `workstream:*` label usage;
-   land the repo on org Project #1 so issues appear on the canonical board.
+8. **Labels** — adopt `component:*` / `workstream:*` label usage, plus the §2
+   filing rule (milestone only if scheduled; otherwise `platform-debt`). Labels
+   are the canonical surface. Adding the repo's significant issues to org
+   Project #1 is **optional human curation, not a bootstrap requirement** (§3).
 9. **Default branch** — `main`; disallow force-pushes; require signed commits
    (DCO enforced by CI).
 
