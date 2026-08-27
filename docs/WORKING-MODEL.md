@@ -44,7 +44,7 @@ the backlog-hygiene detector. Plan:
 
 | Question | Canonical home |
 |---|---|
-| Is anyone working on X? Is it scheduled? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues) + [org Project #1](https://github.com/orgs/dmfdeploy/projects/1) |
+| Is anyone working on X? Is it scheduled? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues) — a milestone means scheduled (§2); [org Project #1](https://github.com/orgs/dmfdeploy/projects/1) is optional human curation, not authoritative (§3) |
 | What's the design/decision state of a plan? | The plan doc's frontmatter in umbrella `docs/plans/` |
 | What architectural rules bind me? | ADRs in umbrella `docs/decisions/` ([INDEX](decisions/INDEX.md)) |
 | What's happening across repos right now? | `STATUS.local.md` (generated locally via `bin/generate-status.sh`; gitignored). Committed [STATUS.md](../STATUS.md) keeps hand-edited operator notes only. |

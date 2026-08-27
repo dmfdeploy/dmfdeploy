@@ -115,7 +115,8 @@ in the umbrella repo. The three rules that matter mid-task:
 
 ### Backlog + plan state
 - The live backlog is [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues)
-  (org board Project #1) — not TODOS.md (retired 2026-06-10), not `docs/agentic/`.
+  — not TODOS.md (retired 2026-06-10), not `docs/agentic/`. Org Project #1 is
+  optional human curation, not part of the backlog (WORKING-MODEL.md §3).
 - New work: issue → on-disk spec in `docs/plans/` with `tracking_issue`
   frontmatter → the completing PR **auto-closes the issue** (the daily
   `issue-close-reconciler` honors the qualified `Closes dmfdeploy/dmfdeploy#N`
