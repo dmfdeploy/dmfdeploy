@@ -84,7 +84,7 @@ Always verify kubectl context with `kubectl config current-context` before runni
 |---|---|
 | What is the DMF Platform supposed to be? | `docs/architecture/DMF Platform Plan.md` |
 | What is the EBU layer/vertical/lifecycle vocabulary? | `docs/architecture/DMF EBU Mapping (2026-04-25).md` |
-| What's the active task? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues) + the Active section of `docs/plans/INDEX.md` (umbrella plan: `DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md`) |
+| What's the active task? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues), scheduled by milestone + the Active section of `docs/plans/INDEX.md` |
 | What's the strategic frame for current decisions? | `docs/decisions/architectural-commitments-v1.md` + `docs/reviews/dmf-platform-technical-evaluation-2026-06-06.md` (the 2026-04-30 strategic review is superseded) |
 | New here — what is this and how did it get here? | `docs/THESIS.md` → `docs/JOURNEY.md` → `docs/decisions/INDEX.md` (§Start here) |
 | What do these project words mean? | `docs/GLOSSARY.md` |
@@ -117,8 +117,7 @@ Each is a separate git repo with its own remote:
   each other by display name; don't rename without sweeping callers.
 - **Component-repo agent files** (`CLAUDE.md`, `AGENTS.md`, `QWEN.md`) may still carry stray
   `<note-store>/...` references — most are cleaned, but spot-check before quoting any
-  cross-repo path. The `dmf-cms` mockup reference at `<note-store>/tmp/dmf-portal-mockup-2025.png`
-  is the known remaining one (tracked in [umbrella issue #26](https://github.com/dmfdeploy/dmfdeploy/issues/26)).
+  cross-repo path.
 - **No specific IPs or DNS in public repos.** Code/configs use variables (e.g.
   `cert_manager_cluster_domain`) with example-domain defaults. Prose uses the
   fictitious example domain `dmf.example.com` and `<placeholder-name>` style for
@@ -205,5 +204,5 @@ The experiment phase **closed 2026-06-06** —
 froze the v0.1 architecture and named the explicit non-goals (federation,
 HA/cloud claims, Argo hybrid actuator, in-place upgrade, media-v2).
 Work-selection rule: **"choose work that makes the proven core runnable and
-legible to an outsider."** Active plan:
-`docs/plans/DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md`.
+legible to an outsider."** Scheduling lives in the milestones and the issue
+backlog, not in a single named plan doc.
