@@ -84,7 +84,7 @@ Always verify kubectl context with `kubectl config current-context` before runni
 |---|---|
 | What is the DMF Platform supposed to be? | `docs/architecture/DMF Platform Plan.md` |
 | What is the EBU layer/vertical/lifecycle vocabulary? | `docs/architecture/DMF EBU Mapping (2026-04-25).md` |
-| What's the active task? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues), scheduled by milestone + the Active section of `docs/plans/INDEX.md` |
+| What's the active task? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues), scheduled by milestone — the live source. Plan docs carry *design state*, not scheduling, so don't read `docs/plans/INDEX.md` as a task list |
 | What's the strategic frame for current decisions? | `docs/decisions/architectural-commitments-v1.md` + `docs/reviews/dmf-platform-technical-evaluation-2026-06-06.md` (the 2026-04-30 strategic review is superseded) |
 | New here — what is this and how did it get here? | `docs/THESIS.md` → `docs/JOURNEY.md` → `docs/decisions/INDEX.md` (§Start here) |
 | What do these project words mean? | `docs/GLOSSARY.md` |
