@@ -16,9 +16,10 @@ the backlog-hygiene detector. Plan:
 
 1. **Work starts at an issue** in the canonical backlog
    <https://github.com/dmfdeploy/dmfdeploy/issues> — claim one or open one
-   (milestone + `component:*` + `workstream:*` labels; it lands on org
-   Project #1). Non-trivial work also gets a plan doc in umbrella
-   `docs/plans/` with `tracking_issue` frontmatter.
+   (`component:*` + `workstream:*` labels always, plus a milestone if
+   scheduled or `platform-debt` if not — see §2; it lands on org Project #1).
+   Non-trivial work also gets a plan doc in umbrella `docs/plans/` with
+   `tracking_issue` frontmatter.
 2. **The completing PR auto-closes its issue; flipping the plan's frontmatter
    stays a manual step in that PR.** From a *component* repo, reference umbrella
    issues **fully qualified** — `Closes dmfdeploy/dmfdeploy#N` — a bare `#N`

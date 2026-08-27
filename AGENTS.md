@@ -120,8 +120,9 @@ in the umbrella repo. The three rules that matter mid-task:
 
 1. **Work starts at an issue** in the canonical backlog
    ([dmfdeploy/dmfdeploy issues](https://github.com/dmfdeploy/dmfdeploy/issues);
-   milestone + `component:*`/`workstream:*` labels). Non-trivial work gets a
-   plan doc in umbrella `docs/plans/` with `tracking_issue` frontmatter.
+   `component:*`/`workstream:*` labels, plus a milestone if scheduled or
+   `platform-debt` if not). Non-trivial work gets a plan doc in umbrella
+   `docs/plans/` with `tracking_issue` frontmatter.
 2. **The completing PR auto-closes its issue; you still flip the plan
    frontmatter by hand in that PR.** Reference umbrella issues **fully
    qualified** — `Closes dmfdeploy/dmfdeploy#N` (bare `#N` targets the wrong
