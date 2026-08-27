@@ -84,7 +84,7 @@ Always verify kubectl context with `kubectl config current-context` before runni
 |---|---|
 | What is the DMF Platform supposed to be? | `docs/architecture/DMF Platform Plan.md` |
 | What is the EBU layer/vertical/lifecycle vocabulary? | `docs/architecture/DMF EBU Mapping (2026-04-25).md` |
-| What's the active task? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues), scheduled by milestone — the live source. Plan docs carry *design state*, not scheduling, so don't read `docs/plans/INDEX.md` as a task list |
+| What's the active task? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues), scheduled by the three milestones (§Backlog below) — the live source. Plan docs carry *design state*, not scheduling, so don't read `docs/plans/INDEX.md` as a task list |
 | What's the strategic frame for current decisions? | `docs/decisions/architectural-commitments-v1.md` + `docs/reviews/dmf-platform-technical-evaluation-2026-06-06.md` (the 2026-04-30 strategic review is superseded) |
 | New here — what is this and how did it get here? | `docs/THESIS.md` → `docs/JOURNEY.md` → `docs/decisions/INDEX.md` (§Start here) |
 | What do these project words mean? | `docs/GLOSSARY.md` |
@@ -153,8 +153,23 @@ in the umbrella repo. The three rules that matter mid-task:
   (org board: [Project #1](https://github.com/orgs/dmfdeploy/projects/1));
   TODOS.md was retired into Issues on 2026-06-10. Discussions host Q&A + the
   RFC-before-ADR pipeline (see [CONTRIBUTING.md](CONTRIBUTING.md)).
-- **Milestones schedule the backlog:** `v0.1-polish` (items gating the v0.1
-  claim) and `v0.2` (post-v0.1 scope). New issues get a milestone and a
+- **Milestones schedule the backlog — three, each with a different job:**
+  - **`v0.1-polish`** — the durable capability contract: an outsider completes the
+    canonical journey cold, a closed set of five deviations does not strand them,
+    the console never tells the user something untrue, and the runbook and public
+    claims are truthful. A *product* milestone.
+  - **`episode-001-capture`** — everything needed to record and publish episode
+    001. Dated and disposable, so a later episode cannot redefine what `v0.1` meant.
+  - **`v0.2`** — post-validation product bets. Sourced from the limits episode 001
+    declares on camera; selected by measured interest after publication. It does
+    **not** mean "everything that isn't v0.1" — that reading is what turned it into
+    an 85-item inbox.
+
+  Unscheduled work gets **no milestone plus `platform-debt`**, never a
+  release-shaped bucket. **Milestone membership never authorises work on a frozen
+  v0.1 non-goal** — those keep their own re-open triggers in
+  [docs/OPEN-QUESTIONS.md](docs/OPEN-QUESTIONS.md) and need a dated amendment to
+  `architectural-commitments-v1` first. New issues get a milestone and a
   `component:*` + `workstream:*` label pair. The org board (Project #1) is a
   **human curation surface**, not a filing requirement — people add significant
   issues and track Status; nothing auto-adds or reconciles it, and labels stay
@@ -204,5 +219,9 @@ The experiment phase **closed 2026-06-06** —
 froze the v0.1 architecture and named the explicit non-goals (federation,
 HA/cloud claims, Argo hybrid actuator, in-place upgrade, media-v2).
 Work-selection rule: **"choose work that makes the proven core runnable and
-legible to an outsider."** Scheduling lives in the milestones and the issue
-backlog, not in a single named plan doc.
+legible to an outsider."**
+
+**Scheduling lives in the three milestones above, not in a single plan doc.** The
+former umbrella plan (`DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md`)
+is **executed** — its tracking issue closed 2026-07-17 — and is history, not a
+pointer to current work.
