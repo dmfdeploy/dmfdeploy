@@ -211,5 +211,8 @@ legible to an outsider."**
 
 **Scheduling lives in the three milestones above, not in a single plan doc.** The
 former umbrella plan (`DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md`)
-is **executed** — its tracking issue closed 2026-07-17 — and is history, not a
-pointer to current work.
+is **historical, not executed** — most of its reproducibility-slice queue
+landed piecemeal, but a discrete "publish v0.1" release never happened; that
+goal now lives on, open-ended, as the `v0.1-polish` milestone. Its tracking
+issue closed 2026-07-17 anyway (scope moved on, not completed). Retained as
+history, not a pointer to current work.
