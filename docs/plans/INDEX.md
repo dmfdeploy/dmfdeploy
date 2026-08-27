@@ -28,7 +28,7 @@ shelved, kept for provenance.
 - [DMF Pre-Release Compliance Readiness Plan 2026-05-11](DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md) — 2026-05-11
 - [DMF Tier A Phase Execution Plan 2026-05-11](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — 2026-05-11
 
-## Executed (94)
+## Executed (93)
 
 - [DMF Agent Conversation Recording Format Plan 2026-08-04](DMF%20Agent%20Conversation%20Recording%20Format%20Plan%202026-08-04.md) — 2026-08-04 (executed 2026-08-04)
 - [DMF L3 Run Preflight and Rollback Plan 2026-07-16](DMF%20L3%20Run%20Preflight%20and%20Rollback%20Plan%202026-07-16.md) — 2026-07-16
@@ -70,7 +70,6 @@ shelved, kept for provenance.
 - [DMF Workstream E1 — PR-Gate CI Execution Spec 2026-06-09](DMF%20Workstream%20E1%20%E2%80%94%20PR-Gate%20CI%20Execution%20Spec%202026-06-09.md) — 2026-06-09 (executed 2026-06-09)
 - [DMF Sandbox Zero-Setup Addressing (sslip.io) Plan 2026-06-07](DMF%20Sandbox%20Zero-Setup%20Addressing%20%28sslip.io%29%20Plan%202026-06-07.md) — 2026-06-07 (executed 2026-06-08)
 - [DMF dmf-init Container Productization Plan 2026-06-07](DMF%20dmf-init%20Container%20Productization%20Plan%202026-06-07.md) — 2026-06-07 (executed 2026-06-08)
-- [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06 (executed 2026-06-11)
 - [DMF MXL-Hello Single-Node Catalog Control-Chain Validation Plan 2026-06-05](DMF%20MXL-Hello%20Single-Node%20Catalog%20Control-Chain%20Validation%20Plan%202026-06-05.md) — 2026-06-05 (executed 2026-06-05)
 - [DMF Sandbox E2E Test Harness Plan 2026-06-05](DMF%20Sandbox%20E2E%20Test%20Harness%20Plan%202026-06-05.md) — 2026-06-05
 - [DMF Sandbox Harness Followups — Env-Domain, QR, Passkey-Flow 2026-06-05](DMF%20Sandbox%20Harness%20Followups%20%E2%80%94%20Env-Domain%2C%20QR%2C%20Passkey-Flow%202026-06-05.md) — 2026-06-05 (executed 2026-06-08)
@@ -142,8 +141,9 @@ shelved, kept for provenance.
 - [DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04](DMF%20NMOS%20Registry%20%2B%20Crosspoint%20Demo%20Plan%202026-05-04.md) — 2026-05-04 → superseded by [dmf-platform-move-1-task-2026-05-04.md](dmf-platform-move-1-task-2026-05-04.md)
 - [Move 1 Gate 2 — AWX Integration + Launch NMOS](Move%201%20Gate%202%20%E2%80%94%20AWX%20Integration%20%2B%20Launch%20NMOS.md) — 2026-05-04 → superseded by [Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md](Move%201%20Gate%202%20-%20Pivot%20to%20Path%20A%20for%20Catalog%20Launchers%202026-05-06.md)
 
-## Historical (24)
+## Historical (25)
 
+- [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
 - [DMF Dynamic Catalog & Deployable-Workflow Mechanism — Discussion Notes 2026-06-05](DMF%20Dynamic%20Catalog%20%26%20Deployable-Workflow%20Mechanism%20%E2%80%94%20Discussion%20Notes%202026-06-05.md) — 2026-06-05
 - [DMF Dynamic Media Facility & Dynamic Catalog — Initial Release Plan 2026-06-05](DMF%20Dynamic%20Media%20Facility%20%26%20Dynamic%20Catalog%20%E2%80%94%20Initial%20Release%20Plan%202026-06-05.md) — 2026-06-05
 - [DMF Elastic Media Nodes and Cloud Cost Controller Plan 2026-06-01](DMF%20Elastic%20Media%20Nodes%20and%20Cloud%20Cost%20Controller%20Plan%202026-06-01.md) — 2026-06-01
