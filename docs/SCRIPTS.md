@@ -73,7 +73,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `dmf-cms/scripts/build-image.sh` | Build the DMF Console image locally and tag it registry.dmf.example.com/dmf-cms:<VERSION>. |
 | `dmf-cms/scripts/publish-to-ghcr.sh` | push the locally-built dmf-cms image to GHCR. |
 | `dmf-cms/scripts/release.sh` | End-to-end release: bump version, sync, commit, tag, build (local only). |
-| `dmf-cms/scripts/sync-version.sh` | Propagate VERSION → pyproject.toml, frontend/package.json, charts/dmf-cms/Chart.yaml, charts/dmf-cms/values.yaml |
+| `dmf-cms/scripts/sync-version.sh` | Propagate VERSION → pyproject.toml, frontend/package.json, frontend/package-lock.json, charts/dmf-cms/Chart.yaml, charts/dmf-cms/values.yaml |
 | `dmf-cms/scripts/verify-cluster.sh` | Verify the deployed image matches the local VERSION file. Run after deploying to confirm the rollout reached the cluster. |
 
 ## dmf-central — `dmf-central/bin/`
