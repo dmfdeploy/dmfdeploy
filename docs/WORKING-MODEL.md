@@ -213,7 +213,8 @@ Two sanctioned forms:
 |---|---|---|
 | This doc + digest | all | canonical source |
 | Working-model block in CLAUDE/AGENTS/QWEN (generated from `docs/templates/working-model-block.md`) | all 9 repos | context auto-load (codex/qwen forcing mechanism) |
-| `bin/check-working-model-sync.sh` | umbrella CI/pre-commit; component CI `--strict` | fails on block drift |
+| `bin/check-working-model-sync.sh` | umbrella CI/pre-commit; component CI `--strict` against a **pinned** umbrella tag (`ref: working-model-vN`) | fails on block drift |
+| `bin/check-working-model-sync.sh --report-pins` | umbrella, on demand | reports how far behind each sibling's pin is (never fails a build) |
 | SessionStart hook → `bin/working-model-digest.sh` | Claude Code, per repo (trust-gated) | injects digest at session start |
 | PR-gate issue-linkage job (`guard.yml`) | all 9 repos | fails unqualified/missing reference |
 | `bin/check-docs.sh` | umbrella | fails bad frontmatter; W2 → fail after backfill |
@@ -248,6 +249,8 @@ the gap; they do not enforce.
    the hook suite includes gitleaks + `bin/scrub-public-repos.sh` guards.
    Add `bin/check-working-model-sync.sh --strict` to the repo's `ci.yml`
    (WP4 batch) and the umbrella `check-docs.sh` to the umbrella pre-commit.
+   **The umbrella checkout in that job must carry `ref: working-model-vN`** —
+   see §8a. A checkout with no `ref:` is the flag-day bug, not a shortcut.
 6. **Branch ruleset** — require PR + 1 approval + linear history; set
    required status checks to the CI jobs this repo actually runs (e.g. `dco`,
    `guard` incl. `issue-link`, per-stack `ci` incl. `working-model`). If the
@@ -259,3 +262,36 @@ the gap; they do not enforce.
    land the repo on org Project #1 so issues appear on the canonical board.
 9. **Default branch** — `main`; disallow force-pushes; require signed commits
    (DCO enforced by CI).
+
+## 8a. Changing the working-model block
+
+The block is duplicated **byte-identically into 30 files across 9 repos**,
+because it is the forcing mechanism for agents that do not run hooks — codex and
+qwen read `AGENTS.md`/`QWEN.md` and never see the runtime digest. That
+duplication is deliberate, and it has one sharp edge worth stating plainly.
+
+**Sibling CI validates against a pinned umbrella tag, not against `main`.** Each
+component repo's `working-model` job checks out `dmfdeploy/dmfdeploy` at
+`ref: working-model-vN`. Before that pin existed, the checkout carried no `ref:`
+and therefore resolved the umbrella's **default branch at CI time** — so the
+moment a template correction landed on umbrella `main`, the `working-model` job
+failed on the next PR in all 8 component repos plus `.github`. A two-line
+clarification cost a 9-repo flag day, which is why the block was left
+contradicting the canonical filing rule for weeks rather than corrected.
+
+**To change the block:**
+
+1. Edit `docs/templates/working-model-block.md` — the template, never a copy.
+2. `bin/check-working-model-sync.sh --umbrella-only --apply`, and land that on
+   umbrella `main`. **No sibling breaks**: they are pinned to the previous tag.
+3. Cut the next tag on that commit: `git tag working-model-v<N+1> && git push
+   origin working-model-v<N+1>`. Tags are numeric-sorted, so `v10` follows `v9`.
+4. Per sibling, in **one** PR: `bin/check-working-model-sync.sh --repo <path>
+   --apply` to regenerate its three copies, **and** bump `ref:` in its `ci.yml`
+   to the new tag. Both in the same change, or its CI checks new copies against
+   the old template and fails.
+
+**The cost of the pin is that a lagging sibling is now silent rather than loud.**
+`bin/check-working-model-sync.sh --report-pins` is what makes it visible — run it
+from the umbrella clone (not a worktree; sibling lookup resolves from the
+umbrella's parent directory, and the report warns loudly if it resolved nothing).

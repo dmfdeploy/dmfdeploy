@@ -14,6 +14,7 @@
 #   bin/check-working-model-sync.sh --repo <path>    # check one repo dir (component CI)
 #   bin/check-working-model-sync.sh --template <f>   # alternate template (e.g. curl'd from umbrella)
 #   bin/check-working-model-sync.sh --apply          # rewrite drifted blocks in place from the template
+#   bin/check-working-model-sync.sh --report-pins    # how far behind each sibling's CI template pin is
 #
 # --apply is the generator the markers promise: it replaces the marker-fenced
 # region of each agent file with the canonical block (idempotent — only differing
@@ -21,8 +22,23 @@
 # never a SessionStart auto-run, so it can't silently dirty a sibling repo another
 # agent is working in. The default (--check) stays the pre-commit/CI gate.
 #
-# Exit: 0 clean (or all drift re-synced under --apply), 1 drift (default) or
-#       missing block (--strict).
+# --report-pins exists because of how sibling CI consumes this template. Each
+# component repo's `working-model` job checks out dmfdeploy/dmfdeploy and diffs
+# its own copies against docs/templates/working-model-block.md. Historically that
+# checkout carried no `ref:`, i.e. the umbrella's DEFAULT BRANCH resolved at CI
+# time — so the instant a template correction landed on umbrella main, the
+# working-model job failed on the next PR in all 8 component repos plus .github.
+# A two-line clarification cost a 9-repo flag day, which is why the block was
+# left contradicting the canonical filing rule for weeks rather than fixed.
+#
+# Siblings therefore pin `ref: working-model-vN` (an umbrella tag). Umbrella main
+# can then correct the template without reddening anyone, and each sibling bumps
+# its pin in its own PR alongside its regenerated copies. The cost of that trade
+# is that a lagging sibling is now SILENT rather than loud — so this report makes
+# the lag visible, and an unpinned repo is called out as the flag-day hazard it is.
+#
+# Exit: 0 clean (or all drift re-synced under --apply, or any --report-pins run),
+#       1 drift (default) or missing block (--strict).
 
 set -uo pipefail
 
@@ -37,11 +53,13 @@ STRICT=0
 SINGLE_REPO=""
 UMBRELLA_ONLY=0
 APPLY=0
+REPORT_PINS=0
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --strict)        STRICT=1; shift ;;
         --umbrella-only) UMBRELLA_ONLY=1; shift ;;
         --apply)         APPLY=1; shift ;;
+        --report-pins)   REPORT_PINS=1; shift ;;
         --repo)     SINGLE_REPO="$2"; shift 2 ;;
         --template) TEMPLATE="$2"; shift 2 ;;
         -h|--help)
@@ -51,6 +69,74 @@ while [ "$#" -gt 0 ]; do
         *) echo "unknown arg: $1" >&2; exit 2 ;;
     esac
 done
+
+resolve_repo_dir() {
+    local repo="$1"
+    if   [ -d "$UMBRELLA_DIR/$repo/.git" ]; then printf '%s\n' "$UMBRELLA_DIR/$repo"
+    elif [ -d "$PARENT_DIR/$repo/.git" ];   then printf '%s\n' "$PARENT_DIR/$repo"
+    fi
+}
+
+# Sorted oldest→newest. Numeric sort on the suffix rather than `sort -V`, which
+# BSD/macOS sort does not reliably provide.
+wm_tags() {
+    git -C "$UMBRELLA_DIR" tag -l 'working-model-v*' 2>/dev/null \
+        | sed 's/^working-model-v//' | sort -n | sed 's/^/working-model-v/'
+}
+
+# The pin a repo's working-model job uses, or empty when the checkout carries no
+# `ref:` and therefore tracks the umbrella's default branch.
+extract_pin() {
+    grep -rhoE 'ref:[[:space:]]*working-model-v[0-9]+' "$1/.github/workflows/" 2>/dev/null \
+        | head -1 | sed -E 's/.*(working-model-v[0-9]+)/\1/'
+}
+
+report_pins() {
+    local tags latest pinned dir behind repo unpinned=0 lagging=0 found=0
+    tags="$(wm_tags)"
+    latest="$(printf '%s\n' "$tags" | tail -1)"
+    [ -n "$latest" ] || latest="(none yet)"
+    echo "working-model template pin report — umbrella latest: $latest"
+    echo
+    for repo in "${COMPONENT_REPOS[@]}"; do
+        dir="$(resolve_repo_dir "$repo")"
+        if [ -z "$dir" ]; then
+            printf '  %-14s %-18s %s\n' "$repo" "-" "no local checkout — skipped"
+            continue
+        fi
+        found=$((found + 1))
+        pinned="$(extract_pin "$dir")"
+        if [ -z "$pinned" ]; then
+            printf '  %-14s %-18s %s\n' "$repo" "(unpinned)" \
+                "tracks umbrella default branch — a template change breaks its CI at once"
+            unpinned=$((unpinned + 1))
+        elif [ "$pinned" = "$latest" ]; then
+            printf '  %-14s %-18s %s\n' "$repo" "$pinned" "current"
+        else
+            behind="$(printf '%s\n' "$tags" | awk -v p="$pinned" 'f{c++} $0==p{f=1} END{print c+0}')"
+            printf '  %-14s %-18s %s\n' "$repo" "$pinned" \
+                "$behind behind — bump the pin, then --repo <path> --apply"
+            lagging=$((lagging + 1))
+        fi
+    done
+    echo
+    if [ "$found" -eq 0 ]; then
+        # Every repo skipped is NOT a clean report — it is a report that checked
+        # nothing. Most often this is a run from a git worktree, where PARENT_DIR
+        # is the worktree root rather than the repo estate's parent.
+        echo "WARN: no sibling checkouts resolved — this report checked NOTHING." >&2
+        echo "      Run it from the umbrella clone, or set DMFDEPLOY_UMBRELLA/UMBRELLA_DIR" >&2
+        echo "      to the umbrella whose parent directory holds the component repos." >&2
+        return 0
+    fi
+    echo "summary: $found checked — $unpinned unpinned, $lagging behind, latest $latest"
+    echo "report only — never fails a build; each repo's --strict check is the gate"
+}
+
+if [ "$REPORT_PINS" -eq 1 ]; then
+    report_pins
+    exit 0
+fi
 
 [ -f "$TEMPLATE" ] || { echo "FAIL: template not found: $TEMPLATE" >&2; exit 1; }
 
