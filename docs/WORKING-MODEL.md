@@ -30,6 +30,13 @@ the backlog-hygiene detector. Plan:
    frontmatter for *design state*, ADRs for *decisions* (propose via a
    Discussions RFC first), STATUS.md for committed operator notes, and
    STATUS.local.md for the generated live repo snapshot.
+4. **Three milestones, and a milestone is not a bucket.** `v0.1-polish` — the
+   durable capability contract (an outsider finishes cold, nothing tells them
+   something untrue). `episode-001-capture` — what a demo recording needs;
+   dated and disposable. `v0.2` — post-validation bets, **not** "everything that
+   isn't v0.1". Scheduled work gets a milestone; **unscheduled work gets
+   `platform-debt` and none**. Milestone membership never authorises work on a
+   frozen v0.1 non-goal (§`OPEN-QUESTIONS.md`).
 <!-- WM-DIGEST-END -->
 
 ## 1. Source-of-truth map
@@ -57,8 +64,33 @@ the frontmatter must be flipped; frontmatter wins for design content.
   `hardening`, `entrance`). Labels are the single source of truth for
   component/workstream classification; board membership is **not** a filing
   requirement (see §3).
-- **Milestones:** `v0.1-polish` — items gating the v0.1 claim; `v0.2` —
-  post-v0.1 scope. New milestones need an operator decision.
+- **Milestones — three, each with a different job.** This list is canonical;
+  agent files point here rather than restating it.
+  - **`v0.1-polish`** — the durable capability contract: an outsider completes
+    the canonical journey cold, a closed set of five deviations does not strand
+    them, the console never tells the user something untrue, and the runbook and
+    public claims are truthful. A *product* milestone.
+  - **`episode-001-capture`** — everything needed to record and publish episode
+    001. Dated and disposable, so a later episode cannot retroactively redefine
+    what `v0.1` meant. *(Added by operator decision, 2026-08-26, as part of the
+    milestone reconciliation.)*
+  - **`v0.2`** — post-validation product bets: sourced from the limits episode
+    001 declares on camera, selected by measured interest after publication. It
+    does **not** mean "everything that isn't v0.1" — that reading is what turned
+    it into an 85-item inbox.
+
+  **Filing rule.** Every new issue gets a `component:*` + `workstream:*` label
+  pair. It gets a **milestone only if it is scheduled** for one of the three
+  above; **unscheduled work gets `platform-debt` and no milestone**, which keeps
+  it retrievable by label without a release-shaped bucket implying it is planned.
+
+  **Milestone membership never authorises work on a frozen v0.1 non-goal** —
+  those keep their own re-open triggers in
+  [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) and need a dated amendment to
+  [architectural-commitments-v1](decisions/architectural-commitments-v1.md)
+  first.
+
+  New milestones need an operator decision, recorded with a date.
 - **Component-repo issues are drive-by intake only** (bug reports from
   outsiders landing where the code is). Triage within ~7 days: either close,
   or open/link the canonical umbrella issue and continue there. Don't grow a
