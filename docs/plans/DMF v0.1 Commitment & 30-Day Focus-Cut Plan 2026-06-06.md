@@ -7,7 +7,7 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/36
 
 **Status:** **Historical, not executed.** Verified item-by-item 2026-08-27 (see
 "Post-hoc verification" below): 5 of 12 queued items are DONE with hard
-evidence, 3 are partial, and 4 — including the plan's own capstone, a discrete
+evidence, 4 are partial, and 3 — including the plan's own capstone, a discrete
 **"publish v0.1" release** — never happened. That publish goal now lives on,
 open-ended, as the `v0.1-polish` milestone (25 open issues as of 2026-08-27,
 still gaining and losing items today). Its tracking issue closed 2026-07-17
@@ -190,7 +190,9 @@ not "probably".
 | 11 | Writeup on the proven thesis | ❌ Not done | No standalone artifact found anywhere in the org; evolved into the WO-379 runbook rewrite, whose PR [#397](https://github.com/dmfdeploy/dmfdeploy/pull/397) remains an open draft. |
 | 12 | Publish v0.1 | ❌ Not done as scoped | The `v0.1.0` tag is the item-#7 initial-publish squash commit, not a completion release; no GitHub Release exists; the `v0.1-polish` milestone remains open (25 open / 75 closed issues, still moving today). |
 
-**Tally:** 5 done, 3 partial, 4 not done (of 12).
+**Tally:** 5 done, 4 partial, 3 not done (of 12) — done 3, 4, 7, 9, 10; partial
+1, 2, 6, 8; not done 5, 11, 12. Item numbers are listed so the counts can be
+checked against the table above rather than taken on trust.
 
 **Verdict:** not executed. Item #12 — the plan's own capstone, a discrete "publish
 v0.1" release — never happened; instead the "v0.1" concept diffused into an
