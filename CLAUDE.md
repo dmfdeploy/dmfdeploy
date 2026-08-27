@@ -153,31 +153,14 @@ in the umbrella repo. The three rules that matter mid-task:
   (org board: [Project #1](https://github.com/orgs/dmfdeploy/projects/1));
   TODOS.md was retired into Issues on 2026-06-10. Discussions host Q&A + the
   RFC-before-ADR pipeline (see [CONTRIBUTING.md](CONTRIBUTING.md)).
-- **Milestones schedule the backlog — three, each with a different job:**
-  - **`v0.1-polish`** — the durable capability contract: an outsider completes the
-    canonical journey cold, a closed set of five deviations does not strand them,
-    the console never tells the user something untrue, and the runbook and public
-    claims are truthful. A *product* milestone.
-  - **`episode-001-capture`** — everything needed to record and publish episode
-    001. Dated and disposable, so a later episode cannot redefine what `v0.1` meant.
-  - **`v0.2`** — post-validation product bets. Sourced from the limits episode 001
-    declares on camera; selected by measured interest after publication. It does
-    **not** mean "everything that isn't v0.1" — that reading is what turned it into
-    an 85-item inbox.
-
-  **Filing rule, stated once so it does not contradict itself:** every new issue
-  gets a `component:*` + `workstream:*` label pair. It gets a **milestone only if
-  it is scheduled** for one of the three above; **unscheduled work gets
-  `platform-debt` and no milestone**, which keeps it retrievable by label without
-  a release-shaped bucket implying it is planned.
-
-  **Milestone membership never authorises work on a frozen v0.1 non-goal** —
-  those keep their own re-open triggers in
-  [docs/OPEN-QUESTIONS.md](docs/OPEN-QUESTIONS.md) and need a dated amendment to
-  `architectural-commitments-v1` first. The org board (Project #1) is a
-  **human curation surface**, not a filing requirement — people add significant
-  issues and track Status; nothing auto-adds or reconciles it, and labels stay
-  canonical (see `docs/WORKING-MODEL.md` §3).
+- **Milestones schedule the backlog.** The set, what each is for, and the filing
+  rule (scheduled → milestone; unscheduled → `platform-debt` and none) are
+  **canonical in [docs/WORKING-MODEL.md](docs/WORKING-MODEL.md) §2** and are
+  deliberately not restated here — a second copy is a second thing to drift. They
+  also reach every session through the working-model digest. The org board
+  (Project #1) is a **human curation surface**, not a filing requirement — people
+  add significant issues and track Status; nothing auto-adds or reconciles it, and
+  labels stay canonical (see `docs/WORKING-MODEL.md` §3).
 - **Gotcha:** `gh project` subcommands may 401 — use raw `gh api graphql`
   (Project #1 node id `PVT_kwDOENb9uM4BaPY-`).
 - **New-work convention:** open (or claim) an issue → write the on-disk spec in
