@@ -1,11 +1,13 @@
 ---
-status: active
+status: executed
 date: 2026-06-06
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/36
 ---
 # DMF v0.1 Commitment & 30-Day Focus-Cut Plan (2026-06-06)
 
-**Status:** Active task spec (supersedes the experiment-phase backlog framing).
+**Status:** **Executed.** Its tracking issue closed 2026-07-17 and the v0.1
+reproducibility/publish goal it scoped shipped 2026-06-11. Retained as history;
+current scheduling lives in the milestones, not here.
 **Decision basis:** [architectural-commitments-v1](../decisions/architectural-commitments-v1.md)
 + the 2026-06-06 technical evaluation + CEO/eng review (dual-voice CONFIRMED).
 **Operator decisions:** D1 commit now · D2 credibility-signal first · D3

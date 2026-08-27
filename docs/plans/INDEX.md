@@ -8,13 +8,12 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (5)
+## Active (4)
 
 - [DMF Console Arc 4 Visual Pass Plan 2026-08-11](DMF%20Console%20Arc%204%20Visual%20Pass%20Plan%202026-08-11.md) — 2026-08-11
 - [DMF v0.2b Multi-Source Switch Spec 2026-07-15](DMF%20v0.2b%20Multi-Source%20Switch%20Spec%202026-07-15.md) — 2026-07-15
 - [DMF v0.2 Presentable Journey Execution Plan 2026-07-12](DMF%20v0.2%20Presentable%20Journey%20Execution%20Plan%202026-07-12.md) — 2026-07-12
 - [DMF v0.2 EBU Facility-Orchestration Re-anchor Plan 2026-07-07](DMF%20v0.2%20EBU%20Facility-Orchestration%20Re-anchor%20Plan%202026-07-07.md) — 2026-07-07
-- [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
 
 ## Draft (10)
 
@@ -29,7 +28,7 @@ shelved, kept for provenance.
 - [DMF Pre-Release Compliance Readiness Plan 2026-05-11](DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md) — 2026-05-11
 - [DMF Tier A Phase Execution Plan 2026-05-11](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — 2026-05-11
 
-## Executed (93)
+## Executed (94)
 
 - [DMF Agent Conversation Recording Format Plan 2026-08-04](DMF%20Agent%20Conversation%20Recording%20Format%20Plan%202026-08-04.md) — 2026-08-04 (executed 2026-08-04)
 - [DMF L3 Run Preflight and Rollback Plan 2026-07-16](DMF%20L3%20Run%20Preflight%20and%20Rollback%20Plan%202026-07-16.md) — 2026-07-16
@@ -71,6 +70,7 @@ shelved, kept for provenance.
 - [DMF Workstream E1 — PR-Gate CI Execution Spec 2026-06-09](DMF%20Workstream%20E1%20%E2%80%94%20PR-Gate%20CI%20Execution%20Spec%202026-06-09.md) — 2026-06-09 (executed 2026-06-09)
 - [DMF Sandbox Zero-Setup Addressing (sslip.io) Plan 2026-06-07](DMF%20Sandbox%20Zero-Setup%20Addressing%20%28sslip.io%29%20Plan%202026-06-07.md) — 2026-06-07 (executed 2026-06-08)
 - [DMF dmf-init Container Productization Plan 2026-06-07](DMF%20dmf-init%20Container%20Productization%20Plan%202026-06-07.md) — 2026-06-07 (executed 2026-06-08)
+- [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
 - [DMF MXL-Hello Single-Node Catalog Control-Chain Validation Plan 2026-06-05](DMF%20MXL-Hello%20Single-Node%20Catalog%20Control-Chain%20Validation%20Plan%202026-06-05.md) — 2026-06-05 (executed 2026-06-05)
 - [DMF Sandbox E2E Test Harness Plan 2026-06-05](DMF%20Sandbox%20E2E%20Test%20Harness%20Plan%202026-06-05.md) — 2026-06-05
 - [DMF Sandbox Harness Followups — Env-Domain, QR, Passkey-Flow 2026-06-05](DMF%20Sandbox%20Harness%20Followups%20%E2%80%94%20Env-Domain%2C%20QR%2C%20Passkey-Flow%202026-06-05.md) — 2026-06-05 (executed 2026-06-08)

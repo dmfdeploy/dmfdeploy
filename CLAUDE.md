@@ -165,12 +165,16 @@ in the umbrella repo. The three rules that matter mid-task:
     **not** mean "everything that isn't v0.1" — that reading is what turned it into
     an 85-item inbox.
 
-  Unscheduled work gets **no milestone plus `platform-debt`**, never a
-  release-shaped bucket. **Milestone membership never authorises work on a frozen
-  v0.1 non-goal** — those keep their own re-open triggers in
+  **Filing rule, stated once so it does not contradict itself:** every new issue
+  gets a `component:*` + `workstream:*` label pair. It gets a **milestone only if
+  it is scheduled** for one of the three above; **unscheduled work gets
+  `platform-debt` and no milestone**, which keeps it retrievable by label without
+  a release-shaped bucket implying it is planned.
+
+  **Milestone membership never authorises work on a frozen v0.1 non-goal** —
+  those keep their own re-open triggers in
   [docs/OPEN-QUESTIONS.md](docs/OPEN-QUESTIONS.md) and need a dated amendment to
-  `architectural-commitments-v1` first. New issues get a milestone and a
-  `component:*` + `workstream:*` label pair. The org board (Project #1) is a
+  `architectural-commitments-v1` first. The org board (Project #1) is a
   **human curation surface**, not a filing requirement — people add significant
   issues and track Status; nothing auto-adds or reconciles it, and labels stay
   canonical (see `docs/WORKING-MODEL.md` §3).
