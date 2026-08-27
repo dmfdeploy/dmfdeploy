@@ -91,6 +91,97 @@ or the copy doctrine, not the canvas, not completeness-regression semantics
 (ADR-0046), no new ADRs, no consolidation-bundle work, and no work on any frozen
 v0.1 non-goal. Milestone membership never authorises a frozen item.
 
+### ✅ Gate A PASSED — a named outsider completed the journey unaided, observed (2026-08-25)
+
+**This entry exists because the committed record did not show it.** The demo
+exit criterion was met on 2026-08-25 and recorded only in the tracking issue's
+comments; every STATUS entry up to this one still framed outsider-readiness as
+pending. That gap is what this entry closes. Recorded 2026-08-27, after the
+fact, deliberately — the record is later than the event and says so.
+
+| | |
+|---|---|
+| criterion | `dmfdeploy/dmfdeploy#383` — one person who did not build this completes the journey unaided, observed |
+| result | **PASSED 2026-08-25** on console `0.29.0`, true cold start (AWX scaled from zero) |
+| journey | create → design → plan → provision → view → switch source → teardown → permanent delete, in 15:52 |
+| participant | a private individual, held operator-locally; referred to in-repo as *the named outsider*. An outsider to **both** the product and the domain |
+| evidence | video, transcript, observer timeline, backend snapshot, AWX job logs, session record — all **operator-local**, not published |
+
+**"Unaided" was exceeded, not merely met.** #383 asks that the builder observe
+and not assist. The builder left the room: the observer's turns all fall before
+98s and end with an explicit withdrawal; the participant then drives alone from
+1:38 to 15:15. There were zero interventions to file because there was nobody
+present to intervene.
+
+**Comprehension — the question #383 actually exists to answer — was answered.**
+The lifecycle model, the rail, the step sequence and the EBU vocabulary all went
+unremarked by someone for whom every bit of it was new. One vocabulary complaint
+landed and it is instructive: the catalog template summary text, whose failure is
+neither domain vocabulary nor DMF taxonomy but **implementation detail**
+(a transport library named on a screen where an operator chooses what to deploy).
+Per Console UX Constitution Art. 3 that splits cleanly — the DMF/EBU taxonomy
+passed; the catalog copy did not.
+
+**Findings were filed against the surface, never resolved by improving the
+briefing:** `#444` (disabled confirm buttons visually identical to enabled ones),
+`#418` (post-teardown lands on Provision — pre-existing, now with outsider
+evidence), `#443` (public Galaxy credential vs ADR-0034 layer 1, unrelated to the
+participant), and new stranger-behaviour evidence on `#390`.
+
+**Limits, stated so they are not read away:**
+
+- **n = 1.** A second tester was scheduled and did not run.
+- **No runbook was followed.** The participant had a four-sentence brief; the
+  rewritten runbook does not exist yet (`#379` open, PR `#397` still a draft).
+  This makes the completion result *stronger* than scoped — and it means
+  **`#379` remains unvalidated by an outsider.** Nobody should cite this session
+  as having exercised the runbook.
+- The debrief answers are the **operator's account from memory**; the in-session
+  quotes are verbatim with timestamps. The 1–5 confidence rating was not
+  collected — stated explicitly so a missing number is not read as a poor one.
+
+#### What this does NOT lift — read this before scoping anything
+
+**There are two freezes. Gate A touches one of them, and does not lift it yet.**
+
+- **Freeze 1 — architectural, in-repo, canonical.**
+  [`architectural-commitments-v1`](docs/decisions/architectural-commitments-v1.md)
+  plus the v0.1 plan's FREEZE table, surfaced in
+  [`docs/OPEN-QUESTIONS.md`](docs/OPEN-QUESTIONS.md). Seven named v0.1 non-goals
+  plus paused `#9`. **Each keeps its own re-open trigger** — mostly "post-v0.1" /
+  "v0.1 shipped" — and **v0.1 is not shipped**. Re-opening any of them still
+  requires a **dated amendment** to `architectural-commitments-v1`.
+  **Gate A changes nothing here.** Milestone membership never authorises a
+  Freeze-1 item; several sit adjacent to milestones and the exclusion is the
+  guard.
+- **Freeze 2 — the sprawl brake.** No new ADRs, no reopened non-goals, no
+  consolidation rounds; it holds the out-of-repo consolidation bundle.
+  **This is the only freeze Gate A bears on, and it does not lift on Gate A.**
+
+**Freeze 2 lifts on Gate B, which is not started:**
+
+| gate | criterion | status |
+|---|---|---|
+| **A — journey validated** | outsider completes the lifecycle unaided, observed (`#383`) | **PASSED 2026-08-25** |
+| **B — episode publishable** | episode 001 published **and** the presenter runbook (`#379`) landed | **not started** |
+
+Gate B's original rule had three conjuncts — intro video + tutorial ships, an
+outsider completes the demo, interest is measured. Gate B is now: **episode 001
+published, plus the presenter runbook (`#379`) as an operator-chosen substitute
+for the tutorial conjunct, with measured interest deliberately removed** from the
+lift condition and demoted to the `v0.2` selector (operator decision,
+2026-08-25). This is deliberately **not** described as "two of the original
+three": the runbook is a *presenter* document, not a public outsider tutorial, so
+it does not literally satisfy that conjunct. Publication alone does not clear
+Gate B — the evidence bundle (adversarial script review before recording,
+`bin/publish-preflight.sh` green on the final render, per-episode `publish.md`
+complete, on-camera claims reconciled against the never-claim list, an immutable
+published URL, `#379` merged by SHA, and the reviewed render bound to the
+published one by digest) is what clears it.
+
+**`#383` is closed as the Gate A record.** It closes because its own criterion is
+met, not because anything downstream is unblocked.
+
 ### 🚀 dmf-cms 0.27.0 → 0.29.0 — the console's action surfaces, and what only a browser caught (2026-08-22)
 
 **Four releases, each deployed and digest-verified, each walked in a real
