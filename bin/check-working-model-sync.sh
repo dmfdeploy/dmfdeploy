@@ -92,7 +92,7 @@ extract_pin() {
 }
 
 report_pins() {
-    local tags latest pinned dir behind repo unpinned=0 lagging=0 found=0
+    local tags latest pinned dir behind repo unpinned=0 lagging=0 found=0 broken=0
     tags="$(wm_tags)"
     latest="$(printf '%s\n' "$tags" | tail -1)"
     [ -n "$latest" ] || latest="(none yet)"
@@ -110,6 +110,22 @@ report_pins() {
             printf '  %-14s %-18s %s\n' "$repo" "(unpinned)" \
                 "tracks umbrella default branch — a template change breaks its CI at once"
             unpinned=$((unpinned + 1))
+        elif [ -z "$tags" ]; then
+            # No tags to compare against. Saying "0 behind" here would describe a
+            # pin we cannot resolve as if we had resolved it.
+            printf '  %-14s %-18s %s\n' "$repo" "$pinned" \
+                "UNVERIFIABLE — no working-model-v* tags in this clone (git fetch --tags?)"
+            broken=$((broken + 1))
+        elif ! printf '%s\n' "$tags" | grep -qxF "$pinned"; then
+            # Membership is checked separately from lag on purpose: the lag count
+            # is derived by walking the tag list past $pinned, so a pin that is
+            # absent from it (typo, never pushed, deleted) walks zero entries and
+            # reports "0 behind" — the healthiest-looking line in the report, for
+            # the one state where the sibling's actions/checkout ref will fail
+            # outright.
+            printf '  %-14s %-18s %s\n' "$repo" "$pinned" \
+                "INVALID — no such umbrella tag; this repo's CI checkout FAILS"
+            broken=$((broken + 1))
         elif [ "$pinned" = "$latest" ]; then
             printf '  %-14s %-18s %s\n' "$repo" "$pinned" "current"
         else
@@ -129,7 +145,7 @@ report_pins() {
         echo "      to the umbrella whose parent directory holds the component repos." >&2
         return 0
     fi
-    echo "summary: $found checked — $unpinned unpinned, $lagging behind, latest $latest"
+    echo "summary: $found checked — $unpinned unpinned, $lagging behind, $broken unresolvable, latest $latest"
     echo "report only — never fails a build; each repo's --strict check is the gate"
 }
 
