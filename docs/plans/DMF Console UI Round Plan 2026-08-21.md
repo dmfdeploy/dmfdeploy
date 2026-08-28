@@ -1,15 +1,35 @@
 ---
-status: draft
+status: active
 date: 2026-08-21
-tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/432
+tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/449
 ---
 # DMF Console UI Round Plan (2026-08-21)
 
-> **STATUS: DRAFT, parked on a branch.** Freeze-era design work does not open new
-> issues (standing operator policy: no new design scope until a named outsider
-> completes the demo). This plan exists so the design decisions taken on
-> 2026-08-21 are recorded and reviewable; the **defect sweep** it sits beside
-> (dmfdeploy#432) is not blocked by it and proceeds independently.
+> **STATUS: ACTIVE for §3 only — unparked 2026-08-28.**
+>
+> This plan was parked under the standing policy *"no new design scope until a
+> named outsider completes the demo."* **That condition is met**: the named
+> outsider completed the journey unaided and observed on 2026-08-25, recorded on
+> `main` in [STATUS.md](../../STATUS.md) and closed as
+> [dmfdeploy#383](https://github.com/dmfdeploy/dmfdeploy/issues/383). The plan
+> did not need a freeze exception to unpark — its own stated unpark condition
+> came true.
+>
+> **What is authorised is narrower than this document.** Only **§3, the
+> lifecycle rail**, is authorised for implementation, under the scope-freeze
+> carve-out recorded in `STATUS.md` and anchored at commit
+> `fb20c703cb0be95da43b8497e20a6aa7b308a53a` on protected `main`. Rail work must
+> reference that SHA. Everything else here remains **design of record, not a work
+> licence** — in particular not the canvas direction, not entry surfaces or the
+> copy doctrine, and not `#244`.
+>
+> **Tracking issue corrected.** This plan previously pointed at
+> [dmfdeploy#432](https://github.com/dmfdeploy/dmfdeploy/issues/432), the
+> defect sweep, which **closed** — leaving the plan tracked by a closed issue it
+> never described. Its tracker is
+> [dmfdeploy#449](https://github.com/dmfdeploy/dmfdeploy/issues/449) (the rail
+> repaint, folding in `#405`). The §1 references to `#432` below are historical
+> and correct as provenance.
 >
 > Where this plan and the
 > [Console UX Constitution](../design/DMF%20Console%20UX%20Constitution%202026-05-25.md)

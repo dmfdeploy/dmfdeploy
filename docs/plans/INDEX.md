@@ -8,16 +8,16 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (4)
+## Active (5)
 
+- [DMF Console UI Round Plan 2026-08-21](DMF%20Console%20UI%20Round%20Plan%202026-08-21.md) — 2026-08-21
 - [DMF Console Arc 4 Visual Pass Plan 2026-08-11](DMF%20Console%20Arc%204%20Visual%20Pass%20Plan%202026-08-11.md) — 2026-08-11
 - [DMF v0.2b Multi-Source Switch Spec 2026-07-15](DMF%20v0.2b%20Multi-Source%20Switch%20Spec%202026-07-15.md) — 2026-07-15
 - [DMF v0.2 Presentable Journey Execution Plan 2026-07-12](DMF%20v0.2%20Presentable%20Journey%20Execution%20Plan%202026-07-12.md) — 2026-07-12
 - [DMF v0.2 EBU Facility-Orchestration Re-anchor Plan 2026-07-07](DMF%20v0.2%20EBU%20Facility-Orchestration%20Re-anchor%20Plan%202026-07-07.md) — 2026-07-07
 
-## Draft (10)
+## Draft (9)
 
-- [DMF Console UI Round Plan 2026-08-21](DMF%20Console%20UI%20Round%20Plan%202026-08-21.md) — 2026-08-21
 - [DMF Marketplace Resource Model and Placement Grounded Roadmap 2026-07-17](DMF%20Marketplace%20Resource%20Model%20and%20Placement%20Grounded%20Roadmap%202026-07-17.md) — 2026-07-17
 - [DMF Umbrella Security Audit Remediation Spec 2026-06-15](DMF%20Umbrella%20Security%20Audit%20Remediation%20Spec%202026-06-15.md) — 2026-06-15
 - [DMF Facility Console — Born-Inventoried Env Surfacing Plan 2026-06-04](DMF%20Facility%20Console%20%E2%80%94%20Born-Inventoried%20Env%20Surfacing%20Plan%202026-06-04.md) — 2026-06-04
