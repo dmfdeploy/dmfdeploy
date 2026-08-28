@@ -24,7 +24,7 @@ shelved, kept for provenance.
 - [DMF Internal Ansible Collection Source Plan 2026-05-29](DMF%20Internal%20Ansible%20Collection%20Source%20Plan%202026-05-29.md) — 2026-05-29
 - [DMF AWX Catalog Credential Type Migration Plan 2026-05-23](DMF%20AWX%20Catalog%20Credential%20Type%20Migration%20Plan%202026-05-23.md) — 2026-05-23
 
-## Executed (95)
+## Executed (96)
 
 - [DMF Agent Conversation Recording Format Plan 2026-08-04](DMF%20Agent%20Conversation%20Recording%20Format%20Plan%202026-08-04.md) — 2026-08-04 (executed 2026-08-04)
 - [DMF L3 Run Preflight and Rollback Plan 2026-07-16](DMF%20L3%20Run%20Preflight%20and%20Rollback%20Plan%202026-07-16.md) — 2026-07-16
@@ -106,6 +106,7 @@ shelved, kept for provenance.
 - [DMF Move 1 Path A Reset 2026-05-12](DMF%20Move%201%20Path%20A%20Reset%202026-05-12.md) — 2026-05-12
 - [DMF Public Repo Identity Leak Sweep 2026-05-11](DMF%20Public%20Repo%20Identity%20Leak%20Sweep%202026-05-11.md) — 2026-05-11
 - [DMF Secret Ownership and OpenBao Migration Plan](DMF%20Secret%20Ownership%20and%20OpenBao%20Migration%20Plan.md) — 2026-05-11
+- [DMF Tier A Phase Execution Plan 2026-05-11](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — 2026-05-11 (executed 2026-06-11)
 - [DMF Base Domain in Bootstrap Bundle and CMS Logout Redirect 2026-05-09](DMF%20Base%20Domain%20in%20Bootstrap%20Bundle%20and%20CMS%20Logout%20Redirect%202026-05-09.md) — 2026-05-09
 - [DMF Bootstrap Pre-Seed Blocker Fix Implementation Plan 2026-05-09](DMF%20Bootstrap%20Pre-Seed%20Blocker%20Fix%20Implementation%20Plan%202026-05-09.md) — 2026-05-09
 - [DMF Pre-Bao Bootstrap Secrets Design 2026-05-08](DMF%20Pre-Bao%20Bootstrap%20Secrets%20Design%202026-05-08.md) — 2026-05-08
@@ -139,7 +140,7 @@ shelved, kept for provenance.
 - [DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04](DMF%20NMOS%20Registry%20%2B%20Crosspoint%20Demo%20Plan%202026-05-04.md) — 2026-05-04 → superseded by [dmf-platform-move-1-task-2026-05-04.md](dmf-platform-move-1-task-2026-05-04.md)
 - [Move 1 Gate 2 — AWX Integration + Launch NMOS](Move%201%20Gate%202%20%E2%80%94%20AWX%20Integration%20%2B%20Launch%20NMOS.md) — 2026-05-04 → superseded by [Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md](Move%201%20Gate%202%20-%20Pivot%20to%20Path%20A%20for%20Catalog%20Launchers%202026-05-06.md)
 
-## Historical (27)
+## Historical (26)
 
 - [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
 - [DMF Dynamic Catalog & Deployable-Workflow Mechanism — Discussion Notes 2026-06-05](DMF%20Dynamic%20Catalog%20%26%20Deployable-Workflow%20Mechanism%20%E2%80%94%20Discussion%20Notes%202026-06-05.md) — 2026-06-05
@@ -163,7 +164,6 @@ shelved, kept for provenance.
 - [DMF Deployment Workflow and Manifest Plan](DMF%20Deployment%20Workflow%20and%20Manifest%20Plan.md) — 2026-05-11
 - [DMF Forgejo Repo Hosting and Migration Plan](DMF%20Forgejo%20Repo%20Hosting%20and%20Migration%20Plan.md) — 2026-05-11
 - [DMF Pre-Release Compliance Readiness Plan 2026-05-11](DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md) — 2026-05-11
-- [DMF Tier A Phase Execution Plan 2026-05-11](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — 2026-05-11
 - [LLM-Restricted Git Pipeline — Dev-Testing-Production Isolation Plan 2026-05-09](LLM-Restricted%20Git%20Pipeline%20%E2%80%94%20Dev-Testing-Production%20Isolation%20Plan%202026-05-09.md) — 2026-05-09
 - [dmf-multi-provider-resource-selection-future-direction-2026-05-08](dmf-multi-provider-resource-selection-future-direction-2026-05-08.md) — 2026-05-08
 - [Move 1 Gate 2 — Trials and Tribulations 2026-05-05](Move%201%20Gate%202%20%E2%80%94%20Trials%20and%20Tribulations%202026-05-05.md) — 2026-05-05
