@@ -5,10 +5,9 @@ dmfdeploy.io (Tier 3) is deferred to a future *managed-service* model and kept e
 from OSS to protect the domain's reputation.** The Tier-3 design + hardening below are **captured
 for that future phase**, not built now. (Reasoning/dead-ends recorded so they aren't re-derived
 or re-proposed.)
-**Date:** 2026-06-08
-**Deciders:** @<handle>
 
 **Date:** 2026-06-08
+**Deciders:** @<handle>
 **Domain:** architecture / security / TLS / env-lifecycle
 **Relates to:** ADR-0028 D8 (mandatory passkeys), ADR-0031 (OSS v0.1 sandbox + release-profile
 matrix), ADR-0035 (operator-local self-contained envs), ADR-0036 (dmf-init thin control
