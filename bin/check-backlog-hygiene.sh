@@ -3,9 +3,9 @@
 #
 # Read-only detector: every OPEN issue in the umbrella repo must carry a
 # milestone, at least one component:* label, and at least one workstream:*
-# label. The script also flags active plan docs whose tracking issue is CLOSED,
-# and surfaces untriaged component-repo issues older than the staleness
-# threshold. (umbrella issue #32)
+# label. The script also flags active AND draft plan docs whose tracking issue
+# is CLOSED, and surfaces untriaged component-repo issues older than the
+# staleness threshold. (umbrella issue #32)
 #
 # Board membership is deliberately NOT checked: org Project #1 is a human-
 # curated surface for issues of significance, not an automation target — see
@@ -91,7 +91,7 @@ check_umbrella_labels() {
 
 # ── Check 2: Active plans with closed tracking issues ─────────────────────
 check_active_plans() {
-    echo "── check 2: active plans with closed tracking issues"
+    echo "── check 2: active/draft plans with closed tracking issues"
 
     local plan_dir="$UMBRELLA_DIR/docs/plans"
     [ -d "$plan_dir" ] || { skipped "docs/plans directory not found"; return; }
@@ -105,7 +105,16 @@ check_active_plans() {
         local fm status tracking
         fm="$(sed -n '/^---$/,/^---$/p' "$plan_file" 2>/dev/null)" || continue
         status="$(echo "$fm" | sed -n 's/^status:[[:space:]]*\([^[:space:]]*\).*/\1/p' | head -1)"
-        [ "$status" != "active" ] && continue
+        # `draft` is checked alongside `active`, and the draft case is the more
+        # insidious one: a parked plan reads as deliberate, so a closed tracker
+        # under it looks like intent rather than rot. Found by hand 2026-08-28 —
+        # a draft plan tracked a CLOSED defect sweep it never described, and this
+        # check skipped it. Terminal statuses (executed/superseded/historical) are
+        # SUPPOSED to have closed trackers, so they stay excluded.
+        case "$status" in
+            active|draft) ;;
+            *) continue ;;
+        esac
 
         tracking="$(echo "$fm" | sed -n 's/^tracking_issue:[[:space:]]*//p' | head -1 | tr -d '"')"
         [ -z "$tracking" ] && continue
@@ -120,9 +129,9 @@ check_active_plans() {
         local state_resp state
         state_resp="$(gh api repos/"$issue_repo"/issues/"$issue_num" 2>/dev/null)" || { skipped "gh api failed for $tracking"; continue; }
         state="$(echo "$state_resp" | jq -r '.state // empty')"
-        [ "$state" = "closed" ] && finding "$(basename "$plan_file"): status=active but tracking issue #$issue_num is CLOSED"
+        [ "$state" = "closed" ] && finding "$(basename "$plan_file"): status=$status but tracking issue #$issue_num is CLOSED"
     done
-    [ "$found_any" -eq 0 ] && echo "  · no active plans with tracking_issue found"
+    [ "$found_any" -eq 0 ] && echo "  · no active/draft plans with tracking_issue found"
 }
 
 # ── Check 3: Untriaged component-repo issues ──────────────────────────────
