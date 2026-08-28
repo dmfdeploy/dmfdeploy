@@ -16,19 +16,15 @@ shelved, kept for provenance.
 - [DMF v0.2 Presentable Journey Execution Plan 2026-07-12](DMF%20v0.2%20Presentable%20Journey%20Execution%20Plan%202026-07-12.md) — 2026-07-12
 - [DMF v0.2 EBU Facility-Orchestration Re-anchor Plan 2026-07-07](DMF%20v0.2%20EBU%20Facility-Orchestration%20Re-anchor%20Plan%202026-07-07.md) — 2026-07-07
 
-## Draft (9)
+## Draft (5)
 
 - [DMF Marketplace Resource Model and Placement Grounded Roadmap 2026-07-17](DMF%20Marketplace%20Resource%20Model%20and%20Placement%20Grounded%20Roadmap%202026-07-17.md) — 2026-07-17
 - [DMF Umbrella Security Audit Remediation Spec 2026-06-15](DMF%20Umbrella%20Security%20Audit%20Remediation%20Spec%202026-06-15.md) — 2026-06-15
 - [DMF Facility Console — Born-Inventoried Env Surfacing Plan 2026-06-04](DMF%20Facility%20Console%20%E2%80%94%20Born-Inventoried%20Env%20Surfacing%20Plan%202026-06-04.md) — 2026-06-04
 - [DMF Internal Ansible Collection Source Plan 2026-05-29](DMF%20Internal%20Ansible%20Collection%20Source%20Plan%202026-05-29.md) — 2026-05-29
-- [DMF Authentik Bootstrap Enrollment Drop Username Prompt Plan 2026-05-28](DMF%20Authentik%20Bootstrap%20Enrollment%20Drop%20Username%20Prompt%20Plan%202026-05-28.md) — 2026-05-28
-- [DMF Zot Machine-Identity Service Account Plan 2026-05-27](DMF%20Zot%20Machine-Identity%20Service%20Account%20Plan%202026-05-27.md) — 2026-05-27
 - [DMF AWX Catalog Credential Type Migration Plan 2026-05-23](DMF%20AWX%20Catalog%20Credential%20Type%20Migration%20Plan%202026-05-23.md) — 2026-05-23
-- [DMF Pre-Release Compliance Readiness Plan 2026-05-11](DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md) — 2026-05-11
-- [DMF Tier A Phase Execution Plan 2026-05-11](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — 2026-05-11
 
-## Executed (93)
+## Executed (95)
 
 - [DMF Agent Conversation Recording Format Plan 2026-08-04](DMF%20Agent%20Conversation%20Recording%20Format%20Plan%202026-08-04.md) — 2026-08-04 (executed 2026-08-04)
 - [DMF L3 Run Preflight and Rollback Plan 2026-07-16](DMF%20L3%20Run%20Preflight%20and%20Rollback%20Plan%202026-07-16.md) — 2026-07-16
@@ -85,10 +81,12 @@ shelved, kept for provenance.
 - [DMF Hetzner CCM Upgrade Plan 2026-06-01](DMF%20Hetzner%20CCM%20Upgrade%20Plan%202026-06-01.md) — 2026-06-01 (executed 2026-06-01)
 - [DMF MXL M1.1 Catalog Launch Design 2026-06-01](DMF%20MXL%20M1.1%20Catalog%20Launch%20Design%202026-06-01.md) — 2026-06-01 (executed 2026-06-05)
 - [DMF Authentik Brand-Wide Passkey-First Login Plan 2026-05-29](DMF%20Authentik%20Brand-Wide%20Passkey-First%20Login%20Plan%202026-05-29.md) — 2026-05-29
+- [DMF Authentik Bootstrap Enrollment Drop Username Prompt Plan 2026-05-28](DMF%20Authentik%20Bootstrap%20Enrollment%20Drop%20Username%20Prompt%20Plan%202026-05-28.md) — 2026-05-28 (executed 2026-06-10)
 - [DMF Sandbox Artifact Consolidation Plan 2026-05-28](DMF%20Sandbox%20Artifact%20Consolidation%20Plan%202026-05-28.md) — 2026-05-28
 - [DMF Catalog NetBox Scoped Writer Plan 2026-05-27](DMF%20Catalog%20NetBox%20Scoped%20Writer%20Plan%202026-05-27.md) — 2026-05-27 (executed 2026-05-27)
 - [DMF Console Authentik Internal Back-Channel Split Plan 2026-05-27](DMF%20Console%20Authentik%20Internal%20Back-Channel%20Split%20Plan%202026-05-27.md) — 2026-05-27
 - [DMF Sandbox Monitoring Vertical Integration Plan 2026-05-27](DMF%20Sandbox%20Monitoring%20Vertical%20Integration%20Plan%202026-05-27.md) — 2026-05-27
+- [DMF Zot Machine-Identity Service Account Plan 2026-05-27](DMF%20Zot%20Machine-Identity%20Service%20Account%20Plan%202026-05-27.md) — 2026-05-27 (executed 2026-06-10)
 - [DMF OSS v0.1 Contributor Replicability Premise Pass 2026-05-25](DMF%20OSS%20v0.1%20Contributor%20Replicability%20Premise%20Pass%202026-05-25.md) — 2026-05-25
 - [DMF OSS v0.1 WP2 Bootstrap Independence 2026-05-25](DMF%20OSS%20v0.1%20WP2%20Bootstrap%20Independence%202026-05-25.md) — 2026-05-25
 - [DMF OSS v0.1 WP3 In-Cluster Platform Services 2026-05-25](DMF%20OSS%20v0.1%20WP3%20In-Cluster%20Platform%20Services%202026-05-25.md) — 2026-05-25
@@ -141,7 +139,7 @@ shelved, kept for provenance.
 - [DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04](DMF%20NMOS%20Registry%20%2B%20Crosspoint%20Demo%20Plan%202026-05-04.md) — 2026-05-04 → superseded by [dmf-platform-move-1-task-2026-05-04.md](dmf-platform-move-1-task-2026-05-04.md)
 - [Move 1 Gate 2 — AWX Integration + Launch NMOS](Move%201%20Gate%202%20%E2%80%94%20AWX%20Integration%20%2B%20Launch%20NMOS.md) — 2026-05-04 → superseded by [Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md](Move%201%20Gate%202%20-%20Pivot%20to%20Path%20A%20for%20Catalog%20Launchers%202026-05-06.md)
 
-## Historical (25)
+## Historical (27)
 
 - [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
 - [DMF Dynamic Catalog & Deployable-Workflow Mechanism — Discussion Notes 2026-06-05](DMF%20Dynamic%20Catalog%20%26%20Deployable-Workflow%20Mechanism%20%E2%80%94%20Discussion%20Notes%202026-06-05.md) — 2026-06-05
@@ -164,6 +162,8 @@ shelved, kept for provenance.
 - [DMF Agentic Harness Plan 2026-05-11](DMF%20Agentic%20Harness%20Plan%202026-05-11.md) — 2026-05-11
 - [DMF Deployment Workflow and Manifest Plan](DMF%20Deployment%20Workflow%20and%20Manifest%20Plan.md) — 2026-05-11
 - [DMF Forgejo Repo Hosting and Migration Plan](DMF%20Forgejo%20Repo%20Hosting%20and%20Migration%20Plan.md) — 2026-05-11
+- [DMF Pre-Release Compliance Readiness Plan 2026-05-11](DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md) — 2026-05-11
+- [DMF Tier A Phase Execution Plan 2026-05-11](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — 2026-05-11
 - [LLM-Restricted Git Pipeline — Dev-Testing-Production Isolation Plan 2026-05-09](LLM-Restricted%20Git%20Pipeline%20%E2%80%94%20Dev-Testing-Production%20Isolation%20Plan%202026-05-09.md) — 2026-05-09
 - [dmf-multi-provider-resource-selection-future-direction-2026-05-08](dmf-multi-provider-resource-selection-future-direction-2026-05-08.md) — 2026-05-08
 - [Move 1 Gate 2 — Trials and Tribulations 2026-05-05](Move%201%20Gate%202%20%E2%80%94%20Trials%20and%20Tribulations%202026-05-05.md) — 2026-05-05

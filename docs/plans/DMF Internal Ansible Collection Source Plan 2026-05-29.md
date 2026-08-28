@@ -1,6 +1,7 @@
 ---
 status: draft
 date: 2026-05-29
+tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/443
 ---
 # DMF Internal Ansible Collection Source Plan (2026-05-29)
 

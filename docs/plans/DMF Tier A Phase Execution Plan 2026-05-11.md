@@ -1,10 +1,14 @@
 ---
-status: draft
+status: historical
 date: 2026-05-11
 ---
 # DMF Tier A Phase Execution Plan
 
 **Status:** Living. Updated as each phase progresses.
+
+> **HISTORICAL (ruled 2026-08-28).** This is the *how* for the Pre-Release Compliance
+> Readiness Plan, which is itself historical for the same reason: it executes ADR-0020
+> Modes B/C, which remain `Proposed`. "Living" above is superseded by this ruling.
 **Date:** 2026-05-11
 **Pairs with:**
 [Pre-Release Compliance Readiness Plan](DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md)

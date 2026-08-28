@@ -1,6 +1,7 @@
 ---
 status: draft
 date: 2026-06-04
+tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/469
 ---
 # DMF Facility Console — Born-Inventoried Env Surfacing Plan (2026-06-04)
 

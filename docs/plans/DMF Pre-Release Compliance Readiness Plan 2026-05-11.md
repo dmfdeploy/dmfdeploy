@@ -1,10 +1,15 @@
 ---
-status: draft
+status: historical
 date: 2026-05-11
 ---
 # DMF Pre-Release Compliance Readiness Plan
 
 **Status:** Draft
+
+> **HISTORICAL (ruled 2026-08-28).** The tiered readiness gates here are driven by
+> ADR-0020 **Modes B and C** (managed service, flypack), both still `Proposed` with no
+> forcing function — no customer or partner requires them. This describes a release
+> shape that is not v0.1. Retained as reasoning, not as a pointer to current work.
 **Date:** 2026-05-11
 **Pairs with:** [ADR-0020](../decisions/0020-deployment-scope-and-regulatory-posture.md) (deployment scope), [`dmf-infra/docs/security-compliance-framework-plan.md`](https://github.com/dmfdeploy/dmf-infra/blob/main/docs/security-compliance-framework-plan.md) (framework)
 **Operational counterpart:** [`docs/processes/pre-release-compliance-checklist.md`](../processes/pre-release-compliance-checklist.md)
