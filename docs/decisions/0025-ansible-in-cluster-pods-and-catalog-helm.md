@@ -3,6 +3,7 @@
 **Status:** Accepted
 **Date:** 2026-05-23
 **Deciders:** @<handle> (with Claude/Codex implementation handoff)
+**Partially supersedes:** [ADR-0016](0016-awx-control-node-ssh-via-cloud-init-and-openbao.md) — catalog/`media-*` job templates move to in-cluster Helm; ADR-0016 (Path A) remains canonical for AWX-to-infrastructure plays.
 **Rule:** `media-*` catalog launchers run in-cluster in AWX-spawned execution-environment pods (never by SSHing to a node), and catalog functions deploy as Helm charts from in-cluster Zot.
 
 ## Context

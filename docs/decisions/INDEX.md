@@ -10,7 +10,7 @@ multiple repos or implies an enforcement mechanism (script, CI gate, skill).
 
 ## Start here
 
-New here — human or cold-start agent? You do **not** need all 41 ADRs. Read these
+New here — human or cold-start agent? You do **not** need all 47 ADRs. Read these
 **core** decisions (marked ★ in the Index below), in order — each is summarised by
 its binding **Rule**; open the full ADR only when you need the *why*. Everything
 else is reference. (How the record evolved and what reversed is told in
@@ -87,7 +87,7 @@ truth is visible without opening the file.
 | [0008](0008-openbao-secrets-architecture.md) | ★ OpenBao + ESO + AppRole shim as secrets architecture | Accepted | security |
 | [0009](0009-shamir-dr-model.md) | 5-share Shamir, 3-of-5 threshold, distributed across 5 locations | Accepted | DR |
 | [0010](0010-run-playbook-as-sanctioned-entry.md) | `bin/run-playbook.sh` is the only sanctioned ansible entry point | Accepted | operations |
-| [0011](0011-auto-unseal-tradeoff.md) | Auto-unseal trades Shamir defense-in-depth for operational tolerability | Accepted (with known tradeoff) | security |
+| [0011](0011-auto-unseal-tradeoff.md) | Auto-unseal trades Shamir defense-in-depth for operational tolerability | Accepted (with known tradeoff) — reframed as "Tier 3" by [ADR-0029](0029-tiered-unseal-posture.md); still the operative description of the live single-replica posture | security |
 | [0012](0012-configure-stage-distinct-from-provision.md) | Configure is a distinct lifecycle stage from Provision | Accepted | lifecycle |
 | [0013](0013-media-function-catalog-model.md) | ★ Media function catalog model — YAML intent + NetBox runtime tag | Accepted | architecture |
 | [0014](0014-awx-project-layout.md) | AWX project layout — hybrid (launchers + mirrored source repos) | Accepted | operations |
@@ -160,6 +160,7 @@ operator decision**, not a hygiene task.
 | 0020 (Mode B/C) | Managed `dmfdeploy.io` + flypack modes | Mode A is Accepted; B/C stay Proposed until a managed-service or flypack customer forces them. |
 | 0022 | Flypack-online thin edge agent | Depends on a flypack customer; parked. |
 | 0026 | Provider descriptors (one YAML/provider) | **Same problem, two sides:** the `init-wizard.sh` "provider-aware defaults" hardening stub (TODOS §init-wizard) is exactly what 0026 would formalize. Adopt 0026 ⇄ implement the wizard provider table together, or neither. |
+| 0027 | Catalog instance vs definition separation (CRD + operator) | Proposed-deferred since 2026-05-22. Its own digest records **no forcing function to build a custom operator**; ADR-0037 already took the non-CRD path for the parts that were needed. |
 | 0030 | Console i18n + air-gap posture | Re-opens Radix→React Aria; defer until i18n is on the console roadmap. |
 
 ## Portfolio reviews
