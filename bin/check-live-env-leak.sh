@@ -100,11 +100,25 @@ case "$MODE" in
         # regular file. That staged blob is committed like any other, and with
         # T omitted the gate enumerated no path for it — a leak rode through in
         # a shape the filter did not name.
-        files="$(git -C "$UMBRELLA_DIR" diff --cached --name-only --diff-filter=ACMRT 2>/dev/null)" || {
+        # NUL-delimited, because git QUOTES any path containing a non-ASCII byte
+        # (core.quotePath defaults on). A line-based read then yields the literal
+        # 12 characters "\342\200\224" where an em dash belongs, `git show :<path>`
+        # cannot resolve it, and the gate fails closed on a file that is perfectly
+        # clean. Fail-closed is right, but the effect was that all 26 em-dashed doc
+        # filenames in this repo could never be committed at all. -z suppresses the
+        # quoting and handles embedded newlines for free.
+        staged_list="$(mktemp)" || { echo "FAIL(2): mktemp failed." >&2; exit 2; }
+        # Cleanup on EVERY exit path, including the fail-closed ones below.
+        trap 'rm -f "$staged_list"' EXIT
+        git -C "$UMBRELLA_DIR" diff --cached --name-only -z --diff-filter=ACMRT \
+            >"$staged_list" 2>/dev/null || {
             echo "FAIL(2): could not enumerate staged files in $UMBRELLA_DIR." >&2
             exit 2
         }
-        [ -n "$files" ] || { echo "check-live-env-leak: nothing staged."; exit 0; }
+        if [ ! -s "$staged_list" ]; then
+            echo "check-live-env-leak: nothing staged."
+            exit 0
+        fi
         # Read the INDEX blob and nothing else. An earlier revision first
         # required the worktree path to be a regular file, which made the gate
         # skippable: stage a leaking file, delete it from the worktree, and the
@@ -114,7 +128,7 @@ case "$MODE" in
         # The loop runs in the MAIN shell, not a command-substitution subshell,
         # so a per-file read failure can abort the run instead of vanishing.
         hits=""
-        while IFS= read -r f; do
+        while IFS= read -r -d '' f; do
             [ -n "$f" ] || continue
             blob="$(git -C "$UMBRELLA_DIR" show ":$f" 2>/dev/null)" || {
                 echo "FAIL(2): could not read the staged blob for '$f' — refusing to" >&2
@@ -141,15 +155,15 @@ case "$MODE" in
                     hits+="${f}:${match_line%%:*}"$'\n'
                 done <<< "$h"
             fi
-        done <<< "$files"
+        done <"$staged_list"
         # Filenames are content too: a file NAMED with a live identifier
         # carries it into the tree even when every byte inside is clean.
-        while IFS= read -r f; do
+        while IFS= read -r -d '' f; do
             [ -n "$f" ] || continue
             for _id in "${ids[@]}"; do
                 case "$f" in *"$_id"*) hits+="${f} (the filename itself)"$'\n'; break ;; esac
             done
-        done <<< "$files"
+        done <"$staged_list"
         hits="${hits%$'\n'}"
         ;;
     --tree)
