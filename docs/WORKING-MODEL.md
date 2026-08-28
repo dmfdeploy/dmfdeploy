@@ -321,10 +321,37 @@ contradicting the canonical filing rule for weeks rather than corrected.
    umbrella `main`. **No sibling breaks**: they are pinned to the previous tag.
 3. Cut the next tag on that commit: `git tag working-model-v<N+1> && git push
    origin working-model-v<N+1>`. Tags are numeric-sorted, so `v10` follows `v9`.
+   The `working-model-v*` namespace is exempted from `tags-nonrelease-block` and
+   protected by `tags-release-protect`, so these pins are immutable once pushed —
+   a bad pin is replaced by cutting the next number, never by moving a tag.
 4. Per sibling, in **one** PR: `bin/check-working-model-sync.sh --repo <path>
    --apply` to regenerate its three copies, **and** bump `ref:` in its `ci.yml`
    to the new tag. Both in the same change, or its CI checks new copies against
    the old template and fails.
+
+**Ordering, when the template correction is itself under review.** Steps 1–2
+assume the umbrella lands first, which leaves every sibling briefly carrying the
+old block. If that window is unacceptable — a reviewer holding the umbrella PR
+until the copies agree, say — the order can be inverted, because **a tag keeps
+its commit reachable even when it is not an ancestor of `main`**:
+
+- tag the umbrella PR's head, so sibling CI can fetch the corrected template
+  before anything merges;
+- land the sibling PRs first, each pinning that tag — they check new copies
+  against the new template and go green;
+- land the umbrella PR last, at which point all 30 copies agree.
+
+This is how `working-model-v1` was cut (2026-08-27). The caveat is that
+rebase-merge replays the PR head onto `main` under a different SHA, so the tag
+is **not** an ancestor of `main`. That is harmless — siblings validate against
+the tag's *template content*, not its ancestry — but **verify after merge that
+the tag's template and `main`'s are byte-identical**, since a conflict resolution
+during the replay could silently diverge them:
+
+```bash
+diff <(git show working-model-v<N>:docs/templates/working-model-block.md) \
+     <(git show origin/main:docs/templates/working-model-block.md)
+```
 
 **The cost of the pin is that a lagging sibling is now silent rather than loud.**
 `bin/check-working-model-sync.sh --report-pins` is what makes it visible — run it
