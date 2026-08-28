@@ -116,7 +116,7 @@ Build the payload as a **file** (keeps the passphrase out of argv). `dest_remote
 must be **exactly two**. Local backups use rclone `type: alias`.
 
 ```bash
-ENV=<env-id>                          # e.g. gn0f-iteu
+ENV=<env-id>                          # from STATUS.local.md; never hard-code one
 ARTIFACT=dmf-backup-${ENV}-<stamp>.tar.age
 cat > /tmp/manage-restore.json <<JSON
 {
