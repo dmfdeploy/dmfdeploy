@@ -32,20 +32,20 @@ shelved, kept for provenance.
 
 - [DMF Agent Conversation Recording Format Plan 2026-08-04](DMF%20Agent%20Conversation%20Recording%20Format%20Plan%202026-08-04.md) — 2026-08-04 (executed 2026-08-04)
 - [DMF L3 Run Preflight and Rollback Plan 2026-07-16](DMF%20L3%20Run%20Preflight%20and%20Rollback%20Plan%202026-07-16.md) — 2026-07-16
-- [DMF Public-Safety Pattern Manifest Plan 2026-07-13](DMF%20Public-Safety%20Pattern%20Manifest%20Plan%202026-07-13.md) — 2026-07-13
-- [DMF Console Information Architecture Implementation Plan 2026-07-03](DMF%20Console%20Information%20Architecture%20Implementation%20Plan%202026-07-03.md) — 2026-07-03
-- [DMF Console Wording and Media Workloads Page Plan 2026-07-03](DMF%20Console%20Wording%20and%20Media%20Workloads%20Page%20Plan%202026-07-03.md) — 2026-07-03
+- [DMF Public-Safety Pattern Manifest Plan 2026-07-13](DMF%20Public-Safety%20Pattern%20Manifest%20Plan%202026-07-13.md) — 2026-07-13 (executed 2026-07-14)
+- [DMF Console Information Architecture Implementation Plan 2026-07-03](DMF%20Console%20Information%20Architecture%20Implementation%20Plan%202026-07-03.md) — 2026-07-03 (executed 2026-07-05)
+- [DMF Console Wording and Media Workloads Page Plan 2026-07-03](DMF%20Console%20Wording%20and%20Media%20Workloads%20Page%20Plan%202026-07-03.md) — 2026-07-03 (executed 2026-07-04)
 - [DMF MXL Single-Node Revival Plan 2026-07-03](DMF%20MXL%20Single-Node%20Revival%20Plan%202026-07-03.md) — 2026-07-03
-- [DMF Monitoring Close-Out Work Packages 2026-07-02](DMF%20Monitoring%20Close-Out%20Work%20Packages%202026-07-02.md) — 2026-07-02
+- [DMF Monitoring Close-Out Work Packages 2026-07-02](DMF%20Monitoring%20Close-Out%20Work%20Packages%202026-07-02.md) — 2026-07-02 (executed 2026-07-03)
 - [DMF Init Host-Side Launcher Prototype 2026-07-01](DMF%20Init%20Host-Side%20Launcher%20Prototype%202026-07-01.md) — 2026-07-01 (executed 2026-07-01)
 - [DMF Init Long-Run Re-Entry & Resume Hardening Plan 2026-06-26](DMF%20Init%20Long-Run%20Re-Entry%20%26%20Resume%20Hardening%20Plan%202026-06-26.md) — 2026-06-26 (executed 2026-06-27)
-- [DMF Are-We-OK Sandbox Observability and Alerting Plan 2026-06-24](DMF%20Are-We-OK%20Sandbox%20Observability%20and%20Alerting%20Plan%202026-06-24.md) — 2026-06-24
+- [DMF Are-We-OK Sandbox Observability and Alerting Plan 2026-06-24](DMF%20Are-We-OK%20Sandbox%20Observability%20and%20Alerting%20Plan%202026-06-24.md) — 2026-06-24 (executed 2026-07-04)
 - [DMF Sandbox Substrate-Agnostic Onboarding Plan 2026-06-24](DMF%20Sandbox%20Substrate-Agnostic%20Onboarding%20Plan%202026-06-24.md) — 2026-06-24 (executed 2026-06-24)
 - [DMF AWX Scale-to-Zero Speed-Up Plan 2026-06-21](DMF%20AWX%20Scale-to-Zero%20Speed-Up%20Plan%202026-06-21.md) — 2026-06-21 (executed 2026-06-22)
 - [DMF Constrained-Node k3s Control-Plane Stability Plan 2026-06-21](DMF%20Constrained-Node%20k3s%20Control-Plane%20Stability%20Plan%202026-06-21.md) — 2026-06-21 (executed 2026-06-21)
 - [DMF NMOS Crosspoint Media Function Plan 2026-06-21](DMF%20NMOS%20Crosspoint%20Media%20Function%20Plan%202026-06-21.md) — 2026-06-21 (executed 2026-06-22)
 - [DMF AWX On-Demand Scale-to-Zero Plan 2026-06-18](DMF%20AWX%20On-Demand%20Scale-to-Zero%20Plan%202026-06-18.md) — 2026-06-18 (executed 2026-06-20)
-- [Canonical Cross-Agent Skills 2026-06-14](Canonical%20Cross-Agent%20Skills%202026-06-14.md) — 2026-06-14
+- [Canonical Cross-Agent Skills 2026-06-14](Canonical%20Cross-Agent%20Skills%202026-06-14.md) — 2026-06-14 (executed 2026-06-14)
 - [DMF ADR Legibility & De-Layering Plan 2026-06-13](DMF%20ADR%20Legibility%20%26%20De-Layering%20Plan%202026-06-13.md) — 2026-06-13 (executed 2026-06-13)
 - [DMF Issues-Cruncher Skill 2026-06-12](DMF%20Issues-Cruncher%20Skill%202026-06-12.md) — 2026-06-12 (executed 2026-06-14)
 - [DMF Org Dot-Github Slim WP7 Plan 2026-06-11](DMF%20Org%20Dot-Github%20Slim%20WP7%20Plan%202026-06-11.md) — 2026-06-11 (executed 2026-06-11)
@@ -73,7 +73,7 @@ shelved, kept for provenance.
 - [DMF MXL-Hello Single-Node Catalog Control-Chain Validation Plan 2026-06-05](DMF%20MXL-Hello%20Single-Node%20Catalog%20Control-Chain%20Validation%20Plan%202026-06-05.md) — 2026-06-05 (executed 2026-06-05)
 - [DMF Sandbox E2E Test Harness Plan 2026-06-05](DMF%20Sandbox%20E2E%20Test%20Harness%20Plan%202026-06-05.md) — 2026-06-05
 - [DMF Sandbox Harness Followups — Env-Domain, QR, Passkey-Flow 2026-06-05](DMF%20Sandbox%20Harness%20Followups%20%E2%80%94%20Env-Domain%2C%20QR%2C%20Passkey-Flow%202026-06-05.md) — 2026-06-05 (executed 2026-06-08)
-- [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04](DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md) — 2026-06-04
+- [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04](DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md) — 2026-06-04 (executed 2026-07-03)
 - [DMF Montest Fresh-Bootstrap Validation Task 2026-06-04](DMF%20Montest%20Fresh-Bootstrap%20Validation%20Task%202026-06-04.md) — 2026-06-04 (executed 2026-06-05)
 - [DMF NetBox-SoT Token-Mint Hardening Task 2026-06-04](DMF%20NetBox-SoT%20Token-Mint%20Hardening%20Task%202026-06-04.md) — 2026-06-04 (executed 2026-06-04)
 - [DMF dmf-init Live-Sandbox Fix Batch Plan 2026-06-03](DMF%20dmf-init%20Live-Sandbox%20Fix%20Batch%20Plan%202026-06-03.md) — 2026-06-03 (executed 2026-06-03)

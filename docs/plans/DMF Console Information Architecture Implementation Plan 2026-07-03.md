@@ -2,6 +2,7 @@
 status: executed
 date: 2026-07-03
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/174
+executed: 2026-07-05
 ---
 # DMF Console Information Architecture Implementation Plan (2026-07-03)
 
