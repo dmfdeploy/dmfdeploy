@@ -6,7 +6,7 @@ executed: 2026-06-10
 # DMF Authentik Bootstrap Enrollment — Drop Username Prompt Plan
 
 **Date:** 2026-05-28
-**Status:** Plan (not yet implemented)
+**Status:** **EXECUTED.** Superseded the earlier "Plan (not yet implemented)" framing.
 
 > **EXECUTED.** The username/email prompt is gone from the enrollment flow —
 > `16-passwordless-bootstrap.yaml.j2` carries no prompt stage. Confirmed resolved by

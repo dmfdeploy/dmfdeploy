@@ -7,7 +7,7 @@ executed: 2026-06-10
 
 **Date:** 2026-05-27
 **Decision:** [ADR-0033](../decisions/0033-zot-scoped-machine-write-service-account.md) (Zot machine writes use scoped `zot-svc`, not break-glass `admin`). Sibling of [ADR-0032](../decisions/0032-catalog-launcher-scoped-netbox-writer.md).
-**Status:** ready for implementation
+**Status:** **EXECUTED.** Superseded the earlier "ready for implementation" framing.
 
 > **EXECUTED.** `630-zot-seed-platform.yml` sets `zot_service_user: zot-svc` with a
 > `mandatory` service password, and cites ADR-0033 as the play it implements. Same

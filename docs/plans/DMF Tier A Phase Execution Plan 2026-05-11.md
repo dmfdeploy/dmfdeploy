@@ -1,14 +1,21 @@
 ---
-status: historical
+status: executed
+executed: 2026-06-11
 date: 2026-05-11
 ---
 # DMF Tier A Phase Execution Plan
 
-**Status:** Living. Updated as each phase progresses.
+**Status:** **EXECUTED (2026-06-11).** Superseded the earlier "Living" framing.
 
-> **HISTORICAL (ruled 2026-08-28).** This is the *how* for the Pre-Release Compliance
-> Readiness Plan, which is itself historical for the same reason: it executes ADR-0020
-> Modes B/C, which remain `Proposed`. "Living" above is superseded by this ruling.
+> **EXECUTED.** This plan delivers **Mode A**, which ADR-0020 marks **Accepted** — not
+> Modes B/C. Its own Done definition (§"Done definition") states *"Tier A is complete.
+> The OSS clone is downloadable… Mode B preparation (Tier B) can begin."* That condition
+> was met at the **public release, 2026-06-11**.
+>
+> *Correction:* an earlier revision of this change ruled it `historical` on the reasoning
+> that it executes ADR-0020 Modes B/C. That was wrong — it conflated this plan with its
+> companion, which does span the tiered B/C gates. Completed work is `executed`;
+> `historical` is for frozen or shelved work.
 **Date:** 2026-05-11
 **Pairs with:**
 [Pre-Release Compliance Readiness Plan](DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md)

@@ -4,12 +4,16 @@ date: 2026-05-11
 ---
 # DMF Pre-Release Compliance Readiness Plan
 
-**Status:** Draft
+**Status:** **HISTORICAL (ruled 2026-08-28).** Superseded the earlier "Draft" framing.
 
-> **HISTORICAL (ruled 2026-08-28).** The tiered readiness gates here are driven by
-> ADR-0020 **Modes B and C** (managed service, flypack), both still `Proposed` with no
-> forcing function — no customer or partner requires them. This describes a release
-> shape that is not v0.1. Retained as reasoning, not as a pointer to current work.
+> **HISTORICAL — partially delivered.** Its **Tier A** gate (Mode A, the OSS self-host
+> path) *was* met, at the 2026-06-11 public release, and is tracked to completion by the
+> [Tier A Phase Execution Plan](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md),
+> now `executed`. **Tiers B and C** depend on ADR-0020 **Modes B and C**, both still
+> `Proposed` with no forcing function — no customer or partner requires them.
+>
+> So this is not `executed` (two of its three tiers never happened) and not live work.
+> Retained as reasoning for a release shape that is not v0.1.
 **Date:** 2026-05-11
 **Pairs with:** [ADR-0020](../decisions/0020-deployment-scope-and-regulatory-posture.md) (deployment scope), [`dmf-infra/docs/security-compliance-framework-plan.md`](https://github.com/dmfdeploy/dmf-infra/blob/main/docs/security-compliance-framework-plan.md) (framework)
 **Operational counterpart:** [`docs/processes/pre-release-compliance-checklist.md`](../processes/pre-release-compliance-checklist.md)
