@@ -5,6 +5,8 @@ dmfdeploy.io (Tier 3) is deferred to a future *managed-service* model and kept e
 from OSS to protect the domain's reputation.** The Tier-3 design + hardening below are **captured
 for that future phase**, not built now. (Reasoning/dead-ends recorded so they aren't re-derived
 or re-proposed.)
+**Date:** 2026-06-08
+**Deciders:** @<handle>
 
 **Date:** 2026-06-08
 **Domain:** architecture / security / TLS / env-lifecycle

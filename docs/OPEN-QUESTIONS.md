@@ -83,7 +83,8 @@ calls this the project's systemic risk.
   managed-service and flypack modes ([ADR-0020](decisions/0020-deployment-scope-and-regulatory-posture.md) B/C),
   flypack-online edge agent ([ADR-0022](decisions/0022-flypack-online-thin-edge-agent.md)),
   provider descriptors ([ADR-0026](decisions/0026-provider-descriptors.md)),
-  console i18n/air-gap posture ([ADR-0030](decisions/0030-console-i18n-and-airgap-posture.md)).
+  console i18n/air-gap posture ([ADR-0030](decisions/0030-console-i18n-and-airgap-posture.md)),
+  catalog instance-vs-definition separation ([ADR-0027](decisions/0027-catalog-instance-vs-definition-separation.md), CRD + operator).
   Each stays Proposed until a customer, partner, or roadmap item forces it.
 - **dmf-init ↔ dmf-cms convergence** — two React+FastAPI apps with overlapping
   concerns; strategic question, needs an ADR
