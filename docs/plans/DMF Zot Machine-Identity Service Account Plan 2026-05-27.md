@@ -1,12 +1,18 @@
 ---
-status: draft
+status: executed
 date: 2026-05-27
+executed: 2026-06-10
 ---
 # DMF Zot Machine-Identity Service Account Plan
 
 **Date:** 2026-05-27
 **Decision:** [ADR-0033](../decisions/0033-zot-scoped-machine-write-service-account.md) (Zot machine writes use scoped `zot-svc`, not break-glass `admin`). Sibling of [ADR-0032](../decisions/0032-catalog-launcher-scoped-netbox-writer.md).
 **Status:** ready for implementation
+
+> **EXECUTED.** `630-zot-seed-platform.yml` sets `zot_service_user: zot-svc` with a
+> `mandatory` service password, and cites ADR-0033 as the play it implements. Same
+> caveat as above: the work predates the `c591db7` (2026-06-10) history squash, so
+> `executed:` is the latest provable date.
 **Owner:** orchestrating Claude (this pane) writes the decision + plan; the *implementation lifting is dispatched to the second Claude pane via agent-bridge*. This pane verifies.
 
 This plan has **two coupled parts**. Both edit playbook 630's credential handling, so they ship together.

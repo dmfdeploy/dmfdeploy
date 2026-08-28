@@ -1,11 +1,18 @@
 ---
-status: draft
+status: executed
 date: 2026-05-28
+executed: 2026-06-10
 ---
 # DMF Authentik Bootstrap Enrollment — Drop Username Prompt Plan
 
 **Date:** 2026-05-28
 **Status:** Plan (not yet implemented)
+
+> **EXECUTED.** The username/email prompt is gone from the enrollment flow —
+> `16-passwordless-bootstrap.yaml.j2` carries no prompt stage. Confirmed resolved by
+> the operator, 2026-08-28. The landing commit is **unrecoverable**: pre-publish
+> history was squashed into `c591db7` (2026-06-10) by the v0.1.0 orphan rebase, so
+> the `executed:` date records the latest *provable* date, not the actual one.
 **Related:** ADR-0015 (passkey-only), ADR-0028 D8 (≥2 passkeys per human)
 
 ## Problem
