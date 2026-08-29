@@ -1,6 +1,7 @@
 ---
-status: active
+status: executed
 date: 2026-08-21
+executed: 2026-08-29
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/449
 ---
 # DMF Console UI Round Plan (2026-08-21)
