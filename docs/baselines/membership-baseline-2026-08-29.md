@@ -192,8 +192,9 @@ This file is not offered as check 10's input; see below.
 ## What this baseline does not do
 
 It does not implement acceptance **check 10**, the scheduled drift
-reconciliation. Check 10 needs a versioned oracle (this file supplies one), an
-exact rule for what issue text constitutes an episode prerequisite, a durable
+reconciliation. Check 10 needs a versioned oracle (§2 above names candidates;
+check 10 will decide its own inputs), an exact rule for what issue text
+constitutes an episode prerequisite, a durable
 PASS/FAIL report, an operator alert on mismatch, and recorded remediation. The
 work order authorises one bounded implementation change for it, on the condition
 that the exact file, function, inputs, outputs, failure behaviour and one
