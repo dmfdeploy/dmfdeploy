@@ -65,8 +65,22 @@ covers `draft` as well. That detector runs weekly (Mon 06:00 UTC) into `#118`
 evidence; `#239` deliberately kept (code shipped, but its own bar — live chain
 proof plus deleting the demo runbook's rough-edge row — was never met, so the
 runbook still asserts a defect the code fixed). Partition holes 12 → 0, missing
-`workstream:*` 5 → 0. `#343` and `#428` re-scoped: both had been overtaken and
-were asking for work already done.
+`workstream:*` 5 → 0.
+
+**`#343` and `#428` were re-scoped, not resolved — both remain OPEN in
+`v0.1-polish` with real defects.** Only their original framings were overtaken;
+each was shrunk to what is still true:
+
+- **`#343`** — 11 of its 12 listed consumers were fixed by the `settleQuery`
+  retrofit. **One survives:** `App.tsx` checks `else if (user)` before
+  `else if (isError)`, so a session that goes bad mid-use keeps a stale `user`
+  and **never redirects to login**.
+- **`#428`** — the "spins forever, nothing says why" framing was already false
+  when filed; a bounded `ERROR` state with a 21-minute ceiling shipped two months
+  earlier. **Two defects survive:** teardown discards the "AWX wake failed"
+  outcome after ~3s with nothing recorded to Review (deploy keeps it), and the
+  in-flight copy promises "two to three minutes" for what can legitimately be a
+  ~20-minute cold AWX wake. Both are filmed beats for episode 001.
 
 **New `freeze-1` label** — 6 issues, all correctly unmilestoned. It is a
 **signpost, not an authority**: `docs/OPEN-QUESTIONS.md` +
