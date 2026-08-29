@@ -17,7 +17,7 @@ answered instead.
 **Why it was regenerated.** The previous baseline was taken at 106 open issues and
 again at 125; both predate the issue creation and closure of 2026-08-27/28. Any
 issue filed after a baseline is taken re-stales the partition, the oracle, the
-moved count and the drift baseline — so the baseline is retaken *after* all
+moved count and the drift baseline — so this record was retaken *after* all
 authorised issue creation, and only then.
 
 Issues created 2026-08-27/28 that this record counts exactly once, with their
