@@ -1,8 +1,16 @@
 # Backlog membership baseline — 2026-08-29
 
-**This file is the pin.** It records the backlog's membership state at a named
-instant so a later reconciliation can tell an *intended* change from *drift*.
-Regenerating the baseline means writing a new dated file, not editing this one.
+**This is a decision record, not a pin.** It captures the membership
+decisions made on this date and the reasoning behind them — including the
+gap this baseline deliberately left open (§3) — so that reasoning survives
+past the moment it was made. It is not a snapshot a later run can diff
+against; see "How drift is actually checked" below for how that question is
+answered instead.
+
+*(The `docs/baselines/` path is legacy: it predates this decision-record
+framing. The file has zero inbound references, so moving it would trade that
+for documentation sprawl. Read the directory name as historical, not as a
+claim about what the file does.)*
 
 | | |
 |---|---|
@@ -34,20 +42,9 @@ GitHub creation timestamps (UTC):
 Net still-open additions: **`#460`, `#469`, `#474`**. Nothing was filed on
 2026-08-29, so no issue postdates this baseline's own measurement date.
 
-## Reproduction
+## 1. The partition, as verified on this date — acceptance check 8
 
-Every figure below comes from one snapshot:
-
-```bash
-gh issue list --repo dmfdeploy/dmfdeploy --state open --limit 500 \
-  --json number,title,milestone,labels > open-issues.json
-```
-
-`gh issue list` excludes pull requests, so the totals are issues only.
-
-## 1. The partition — acceptance check 8
-
-Every open issue sits in **exactly one** state:
+On 2026-08-29, every open issue sat in **exactly one** state:
 
 ```
 milestone ∈ {v0.1-polish, episode-001-capture, v0.2}
@@ -64,9 +61,10 @@ milestone ∈ {v0.1-polish, episode-001-capture, v0.2}
 | `hygiene-exempt` | 1 |
 | **total open** | **114** |
 
-23 + 8 + 65 + 17 + 1 = 114. **Holes: 0. Overlaps: 0. Check 8 PASSES.**
+23 + 8 + 65 + 17 + 1 = 114. **Holes: 0. Overlaps: 0.** The partition held on
+this date.
 
-Supporting invariants, all clean at this baseline:
+Supporting invariants, all clean on this date:
 
 | invariant | result |
 |---|---|
@@ -76,8 +74,9 @@ Supporting invariants, all clean at this baseline:
 | open issues missing `component:*` or `workstream:*` | 0 |
 | `freeze-1` in any milestone | 0 |
 
-`hygiene-exempt` has exactly one carrier, `#118`. It is an exemption of last
-resort; a second carrier appearing without a recorded decision is drift.
+`hygiene-exempt` has exactly one carrier, `#118`, and it is meant to stay an
+exemption of last resort: any further carrier should come with its own
+recorded decision, the same way `#118`'s did.
 
 ## 2. The Phase-1 oracle — acceptance check 4
 
@@ -132,9 +131,11 @@ against. The rule for what earns the label is one of the inputs acceptance
 **check 10** is still missing, and check 10 is explicitly not started. Deciding
 it inside a baseline regeneration would make the baseline self-certifying.
 
-So the baseline records the label as **empty, with three known candidates**. A
-later run finding these three labelled is an *intended* change; finding a fourth
-is drift.
+So this record states the label as **empty on this date, with three known
+candidates**. Applying it to `#232` or `#291` would be the §3a move finally
+landing; applying it to a fourth issue is a new decision this record does not
+anticipate, and would need its own stated reasoning — the same as the three
+candidates above required.
 
 ## 4. The moved count — acceptance check 7
 
@@ -152,6 +153,41 @@ classification during A1.
 Six of the 17 also carry `freeze-1` — `#8`, `#13`, `#141`, `#146`, `#158`, `#159`
 — which is consistent: a Freeze-1 item must be in no milestone, and parking is
 where an unscheduled item lives.
+
+## How drift is actually checked
+
+Narrowing this file to a decision record does not leave the partition and
+attribution questions unanswered — they are already answered by two things in
+this repo, neither of which needs a committed snapshot:
+
+- **The partition (check 8) is a live property, checked weekly.**
+  `bin/check-backlog-hygiene.sh`'s check 1 already asserts, for every open
+  umbrella issue its query page returns, that the issue carries a milestone and
+  at least one `component:*` and one `workstream:*` label (`hygiene-exempt`
+  issues excluded). That is a near-neighbour of the check 8 XOR partition
+  above, not the same check — it does not verify the milestone is one of the
+  three named milestones, and it does not verify that `platform-debt` is never
+  combined with a milestone. It also has a real reach gap worth naming: its
+  GraphQL query requests only the first 100 open issues and does not paginate
+  (`bin/check-backlog-hygiene.sh:55`, no `endCursor`/`hasNextPage` handling
+  anywhere in the file), so at the current 114-open count, up to 14 issues fall
+  outside what it checks. Both gaps are pre-existing and outside this file's
+  scope to fix.
+- **"Who changed what, when" is a GitHub timeline question, not a snapshot
+  question.** GitHub's issue timeline API records milestone and label changes
+  with actor and timestamp attribution that a static file cannot provide, and
+  it never goes stale the way a committed snapshot does (confirmed directly
+  against GitHub's GraphQL schema: `MilestonedEvent` and `LabeledEvent` both
+  expose `actor` and `createdAt`). This repo already queries that API in
+  production — `bin/close-completed-issues.sh:68-69` reads `timelineItems`
+  (currently scoped to `ReopenedEvent`, for its own reopen guard) via GraphQL
+  against the umbrella repo. Extending that query's `itemTypes` to
+  `MilestonedEvent`/`LabeledEvent` for attribution reporting is a query-shape
+  change against a capability that already exists here, not new capability.
+
+Acceptance check 10 still needs both a decision on what earns
+`blocks:episode-001` and a decision on what a PASS/FAIL report looks like.
+This file is not offered as check 10's input; see below.
 
 ## What this baseline does not do
 
