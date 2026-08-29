@@ -8,9 +8,8 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (5)
+## Active (4)
 
-- [DMF Console UI Round Plan 2026-08-21](DMF%20Console%20UI%20Round%20Plan%202026-08-21.md) — 2026-08-21
 - [DMF Console Arc 4 Visual Pass Plan 2026-08-11](DMF%20Console%20Arc%204%20Visual%20Pass%20Plan%202026-08-11.md) — 2026-08-11
 - [DMF v0.2b Multi-Source Switch Spec 2026-07-15](DMF%20v0.2b%20Multi-Source%20Switch%20Spec%202026-07-15.md) — 2026-07-15
 - [DMF v0.2 Presentable Journey Execution Plan 2026-07-12](DMF%20v0.2%20Presentable%20Journey%20Execution%20Plan%202026-07-12.md) — 2026-07-12
@@ -24,8 +23,9 @@ shelved, kept for provenance.
 - [DMF Internal Ansible Collection Source Plan 2026-05-29](DMF%20Internal%20Ansible%20Collection%20Source%20Plan%202026-05-29.md) — 2026-05-29
 - [DMF AWX Catalog Credential Type Migration Plan 2026-05-23](DMF%20AWX%20Catalog%20Credential%20Type%20Migration%20Plan%202026-05-23.md) — 2026-05-23
 
-## Executed (96)
+## Executed (97)
 
+- [DMF Console UI Round Plan 2026-08-21](DMF%20Console%20UI%20Round%20Plan%202026-08-21.md) — 2026-08-21 (executed 2026-08-29)
 - [DMF Agent Conversation Recording Format Plan 2026-08-04](DMF%20Agent%20Conversation%20Recording%20Format%20Plan%202026-08-04.md) — 2026-08-04 (executed 2026-08-04)
 - [DMF L3 Run Preflight and Rollback Plan 2026-07-16](DMF%20L3%20Run%20Preflight%20and%20Rollback%20Plan%202026-07-16.md) — 2026-07-16
 - [DMF Public-Safety Pattern Manifest Plan 2026-07-13](DMF%20Public-Safety%20Pattern%20Manifest%20Plan%202026-07-13.md) — 2026-07-13 (executed 2026-07-14)
