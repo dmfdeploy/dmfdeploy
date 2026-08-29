@@ -4,8 +4,8 @@
 decisions made on this date and the reasoning behind them — including the
 gap this record deliberately left open (§3) — so that reasoning survives
 past the moment it was made. It is not a snapshot a later run can diff
-against; see "How drift is actually checked" below for how that question is
-answered instead.
+against; see "What exists toward checking drift" below for what already
+exists and what's still unimplemented.
 
 | | |
 |---|---|
@@ -149,13 +149,18 @@ Six of the 17 also carry `freeze-1` — `#8`, `#13`, `#141`, `#146`, `#158`, `#1
 — which is consistent: a Freeze-1 item must be in no milestone, and parking is
 where an unscheduled item lives.
 
-## How drift is actually checked
+## What exists toward checking drift
 
 Narrowing this file to a decision record does not leave the partition and
-attribution questions unanswered — they are already answered by two things in
-this repo, neither of which needs a committed snapshot:
+attribution questions with nothing to build on — two partial primitives
+already exist in this repo, neither needing a committed snapshot. Neither is
+the real thing: exact check 8 (the three-milestone/`platform-debt` XOR) is not
+implemented anywhere as an automated check, and attribution reporting — who
+changed a milestone or label, and when — is not implemented either. What
+exists is narrower, described precisely below:
 
-- **The partition (check 8) is a live property, checked weekly.**
+- **A near-neighbour of the partition (check 8) is checked weekly — not the
+  exact check.**
   `bin/check-backlog-hygiene.sh`'s check 1 already asserts, for every open
   umbrella issue its query page returns, that the issue carries a milestone and
   at least one `component:*` and one `workstream:*` label (`hygiene-exempt`
