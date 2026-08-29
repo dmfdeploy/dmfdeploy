@@ -1,16 +1,11 @@
-# Backlog membership baseline — 2026-08-29
+# Backlog membership audit — 2026-08-29
 
 **This is a decision record, not a pin.** It captures the membership
 decisions made on this date and the reasoning behind them — including the
-gap this baseline deliberately left open (§3) — so that reasoning survives
+gap this record deliberately left open (§3) — so that reasoning survives
 past the moment it was made. It is not a snapshot a later run can diff
 against; see "How drift is actually checked" below for how that question is
 answered instead.
-
-*(The `docs/baselines/` path is legacy: it predates this decision-record
-framing. The file has zero inbound references, so moving it would trade that
-for documentation sprawl. Read the directory name as historical, not as a
-claim about what the file does.)*
 
 | | |
 |---|---|
@@ -25,7 +20,7 @@ issue filed after a baseline is taken re-stales the partition, the oracle, the
 moved count and the drift baseline — so the baseline is retaken *after* all
 authorised issue creation, and only then.
 
-Issues created 2026-08-27/28 that this baseline counts exactly once, with their
+Issues created 2026-08-27/28 that this record counts exactly once, with their
 GitHub creation timestamps (UTC):
 
 | issue | created | state |
@@ -40,7 +35,7 @@ GitHub creation timestamps (UTC):
 | `#474` | 2026-08-28T18:42:36Z | open |
 
 Net still-open additions: **`#460`, `#469`, `#474`**. Nothing was filed on
-2026-08-29, so no issue postdates this baseline's own measurement date.
+2026-08-29, so no issue postdates this record's own measurement date.
 
 ## 1. The partition, as verified on this date — acceptance check 8
 
@@ -84,7 +79,7 @@ recorded decision, the same way `#118`'s did.
 the work order: `{#348, #379, #343, #344}` ∪ the §3a move list ∪ the issues filed
 2026-08-26 under operator authorisation. Fourteen issues, pinned here:
 
-| issue | oracle source | state at baseline | scheduling home |
+| issue | oracle source | state on this date | scheduling home |
 |---|---|---|---|
 | `#232` | §3a | OPEN | `v0.2` — **not** `episode-001-capture` |
 | `#291` | §3a | OPEN | `v0.2` — **not** `episode-001-capture` |
@@ -107,9 +102,9 @@ the work order: `{#348, #379, #343, #344}` ∪ the §3a move list ∪ the issues
 `#405`, `#449`, `#452`. Set-equality against the 11 open oracle members therefore
 **does not hold** — see §3.
 
-## 3. The `blocks:episode-001` drift baseline
+## 3. The `blocks:episode-001` label
 
-**Carriers at this baseline: zero.** The label exists (created at A1) and has
+**Carriers on this date: zero.** The label exists (created at A1) and has
 never been applied to an issue. The saved view over it is empty.
 
 The work order's §1 rule is that a milestone is an issue's *exclusive* scheduling
@@ -129,7 +124,7 @@ whose narrowing to 8 members may have been deliberate — or applying the label,
 which fixes the *population* of the very set a future drift check compares
 against. The rule for what earns the label is one of the inputs acceptance
 **check 10** is still missing, and check 10 is explicitly not started. Deciding
-it inside a baseline regeneration would make the baseline self-certifying.
+it while writing this record would make the record self-certifying.
 
 So this record states the label as **empty on this date, with three known
 candidates**. Applying it to `#232` or `#291` would be the §3a move finally
@@ -142,7 +137,7 @@ candidates above required.
 | | |
 |---|---|
 | parked destination | `platform-debt` label, no milestone |
-| population at baseline | **17** |
+| population on this date | **17** |
 | members | `#8`, `#13`, `#141`, `#146`, `#158`, `#159`, `#171`, `#302`, `#303`, `#304`, `#305`, `#309`, `#409`, `#419`, `#451`, `#460`, `#469` |
 
 The 2026-08-25 proposal estimated ~35 infra items for this destination from
@@ -189,7 +184,7 @@ Acceptance check 10 still needs both a decision on what earns
 `blocks:episode-001` and a decision on what a PASS/FAIL report looks like.
 This file is not offered as check 10's input; see below.
 
-## What this baseline does not do
+## What this record does not do
 
 It does not implement acceptance **check 10**, the scheduled drift
 reconciliation. Check 10 needs a versioned oracle (§2 above names candidates;
