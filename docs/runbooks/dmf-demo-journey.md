@@ -337,7 +337,8 @@ demo persona's authenticator and complete the WebAuthn ceremony — the
 standard passkey handshake, no typing involved (Touch ID / security-key
 touch).
 
-**Expected result.** You land on the Console **Workspace** home as the demo
+**Expected result — carried forward, not independently confirmed this
+round.** You land on the Console **Workspace** home as the demo
 persona (a fictitious demo identity, e.g. `marty-mcfly` — never a real
 operator name). No password was typed. The left rail is **permanently
 icon-only** — three icons (Workspace, Facilities, Media Workloads), no text
@@ -1089,10 +1090,11 @@ lack of one is by design, not a gap.
 
 ---
 
-## 9. Live-walk verification checklist
+## 9. Deferred verification — tracked by dmfdeploy/dmfdeploy#379
 
-**This section is what two rounds of live walking still haven't covered.**
-The first round walked create through a working Switch; the second walked
+**This section is what two rounds of live walking still haven't covered —
+and it stays open by design, not as a gate this runbook is waiting on.** The
+first round walked create through a working Switch; the second walked
 Teardown through Delete permanently, the audit trail, and AWX's re-idle
 behaviour. Almost everything that was open after round one is now closed —
 what's left below is genuinely narrower: login specifics neither round
@@ -1101,46 +1103,51 @@ otherwise confirmed, and the standing read-aloud pass. Two items from the
 previous edition of this checklist were dropped outright rather than kept
 open: the tile's own visual during a Switch restart (the mechanism and
 timing are both confirmed elsewhere in §5; the specific "does the tile
-visibly pause" detail isn't worth gating a merge on when "don't panic if it
-goes quiet" is already the operative guidance either way). Work through
-what remains on the next live walk; only once every row is checked does
-#379's acceptance criterion — *"every expected result was observed on the
-live env while writing, not inferred"* — fully hold.
+visibly pause" detail isn't worth tracking separately when "don't panic if
+it goes quiet" is already the operative guidance either way).
 
-- [ ] §1 — Login lands on Workspace; rail is icon-only with exactly the
-      three tooltips named; Admin only appears for an admin persona.
-- [ ] §2 — The Design step's template summary text renders on screen exactly
-      as committed in `dmf-media catalog/mxl-videotest-view.yaml` (confirmed
-      against that file directly, including the card title and button, but
-      not watched paint on a live Design step by either round — the console
-      applies no transform, so a mismatch would mean a stale render or a
-      cache issue, not a wrong quote).
-- [ ] §3 — Watch the pods/instances for the receiver and both sources
-      actually converge to Running via the cluster itself, not just via the
-      console's own screens (which did confirm all three reached a running
-      state, just not by watching kubectl directly).
-- [ ] §4 — A lifecycle-stage badge is now confirmed to exist on the `/setup`
-      page (reads "finalizing" during Teardown, §6a) — confirm whether an
-      equivalent badge also appears on the bare-slug **live view** itself,
-      and if so its full vocabulary across the other stages; the previous
-      edition's "planned" / "provisioned" / "configured" guess for the live
-      view is still unconfirmed either way.
-- [ ] §4 — Open the live-detail modal (click a tile) and confirm it still
-      exists, still shows nine flow-stat fields (head index, latency,
-      format, grain rate, role, provider, MXL version, Active, Node
-      (NetBox)), and still ticks at roughly the claimed ~5×/s.
-- [ ] §4 — Spot-check that the Design step no longer shows the false
-      not-in-the-current-catalog warning on the two topology-spawned sources,
-      now that dmfdeploy/dmfdeploy#401 is merged — this rewrite treats it as
-      fixed on the strength of the merged fix, not a fresh observation.
-- [ ] §6a — After a real Teardown, confirm Design's own read on a fresh
-      visit actually re-offers "Use this template" once every member lands
-      on `bootstrapped` — the tag mapping (§6a, source-confirmed) predicts
-      it, but this specific round trip wasn't re-walked this round; the
-      removal half (all three pieces going to zero) is confirmed separately.
-- [ ] §6d — Watch AWX re-idle to zero on its own while the workload is still
-      on the live view (§4) or mid-Switch (§5) — genuinely still running,
-      not mid-Teardown. §6c confirms the wake/idle mechanism works at all;
-      this is the narrower, still-unwatched pairing 6d's closing beat needs.
-- [ ] Read the whole file aloud as if you were the named outsider from #383
-      and flag anywhere a term still isn't explained before it's needed.
+Each item below is **deliberately deferred to**
+[dmfdeploy/dmfdeploy#379](https://github.com/dmfdeploy/dmfdeploy/issues/379)
+— which stays open for exactly this reason. This runbook does not claim any
+of the following were observed; the relevant beat above already says so in
+its own words (source-confirmed, carried forward, or not independently
+re-watched, as each case actually is), and this list exists so the next live
+walk has one place to start rather than a re-read of the whole file.
+
+- §1 — Login lands on Workspace; rail is icon-only with exactly the
+  three tooltips named; Admin only appears for an admin persona.
+- §2 — The Design step's template summary text renders on screen exactly
+  as committed in `dmf-media catalog/mxl-videotest-view.yaml` (confirmed
+  against that file directly, including the card title and button, but
+  not watched paint on a live Design step by either round — the console
+  applies no transform, so a mismatch would mean a stale render or a
+  cache issue, not a wrong quote).
+- §3 — Watch the pods/instances for the receiver and both sources
+  actually converge to Running via the cluster itself, not just via the
+  console's own screens (which did confirm all three reached a running
+  state, just not by watching kubectl directly).
+- §4 — A lifecycle-stage badge is now confirmed to exist on the `/setup`
+  page (reads "finalizing" during Teardown, §6a) — confirm whether an
+  equivalent badge also appears on the bare-slug **live view** itself,
+  and if so its full vocabulary across the other stages; the previous
+  edition's "planned" / "provisioned" / "configured" guess for the live
+  view is still unconfirmed either way.
+- §4 — Open the live-detail modal (click a tile) and confirm it still
+  exists, still shows nine flow-stat fields (head index, latency,
+  format, grain rate, role, provider, MXL version, Active, Node
+  (NetBox)), and still ticks at roughly the claimed ~5×/s.
+- §4 — Spot-check that the Design step no longer shows the false
+  not-in-the-current-catalog warning on the two topology-spawned sources,
+  now that dmfdeploy/dmfdeploy#401 is merged — this rewrite treats it as
+  fixed on the strength of the merged fix, not a fresh observation.
+- §6a — After a real Teardown, confirm Design's own read on a fresh
+  visit actually re-offers "Use this template" once every member lands
+  on `bootstrapped` — the tag mapping (§6a, source-confirmed) predicts
+  it, but this specific round trip wasn't re-walked this round; the
+  removal half (all three pieces going to zero) is confirmed separately.
+- §6d — Watch AWX re-idle to zero on its own while the workload is still
+  on the live view (§4) or mid-Switch (§5) — genuinely still running,
+  not mid-Teardown. §6c confirms the wake/idle mechanism works at all;
+  this is the narrower, still-unwatched pairing 6d's closing beat needs.
+- Read the whole file aloud as if you were the named outsider from #383
+  and flag anywhere a term still isn't explained before it's needed.
