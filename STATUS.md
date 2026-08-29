@@ -21,6 +21,64 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 <!-- HUMAN-START -->
 
+### 🧹 Backlog + docs reconciled; working-model template now pinned per repo (2026-08-29)
+
+**Read this before editing the working-model block, cutting a tag, or committing
+a file whose name contains an em dash.** Three mechanisms changed shape.
+
+**1. The working-model block is now pinned, not tracked.** Sibling CI used to
+check its block copies against `dmfdeploy/dmfdeploy` with **no `ref:`** — the
+umbrella's default branch resolved at CI time — so any template correction on
+`main` reddened the next PR in all 8 component repos plus `.github` at once. A
+two-line clarification cost a 9-repo flag day, which is why the block sat
+contradicting the canonical filing rule for weeks.
+
+All nine siblings are now pinned to the tag **`working-model-v1`**. Umbrella
+`main` can correct the template without touching any sibling.
+
+> **Changing the block now follows a procedure — `docs/WORKING-MODEL.md` §8a.**
+> Edit the template, `--umbrella-only --apply`, land it, cut `working-model-v<N+1>`,
+> then one PR per sibling regenerating its copies **and** bumping `ref:` together.
+> Split those two and that repo's CI checks new copies against the old template.
+> `bin/check-working-model-sync.sh --report-pins` shows how far behind each pin
+> is; run it from the umbrella clone, not a worktree.
+
+**Governance change:** `working-model-v*` is now excluded from the
+`tags-nonrelease-block` ruleset and included in `tags-release-protect`, so these
+pins are creatable and then immutable. Before that, no such tag could be created
+at all — the pin was impossible in any ordering.
+
+**2. `bin/check-live-env-leak.sh` was refusing clean commits.**
+`git diff --cached --name-only` quotes non-ASCII paths, so the gate read the
+literal `\342\200\224` where an em dash belongs, could not resolve the blob, and
+failed closed. Failing closed was right; the effect was that **all 26 em-dashed
+doc filenames were uncommittable**. Now reads NUL-delimited. If you write tooling
+that enumerates paths, note that `git ls-files` quotes too — the script you write
+to *measure* this bug will hit it.
+
+**3. `bin/check-backlog-hygiene.sh` only checked `active` plans** for closed
+tracking issues, so a `draft` plan pointing at a closed issue was invisible. Now
+covers `draft` as well. That detector runs weekly (Mon 06:00 UTC) into `#118`
+— **its findings have historically not been read.**
+
+**Backlog reconciled.** 12 of 13 `stale:verify` issues closed with per-issue
+evidence; `#239` deliberately kept (code shipped, but its own bar — live chain
+proof plus deleting the demo runbook's rough-edge row — was never met, so the
+runbook still asserts a defect the code fixed). Partition holes 12 → 0, missing
+`workstream:*` 5 → 0. `#343` and `#428` re-scoped: both had been overtaken and
+were asking for work already done.
+
+**New `freeze-1` label** — 6 issues, all correctly unmilestoned. It is a
+**signpost, not an authority**: `docs/OPEN-QUESTIONS.md` +
+`architectural-commitments-v1` remain canonical, and un-freezing still needs a
+dated amendment. It will drift — nothing applies it to new issues.
+
+**Component-repo intake is not being triaged.** `dmf-runbooks#35` sat four weeks
+against a ~7-day window with no labels; promoted to `#474` (`v0.1-polish`) —
+outcome markers render caller-supplied values unsanitized, so an embedded newline
+can splice the console's marker parse and make it report an outcome that never
+happened. Umbrella-only sweeps miss this whole class.
+
 ### 🔓 Scope-freeze carve-out — the lifecycle rail (2026-08-26)
 
 **This entry is the authority for the carve-out.** The issue comment reproduced
