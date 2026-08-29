@@ -91,6 +91,20 @@ the frontmatter must be flipped; frontmatter wins for design content.
   [architectural-commitments-v1](decisions/architectural-commitments-v1.md)
   first.
 
+  **The `freeze-1` label** (added 2026-08-28) marks an issue that touches one of
+  those frozen non-goals, so the set is enumerable — `label:freeze-1` — instead
+  of living only in prose a filer never opens. Two things it is **not**:
+
+  - **Not an authority.** `OPEN-QUESTIONS.md` and `architectural-commitments-v1`
+    remain canonical. The label says *read them before acting*. A label comes off
+    with a click; un-freezing still needs a dated amendment.
+  - **Not self-maintaining.** Nothing applies it to newly filed issues, so
+    absence of the label is not evidence an issue is unfrozen. It is a signpost,
+    not a gate.
+
+  A `freeze-1` issue carries **no milestone** — a frozen item cannot be
+  scheduled, so `platform-debt` and none, per the filing rule above.
+
   New milestones need an operator decision, recorded with a date.
 - **Component-repo issues are drive-by intake only** (bug reports from
   outsiders landing where the code is). Triage within ~7 days: either close,
