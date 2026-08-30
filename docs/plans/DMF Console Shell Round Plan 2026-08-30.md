@@ -629,22 +629,33 @@ Named here so they are not lost between "decided" and "built":
    itself (subscribes to the same append-only stream the ring buffer/Loki
    read side does, or tails Loki directly — implementer's choice, not
    pre-decided here); the object-lock/WORM bucket and its retention-lock
-   configuration; and an acceptance check that proves, per write, (a) the
-   S3 object landed **within the same request's window**, not on a later
-   batch job (parallel, not delayed-export), (b) the bucket's object-lock
-   mode actually rejects a delete/overwrite attempt against a written
-   object (immutability, not just a retention *label*), and (c) the
-   object's own retention-until metadata reflects the 12-month target.
+   configuration; and an acceptance check that proves, per write, (a) a
+   correlated S3 object exists **within 60 seconds of the audit event's
+   append to the stream the producer subscribes to** (parallel, not
+   delayed-export), (b) the bucket's object-lock mode actually rejects a
+   delete/overwrite attempt against a written object (immutability, not
+   just a retention *label*), and (c) the object's own retention-until
+   metadata reflects the 12-month target. **(a)'s bound, precisely:**
+   measured by emitting a nonce-bearing audit event, recording its append
+   timestamp, then polling the WORM bucket for the object carrying that
+   event's `request_id`; the check fails if no matching object exists by
+   append-time + 60s. Sixty seconds is deliberately far below the
+   `dmf-infra` daily-cron precedent's ~86400s delivery window (below), so a
+   delayed-export implementation cannot pass this check by accident.
    `dmf-infra`'s existing `audit-log-archival` role is a **precedent for
    the S3 object-lock plumbing only** (`audit_log_object_lock_mode:
    COMPLIANCE`, `audit_log_object_lock_days: 365`) — its own delivery is a
    **daily batch cron** against `k3s-audit`'s host-file log, not near-real-time
    streaming, so it does not itself satisfy D7's "parallel with the hot
    write" requirement and must not be reused as-is for timing, only for its
-   bucket/object-lock configuration shape. If this producer belongs to a
-   different owner/repo than dmf-cms (`dmf-infra`, most likely, given the
-   precedent above), name that owner explicitly rather than leaving it to
-   be inferred.
+   bucket/object-lock configuration shape. **Owner: `dmf-infra`, not
+   `dmf-cms`.** `dmf-infra` already owns the S3 object-lock plumbing (the
+   precedent above), and adding an S3 client to `dmf-cms` — a
+   four-runtime-dependency console (`fastapi`, `itsdangerous`, `PyYAML`,
+   `uvicorn`) — is a larger change than putting the producer where the
+   bucket configuration already lives. A console-side implementation is
+   not ruled out, but departing from this default requires explicit
+   justification recorded at the point of departure.
 
 ## 8. Non-goals this round
 
