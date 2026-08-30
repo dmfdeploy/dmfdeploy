@@ -116,8 +116,19 @@ The round-1 machinery exists and is worth reusing rather than rediscovering.
 
 ### The trio
 
-Orchestrator decides; **claude2** implements; **codex** cross-checks. Route via
+**This round is run by three agents, and the division is load-bearing.** An orchestrator
+decides and verifies but writes no implementation; **claude2** implements; **codex**
+cross-checks adversarially. Route between them via
 `.agents/skills/agent-bridge/bin/agent-bridge` (see the `agent-bridge` skill).
+
+**Why keep the roles separate.** Round 1's evidence: every adversarial finding was real and
+none was a false positive, but on two of them the reported symptom was *narrower* than the
+actual defect — so the orchestrator verifying before dispatching a fix caught more than
+either agent alone. In the other direction, one orchestrator "correction" of a reviewer was
+itself wrong (a truncated `grep` window made a complete table look incomplete), and the
+implementer flagged it rather than building on the bad premise. **The value is in the
+disagreement, so preserve the ability to disagree**: do not have the implementer review its
+own work, and do not accept a report without checking it against the diff.
 
 - **`/clear` between rounds, never mid-arc.** Use `--no-reply-id` or the slash command is
   not at line start and is parsed as prose — it silently does nothing and the agent answers
@@ -128,9 +139,9 @@ Orchestrator decides; **claude2** implements; **codex** cross-checks. Route via
 - **Long replies can silently fail to arrive.** Have agents write findings to a file in the
   session scratchpad and send a one-line ping. Verify the file exists — one report was
   written to a typo'd path and nearly lost.
-- **Record every exchange** in the LAN transcript repo — a hard gate. Format spec:
-  `agent-conversation-recording` skill. One record per conversation, bounded by work-item
-  change or context reset.
+- **Record every exchange** — a hard gate. Records are written to a local transcript repo;
+  the format spec is the `agent-conversation-recording` skill. One record per conversation,
+  bounded by a work-item change or a context reset. Round 1 produced eleven.
 
 ### Verification discipline that actually caught things
 
