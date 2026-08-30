@@ -114,6 +114,38 @@ should pass, never a substitute for running it.
 Reviewers reliably catch this later, which is the expensive place to catch it: by then the
 criterion is committed, has been cited, and rewriting it looks like moving the goalposts.
 
+### Why this is a review step and not a principle to remember
+
+The three cases above were all caught by reviewers, and this section was written the same
+day to prevent the next one. **The very next criterion written — the replacement for case 1,
+authored hours after this rule existed — reproduced the same defect.**
+
+Case 1's fix replaced the unmeasurable window with a real bound: emit an audit event, record
+its append timestamp, then poll the WORM bucket and fail if no matching object exists within
+60 seconds. It has a number. It has measurement endpoints. It even mints a **nonce**. It was
+checked against the earlier finding and pushed.
+
+It still could not fail for its own reason. It retrieved the object **by `request_id`** — and
+the same document states elsewhere that dispatch and terminal events *share* that id. So an
+exporter that never delivered the event under test would pass, as long as it had exported
+some other event for the same request. The criterion proved *"something for this request was
+exported"*, never *"this write was exported"*. The nonce was generated and then not used as
+the discriminator at all.
+
+The fix was to retrieve by the event's unique CloudEvents `id` instead — an identifier the
+same document already defined as event identity and explicitly not a correlation key.
+
+**What that recurrence teaches, and why it belongs in this file:** the failure is not
+ignorance of the rule. The rule was fresh, written that day, prompted by this exact
+criterion. The failure is that **an acceptance criterion feels finished once it contains a
+number** — a threshold, a window, a generated token — and that feeling arrives well before
+the discrimination question has actually been asked.
+
+So do not rely on remembering this. **Ask question 2 out loud, against the specific wording,
+every time**, and treat a criterion as unfinished until you have tried and failed to answer
+it. Someone who had internalised this rule completely still shipped a criterion that failed
+it, four hours later.
+
 ## Flagging self-authored tests
 
 If you (the implementer) authored both the fix and its discrimination test, flag this in your DONE report so the orchestrator can route the test for independent review. Self-authored tests can have blind spots — a second pair of eyes catches vacuous assertions.
