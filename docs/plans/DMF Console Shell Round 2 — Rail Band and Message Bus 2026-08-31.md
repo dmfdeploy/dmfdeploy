@@ -110,78 +110,11 @@ somewhere:
 
 ---
 
-## 5. Tooling — how to run this round
+> **How this round is run** — agent roles, dispatch discipline, verification
+> practice, review and merge mechanics — is session-continuity material and is
+> deliberately **not** in this repo. It lives in the operator-local handoff.
 
-The round-1 machinery exists and is worth reusing rather than rediscovering.
-
-### The trio
-
-**This round is run by three agents, and the division is load-bearing.** An orchestrator
-decides and verifies but writes no implementation; **claude2** implements; **codex**
-cross-checks adversarially. Route between them via
-`.agents/skills/agent-bridge/bin/agent-bridge` (see the `agent-bridge` skill).
-
-**Why keep the roles separate.** Round 1's evidence: every adversarial finding was real and
-none was a false positive, but on two of them the reported symptom was *narrower* than the
-actual defect — so the orchestrator verifying before dispatching a fix caught more than
-either agent alone. In the other direction, one orchestrator "correction" of a reviewer was
-itself wrong (a truncated `grep` window made a complete table look incomplete), and the
-implementer flagged it rather than building on the bad premise. **The value is in the
-disagreement, so preserve the ability to disagree**: do not have the implementer review its
-own work, and do not accept a report without checking it against the diff.
-
-- **`/clear` between rounds, never mid-arc.** Use `--no-reply-id` or the slash command is
-  not at line start and is parsed as prose — it silently does nothing and the agent answers
-  it conversationally. **codex takes `/new`, claude2 takes `/clear`.** Confirm by capturing
-  the pane afterwards; a conversational reply means it did *not* clear.
-- **Every dispatch must be self-contained**, since the receiving agent may have been
-  cleared. Restate rulings rather than referencing "what we discussed".
-- **Long replies can silently fail to arrive.** Have agents write findings to a file in the
-  session scratchpad and send a one-line ping. Verify the file exists — one report was
-  written to a typo'd path and nearly lost.
-- **Record every exchange** — a hard gate. Records are written to a local transcript repo;
-  the format spec is the `agent-conversation-recording` skill. One record per conversation,
-  bounded by a work-item change or a context reset. Round 1 produced eleven.
-
-### Verification discipline that actually caught things
-
-- **Dev harnesses**: `/__dev/lifecycle-rail`, `/__dev/throbber`, `/__dev/ghost-grid`.
-  `npm run dev` in `dmf-cms/frontend`, then browse. **Build one for the rail band and the
-  bus.** jsdom computes no pixels — every visual defect this round was found by looking,
-  none by the suite.
-- **Mutation-check every guard.** Revert the fix, confirm the test fails *for the stated
-  reason*, restore. A test that passes both ways is worse than none. Round 1's most serious
-  defect — a side channel that could dirty a facility — was guarded by a test that did not
-  exercise a real token.
-- **Verify claims against the diff, not the report.** Both agents are reliable and both were
-  wrong at least once.
-- **Derive `file:line` with `git show main:<path>`**, not the working tree — a branch
-  checked out for a harness silently shifted line numbers and corrupted a citation set.
-- **Never switch a shared repo's branch while an agent is reading it.** Use a worktree.
-
-### Review
-
-`lkirc` reviews on request (`gh api -X POST repos/<owner>/<repo>/pulls/<n>/requested_reviewers`).
-**A freshly-opened PR gets no reviewer automatically** — `pending=` empty looks identical to
-"waiting for review" and will sit forever. Findings are all marked Blocking and are
-**sometimes narrower than the real defect and occasionally wrong** — verify each before
-complying. Round 1: every finding was real, two were narrower than reported, and one
-orchestrator "correction" of a finding was itself wrong.
-
-### PR mechanics
-
-- `automerge.yml` arms on `[opened, reopened, ready_for_review, labeled, unlabeled]`.
-  **Removing a `hold` label arms auto-merge** — for an approved PR that means merging in
-  seconds. Pass `--label hold` **at create** if you want a brake.
-- **A force-push dismisses the approval.** A rebase therefore costs a re-review round.
-- **Rebase-merge defeats `git branch --merged`** — merged branches show as unmerged
-  forever. Clean up by confirmed PR state, not ancestry.
-- Pre-commit runs a secret scan. It will refuse an operator-local path (`/Users/...`) in a
-  public file, correctly.
-
----
-
-## 6. Open questions for the operator
+## 5. Open questions for the operator
 
 Do **not** guess these:
 
