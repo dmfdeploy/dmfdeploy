@@ -98,8 +98,17 @@ should pass, never a substitute for running it.
 
 ### Ask these three before a criterion ships
 
-1. **What is the observable, and between which two points is it measured?**
-   If there is no number and no endpoints, it is an intention, not a criterion.
+1. **What is the observable, and what oracle decides it?**
+   Name the thing someone will actually look at, and how they will know which way it went.
+   **A number is not required** — plenty of the sharpest criteria are boolean or
+   qualitative: *"never renders `0 of 0` when the expected count is unknown"*, *"the count
+   can never sit beside a terminal result"*, *"a forged extra-var is refused"*, *"the key's
+   accessible name stays the bare EBU label"*. Each names an exact observable and an
+   unambiguous verdict, and none has a metric.
+   **Bounds and endpoints are required only for temporal or quantitative properties** —
+   there, "fast enough" or "recently" without a number and two measurement points is an
+   intention, not a criterion. Demanding a metric of a boolean property just invites an
+   invented one, which is worse than none.
 2. **What would make this pass while the property is false?**
    If you can answer at all, the criterion is incomplete — add that case as a negative.
 3. **If I broke the property on purpose, would this criterion catch it?**
@@ -120,20 +129,27 @@ The three cases above were all caught by reviewers, and this section was written
 day to prevent the next one. **The very next criterion written — the replacement for case 1,
 authored hours after this rule existed — reproduced the same defect.**
 
+The criterion, and the `request_id` / CloudEvents `id` rules it turns on, live in
+`docs/plans/DMF Console Shell Round Plan 2026-08-30.md` §7 and
+`docs/design/DMF Console Audit and Event-Log Spec.md` §2a — read those if you want to check
+this example rather than take it. In short: `request_id` is the **sole cross-app correlation
+key** and is deliberately shared by every event of one request; the CloudEvents `id` is
+**event identity only** and explicitly never a correlation key.
+
 Case 1's fix replaced the unmeasurable window with a real bound: emit an audit event, record
 its append timestamp, then poll the WORM bucket and fail if no matching object exists within
 60 seconds. It has a number. It has measurement endpoints. It even mints a **nonce**. It was
 checked against the earlier finding and pushed.
 
 It still could not fail for its own reason. It retrieved the object **by `request_id`** — and
-the same document states elsewhere that dispatch and terminal events *share* that id. So an
+that plan states elsewhere that dispatch and terminal events *share* that id. So an
 exporter that never delivered the event under test would pass, as long as it had exported
 some other event for the same request. The criterion proved *"something for this request was
 exported"*, never *"this write was exported"*. The nonce was generated and then not used as
 the discriminator at all.
 
 The fix was to retrieve by the event's unique CloudEvents `id` instead — an identifier the
-same document already defined as event identity and explicitly not a correlation key.
+spec above already defines as event identity and explicitly not a correlation key.
 
 **What that recurrence teaches, and why it belongs in this file:** the failure is not
 ignorance of the rule. The rule was fresh, written that day, prompted by this exact
