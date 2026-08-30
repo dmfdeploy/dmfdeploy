@@ -113,6 +113,55 @@ Lists media functions that are **active / provisioned** (NetBox `ipam.Service` +
 - **v0.1:** the list + per-function status/health.
 - **Named-only future:** the **interconnection diagram** (EBU Layer-4 Media-Exchange / flow-domain territory — deferred) and **license status** (not yet modelled). The in-flight `nmos-crosspoint` work (Phase 1, visible-only) is the natural seed for the interconnection view; this spec flags that they must converge rather than diverge (§9).
 
+> **§4.3 lifecycle-stage amendment (2026-08-30, #493).** A lifecycle stage
+> (Design / Plan / Provision / Configure / Finalise & Review) within a Media
+> Workload is **a peer view of the workload, not a step in a gated sequence.**
+> Every stage is always reachable; none refuses a click. A stage with nothing
+> to act on says so plainly — a designed **"nothing actionable here, because
+> X"** state (Constitution Art. 9's unhappy-path discipline), never a lock icon
+> and no content. Provision, for example, always shows what is currently
+> provisioned; it additionally offers a provision action only when something
+> newly planned exists to act on.
+>
+> **"Locked" stops being a gate and becomes a status.** The information a lock
+> used to convey — "there is nothing to do here yet, because an earlier stage
+> hasn't produced it" — is now stated as a fact on an always-open stage, never
+> spent on refusing entry. dmfdeploy/dmfdeploy#405 (landed dmf-cms 0.30.0)
+> already made locked steps reachable and read-only; this amendment closes the
+> same reasoning to its conclusion, for a **live** workload only — the draft
+> creation wizard (`CreateWorkload.tsx`) genuinely is sequential (you cannot
+> plan a facility before choosing a template) and keeps rendering no rail at
+> all, pinned by `railRouteContract.test.tsx`.
+>
+> **The padlock icon is reserved for authorization only, and does not ship
+> this round (operator ruling, 2026-08-30).** This round's rail carries the
+> five stage-identity icons only — every key, including one with nothing
+> actionable, renders its own identity icon; no key is ever iconless, and
+> nothing substitutes a padlock for a key's identity icon. **"Nothing
+> actionable here, because X" is conveyed in words, on the stage page
+> itself** (this amendment's own ruling above), never as a lock glyph on the
+> rail. A padlock means *you may not* — an RBAC refusal worth communicating —
+> and must never mean *there is nothing to do here yet*; conflating
+> permission with state is exactly the agency-restricting framing this
+> amendment removes. The padlock returns to the rail only if and when an
+> authorization-denied state distinct from plain "locked" is built into the
+> code — that is **future work**, not this round's gap; see the companion
+> [Lifecycle Rail Visual System](DMF%20Console%20Lifecycle%20Rail%20Visual%20System.md)
+> doc §2a.
+>
+> **Downstream consequences, named so the visual round is built against them
+> and not repainted twice:** the rail's per-key mark can no longer report
+> completeness of an independent stage — the only coherent per-key signal
+> becomes **how many actionable items this stage currently has**
+> (dmfdeploy/dmfdeploy#481's badge — "absence of badge = nothing actionable").
+> And Finalise stops meaning "the end" of a sequence; it means "the stage
+> where teardown and permanent delete live," which is what it already is.
+>
+> Documentation only. The behaviour change itself — `classifyWorkloadFlow`,
+> the selection guards in `WorkloadDetail.tsx`, and the roughly ten dependent
+> tests (including the delete-permanently authorization suite) — lands in a
+> later round.
+
 ### 4.4 Catalog — native now, "companion integrations" in copy
 The set of media functions **available** to deploy (today: native, from `dmf-media/catalog/` + `dmf-runbooks` launchers). Keeps the existing route name **Catalog** for v0.1 honesty — there is no third-party ecosystem yet (no plugin / signing / distribution model; that is v2+).
 
@@ -217,5 +266,18 @@ Implementation touch-points (named for the follow-on, not built here): `componen
 This spec is **downstream** of the UX Constitution and subordinate to it: where the two appear to differ, the Constitution governs and this spec must be corrected. It **resolves** Constitution §7 Open Question #1 (role set + OIDC mapping, §7 here) and **supplies** the nav/page model the Constitution left open (§6 there). It introduces **no new hard gate**; it restates existing gates (Arts. 1, 2, 4, 5, 6, 7) as they bind navigation and the Workspace.
 
 ### Revision history
+- **2026-08-30 (#493)** — §4.3 lifecycle-stage amendment: a lifecycle stage
+  within a Media Workload is a peer view of the workload, not a step in a
+  gated sequence; "locked" becomes a status, not a gate, conveyed in words on
+  the stage page. The padlock icon is reserved for authorization denials
+  only and **does not ship this round** (operator ruling, same date) — the
+  rail carries the five stage-identity icons on every key instead; the
+  padlock returns only once an authorization-denial state distinct from
+  "locked" exists in the code, which is future work. Names the downstream
+  consequences for #481's per-key badge semantics (actionable count replaces
+  completeness) and for Art. 9 "nothing actionable, because X" states.
+  Documentation only; the behaviour change (`classifyWorkloadFlow`,
+  `WorkloadDetail.tsx` selection guards, ~10 dependent tests) is a later
+  round.
 - **2026-07-07 (#185 WP-E)** — §3 placement clarification: "Settings (own prefs)" is an account-menu surface (Topbar avatar), not a rail secondary; the rail "Settings" slot is reserved for facility-level **Site settings** (admin-gated), surfaced only once that page exists. Recorded so the docs don't drift from the build (dmf-cms Sidebar drops the ungated Settings rail entry in the same PR). No change to the role→surface matrix's access columns.
 - **2026-06-23 (pass 1)** — initial IA: spine principle ("name the goal, build only v0.1"), four primary rails (Workspace / Facilities / Media Workloads / Catalog), Activity two-lane rule, Workspace pinned-core widget model + client-side bounded personalization, role→surface matrix (closes Constitution §7 OQ#1), touch/PWA recorded as a separate deferred decision. Drafted after an adversarial codex cross-check (VERDICT: CHANGES-NEEDED → all six findings folded in: dropped a proposed fourth "Curation" axis, hardened the Facilities single-facility data-model guard, preserved the Changes history lens, pinned widget persistence to client-side-only, and split out the touch/PWA decision).
