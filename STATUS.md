@@ -21,6 +21,56 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 <!-- HUMAN-START -->
 
+### 🚢 A6 delivered, dmf-cms 0.30.0 released and deployed; the rail is not finished (2026-08-30)
+
+**Read this before touching the lifecycle rail.** The repaint shipped, but it delivered
+two of the three defects [#449](https://github.com/dmfdeploy/dmfdeploy/issues/449) named
+— and the missing one is the issue's opening line.
+
+**What landed.** dmf-cms **0.30.0** is released and running on the sandbox demo env.
+`#449` is closed and `docs/plans/DMF Console UI Round Plan 2026-08-21.md` is
+`status: executed`. Three commits: the repaint itself, then the eleven tests
+[#405](https://github.com/dmfdeploy/dmfdeploy/issues/405) broke, re-pointed across two
+arcs. Suite **763/763**, `tsc` clean. None deleted, weakened or skipped.
+
+The test work found two defects nothing was looking for: a purge control that would
+render on a **running** workload beside its legitimate teardown — the full suite
+returned baseline-identical figures under that mutation — and a passing assertion that
+had silently stopped discriminating, hiding a real authorization-read regression.
+`FlowStep`'s locked-children guard is now load-bearing across four test files.
+
+**What did not land.** `#449` opened with *"No icons on any key"*, and the rail still
+has none. The plan rejected a tick as the completeness mark *because* the candidate icon
+set uses a circled check for Finalise — reasoning that only holds if icons were always
+shipping on the keys. Icons + dots + directive shape was one design; only the dots
+shipped. The rail is also **not centred**: measured live, the keys hug the start with
+~669px of dead space beside them. The equal-columns check measured the *keys* and
+concluded about the *rail*.
+
+**The icon set is recorded nowhere in the repos** — not the plan, the issues, or the
+design docs. Only references to it survive. Recording it is the first task of
+[#482](https://github.com/dmfdeploy/dmfdeploy/issues/482).
+
+**Verify a console deploy by image label, not by digest.** The Zot digest differs from
+the GHCR digest because skopeo re-manifests on copy, so cross-registry digest equality
+is the wrong check and reads as a failure. Use `org.opencontainers.image.revision` off
+the image the pod is running, then grep the served bundle for a string only the new code
+has. The console's `/api/version` and `/version` both return 200 with `index.html` — the
+SPA catch-all — so any HTTP version check against it is a false green.
+
+**A live lifecycle walk** (teardown → purge → create → provision) validated `#405` on a
+real cluster: a locked key is reachable, selects, states its reason, and mounts no stage
+control. It also surfaced eight issues, now categorised —
+[#485](https://github.com/dmfdeploy/dmfdeploy/issues/485)–[#490](https://github.com/dmfdeploy/dmfdeploy/issues/490)
+plus [#480](https://github.com/dmfdeploy/dmfdeploy/issues/480)/[#481](https://github.com/dmfdeploy/dmfdeploy/issues/481).
+
+> **Freeze 2 is narrower than it is usually described.** It prohibits **new ADRs,
+> reopened non-goals, and consolidation rounds** — not design work in general. Gate B is
+> still unmet: `#379` remains open with nine deferred live-walk items even though its
+> runbook PR merged. None of the newly filed issues reopens a Freeze-1 non-goal; only
+> `#489` may need an ADR amendment, and that part stays frozen until Gate B regardless
+> of its milestone.
+
 ### 🧹 Backlog + docs reconciled; working-model template now pinned per repo (2026-08-29)
 
 **Read this before editing the working-model block, cutting a tag, or committing
