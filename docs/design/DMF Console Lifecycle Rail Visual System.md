@@ -57,7 +57,7 @@ redefine it. Two consequences that shape the channels below:
 | **Hue** (muted, permanent, per stage) | stage identity |
 | **Luminance / fill** | selection ("am I looking at this one") |
 | **Icon** | stage identity — see §3 for the set. |
-| **Badge** | count of actionable items. **Absence of badge = nothing actionable.** |
+| **Badge** | count of actionable items. **Absence of badge = nothing actionable — but only once the channel is live; see §2b.** |
 
 Everything except hue survives greyscale, and hue only carries identity —
 already redundant with the visible label. **Art. 11 clean by construction.**
@@ -66,6 +66,40 @@ already redundant with the visible label. **Art. 11 clean by construction.**
 earlier #481 proposal) — that is six treatments that must all survive
 greyscale, and Art. 11 was only ever verified for the dot the previous round
 shipped.
+
+### 2b. Badge-absence carries no meaning until the channel is live
+
+**Amendment, 2026-08-30.** §2's "absence of badge = nothing actionable" and §5's
+"badge-ready, no counts this round" contradict each other when composed, and the
+contradiction is not visible from either one alone.
+
+This round renders **no badge on any key, under any state**. If absence already
+meant "nothing actionable", the rail would assert *"nothing actionable anywhere"*
+on every key of every workload — including one mid-provision, where the claim is
+false. That is precisely the failure Art. 1 forbids elsewhere on this same
+component, which prints `Count unavailable` rather than a stale or guessed number:
+**do not state a fact the console cannot verify.**
+
+So, explicitly:
+
+- **Until the badge channel renders real counts**, the slot is **reserved geometry
+  and nothing else**. It carries no meaning, and absence of a badge says nothing —
+  neither "nothing actionable" nor anything else.
+- **Once counts land** (the ADR-0046 derivation,
+  [#495](https://github.com/dmfdeploy/dmfdeploy/issues/495)), §2's reading takes
+  effect and absence becomes meaningful.
+
+No code change follows from this amendment — the slot is already `aria-hidden` and
+empty, which is the correct rendering under both readings. What changes is that a
+future reader cannot derive a false claim from §2's table, and whoever implements
+#495 knows that switching the channel on is also what switches its absence
+semantics on.
+
+**Consequence worth stating plainly:** between this round and #495, the rail has
+*no* progress or actionable-work signal at all — the completeness dot is retired
+(§1: completeness is not a coherent property of an independent peer stage) and the
+badge is not yet live. The workload home, where no key is selected, is the state
+that loses the most. That is an accepted, temporary gap, not an oversight.
 
 ### 2a. The padlock — no padlock this round (operator ruling, 2026-08-30)
 
@@ -206,7 +240,10 @@ already unique on the page.
 - **Badge-ready, no counts this round.** Build the badge slot — geometry and
   width budget — but render no number until the ADR-0046 lifecycle-derivation
   work produces a real actionable-item count to show. Nothing painted twice,
-  nothing claiming a number the console cannot yet verify.
+  nothing claiming a number the console cannot yet verify. **While the slot is
+  empty it carries no meaning at all — §2b, which is what stops §2's
+  absence-semantics from asserting "nothing actionable" on every key this
+  round.**
 
 ---
 
@@ -217,7 +254,8 @@ already unique on the page.
 | Padlock for authorization-denial only | **Not built — future work, not this round's gap.** This round ships full identity-icon coverage without it (§2a). Returns only once an authorization-denied state distinct from "locked" exists in the code. | §2a; downstream of a future #493-adjacent behaviour change |
 | Notch depth | **Unmeasured.** Do not build from the reported 141.4px figure. | §5 |
 | CVD simulation on the five stage hues | **Not yet run.** | §4 |
-| Badge counts | **Deferred by design** — slot built, no number rendered until ADR-0046 lands. | §5 |
+| Badge counts | **Deferred by design** — slot built, no number rendered until ADR-0046 lands. Absence carries no meaning meanwhile. | §5; §2b |
+| No progress/actionable signal on the rail between this round and #495 | **Accepted temporary gap** — completeness dot retired (§1), badge not yet live. Costs the workload home the most. | §2b |
 
 ---
 
