@@ -636,9 +636,11 @@ Named here so they are not lost between "decided" and "built":
    delete/overwrite attempt against a written object (immutability, not
    just a retention *label*), and (c) the object's own retention-until
    metadata reflects the 12-month target. **(a)'s bound, precisely:**
-   measured by emitting a nonce-bearing audit event, recording its append
-   timestamp, then polling the WORM bucket for the object carrying that
-   event's `request_id`; the check fails if no matching object exists by
+   measured by emitting an audit event, recording its CloudEvents `id` and
+   append timestamp, then polling the WORM bucket for the object carrying
+   that same `id` — event identity, not `request_id`, which multiple events
+   share and so cannot distinguish this write from another write for the
+   same request; the check fails if no matching object exists by
    append-time + 60s. Sixty seconds is deliberately far below the
    `dmf-infra` daily-cron precedent's ~86400s delivery window (below), so a
    delayed-export implementation cannot pass this check by accident.
