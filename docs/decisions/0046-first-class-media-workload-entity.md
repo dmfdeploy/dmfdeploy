@@ -151,3 +151,60 @@ the flows between its members.
 - **ADR-0037** carries an amendment pointer to this ADR.
 - Implementation slices open as their own issues under
   [#189](https://github.com/dmfdeploy/dmfdeploy/issues/189), each codex-gated.
+
+## Amendment 1 (2026-08-30): EBU lifecycle stage names keep EBU's own spelling
+
+**Status:** Accepted. Clarifies decision point 3 (the six-stage lifecycle
+naming) — no other decision point changes.
+
+**Problem.** During the console shell documentation round
+(dmfdeploy/dmfdeploy#480), a US-spelling house style was briefly considered
+for the console's copy, which would have made `finalizing` "correct" and
+this ADR's own `Finalise & Review` (decision 3, and the
+[Console Glossary](../design/DMF%20Console%20Glossary.md)'s stage-names
+entry) a defect to fix. **That is backwards**, and needs to be on record
+before it recurs: the near-miss is the point — someone who later sees
+`Finalise` beside a stray `finalizing` will normalise the *wrong* one
+without a written rule to check against (see dmfdeploy#499, a raw lifecycle
+token that reached an operator surface with the wrong spelling — a
+dmf-cms fix on its own branch, not this amendment, but the kind of drift
+this amendment exists to prevent).
+
+**Verification.** Checked against the primary source — the EBU white paper
+*The Dynamic Media Facility Reference Architecture* — by text extraction:
+
+| Token | Occurrences |
+|---|---|
+| `Finalise` | 6 |
+| `Finalise & Review` | 2 |
+| `Finalize` / `Finalizing` | **0** |
+
+EBU publishes the **'s'** spelling, unambiguously and exclusively.
+
+**Rule.** The six EBU lifecycle stage names (Design, Plan, Provision,
+Configure, Operate, **Finalise & Review**) are quoted domain vocabulary —
+UX Constitution Art. 3's **industry-standard** tier, "kept and explained in
+place," not the DMF-internal tier subject to console-authored copy
+conventions. They keep **EBU's own spelling in every locale's Latin
+rendering**, are **not** subject to any console house style (US/UK or
+otherwise), and are not to be "corrected" toward either spelling
+convention by anyone who has not first re-checked the primary source.
+`Finalise` / `Finalise & Review` — never `Finalize` / `Finalizing` — at any
+tier, default or expert.
+
+**Scope — display strings only, not machine identifiers.** This amendment
+governs copy an operator or reader sees. It does **not** touch, and no one
+should read it as license to rename, any machine identifier that happens to
+share the word: the NetBox `lifecycle-finalise` tag value, the
+`lifecycle-finalise.yml` playbook filename, or any other frozen identifier.
+Display strings and machine identifiers are separate concerns; this
+amendment is scoped to the former only.
+
+**Consistency check.** This already matches
+[`docs/architecture/DMF EBU Mapping (2026-04-25).md:39`](../architecture/DMF%20EBU%20Mapping%20(2026-04-25).md),
+this ADR's own decision 3 above, the
+[Console Glossary](../design/DMF%20Console%20Glossary.md)'s lifecycle
+stage-names entry, and the machine identifiers named above — this amendment
+records the rule those already-consistent artifacts were following
+implicitly, so a future edit cannot "fix" one of them into inconsistency
+with the rest.
