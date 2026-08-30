@@ -56,6 +56,64 @@ Self-tests alone are not enough. Always run the tool against **real data** (a dr
 
 **Rule:** for any tool that scans real data and takes action, the first run MUST be a dry-run. Review the dry-run output for false positives before enabling apply mode.
 
+## Written acceptance criteria are tests too — apply the same question
+
+Everything above is about test *code*. The same discipline is routinely skipped for the
+**prose acceptance criteria** written into issues, plan docs and work orders — and that is
+where the defect usually enters, because a criterion is a **promise about a future test**.
+An undiscriminating criterion is inherited by whatever test eventually satisfies it, and by
+then the person writing the test believes the thinking was already done.
+
+Three reviewers on 2026-08-30 independently converged on this class in one round — two
+adversarial passes and the review harness — which is what promoted it from a habit to a
+rule.
+
+### The three failure modes, with what they actually looked like
+
+**1. Unmeasurable — no observable, no measurement points.**
+
+> *"…prove the S3 object landed **within the same request's window**, not on a later batch job."*
+
+The intent is clear (streaming, not batch) and it is still not a criterion: no number, no
+stated start and end points. Nobody can implement that check and know they got it right, so
+whatever they write becomes the de-facto specification.
+
+**2. Satisfiable without the property holding.**
+
+> *"…acceptance: a `dmf_cms.audit` line survives past 30 days."*
+
+True whenever *any* line survives — including one sitting in the ordinary 30-day stream,
+which is precisely the failure the criterion existed to detect. It cannot fail for its own
+reason. The fix is almost always a **paired negative case**: assert the thing is in the
+intended stream *and* absent from the one it must not fall into.
+
+**3. A structural argument standing in for a check.**
+
+> *"…the count can never sit beside a terminal result, because callers unmount the
+> component when the op resolves."*
+
+An emergent property of code shape, asserted instead of tested. It was also false — the
+mount condition outlived the terminal state. Structure is an explanation of why a test
+should pass, never a substitute for running it.
+
+### Ask these three before a criterion ships
+
+1. **What is the observable, and between which two points is it measured?**
+   If there is no number and no endpoints, it is an intention, not a criterion.
+2. **What would make this pass while the property is false?**
+   If you can answer at all, the criterion is incomplete — add that case as a negative.
+3. **If I broke the property on purpose, would this criterion catch it?**
+   The mutation question from the top of this file, asked of prose. It works the same.
+
+### The rule
+
+> **A criterion that names a property must be able to fail for that property's reason.**
+> "It passed" and "it passed for the right reason" are different claims, and only the
+> second one is worth anything.
+
+Reviewers reliably catch this later, which is the expensive place to catch it: by then the
+criterion is committed, has been cited, and rewriting it looks like moving the goalposts.
+
 ## Flagging self-authored tests
 
 If you (the implementer) authored both the fix and its discrimination test, flag this in your DONE report so the orchestrator can route the test for independent review. Self-authored tests can have blind spots — a second pair of eyes catches vacuous assertions.
