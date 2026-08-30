@@ -129,12 +129,16 @@ The three cases above were all caught by reviewers, and this section was written
 day to prevent the next one. **The very next criterion written — the replacement for case 1,
 authored hours after this rule existed — reproduced the same defect.**
 
-The criterion, and the `request_id` / CloudEvents `id` rules it turns on, live in
-`docs/plans/DMF Console Shell Round Plan 2026-08-30.md` §7 and
-`docs/design/DMF Console Audit and Event-Log Spec.md` §2a — read those if you want to check
-this example rather than take it. In short: `request_id` is the **sole cross-app correlation
-key** and is deliberately shared by every event of one request; the CloudEvents `id` is
-**event identity only** and explicitly never a correlation key.
+The criterion lives in `docs/plans/DMF Console Shell Round Plan 2026-08-30.md` (§7 of the
+deliverables list); the identifier rules it turns on are in `§2a. Storage` of that plan and
+in `## Storage architecture` of `docs/design/DMF Console Audit and Event-Log Spec.md`. Read
+them if you want to check this example rather than take it.
+
+The two rules, stated here so the example is checkable even standalone: **`request_id` is
+the sole cross-app correlation key**, and is deliberately shared by every event belonging to
+one request — that sharing is the whole point of it. The CloudEvents **`id` is event
+identity only and explicitly never a correlation key**. Retrieving by the first therefore
+cannot identify a single event; retrieving by the second can.
 
 Case 1's fix replaced the unmeasurable window with a real bound: emit an audit event, record
 its append timestamp, then poll the WORM bucket and fail if no matching object exists within
