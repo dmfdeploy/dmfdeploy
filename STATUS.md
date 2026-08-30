@@ -76,6 +76,24 @@ occurrences). Display strings only; `lifecycle-finalise` tags and playbook filen
 frozen identifiers. **The near-miss is the point** — someone reading `finalising` beside
 `Finalise` will normalise the wrong one.
 
+**Release deliberately deferred (operator decision, 2026-08-30).** dmf-cms `main` carries
+**10 unreleased commits** past `v0.30.0`, and dmf-runbooks carries **2** past `v0.4.7` — the
+two halves of the throbber. This is a decision, not an oversight: the release waits until
+the message bus ([#480](https://github.com/dmfdeploy/dmfdeploy/issues/480)) and rail band
+([#481](https://github.com/dmfdeploy/dmfdeploy/issues/481)) land, so the screens are
+coherent and [#499](https://github.com/dmfdeploy/dmfdeploy/issues/499)'s remaining duplicate
+announcements are gone before anything is recorded.
+
+**The cost of waiting, so it is not forgotten.** Four assumptions the throbber rests on are
+**unverified against a real AWX run** — everything so far is harness renders and unit tests
+with stubbed events. Namely: whether milestone markers reach `job_events` promptly enough
+to be useful; whether the ~10s poll catches them at that cadence; whether the tail
+running-count can populate during a *fresh* provision (it needs NetBox records that may not
+exist yet at that moment); and whether the stated typical durations match real runs. Order
+matters when the release does happen: **dmf-runbooks first** (tag → Forgejo mirror → AWX
+project re-pin → 693), or the console ships with its step text permanently dark and only the
+designed fallback visible.
+
 **Environment left behind.** All three repos on `main`, all merged branches deleted local
 and remote. One operator-local worktree deliberately untouched — a detached-HEAD
 `dmf-cms-449-verify` checkout carrying **3 uncommitted files** from an earlier session, so
