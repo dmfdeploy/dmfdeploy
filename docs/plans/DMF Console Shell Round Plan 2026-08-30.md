@@ -235,6 +235,19 @@ none of Constitution Art. 7's heavier treatment (impact preview, typed
 confirmation): it dismisses nothing and asserts nothing about the underlying
 condition, so it carries none of Art. 7's consequence-class machinery.
 
+**Ack does not require a C5 `reason` — explicit exception, stated now so
+implementation cannot grow one.** ADR-0028 C5 requires actor, role, request
+id, *and reason* for every DMF-initiated automated action
+([0028-identity-and-authority-chain.md:63-66](../decisions/0028-identity-and-authority-chain.md)).
+Ack's own shape above — actor + timestamp only, never a reason field — is
+the exception to that general rule, not an oversight: an ack asserts nothing
+about *why* (it dismisses nothing, per "Not a dangerous action" above), so
+there is no "why" for a reason field to capture. Without this line, a
+literal reading of C5 would require implementation to either add an
+unnecessary reason prompt to what is supposed to be a single-click
+acknowledgement, or reject a valid ack for lacking one it was never meant to
+carry.
+
 ## 2. The bus is a projection, not a new store
 
 The Audit/Event-Log Spec already says `/changes` should be *a projection of
@@ -261,13 +274,21 @@ rejected-alternatives choices are this round's own rulings, not independent
 prior decisions — #496 is where their implementation and any revision is
 tracked, not this plan alone.
 
-- **Envelope: CloudEvents** (CNCF). `id`/`source`/`type`/`time`/`subject`/`data`;
-  the Audit Spec's existing record schema drops into `data`. It is a *shape*,
-  not a dependency. **Do not invent a bespoke JSON wrapper.** **`id` is event
-  identity only, never a correlation key.** `request_id` remains the **sole**
-  cross-app correlation key (Audit Spec); consumers must not treat the
-  CloudEvents `id` as a competing correlation identifier even though both sit
-  on the same envelope.
+- **Envelope: CloudEvents** (CNCF). `specversion`/`id`/`source`/`type`/`time`/
+  `subject`/`data`; the Audit Spec's existing record schema drops into `data`.
+  It is a *shape*, not a dependency. **Do not invent a bespoke JSON wrapper.**
+  **`specversion` is REQUIRED** — CloudEvents 1.0 lists `id`, `source`,
+  `specversion`, and `type` as its four required top-level attributes
+  ([spec](https://github.com/cloudevents/spec/blob/main/cloudevents/spec.md));
+  a `specversion`-less envelope is not CloudEvents, it is a bespoke wrapper
+  that happens to share some field names — exactly the failure choosing
+  CloudEvents was meant to avoid. Fixed value: `"1.0"`. **`id` is event
+  identity only, never a correlation key** — it identifies *this event*, not
+  a delivery attempt (a redelivery of the same event may reuse the same
+  `id`; that is a dedup signal, not a new occurrence). `request_id` remains
+  the **sole** cross-app correlation key (Audit Spec); consumers must not
+  treat the CloudEvents `id` as a competing correlation identifier even
+  though both fields sit on the same envelope.
 - **Transport: structured JSON on the existing `dmf_cms.audit` child logger →
   stdout → Promtail → Loki.** The child logger, stdout, Promtail, and Loki all
   already exist — but the **structured JSON** part does not: today
@@ -298,12 +319,15 @@ tracked, not this plan alone.
   (`roles/stack/operator/loki/templates/values.yml.j2`). Ordinary pod
   stdout — which is all `dmf_cms.audit` is today — is picked up by the
   generic Kubernetes-pods scrape job and carries none of those labels, so it
-  falls through to the 30-day general default. `k3s-audit`'s own pattern (a
-  dedicated scrape/relabel step assigning a matching `job` label) shows the
-  shape a fix would take, but nothing analogous exists for `dmf_cms.audit`
-  yet, and this plan does not invent the exact Promtail pipeline stage here —
-  that is real engineering work with its own acceptance check (a Loki query
-  proving a `dmf_cms.audit` line survives past 30 days), tracked under #496.
+  falls through to the 30-day general default. **The exact Promtail rule and
+  the acceptance check that actually proves survival past 30 days (not just
+  a line's continued presence) are specified once, in full, in the
+  [Audit and Event-Log Spec](../design/DMF%20Console%20Audit%20and%20Event-Log%20Spec.md)'s
+  Storage architecture section** — summary: relabel matched `dmf_cms.audit`
+  lines to `job=dmf-cms-security` (satisfies the existing `.+-security`
+  selector with no Loki-role change), then a paired nonce + negative-control
+  query proves both the label assignment and the >30-day survival, not one
+  without the other. Tracked under #496.
 - **The UI states its window honestly (Art. 1): "last 30 days," full stop —
   no future exception.** Until the routing gap above is closed and verified,
   no surface reads the security-relevant stream at all, so nothing can
@@ -327,17 +351,39 @@ tree (a prior count of six was corrected by tree verification):
 
 The backend *already* records most of these events via `_audit_awx_write`
 (`main.py:952-1001`) with better data — real `request_id`, server-side role —
-**but not the actual outcome, and not uniformly.** Corrected: `_audit_awx_write`
-records the **dispatch result only**. The synchronous deploy/teardown paths
-audit `outcome="launched"` the moment AWX *accepts* the job (confirmed in the
-tree, e.g. `main.py`'s sync deploy/teardown handlers); the asynchronous paths
-audit `outcome="dispatched"`. Neither is the job's actual result. The real
+**but not the actual outcome, and not uniformly for every action.**
+Corrected: for the **watched actions** —
+`deploy`/`teardown`/`rollback`/`finalise-purge`, exactly
+`operations.py:89-96`'s `_WATCHED_ACTIONS` — `_audit_awx_write` records the
+**dispatch result only**. The synchronous paths audit `outcome="launched"`
+the moment AWX *accepts* the job (confirmed in the tree, e.g. `main.py`'s
+sync deploy/teardown handlers); the asynchronous paths audit
+`outcome="dispatched"`. Neither is the job's actual result. The real
 terminal state (`RUN_COMPLETE` / `RUN_FAILED` / `FAILED_ROLLBACK_REQUIRED` /
 `ROLLBACK_INCOMPLETE` / `RUN_STATUS_UNKNOWN`) is computed by
 `_watch_job_operation`'s poll loop — confirmed in the tree to write only to
 the in-memory `OperationStore` (`ops_store.update(...)`), with **no call to
 `audit_logger` or `_audit_awx_write` anywhere in that function.** Terminal
 truth exists only in memory today; it never reaches the audit log at all.
+
+**This is scoped to the watched actions specifically — it is not true of
+every `_audit_awx_write` call, in either direction.** `switch-source`
+(`main.py:5728-5749`) has no watcher and needs none: it runs its own
+actuator (reconnect / future `nmos-is05`) synchronously to completion
+*before* its single `_audit_awx_write` call, so that call — unlike every
+watched action's — already carries a genuinely terminal outcome
+(`command.status.value`: `active` or `failed_rollback_required`). `launch`
+(the generic AWX workflow launch) also has no watcher, but for a third,
+distinct reason, and its own outcome values are **not** resolved by this
+plan — see the
+[Audit and Event-Log Spec](../design/DMF%20Console%20Audit%20and%20Event-Log%20Spec.md)'s
+"`outcome` vs `outcome_detail`" section, which defines the full `outcome`
+enum mapping (including the D2 ruling that dispatch acceptance maps to
+`outcome: in-progress`, never a new enum member) and explicitly leaves
+`launch`'s case open rather than guessing at it. Do not infer "no helper
+call has a terminal outcome" (false — switch-source's does) or "every AWX
+action has a watcher" (false — `launch` and `switch-source` don't, for two
+different reasons) from the watched-action description above.
 
 Separately, the CLEAR-FOR-DEPLOYMENT path (`recordClear`) is logged through
 the plain module `logger`, not `audit_logger`/`_audit_awx_write` (confirmed at
@@ -575,6 +621,30 @@ Named here so they are not lost between "decided" and "built":
    Tier 2 end-to-end canary (§2c). `dmf-cms` has no `/metrics` exposition,
    no `prometheus_client` dependency, and no `ServiceMonitor` today — this
    is new baseline monitoring for the whole component, not just the bus.
+7. **The D7 WORM/export producer** (tracked by umbrella issue #496 —
+   previously named only as architecture text in §2a, not as a
+   deliverable). §2a rules out "six months hot then export" and requires
+   **streaming, near-real-time, parallel** delivery to object-lock S3
+   (12-month window); nothing in this list built it. Needs: the producer
+   itself (subscribes to the same append-only stream the ring buffer/Loki
+   read side does, or tails Loki directly — implementer's choice, not
+   pre-decided here); the object-lock/WORM bucket and its retention-lock
+   configuration; and an acceptance check that proves, per write, (a) the
+   S3 object landed **within the same request's window**, not on a later
+   batch job (parallel, not delayed-export), (b) the bucket's object-lock
+   mode actually rejects a delete/overwrite attempt against a written
+   object (immutability, not just a retention *label*), and (c) the
+   object's own retention-until metadata reflects the 12-month target.
+   `dmf-infra`'s existing `audit-log-archival` role is a **precedent for
+   the S3 object-lock plumbing only** (`audit_log_object_lock_mode:
+   COMPLIANCE`, `audit_log_object_lock_days: 365`) — its own delivery is a
+   **daily batch cron** against `k3s-audit`'s host-file log, not near-real-time
+   streaming, so it does not itself satisfy D7's "parallel with the hot
+   write" requirement and must not be reused as-is for timing, only for its
+   bucket/object-lock configuration shape. If this producer belongs to a
+   different owner/repo than dmf-cms (`dmf-infra`, most likely, given the
+   precedent above), name that owner explicitly rather than leaving it to
+   be inferred.
 
 ## 8. Non-goals this round
 

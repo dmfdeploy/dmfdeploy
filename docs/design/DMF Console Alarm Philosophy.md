@@ -31,6 +31,15 @@ none of Constitution Art. 7's heavier consequence-class / impact-preview
 treatment: it dismisses nothing and asserts nothing about the underlying
 condition.
 
+**Ack does not require a C5 `reason`.** ADR-0028 C5 requires actor, role,
+request id, and reason for every DMF-initiated automated action. Ack's
+actor + timestamp shape above is the stated exception: it asserts nothing
+about *why*, so there is no reason for a `reason` field to carry. This is
+recorded here and at the
+[Shell Round Plan](../plans/DMF%20Console%20Shell%20Round%20Plan%202026-08-30.md)
+§1c so implementation does not grow an unnecessary reason prompt, or reject
+an ack for lacking one.
+
 ## Bus self-monitoring — cross-reference only (2026-08-30, #497)
 
 The message bus's own liveness (whether the console's event pipeline — emit
