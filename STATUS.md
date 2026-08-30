@@ -21,6 +21,73 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 <!-- HUMAN-START -->
 
+### 🧭 Console shell round landed — throbber, ghost grid, design record (2026-08-30, later)
+
+Five PRs merged across three repos in one round. Started as "add a throbber" after an
+external usability walkthrough and became *give in-flight state exactly two honest homes*.
+
+**What landed.**
+
+| PR | What |
+|---|---|
+| [dmfdeploy#500](https://github.com/dmfdeploy/dmfdeploy/pull/500) | Shell round design record; Audit/Event-Log Spec out of stub; IA amendment; rail visual system; ADR-0046 Amendment 1 |
+| [dmf-runbooks#46](https://github.com/dmfdeploy/dmf-runbooks/pull/46) | Milestone markers on the existing `l3_run_guard` outcome-marker rails |
+| [dmf-cms#125](https://github.com/dmfdeploy/dmf-cms/pull/125) | Live throbber — spinner, elapsed clock, milestone step, tail running-count |
+| [dmf-cms#126](https://github.com/dmfdeploy/dmf-cms/pull/126) | Ghost grid on Media Workloads + Facilities |
+| [dmf-cms#127](https://github.com/dmfdeploy/dmf-cms/pull/127) | Status legibility — EBU spelling, expert-tier op id, non-restating "View live" |
+
+Design record: `docs/plans/DMF Console Shell Round Plan 2026-08-30.md`. **Read it before
+touching the top bar** — it carries the three-surface model (bus / inbox / alarm LED), the
+LED's four states, and the rail visual system, none of which is built yet.
+
+**Two dev harnesses now exist**, DEV-only and tree-shaken from production:
+`/__dev/throbber` and `/__dev/ghost-grid` (plus the pre-existing `/__dev/lifecycle-rail`).
+Run `npm run dev` in `dmf-cms/frontend`. jsdom computes no pixels — **use these rather than
+trusting a green suite** on anything visual. Both found real defects this round that tests
+did not.
+
+**Not finished, and easy to miss.**
+
+- [#499](https://github.com/dmfdeploy/dmfdeploy/issues/499) is **not closed** by #127. One
+  running job is still announced four times on one screen; two of those four are removed by
+  the rail band ([#481](https://github.com/dmfdeploy/dmfdeploy/issues/481)) and the bus
+  ([#480](https://github.com/dmfdeploy/dmfdeploy/issues/480)), and are recorded as
+  acceptance criteria on those issues. **The round must subtract, not just add** — the bus
+  and throbber add two good homes without deleting the old four.
+- [#496](https://github.com/dmfdeploy/dmfdeploy/issues/496) — the audit stream records
+  **dispatch, never outcome**; terminal truth lives only in the in-memory `OperationStore`.
+  ADR-0028 **D7 is unmet today**: nothing routes `dmf_cms.audit` into a retained stream.
+- [#497](https://github.com/dmfdeploy/dmfdeploy/issues/497) — **dmf-cms is unmonitored
+  entirely.** No `/metrics`, no `ServiceMonitor`, nothing scrapes it. The bus cannot detect
+  its own silence.
+- [#495](https://github.com/dmfdeploy/dmfdeploy/issues/495) — divergence as the are-we-OK
+  primitive. Orphan detection was investigated: it is a **KSM/Prometheus config change**,
+  not a launcher rewrite — but KSM exports *no* custom labels today (`metricLabelsAllowlist`
+  unset), so no query works until that changes.
+- [#494](https://github.com/dmfdeploy/dmfdeploy/issues/494) — `reconcile_pending` is
+  one-directional; a stood-down service still running reads as reconciled.
+- [#493](https://github.com/dmfdeploy/dmfdeploy/issues/493) — lifecycle stages are **peer
+  views, not a gated sequence**. The IA amendment landed; the behaviour change
+  (`classifyWorkloadFlow` + ~10 tests) did not.
+
+**Standing rule now in ADR-0046 Amendment 1:** EBU lifecycle stage names keep EBU's own
+spelling — `Finalise`, never `Finalize`, verified against the EBU white paper (6 vs 0
+occurrences). Display strings only; `lifecycle-finalise` tags and playbook filenames are
+frozen identifiers. **The near-miss is the point** — someone reading `finalising` beside
+`Finalise` will normalise the wrong one.
+
+**Environment left behind.** All three repos on `main`, all merged branches deleted local
+and remote. One operator-local worktree deliberately untouched — a detached-HEAD
+`dmf-cms-449-verify` checkout carrying **3 uncommitted files** from an earlier session, so
+not mine to clean. [dmfdeploy#501](https://github.com/dmfdeploy/dmfdeploy/pull/501) is
+open, unheld.
+
+**Process note worth keeping.** Every review finding this round was real; none was a false
+positive. But on two, the reported symptom was **narrower than the defect** — so verify
+before complying even when the reviewer turns out to be right. Conversely, one of my own
+"corrections" to a reviewer was wrong: a truncated `grep -A 14` made a complete table look
+incomplete. Check the whole file before contradicting a finding.
+
 ### 🚢 A6 delivered, dmf-cms 0.30.0 released and deployed; the rail is not finished (2026-08-30)
 
 **Read this before touching the lifecycle rail.** The repaint shipped, but it delivered
