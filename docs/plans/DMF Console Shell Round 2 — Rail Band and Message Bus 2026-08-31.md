@@ -63,6 +63,12 @@ So:
 **Do not start Phase C without deciding whether the demo needs it.** It is compliance work
 with a real cost, and Phase B may be enough for the recording.
 
+**Operator ruling, 2026-08-30 — Phase C is deferred to a decision point, not scheduled.**
+The question is answered *after Phase B lands and is looked at in a browser*, judging whether
+an empty history reads acceptably on camera. Until then Phase C is not started, and #496's
+producer plus the D7 routing stay unscheduled. This is a deliberate deferral with a named
+trigger, not an open question left drifting — see §5.1.
+
 ---
 
 ## 3. The subtraction that must not be forgotten
@@ -114,14 +120,43 @@ somewhere:
 > practice, review and merge mechanics — is session-continuity material and is
 > deliberately **not** in this repo. It lives in the operator-local handoff.
 
-## 5. Open questions for the operator
+## 5. Operator rulings on this round's three questions
 
-Do **not** guess these:
+All three were put to the operator on **2026-08-30** and answered. They are recorded here
+rather than left open, because each one silently changes what a later phase is allowed to
+build.
 
-1. **Does the demo need the bus's history path (Phase C)?** If the live stream is enough,
-   #496's producer and the D7 routing can be scheduled separately from the demo.
-2. **When the bell becomes the inbox, it ships empty** — the platform has no approval-gated
-   automation and no human-to-human messaging. Confirm that a defined empty state is
-   acceptable, or defer the bell entirely and leave it reading workspace health until the
-   LED exists.
-3. **Release timing.** Currently deferred until this round lands. dmf-runbooks first.
+### 5.1 Phase C — deferred to a named trigger, not scheduled
+
+**Question:** does the demo need the bus's history path?
+
+**Ruling: decide after Phase B lands.** Build the live path first, look at it in a browser,
+and judge from the real render whether an unavailable history reads acceptably on camera.
+Until that look happens, **Phase C is not started** and
+[#496](https://github.com/dmfdeploy/dmfdeploy/issues/496)'s terminal-event producer plus the
+ADR-0028 D7 routing stay unscheduled.
+
+The trigger is what makes this a deferral rather than a drift: the decision point is *Phase B
+rendered and inspected*, not "sometime later". D7 remains unmet either way — deferring the
+decision does not close that gap, and #496 stays open as the place it is tracked.
+
+### 5.2 The bell keeps reading workspace health this round
+
+**Question:** the bell becomes an inbox with nothing to put in it — ship a defined empty
+state, or leave it?
+
+**Ruling: leave the bell reading workspace health.** Do **not** convert it to an inbox this
+round. It keeps its current meaning until the alarm LED exists to take that job over.
+
+The reasoning is the same one that governs the bus's own empty state (§4): the platform has
+no approval-gated automation and no human-to-human messaging, so an inbox would ship empty
+while *implying* a capability that does not exist. An empty state that has to explain why it
+is empty is a worse answer than not making the claim yet. This also keeps the bell and the
+LED from having to agree before the LED is even built.
+
+### 5.3 Release timing — unchanged
+
+Deferred until this round lands, **dmf-runbooks first** (tag → Forgejo mirror → AWX project
+re-pin → 693), or the console ships with the throbber's step text permanently dark and only
+the designed fallback ever visible. Already recorded in `STATUS.md`; restated here only
+because §1 depends on it.
