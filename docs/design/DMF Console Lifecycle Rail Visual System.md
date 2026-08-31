@@ -34,9 +34,11 @@ row — both named defects, split into #481 (band/centring), #482 (icons), and
 same small key, so specifying them separately risks three uncoordinated
 repaints. This doc specifies them together.
 
-**Status, 2026-08-31: all three are built.** Sections 2–5 have been rewritten from
-specification into **record of what shipped and why**, because the design changed
-materially while being built — three times, each on evidence:
+**Status, 2026-08-31: all three are implemented in [dmf-cms#128](https://github.com/dmfdeploy/dmf-cms/pull/128), which is open and
+not yet merged.** Sections 2–5 are written as a **record of what that PR builds and why**,
+rather than as forward specification, because the design changed materially while being
+built — three times, each on evidence. Until that PR merges, this document describes the
+agreed design and its implementation-in-review, not shipped production behaviour:
 
 1. **Colour was removed from the rail entirely** (§4). It was specified as a per-stage
    identity channel, tried as a fill and then as an edge line, and measured out at
@@ -68,11 +70,15 @@ redefine it. Two consequences that shape the channels below:
 
 ---
 
-## 2. Three channels, three facts
+## 2. Four channels, three facts
 
-**Amended 2026-08-31.** This table replaces an earlier four-channel version that gave
-*stage identity* to hue. Hue has been **removed from the rail entirely** — see §4 for
-the measurements that killed it and §2c for the reasoning. What remains:
+**Amended 2026-08-31.** This table replaces an earlier version that gave *stage identity*
+to hue. Hue has been **removed from the rail entirely** — see §4 for the measurements that
+killed it and §2c for the reasoning.
+
+**Four channels carrying three facts.** Icon and label both carry stage identity — that
+redundancy is deliberate and is what makes the rail colour-independent by construction.
+The three facts are **identity**, **selection**, and **actionable count**:
 
 | Channel | Carries |
 |---|---|
@@ -165,7 +171,7 @@ The **focus ring** is still outset, so it genuinely does face the page backgroun
 neighbouring key, and it still uses a **two-tone stroke** — an inner band in the
 page-background tone, an outer band in the text tone — so that whatever it crosses, one of
 the two has contrast. With a single neutral fill the argument is simpler than it was: there
-is one fill to clear, not five. §4 point 0's floors are what make it hold, and the
+is one fill to clear, not five. §4.4's floors are what make it hold, and the
 implementation comment states that argument in its current form rather than the retired
 per-hue one.
 
@@ -193,7 +199,8 @@ So, explicitly:
 
 **This section governs the badge channel's semantics only.** The slot itself — reserved
 geometry, fixed width budget, and the `aria-hidden` treatment that keeps an empty
-decorative box out of the accessibility tree — **is built** (§5.5). What §2b settles is
+decorative box out of the accessibility tree — **is built by the implementing PR** (§5.5).
+What §2b settles is
 what that finished slot **means** while it is empty: nothing. A future reader therefore
 cannot derive a false claim from §2's table, and whoever implements #495 knows that
 switching the channel on is also what switches its absence semantics on.
@@ -379,8 +386,9 @@ dark ink reaches 4.5:1. Any future fill must stay out of it.
 
 ## 5. Shape
 
-**Built and measured, 2026-08-31.** This section previously specified the shape as pending
-measurement. The values below are the ones that shipped, taken from a real render.
+**Measured, 2026-08-31.** This section previously specified the shape as pending
+measurement. The values below are the ones implemented in [dmf-cms#128](https://github.com/dmfdeploy/dmf-cms/pull/128), taken from a
+real render at the stated conditions — not estimates.
 
 ### 5.1 Geometry, as built
 
@@ -491,7 +499,7 @@ nothing claiming a number the console cannot verify.
 
 Per the Shell Round Plan: **spec the model now (this doc + the #493 IA
 amendment), build visuals against it, behaviour lands after.** The icon set
-(§3) and the shape (§5) shipped together, with **no padlock** — see §2a. The
+(§3) and the shape (§5) land together in [dmf-cms#128](https://github.com/dmfdeploy/dmf-cms/pull/128), with **no padlock** — see §2a. The
 padlock is not scheduled; it returns only once the authorization-denial state
 named in §2a exists, which is future work outside this round's plan.
 
