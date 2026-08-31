@@ -520,8 +520,15 @@ passing — through all of the following:
 | Tip and tail not interlocking | operator looking at a comparison board |
 | Labels 6px off the painted centre on four of five keys | operator looking, then measured |
 
-`aria-pressed`, `aria-current` and the accessible names were correct throughout, so
-accessibility tests passed while the interface was, for a sighted operator, ambiguous.
+`aria-pressed` and the accessible names were correct throughout, so accessibility tests
+passed while the interface was, for a sighted operator, ambiguous.
+
+`aria-current` is a sharper case and worth separating out: it was **present, asserted and
+passing — and semantically wrong**. It announced `step`, a position in a gated sequence, on a
+model that had ruled stages are peer views and explicitly *not* steps (§1). A test pinned the
+attribute's presence, so the suite defended the wrong semantics rather than catching them.
+That is the same failure as a green check that checks nothing, one level up: the assertion was
+about the attribute existing, never about whether it should.
 **jsdom computes no pixels**, and a diff cannot see a colour relationship between two
 rendered states.
 

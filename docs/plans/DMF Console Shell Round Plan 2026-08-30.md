@@ -195,13 +195,18 @@ accessible name stating **severity and count**, e.g. *"2 critical alarms, 1
 warning — show messages."* A bare coloured rectangle has no accessible name
 at all.
 
-**Colour budget — cross-reference, not a restatement.** Red and amber are
-**reserved for this LED**, which is *why* the lifecycle rail's five identity
-hues must avoid them
+**Colour budget.** Red and amber are **reserved for this LED** — critical and
+warning respectively.
+
+*Amended 2026-08-31:* this previously read as a cross-reference explaining why
+the lifecycle rail's five identity hues had to avoid red and amber. **The rail
+no longer has identity hues** — colour was removed from it entirely after
+measuring ΔE2000 0.85 under protanopia for its tightest pair
 ([Lifecycle Rail Visual System](../design/DMF%20Console%20Lifecycle%20Rail%20Visual%20System.md)
-§4c). That doc carries the matching cross-reference back to here, so a
-future round cannot loosen one side's colour reservation without seeing the
-other.
+§4). So the reservation now has no counterpart to negotiate with: red and amber
+are reserved for this LED outright, and the rail is achromatic. Any future
+proposal to put colour back on the rail must re-establish that reservation
+against this section.
 
 **Unchanged from §1a/C2:** clicking still does exactly one thing — brings
 the alarm message(s) into focus in the bus area. No ack, no dismiss, no
