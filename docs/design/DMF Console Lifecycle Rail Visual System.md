@@ -191,14 +191,12 @@ So, explicitly:
   [#495](https://github.com/dmfdeploy/dmfdeploy/issues/495)), §2's reading takes
   effect and absence becomes meaningful.
 
-**This amendment changes the badge channel's semantics only — it does not change what
-Phase A must build.** §5 still assigns Phase A the slot itself: the reserved geometry,
-the fixed width budget, and the `aria-hidden` treatment that keeps an empty decorative
-box out of the accessibility tree. That work is a Phase-A requirement and is *not*
-recorded here as already done. What §2b settles is what the finished slot **means**
-while it is empty: nothing. A future reader therefore cannot derive a false claim from
-§2's table, and whoever implements #495 knows that switching the channel on is also
-what switches its absence semantics on.
+**This section governs the badge channel's semantics only.** The slot itself — reserved
+geometry, fixed width budget, and the `aria-hidden` treatment that keeps an empty
+decorative box out of the accessibility tree — **is built** (§5.5). What §2b settles is
+what that finished slot **means** while it is empty: nothing. A future reader therefore
+cannot derive a false claim from §2's table, and whoever implements #495 knows that
+switching the channel on is also what switches its absence semantics on.
 
 **Consequence worth stating plainly:** between this round and #495, the rail has
 *no* progress or actionable-work signal at all — the completeness dot is retired
@@ -208,11 +206,13 @@ that loses the most. That is an accepted, temporary gap, not an oversight.
 
 ### 2a. The padlock — no padlock this round (operator ruling, 2026-08-30)
 
-**This round ships the five identity icons only (§3).** Every key — including
-one with nothing actionable — renders its own stage-identity icon
-(pencil / puzzle / cloud-upload / sliders / circled-check). No key is ever
-iconless, and nothing on the rail substitutes a padlock, or any other glyph,
-for a key's identity icon.
+**The rail ships the five identity icons only — §3 is the authoritative set.** Every
+key, including one with nothing actionable, renders its own stage-identity icon. No key
+is ever iconless, and nothing on the rail substitutes a padlock, or any other glyph, for
+a key's identity icon.
+
+*(This section previously listed the glyphs inline and went stale when §3 was corrected.
+It deliberately no longer names them: one authoritative list, in §3.)*
 
 **"Nothing actionable here, because X" is conveyed in words, on the stage
 page itself** — per the IA doc's 2026-08-30 (#493) amendment's own ruling
