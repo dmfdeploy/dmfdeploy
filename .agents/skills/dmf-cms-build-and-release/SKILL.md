@@ -65,9 +65,23 @@ The publish pipeline touches GHCR credentials, Zot credentials (read by playbook
    (`security find-generic-password -s "ghcr.io" …`) as *preferred*. That is
    **no longer the recommended default** — a stale/under-scoped Keychain entry
    produced a `denied` on push and sent one session hunting a credential it did
-   not need. Note the failure mode is the same one to watch for above: the
-   problem was never *where* the token came from, it was the **scope**. Piping
-   via stdin is the part that carries the security property and is kept.
+   not need. Piping via stdin is the part that carries the security property and
+   is kept.
+
+   **Amended 2026-08-31 — it is not only scope.** During the 0.31.0 release the
+   same Keychain entry failed again, and the cause was neither staleness nor
+   scope: it held a GitHub **account password**. GHCR does not accept passwords
+   at all — only a PAT with `write:packages`, or an equivalent such as the `gh`
+   token — and it rejects a correct password with **exactly the same
+   `denied: denied`** as a bad or expired token. So do not read `denied` as
+   evidence about scope specifically; the error cannot distinguish
+   wrong-credential-*kind* from wrong-*scope*, and existence checks
+   (`security find-generic-password -s ghcr.io` succeeding) prove nothing at all.
+   The only real test is `docker login`.
+
+   **Prefer `gh auth token` over any stored copy.** It is self-refreshing and
+   always carries the login's current scopes, so it removes a duplicate secret
+   that can drift, expire, or be filled with the wrong kind of credential.
 
 3. **Never invoke `get-admin-cred.sh` (or any other secret-printing tool) through
    an AI agent.** The conversation transcript captures the value. If you need a
