@@ -79,9 +79,23 @@ The publish pipeline touches GHCR credentials, Zot credentials (read by playbook
    (`security find-generic-password -s ghcr.io` succeeding) prove nothing at all.
    The only real test is `docker login`.
 
-   **Prefer `gh auth token` over any stored copy.** It is self-refreshing and
-   always carries the login's current scopes, so it removes a duplicate secret
-   that can drift, expire, or be filled with the wrong kind of credential.
+   **Prefer `gh auth token` over any stored copy** — but for one narrow reason,
+   and only after checking it. `gh auth token` prints whatever credential the
+   `gh` login currently holds; it does not refresh anything, acquire scopes, or
+   validate them. Its advantage is solely that there is no *second* copy to
+   drift out of step with the login, and that it cannot be an account password,
+   because `gh` never stores one.
+
+   Scope is still a manual, interactive step and does not follow from using
+   `gh`:
+
+   ```bash
+   gh auth status                       # does the listed token scope set include write:packages?
+   gh auth refresh -s write:packages    # interactive, only if it does not
+   ```
+
+   Do this **before** the push, not after a `denied` — by the amendment above,
+   `denied` cannot tell you it was the scope.
 
 3. **Never invoke `get-admin-cred.sh` (or any other secret-printing tool) through
    an AI agent.** The conversation transcript captures the value. If you need a
