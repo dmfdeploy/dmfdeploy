@@ -103,22 +103,60 @@ above 1.0 (impossible) or one indistinguishable from the page background.
 
 So this is a structural conflict, not a tuning gap.
 
-**The ruling.** **Selection is carried by a persistent ring on the key's wrapper
-element, in a fixed neutral tone, independent of the stage hue** — the same unclipped
-wrapper already required for the focus ring (§5), so it adds no new geometry risk. The
-achromatic fill-invert is **kept alongside it** where it still earns its place
-(Design and Plan, ~5:1), because it costs nothing and reinforces two of the five.
+**The ruling.** **Selection is carried by a persistent ring, drawn *inset* — inside the
+key, over the key's own fill — rather than by fill luminance.** The achromatic
+fill-invert is **kept alongside it** where it still earns its place (Design and Plan,
+~5:1), because it costs nothing and reinforces two of the five.
+
+**Inset is load-bearing, and a fixed neutral ring is provably impossible.** An earlier
+draft of this section called for "a persistent ring in a fixed neutral tone" facing
+both the key and the page background. That is unsatisfiable, and the proof is short —
+for a ring of relative luminance `L` against page background 0.0031, selected fill
+0.8081, and the Design fill 0.1181:
+
+| must clear 3:1 against | admissible `L` |
+|---|---|
+| page background | `L ≥ 0.1092` |
+| selected fill | `L ≤ 0.2360` (lighter would need `L ≥ 2.52`) |
+| Design fill | `L ≥ 0.4543` **or** `L ≤ 0.0060` |
+
+The first two give `[0.1092, 0.2360]`; the third excludes it entirely. **No fixed
+neutral exists.** That draft would have reproduced, one level out, the very defect this
+section fixes.
+
+**What makes it solvable is that the two rings face different things.**
+
+- **The selection ring is inset**, so *both* of its sides sit on the key's own fill. It
+  never meets the page background or a neighbour, and the only requirement is contrast
+  against the fill it sits on. Drawing it in the key's **own ink** satisfies that for
+  free — §4 already requires every swatch to pair with an ink clearing **4.5:1**, which
+  is above the 3:1 this needs.
+- **The focus ring is outset**, so it genuinely does face the page background and the
+  neighbouring key. It therefore needs a **two-tone stroke** — an inner stroke in the
+  page-background tone and an outer stroke in the text tone — so that whatever it
+  crosses, one of the two has contrast. This also holds **by construction**: §4 point 1
+  already requires every identity hue to clear 3:1 against the page background, so a
+  background-toned stroke clears 3:1 against every fill automatically, and the text tone
+  clears 16.17:1 against the background.
+
+That second point is the useful structural result: **the ring constraints are not new
+constraints.** They are §4's existing ones re-used, which means a future retune of the
+hues cannot silently break the rings so long as §4 point 1 and the ink rule still hold.
 
 Consequences that bind implementation:
 
-- **Focused, selected, and focused-and-selected must be three distinguishable
-  states**, and that distinction must survive greyscale (Art. 11) — the focus ring is
-  itself a ring, so the two cannot be separated by colour alone.
-- The selection ring is a non-text indicator: it needs **3:1 against what sits inside
-  it** (every stage fill and the selected fill) **and against what sits outside it**
-  (the page background, and the neighbouring key — the boxes are 3.00px apart).
-- §4's CVD and contrast work is unaffected. Hue keeps carrying identity; it simply
-  stops being asked to carry selection as well.
+- **Focused, selected, and focused-and-selected must be three distinguishable states**,
+  and that distinction must survive greyscale (Art. 11) — both signals are rings, so
+  they cannot be separated by colour alone. Inset-versus-outset is itself the
+  greyscale-safe separator.
+- **Total outward reach must stay inside the inter-key gap.** The key boxes are
+  **3.00px** apart, measured on a real render; an outward stroke reaching further will
+  overlap the neighbour.
+- **Forced-colors mode must be considered per layer.** `outline` is recoloured to a
+  guaranteed-visible system colour and survives; `box-shadow` drops out. Any two-tone
+  treatment must therefore leave a working indicator when only the outline remains.
+- §4's CVD and contrast work is unaffected. Hue keeps carrying identity; it simply stops
+  being asked to carry selection as well.
 
 ### 2b. Badge-absence carries no meaning until the channel is live
 
