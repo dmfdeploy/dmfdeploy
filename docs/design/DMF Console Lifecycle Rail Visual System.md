@@ -55,8 +55,8 @@ redefine it. Two consequences that shape the channels below:
 | Channel | Carries |
 |---|---|
 | **Hue** (muted, permanent, per stage) | stage identity |
-| **Selection ring** (fixed neutral, hue-independent) | selection ("am I looking at this one") — **see §2c** |
-| **Luminance / fill** | reinforces selection where the hue ramp allows it; **cannot carry selection alone — §2c** |
+| **Selection ring** (**inset**, drawn in the key's **own ink**) | selection ("am I looking at this one") — **see §2c** |
+| **Luminance / fill** | reinforces selection on every key; **never carries it alone — §2c** |
 | **Icon** | stage identity — see §3 for the set. |
 | **Badge** | count of actionable items. **Absence of badge = nothing actionable — but only once the channel is live; see §2b.** |
 
@@ -105,8 +105,10 @@ So this is a structural conflict, not a tuning gap.
 
 **The ruling.** **Selection is carried by a persistent ring, drawn *inset* — inside the
 key, over the key's own fill — rather than by fill luminance.** The achromatic
-fill-invert is **kept alongside it** where it still earns its place (Design and Plan,
-~5:1), because it costs nothing and reinforces two of the five.
+fill-invert is **kept on every key alongside it**, because it costs nothing and is a
+genuine reinforcement at the dark end (~5:1 on Design and Plan). What changes is that it
+is **never the sole signal anywhere** — the ring is what carries selection, and the
+fill-invert only ever adds to it.
 
 **Inset is load-bearing, and a fixed neutral ring is provably impossible.** An earlier
 draft of this section called for "a persistent ring in a fixed neutral tone" facing
