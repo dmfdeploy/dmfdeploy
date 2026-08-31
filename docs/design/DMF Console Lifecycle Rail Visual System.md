@@ -30,9 +30,27 @@ the other's surface.
 dmf-cms 0.30.0 shipped the rail's state grammar (equal columns, per-stage
 marks) but landed with **zero icons on any key** and **not centred** in its
 row — both named defects, split into #481 (band/centring), #482 (icons), and
-#483 (directional shape). The three are one visual system: icons, colour, and
-shape all compete for the same 141px-ish key, so specifying them separately
-risks three uncoordinated repaints. This doc specifies all three together.
+#483 (directional shape). The three are one visual system competing for the
+same small key, so specifying them separately risks three uncoordinated
+repaints. This doc specifies them together.
+
+**Status, 2026-08-31: all three are built.** Sections 2–5 have been rewritten from
+specification into **record of what shipped and why**, because the design changed
+materially while being built — three times, each on evidence:
+
+1. **Colour was removed from the rail entirely** (§4). It was specified as a per-stage
+   identity channel, tried as a fill and then as an edge line, and measured out at
+   ΔE2000 **0.85** under protanopia — below the threshold at which a difference is
+   visible at all.
+2. **The position marker was removed** (§2). The backend derivation could only ever name
+   two of the five keys, and it was announced as a step in a sequence the model does not
+   have.
+3. **Two of the five icons were wrong** (§3) — this document had recorded a
+   reconstruction rather than the decision.
+
+Each of those was found by **rendering the thing and looking at it**, not by the test
+suite, which stayed green throughout. That is recorded here because it is the most
+transferable thing this round produced.
 
 ---
 
@@ -50,33 +68,52 @@ redefine it. Two consequences that shape the channels below:
 
 ---
 
-## 2. Four channels, four facts
+## 2. Three channels, three facts
+
+**Amended 2026-08-31.** This table replaces an earlier four-channel version that gave
+*stage identity* to hue. Hue has been **removed from the rail entirely** — see §4 for
+the measurements that killed it and §2c for the reasoning. What remains:
 
 | Channel | Carries |
 |---|---|
-| **Hue** (muted, permanent, per stage) | stage identity |
-| **Selection ring** (**inset**, drawn in the key's **own ink**) | selection ("am I looking at this one") — **see §2c** |
-| **Luminance / fill** | reinforces selection on every key; **never carries it alone — §2c** |
-| **Icon** | stage identity — see §3 for the set. |
+| **Icon** (filled, per stage) | stage identity — the primary carrier. See §3 for the set. |
+| **Label** (bare EBU stage name) | stage identity — always visible, never abbreviated. |
+| **Luminance / fill** (achromatic invert) | selection ("am I looking at this one") — **see §2c** |
 | **Badge** | count of actionable items. **Absence of badge = nothing actionable — but only once the channel is live; see §2b.** |
 
-Everything except hue survives greyscale, and hue only carries identity —
-already redundant with the visible label. **Art. 11 clean by construction.**
+**There is no colour channel on this rail.** Every key shares one neutral fill. Identity
+is carried by icon and label, both of which survive greyscale unchanged, so
+**Art. 11 holds by construction rather than by verification** — there is no hue left to
+strip.
 
-**Rejected:** folding stage-state into fill/edge alongside selection (an
-earlier #481 proposal) — that is six treatments that must all survive
-greyscale, and Art. 11 was only ever verified for the dot the previous round
-shipped.
+**The rail carries no position marker.** Selection is the only state it shows. Removed
+2026-08-31 (operator ruling) — the backend derivation could only ever name two of the
+five keys, and it was announced as `aria-current="step"` in a model where a stage is a
+peer view and explicitly *not* a step in a gated sequence (§1). What "how far along is
+this workload" should mean is the Badge's job, once #495 makes it real.
 
-### 2c. Selection needs its own channel — fill luminance cannot carry it
+**Rejected, and kept as record:**
 
-**Amendment, 2026-08-31 (operator ruling).** The original table gave *selection* to
-"luminance / fill" while giving *stage identity* to hue. Measured against a real
-render, those two assignments are not simultaneously satisfiable.
+- Folding stage-state into fill/edge alongside selection (an earlier #481 proposal) —
+  six treatments that must all survive greyscale.
+- **Hue as stage identity, in any form** — as a key fill, then as a 3px bottom-edge line.
+  §4 has the measurements.
+- **A dedicated selection ring.** Once every key shares one neutral fill, the achromatic
+  invert measures **5.06:1 uniformly across all five keys** — identical by construction —
+  so a ring adds nothing. It was necessary only while hue made the fill-invert unreliable.
 
-Selection paints an achromatic near-white fill, `rgb(232,232,234)`. How much a key
-actually changes when selected therefore depends entirely on where its identity hue
-sits on the luminance ramp:
+### 2c. Why hue left the rail, and why selection needs no ring
+
+**Amended 2026-08-31.** This section previously ruled that selection required its own
+inset ring. That ruling is **superseded** — but the analysis behind it is kept, because it
+is what eventually removed hue, and a future round proposing per-stage colour needs to be
+able to read why it failed rather than rediscover it.
+
+#### The finding: fill luminance cannot carry identity and selection at once
+
+While hue was still the key fill, selection painted an achromatic near-white,
+`rgb(232,232,234)`. How much a key visibly changed on selection therefore depended entirely
+on where its identity hue sat in luminance:
 
 | stage | identity fill | contrast when selected | ink on selection |
 |---|---|---|---|
@@ -86,87 +123,51 @@ sits on the luminance ramp:
 | Configure | `rgb(190,151,196)` | 2.04:1 | dark → dark, no change |
 | **Finalise & Review** | `rgb(215,183,200)` | **1.49:1** | `rgb(15,23,32)` → `rgb(10,10,11)`, no change |
 
-On the three lightest keys selection is at or below the WCAG 1.4.11 3:1 floor for a
-UI-state change, and on Finalise & Review it is imperceptible — the ink does not flip
-either, because light hues already carry dark ink. `aria-pressed` is correct
-throughout, so assistive technology is unaffected and a full test suite passes; a
-sighted operator simply cannot see which key is selected.
+On the three lightest keys selection sat at or under the WCAG 1.4.11 3:1 floor for a
+UI-state change; on Finalise & Review it was imperceptible, and the ink did not flip either
+because light hues already carry dark ink. `aria-pressed` was correct throughout, so
+assistive technology was unaffected and the full suite passed. A sighted operator simply
+could not tell which key was selected.
 
-**Why no retune fixes it.** The constraints pull in opposite directions: §4's 3:1
-fill-vs-background floor pushes hues *lighter*, while a 3:1 fill-vs-selected-fill
-floor pushes them *darker*. Solving all of §4's requirements at once leaves two
-disjoint usable bands — roughly L\* 39.4–42.9 for dark-ink swatches and L\* 53.2–55.7
-for light-ink ones, about 6 L\* units in total. That is capacity for **two** distinct
-swatches; the rail needs **five**. No single alternate selection tone escapes it
-either: clearing 3:1 from both ends of the existing ramp would require a luminance
-above 1.0 (impossible) or one indistinguishable from the page background.
+**It hid because the two checks that existed both passed for the worst key.** Finalise &
+Review had the *best* numbers in the ramp on fill-vs-background (10.83:1) and ink-vs-fill
+(9.88:1). The missing check was fill-vs-**selected**-fill — and those constraints pull in
+opposite directions, because the further a hue sits from a dark page background the closer
+it sits to a light selection fill.
 
-So this is a structural conflict, not a tuning gap.
+**No retune could fix it.** Solving all the colour constraints at once left two disjoint
+usable bands — roughly L\* 39.4–42.9 for dark-ink swatches and L\* 53.2–55.7 for light-ink
+ones, about **6 L\* units** in total. That is capacity for **two** distinct swatches; the
+rail needs **five**. Nor did a different selection tone escape it: clearing 3:1 from both
+ends of the ramp would require a luminance above 1.0, or one indistinguishable from the
+page background.
 
-**The ruling.** **Selection is carried by a persistent ring, drawn *inset* — inside the
-key, over the key's own fill — rather than by fill luminance.** The achromatic
-fill-invert is **kept on every key alongside it**, because it costs nothing and is a
-genuine reinforcement at the dark end (~5:1 on Design and Plan). What changes is that it
-is **never the sole signal anywhere** — the ring is what carries selection, and the
-fill-invert only ever adds to it.
+#### Why the ring is gone too
 
-**Inset is load-bearing, and a fixed neutral ring is provably impossible.** An earlier
-draft of this section called for "a persistent ring in a fixed neutral tone" facing
-both the key and the page background. That is unsatisfiable, and the proof is short —
-for a ring of relative luminance `L` against page background 0.0031, selected fill
-0.8081, and the Design fill 0.1181:
+The ring existed to give selection a carrier independent of the hue ramp. **Once hue left
+the rail (§4), the problem it solved ceased to exist.** All five keys share one neutral
+fill, so the achromatic invert measures **5.06:1 uniformly on every key** — identical by
+construction, not by tuning. A ring on top of that would be a second signal for a fact
+already unambiguously carried, which is the redundancy this rail has spent two rounds
+removing.
 
-| must clear 3:1 against | admissible `L` |
-|---|---|
-| page background | `L ≥ 0.1092` |
-| selected fill | `L ≤ 0.2360` (lighter would need `L ≥ 2.52`) |
-| Design fill | `L ≥ 0.4543` **or** `L ≤ 0.0060` |
+**Recorded because it nearly shipped:** a draft of this section specified "a persistent ring
+in a fixed neutral tone" facing both the key fill and the page background. No such tone
+exists. For a ring of relative luminance `L`, the page background and selected fill admit
+`[0.1092, 0.2360]`, while the Design fill demands `L ≥ 0.4543` or `L ≤ 0.0060` — no overlap.
+That draft would have reproduced, one level out, the very defect it was written to fix. The
+lesson generalises: **a single element asked to contrast against things that pull in
+opposite directions is the same trap every time.**
 
-The first two give `[0.1092, 0.2360]`; the third excludes it entirely. **No fixed
-neutral exists.** That draft would have reproduced, one level out, the very defect this
-section fixes.
+#### What survives from that analysis
 
-**What makes it solvable is that the two rings face different things.**
-
-- **The selection ring is inset**, so *both* of its sides sit on the key's own fill. It
-  never meets the page background or a neighbour, and the only requirement is contrast
-  against the fill it sits on. Drawing it in the key's **own ink** satisfies that for
-  free — **§4 point 0** requires every swatch to pair with an ink clearing **4.5:1**, which
-  is above the 3:1 this needs.
-- **The focus ring is outset**, so it genuinely does face the page background and the
-  neighbouring key. It therefore needs a **two-tone stroke** — an inner stroke in the
-  page-background tone and an outer stroke in the text tone — so that whatever it
-  crosses, one of the two has contrast. This also holds **by construction**: **§4 point
-  0** requires every identity hue to clear 3:1 against the page background, so a
-  background-toned stroke clears 3:1 against every fill automatically, and the text tone
-  clears 16.17:1 against the background.
-
-That second point is the useful structural result: **the ring constraints are not new
-constraints.** They are §4 point 0's floors re-used, which means a future retune of the
-hues cannot silently break the rings so long as those two floors still hold.
-
-**This is only true because §4 point 0 exists.** An earlier draft of this section made
-the same "by construction" argument while citing §4 point 1 — which reserves red and
-amber and says nothing about contrast. §4 as it then stood contained *neither* floor;
-both lived only in an implementation comment, so a retune could have satisfied every
-stated requirement and still broken both rings. The guarantee was resting on a section
-that did not contain it. Point 0 was added to make the citation true rather than to
-weaken the claim.
-
-Consequences that bind implementation:
-
-- **Focused, selected, and focused-and-selected must be three distinguishable states**,
-  and that distinction must survive greyscale (Art. 11) — both signals are rings, so
-  they cannot be separated by colour alone. Inset-versus-outset is itself the
-  greyscale-safe separator.
-- **Total outward reach must stay inside the inter-key gap.** The key boxes are
-  **3.00px** apart, measured on a real render; an outward stroke reaching further will
-  overlap the neighbour.
-- **Forced-colors mode must be considered per layer.** `outline` is recoloured to a
-  guaranteed-visible system colour and survives; `box-shadow` drops out. Any two-tone
-  treatment must therefore leave a working indicator when only the outline remains.
-- §4's CVD and contrast work is unaffected. Hue keeps carrying identity; it simply stops
-  being asked to carry selection as well.
+The **focus ring** is still outset, so it genuinely does face the page background and the
+neighbouring key, and it still uses a **two-tone stroke** — an inner band in the
+page-background tone, an outer band in the text tone — so that whatever it crosses, one of
+the two has contrast. With a single neutral fill the argument is simpler than it was: there
+is one fill to clear, not five. §4 point 0's floors are what make it hold, and the
+implementation comment states that argument in its current form rather than the retired
+per-hue one.
 
 ### 2b. Badge-absence carries no meaning until the channel is live
 
@@ -239,142 +240,226 @@ channel, because this round ships full icon coverage cleanly without it.
 
 ## 3. Icon set
 
-**Recorded here for the first time.** An operator reference image has shown
-this set since before #449, but it is not written down anywhere in the repos
-— not the plan, the issues, the design docs, or the agent transcript archive
-(per #482). This is that record:
+**Corrected 2026-08-31.** The set below is the one that was actually decided. An earlier
+version of this section was a **reconstruction** assembled from surviving second-hand
+references rather than from the source, and it got **two of five wrong** — it recorded the
+*mockup's* choices for exactly the two stages where the decision had overruled the mockup.
 
-| Stage | Icon |
-|---|---|
-| Design | pencil |
-| Plan | puzzle |
-| Provision | cloud-upload |
-| Configure | sliders |
-| Finalise & Review | circled-check |
+| Stage | Icon | |
+|---|---|---|
+| Design | **pencil** | |
+| Plan | **map pin** | *was wrongly recorded as "puzzle"* |
+| Provision | **stacked blocks / rack** | *was wrongly recorded as "cloud-upload"* |
+| Configure | **sliders** | |
+| Finalise & Review | **circled check** | |
 
-Notes, carried from #482's constraints (this doc records the semantic set;
-picking exact icon names/glyphs is implementation's job in #482 itself):
+The decision, recovered verbatim from the session where it was taken:
 
-- **`lucide-react` is the existing icon dependency** — no new icon library is
-  needed to build this.
-- Icons are **decorative next to a visible text label** — mark them
-  `aria-hidden`, not announced twice by assistive tech.
-- The key's accessible **name** stays the bare EBU label (`Design`, `Plan`,
-  …) — icons must not fold anything additional into the name; tests address
-  keys by that name.
-- **Label spelling stays exactly "Finalise & Review."** The reference image
-  reads "Finalize / Review"; adopting that spelling is a separate, deliberate
-  copy decision, not a side effect of adding icons.
-- The circled-check reasoning matters beyond naming: it is *why* the rail's
-  completeness/actionable-count mark (§2's Badge channel) cannot also be a
-  tick — a tick on Finalise would duplicate the circled-check icon already
-  sitting on that key.
-- **Every key renders its identity icon regardless of stage state** —
-  including a stage that currently has nothing actionable. No key is ever
-  iconless this round, and no icon is ever swapped for a padlock or any other
-  state glyph (see §2a for the no-padlock-this-round ruling and why).
+> **Plan — MAP PIN.** Not a puzzle piece (unguessable cold) and not a calendar (implies
+> time; wrong). Plan in this product resolves WHICH FACILITY the workload runs on, so a
+> location pin is both the most legible option and the most semantically accurate one.
+>
+> **Provision — STACKED BLOCKS / rack.** Not a cloud — that misstates the architecture
+> (self-managed Kubernetes on owned hardware). Blocks read as allocating instances.
+
+Note the second reason: a cloud glyph does not merely look generic here, it **states
+something false about the platform**. That is why this is a correctness fix and not a
+preference.
+
+### Styling: filled, not stroked
+
+The same decision carried a craft rule that the reconstruction also lost:
+
+> **FILLED FORMS, NOT THIN STROKES.** Solid silhouettes survive 16px; 1.5px stroke sets die
+> there. Rounded terminals and generous corner radius. One idea per icon, big silhouette, no
+> internal detail.
+
+The five are therefore **inline SVG symbols drawn in-repo**, filled, `fill="currentColor"`.
+This supersedes the earlier "`lucide-react` is the existing icon dependency, no new icon
+library is needed" note — lucide is a 1.5px *stroke* set and cannot satisfy the rule. Drawing
+five symbols inline satisfies it **without** adding a dependency, so the constraint behind
+that note is honoured even though its conclusion is not. lucide remains the dependency
+everywhere else in the app.
+
+**Known collision, designed out rather than discovered later:** stacked blocks and sliders are
+both horizontal-line forms — the flaw that sank an earlier icon set. They are separated by
+**weight and rhythm**: blocks are three chunky bars with graduated opacity; sliders are two
+thin rules broken by large solid knobs at different x-positions. Any future change to either
+must re-check the two **rendered side by side at rail size**, not judged individually.
+
+### Constraints that hold regardless of the set
+
+- Icons are **decorative beside a visible label** — `aria-hidden`, never announced twice.
+- The key's accessible **name** stays the bare EBU label (`Design`, `Plan`, …). Tests address
+  keys by that name, so it must not absorb anything else.
+- **Label spelling stays exactly "Finalise & Review."** Reference images read
+  "Finalize / Review"; adopting that is a separate, deliberate copy decision, never a side
+  effect of an icon change. This has been attacked more than once.
+- **Every key renders its identity icon regardless of state** — including a stage with nothing
+  actionable. No key is ever iconless, and no icon is ever swapped for a padlock or any other
+  state glyph (§2a).
+- The circled check is *why* the Badge (§2) can never be a tick — a tick on Finalise would
+  duplicate the icon already on that key.
+- **Ship gates: a squint test at 16px and a greyscale check, both rendered rather than
+  asserted.** With colour gone from the rail (§4), icon distinctness is load-bearing for
+  identity rather than decorative.
 
 ---
 
-## 4. Colour
+## 4. Colour — retired from the rail (operator ruling, 2026-08-31)
 
-Five **muted, permanent, per-stage identity hues.**
+**There is no colour on the lifecycle rail.** All five keys share a single neutral fill and
+a single ink. The five `--color-rail-*` tokens, the per-stage map and the CVD verification
+apparatus are deleted from the code, not merely unused.
 
-**0. The two contrast floors every swatch must clear.** Stated here explicitly because
-§2c's ring treatment is safe *by construction* only if these hold, and until this
-amendment (2026-08-31) they lived solely in an implementation comment — so a token
-retune could have complied with everything §4 said while silently breaking the selection
-and focus rings. Both floors are WCAG 2.2 minima applied to this component, not new
-invention:
+This section previously specified five muted per-stage identity hues. It is kept — rewritten
+— because the reasoning is the expensive part and a future round *will* propose per-stage
+colour again.
 
-  - **Every identity hue clears 3:1 against `--color-bg`** (SC 1.4.11 non-text contrast).
-    The fill *is* the key's edge — a `clip-path` shape carries no border — so this floor
-    is what makes the key visible against the page at all. It is also what makes the
-    focus ring's background-toned band clear 3:1 against every fill, which is the
-    "by construction" §2c relies on.
-  - **Every identity hue pairs with one ink clearing 4.5:1** (SC 1.4.3 text contrast) —
-    light or dark, whichever that swatch actually reaches, rather than assuming a single
-    ink works across the ramp. This is what makes the *inset* selection ring safe, since
-    that ring is drawn in the key's own ink.
+### 4.1 What was tried, and what it measured
 
-  **A retune must re-verify both, and must not assume a single shared ink.** Note the
-  WCAG "dead zone" around relative luminance ~0.131–0.207, where neither a light nor a
-  dark ink reaches 4.5:1 — swatches must stay out of it.
+**Attempt 1 — hue as the key fill.** Defeated by §2c: fill luminance cannot carry stage
+identity and selection simultaneously. Usable capacity was two swatches against five needed.
 
-1. **Reserve red and amber entirely.** No lifecycle hue may approach them —
-   those mean *abnormal* everywhere else in the console. This removes roughly
-   a third of the wheel, so five distinct muted hues is genuinely tight.
-   **Cross-reference, both directions:** red and amber are reserved
-   specifically *because* the top-bar alarm LED's warning/critical states use
-   them (red = critical, amber = warning — see the
-   [Shell Round Plan](../plans/DMF%20Console%20Shell%20Round%20Plan%202026-08-30.md)
-   §1b's LED visual spec). That doc's §1b carries the matching
-   cross-reference back to here, so a future round cannot loosen either
-   side's reservation without seeing the other.
-2. **CVD check is mandatory, and harder because the hues are muted** —
-   low-chroma hues converge under deuteranopia/protanopia far faster than
-   saturated ones. **Run an actual CVD simulation on the chosen five; do not
-   eyeball it.** Verify luminance separation too, not only hue — two hues that
-   simulate to the same grey are not distinguished by luminance alone unless
-   that was checked separately.
-3. **Dark theme.** The console is dark; the same tokens must hold in both
-   themes, and muted-on-dark needs different chroma than muted-on-light to
-   read as equally muted.
-4. **Carry it past the rail** — tint the stage's content area too, or the hue
-   is decoration living in a 40px band. **Never** apply it to anything that
-   reads as *status* elsewhere in the console, or operators learn the hue
-   means something operational when it only ever means "which stage."
-   **Status: not built, explicitly deferred (operator ruling, 2026-08-31) —
-   see §6, tracked as
-   [#505](https://github.com/dmfdeploy/dmfdeploy/issues/505).** This point is an affirmative requirement of this document, not an
-   optional polish item, and #481/#482/#483 do not deliver it. Until it does
-   land, the warning in this very bullet is the accurate description of what
-   ships: the hue lives in the band alone.
+**Attempt 2 — hue reduced to a 3px bottom-edge line**, keeping fills neutral so selection
+worked again. This is the version that looked most promising, and it is where the idea
+actually died. Measured on a real render with Machado/Oliveira/Fernandes (2009) simulation
+and CIEDE2000:
 
-**Rationale for muted over a saturated ribbon:** borrows ISA-101
-(greyscale-normal, colour = abnormal, ~90% neutral so real problems pop). The
-top bar is simultaneously gaining a message bus and an alarm LED — the two
-elements that genuinely need to shout (see the
-[Shell Round Plan](../plans/DMF%20Console%20Shell%20Round%20Plan%202026-08-30.md)).
-Recognisability comes from **form** instead — the chevron silhouette (§5) is
-already unique on the page.
+| condition | tightest pair | ΔE2000 |
+|---|---|---|
+| **protanopia** | plan / provision | **0.85** |
+| **deuteranopia** | plan / provision | **1.17** |
+| tritanopia | configure / finalise | 6.74 |
+
+**~1.0 is approximately the floor of human colour discrimination.** So 0.85 is not a tight
+pair — it is *below the threshold at which any difference can be seen*, under the two
+**common** deficiencies, which together affect roughly 1 in 12 males. Confirmed visually with
+a protanopia filter on the live render, not only numerically. Widening the hue spread was
+attempted and broke a different constraint, so it was reverted rather than trading one defect
+for another.
+
+**Why the line failed where the fill had not:** shrinking hue from a whole key to a 3px line
+removes most of the colour area, and small patches are exactly where muted low-chroma colours
+stop being separable. The same pairs were adequate at fill size.
+
+### 4.2 The ruling
+
+Hue that is imperceptible for 1 in 12 viewers is **not an identity channel**. It was judged
+not worth the token surface, the CVD verification surface or the documentation surface for a
+cue that fails outright for that share of the audience. **Identity is carried by the icon and
+the label**, both independent of colour vision and both surviving greyscale unchanged (§2).
+
+### 4.3 If per-stage colour is ever reproposed
+
+Read §2c and §4.1 first. The two failures were not tuning problems:
+
+- Fill-borne hue fights selection for the same luminance channel.
+- Line-borne hue is too small an area for muted colours to remain separable under common CVD.
+
+A serious proposal has to defeat both, with **measurements on a real render** — a CVD
+simulation *and* a separate luminance-separation check, since a palette can pass ΔE while two
+of its members share a luminance. Red and amber remain reserved for the alarm LED regardless
+(critical/warning), as does the rule that a stage hue must never be applied to anything that
+reads as *status* elsewhere in the console.
+
+### 4.4 The two contrast floors — still binding
+
+These now apply to the single neutral fill rather than to five hues, and they are what makes
+the focus ring safe by construction (§2c). Both are WCAG 2.2 minima applied to this component:
+
+- **The key fill clears 3:1 against `--color-bg`** (SC 1.4.11). The fill *is* the key's edge —
+  a clipped shape carries no border — so this is what makes the key visible against the page.
+- **The fill pairs with an ink clearing 4.5:1** (SC 1.4.3).
+
+Note the WCAG "dead zone" around relative luminance ~0.131–0.207, where neither a light nor a
+dark ink reaches 4.5:1. Any future fill must stay out of it.
 
 ---
 
 ## 5. Shape
 
-- **Nested with a thin gap** — interlocking geometry, but a 2–3px
-  band-coloured gap cut into the shape so keys nest without visually
-  touching. Keeps the one-ribbon read *and* keeps a single contrast problem
-  (key vs. band) instead of adding a second one (key vs. key).
-- **Flat terminals** — Design's left edge and Finalise & Review's right edge
-  are flat, not pointed. A lifecycle is a bounded process; pointed terminals
-  read as "continues off-screen."
-- **Notch depth — unmeasured, pending a real render. Do not build from
-  141.4px.** A figure of 141.4px / spread 1.000 has circulated in #481, but
-  it is a **live-render number reported in that issue with no viewport zoom
-  recorded** — not a value the code or any prior gate established as a
-  baseline. "Finalise & Review" is the longest label, and a notch takes width
-  on one side and adds it on the other, so usable text width is `track −
-  notch`, narrower than the shared column width. **Before implementation:**
-  take a fresh measurement on a real render at the 1920×1080 capture
-  viewport, **record both the viewport and the zoom level** alongside the
-  number, and compute the notch budget from that measurement — not from the
-  unverified 141.4px figure above. If the measured budget truncates the
-  label, the fix is a shallower notch, a wider track, or shorter label text —
-  decided from the measurement, not guessed ahead of it.
-- **Focus ring: use a wrapper element carrying the ring.** `clip-path` clips
-  the focus outline along with the shape, silently removing the keyboard
-  focus indicator. `filter: drop-shadow()` follows the silhouette well but
-  dies under Windows forced-colors mode. Take the boring, robust option: a
-  wrapper element that carries the ring independently of the clipped shape.
-- **Badge-ready, no counts this round.** Build the badge slot — geometry and
-  width budget — but render no number until the ADR-0046 lifecycle-derivation
-  work produces a real actionable-item count to show. Nothing painted twice,
-  nothing claiming a number the console cannot yet verify. **While the slot is
-  empty it carries no meaning at all — §2b, which is what stops §2's
-  absence-semantics from asserting "nothing actionable" on every key this
-  round.**
+**Built and measured, 2026-08-31.** This section previously specified the shape as pending
+measurement. The values below are the ones that shipped, taken from a real render.
+
+### 5.1 Geometry, as built
+
+On a **28px-tall** key at the shared column width (166.09px measured, `devicePixelRatio: 1`,
+no zoom), with a **3.00px** inter-key gap:
+
+| feature | value |
+|---|---|
+| notch depth (tip protrusion and tail inset alike) | **12px** |
+| apex radius — arrow tip *and* notch apex | **5px** |
+| outer terminal radius (Design's left, Finalise's right) | **6px** |
+| joint radius, tip side | **6px** |
+| joint radius, notch side | **8px** |
+
+**The two joint radii differ deliberately.** The tip-side joint (flat edge meeting the
+outgoing diagonal) is obtuse, ~120°; the notch-side joint is acute, ~77°. **At equal radius
+the acute corner reads sharper** — perceived softness depends on the included angle, not the
+radius alone. Collapsing these to one value reintroduces visible sharp corners on the notch
+side, which is how it was caught.
+
+**Every vertex is rounded.** There are no raw corners anywhere: not the terminals, not the
+apexes, and not the four diagonal-to-flat joints — those four were the last to be treated and
+were the most visible once everything else was smooth.
+
+**Terminals are rounded-square, not pill.** A radius of half the height reads as a tab or
+chip; on a 28px control that lands on the toy side of "friendly, not toy".
+
+### 5.2 Construction
+
+**A generic corner-rounding pass over a data-only vertex list**, not hand-written vertices.
+Each corner becomes a quadratic curve whose control point is the original sharp vertex, with
+the radius clamped to half the shorter adjoining edge so neighbouring corners can never
+overrun each other. One function serves all three key positions.
+
+This matters beyond tidiness: the previous implementation was **56 hand-computed polygon
+vertices** including a hardcoded `calc(50% - 14px)` tied to the 28px height. It was correct,
+but unreadable and impossible to eyeball — which is precisely why sharp corners survived
+several rounds of review in it.
+
+**Rendered with `clip-path: shape()`**, which accepts percentages and `calc()` so the shape
+scales with a runtime, content-driven key width, and has real curve commands. `clip-path:
+path()` cannot be used — absolute coordinates only. SVG `clipPathUnits="objectBoundingBox"`
+cannot either — it turns a uniform pixel radius into an ellipse on a 166×28 box.
+
+**Firefox does not support `shape()`** (verified empirically, 2026-08-31). Operator ruling:
+Firefox gets **plain rounded rectangles**, feature-queried on a `curve` command specifically —
+supporting the function is not the same as supporting every command. The old polygon is
+**deleted**, not retained as the fallback.
+
+### 5.3 Content centring — centre on the painted shape, not the box
+
+A notched key's painted region starts `notch` px in from its left edge, so its optical centre
+sits `notch/2` right of the box centre. Content centred on the **box** therefore sits visibly
+left of centre on every notched key. **Content is centred on the painted region**, which means
+a `notch/2` offset on keys with a notch and **no offset on the first key**, whose left edge is
+flat.
+
+Recorded because it is invisible to every automated check and regressed silently the moment
+the notch existed.
+
+### 5.4 Focus ring
+
+**The ring lives on the unclipped element; only an inner layer carries the clip.** `clip-path`
+clips a focus outline away silently, and `filter: drop-shadow()` follows the silhouette but
+dies under Windows forced-colors.
+
+It is a **two-tone stroke** — an inner band in the page-background tone, an outer band in the
+text tone — so it has contrast against both the key fill and the page. A single-tone outline
+in the ink colour was tried and left the ring invisible against the page background on the
+lighter keys (1.10:1 and 1.00:1). Total outward reach stays inside the 3.00px inter-key gap so
+a focused key never touches its neighbour. `outline` survives forced-colors and is recoloured
+by the OS; `box-shadow` drops out — so the outline alone must remain a working indicator.
+
+### 5.5 Badge
+
+**Slot built, no number rendered** until the ADR-0046 derivation
+([#495](https://github.com/dmfdeploy/dmfdeploy/issues/495)) produces a real actionable-item
+count. While empty **the slot carries no meaning at all** (§2b) — nothing painted twice,
+nothing claiming a number the console cannot verify.
 
 ---
 
@@ -382,12 +467,23 @@ already unique on the page.
 
 | Gap | Status | Where it's tracked |
 |---|---|---|
-| Padlock for authorization-denial only | **Not built — future work, not this round's gap.** This round ships full identity-icon coverage without it (§2a). Returns only once an authorization-denied state distinct from "locked" exists in the code. | §2a; downstream of a future #493-adjacent behaviour change |
-| Notch depth | **Unmeasured.** Do not build from the reported 141.4px figure. | §5 |
-| CVD simulation on the five stage hues | **Not yet run.** | §4 |
-| Badge counts | **Deferred by design** — slot built, no number rendered until ADR-0046 lands. Absence carries no meaning meanwhile. | §5; §2b |
-| **Hue carry-through into stage content** (§4 point 4) | **Not built — explicitly deferred, operator ruling 2026-08-31.** The rail ships its five identity hues; tinting the stage content area is a materially larger surface (every stage page) and is *not* part of #481/#482/#483. Recorded here so it is not silently assumed done — until it lands, §4 point 4's own warning applies and the hue does live in the band alone. | §4 point 4; [#505](https://github.com/dmfdeploy/dmfdeploy/issues/505) |
-| No progress/actionable signal on the rail between this round and #495 | **Accepted temporary gap** — completeness dot retired (§1), badge not yet live. Costs the workload home the most. | §2b |
+| Padlock for authorization-denial only | **Not built — future work, not a gap in this round.** Full identity-icon coverage ships without it (§2a). Returns only once an authorization-denied state distinct from "locked" exists in the code. | §2a; downstream of a future #493-adjacent behaviour change |
+| Badge counts | **Deferred by design** — slot built, no number rendered until ADR-0046 lands. Absence carries no meaning meanwhile. | §5.5; §2b |
+| No progress or actionable signal on the rail until #495 | **Accepted temporary gap.** The completeness dot is retired (§1) and the position marker is removed (§2); the badge is not yet live. The workload home, where no key is selected, loses the most. | §2b; [#495](https://github.com/dmfdeploy/dmfdeploy/issues/495) |
+| Filled icons elsewhere in the app | **Out of scope.** The rail's five are inline filled SVG (§3); the rest of the console still uses stroked lucide. | [#507](https://github.com/dmfdeploy/dmfdeploy/issues/507) |
+| `shape()` unsupported in Firefox | **Accepted, with a defined fallback** — plain rounded rectangles, feature-queried on a `curve` command (§5.2). Operator ruling 2026-08-31. | §5.2 |
+| Icon set provenance | The set in §3 is now corrected against the recovered decision, but the original **reference image still lives outside the repos**. Nothing in-tree can adjudicate a future disagreement. | [#506](https://github.com/dmfdeploy/dmfdeploy/issues/506) |
+
+**Closed since the previous version of this table:**
+
+- *Notch depth unmeasured* — measured and built; §5.1 carries the values and the conditions
+  they were taken under.
+- *CVD simulation on the five stage hues* — run, and it is what removed hue from the rail
+  entirely (§4.1). There are no stage hues left to simulate.
+- *Hue carry-through into stage content* — **moot.** It tracked carrying the rail's identity
+  hue outward; there is no rail hue to carry. [#505](https://github.com/dmfdeploy/dmfdeploy/issues/505)
+  closed as superseded. A stage-content tint for *wayfinding* would be a new question with its
+  own contrast and CVD requirements, not a revival of that one.
 
 ---
 
@@ -395,7 +491,45 @@ already unique on the page.
 
 Per the Shell Round Plan: **spec the model now (this doc + the #493 IA
 amendment), build visuals against it, behaviour lands after.** The icon set
-(§3) and the shape (§5) ship together this round, with **no padlock** — see
-§2a. The padlock itself is not scheduled; it returns only once the
-authorization-denial state named in §2a exists, which is future work outside
-this round's plan.
+(§3) and the shape (§5) shipped together, with **no padlock** — see §2a. The
+padlock is not scheduled; it returns only once the authorization-denial state
+named in §2a exists, which is future work outside this round's plan.
+
+## 8. How this round was verified, and what that cost
+
+Recorded because the pattern held without exception, and the next visual round should
+start from it rather than rediscover it.
+
+**Every visual defect was found by looking at a render. None was found by the test suite,
+and none by adversarial diff review.** The suite ran green — 763, then 823, then 830
+passing — through all of the following:
+
+| defect | how it was found |
+|---|---|
+| Selection invisible on the three lightest keys (1.49:1) | rendering the harness and querying computed styles |
+| Focus ring invisible against the page background (1.10:1) | the same, while fixing the above |
+| Four untreated raw vertices on every key | operator looking at a magnified render |
+| Tip and tail not interlocking | operator looking at a comparison board |
+| Labels 6px off the painted centre on four of five keys | operator looking, then measured |
+
+`aria-pressed`, `aria-current` and the accessible names were correct throughout, so
+accessibility tests passed while the interface was, for a sighted operator, ambiguous.
+**jsdom computes no pixels**, and a diff cannot see a colour relationship between two
+rendered states.
+
+Three practices earned their cost and should be defaults:
+
+- **Build the harness before the component**, not as verification afterwards. It was the
+  instrument, not the check.
+- **Measure computed styles on a real render**, not source values. Alpha composites,
+  `:focus-visible` does not match a programmatic `.focus()`, and `transform: scale()`
+  rasterises `clip-path` into artifacts that look exactly like geometry bugs.
+- **Put renders in front of the operator as options**, not descriptions. Four rounds were
+  spent on prose adjectives — "softer", "less round" — before a comparison board settled
+  the shape in one pass.
+
+**Numbers need their derivation attached.** Three separate figures in this round did not
+reproduce: a claimed luminance mitigation, then its correction, then a ΔE set from a
+faulty pipeline. Each was precise, plausible and wrong. A figure that cannot be
+recomputed from a stated method is not evidence, and the fix is to record the pipeline
+next to the number — which §4.1 and §5.1 now do.
