@@ -93,17 +93,33 @@ trigger, not an open question left drifting — see §5.1.
 ## 3. The subtraction that must not be forgotten
 
 [#499](https://github.com/dmfdeploy/dmfdeploy/issues/499) is **open and only one-third
-done**. One running job is still announced four times on one screen. #127 replaced one of
-them with the throbber. The other two leave with **this round**:
+done**. Before round 1, one running job was announced **four** times on a single screen:
 
-- `#481` must end with **zero status text in the lifecycle band** — that removes the
-  rail-adjacent "A … job is in progress." *and* relocates the "N OF N RUNNING" readout.
+| # | Announcement | Status |
+|---|---|---|
+| 1 | The static "automation is running" line | **Became the throbber** (dmf-cms#125) — this is the one that legitimately stays |
+| 2 | The "View live" restatement | **Demoted** (dmf-cms#127) — #499's completed third |
+| 3 | The rail-adjacent "A … job is in progress." | **Leaves with `#481`** |
+| 4 | The "N OF N RUNNING" readout | **Leaves with `#481`** |
+
+Note the attribution, because it is easy to cross: **#125 shipped the throbber; #127
+demoted the duplicate.** They are different PRs doing different jobs.
+
+- `#481` must end with **zero status text in the lifecycle band** — that removes rows 3 and
+  4 above.
 - `#480` must end with **exactly two on-screen statements** per running job — the bus and
   the acting stage's throbber — with wording from **one derivation**, not parallel strings.
 
-Both are already recorded as acceptance criteria on those issues. **Adding the bus without
-removing the old announcements lands at six, not two.** This is the single most likely
-thing to be skipped, because every individual line looks defensible on its own.
+Both are already recorded as acceptance criteria on those issues.
+
+**The arithmetic, stated as of now (post-round-1) so it cannot go stale silently.** Three
+announcements are on screen today: the throbber, the rail-adjacent note, and the readout.
+Adding the bus while removing nothing lands at **four**; the target is **two**. The
+subtraction is therefore not a tidy-up that can slip to a later round — without it, the
+round that is supposed to halve the noise increases it.
+
+This is the single most likely thing to be skipped, because every individual line looks
+defensible on its own.
 
 ---
 
