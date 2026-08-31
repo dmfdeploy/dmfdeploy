@@ -30,6 +30,7 @@ legibility (#127), milestone markers (dmf-runbooks#46), and the design record (#
 | [#483](https://github.com/dmfdeploy/dmfdeploy/issues/483) | Directional chevron form, nested with a thin gap, flat terminals |
 | [#480](https://github.com/dmfdeploy/dmfdeploy/issues/480) | The message bus |
 | [#496](https://github.com/dmfdeploy/dmfdeploy/issues/496) | The audit producer the bus projects — **prerequisite for the bus's history path** |
+| [#436](https://github.com/dmfdeploy/dmfdeploy/issues/436) | Workload labelling / persisted display names — **prerequisite for the bus naming a workload**; see §2a |
 
 **Unreleased:** dmf-cms `main` is 10 commits past `v0.30.0`; dmf-runbooks 2 past `v0.4.7`.
 Release is deliberately deferred until this round lands (see `STATUS.md`). **dmf-runbooks
@@ -55,13 +56,31 @@ So:
 - **Phase A — rail band (#481, #482, #483).** No backend. No dependencies. Start here.
 - **Phase B — bus live path (#480, partial).** Ring buffer over `OperationStore`, the bar
   itself, the LED reading `classifyWorkspaceHealth`. History renders "unavailable", not
-  "nothing happened".
+  "nothing happened". **Gated on #436 — see §2a.**
 - **Phase C — the record (#496), then the bus's history path.** Terminal audit-event
   producer, `clear-for-deployment` onto the helper, structured CloudEvents JSON, Promtail
   routing plus its acceptance check.
 
 **Do not start Phase C without deciding whether the demo needs it.** It is compliance work
 with a real cost, and Phase B may be enough for the recording.
+
+### 2a. Phase B is gated on #436 — the bus cannot name what is running without it
+
+[#436](https://github.com/dmfdeploy/dmfdeploy/issues/436) (workload labelling and persisted
+display names) is a **backend gap, not fixable in the frontend**, and it sits directly on
+Phase B's critical path rather than beside it.
+
+#480's purpose is that a running job is stated **once, with what it is acting on**. Without
+#436 the bus can say *"Provisioning"* and nothing more — it has no workload name to render.
+A bus that names no workload does not discharge #480; it just adds a sixth place the same
+anonymous fact appears, which is the exact failure §3 exists to prevent.
+
+So, explicitly, **before Phase B is built**: either #436 lands first, or Phase B is
+deferred until it does. What is **not** acceptable is building the bar against a
+placeholder and calling #480 met — the naming is the point, not a refinement of it.
+
+This is a scheduling dependency only. It does not reopen *how* #436 is fixed; that is
+backend work tracked on its own issue.
 
 **Operator ruling, 2026-08-30 — Phase C is deferred to a decision point, not scheduled.**
 The question is answered *after Phase B lands and is looked at in a browser*, judging whether
