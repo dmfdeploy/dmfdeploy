@@ -55,7 +55,8 @@ redefine it. Two consequences that shape the channels below:
 | Channel | Carries |
 |---|---|
 | **Hue** (muted, permanent, per stage) | stage identity |
-| **Luminance / fill** | selection ("am I looking at this one") |
+| **Selection ring** (fixed neutral, hue-independent) | selection ("am I looking at this one") — **see §2c** |
+| **Luminance / fill** | reinforces selection where the hue ramp allows it; **cannot carry selection alone — §2c** |
 | **Icon** | stage identity — see §3 for the set. |
 | **Badge** | count of actionable items. **Absence of badge = nothing actionable — but only once the channel is live; see §2b.** |
 
@@ -66,6 +67,58 @@ already redundant with the visible label. **Art. 11 clean by construction.**
 earlier #481 proposal) — that is six treatments that must all survive
 greyscale, and Art. 11 was only ever verified for the dot the previous round
 shipped.
+
+### 2c. Selection needs its own channel — fill luminance cannot carry it
+
+**Amendment, 2026-08-31 (operator ruling).** The original table gave *selection* to
+"luminance / fill" while giving *stage identity* to hue. Measured against a real
+render, those two assignments are not simultaneously satisfiable.
+
+Selection paints an achromatic near-white fill, `rgb(232,232,234)`. How much a key
+actually changes when selected therefore depends entirely on where its identity hue
+sits on the luminance ramp:
+
+| stage | identity fill | contrast when selected | ink on selection |
+|---|---|---|---|
+| Design | `rgb(52,106,92)` | 5.10:1 | light → dark, flips |
+| Plan | `rgb(74,97,150)` | 4.99:1 | light → dark, flips |
+| Provision | `rgb(146,129,187)` | 2.82:1 | dark → dark, no change |
+| Configure | `rgb(190,151,196)` | 2.04:1 | dark → dark, no change |
+| **Finalise & Review** | `rgb(215,183,200)` | **1.49:1** | `rgb(15,23,32)` → `rgb(10,10,11)`, no change |
+
+On the three lightest keys selection is at or below the WCAG 1.4.11 3:1 floor for a
+UI-state change, and on Finalise & Review it is imperceptible — the ink does not flip
+either, because light hues already carry dark ink. `aria-pressed` is correct
+throughout, so assistive technology is unaffected and a full test suite passes; a
+sighted operator simply cannot see which key is selected.
+
+**Why no retune fixes it.** The constraints pull in opposite directions: §4's 3:1
+fill-vs-background floor pushes hues *lighter*, while a 3:1 fill-vs-selected-fill
+floor pushes them *darker*. Solving all of §4's requirements at once leaves two
+disjoint usable bands — roughly L\* 39.4–42.9 for dark-ink swatches and L\* 53.2–55.7
+for light-ink ones, about 6 L\* units in total. That is capacity for **two** distinct
+swatches; the rail needs **five**. No single alternate selection tone escapes it
+either: clearing 3:1 from both ends of the existing ramp would require a luminance
+above 1.0 (impossible) or one indistinguishable from the page background.
+
+So this is a structural conflict, not a tuning gap.
+
+**The ruling.** **Selection is carried by a persistent ring on the key's wrapper
+element, in a fixed neutral tone, independent of the stage hue** — the same unclipped
+wrapper already required for the focus ring (§5), so it adds no new geometry risk. The
+achromatic fill-invert is **kept alongside it** where it still earns its place
+(Design and Plan, ~5:1), because it costs nothing and reinforces two of the five.
+
+Consequences that bind implementation:
+
+- **Focused, selected, and focused-and-selected must be three distinguishable
+  states**, and that distinction must survive greyscale (Art. 11) — the focus ring is
+  itself a ring, so the two cannot be separated by colour alone.
+- The selection ring is a non-text indicator: it needs **3:1 against what sits inside
+  it** (every stage fill and the selected fill) **and against what sits outside it**
+  (the page background, and the neighbouring key — the boxes are 3.00px apart).
+- §4's CVD and contrast work is unaffected. Hue keeps carrying identity; it simply
+  stops being asked to carry selection as well.
 
 ### 2b. Badge-absence carries no meaning until the channel is live
 
@@ -89,11 +142,14 @@ So, explicitly:
   [#495](https://github.com/dmfdeploy/dmfdeploy/issues/495)), §2's reading takes
   effect and absence becomes meaningful.
 
-No code change follows from this amendment — the slot is already `aria-hidden` and
-empty, which is the correct rendering under both readings. What changes is that a
-future reader cannot derive a false claim from §2's table, and whoever implements
-#495 knows that switching the channel on is also what switches its absence
-semantics on.
+**This amendment changes the badge channel's semantics only — it does not change what
+Phase A must build.** §5 still assigns Phase A the slot itself: the reserved geometry,
+the fixed width budget, and the `aria-hidden` treatment that keeps an empty decorative
+box out of the accessibility tree. That work is a Phase-A requirement and is *not*
+recorded here as already done. What §2b settles is what the finished slot **means**
+while it is empty: nothing. A future reader therefore cannot derive a false claim from
+§2's table, and whoever implements #495 knows that switching the channel on is also
+what switches its absence semantics on.
 
 **Consequence worth stating plainly:** between this round and #495, the rail has
 *no* progress or actionable-work signal at all — the completeness dot is retired
@@ -199,6 +255,12 @@ Five **muted, permanent, per-stage identity hues.**
    is decoration living in a 40px band. **Never** apply it to anything that
    reads as *status* elsewhere in the console, or operators learn the hue
    means something operational when it only ever means "which stage."
+   **Status: not built, explicitly deferred (operator ruling, 2026-08-31) —
+   see §6, tracked as
+   [#505](https://github.com/dmfdeploy/dmfdeploy/issues/505).** This point is an affirmative requirement of this document, not an
+   optional polish item, and #481/#482/#483 do not deliver it. Until it does
+   land, the warning in this very bullet is the accurate description of what
+   ships: the hue lives in the band alone.
 
 **Rationale for muted over a saturated ribbon:** borrows ISA-101
 (greyscale-normal, colour = abnormal, ~90% neutral so real problems pop). The
@@ -255,6 +317,7 @@ already unique on the page.
 | Notch depth | **Unmeasured.** Do not build from the reported 141.4px figure. | §5 |
 | CVD simulation on the five stage hues | **Not yet run.** | §4 |
 | Badge counts | **Deferred by design** — slot built, no number rendered until ADR-0046 lands. Absence carries no meaning meanwhile. | §5; §2b |
+| **Hue carry-through into stage content** (§4 point 4) | **Not built — explicitly deferred, operator ruling 2026-08-31.** The rail ships its five identity hues; tinting the stage content area is a materially larger surface (every stage page) and is *not* part of #481/#482/#483. Recorded here so it is not silently assumed done — until it lands, §4 point 4's own warning applies and the hue does live in the band alone. | §4 point 4; [#505](https://github.com/dmfdeploy/dmfdeploy/issues/505) |
 | No progress/actionable signal on the rail between this round and #495 | **Accepted temporary gap** — completeness dot retired (§1), badge not yet live. Costs the workload home the most. | §2b |
 
 ---
