@@ -131,19 +131,27 @@ section fixes.
 - **The selection ring is inset**, so *both* of its sides sit on the key's own fill. It
   never meets the page background or a neighbour, and the only requirement is contrast
   against the fill it sits on. Drawing it in the key's **own ink** satisfies that for
-  free — §4 already requires every swatch to pair with an ink clearing **4.5:1**, which
+  free — **§4 point 0** requires every swatch to pair with an ink clearing **4.5:1**, which
   is above the 3:1 this needs.
 - **The focus ring is outset**, so it genuinely does face the page background and the
   neighbouring key. It therefore needs a **two-tone stroke** — an inner stroke in the
   page-background tone and an outer stroke in the text tone — so that whatever it
-  crosses, one of the two has contrast. This also holds **by construction**: §4 point 1
-  already requires every identity hue to clear 3:1 against the page background, so a
+  crosses, one of the two has contrast. This also holds **by construction**: **§4 point
+  0** requires every identity hue to clear 3:1 against the page background, so a
   background-toned stroke clears 3:1 against every fill automatically, and the text tone
   clears 16.17:1 against the background.
 
 That second point is the useful structural result: **the ring constraints are not new
-constraints.** They are §4's existing ones re-used, which means a future retune of the
-hues cannot silently break the rings so long as §4 point 1 and the ink rule still hold.
+constraints.** They are §4 point 0's floors re-used, which means a future retune of the
+hues cannot silently break the rings so long as those two floors still hold.
+
+**This is only true because §4 point 0 exists.** An earlier draft of this section made
+the same "by construction" argument while citing §4 point 1 — which reserves red and
+amber and says nothing about contrast. §4 as it then stood contained *neither* floor;
+both lived only in an implementation comment, so a retune could have satisfied every
+stated requirement and still broken both rings. The guarantee was resting on a section
+that did not contain it. Point 0 was added to make the citation true rather than to
+weaken the claim.
 
 Consequences that bind implementation:
 
@@ -271,6 +279,27 @@ picking exact icon names/glyphs is implementation's job in #482 itself):
 ## 4. Colour
 
 Five **muted, permanent, per-stage identity hues.**
+
+**0. The two contrast floors every swatch must clear.** Stated here explicitly because
+§2c's ring treatment is safe *by construction* only if these hold, and until this
+amendment (2026-08-31) they lived solely in an implementation comment — so a token
+retune could have complied with everything §4 said while silently breaking the selection
+and focus rings. Both floors are WCAG 2.2 minima applied to this component, not new
+invention:
+
+  - **Every identity hue clears 3:1 against `--color-bg`** (SC 1.4.11 non-text contrast).
+    The fill *is* the key's edge — a `clip-path` shape carries no border — so this floor
+    is what makes the key visible against the page at all. It is also what makes the
+    focus ring's background-toned band clear 3:1 against every fill, which is the
+    "by construction" §2c relies on.
+  - **Every identity hue pairs with one ink clearing 4.5:1** (SC 1.4.3 text contrast) —
+    light or dark, whichever that swatch actually reaches, rather than assuming a single
+    ink works across the ramp. This is what makes the *inset* selection ring safe, since
+    that ring is drawn in the key's own ink.
+
+  **A retune must re-verify both, and must not assume a single shared ink.** Note the
+  WCAG "dead zone" around relative luminance ~0.131–0.207, where neither a light nor a
+  dark ink reaches 4.5:1 — swatches must stay out of it.
 
 1. **Reserve red and amber entirely.** No lifecycle hue may approach them —
    those mean *abnormal* everywhere else in the console. This removes roughly
