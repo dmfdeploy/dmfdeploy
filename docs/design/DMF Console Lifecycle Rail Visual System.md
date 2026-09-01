@@ -233,8 +233,26 @@ Token values: `--color-rail-fill` `#2c2c2e` (was `#616161`), `--color-selected-f
 from `--color-bg` to `--color-sidebar`, which is what merges it with the nav.
 
 **Hover on the rail is new** — it had none. The hover edge is deliberately the *selected*
-colour, not the accent, so hovering previews what selecting looks like and the accent stays
-reserved for focus.
+colour: hovering previews what selecting would look like, which is a reason that stands on
+its own rather than a way of avoiding some other colour.
+
+> **A draft of this paragraph added "and the accent stays reserved for focus". That was
+> wrong and is removed.** It came from my believing the rail's focus ring was accent-coloured;
+> it never was — it was `outline-current`, and after §5.4 it is `outline-text`. Accent does
+> still carry focus in the **nav** (`focus-visible:outline-accent` on the tile), so the claim
+> is true there and false here, which is exactly the kind of half-true rule that survives
+> review.
+>
+> **The actual hover/focus differentiation on the rail** is colour *and* position, neither
+> involving accent:
+>
+> | | colour | where |
+> |---|---|---|
+> | hover | `--color-selected-face` | on the shape, following the chevron silhouette |
+> | focus | `--color-text` | outside the box, in the inter-key gap |
+>
+> Both were checked together on a render with a real pointer and a real Tab, including the
+> both-at-once case — a hovered-but-unfocused key never reads as focused.
 
 #### Why not simply copy the nav's tint
 
