@@ -204,7 +204,7 @@ opposite directions is the same trap every time.**
 The **focus ring** is still outset, so it genuinely does face the page background and the
 neighbouring key. With no per-stage hue the argument is simpler than it was: there are two
 faces to clear, not five hues — and the current ring clears both (11.39:1 resting, 3.19:1
-selected) plus the band at 15.54:1. §4.4's floors are what make it hold. *(The two-tone stroke
+selected) plus the band at 15.54:1. §4.4's criteria are what make it hold. *(The two-tone stroke
 this paragraph used to describe is retired and was never producing two visible tones — see
 §5.4, amended 2026-09-01.)*
 
@@ -510,21 +510,28 @@ of its members share a luminance. Red and amber remain reserved for the alarm LE
 (critical/warning), as does the rule that a stage hue must never be applied to anything that
 reads as *status* elsewhere in the console.
 
-### 4.4 The two contrast floors — still binding
+### 4.4 The contrast criteria — one unconditional, one conditional
 
-These now apply to the shared per-state faces rather than to five hues, and they are what
-makes the focus ring safe by construction (§2c). Both are WCAG 2.2 minima applied to this
-component:
+**Amended 2026-09-01.** This section previously stated **two** binding floors. That was
+wrong about the first one, and after §2d the document would have been asserting a rule its
+own design breaks. Restated as what actually binds:
 
-- **The key fill clears 3:1 against its background** (SC 1.4.11) — *amended 2026-09-01*.
-  This was stated as an absolute because a clipped shape carries no border, so the fill was
-  the key's only possible edge. That is narrower than the clause: 1.4.11 governs the
-  information **required to identify** the control, and these keys carry visible text labels.
-  §2d ships a resting face at **1.36:1** against the band, conformant on the label rather than
-  on the boundary. Note also that the background moved — the band paints `--color-sidebar`
-  now, not `--color-bg` — so any figure quoted against the page background is stale.
-- **Each face pairs with an ink clearing 4.5:1** (SC 1.4.3). This one is unconditional and
-  has no label escape hatch: resting 6.74:1, hover 11.39:1, selected 5.06:1.
+- **Unconditional — each face pairs with an ink clearing 4.5:1** (SC 1.4.3). No escape
+  hatch, no conditions. Shipped: resting **6.74:1**, hover **11.39:1**, selected **5.06:1**.
+
+- **Conditional — a key's silhouette needs 3:1 against its background *only when the
+  silhouette is what identifies the control*** (SC 1.4.11). The old absolute framing came
+  from a true observation with a false conclusion attached: a clipped shape carries no
+  border, so the fill is the key's only possible edge — therefore, it was assumed, the fill
+  must carry 3:1. But 1.4.11 governs the information **required to identify** the component,
+  and these keys carry always-visible text labels, so the boundary is not what identifies
+  them. The shipped resting face measures **1.36:1** against the band and is conformant on
+  the label.
+
+  **The condition is load-bearing, not a loophole.** If a future round removes the labels,
+  abbreviates them, or hides them at a breakpoint, the 3:1 floor becomes binding again on the
+  same day. Note also that the background moved — the band paints `--color-sidebar`, not
+  `--color-bg` — so any silhouette figure quoted against the page background is stale.
 
 Note the WCAG "dead zone" around relative luminance ~0.131–0.207, where neither a light nor a
 dark ink reaches 4.5:1. Any future fill must stay out of it.
@@ -544,9 +551,36 @@ the 40px column in §5.1, the hover ring and the §5.4 focus ring come from
 ### 5.1 Geometry, as built
 
 **Amended 2026-09-01 (dmfdeploy/dmfdeploy#512).** The key height went 28 → 40px to match the
-vertical nav's own `h-10 w-10` tile, and every value below is derived from height rather than
-re-chosen, so the proportions are the ones already approved. The 28px column is kept because
-the ratios are the durable part; a future rescale should reproduce them, not re-guess.
+vertical nav's own `h-10 w-10` tile. The 28px column is kept alongside, because the *rules*
+are the durable part, not the numbers.
+
+> **This table is not a uniform ×1.4286 rescale, and must not be re-derived as one.** Three
+> values follow the height scale; three are governed by their own rule and deviate from it.
+> A future rescale that multiplies the table will silently break two deliberate decisions.
+>
+> | value | rule |
+> |---|---|
+> | notch depth, apex radius, icon | linear with height |
+> | content offset | `notch / 2`, so linear by consequence |
+> | **outer terminal radius** | **= the nav tile's own radius, taken exact** |
+> | **the two joint radii** | **ratio-preserving against the original pair** |
+>
+> **Terminal radius is 8, where the scale gives 8.57.** It is not a rounding. At 28px the rail
+> deliberately did *not* match the nav's 8px `rounded-lg`, because a 28px key and a 40px tile
+> were different size buckets and radius scales by bucket. The rescale merged the buckets —
+> both are 40px now — so the operative rule stopped being "scale the old rail value" and
+> became "**use the nav's radius**". The value is `Sidebar.tsx`'s literal, not arithmetic on 6.
+>
+> **The joint radii are 9 and 12, where the scale gives 8.57 and 11.43.** Rounding each
+> independently would give 9 and 11 — and shift their ratio from **0.75 to 0.818**. That ratio
+> is the whole content of the unequal split: it encodes *an acute joint needs more radius than
+> an obtuse one to read equally soft*, and it exists because the operator circled the
+> notch-side joint as still-too-sharp on two separate equal-radius attempts. 9/12 holds 0.75
+> exactly. The pair was then confirmed on a render at the new size — but the value came from
+> holding the ratio, not from re-judging the angle from scratch.
+>
+> This is also why the two values that both started at **6** diverged to **8** and **9**: they
+> are governed by two different rules, not one scale factor.
 
 On a **40px-tall** key at the shared column width, with a **3.00px** inter-key gap (a layout
 constant, never derived from height):
