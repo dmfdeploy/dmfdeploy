@@ -204,7 +204,7 @@ opposite directions is the same trap every time.**
 The **focus ring** is still outset, so it genuinely does face the page background and the
 neighbouring key. With no per-stage hue the argument is simpler than it was: there are two
 faces to clear, not five hues — and the current ring clears both (11.39:1 resting, 3.19:1
-selected) plus the band at 15.54:1. §4.4's criteria are what make it hold. *(The two-tone stroke
+selected) plus the band at 15.53:1. §4.4's criteria are what make it hold. *(The two-tone stroke
 this paragraph used to describe is retired and was never producing two visible tones — see
 §5.4, amended 2026-09-01.)*
 
@@ -239,8 +239,20 @@ reserved for focus.
 #### Why not simply copy the nav's tint
 
 Copying `bg-accent/20 text-accent` would have imported a defect. The nav's selected tile
-measures **1.49:1** against its own resting state — under 1.4.11's 3:1 floor, and the same
+measures **1.52:1** against its own resting state — under 1.4.11's 3:1 floor, and the same
 shape of defect §2c documents: correct in the accessibility tree, invisible on screen.
+
+> **The figure here was 1.49:1 in an earlier draft, and that was wrong.** It came from
+> arithmetic against `--color-bg`; the nav tile composites over `--color-sidebar`, which is
+> the lighter of the two. **1.52:1 is the render-measured value against the real backdrop**
+> and is the one used throughout this section. Measuring against the page background instead
+> of the actual parent is the same mistake that produced two other stale figures in this
+> round — worth naming, because it is easy to make and each instance looks individually
+> plausible.
+>
+> Note that **1.49:1 also appears in §2c's table, for something else entirely** — the
+> Finalise & Review key's own selection contrast under the retired hue ramp. That collision
+> is coincidence. Do not reconcile the two; they measure different things.
 
 Raising the alpha fixed the state change and broke a check nobody had run. At 55% the rail's
 label measured **2.34:1** against its own tint, against 1.4.3's 4.5:1 floor. That is
@@ -674,7 +686,7 @@ geometrically unsound, and the implementation it described was broken in one sta
 **Now: a single unconditional outline in the text tone** (`outline-text`, 2px, offset 0), with
 no `box-shadow`. It cannot follow the ink, so no ink change can darken it. Measured
 **15.53:1** in all four selected × focused combinations, and it clears 3:1 against every
-adjacent surface — the band (15.54:1), the resting face (11.39:1) and the selected face
+adjacent surface — the band (15.53:1), the resting face (11.39:1) and the selected face
 (3.19:1).
 
 Total outward reach stays inside the 3.00px inter-key gap so a focused key never touches its
