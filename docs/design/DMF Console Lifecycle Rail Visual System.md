@@ -1,9 +1,10 @@
 # DMF Console — Lifecycle Rail Visual System
 
 **Status:** **Design spec** (2026-08-30; amended 2026-09-01).
-**The rail and the vertical nav are now one visual system — see §2d**, which supersedes the
+**The rail and the vertical nav now share one token set — see §2d**, which supersedes the
 achromatic-invert selection this doc originally specified and the two-tone focus stroke in
-§5.4. Tracking issue
+§5.4. They share *colours*, not treatments: the rail keeps a hover edge the nav tile does not
+have, and §2d splits the two explicitly. Tracking issue
 [dmfdeploy/dmfdeploy#512](https://github.com/dmfdeploy/dmfdeploy/issues/512).
 Everything not marked as amended still stands.
 **Governs three companion issues — land here from any of them:**
@@ -208,7 +209,7 @@ selected) plus the band at 15.53:1. §4.4's criteria are what make it hold. *(Th
 this paragraph used to describe is retired and was never producing two visible tones — see
 §5.4, amended 2026-09-01.)*
 
-### 2d. The rail and the vertical nav are one system (amendment, 2026-09-01)
+### 2d. The rail and the vertical nav share one token set (amendment, 2026-09-01)
 
 **Tracking issue: [dmfdeploy/dmfdeploy#512](https://github.com/dmfdeploy/dmfdeploy/issues/512).
 Implementation PR: [dmf-cms#131](https://github.com/dmfdeploy/dmf-cms/pull/131) — open at the
@@ -219,18 +220,38 @@ worked, and did not look like it belonged to the same application as the nav bes
 height, icon size, selection treatment and ground all differed. This section records what
 replaced the achromatic invert and why the obvious fix was not available.
 
-Three states, identical in the rail and the nav, driven by **two shared tokens** rather than
-two sets of literals that happen to agree:
+**What is shared is the token set, not the whole treatment.** Both components take their
+colours from the same literals, so selection can never drift apart again — but the two
+surfaces are different shapes and do not paint identically. Stating this precisely matters:
+an earlier draft of this section presented one table for both, which would have directed a
+future nav round to give its tiles a hover ring they do not have.
 
-| state | face | ink | edge (2px) |
-|---|---|---|---|
-| resting | `--color-rail-fill` | `--color-resting-ink` | held at the face colour — no visible ring |
-| hover | `--color-rail-fill` | `--color-text` | `--color-selected-face` |
-| selected | `--color-selected-face` | `--color-bg` | held at the face colour — no ring |
+**Shared tokens — identical values in both components, and the point of the round:**
 
-Token values: `--color-rail-fill` `#2c2c2e` (was `#616161`), `--color-selected-face` `#58879e`,
-`--color-resting-ink` `#b4b4b8`. `--color-rail-edge` is **retired**. The band's ground moved
-from `--color-bg` to `--color-sidebar`, which is what merges it with the nav.
+| token | value | role |
+|---|---|---|
+| `--color-selected-face` | `#58879e` | the selected face, in both. ΔE2000 between them is **0.00** by construction. |
+| `--color-resting-ink` | `#b4b4b8` | the resting ink, in both |
+| `--color-bg` | `#0a0a0b` | the selected ink, in both |
+| `--color-text` | `#e8e8ea` | the hover ink, in both |
+
+**Per-component treatment — deliberately different, because the surfaces are:**
+
+| | rail key | nav tile |
+|---|---|---|
+| resting face | `--color-rail-fill` `#2c2c2e` | **none** — the `--color-sidebar` ground shows through |
+| hover face | `--color-rail-fill` (unchanged) | **none** — unchanged |
+| selected face | `--color-selected-face` | `--color-selected-face` |
+| hover edge | **2px `--color-selected-face`**, following the clipped chevron | **none** — the tile has no edge in any state |
+| shape | `clip-path` chevron, so the fill is its own silhouette | `rounded-lg` tile |
+
+The rail has an edge because a clipped chevron has a silhouette worth drawing and a resting
+face distinct from the band behind it. The nav tile has neither — it is transparent at rest,
+so there is nothing for a ring to enclose, and its hover is carried entirely by the ink
+(`--color-resting-ink` → `--color-text`). **A future nav round should not add one to match.**
+
+`--color-rail-edge` is **retired**. The band's ground moved from `--color-bg` to
+`--color-sidebar`, which is what merges it with the nav.
 
 **Hover on the rail is new** — it had none. The hover edge is deliberately the *selected*
 colour: hovering previews what selecting would look like, which is a reason that stands on
