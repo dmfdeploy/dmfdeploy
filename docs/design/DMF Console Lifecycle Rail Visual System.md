@@ -92,10 +92,13 @@ The three facts are **identity**, **selection**, and **actionable count**:
 | **Luminance / fill** (opaque selected face, shared with the nav) | selection ("am I looking at this one") — **see §2c**, amended 2026-09-01 |
 | **Badge** | count of actionable items. **Absence of badge = nothing actionable — but only once the channel is live; see §2b.** |
 
-**There is no colour channel on this rail.** Every key shares one neutral fill. Identity
+**There is no colour channel on this rail.** No key's appearance depends on *which* stage it
+is — all five take the same face, ink and edge in the same state (§2d, amended 2026-09-01;
+before that there was one fill full stop, because there was effectively one state). Identity
 is carried by icon and label, both of which survive greyscale unchanged, so
-**Art. 11 holds by construction rather than by verification** — there is no hue left to
-strip.
+**Art. 11 holds by construction rather than by verification** — there is no per-stage hue left
+to strip, and the one hue that does appear (the shared selected face) carries state, not
+identity, and carries it in luminance too.
 
 **The rail carries no position marker.** Selection is the only state it shows. Removed
 2026-08-31 (operator ruling) — the backend derivation could only ever name two of the
@@ -109,11 +112,13 @@ this workload" should mean is the Badge's job, once #495 makes it real.
   six treatments that must all survive greyscale.
 - **Hue as stage identity, in any form** — as a key fill, then as a 3px bottom-edge line.
   §4 has the measurements.
-- **A dedicated selection ring.** Once every key shares one neutral fill, selection measures
+- **A dedicated selection ring.** Once every key shares one resting fill, selection measures
   uniformly across all five keys — identical by construction — so a ring adds nothing. It was
   necessary only while hue made the fill-invert unreliable. *(The mechanism became an opaque
   shared face rather than an achromatic invert on 2026-09-01; the reason a ring is
-  unnecessary is unchanged, since it rests on the fill being uniform, not on which fill.)*
+  unnecessary is unchanged, since it rests on the resting fill being uniform, not on which
+  fill it is. A hover-only ring did arrive in §2d — that is a different signal, for a
+  different state, and selection still needs none.)*
 
 ### 2c. Why hue left the rail, and why selection needs no ring
 
@@ -179,15 +184,17 @@ opposite directions is the same trap every time.**
 #### What survives from that analysis
 
 The **focus ring** is still outset, so it genuinely does face the page background and the
-neighbouring key. With a single neutral fill the argument is simpler than it was: there is
-one fill to clear, not five. §4.4's floors are what make it hold. *(The two-tone stroke this
-paragraph used to describe is retired and was never producing two visible tones — see §5.4,
-amended 2026-09-01.)*
+neighbouring key. With no per-stage hue the argument is simpler than it was: there are two
+faces to clear, not five hues — and the current ring clears both (11.39:1 resting, 3.19:1
+selected) plus the band at 15.54:1. §4.4's floors are what make it hold. *(The two-tone stroke
+this paragraph used to describe is retired and was never producing two visible tones — see
+§5.4, amended 2026-09-01.)*
 
 ### 2d. The rail and the vertical nav are one system (amendment, 2026-09-01)
 
 **Tracking issue: [dmfdeploy/dmfdeploy#512](https://github.com/dmfdeploy/dmfdeploy/issues/512).
-Landed in [dmf-cms#131](https://github.com/dmfdeploy/dmf-cms/pull/131).**
+Implementation PR: [dmf-cms#131](https://github.com/dmfdeploy/dmf-cms/pull/131) — open at the
+time of writing, not yet merged.**
 
 Found by the operator reviewing the shipped rail against a real provision run: the rail
 worked, and did not look like it belonged to the same application as the nav beside it. Key
@@ -419,9 +426,20 @@ must re-check the two **rendered side by side at rail size**, not judged individ
 
 ## 4. Colour — retired from the rail (operator ruling, 2026-08-31)
 
-**There is no colour on the lifecycle rail.** All five keys share a single neutral fill and
-a single ink. The five `--color-rail-*` tokens, the per-stage map and the CVD verification
-apparatus are deleted from the code, not merely unused.
+**There is no colour on the lifecycle rail.** No key carries a colour of its own: nothing in
+the rail's painting depends on *which* stage a key is. The five `--color-rail-*` tokens, the
+per-stage map and the CVD verification apparatus are deleted from the code, not merely unused.
+
+**Amended 2026-09-01 (dmfdeploy/dmfdeploy#512).** This paragraph read "all five keys share a
+single neutral fill and a single ink", which was true when the rail's only state was
+selected-or-not. §2d replaced that with a **per-state** model — face, ink and edge each take
+one of three values by state, and all five keys take the *same* value in the *same* state. The
+per-stage ruling is untouched and is what this section is about: identity never varies by
+colour. What varies is state, uniformly across every key.
+
+The selected face is a cyan (`--color-selected-face`) shared with the vertical nav. That is
+not per-stage colour returning by the back door — it says "this one is selected", the same
+sentence on whichever key it lands, and §2d's measurements show it survives greyscale.
 
 This section previously specified five muted per-stage identity hues. It is kept — rewritten
 — because the reasoning is the expensive part and a future round *will* propose per-stage
@@ -476,12 +494,19 @@ reads as *status* elsewhere in the console.
 
 ### 4.4 The two contrast floors — still binding
 
-These now apply to the single neutral fill rather than to five hues, and they are what makes
-the focus ring safe by construction (§2c). Both are WCAG 2.2 minima applied to this component:
+These now apply to the shared per-state faces rather than to five hues, and they are what
+makes the focus ring safe by construction (§2c). Both are WCAG 2.2 minima applied to this
+component:
 
-- **The key fill clears 3:1 against `--color-bg`** (SC 1.4.11). The fill *is* the key's edge —
-  a clipped shape carries no border — so this is what makes the key visible against the page.
-- **The fill pairs with an ink clearing 4.5:1** (SC 1.4.3).
+- **The key fill clears 3:1 against its background** (SC 1.4.11) — *amended 2026-09-01*.
+  This was stated as an absolute because a clipped shape carries no border, so the fill was
+  the key's only possible edge. That is narrower than the clause: 1.4.11 governs the
+  information **required to identify** the control, and these keys carry visible text labels.
+  §2d ships a resting face at **1.36:1** against the band, conformant on the label rather than
+  on the boundary. Note also that the background moved — the band paints `--color-sidebar`
+  now, not `--color-bg` — so any figure quoted against the page background is stale.
+- **Each face pairs with an ink clearing 4.5:1** (SC 1.4.3). This one is unconditional and
+  has no label escape hatch: resting 6.74:1, hover 11.39:1, selected 5.06:1.
 
 Note the WCAG "dead zone" around relative luminance ~0.131–0.207, where neither a light nor a
 dark ink reaches 4.5:1. Any future fill must stay out of it.
