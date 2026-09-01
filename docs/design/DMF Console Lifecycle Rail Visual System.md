@@ -178,15 +178,18 @@ page background.
 #### Why the ring is gone too
 
 The ring existed to give selection a carrier independent of the hue ramp. **Once hue left
-the rail (§4), the problem it solved ceased to exist.** All five keys share one neutral
-fill, so selection measures **uniformly on every key** — identical by construction, not by
-tuning. A ring on top of that would be a second signal for a fact already unambiguously
-carried, which is the redundancy this rail has spent two rounds removing.
+the rail (§4), the problem it solved ceased to exist.** No key's fill depends on which stage
+it is — every key takes the same face in the same state (§2d) — so selection measures
+**uniformly on every key**, identical by construction rather than by tuning. A ring on top of
+that would be a second signal for a fact already unambiguously carried, which is the
+redundancy this rail has spent two rounds removing.
 
-> **Amended 2026-09-01 (dmfdeploy/dmfdeploy#512).** The figure here was 5.06:1, for an
-> achromatic invert to `--color-text`. That mechanism is retired — see §2d — and the
-> current selected-vs-resting figure is **3.57:1**. The *argument* is untouched: it turns
-> on the fill being uniform across keys, not on which fill it is.
+> **Amended 2026-09-01 (dmfdeploy/dmfdeploy#512).** This paragraph said "all five keys share
+> one neutral fill" and quoted 5.06:1, for an achromatic invert to `--color-text`. Both are
+> retired: §2d specifies **three state-dependent faces**, and the current selected-vs-resting
+> figure is **3.57:1**. The *argument* survives intact, because what it actually turns on is
+> the face being uniform **across keys within a state** — which is still true, and is the
+> only property the "no ring needed" conclusion ever needed.
 
 **Recorded because it nearly shipped:** a draft of this section specified "a persistent ring
 in a fixed neutral tone" facing both the key fill and the page background. No such tone
