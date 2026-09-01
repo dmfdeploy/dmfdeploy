@@ -338,13 +338,30 @@ the visual information *required to identify* the control, and these keys carry 
 labels at 6.74:1 — **not** because 1.36 clears anything. Stated here and in the source so a
 later reader does not read a missing outline as an oversight and restore one.
 
-#### A trade taken, not discovered
+#### A trade taken, not discovered — and it is **not** repaid in the nav
 
-Raising the nav's resting ink cost its hover delta, **2.28 → 1.69**, because hover was carried
-entirely by the ink brightening. A background cannot substitute: opaque `--color-panel`
-measures **1.03:1** against `--color-sidebar`, so no alpha of it does anything, and
-`hover:bg-panel/50` was removed rather than left as decoration that measures nothing. The new
-hover edge repays it — hover now has two carriers where it had one.
+Raising the nav's resting ink from `--color-muted` to `--color-resting-ink` cost its hover
+delta, **2.28 → 1.69**. Hover there was carried entirely by the ink brightening, and a lighter
+resting ink leaves less room above it to brighten into. That is the price of sharing the
+resting ink with the rail, and it was accepted deliberately.
+
+**A background cannot substitute for it.** Opaque `--color-panel` measures **1.03:1** against
+`--color-sidebar`, so no alpha of it does anything at all — which is why `hover:bg-panel/50`
+was removed rather than left as decoration that measures nothing, and why "just strengthen the
+hover background" is not an available fix.
+
+**The two surfaces end up in opposite places, and an earlier draft of this paragraph got that
+wrong** by saying the new hover edge repays the loss. It does not — the nav has no edge (§2d):
+
+| | before | after | carriers |
+|---|---|---|---|
+| **nav tile** | 2.28 | **1.69** | ink only — the loss stands, unrepaid |
+| **rail key** | *no hover at all* | 1.69 ink **+** a 2px edge | two, where it previously had none |
+
+So the rail gained a hover state it never had, and the nav's got softer. Hover is not a
+WCAG-governed state, so a softer nav hover is a legitimate trade rather than a conformance
+problem — but it is a real regression on that surface and is recorded as one, not as
+something the edge quietly made up for elsewhere.
 
 #### Corrections to earlier figures in this document
 
