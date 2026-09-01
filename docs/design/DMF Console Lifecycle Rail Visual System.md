@@ -39,11 +39,26 @@ row — both named defects, split into #481 (band/centring), #482 (icons), and
 same small key, so specifying them separately risks three uncoordinated
 repaints. This doc specifies them together.
 
-**Status, 2026-08-31: all three are implemented in [dmf-cms#128](https://github.com/dmfdeploy/dmf-cms/pull/128), which is open and
-not yet merged.** Sections 2–5 are written as a **record of what that PR builds and why**,
-rather than as forward specification, because the design changed materially while being
-built — three times, each on evidence. Until that PR merges, this document describes the
-agreed design and its implementation-in-review, not shipped production behaviour:
+**Status, updated 2026-09-01 — two implementations, and they are not the same one.** Read the
+provenance carefully before following any value in here:
+
+- **[dmf-cms#128](https://github.com/dmfdeploy/dmf-cms/pull/128) — merged 2026-08-31, shipped
+  in 0.31.0.** All three companion issues above. This is the baseline: shape, icon set, hue
+  removal, band. Anything in §§2–5 *not* marked as amended describes it, and it is running in
+  production.
+- **[dmf-cms#131](https://github.com/dmfdeploy/dmf-cms/pull/131) — open at the time of
+  writing.** The rail/nav parity amendment ([dmfdeploy/dmfdeploy#512](https://github.com/dmfdeploy/dmfdeploy/issues/512)):
+  40px geometry, shared opaque selected face, shared resting ink, hover, focus-ring rebuild.
+  Everything marked **amended 2026-09-01** is this, and it is **not yet shipped**.
+
+Where the two disagree the amendment wins as *design*, and #128 wins as *what is live* until
+#131 merges. §5.1 in particular now carries #131's 40px values under a section whose
+measurements originally came from #128 — the retired column is kept alongside precisely so
+that distinction stays visible rather than being flattened.
+
+Sections 2–5 are written as a **record of what was built and why**, rather than as forward
+specification, because the design changed materially while being built — three times during
+#128, and again during #131, each on evidence:
 
 1. **Colour was removed from the rail entirely** (§4). It was specified as a per-stage
    identity channel, tried as a fill and then as an edge line, and measured out at
@@ -515,9 +530,13 @@ dark ink reaches 4.5:1. Any future fill must stay out of it.
 
 ## 5. Shape
 
-**Measured, 2026-08-31.** This section previously specified the shape as pending
-measurement. The values below are the ones implemented in [dmf-cms#128](https://github.com/dmfdeploy/dmf-cms/pull/128), taken from a
-real render at the stated conditions — not estimates.
+**Measured, 2026-08-31; rescaled 2026-09-01.** This section previously specified the shape as
+pending measurement. Every value here is taken from a real render at the stated conditions —
+not estimates — but **two implementations contribute and they must not be conflated**: the
+construction, the corner treatment and the two-joint-radii finding come from
+[dmf-cms#128](https://github.com/dmfdeploy/dmf-cms/pull/128) (merged, live in 0.31.0), while
+the 40px column in §5.1, the hover ring and the §5.4 focus ring come from
+[dmf-cms#131](https://github.com/dmfdeploy/dmf-cms/pull/131) (open, not yet shipped).
 
 ### 5.1 Geometry, as built
 
@@ -666,9 +685,16 @@ nothing claiming a number the console cannot verify.
 
 Per the Shell Round Plan: **spec the model now (this doc + the #493 IA
 amendment), build visuals against it, behaviour lands after.** The icon set
-(§3) and the shape (§5) land together in [dmf-cms#128](https://github.com/dmfdeploy/dmf-cms/pull/128), with **no padlock** — see §2a. The
+(§3) and the shape (§5) landed together in [dmf-cms#128](https://github.com/dmfdeploy/dmf-cms/pull/128) (merged 2026-08-31,
+shipped in 0.31.0), with **no padlock** — see §2a. The
 padlock is not scheduled; it returns only once the authorization-denial state
 named in §2a exists, which is future work outside this round's plan.
+
+**A second round followed, unplanned** — [dmf-cms#131](https://github.com/dmfdeploy/dmf-cms/pull/131) /
+[dmfdeploy/dmfdeploy#512](https://github.com/dmfdeploy/dmfdeploy/issues/512), the rail/nav
+parity amendment, open at the time of writing. It came from the operator looking at 0.31.0 on
+a live environment, which is the point §8 makes: the defects that matter here are found by
+looking, and shipping is what produces the look.
 
 ## 8. How this round was verified, and what that cost
 
