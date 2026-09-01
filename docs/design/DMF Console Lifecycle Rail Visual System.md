@@ -187,10 +187,11 @@ redundancy this rail has spent two rounds removing.
 
 > **Amended 2026-09-01 (dmfdeploy/dmfdeploy#512).** This paragraph said "all five keys share
 > one neutral fill" and quoted 5.06:1, for an achromatic invert to `--color-text`. Both are
-> retired: §2d specifies **three state-dependent faces**, and the current selected-vs-resting
-> figure is **3.57:1**. The *argument* survives intact, because what it actually turns on is
-> the face being uniform **across keys within a state** — which is still true, and is the
-> only property the "no ring needed" conclusion ever needed.
+> retired: §2d specifies **two faces** — resting and selected, with hover leaving the face
+> untouched — and the current selected-vs-resting figure is **3.57:1**. The *argument*
+> survives intact, because what it actually turns on is the face being uniform **across keys
+> within a state** — which is still true, and is the only property the "no ring needed"
+> conclusion ever needed.
 
 **Recorded because it nearly shipped:** a draft of this section specified "a persistent ring
 in a fixed neutral tone" facing both the key fill and the page background. No such tone
@@ -518,10 +519,22 @@ per-stage map and the CVD verification apparatus are deleted from the code, not 
 
 **Amended 2026-09-01 (dmfdeploy/dmfdeploy#512).** This paragraph read "all five keys share a
 single neutral fill and a single ink", which was true when the rail's only state was
-selected-or-not. §2d replaced that with a **per-state** model — face, ink and edge each take
-one of three values by state, and all five keys take the *same* value in the *same* state. The
-per-stage ruling is untouched and is what this section is about: identity never varies by
-colour. What varies is state, uniformly across every key.
+selected-or-not. §2d replaced that with a **per-state** model, and the three properties do not
+vary in step:
+
+| property | distinct values | across which states |
+|---|---|---|
+| **face** | **two** | resting and selected. **Hover does not change the face** — on the rail it stays `--color-rail-fill`, and the nav tile has no face at all until it is selected. |
+| **ink** | **three** | one per state |
+| **edge** (rail only) | **two** | invisible at rest and when selected; `--color-selected-face` on hover |
+
+All five keys take the *same* value in the *same* state, which is the property this section
+cares about. The per-stage ruling is untouched: identity never varies by colour. What varies
+is state, uniformly across every key.
+
+> **Do not read "per-state" as three faces.** A hover face is specifically not part of this
+> design — §2d rejects one for the nav, and the rail's hover is carried by ink and edge. The
+> face changes only on selection.
 
 The selected face is a cyan (`--color-selected-face`) shared with the vertical nav. That is
 not per-stage colour returning by the back door — it says "this one is selected", the same
