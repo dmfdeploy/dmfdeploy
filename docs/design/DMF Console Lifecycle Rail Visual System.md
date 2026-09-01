@@ -1,6 +1,11 @@
 # DMF Console — Lifecycle Rail Visual System
 
-**Status:** **Design spec** (2026-08-30).
+**Status:** **Design spec** (2026-08-30; amended 2026-09-01).
+**The rail and the vertical nav are now one visual system — see §2d**, which supersedes the
+achromatic-invert selection this doc originally specified and the two-tone focus stroke in
+§5.4. Tracking issue
+[dmfdeploy/dmfdeploy#512](https://github.com/dmfdeploy/dmfdeploy/issues/512).
+Everything not marked as amended still stands.
 **Governs three companion issues — land here from any of them:**
 [dmfdeploy/dmfdeploy#481](https://github.com/dmfdeploy/dmfdeploy/issues/481)
 (own band, horizontally centred, no indicators in the band),
@@ -84,7 +89,7 @@ The three facts are **identity**, **selection**, and **actionable count**:
 |---|---|
 | **Icon** (filled, per stage) | stage identity — the primary carrier. See §3 for the set. |
 | **Label** (bare EBU stage name) | stage identity — always visible, never abbreviated. |
-| **Luminance / fill** (achromatic invert) | selection ("am I looking at this one") — **see §2c** |
+| **Luminance / fill** (opaque selected face, shared with the nav) | selection ("am I looking at this one") — **see §2c**, amended 2026-09-01 |
 | **Badge** | count of actionable items. **Absence of badge = nothing actionable — but only once the channel is live; see §2b.** |
 
 **There is no colour channel on this rail.** Every key shares one neutral fill. Identity
@@ -104,9 +109,11 @@ this workload" should mean is the Badge's job, once #495 makes it real.
   six treatments that must all survive greyscale.
 - **Hue as stage identity, in any form** — as a key fill, then as a 3px bottom-edge line.
   §4 has the measurements.
-- **A dedicated selection ring.** Once every key shares one neutral fill, the achromatic
-  invert measures **5.06:1 uniformly across all five keys** — identical by construction —
-  so a ring adds nothing. It was necessary only while hue made the fill-invert unreliable.
+- **A dedicated selection ring.** Once every key shares one neutral fill, selection measures
+  uniformly across all five keys — identical by construction — so a ring adds nothing. It was
+  necessary only while hue made the fill-invert unreliable. *(The mechanism became an opaque
+  shared face rather than an achromatic invert on 2026-09-01; the reason a ring is
+  unnecessary is unchanged, since it rests on the fill being uniform, not on which fill.)*
 
 ### 2c. Why hue left the rail, and why selection needs no ring
 
@@ -152,10 +159,14 @@ page background.
 
 The ring existed to give selection a carrier independent of the hue ramp. **Once hue left
 the rail (§4), the problem it solved ceased to exist.** All five keys share one neutral
-fill, so the achromatic invert measures **5.06:1 uniformly on every key** — identical by
-construction, not by tuning. A ring on top of that would be a second signal for a fact
-already unambiguously carried, which is the redundancy this rail has spent two rounds
-removing.
+fill, so selection measures **uniformly on every key** — identical by construction, not by
+tuning. A ring on top of that would be a second signal for a fact already unambiguously
+carried, which is the redundancy this rail has spent two rounds removing.
+
+> **Amended 2026-09-01 (dmfdeploy/dmfdeploy#512).** The figure here was 5.06:1, for an
+> achromatic invert to `--color-text`. That mechanism is retired — see §2d — and the
+> current selected-vs-resting figure is **3.57:1**. The *argument* is untouched: it turns
+> on the fill being uniform across keys, not on which fill it is.
 
 **Recorded because it nearly shipped:** a draft of this section specified "a persistent ring
 in a fixed neutral tone" facing both the key fill and the page background. No such tone
@@ -168,12 +179,105 @@ opposite directions is the same trap every time.**
 #### What survives from that analysis
 
 The **focus ring** is still outset, so it genuinely does face the page background and the
-neighbouring key, and it still uses a **two-tone stroke** — an inner band in the
-page-background tone, an outer band in the text tone — so that whatever it crosses, one of
-the two has contrast. With a single neutral fill the argument is simpler than it was: there
-is one fill to clear, not five. §4.4's floors are what make it hold, and the
-implementation comment states that argument in its current form rather than the retired
-per-hue one.
+neighbouring key. With a single neutral fill the argument is simpler than it was: there is
+one fill to clear, not five. §4.4's floors are what make it hold. *(The two-tone stroke this
+paragraph used to describe is retired and was never producing two visible tones — see §5.4,
+amended 2026-09-01.)*
+
+### 2d. The rail and the vertical nav are one system (amendment, 2026-09-01)
+
+**Tracking issue: [dmfdeploy/dmfdeploy#512](https://github.com/dmfdeploy/dmfdeploy/issues/512).
+Landed in [dmf-cms#131](https://github.com/dmfdeploy/dmf-cms/pull/131).**
+
+Found by the operator reviewing the shipped rail against a real provision run: the rail
+worked, and did not look like it belonged to the same application as the nav beside it. Key
+height, icon size, selection treatment and ground all differed. This section records what
+replaced the achromatic invert and why the obvious fix was not available.
+
+Three states, identical in the rail and the nav, driven by **two shared tokens** rather than
+two sets of literals that happen to agree:
+
+| state | face | ink | edge (2px) |
+|---|---|---|---|
+| resting | `--color-rail-fill` | `--color-resting-ink` | held at the face colour — no visible ring |
+| hover | `--color-rail-fill` | `--color-text` | `--color-selected-face` |
+| selected | `--color-selected-face` | `--color-bg` | held at the face colour — no ring |
+
+Token values: `--color-rail-fill` `#2c2c2e` (was `#616161`), `--color-selected-face` `#58879e`,
+`--color-resting-ink` `#b4b4b8`. `--color-rail-edge` is **retired**. The band's ground moved
+from `--color-bg` to `--color-sidebar`, which is what merges it with the nav.
+
+**Hover on the rail is new** — it had none. The hover edge is deliberately the *selected*
+colour, not the accent, so hovering previews what selecting looks like and the accent stays
+reserved for focus.
+
+#### Why not simply copy the nav's tint
+
+Copying `bg-accent/20 text-accent` would have imported a defect. The nav's selected tile
+measures **1.49:1** against its own resting state — under 1.4.11's 3:1 floor, and the same
+shape of defect §2c documents: correct in the accessibility tree, invisible on screen.
+
+Raising the alpha fixed the state change and broke a check nobody had run. At 55% the rail's
+label measured **2.34:1** against its own tint, against 1.4.3's 4.5:1 floor. That is
+structural, not a tuning miss. With the darker resting face, a *lighter* selected face must
+satisfy two clauses at once:
+
+```
+state change >= 3:1     =>  Y_selected >= 0.176
+white-ish text >= 4.5:1 =>  Y_selected <= 0.141
+```
+
+Empty interval — the same shape of result as §2c's disjoint-bands finding, and the second
+time this rail has produced one. Going darker is worse: the resting face is already so dark
+that no darker selected face clears 3:1 against it at all. **Inverting the ink rather than
+chasing the face is what resolves it.**
+
+An alpha tint also composites differently over each surface's substrate — the rail's over the
+key face, the nav's over the sidebar ground — leaving the two **ΔE2000 4.63** apart while
+sitting adjacent. One opaque literal in both places makes it **0.00** by construction. That is
+the actual reason the face is opaque; the contrast is a constraint, the shared literal is the
+point.
+
+#### Measured, on a real render
+
+```
+rail label vs selected face .......  5.06   (1.4.3,  floor 4.5)
+sidebar icon vs selected face .....  5.06   (1.4.11, floor 3.0)
+rail selected vs resting face .....  3.57   (1.4.11, floor 3.0)
+sidebar selected vs its ground ....  4.86   (1.4.11, floor 3.0)
+rail resting label ................  6.74   (1.4.3,  floor 4.5)
+sidebar resting icon ..............  9.20   (1.4.11, floor 3.0)
+hover edge vs band ................  4.86
+focus ring, all four combinations . 15.53
+CIEDE2000, rail face vs nav face ..  0.00
+```
+
+The rail is also substantially calmer than the version that prompted the report: selected face
+L\* **92 → 54**, resting face L\* **41 → 18**.
+
+#### The resting keys ship with no visible outline, deliberately
+
+Resting silhouette is **1.36:1** against the band. That is conformant because 1.4.11 governs
+the visual information *required to identify* the control, and these keys carry visible text
+labels at 6.74:1 — **not** because 1.36 clears anything. Stated here and in the source so a
+later reader does not read a missing outline as an oversight and restore one.
+
+#### A trade taken, not discovered
+
+Raising the nav's resting ink cost its hover delta, **2.28 → 1.69**, because hover was carried
+entirely by the ink brightening. A background cannot substitute: opaque `--color-panel`
+measures **1.03:1** against `--color-sidebar`, so no alpha of it does anything, and
+`hover:bg-panel/50` was removed rather than left as decoration that measures nothing. The new
+hover edge repays it — hover now has two carriers where it had one.
+
+#### Corrections to earlier figures in this document
+
+- The **2.76:1** figure quoted during this round for the shipped nav icon was wrong. It
+  described a mid-build 55%-alpha variant that never shipped. The shipped icon measures
+  **7.50:1** and was never a defect. The real shipped weakness is narrower: a 1.52:1 tile lift
+  and a 1.68:1 icon luminance change — a state change carried mostly by hue.
+- Alpha figures derived by naive sRGB interpolation run **~0.04 optimistic**, because
+  Tailwind v4 composites in OKLab. Moot for what shipped, since the selected face is opaque.
 
 ### 2b. Badge-absence carries no meaning until the channel is live
 
@@ -392,16 +496,28 @@ real render at the stated conditions — not estimates.
 
 ### 5.1 Geometry, as built
 
-On a **28px-tall** key at the shared column width (166.09px measured, `devicePixelRatio: 1`,
-no zoom), with a **3.00px** inter-key gap:
+**Amended 2026-09-01 (dmfdeploy/dmfdeploy#512).** The key height went 28 → 40px to match the
+vertical nav's own `h-10 w-10` tile, and every value below is derived from height rather than
+re-chosen, so the proportions are the ones already approved. The 28px column is kept because
+the ratios are the durable part; a future rescale should reproduce them, not re-guess.
 
-| feature | value |
-|---|---|
-| notch depth (tip protrusion and tail inset alike) | **12px** |
-| apex radius — arrow tip *and* notch apex | **5px** |
-| outer terminal radius (Design's left, Finalise's right) | **6px** |
-| joint radius, tip side | **6px** |
-| joint radius, notch side | **8px** |
+On a **40px-tall** key at the shared column width, with a **3.00px** inter-key gap (a layout
+constant, never derived from height):
+
+| feature | 28px (retired) | **40px (current)** |
+|---|---|---|
+| notch depth (tip protrusion and tail inset alike) | 12px | **17px** |
+| apex radius — arrow tip *and* notch apex | 5px | **7px** |
+| outer terminal radius (Design's left, Finalise's right) | 6px | **8px** |
+| joint radius, tip side | 6px | **9px** |
+| joint radius, notch side | 8px | **12px** |
+| icon | 14px | **20px** |
+| content offset on notched keys (`notch / 2`) | 6px | **8.5px** |
+| hover ring inset | — | **2px** |
+
+**The icon size is not an independent choice.** It is 50% of key height in both the rail and
+the nav tile, so matching the height matched the icon automatically — 14px in a 28px key and
+20px in a 40px tile are the same ratio.
 
 **The two joint radii differ deliberately.** The tip-side joint (flat edge meeting the
 outgoing diagonal) is obtuse, ~120°; the notch-side joint is acute, ~77°. **At equal radius
@@ -414,7 +530,9 @@ apexes, and not the four diagonal-to-flat joints — those four were the last to
 were the most visible once everything else was smooth.
 
 **Terminals are rounded-square, not pill.** A radius of half the height reads as a tab or
-chip; on a 28px control that lands on the toy side of "friendly, not toy".
+chip; on a 28px control that lands on the toy side of "friendly, not toy". The 40px rescale
+does not change this — the terminal radius is 8px against a 20px half-height, so it stays
+clearly square-ish.
 
 ### 5.2 Construction
 
@@ -453,14 +571,38 @@ the notch existed.
 
 **The ring lives on the unclipped element; only an inner layer carries the clip.** `clip-path`
 clips a focus outline away silently, and `filter: drop-shadow()` follows the silhouette but
-dies under Windows forced-colors.
+dies under Windows forced-colors. That part is unchanged and remains the load-bearing
+constraint.
 
-It is a **two-tone stroke** — an inner band in the page-background tone, an outer band in the
-text tone — so it has contrast against both the key fill and the page. A single-tone outline
-in the ink colour was tried and left the ring invisible against the page background on the
-lighter keys (1.10:1 and 1.00:1). Total outward reach stays inside the 3.00px inter-key gap so
-a focused key never touches its neighbour. `outline` survives forced-colors and is recoloured
-by the OS; `box-shadow` drops out — so the outline alone must remain a working indicator.
+**Amended 2026-09-01 (dmfdeploy/dmfdeploy#512) — the two-tone stroke is retired, and it did
+not work.** This section previously specified a two-tone stroke: an inner band in the
+page-background tone, an outer band in the text tone, on the reasoning that whatever the ring
+crossed, one of the two would have contrast. An adversarial review found the reasoning is
+geometrically unsound, and the implementation it described was broken in one state:
+
+- The ring was `outline-current` at `outline-offset: 0`, so the 2px outline occupied the
+  **0–2px outward band**. Both `box-shadow` strokes are zero-offset zero-blur spreads
+  occupying that **same** band, and an outline paints **above** outer box-shadows. The
+  outline therefore *occluded* both tones rather than sitting between them — there was never
+  a visible sandwich, only the outline.
+- `currentColor` is the ink, and after this round the selected key's ink is dark
+  (`--color-bg`). So on a **selected, keyboard-focused** key every exposed stroke was dark on
+  a near-black band — roughly **1.04:1**. The operator state most likely to need a focus
+  indicator was the one state that had none.
+
+**Now: a single unconditional outline in the text tone** (`outline-text`, 2px, offset 0), with
+no `box-shadow`. It cannot follow the ink, so no ink change can darken it. Measured
+**15.53:1** in all four selected × focused combinations, and it clears 3:1 against every
+adjacent surface — the band (15.54:1), the resting face (11.39:1) and the selected face
+(3.19:1).
+
+Total outward reach stays inside the 3.00px inter-key gap so a focused key never touches its
+neighbour. `outline` survives forced-colors and is recoloured by the OS — which is now the
+whole mechanism rather than half of it, so there is no longer a second stroke to lose.
+
+> **The generalisable part:** the earlier ruling was reasoned from the CSS box model rather
+> than measured on a render, and it was wrong about paint order. Two agents and this document
+> all repeated it. A ring's *stated* composition is not evidence about the pixels it produces.
 
 ### 5.5 Badge
 
