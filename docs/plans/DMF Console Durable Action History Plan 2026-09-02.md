@@ -206,7 +206,7 @@ in fact succeeded. The spec's own mapping table governs:
 |---|---|---|
 | **Watched actions** — deploy, teardown, rollback, finalise-purge (`_WATCHED_ACTIONS`) — at `outcome=launched`/`dispatched` | **acceptance only.** AWX took the job, a watcher attached, *nothing about the run is known yet* | in flight — **never** a verdict |
 | **switch-source** — runs **synchronously** before the audit line is written | **terminal.** `active` → `succeeded`; `failed_rollback_required` → `failed`; a `SwitchSourceError.code` → `failed` | a real outcome |
-| **Any precondition/validation refusal**, any action (`capacity-denied`, `facility-busy`, `template-not-found`, `awx-not-configured`, `awx-error:<status>`) | **terminal.** The action did not happen, full stop | `failed`, with the raw string as detail |
+| **Any precondition/validation refusal**, any action (`capacity-denied`, `facility-busy`, `template-not-found`, `awx-not-configured`, `awx-error:<status>`) | **terminal.** The action did not happen, full stop | `failed` — **plain-language copy at default; the raw string is expert-only.** See §4.5 |
 | **`launch`** | **explicitly unresolved by the spec** — its sync branch's `launched` may map to `succeeded` or `in-progress`, and the spec forbids answering by analogy to the watched actions | **do not claim either.** Show it without a verdict |
 
 > **This is the good news in the round.** Switch-source already carries a true
@@ -218,6 +218,35 @@ in fact succeeded. The spec's own mapping table governs:
 **What genuinely has no outcome is the watched actions.** For those the watcher
 updates `OperationStore` and emits no audit event, so the lane says **actions
 taken**, not results — and must not imply completion.
+
+### 4.5 Disclosure split — raw errors are expert-only
+
+The spec resolves this (§ *Disclosure split — expert vs. default*), quoting
+Constitution **Art. 8** verbatim: *"Raw/system errors never leak at default.
+Every default error tells the operator three things: what happened, what it
+means for the facility, and what to do next (or who to call). Raw detail is
+available at expert level only."*
+
+**This read path must not become the leak.** The parsed record carries exactly
+the strings the split makes expert-only — `awx-error:<status>`, `awx-not-configured`,
+`template-not-found`, and any `downstream_refs` — so rendering `outcome_detail`
+straight into the lane would breach it by default.
+
+| Level | Shows |
+|---|---|
+| **Default** | `action`, `target`, plain-language `outcome`, `reason` — plus, for a failure, **what happened, what it means for the facility, and what to do next** |
+| **Expert** | the raw `outcome` error class/message, `downstream_refs`, AWX job-event text |
+
+**One record backs both views** (Art. 1: *one truth, two resolutions, never two
+records*) — expert detail is a transform layered on the same row, never a second
+row or a second query. Design the default rendering first; the expert view is
+the addition.
+
+> **The mapping from raw class to operator-facing copy is required work in this
+> round, not a follow-up.** Without it there are only two options at default —
+> leak the raw string, or show a failure with no explanation — and both are
+> defects. `facility-busy` is *"another operation is using this facility; wait
+> for it to finish"*, not `facility-busy`.
 - The window is **7 days** — not the 30 the spec currently mandates
   (dmfdeploy/dmfdeploy#530, must be resolved before this ships). Derive it from
   deployed retention rather than hardcoding.
@@ -265,10 +294,15 @@ Freeze 1 names no durable-audit non-goal.
 
 1. An action performed in browser A is visible in a fresh browser B. *(§1)*
 2. **`outcome=` is rendered per action, per §4.4's table** — switch-source shows a
-   real terminal verdict (`succeeded`/`failed`) with its raw `SwitchStatus` as
-   detail; watched-action `launched`/`dispatched` shows as in flight and never as
-   completion; refusals show as `failed`; `launch` shows no verdict. A blanket
-   rule in either direction fails this criterion. *(§4.4)*
+   real terminal verdict (`succeeded`/`failed`); watched-action
+   `launched`/`dispatched` shows as in flight and never as completion; refusals
+   show as `failed`; `launch` shows no verdict. A blanket rule in either direction
+   fails this criterion. *(§4.4)*
+2a. **No raw system error string appears at default level** — not
+   `awx-error:<status>`, not `awx-not-configured`, not any `downstream_refs`. Each
+   failure shows what happened, what it means for the facility, and what to do
+   next; the raw class is reachable only at expert level, off the same record.
+   *(§4.5)*
 3. **Auto-rollback events appear**, resolved via the `linked_request_id` join —
    proving both that the query did not filter on the audit logger *(§4.1)* and
    that the join survives the authorization projection *(§4.3)*. Operator-initiated
