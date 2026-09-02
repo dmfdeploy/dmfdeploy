@@ -204,23 +204,33 @@ Before you begin: confirm the facility is clean (ask the operator, or check
 yourself once logged in — Media Workloads will tell you). If a prior deploy
 is still standing, resolve it before the journey; **a successful Teardown
 is now confirmed, not just mapped from source, to remove every piece —**
-verified server-side against a pre-run baseline (§6a). What's still open is
-narrower than before: whether Design's own read on a fresh visit actually
-re-offers "Use this template" once every member lands on `bootstrapped` —
-the tag mapping predicts it will, but that specific round trip wasn't
-re-walked this round; confirm it on the next live walk (§9) before
-promising it on camera.
+verified server-side against a pre-run baseline (§6a). **Updated
+2026-09-02: the tag-mapping prediction below it is now also confirmed, not
+just predicted** — this round revisited Design after a real Teardown and
+"Use this template" was re-offered, un-gated, exactly as the mapping said
+it would (full detail in §6a; this line used to say the round trip "wasn't
+re-walked" and pointed at §9 — that was true through 0.24.0 and is fixed
+here now that it's been walked).
 
-**(Table-row status, precisely: the clean-inventory row is confirmed live.
-The AWX-asleep-at-rest row's underlying fact is confirmed too, indirectly
-— §6c's live walk watched AWX reach 0/0 at rest — though this exact row
-wasn't re-clicked-through as a pre-flight check. The demo-persona-role row
-is new this round, not carried forward from a previous edition — it's
-source-verified against the actual gating code (§0's own writeup below),
-not watched live. The remaining three rows — cluster reachable, console
-healthy, passkeys enrolled — are genuinely carried forward from the
-previous edition and were not independently re-checked; confirm those on
-the next live walk, §9.)**
+**(Table-row status, precisely, as of 2026-09-02.** The clean-inventory row
+is confirmed live this round (the string itself changed — §0's table
+above). Cluster-reachable and console-healthy were both independently
+re-checked this round (`curl` returned `HTTP/2 200`; the console loaded
+with no 5xx). The AWX-asleep-at-rest row's underlying fact is confirmed
+too, but only as of 0.24.0 — §6c's live walk that round watched AWX reach
+0/0 at rest; this round didn't have cluster access to re-check it (§9). The
+demo-persona-role row: source-verified against the gating code since
+0.24.0 (not watched live then), and this round's own persona (see §1's
+gap note) was independently observed live holding the engineer role via
+its topbar avatar colour — so the row is now doubly grounded, live and by
+source, just for a persona this file doesn't name. **Passkeys-enrolled has
+a real gap, not just an omission:** this round did run the enrollment
+check, but against `marty-mcfly` — the file's own example persona name —
+while the actual walk logged in as a *different*, already-authenticated
+account. The check that ran and the account that walked were not the same
+account. Treat passkeys-enrolled as still unconfirmed for whichever persona
+you actually use, and see §1 for why login itself wasn't independently
+walked either.)
 
 **Two operational gotchas learned since the last edit of this file** (from
 [#379](https://github.com/dmfdeploy/dmfdeploy/issues/379)'s own scope — not
@@ -324,11 +334,32 @@ second workload, on camera or off it.**
 ## 1. Log in
 
 Passkey **enrollment must be done beforehand** — the persona needs 2/2
-confirmed devices before you start. That is §0's own pre-flight check; this
-rewrite's live walk started from an already-logged-in session, so treat this
-beat as *(carried forward)* until it's independently confirmed. The full
-ceremony lives in [`passkey-enrollment.md`](passkey-enrollment.md). This beat
-is just the login, on the assumption that check already passed.
+confirmed devices before you start. That is §0's own pre-flight check. The
+full ceremony lives in [`passkey-enrollment.md`](passkey-enrollment.md).
+This beat is just the login, on the assumption that check already passed.
+
+**VERIFICATION GAP, stated plainly rather than left implicit: no round of
+this file has independently walked the actual login ceremony.** The 0.24.0
+walk started from an already-logged-in session. The 2026-09-02 walk did
+too, and found one already authenticated in the operator's own browser —
+neither round clicked **Sign in** and completed a fresh WebAuthn ceremony.
+The **Action** and the first sentence of **Expected result** below (landing
+on Workspace, no password typed) are therefore still *(carried forward)*,
+unconfirmed by any live walk to date — not merely unmentioned, genuinely
+untested. This isn't a gap either round could easily have closed: WebAuthn
+needs a physically present human for the Touch ID / security-key touch, so
+an agent-driven walk (this file's last two rounds) inherits an existing
+session rather than performing the ceremony, the same constraint that rules
+out headless/CI login entirely. Filed as
+[dmfdeploy/dmfdeploy#535](https://github.com/dmfdeploy/dmfdeploy/issues/535)
+so the next walker knows to plan for it (e.g. run this one beat by hand)
+rather than hit the same wall cold.
+
+**What IS independently confirmed live 2026-09-02, distinct from the login
+act itself: the steady-state UI once authenticated.** This round observed
+the following directly, on the console, under an inherited session — real
+observations of the app's current state, just not caused by watching a
+fresh login happen:
 
 **Action.** Open `https://console.<env-base-domain>/` in a private/incognito
 window. Click **Sign in**. The browser offers the passkey picker; choose the
@@ -336,17 +367,21 @@ demo persona's authenticator and complete the WebAuthn ceremony — the
 standard passkey handshake, no typing involved (Touch ID / security-key
 touch).
 
-**Expected result — confirmed live 2026-09-02.** You land on the Console
+**Expected result — the login act itself is *(carried forward)*, per the
+gap noted above. What follows about the resulting screen IS confirmed live
+2026-09-02, independent of how you got there.** You land on the Console
 **Workspace** home as the demo persona (a fictitious demo identity, e.g.
-`marty-mcfly` — never a real operator name). No password was typed. The left
-rail is **permanently icon-only** — three icons (Workspace, Facilities, Media
-Workloads), no text labels at all; hover or keyboard-focus an icon to see its
-name as a tooltip. A page's own name lives in the **topbar breadcrumb**, not
-the rail — the same pattern the workload's own pages use (§4). **Admin**
-appears as a fourth icon, below a divider, only if the persona is an admin.
-**There is no Catalog icon** — the page still technically exists in the app,
-but nothing links to it any more, and this journey never visits it (see §2
-for where its job moved). The topbar's own avatar (top-right, initials in a
+`marty-mcfly` — never a real operator name). No password was typed *(this
+specific claim is carried forward along with the rest of the login act)*.
+The left rail is **permanently icon-only** — three icons (Workspace,
+Facilities, Media Workloads), no text labels at all; hover or
+keyboard-focus an icon to see its name as a tooltip. A page's own name
+lives in the **topbar breadcrumb**, not the rail — the same pattern the
+workload's own pages use (§4). **Admin** appears as a fourth icon, below a
+divider, only if the persona is an admin. **There is no Catalog icon** —
+the page still technically exists in the app, but nothing links to it any
+more, and this journey never visits it (see §2 for where its job moved).
+The topbar's own avatar (top-right, initials in a
 role-coloured circle — purple for engineer) opens a disclosure with the
 persona's display name/email, **Settings**, and **Logout**.
 
@@ -746,11 +781,15 @@ sentence: watch here, act on the guided flow.
   **"source-a (smpte)"** and **"source-b (checkers-8)"**. A separate section
   immediately below it, **"Request a configuration change"**, carries a
   **"Go to Configure →"** link — that's your way to §5.
-- **New since 0.24.0, confirmed live 2026-09-02:** a tile whose browser tab
-  has lost foreground visibility shows **"Paused — tab not visible"** next
-  to its sidecar caption — the Page Visibility API pausing the preview poll
-  to save resources. Don't read a paused tile as broken if you've tabbed
-  away mid-demo; bring the tab back to the foreground and it resumes.
+- **New since 0.24.0, the string itself confirmed live 2026-09-02:** a tile
+  whose browser tab has lost foreground visibility shows **"Paused — tab
+  not visible"** next to its sidecar caption. (The mechanism named here —
+  the Page Visibility API pausing the preview poll to save resources — is
+  the obvious read of that string and consistent with it, but is inferred,
+  not confirmed against source or by deliberately toggling tab visibility
+  and watching the poll stop; don't cite it as a source-checked fact.)
+  Don't read a paused tile as broken if you've tabbed away mid-demo; bring
+  the tab back to the foreground and it resumes.
 
 **Confirmed live 2026-09-02 (previously carried forward, unconfirmed).**
 Clicking a tile opens a larger live-detail modal with the same nine
@@ -758,12 +797,17 @@ flow-stat fields as before — head index, latency, format, grain rate, role,
 provider, MXL version, Active, and Node (NetBox) — still ticking roughly
 5×/s while open, copy unchanged.
 
-**A lifecycle-stage badge does exist, and this round observed three
-different values of it, all on the guided-flow (`/setup`) page's own
+**A lifecycle-stage badge does exist, and this round independently observed
+three different values of it, all on the guided-flow (`/setup`) page's own
 header** — **"provisioned"** (right after Provision, §3), **"configured"**
-(after a successful Switch, §5), and **"planned"** (post-Teardown, §6a); a
-fourth, **"finalizing"**, appears while a Finalise & Review job is actually
-running (§6a). Whether an equivalent badge also appears on **this** page —
+(after a successful Switch, §5), and **"planned"** (post-Teardown, §6a). A
+fourth value, **"finalizing"**, is documented separately (§6a) as appearing
+while a Finalise & Review job is actually running — **that one is carried
+forward from 0.24.0 specifically, not re-observed this round**: this
+round's own Teardown was polled for exactly that string, among others, and
+it never matched in any poll iteration, so treat it as unconfirmed since
+0.24.0 rather than reconfirmed. Whether an equivalent badge also appears on
+**this** page —
 the bare-slug live view — is still not confirmed either way; the previous
 edition's guessed "planned" / "provisioned" / "configured" vocabulary for
 the live view specifically turns out to match real values observed
@@ -911,10 +955,15 @@ tracked the panel's own status text instead, not this specific exit-link
 string); given that §3's equivalent Provision string dropped its own
 "wait for its outcome" clause between 0.24.0 and 0.33.0 (§3), treat this
 one as **likely also stale** and confirm on the next walk (§9) before
-quoting it on camera. During this window the workload's lifecycle badge
-reads **"finalizing"** (genuinely American spelling — an inconsistency with
-the British "Finalise" used everywhere else on this same page, not a
-transcription error in this runbook) — unchanged, reconfirmed 2026-09-02.
+quoting it on camera. During this window the workload's lifecycle badge is
+documented (0.24.0) as reading **"finalizing"** (genuinely American
+spelling — an inconsistency with the British "Finalise" used everywhere
+else on this same page, not a transcription error in this runbook). **Not
+independently re-confirmed 2026-09-02**, despite an earlier draft of this
+edit claiming it was: this round's own Teardown was polled repeatedly for
+exactly this string among others, and it never appeared in any poll's
+captured text — either the polling window missed it, or it's changed.
+Treat as carried forward from 0.24.0 only; confirm on the next walk (§9).
 **Duration: 90–120 s (0.24.0 sample), 167 s (2026-09-02 sample) — widen the
 range to ~90–170 s**, not a promise either way.
 
@@ -1015,10 +1064,16 @@ Teardown's `media-finalise-<catalog-entry>`), and only declares success once
 a fresh read confirms every member **and** the workload's own tag are gone.
 
 During the job, the panel reads, verbatim: **"Deleting `<slug>`
-permanently…"**, plus an operation-id line reading **"op `<id>`... —
-running"** (the id truncated to its first 8 characters). Both re-confirmed
-byte-identical 2026-09-02. **Duration: 30–60 s (0.24.0), ~62 s (2026-09-02)
-— right at the edge of the same range, leave it as-is.**
+permanently…"** — this specific line re-confirmed byte-identical 2026-09-02
+(matched directly in this round's own poll output). It's also documented
+as showing an operation-id line, **"op `<id>`... — running"** (the id
+truncated to its first 8 characters) — **that specific line was not
+independently re-captured this round**: this round's poll pattern included
+it, but it never matched, unlike Provision's own op-id line (§3), which
+did. Possibly just missed by the poll's timing; treat as carried forward
+from 0.24.0 for the op-id line specifically, confirmed for the "Deleting…"
+line. **Duration: 30–60 s (0.24.0), ~62 s (2026-09-02) — right at the edge
+of the same range, leave it as-is.**
 
 After completion, the page reads, verbatim, **"Workload not found"** at the
 same `/setup` URL, with a companion line — quoted here with single quotes
@@ -1239,29 +1294,55 @@ re-watched, as each case actually is), and this list exists so the next live
 walk has one place to start rather than a re-read of the whole file.
 
 **Closed this round** (kept here only as a record of what the 2026-09-02
-walk resolved, not as open items): §1's login/rail claims; §2's Design step
+walk resolved, not as open items): §1's rail/topbar claims specifically
+(icon-only rail with exactly three items, each with an accessible name;
+Admin-icon gating; avatar disclosure) — **not** the login act itself, which
+stays open (below), and **not** the specific claim that a hover/keyboard-
+focus tooltip renders: this round confirmed each rail icon has an
+`aria-label` (Workspace/Facilities/Media Workloads), which is what a
+screen reader announces, but did not confirm those icons also carry a
+`title` attribute or a custom hover popup — an accessible name existing
+isn't proof a *visible* tooltip appears on hover. Left open below too.
+§2's Design step
 template summary painting correctly on a live Design step; §4's live-detail
 modal (still 9 fields, still ~5×/s); §6a's Design-re-offers-"Use this
 template" round trip after Teardown. The §4 false-catalog-warning item is
 also closed, but not the way hoped — it's back, confirmed, and now a filed
 issue plus a corrected presenter note (§4) rather than a deferred check.
 
+- §1 — **The login beat's actual WebAuthn ceremony has never been
+  independently live-walked, by any round to date** — every walk so far,
+  this one included, started from an already-authenticated session. See
+  §1's own gap note and
+  [dmfdeploy/dmfdeploy#535](https://github.com/dmfdeploy/dmfdeploy/issues/535).
+  This is the single most important open item in this list: it's the very
+  first beat a genuine outsider (#383) would hit.
+- §1 — Whether the rail's per-icon tooltip is a real, visible hover/focus
+  popup (not just an `aria-label` a screen reader announces) — this round
+  confirmed the accessible name, not the visible affordance.
 - §3 — Watch the pods/instances for the receiver and both sources
   actually converge to Running via the cluster itself (`kubectl get pods`),
   not just via the console's own screens. Still not done by any round —
   needs a walk run from a machine with cluster/SSH access.
 - §4 — A lifecycle-stage badge is confirmed to exist on the `/setup` page,
-  and this round observed four values there (`provisioned`, `configured`,
-  `planned`, `finalizing`) — confirm whether an equivalent badge also
+  and this round independently observed three values there (`provisioned`,
+  `configured`, `planned`) — confirm whether an equivalent badge also
   appears on the bare-slug **live view** itself, and if so whether it uses
   the same vocabulary. Still open — this round didn't specifically check
   the bare-slug page's own header for a badge.
-- §6a — Teardown's own in-flight exit-control string is still only
-  documented from 0.24.0 (*"View live — A Finalise & Review job is in
-  progress — wait for its outcome."*) — this round didn't re-capture it,
-  and given Provision's twin string dropped its own "wait for its outcome"
-  clause between 0.24.0 and 0.33.0, treat it as likely stale. Confirm the
-  live wording on the next walk before quoting it on camera.
+- §4/§6a — The fourth badge value, **"finalizing"**, and Teardown's own
+  in-flight exit-control string (*"View live — A Finalise & Review job is
+  in progress — wait for its outcome."*) are both still only documented
+  from 0.24.0 — this round's own Teardown was polled for both and neither
+  matched in any poll iteration. Given Provision's twin exit-control string
+  dropped its own "wait for its outcome" clause between 0.24.0 and 0.33.0,
+  treat both as likely stale, not just unconfirmed. Confirm the live
+  wording on the next walk before quoting either on camera.
+- §6a — Delete permanently's own in-flight operation-id line (*"op `<id>`...
+  — running"*) is likewise only documented from 0.24.0 — this round
+  confirmed the "Deleting `<slug>` permanently…" line directly but never
+  captured the op-id line specifically, unlike Provision's own (§3), which
+  this round did capture. Confirm on the next walk.
 - §6c/§6d — Re-confirm AWX's own replica count actually returns to 0/0
   after a burst of jobs (Provision, Switch, Teardown, Delete permanently) —
   confirmed on the 0.24.0 walk, not independently re-checked 2026-09-02
