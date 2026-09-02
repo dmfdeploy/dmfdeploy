@@ -139,9 +139,20 @@ than argued in prose.
 ### 4.3 Authorization — and the target field is not uniform
 
 **Decision (operator, 2026-09-02): show events whose target the user is already
-authorized to read**, reusing the existing per-workload read check. No new
-permission model. Applied **server-side after the parse**, never by widening the
-selector.
+authorized to read.** No new permission model. Applied **server-side after the
+parse**, never by widening the selector.
+
+> **Corrected 2026-09-02: there is no existing per-workload read check to reuse.**
+> This sentence previously said there was. What the source actually offers is
+> `_require_min_role` (role tier), `_require_media_workloads_access` (surface
+> role/group), `MediaTenancySettings.tenants_for` (group → tenant mapping), and the
+> tenant-scoped service filtering in `media_workloads._fetch_services` — which fails
+> closed to empty when nothing maps. None of these is a per-record read check keyed on
+> an audit row's target. **The parent Audit and Event-Log Spec also leaves binding
+> rendered authorization to records open.** So the operator's decision stands, and the
+> projection from a record's target to a user's scope is **open work in this round**,
+> not a lookup of something already built. Treat it as a security contract to settle,
+> and say which surface you bound it to.
 
 > **`target` is not always a workload slug**, and assuming it is would silently
 > drop rows. **`rollback` and auto-rollback carry a run ID** (`main.py:5168`,
@@ -150,18 +161,101 @@ selector.
 > unresolvable rows while also requiring auto-rollback rows to appear, which is
 > self-contradictory.
 
+#### What the fields actually contain — enumerated, not assumed
+
+**Corrected 2026-09-02 (orchestrator), after this section's original claim failed
+against the emitter.** It read: *"Normal actions (deploy, teardown, switch, purge,
+clear) — `workload=` is populated on dispatch (`main.py:4794`, `:4936`)."* **Of the 94
+`_audit_awx_write` call sites, 7 pass `workload=` at all: 2 `deploy` sites — precisely
+the two lines that claim was citing — and 5 `switch-source` sites, which pass a
+*source*.** Every other site, including all 14 `teardown` and all 18 `finalise-purge`,
+omits it. The emitter's own docstring says so directly: *"an optional trailing field,
+blank when omitted, so existing callers (launch, teardown) need no changes."*
+
+Every call site, by what it passes. **These are source-level argument counts — which
+sites pass the argument, not whether the value arrives populated.** `workload` is
+optional at runtime (`:384`), so a site in the "sets it" column can still emit a blank
+field; that distinction matters for the auto-rollback join below.
+
+| `action=` | sites | `target=` is | `workload=` is |
+|---|---|---|---|
+| `deploy` | 28 | catalog `key` | **absent on 26**; the requested workload on 2 (`:4794` dispatched, `:4936` launched) |
+| `teardown` | 14 | catalog `key` | **absent on all 14** |
+| `finalise-purge` | 18 | `slug` | **absent on all 18** |
+| `switch-source` | 6 | the **receiver** `instance` | **`source_instance` on 5** — a *source*, not a workload — absent on 1 |
+| `rollback` | 12 | `run_id` | absent on all 12 |
+| `launch` | 8 | `workflow_name` | absent on all 8 |
+| `verify-drain` | 7 | `run_id` | absent on all 7 |
+| computed `mapped_action` | 1 | `catalog_key` | absent |
+
+The counts come from an AST pass over `main.py`, independently reproduced by a second
+tokenizer pass: 95 references, 1 definition, **94 direct calls**, no `**kwargs` spread,
+no positional `workload`, and no **production** call site outside `main.py` — one test
+(`tests/test_awx_write_gate.py:337`) calls the helper directly. Note the denominator's
+qualifier — those are `_audit_awx_write` call sites. Counting **all** `awx write:`
+producers gives **96**, because the two auto-rollback lines below emit the same prefix
+directly on the module logger. The field shapes are corroborated by the emitter
+docstring and by author-observed Loki rows on the sandbox (`action=teardown
+target=<key> workload=` and `action=switch-source target=<receiver> workload=<source>`),
+the latter recorded by observation rather than reproduced here.
+
+**What follows from the table — stated as facts, not as a rule:**
+
+- **`workload=` is not a uniform workload identifier across these call sites.**
+  Precisely: `teardown` and `finalise-purge` **never** set it;
+  `rollback`, `launch` and `verify-drain` never set it; `deploy` sets a genuine
+  requested workload on **2 of 28** sites; and `switch-source` sets it on 5 of 6 — but
+  to a **source**, not a workload. So it is neither absent enough to ignore nor present
+  enough to key on, and the earlier absolute in this section ("four of them never set
+  it") was itself wrong in both directions.
+- **`clear` is audited, but not in this stream.** It emits no `awx write:` line and no
+  `action=clear`; `main.py:5638` emits a separate **`media-workloads clear:`** line on
+  the plain module logger, with a different envelope entirely — `instance=` instead of
+  `target=`, no `action=`, no `workload=`, and `outcome` from `result.get("error", "ok")`,
+  so a successful clear logs `outcome=ok`. It is therefore outside the §4.1 query, not
+  unaudited. The superseded row named it as a normal action of this lane; it is not one.
+- **`verify-drain` is real and unhandled.** Seven sites (`main.py:5351-5400`),
+  `target=run_id`, `workload` absent. It is named nowhere else in this plan, and
+  **§4.4 does not classify its outcomes** — so the lane must either classify it or
+  state its exclusion, under the same honesty rule as §4.3's other exclusions.
+- **A successful auto-rollback join can still yield nothing**, which the row below did
+  not anticipate. It resolves by taking the parent deploy record's `workload=` — and
+  **26 of 28 `deploy` sites omit that field.** Two parents can therefore join correctly
+  and land on a blank workload:
+  - **the `already-active` reattach** (`:4835`). It omits `workload=`, and it *is*
+    watched — `_track_sync_reattach` at `:4829` creates the tracked operation — so it
+    can reach the auto-rollback trigger like any other watched deploy.
+  - **the two dispatch sites themselves** (`:4794`, `:4936`). They pass the argument,
+    but the value is optional at runtime — `workload = body.get("workload") if body is
+    not None else None` (`:384`) — so a request that omitted it renders blank.
+
+  *(Corrected: an earlier draft of this bullet blamed refusal parents. That is
+  impossible. `_maybe_auto_trigger_rollback` has exactly one call site, `:2324`, inside
+  the `FAILED_ROLLBACK_REQUIRED` branch — the job started and then failed. A refusal
+  never creates a watched deploy, so it can never have an auto-rollback child. The fact
+  was right and the mechanism invented; the two causes above are the real ones.)*
+
+  Retention is therefore **not** the only way that join fails, and neither §4.3 nor
+  AC 3 may imply every auto-rollback is resolvable.
+
+**Which field resolves which action is the implementer's call**, on the same
+reasoning §4.2 gives for retrieval: it is a coding decision with a real feedback loop.
+The table above is the input; AC 3 and AC 5 remain the test.
+
 **Resolution rules, in order:**
 
 | Record | Resolves how |
 |---|---|
-| Normal actions (deploy, teardown, switch, purge, clear) | `workload=` is populated on dispatch (`main.py:4794`, `:4936`); early refusals carry a workload key in `target=`. Apply the read check directly. |
+| Normal actions (deploy, teardown, switch-source, finalise-purge) | **The fields are not uniform across these four — see the table above, which is the input to this decision.** Resolve to a scope the authorization check built for this lane can accept, then apply it. **"The read check" below and here means that check — the one this round designs, not an existing primitive**; see the correction above. |
 | **Auto-rollback** (`actor=system:auto-rollback`, 2 sites: `main.py:2501`, `:2510`) | `workload=` is **empty**, but both sites emit **`linked_request_id`** — documented at `main.py:2428-2432` as tying back to *"the failed deploy's own request_id for correlation."* **Join `linked_request_id` → the deploy record's `request_id`**, take that record's `workload=`, and apply the read check to it. Durable: the join is Loki-to-Loki, needing no in-memory store. |
 | **Operator-initiated `rollback`** (`main.py:5168`, `:5196`) | Carries **neither** `workload=` **nor** `linked_request_id`. **Not resolvable this round** — exclude, and say so. |
 
-> **The join's one limit, stated rather than discovered.** It only resolves while
-> the linked deploy record is still inside the retention window — a rollback near
-> the 7-day boundary may have lost its parent. Treat an unresolvable join exactly
-> like an unresolvable target: exclude and disclose.
+> **The join's limits — two, not one.** *(Corrected 2026-09-02: this said "one".)*
+> It only resolves while the linked deploy record is still inside the retention
+> window, so a rollback near the 7-day boundary may have lost its parent — **and**,
+> per the bullet above, a parent found inside the window may itself carry a blank
+> `workload=`, because only 2 of 28 `deploy` sites populate it. Treat an unresolvable
+> join, from either cause, exactly like an unresolvable target: exclude and disclose.
 >
 > **Whatever is excluded, the lane's own description must say so.** A feed that
 > silently omits rollbacks while presenting as complete is the untruth this work
