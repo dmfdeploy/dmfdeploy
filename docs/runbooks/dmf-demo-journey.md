@@ -946,8 +946,14 @@ names the request id.
 Close the loop. This is the one beat with a genuine **fork**: teardown alone
 is not the only ending. Confirmed live twice (2026-08-19, 2026-09-02) —
 Teardown, Delete permanently, and the audit trail were all walked start to
-finish both rounds, this round also exercising Clear for deployment and the
-inline redeploy Deploy button (§0) on the same workload before deleting it.
+finish both rounds. This round also **opened and inspected** (not
+confirmed/completed) Clear for deployment's own confirm panel, and
+**observed rendered** (not clicked) the inline redeploy "▶ Deploy" button
+(§0), on the same workload, before deleting it — deliberately stopping
+short of running either, to keep the one workload this journey allows
+(§0) available for Delete permanently rather than spending it on a second
+redeploy cycle that would add no new information over §3's own Provision
+walk.
 
 **6a. Three sections, confirmed live both rounds: Teardown, Delete
 permanently, Review.** The Finalise & Review step's own body renders as
@@ -1036,16 +1042,22 @@ paragraph above refers to.
 > line once torn down, verbatim: **"Not currently deployed."** — a status on
 > Teardown's own panel, distinct from "Already deployed." elsewhere.
 
-**Clear for deployment — confirmed observed both rounds**, not merely
-source-read: because Teardown returns every member to a bootstrapped
-state, this control (§0's earlier note) is offered for real. Its
-confirm-panel description renders exactly as source predicted, verbatim,
-byte-identical both rounds: *"This records the intent to run in the
-facility source of truth. It shows as pending reconciliation until
-something deploys it — today, that's Provision. This action does not
-deploy anything itself."* No separate "automation lane" text anywhere near
-it. A reason is required here too (§0's Terms table already lists Clear for
-deployment among the reason-gated writes — confirmed). **Also confirmed
+**Clear for deployment — the control's own appearance and confirm-panel
+text are confirmed observed both rounds**, not merely source-read: because
+Teardown returns every member to a bootstrapped state, this control (§0's
+earlier note) is genuinely offered, and its confirm-panel description
+renders exactly as source predicted, verbatim, byte-identical both rounds:
+*"This records the intent to run in the facility source of truth. It shows
+as pending reconciliation until something deploys it — today, that's
+Provision. This action does not deploy anything itself."* No separate
+"automation lane" text anywhere near it. A reason field is required here
+too — present and required-looking (§0's Terms table already lists Clear
+for deployment among the reason-gated writes). **The action itself —
+actually clicking Confirm and watching it complete — was exercised on the
+0.24.0 walk; this round opened the same panel and read its text but
+deliberately stopped short of confirming it**, to preserve the one
+workload this journey allows for Delete permanently rather than spend it
+here. **Also confirmed
 this round:** the Provision step for an already-provisioned, torn-down
 workload shows the inline **"▶ Deploy"** button directly in its own body
 (umbrella#518's retirement of the old promoted-action portal, dmf-cms
@@ -1124,9 +1136,13 @@ reads, verbatim, **"Activity — History · DMF Console"**.
   this browser's persisted writes — a row per action, titled in operator
   language. The **common** shape is four lines: the action line; the
   outcome and the reason you typed, in curly quotes; actor, role, and
-  request id; a timestamp. A **Clear for deployment** row (§6a) is the one
-  exception this journey hits: it carries a genuine **fifth line**, a
-  reconcile-expectation note, every time — don't describe the shape as
+  request id; a timestamp — this four-line shape is what this round's own
+  Teardown/Switch/Delete rows show, directly confirmed. A **Clear for
+  deployment** row (§6a) is the one exception this journey hits: it
+  carries a genuine **fifth line**, a reconcile-expectation note, every
+  time *(this specific claim is 0.24.0-only — this round deliberately
+  didn't confirm a Clear for deployment action, §6a, so it never produced
+  its own row to check)* — don't describe the shape as
   universal if you're demoing that control, or the row on screen won't
   match what you just said. Confirmed action-line formats: **"Tore down
   mxl-videotest-view"** (there being only one catalog entry, that string is
@@ -1319,17 +1335,41 @@ its own words (source-confirmed, carried forward, or not independently
 re-watched, as each case actually is), and this list exists so the next live
 walk has one place to start rather than a re-read of the whole file.
 
+**MAINTENANCE NOTE, added after this section drifted from the beats it
+summarises — twice, within the same round.** This section is a DERIVED
+view of every beat above, not an independent source of truth. Every time a
+beat gains or loses a carried-forward hedge, this section can silently go
+stale unless it's re-checked at the same time — a beat-by-beat sweep (the
+method this edit otherwise relies on) does not, by construction, cover
+this section, because this section isn't a beat. Caught twice during this
+same editing pass: once self-caught (this section briefly listed §1's
+login as closed right after the beat itself was correctly hedged as
+unconfirmed) and once reviewer-caught (this section listed Admin-icon
+gating as fully closed after the beat itself had already been split into a
+confirmed absent-half and an unconfirmed present-half). **Whoever next adds
+or changes a carried-forward marker on any beat: re-read this section's
+"Closed this round" paragraph and bullet list against that specific beat
+before committing — don't assume the beat-level fix is complete on its
+own.** [dmfdeploy/dmfdeploy#536](https://github.com/dmfdeploy/dmfdeploy/issues/536)
+tracks the deeper fix (verification markers that name their source round,
+so a partially-verified beat can't collapse into one true/false flag) —
+not implemented here, but the shape to reach for if this file's own
+hedging keeps needing hand-reconciliation.
+
 **Closed this round** (kept here only as a record of what the 2026-09-02
 walk resolved, not as open items): §1's rail/topbar claims specifically
 (icon-only rail with exactly three items, each with an accessible name;
-Admin-icon gating; avatar disclosure) — **not** the login act itself, which
-stays open (below), and **not** the specific claim that a hover/keyboard-
-focus tooltip renders: this round confirmed each rail icon has an
-`aria-label` (Workspace/Facilities/Media Workloads), which is what a
-screen reader announces, but did not confirm those icons also carry a
-`title` attribute or a custom hover popup — an accessible name existing
-isn't proof a *visible* tooltip appears on hover. Left open below too.
-§2's Design step
+avatar disclosure) and the **absent** half of Admin-icon gating
+specifically (confirmed no 4th icon for this round's non-admin persona) —
+**not** the **present**-for-an-admin half of that same claim, which stays
+open (below) since this round never used an admin persona; **not** the
+login act itself, which stays open (below); and **not** the specific claim
+that a hover/keyboard-focus tooltip renders: this round confirmed each
+rail icon has an `aria-label` (Workspace/Facilities/Media Workloads),
+which is what a screen reader announces, but did not confirm those icons
+also carry a `title` attribute or a custom hover popup — an accessible
+name existing isn't proof a *visible* tooltip appears on hover. Left open
+below too. §2's Design step
 template summary painting correctly on a live Design step; §4's live-detail
 modal (still 9 fields, still ~5×/s); §6a's Design-re-offers-"Use this
 template" round trip after Teardown. The §4 false-catalog-warning item is
@@ -1346,6 +1386,29 @@ issue plus a corrected presenter note (§4) rather than a deferred check.
 - §1 — Whether the rail's per-icon tooltip is a real, visible hover/focus
   popup (not just an `aria-label` a screen reader announces) — this round
   confirmed the accessible name, not the visible affordance.
+- §1 — The **present**-for-an-admin half of "Admin appears as a fourth
+  icon only if the persona is an admin" — this round's persona was
+  engineer, not admin, so only the absent-for-non-admin half was
+  independently re-tested. Needs a walk using an admin persona.
+- §2 — Whether an invalid workload identity actually shows the documented
+  red validation hint — this round never typed one to trigger it.
+- §6a — Delete permanently's two independent disabled-state gates (wrong
+  slug alone stays disabled; correct slug with no reason also stays
+  disabled) — this round filled both fields together and confirmed the
+  end-to-end action worked, which is consistent with but not a direct
+  re-test of each partial state.
+- §6a — Clear for deployment's actual confirm action (clicking Confirm and
+  watching it complete) is 0.24.0-only — this round opened and read the
+  same confirm panel but deliberately didn't confirm it, to keep the one
+  workload this journey allows available for Delete permanently.
+- §3 — The specific "follow an active View live link before the record
+  exists, land on Workload not found" sequencing — the string itself is
+  confirmed (seen later, post-Delete), but this round never deliberately
+  navigated early enough during Provision to retrigger that exact
+  sequence.
+- §4 — The 97.6% preview-success figure (2033/49 fetches) is a two-hour
+  log sample from 0.24.0, not repeated this round — still presented as
+  current; re-measure on a future walk if it's going to keep being cited.
 - §3 — Watch the pods/instances for the receiver and both sources
   actually converge to Running via the cluster itself (`kubectl get pods`),
   not just via the console's own screens. Still not done by any round —
