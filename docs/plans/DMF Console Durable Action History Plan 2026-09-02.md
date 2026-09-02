@@ -452,7 +452,11 @@ Freeze 1 names no durable-audit non-goal.
    Operator-initiated `rollback` is **not** expected to appear; it is excluded and
    disclosed.
 4. The lane's stated window matches deployed retention. *(#530)*
-5. Rows whose target cannot be resolved are excluded **and the lane says so**.
+5. **Rows of an excluded class never appear, and the lane says what is excluded.**
+   *(Revised: this read "rows whose target cannot be resolved are excluded", which
+   under the role-gate model would forbid the covered classes it also requires —
+   `deploy`, `teardown` and `switch-source` resolve no target at all. Exclusion is by
+   class, never by resolution.)*
    The disclosure names what is excluded: **`finalise-purge`, `launch`, `verify-drain`
    and operator-initiated `rollback`** this round. **The disclosure must not flatten the
    two reasons** (§4.3's membership table): `launch`, `verify-drain` and
@@ -599,19 +603,33 @@ Freeze 1 names no durable-audit non-goal.
    > "equals the covered rows" is otherwise satisfiable by shrinking what counts as
    > covered. Neither half works alone. *(§4.3)*
 
-5b. **The projection fails closed on every unclassifiable path**, not only the expected
-   one. Exercise at least: a row whose `action=` is unrecognised (not in the membership
-   table), a row whose fields fail to parse, an auto-rollback whose parent record is
-   absent, **an auto-rollback whose parent carries a blank `workload=`**, and a
-   partial/failed Loki response. Each must exclude, never admit — **an unrecognised
-   action is excluded, never defaulted into covered.**
+5b. **Classification failure excludes; enrichment failure does not.** The two must be
+   tested as opposites, because conflating them is what made the previous version of
+   this criterion contradict AC 3.
 
-   > **Every one of these cases must carry a valid covered-class control row in the
-   > same response, and that row must still be rendered.** Otherwise "it excluded the
-   > bad row" is indistinguishable from "it excluded everything", and each case would
-   > be passed by the same broken endpoint AC 5a already has to rule out. A default-deny
-   > claim verified only on the happy path is not verified; one verified only on the
-   > sad path is not verified either. *(§4.3)*
+   **Must EXCLUDE — the class cannot be established:**
+   a row whose `action=` is unrecognised (absent from the membership table), a row whose
+   fields fail to parse well enough to classify, and rows from a partial or failed Loki
+   response. **An unrecognised action is excluded, never defaulted into covered.**
+
+   **Must still RENDER — the class is covered, only the detail is missing:**
+   an auto-rollback whose parent record is outside the window, and **an auto-rollback
+   whose parent carries a blank `workload=`** (the ordinary case — 26 of 28 `deploy`
+   sites omit it). These render **without** a workload label. Dropping them fails this
+   criterion.
+
+   > *(Revised: both auto-rollback cases were previously listed under "must exclude",
+   > directly contradicting §4.3 and AC 3, which make the join label-only and presence
+   > unconditional. The distinction the old list missed is that **an event the system
+   > took must not disappear because a lookup that only decorates it came back
+   > empty.**)*
+
+   > **Every exclusion case must carry a valid covered-class control row in the same
+   > response, and that row must still be rendered.** Otherwise "it excluded the bad
+   > row" is indistinguishable from "it excluded everything", and each case would be
+   > passed by the same broken endpoint AC 5a rules out. A default-deny claim verified
+   > only on the happy path is not verified; one verified only on the sad path is not
+   > verified either. *(§4.3)*
 6. Loki is unreachable from the browser; the endpoint builds its own selector,
    accepts no caller LogQL or unbounded range, and bounds timeout/range/results.
    *(§4.2)*
