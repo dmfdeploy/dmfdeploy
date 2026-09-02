@@ -276,56 +276,51 @@ the latter recorded by observation rather than reproduced here.
 reasoning §4.2 gives for retrieval: it is a coding decision with a real feedback loop.
 The table above is the input; AC 3 and AC 5 remain the test.
 
-#### The projection must be fail-closed — a property, stated because it is a security boundary
+#### The projection is by class, and it is fail-closed
 
-**Delegating the field choice is only safe once the boundary it feeds is specified.**
-While this section still claimed an existing read check, the delegation was narrow —
-which field feeds a working authorizer. With that claim withdrawn, both the field *and*
-the boundary would be undelegated at once, and the boundary is not an implementation
-detail. So the mechanism stays with the implementer and **the property does not**:
+> **Replaced 2026-09-02.** This block previously specified a *tenant-scope* projection —
+> resolve each record's target into the requesting user's scopes, exclude what does not
+> resolve. That is superseded by the role-gate decision above, and leaving it would have
+> made the plan unimplementable: following it drops `deploy`, `teardown` and
+> `switch-source` outright, since none of them resolves to a tenant at all.
 
-- **Default deny.** A record whose target cannot be resolved to a scope the requesting
-  user holds is **excluded**. No path admits an unresolved row — not an empty scope
-  set, not a parse failure, not a join that returned nothing, not a Loki partial
-  result. `_fetch_services` already establishes the house pattern by failing closed to
-  empty when nothing maps; match it.
-- **Both directions are defects, and only one is visible.** Admitting a row the user
-  may not see is a **leak**; dropping a row they may see is a **silent omission** in a
-  feed whose entire purpose is to be trusted as complete. The first is worse and the
-  second is harder to notice, so neither may be traded for the other, and the second
-  must be disclosed per §4.3's existing exclusion rule.
-- **Resolution is per action.** The fields differ per the table above, so one rule
-  cannot serve all of them — a uniform rule is what produced the superseded claim this
-  section exists to correct.
+The projection admits a row on **class membership**, not on target resolution:
 
-**verify-drain is EXCLUDED this round** *(decision, 2026-09-02)*, and disclosed with the
-other exclusions. It carries `target=run_id` with neither `workload=` nor
-`linked_request_id`, which is exactly the unresolvable shape that already excludes
-operator-initiated `rollback`; admitting one and excluding the other would be
-inconsistent on identical evidence. Full run-ID → workload resolution, deferred with
-§5, is what would admit both.
+- **Default deny by class.** A row is rendered only if its `action=` (with `rollback`
+  split by actor) is in the **covered** set of AC 5a's membership table. Everything else
+  is excluded: the named excluded classes, an unrecognised `action=`, a row that fails
+  to parse, and any row returned by a partial or failed Loki response. **An unrecognised
+  action is never defaulted into covered** — a new emitter action must be assigned in
+  the table before it can appear. `_fetch_services` sets the house pattern by failing
+  closed to empty; match it.
+- **The role gate is the only per-user axis.** There is no per-row user test, because
+  there is nothing on a row to test against. A user meeting the gate sees every covered
+  row in the window; a user below it sees none.
+- **Both directions are still defects.** Rendering an excluded class is a widening of
+  access — `finalise-purge` most of all, since its live surface *is* scoped. Dropping a
+  covered row is a silent omission in a feed whose whole purpose is to be trusted as
+  complete. Neither may be traded for the other, and omissions must be disclosed.
+
+**The auto-rollback join survives — as display, not authorization.** Under the
+superseded model the `linked_request_id` → parent `request_id` join was load-bearing for
+*admitting* the row. It is not any more: an auto-rollback is covered by class. The join
+now only supplies the **workload label** for the row, so its two failure modes — a
+parent outside the retention window, and a parent whose own `workload=` is blank
+(26 of 28 `deploy` sites omit it) — **degrade the row rather than drop it.** The event
+is still shown; it shows without a workload.
+
+> That is a strictly better outcome than the model it replaces, and worth noticing: the
+> old rules excluded an auto-rollback whose parent workload was blank, which meant an
+> action the system took autonomously could vanish from the record for a reason having
+> nothing to do with permission.
 
 AC 5a and AC 5b below are the test for all of this.
 
-**Resolution rules, in order:**
-
-| Record | Resolves how |
-|---|---|
-| Normal actions (deploy, teardown, switch-source, finalise-purge) | **The fields are not uniform across these four — see the table above, which is the input to this decision.** Resolve to a scope the authorization check built for this lane can accept, then apply it. **"The read check" below and here means that check — the one this round designs, not an existing primitive**; see the correction above. |
-| **Auto-rollback** (`actor=system:auto-rollback`, 2 sites: `main.py:2501`, `:2510`) | `workload=` is **empty**, but both sites emit **`linked_request_id`** — documented at `main.py:2428-2432` as tying back to *"the failed deploy's own request_id for correlation."* **Join `linked_request_id` → the deploy record's `request_id`**, take that record's `workload=`, and apply the read check to it. Durable: the join is Loki-to-Loki, needing no in-memory store. |
-| **Operator-initiated `rollback`** (`main.py:5168`, `:5196`) | Carries **neither** `workload=` **nor** `linked_request_id`. **Not resolvable this round** — exclude, and say so. |
-
-> **The join's limits — two, not one.** *(Corrected 2026-09-02: this said "one".)*
-> It only resolves while the linked deploy record is still inside the retention
-> window, so a rollback near the 7-day boundary may have lost its parent — **and**,
-> per the bullet above, a parent found inside the window may itself carry a blank
-> `workload=`, because only 2 of 28 `deploy` sites populate it. Treat an unresolvable
-> join, from either cause, exactly like an unresolvable target: exclude and disclose.
->
 > **Whatever is excluded, the lane's own description must say so.** A feed that
-> silently omits rollbacks while presenting as complete is the untruth this work
-> exists to remove. Full run-ID → workload resolution, which would cover the
-> operator-initiated case, is deferred with §5.
+> silently omits whole action classes while presenting as complete is the untruth this
+> work exists to remove — and under a role gate the lane must additionally not present
+> as filtered-to-you. Full run-ID → workload resolution, which would cover the
+> operator-initiated rollback case, is deferred with §5.
 
 ### 4.4 Honest labelling — the load-bearing requirement
 
@@ -340,7 +335,7 @@ in fact succeeded. The spec's own mapping table governs:
 | **Watched actions** — deploy, teardown, rollback, finalise-purge (`_WATCHED_ACTIONS`) — at `outcome=launched`/`dispatched` | **acceptance only.** AWX took the job, a watcher attached, *nothing about the run is known yet* | in flight — **never** a verdict |
 | **switch-source** — runs **synchronously** before the audit line is written | **terminal.** `active` → `succeeded`; `failed_rollback_required` → `failed`; a `SwitchSourceError.code` → `failed` | a real outcome |
 | **Any precondition/validation refusal**, any action (`capacity-denied`, `facility-busy`, `template-not-found`, `awx-not-configured`, `awx-error:<status>`) | **terminal.** The action did not happen, full stop | `failed` — **plain-language copy at default; the raw string is expert-only.** See §4.5 |
-| **`launch`** | **EXCLUDED from the lane this round** *(decision, 2026-09-02 — see §4.3)*. Its outcome was already unresolved by the spec; its target does not resolve to a scope either, so it is excluded before the question of a verdict arises | not rendered — **excluded and disclosed**, per AC 5 |
+| **`launch`** | **EXCLUDED from the lane this round** *(decision, 2026-09-02 — see §4.3)*. Its outcome is unresolved by the spec and its `target=` is an AWX job-template name, so the row would carry neither a verdict nor a workload | not rendered — **excluded and disclosed**, per AC 5 |
 
 > **This is the good news in the round.** Switch-source already carries a true
 > terminal outcome today, so the demo's key beat can honestly read *succeeded* —
@@ -430,30 +425,42 @@ Freeze 1 names no durable-audit non-goal.
    real terminal verdict (`succeeded`/`failed`); watched-action
    `launched`/`dispatched` shows as in flight and never as completion; refusals
    show as `failed`. **`launch` is excluded from the lane this round (§4.3), so this
-   criterion no longer asserts anything about it** — its former clause here required
-   rendering a row the authorization projection cannot scope. A blanket rule in either direction
+   criterion no longer asserts anything about it** — its former clause required
+   rendering a class the membership table excludes. A blanket rule in either direction
    fails this criterion. *(§4.4)*
 2a. **No raw system error string appears at default level** — not
    `awx-error:<status>`, not `awx-not-configured`, not any `downstream_refs`. Each
    failure shows what happened, what it means for the facility, and what to do
    next; the raw class is reachable only at expert level, off the same record.
    *(§4.5)*
-3. **An auto-rollback event appears in the lane with its workload resolved** —
-   which is only possible if the query did not filter on the audit logger *(§4.1)*,
-   the parent deploy was retrieved despite being older than the child, the
-   *parent* was selected rather than the child, and the row then survived the
-   authorization projection *(§4.3)*. **Test this against a real auto-rollback,
-   not a synthetic row** — it is one assertion covering four ways to get the
-   retrieval wrong. Operator-initiated `rollback` is **not** expected to appear;
-   it is excluded and disclosed.
+3. **An auto-rollback event appears in the lane, and carries its workload wherever the
+   parent record supplies one.** Appearing is unconditional — it is covered by class
+   (§4.3), so a missing or blank parent workload degrades the row's *label*, never its
+   presence. The workload half is only possible if the query did not filter on the audit
+   logger *(§4.1)*, the parent deploy was retrieved despite being older than the child,
+   and the **parent** was selected rather than the child — the `linked_request_id`
+   substring trap. **Test against a real auto-rollback, not a synthetic row.**
+
+   > **Revised with the role-gate decision.** This read *"appears with its workload
+   > resolved"*, and required surviving an authorization projection that no longer
+   > exists. As written it was unsatisfiable in the common case: 26 of 28 `deploy` sites
+   > omit `workload=`, so a real auto-rollback will frequently have a parent with
+   > nothing to resolve to. **Assert presence unconditionally and the label
+   > conditionally**; a criterion that fails on the ordinary case is not a gate, it is a
+   > false alarm.
+
+   Operator-initiated `rollback` is **not** expected to appear; it is excluded and
+   disclosed.
 4. The lane's stated window matches deployed retention. *(#530)*
 5. Rows whose target cannot be resolved are excluded **and the lane says so**.
    The disclosure names what is excluded: **`finalise-purge`, `launch`, `verify-drain`
-   and operator-initiated `rollback`** this round. `finalise-purge` is excluded for a
-   different reason from the other three and **the disclosure must not flatten them** —
-   the three carry a target that resolves to nothing, whereas `finalise-purge` is
-   omitted precisely *because* its live surface is tenant-scoped and this lane is not.
-   *(§4.3)*
+   and operator-initiated `rollback`** this round. **The disclosure must not flatten the
+   two reasons** (§4.3's membership table): `launch`, `verify-drain` and
+   operator-initiated `rollback` are out because this lane cannot render them
+   meaningfully — a scope decision. **`finalise-purge` is out because including it would
+   widen access** — its live surface is tenant-scoped and this lane is not. A reader
+   must be able to tell which omissions are a choice about detail and which are a
+   boundary. *(§4.3)*
 5a. **The rendered set equals the expected set, asserted as an equality.** For each
    user in the fixture, the lane's response must equal **exactly**:
 
@@ -504,10 +511,24 @@ Freeze 1 names no durable-audit non-goal.
    | `teardown` | **covered** | live endpoint is role-gated only |
    | `switch-source` | **covered** | live endpoint is role-gated only (`main.py:5779-5782`) |
    | **auto-rollback** (`actor=system:auto-rollback`) | **covered** | responds to a `deploy`; same gate as its parent |
-   | `finalise-purge` | **excluded** | its live surface **is** tenant-scoped (`media_workloads.py:937-980`) and the record carries no binding — role-gating it would widen access |
-   | **operator-initiated `rollback`** | **excluded** | neither `workload=` nor `linked_request_id` |
-   | `launch` | **excluded** | `target=` is an AWX job-template name |
-   | `verify-drain` | **excluded** | `target=run_id`, no `workload=` |
+   | `finalise-purge` | **excluded — access** | its live surface **is** tenant-scoped (`media_workloads.py:937-980`) and the record carries no binding, so role-gating it would widen access |
+   | `launch` | **excluded — scope of this round** | §4.4 leaves its outcome *explicitly unresolved by the spec*, and `target=` is an AWX job-template name; a row with neither a verdict nor a workload is noise in a media-workload history |
+   | `verify-drain` | **excluded — scope of this round** | §4.4 does not classify its outcomes at all; `target=run_id` |
+   | **operator-initiated `rollback`** | **excluded — scope of this round** | `target=run_id`, with nothing correlating it to anything else the lane shows |
+
+   > **The two exclusion reasons are not interchangeable, and the earlier one is now
+   > void.** These three were previously excluded because their target *"does not
+   > resolve to a scope"* — which stopped being a reason the moment the role-gate
+   > decision established that **no** class resolves to a scope. Re-justified above on
+   > what actually remains true: they cannot be rendered meaningfully or honestly in
+   > this lane. **That is a scope decision, not a security one**, and it is therefore
+   > cheaply reversible — classifying `verify-drain`'s outcomes in §4.4 would admit it.
+   > `finalise-purge` is the opposite: excluded on access grounds, and reversing it
+   > requires a tenant binding that does not exist.
+   >
+   > Left unfixed, this would have been a live section justifying a security-adjacent
+   > decision with reasoning that no longer holds — the kind of residue that reads as
+   > deliberate to the next person.
 
    `rollback` **splits by actor** and appears in both rows above — §4.3's resolution
    table already separates the two, and partitioning on the raw `action=` string would
@@ -527,9 +548,14 @@ Freeze 1 names no durable-audit non-goal.
    > It is decided against the source rather than by preference. `target=` is the
    > `{workflow_name}` path parameter of `POST /api/workflows/{workflow_name}/launch`
    > (`main.py:3424`) — an **AWX job-template name**, carrying no workload association,
-   > with `workload=` absent on all 8 sites. It does not resolve to a scope, which puts
-   > it in exactly the class already excluded for operator-initiated `rollback` and
-   > `verify-drain`. Admitting it would have been the only unscoped row in the lane.
+   > with `workload=` absent on all 8 sites. Combined with §4.4 leaving its outcome
+   > explicitly unresolved, the row would carry neither a verdict nor a workload, which
+   > is what puts it with operator-initiated `rollback` and `verify-drain`.
+   >
+   > *(The original justification — that it "does not resolve to a scope" — was voided
+   > by the role-gate decision, which established that no class does. The exclusion
+   > survives on the rewritten grounds above; see §4.3's membership table for why the
+   > two exclusion reasons must stay distinct.)*
    >
    > *(Catalog lifecycle JTs reached through this route are refused and re-audited under
    > a computed action with `target=catalog_key` (`main.py:3459`, `:3476`), so they are
