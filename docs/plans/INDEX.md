@@ -8,8 +8,9 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (5)
+## Active (6)
 
+- [DMF Console Durable Action History Plan 2026-09-02](DMF%20Console%20Durable%20Action%20History%20Plan%202026-09-02.md) — 2026-09-02
 - [DMF Console Shell Round Plan 2026-08-30](DMF%20Console%20Shell%20Round%20Plan%202026-08-30.md) — 2026-08-30
 - [DMF Console Arc 4 Visual Pass Plan 2026-08-11](DMF%20Console%20Arc%204%20Visual%20Pass%20Plan%202026-08-11.md) — 2026-08-11
 - [DMF v0.2b Multi-Source Switch Spec 2026-07-15](DMF%20v0.2b%20Multi-Source%20Switch%20Spec%202026-07-15.md) — 2026-07-15
