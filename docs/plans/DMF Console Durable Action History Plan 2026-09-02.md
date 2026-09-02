@@ -155,8 +155,37 @@ action. A watched action produces **two** events: dispatch, then terminal.
   `outcome`, **`outcome_detail`**, and downstream refs.
 - **Include a top-level `logger` field.** `logger` is *not* a CloudEvents envelope
   field, and the query in §5.2 has nothing stable to match without it.
-- Fix and record the concrete `source` and `type` values; do not leave them to the
-  implementer.
+
+**The concrete envelope values, recorded here so the implementer does not invent
+them:**
+
+| Field | Value | Why |
+|---|---|---|
+| `specversion` | `"1.0"` — **fixed, required** | The spec is explicit: an envelope missing it *"is not CloudEvents, it is a bespoke wrapper that happens to reuse some field names."* |
+| `type` | `dmf.cms.audit.action` — **one shared value for dispatch *and* terminal** | See below. Not domain-qualified, deliberately: `type` is a free-form string, and asserting a real hostname in a public repo is avoidable. |
+| `source` | `/dmf-cms` | The producing application, **not** environment-specific — environment identity already arrives as Loki labels, and env ids must not be baked into event bodies. |
+| `subject` | the action's target identifier (workload slug) | Lets a consumer filter without parsing `data`. |
+| `id` | unique per event | **Never a correlation key** — see below. |
+| `time` | RFC 3339 | CloudEvents default. |
+
+> **The single shared `type` is mandated, not a style choice.** The spec
+> *considered and rejected* distinct types (`…audit.dispatch` vs
+> `…audit.outcome`): it would *"make every consumer branch on `type` before it
+> can read `outcome` at all, for a distinction the `outcome` enum already
+> expresses on its own."* Dispatch and terminal are told apart by
+> `outcome`/`outcome_detail` — **never by `type`**. Emitting two types would
+> contradict a resolved decision.
+
+> **`id` is event identity only, never correlation.** The spec is emphatic:
+> `request_id` remains the **sole** cross-app correlation key, and consumers must
+> not treat the envelope's `id` as a competing correlation identifier even though
+> both sit on the same message. `id` answers *which event is this* (a redelivery
+> may reuse it — useful for dedup); `request_id` answers *which human action
+> produced this and everything correlated with it*.
+
+The exact `type`/`source` strings above are a naming choice recorded for
+consistency; change them only by amending this plan, since they are a stable
+contract once events are in Loki.
 
 **`outcome_detail` is spec-locked and must not be skipped.** Per the D2 decision
 (Audit Spec §`outcome` vs `outcome_detail`), `outcome` stays the closed 5-value
