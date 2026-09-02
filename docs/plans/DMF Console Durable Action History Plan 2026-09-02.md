@@ -129,12 +129,18 @@ than argued in prose.
 >   deploy is by definition older than its auto-rollback child, so any retrieval
 >   that caps by recency can return the child without the parent.
 > - **`linked_request_id=<id>` contains the substring `request_id=<id>`.** A
->   boundary-unaware match will select the rollback row *as its own parent* — with
->   a blank `workload`, so authorization then drops it. Same family as
->   `text-accent\b` also matching `text-accent-blue`.
+>   boundary-unaware match will select the rollback row *as its own parent*, whose
+>   `workload` is blank — so the event still renders (it is covered by class) but
+>   **silently loses its label, or worse carries one taken from the wrong record.**
+>   Same family as `text-accent\b` also matching `text-accent-blue`.
 >
 > Both are covered by AC 3: if the implementation trips either, that criterion
 > fails. Neither is a licence to reintroduce an unbounded read.
+>
+> *(Revised with the role-gate decision: this trap previously ended "so authorization
+> then drops it". Under class membership nothing drops the row, which makes the trap
+> **harder** to notice, not easier — a missing row is visible, a quietly wrong or
+> absent label is not.)*
 
 ### 4.3 Authorization — and the target field is not uniform
 
@@ -188,12 +194,18 @@ per-tenant view, and it must not present as filtered-to-you.
 > evidence that per-tenant audit scoping was considered and rejected. It was found
 > **unimplementable against today's schema**, which is a different statement.
 
-> **`target` is not always a workload slug**, and assuming it is would silently
-> drop rows. **`rollback` and auto-rollback carry a run ID** (`main.py:5168`,
-> `:5196`, `:2502`). The two rollback kinds resolve differently, and the
-> difference is load-bearing — an earlier draft of this plan excluded *all*
-> unresolvable rows while also requiring auto-rollback rows to appear, which is
-> self-contradictory.
+> **`target` is not always a workload slug**, and assuming it is silently mislabels
+> rows. **`rollback` and auto-rollback carry a run ID** (`main.py:5168`, `:5196`,
+> `:2502`), not a workload. The two rollback kinds are **different classes** — the
+> auto one covered, the operator-initiated one excluded — so they are separated at
+> membership, by `actor=`, and never by whether a target happened to resolve.
+>
+> *(Revised with the role-gate decision: this previously said the assumption would
+> "silently drop rows" and that the two rollback kinds "resolve differently". Under
+> class membership `target=` decides no row's admission at all — it only supplies a
+> label. The self-contradiction this callout was written to record still stands as
+> history: an earlier draft excluded all unresolvable rows while also requiring
+> auto-rollback rows to appear.)*
 
 #### What the fields actually contain — enumerated, not assumed
 
