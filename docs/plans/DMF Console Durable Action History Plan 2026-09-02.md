@@ -419,14 +419,31 @@ Freeze 1 names no durable-audit non-goal.
    B-only row of each included action**, and asserts four cases per action: user A sees
    the A row and not the B row; user B sees the B row and not the A row.
 
-   **Coverage is derived from §4.3's table, not from a list fixed here** — every action
-   the lane includes needs its own pair, so the criterion cannot go stale as the table
-   changes. On today's table that is `deploy`, `teardown`, `finalise-purge`,
-   `switch-source`, and the **resolved auto-rollback** path. Excluded actions —
-   operator-initiated `rollback` and `verify-drain` — are asserted **absent for both
-   users**, so the exclusion is tested rather than merely disclosed.
+   **Coverage is defined as a partition of §4.3's table, and no list is repeated here.**
+   Every `action=` value in that table is in exactly one of two sets:
 
-   > **Two ways this criterion has already been too weak, both fixed above, both worth
+   - **covered** — has an A-only/B-only fixture pair and the four assertions above; or
+   - **excluded** — named in AC 5's disclosure **and asserted absent for both users**,
+     so the exclusion is tested rather than merely disclosed.
+
+   **A table row in neither set fails this criterion on its face.** That check is the
+   criterion's own maintenance: an action added to the emitter must land in a bucket or
+   the gate reports itself incomplete, and no separate list can drift out of step with
+   the table. (`mapped_action` is a computed name resolving to one of the listed
+   actions, not a bucket of its own.)
+
+   > **`launch` is the open one, and it is a real conflict rather than an oversight.**
+   > AC 2 requires `launch` to render — without a verdict — and §4.1's content match
+   > returns its rows. But its `target=` is a `workflow_name`, not a workload key, so it
+   > may not resolve to a scope at all. That puts **AC 2 in direct tension with this
+   > criterion's default-deny**: one mandates showing it, the other forbids showing what
+   > cannot be resolved. **Do not resolve this silently in either direction** — an
+   > implementer who quietly drops `launch` breaks AC 2, and one who quietly admits it
+   > unscoped breaches default deny. Establish whether `workflow_name` resolves; if it
+   > does, `launch` is covered, and if it does not, the conflict is a decision for the
+   > operator, not a coding choice.
+
+   > **Three ways this criterion has already been too weak, all fixed above, all worth
    > keeping visible because they are the same mistake:**
    >
    > - **Negative-only.** An endpoint returning **zero rows to everyone** satisfies every
@@ -438,9 +455,18 @@ Freeze 1 names no durable-audit non-goal.
    >   actions carry incompatible `target=`/`workload=` shapes, so a per-action property
    >   needs per-action coverage** — that is the whole point of the enumeration, and an
    >   action-blind fixture throws it away.
+   > - **Enumerated.** The fix for the previous point *named the covered actions* — and
+   >   omitted `launch`, which AC 2 requires to render. An implementation dropping
+   >   `launch` passed. The hand-maintained list was itself the defect: it had to stay in
+   >   step with §4.1's query scope, §4.3's table and §4.4's outcome table, and it did
+   >   not. **That is why coverage is now a partition of the table rather than a list** —
+   >   the third instance is what showed the enumeration, not any particular omission,
+   >   was the thing to remove.
    >
    > The shared lesson: **a gate must fail the implementation its own section describes
-   > as broken.** Check any future amendment against that. *(§4.3)*
+   > as broken** — and when the same gate is found too weak three times, the next fix
+   > should change its shape, not extend it. Check any future amendment against both.
+   > *(§4.3)*
 
 5b. **The projection fails closed on every unresolved path**, not only the expected
    one. Exercise at least: an empty scope set for the user, a row whose target parses
