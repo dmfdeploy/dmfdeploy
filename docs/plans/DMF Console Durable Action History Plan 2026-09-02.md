@@ -306,7 +306,7 @@ in fact succeeded. The spec's own mapping table governs:
 | **Watched actions** — deploy, teardown, rollback, finalise-purge (`_WATCHED_ACTIONS`) — at `outcome=launched`/`dispatched` | **acceptance only.** AWX took the job, a watcher attached, *nothing about the run is known yet* | in flight — **never** a verdict |
 | **switch-source** — runs **synchronously** before the audit line is written | **terminal.** `active` → `succeeded`; `failed_rollback_required` → `failed`; a `SwitchSourceError.code` → `failed` | a real outcome |
 | **Any precondition/validation refusal**, any action (`capacity-denied`, `facility-busy`, `template-not-found`, `awx-not-configured`, `awx-error:<status>`) | **terminal.** The action did not happen, full stop | `failed` — **plain-language copy at default; the raw string is expert-only.** See §4.5 |
-| **`launch`** | **explicitly unresolved by the spec** — its sync branch's `launched` may map to `succeeded` or `in-progress`, and the spec forbids answering by analogy to the watched actions | **do not claim either.** Show it without a verdict |
+| **`launch`** | **EXCLUDED from the lane this round** *(decision, 2026-09-02 — see §4.3)*. Its outcome was already unresolved by the spec; its target does not resolve to a scope either, so it is excluded before the question of a verdict arises | not rendered — **excluded and disclosed**, per AC 5 |
 
 > **This is the good news in the round.** Switch-source already carries a true
 > terminal outcome today, so the demo's key beat can honestly read *succeeded* —
@@ -395,7 +395,9 @@ Freeze 1 names no durable-audit non-goal.
 2. **`outcome=` is rendered per action, per §4.4's table** — switch-source shows a
    real terminal verdict (`succeeded`/`failed`); watched-action
    `launched`/`dispatched` shows as in flight and never as completion; refusals
-   show as `failed`; `launch` shows no verdict. A blanket rule in either direction
+   show as `failed`. **`launch` is excluded from the lane this round (§4.3), so this
+   criterion no longer asserts anything about it** — its former clause here required
+   rendering a row the authorization projection cannot scope. A blanket rule in either direction
    fails this criterion. *(§4.4)*
 2a. **No raw system error string appears at default level** — not
    `awx-error:<status>`, not `awx-not-configured`, not any `downstream_refs`. Each
@@ -412,15 +414,21 @@ Freeze 1 names no durable-audit non-goal.
    it is excluded and disclosed.
 4. The lane's stated window matches deployed retention. *(#530)*
 5. Rows whose target cannot be resolved are excluded **and the lane says so**.
-   The disclosure names what is excluded, and **`verify-drain` and operator-initiated
-   `rollback` are both in that set** this round. *(§4.3)*
+   The disclosure names what is excluded, and **`launch`, `verify-drain` and
+   operator-initiated `rollback` are all in that set** this round — the three whose
+   `target=` does not resolve to a scope. *(§4.3)*
 5a. **The projection admits exactly the user's own scope — proved in both polarities,
    for every action the lane includes.** The fixture carries an **A-only row and a
    B-only row of each included action**, and asserts four cases per action: user A sees
    the A row and not the B row; user B sees the B row and not the A row.
 
-   **Coverage is defined as a partition of §4.3's table, and no list is repeated here.**
-   Every `action=` value in that table is in exactly one of two sets:
+   **Coverage is defined as a partition of §4.3's record classes, and no list is
+   repeated here.** The classes are the `action=` values of §4.3's field table, **except
+   that `rollback` splits by actor** — §4.3's resolution table already separates
+   auto-rollback (`actor=system:auto-rollback`, resolvable via the join) from
+   operator-initiated `rollback` (no `workload=`, no `linked_request_id`, not
+   resolvable). Partitioning on the raw `action=` string would put `rollback` in both
+   sets at once and make this criterion incoherent. Each class is in exactly one of:
 
    - **covered** — has an A-only/B-only fixture pair and the four assertions above; or
    - **excluded** — named in AC 5's disclosure **and asserted absent for both users**,
@@ -432,16 +440,26 @@ Freeze 1 names no durable-audit non-goal.
    the table. (`mapped_action` is a computed name resolving to one of the listed
    actions, not a bucket of its own.)
 
-   > **`launch` is the open one, and it is a real conflict rather than an oversight.**
-   > AC 2 requires `launch` to render — without a verdict — and §4.1's content match
-   > returns its rows. But its `target=` is a `workflow_name`, not a workload key, so it
-   > may not resolve to a scope at all. That puts **AC 2 in direct tension with this
-   > criterion's default-deny**: one mandates showing it, the other forbids showing what
-   > cannot be resolved. **Do not resolve this silently in either direction** — an
-   > implementer who quietly drops `launch` breaks AC 2, and one who quietly admits it
-   > unscoped breaches default deny. Establish whether `workflow_name` resolves; if it
-   > does, `launch` is covered, and if it does not, the conflict is a decision for the
-   > operator, not a coding choice.
+   > **`launch` is EXCLUDED** *(decision, 2026-09-02)*, and AC 2's launch clause is
+   > withdrawn to match. Review correctly refused to let this stand as a future
+   > decision: AC 2 required rendering it while default-deny forbade admitting it, and
+   > **an active plan carrying a contradiction is unverifiable**, whoever eventually
+   > resolves it.
+   >
+   > It is decided against the source rather than by preference. `target=` is the
+   > `{workflow_name}` path parameter of `POST /api/workflows/{workflow_name}/launch`
+   > (`main.py:3424`) — an **AWX job-template name**, carrying no workload association,
+   > with `workload=` absent on all 8 sites. It does not resolve to a scope, which puts
+   > it in exactly the class already excluded for operator-initiated `rollback` and
+   > `verify-drain`. Admitting it would have been the only unscoped row in the lane.
+   >
+   > *(Catalog lifecycle JTs reached through this route are refused and re-audited under
+   > a computed action with `target=catalog_key` (`main.py:3459`, `:3476`), so they are
+   > unaffected by this exclusion.)*
+   >
+   > **Reversible, and named as such:** §5's deferred run-ID → workload resolution is
+   > what would make these rows scopeable. If it lands, revisit all three exclusions
+   > together rather than this one alone.
 
    > **Three ways this criterion has already been too weak, all fixed above, all worth
    > keeping visible because they are the same mistake:**
