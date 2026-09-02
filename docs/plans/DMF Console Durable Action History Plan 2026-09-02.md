@@ -110,6 +110,27 @@ An authenticated `GET /api/audit/events` (or equivalent) over Loki `query_range`
 - **A Loki outage must render differently from an empty history.** "Nothing
   happened" and "we could not ask" are different statements.
 
+**Retrieval is two queries, not one — and that is forced by the join.** A single
+bounded result set will routinely contain a recent auto-rollback whose parent
+deploy is *older than the cap*. The join in §4.3 would then fail, authorization
+would exclude the row, and **AC 3 could not pass** — a bounded query and a
+parent join cannot both be satisfied by one retrieval.
+
+1. **Primary query** — bounded, **newest-first**, over the requested window.
+2. **Collect the distinct `linked_request_id` values** from any auto-rollback rows
+   in that result. Deduplicate; this set is small (one per auto-rollback).
+3. **Targeted parent lookup** — a second query filtered to those specific ids
+   (`|= "request_id=<id>"`), scoped to the **full retention window**, not the
+   display window. It is bounded by the number of distinct parents, not by stream
+   volume, so it does not reintroduce an unbounded read.
+4. Cap the parent-lookup count too, and if a parent is still not found — genuinely
+   aged out of retention — **exclude and disclose**, per §4.3's stated limit.
+
+> **Do not solve this by paginating the primary query.** Walking back through the
+> stream until every parent is found is unbounded in the volume dimension, which
+> is the thing the cap exists to prevent. The targeted lookup is bounded by a
+> count the result set already tells you.
+
 > **The browser never talks to Loki.** It calls `dmf-cms` same-origin with its
 > session cookie; `dmf-cms` reaches Loki over cluster DNS. Loki runs
 > `auth_enabled: false` with no application auth, so anything exposing it would
