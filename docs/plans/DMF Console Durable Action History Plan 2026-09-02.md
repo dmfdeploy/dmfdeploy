@@ -441,24 +441,32 @@ Freeze 1 names no durable-audit non-goal.
    > clause. **If a future gap is found here, prefer strengthening the predicate over
    > appending a case.**
 
-   **Coverage is defined as a partition of §4.3's record classes, and no list is
-   repeated here.** The classes are the `action=` values of §4.3's field table, **except
-   that `rollback` splits by actor** — §4.3's resolution table already separates
-   auto-rollback (`actor=system:auto-rollback`, resolvable via the join) from
-   operator-initiated `rollback` (no `workload=`, no `linked_request_id`, not
-   resolvable). Partitioning on the raw `action=` string would put `rollback` in both
-   sets at once and make this criterion incoherent. Each class is in exactly one of:
+   **Membership is fixed here, exhaustively. The implementation does not choose it.**
+   A partition that named its two sets without populating them left "covered" as an
+   implementation's own definition — so declaring `teardown`, `finalise-purge` and
+   `switch-source` excluded, disclosing them, and rendering only `deploy` satisfied the
+   equality. That is the deploy-only defect again, entering through the set definition
+   instead of through the fixture. **These are closed sets:**
 
-   - **covered** — carries fixture rows in each scope and participates in the equality
-     above; or
-   - **excluded** — named in AC 5's disclosure **and asserted absent for both users**,
-     so the exclusion is tested rather than merely disclosed.
+   | Record class | | Why |
+   |---|---|---|
+   | `deploy` | **covered** | `target=` catalog key |
+   | `teardown` | **covered** | `target=` catalog key |
+   | `finalise-purge` | **covered** | `target=` slug |
+   | `switch-source` | **covered** | `target=` receiver instance |
+   | **auto-rollback** (`actor=system:auto-rollback`) | **covered** | resolvable via the `linked_request_id` join (§4.3) |
+   | **operator-initiated `rollback`** | **excluded** | neither `workload=` nor `linked_request_id` |
+   | `launch` | **excluded** | `target=` is an AWX job-template name |
+   | `verify-drain` | **excluded** | `target=run_id`, no `workload=` |
 
-   **A table row in neither set fails this criterion on its face.** That check is the
-   criterion's own maintenance: an action added to the emitter must land in a bucket or
-   the gate reports itself incomplete, and no separate list can drift out of step with
-   the table. (`mapped_action` is a computed name resolving to one of the listed
-   actions, not a bucket of its own.)
+   `rollback` **splits by actor** and appears in both rows above — §4.3's resolution
+   table already separates the two, and partitioning on the raw `action=` string would
+   place it in both sets at once. `mapped_action` is a computed name resolving to one of
+   the classes above, not a class of its own.
+
+   **A record class absent from this table fails the criterion on its face** — an action
+   added to the emitter must be assigned here, and until it is, the gate reports itself
+   incomplete rather than silently omitting the new rows.
 
    > **`launch` is EXCLUDED** *(decision, 2026-09-02)*, and AC 2's launch clause is
    > withdrawn to match. Review correctly refused to let this stand as a future
@@ -481,7 +489,7 @@ Freeze 1 names no durable-audit non-goal.
    > what would make these rows scopeable. If it lands, revisit all three exclusions
    > together rather than this one alone.
 
-   > **Four implementations that passed this criterion while being broken.** Kept
+   > **Five implementations that passed this criterion while being broken.** Kept
    > because the sequence is the lesson, not any one of them:
    >
    > | Passed anyway | Because the criterion was |
@@ -490,14 +498,17 @@ Freeze 1 names no durable-audit non-goal.
    > | handled **`deploy` only**, dropping the rest | action-blind — one A/B pair is a `deploy` pair |
    > | dropped **`launch`** | enumerated — the fix above *listed* covered actions and missed one |
    > | gave a user **one of two held scopes** | per-user polarity, which says nothing about completeness within a user |
+   > | declared most classes **excluded** and rendered only `deploy` | a partition whose sets were named but never populated — "covered" was the implementation's to define |
    >
-   > Each fix was correct and each admitted the next broken implementation, because they
-   > all **appended a case to an enumeration**. Four rounds is enough evidence that the
-   > enumeration was the defect: there is always another combination, and the author is
-   > reliably not the one who finds it.
+   > Each fix was correct and each admitted the next broken implementation. The first
+   > four all **appended a case to an enumeration**; the fifth got in through the *set
+   > definition* after the enumeration was replaced — proof that a stronger predicate
+   > still fails if its terms are left open for the implementation to define.
    >
-   > **Hence the equality.** It is not a fifth case — it is the shape that makes cases
-   > unnecessary, and all four rows above are instances of set inequality under it.
+   > **Hence both halves.** The **equality** makes cases unnecessary — every row above
+   > is an instance of set inequality under it. The **closed membership table** denies
+   > the equality's terms any freedom, without which "equals the covered rows" is
+   > satisfiable by shrinking what counts as covered. Neither half works alone.
    >
    > Two lessons for any future amendment, in order: **a gate must fail the
    > implementation its own section describes as broken**; and **when a gate is found
