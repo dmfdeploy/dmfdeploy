@@ -138,21 +138,55 @@ than argued in prose.
 
 ### 4.3 Authorization — and the target field is not uniform
 
-**Decision (operator, 2026-09-02): show events whose target the user is already
-authorized to read.** No new permission model. Applied **server-side after the
-parse**, never by widening the selector.
+**Decision (operator, 2026-09-02, REVISED after investigation): the lane carries the
+same authorization as the actions it records — role-gated, not tenant-scoped.**
+Applied **server-side after the parse**, never by widening the selector. Any class
+whose live endpoint *is* tenant-scoped is excluded, because the record does not carry
+what the scoping needs.
 
-> **Corrected 2026-09-02: there is no existing per-workload read check to reuse.**
-> This sentence previously said there was. What the source actually offers is
-> `_require_min_role` (role tier), `_require_media_workloads_access` (surface
-> role/group), `MediaTenancySettings.tenants_for` (group → tenant mapping), and the
-> tenant-scoped service filtering in `media_workloads._fetch_services` — which fails
-> closed to empty when nothing maps. None of these is a per-record read check keyed on
-> an audit row's target. **The parent Audit and Event-Log Spec also leaves binding
-> rendered authorization to records open.** So the operator's decision stands, and the
-> projection from a record's target to a user's scope is **open work in this round**,
-> not a lookup of something already built. Treat it as a security contract to settle,
-> and say which surface you bound it to.
+> **The decision this replaces, and why it could not be implemented.** It read: *"show
+> events whose target the user is already authorized to read."* An investigation of the
+> source found **no covered action has a target→tenant binding**, so there was nothing
+> to be "already authorized to read" against:
+>
+> | class | `target=` | tenant-resolvable? |
+> |---|---|---|
+> | `deploy`, `teardown` | catalog key | **no** — `catalog.py` contains no tenant field; zero occurrences of `tenant` in the module |
+> | `switch-source` | receiver instance | **no** — resolved by `entry.key` match against the same catalog (`switch_source.py:684-713`) |
+> | auto-rollback | joined parent deploy | **no** — the chain terminates at the same catalog key |
+> | `finalise-purge` | slug | **no binding** — see below |
+>
+> `main.py:5779-5782` states it outright: *"deploy/teardown/launch … are role-gated
+> only, no tenant scoping — the catalog has no tenant concept at all."*
+>
+> **`finalise-purge` is the instructive case.** It *does* have a real, correctly
+> fail-closed tenant check at request time — `tenants_for(user.groups)` threaded into
+> `_fetch_services_complete`, requiring the caller's visible service set to equal the
+> unscoped set before dispatch (`media_workloads.py:937-980`). But that is **a check,
+> not a binding**: it answers "may this caller act now", never "which tenant did this
+> row belong to". The NetBox `workload:<slug>` Tag carries no tenant field
+> (`media_workloads.py:918-921`); `Operation.purge_tenant_scope` records the *caller's*
+> permitted slugs rather than the target's tenant, is marked INTERNAL ONLY, is not
+> serialized by `to_dict()`, and lives in a `ttl_seconds=3600` in-memory store
+> (`operations.py:193-199`, `:242-244`, `main.py:1055`). **One hour is not history.**
+>
+> So `finalise-purge` is **excluded**: its live surface is tenant-scoped, and showing
+> its rows under a role gate would disclose purge activity for tenants a scoped
+> operator cannot otherwise see. That is the one place where role-gating the lane would
+> genuinely widen access, and it is the one place we exclude.
+
+**Why role-gating is honest here rather than a shortcut.** For the four covered classes
+the *live* surfaces are already role-gated with no tenant scoping. A history lane gated
+the same way discloses nothing a user cannot already obtain from the catalog and the
+existing endpoints — it matches the system's actual access model instead of implying a
+finer one. **The lane must say so**: it is a record of actions on this facility, not a
+per-tenant view, and it must not present as filtered-to-you.
+
+> **This is a demo-profile decision, not a claim about production.** A production
+> profile wanting tenant-scoped history needs a tenant concept on the catalog — a data
+> model change, not a read-path change. Recorded here so nobody later cites this plan as
+> evidence that per-tenant audit scoping was considered and rejected. It was found
+> **unimplementable against today's schema**, which is a different statement.
 
 > **`target` is not always a workload slug**, and assuming it is would silently
 > drop rows. **`rollback` and auto-rollback carry a run ID** (`main.py:5168`,
@@ -414,19 +448,35 @@ Freeze 1 names no durable-audit non-goal.
    it is excluded and disclosed.
 4. The lane's stated window matches deployed retention. *(#530)*
 5. Rows whose target cannot be resolved are excluded **and the lane says so**.
-   The disclosure names what is excluded, and **`launch`, `verify-drain` and
-   operator-initiated `rollback` are all in that set** this round — the three whose
-   `target=` does not resolve to a scope. *(§4.3)*
+   The disclosure names what is excluded: **`finalise-purge`, `launch`, `verify-drain`
+   and operator-initiated `rollback`** this round. `finalise-purge` is excluded for a
+   different reason from the other three and **the disclosure must not flatten them** —
+   the three carry a target that resolves to nothing, whereas `finalise-purge` is
+   omitted precisely *because* its live surface is tenant-scoped and this lane is not.
+   *(§4.3)*
 5a. **The rendered set equals the expected set, asserted as an equality.** For each
-   user in the fixture, the lane's response must equal **exactly** the set of fixture
-   rows whose record class is *covered* (below) **and** whose target resolves into that
-   user's held scopes. Not "contains", not "excludes" — **equal**.
+   user in the fixture, the lane's response must equal **exactly**:
 
-   The fixture must span **at least two scopes**, carry rows of every covered class in
-   each, and include **at least three users: one holding only A, one holding only B, and
-   one holding both.** The expected set for each user is **enumerated in the fixture,
-   never computed by calling the projection under test** — deriving expectation from the
-   code under test makes the assertion a tautology that passes for any implementation.
+   - for a user **meeting the role gate** — every fixture row of a *covered* class
+     within the window, and nothing else;
+   - for a user **below the role gate** — the empty set.
+
+   Not "contains", not "excludes" — **equal**. The expected set is **enumerated in the
+   fixture, never computed by calling the projection under test**; deriving expectation
+   from the code under test is a tautology that passes for any implementation.
+
+   The fixture must carry rows of **every covered class and every excluded class**, so
+   that the equality tests inclusion and exclusion in the same assertion. Include at
+   least one `finalise-purge` row and one `launch` row: they must appear for **nobody**,
+   and `finalise-purge` is the row whose wrongful inclusion would be an actual widening
+   of access rather than a cosmetic defect.
+
+   > **Scope fixtures are gone because scopes are not the axis.** Earlier drafts
+   > required A-only/B-only tenant fixtures across multiple users. The investigation
+   > found no covered class has a tenant binding at all, so those fixtures would have
+   > asserted against a distinction the system does not make — testing an invented
+   > model rather than the real one. **The axis that exists is role, plus the
+   > covered/excluded partition**, and that is what the equality now ranges over.
 
    > **This is stated as an equality on purpose, and the reason is the more useful part
    > of this criterion.** Written as a list of polarity assertions, it was found too
@@ -450,11 +500,11 @@ Freeze 1 names no durable-audit non-goal.
 
    | Record class | | Why |
    |---|---|---|
-   | `deploy` | **covered** | `target=` catalog key |
-   | `teardown` | **covered** | `target=` catalog key |
-   | `finalise-purge` | **covered** | `target=` slug |
-   | `switch-source` | **covered** | `target=` receiver instance |
-   | **auto-rollback** (`actor=system:auto-rollback`) | **covered** | resolvable via the `linked_request_id` join (§4.3) |
+   | `deploy` | **covered** | live endpoint is role-gated only |
+   | `teardown` | **covered** | live endpoint is role-gated only |
+   | `switch-source` | **covered** | live endpoint is role-gated only (`main.py:5779-5782`) |
+   | **auto-rollback** (`actor=system:auto-rollback`) | **covered** | responds to a `deploy`; same gate as its parent |
+   | `finalise-purge` | **excluded** | its live surface **is** tenant-scoped (`media_workloads.py:937-980`) and the record carries no binding — role-gating it would widen access |
    | **operator-initiated `rollback`** | **excluded** | neither `workload=` nor `linked_request_id` |
    | `launch` | **excluded** | `target=` is an AWX job-template name |
    | `verify-drain` | **excluded** | `target=run_id`, no `workload=` |
@@ -505,23 +555,32 @@ Freeze 1 names no durable-audit non-goal.
    > definition* after the enumeration was replaced — proof that a stronger predicate
    > still fails if its terms are left open for the implementation to define.
    >
-   > **Hence both halves.** The **equality** makes cases unnecessary — every row above
-   > is an instance of set inequality under it. The **closed membership table** denies
-   > the equality's terms any freedom, without which "equals the covered rows" is
-   > satisfiable by shrinking what counts as covered. Neither half works alone.
+   > **And then the sixth finding made all five moot.** The criterion had been written
+   > over an **undefined term**: every version of it asserted something about rows
+   > "resolving into the user's scopes" while no covered class had a tenant binding at
+   > all. The scope-based rows above are kept as history, but the distinction they
+   > tested does not exist in this system — they were fixtures for an invented model.
    >
-   > Two lessons for any future amendment, in order: **a gate must fail the
-   > implementation its own section describes as broken**; and **when a gate is found
-   > too weak repeatedly, strengthen the predicate rather than extend the list.**
-   > *(§4.3)*
+   > **The lesson that supersedes the others: check that a criterion's terms are
+   > defined before making the criterion stricter.** Five rounds of sharpening went
+   > into an assertion whose subject was undefined, and no amount of further
+   > sharpening would have exposed that — only going to the source did. A reviewer
+   > asked for the binding in round 1; the request was declined as over-specification,
+   > and it was the one thing that would have ended this in one round.
+   >
+   > Still load-bearing for the criterion as it now stands: the **equality** makes cases
+   > unnecessary, and the **closed membership table** denies its terms any freedom —
+   > "equals the covered rows" is otherwise satisfiable by shrinking what counts as
+   > covered. Neither half works alone. *(§4.3)*
 
-5b. **The projection fails closed on every unresolved path**, not only the expected
-   one. Exercise at least: an empty scope set for the user, a row whose target parses
-   but maps to nothing, an auto-rollback join that returns no parent, **an
-   auto-rollback join that returns a parent whose own `workload=` is blank**, and a
-   partial/failed Loki response. Each must exclude, never admit.
+5b. **The projection fails closed on every unclassifiable path**, not only the expected
+   one. Exercise at least: a row whose `action=` is unrecognised (not in the membership
+   table), a row whose fields fail to parse, an auto-rollback whose parent record is
+   absent, **an auto-rollback whose parent carries a blank `workload=`**, and a
+   partial/failed Loki response. Each must exclude, never admit — **an unrecognised
+   action is excluded, never defaulted into covered.**
 
-   > **Every one of these cases must carry a resolvable, in-scope control row in the
+   > **Every one of these cases must carry a valid covered-class control row in the
    > same response, and that row must still be rendered.** Otherwise "it excluded the
    > bad row" is indistinguishable from "it excluded everything", and each case would
    > be passed by the same broken endpoint AC 5a already has to rule out. A default-deny
