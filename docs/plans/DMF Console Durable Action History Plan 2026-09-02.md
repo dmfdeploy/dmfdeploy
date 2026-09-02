@@ -242,6 +242,37 @@ the latter recorded by observation rather than reproduced here.
 reasoning §4.2 gives for retrieval: it is a coding decision with a real feedback loop.
 The table above is the input; AC 3 and AC 5 remain the test.
 
+#### The projection must be fail-closed — a property, stated because it is a security boundary
+
+**Delegating the field choice is only safe once the boundary it feeds is specified.**
+While this section still claimed an existing read check, the delegation was narrow —
+which field feeds a working authorizer. With that claim withdrawn, both the field *and*
+the boundary would be undelegated at once, and the boundary is not an implementation
+detail. So the mechanism stays with the implementer and **the property does not**:
+
+- **Default deny.** A record whose target cannot be resolved to a scope the requesting
+  user holds is **excluded**. No path admits an unresolved row — not an empty scope
+  set, not a parse failure, not a join that returned nothing, not a Loki partial
+  result. `_fetch_services` already establishes the house pattern by failing closed to
+  empty when nothing maps; match it.
+- **Both directions are defects, and only one is visible.** Admitting a row the user
+  may not see is a **leak**; dropping a row they may see is a **silent omission** in a
+  feed whose entire purpose is to be trusted as complete. The first is worse and the
+  second is harder to notice, so neither may be traded for the other, and the second
+  must be disclosed per §4.3's existing exclusion rule.
+- **Resolution is per action.** The fields differ per the table above, so one rule
+  cannot serve all of them — a uniform rule is what produced the superseded claim this
+  section exists to correct.
+
+**verify-drain is EXCLUDED this round** *(decision, 2026-09-02)*, and disclosed with the
+other exclusions. It carries `target=run_id` with neither `workload=` nor
+`linked_request_id`, which is exactly the unresolvable shape that already excludes
+operator-initiated `rollback`; admitting one and excluding the other would be
+inconsistent on identical evidence. Full run-ID → workload resolution, deferred with
+§5, is what would admit both.
+
+AC 5a and AC 5b below are the test for all of this.
+
 **Resolution rules, in order:**
 
 | Record | Resolves how |
@@ -381,7 +412,33 @@ Freeze 1 names no durable-audit non-goal.
    it is excluded and disclosed.
 4. The lane's stated window matches deployed retention. *(#530)*
 5. Rows whose target cannot be resolved are excluded **and the lane says so**.
-   *(§4.3)*
+   The disclosure names what is excluded, and **`verify-drain` and operator-initiated
+   `rollback` are both in that set** this round. *(§4.3)*
+5a. **The projection admits exactly the user's own scope — proved in both polarities.**
+   The fixture must contain **at least one row resolving only to scope A and one
+   resolving only to scope B**, and the assertions must be four, not two: user A **sees
+   the A row** and **does not see** the B row; user B **sees the B row** and **does not
+   see** the A row.
+
+   > **Negative assertions alone cannot pass this criterion.** An endpoint that returns
+   > **zero rows to everyone** satisfies every "does not see" clause while being
+   > completely broken, and that failure — a silently empty feed — is the one this work
+   > exists to remove. The positive half is what makes the test discriminate; a
+   > two-scope fixture without A-only and B-only rows leaves a leak test that also
+   > passes vacuously. *(§4.3)*
+
+5b. **The projection fails closed on every unresolved path**, not only the expected
+   one. Exercise at least: an empty scope set for the user, a row whose target parses
+   but maps to nothing, an auto-rollback join that returns no parent, **an
+   auto-rollback join that returns a parent whose own `workload=` is blank**, and a
+   partial/failed Loki response. Each must exclude, never admit.
+
+   > **Every one of these cases must carry a resolvable, in-scope control row in the
+   > same response, and that row must still be rendered.** Otherwise "it excluded the
+   > bad row" is indistinguishable from "it excluded everything", and each case would
+   > be passed by the same broken endpoint AC 5a already has to rule out. A default-deny
+   > claim verified only on the happy path is not verified; one verified only on the
+   > sad path is not verified either. *(§4.3)*
 6. Loki is unreachable from the browser; the endpoint builds its own selector,
    accepts no caller LogQL or unbounded range, and bounds timeout/range/results.
    *(§4.2)*
