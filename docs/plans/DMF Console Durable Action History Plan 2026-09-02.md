@@ -119,12 +119,37 @@ parent join cannot both be satisfied by one retrieval.
 1. **Primary query** — bounded, **newest-first**, over the requested window.
 2. **Collect the distinct `linked_request_id` values** from any auto-rollback rows
    in that result. Deduplicate; this set is small (one per auto-rollback).
-3. **Targeted parent lookup** — a second query filtered to those specific ids
-   (`|= "request_id=<id>"`), scoped to the **full retention window**, not the
-   display window. It is bounded by the number of distinct parents, not by stream
-   volume, so it does not reintroduce an unbounded read.
+3. **Targeted parent lookup** — a second query for those specific ids, scoped to
+   the **full retention window**, not the display window. Bounded by the number of
+   distinct parents, not by stream volume.
 4. Cap the parent-lookup count too, and if a parent is still not found — genuinely
    aged out of retention — **exclude and disclose**, per §4.3's stated limit.
+
+> **Select on the parsed field, never on a raw substring.** A line filter of
+> `|= "request_id=<id>"` **also matches `linked_request_id=<id>`** — the auto-rollback
+> row carries that field, so the lookup can return *the rollback row itself*
+> (blank `workload`) instead of its parent, and with newest-first ordering and a
+> small cap that is the *likely* result, not an edge case. AC 3 would then be
+> unreachable while every individual rule looked correct.
+>
+> **Required semantics:**
+> - **Parse, then match the parsed `request_id` for exact equality.** Substring
+>   matching on the raw line is not acceptable for this join.
+> - If a line filter is used to pre-narrow for efficiency, it must be
+>   **delimiter-anchored** — e.g. `|~ "(^|[[:space:]])request_id=<id>"` — so
+>   `linked_request_id=` cannot satisfy it. A bare `|=` cannot.
+> - **Exclude the rollback row from its own candidate set**
+>   (`actor=system:auto-rollback`), and require the selected parent to carry a
+>   **non-empty `workload=`**. A parent that cannot supply a workload is not a
+>   usable parent.
+> - **Select by exact field match across the window, not by recency.** The parent
+>   is by definition older than the child, so newest-first plus a cap of one
+>   selects the wrong row by construction.
+>
+> This is the same shape as the known `\b`-does-not-stop-at-a-hyphen trap, where
+> `text-accent\b` also matched `text-accent-blue` and returned 42 for a true count
+> of 29: a boundary-unaware match silently captures a superset, and the result
+> looks plausible.
 
 > **Do not solve this by paginating the primary query.** Walking back through the
 > stream until every parent is found is unbounded in the volume dimension, which
