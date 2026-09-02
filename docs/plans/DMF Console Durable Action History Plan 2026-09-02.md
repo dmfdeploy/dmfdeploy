@@ -145,10 +145,33 @@ than argued in prose.
 ### 4.3 Authorization — and the target field is not uniform
 
 **Decision (operator, 2026-09-02, REVISED after investigation): the lane carries the
-same authorization as the actions it records — role-gated, not tenant-scoped.**
-Applied **server-side after the parse**, never by widening the selector. Any class
-whose live endpoint *is* tenant-scoped is excluded, because the record does not carry
-what the scoping needs.
+same authorization as the actions it records — which is a gate PER RECORD CLASS, not
+one gate for the lane.** A row is rendered only if the requesting user would pass the
+gate that action's **own endpoint** applies. Applied **server-side after the parse**,
+never by widening the selector. Any class whose live endpoint is tenant-scoped is
+excluded, because the record does not carry what that scoping needs.
+
+> **Per class, because the covered actions do not share a gate.** An earlier revision
+> of this decision said "role-gated" and meant a single gate. That is wrong in both
+> directions, and the source is unambiguous:
+>
+> | action | its endpoint's gate | source |
+> |---|---|---|
+> | `deploy` | `_require_min_role(request, "operator")` | `main.py:4653` |
+> | `teardown` | `_require_min_role(request, "operator")` | `main.py:4949` |
+> | `switch-source` | `_require_media_workloads_access(request)` | `main.py:5809` |
+>
+> `_require_media_workloads_access` grants on `role_at_least(user.role, "engineer")`
+> **or** `MEDIA_ENGINEERS_GROUP in user.groups` (`main.py:277-295`), and its own
+> docstring confirms *"a real viewer in media-engineers reaches the surface"*.
+>
+> So one gate for the lane either **leaks** `deploy`/`teardown` history to a
+> group-only viewer, or **omits** `switch-source` history from an operator outside
+> that group. Neither is acceptable, and no single gate avoids both. **Auto-rollback
+> takes its parent's gate** — it responds to a `deploy`, so `operator`.
+>
+> The principle was right and its application was not: *"the same authorization as the
+> actions it records"* is only meaningful action by action.
 
 > **The decision this replaces, and why it could not be implemented.** It read: *"show
 > events whose target the user is already authorized to read."* An investigation of the
@@ -523,10 +546,10 @@ Freeze 1 names no durable-audit non-goal.
 
    | Record class | | Why |
    |---|---|---|
-   | `deploy` | **covered** | live endpoint is role-gated only |
-   | `teardown` | **covered** | live endpoint is role-gated only |
-   | `switch-source` | **covered** | live endpoint is role-gated only (`main.py:5779-5782`) |
-   | **auto-rollback** (`actor=system:auto-rollback`) | **covered** | responds to a `deploy`; same gate as its parent |
+   | `deploy` | **covered** | gate: `_require_min_role("operator")` (`main.py:4653`) |
+   | `teardown` | **covered** | gate: `_require_min_role("operator")` (`main.py:4949`) |
+   | `switch-source` | **covered** | gate: `_require_media_workloads_access` — engineer+ **or** media-engineers group (`main.py:5809`, `:277-295`) |
+   | **auto-rollback** (`actor=system:auto-rollback`) | **covered** | responds to a `deploy`, so it inherits `operator` |
    | `finalise-purge` | **excluded — access** | its live surface **is** tenant-scoped (`media_workloads.py:937-980`) and the record carries no binding, so role-gating it would widen access |
    | `launch` | **excluded — scope of this round** | §4.4 leaves its outcome *explicitly unresolved by the spec*, and `target=` is an AWX job-template name; a row with neither a verdict nor a workload is noise in a media-workload history |
    | `verify-drain` | **excluded — scope of this round** | §4.4 does not classify its outcomes at all; `target=run_id` |
