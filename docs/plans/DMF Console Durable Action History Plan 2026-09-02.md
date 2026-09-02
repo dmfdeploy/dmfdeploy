@@ -200,7 +200,7 @@ excluded, because the record does not carry what that scoping needs.
 > (`operations.py:193-199`, `:242-244`, `main.py:1055`). **One hour is not history.**
 >
 > So `finalise-purge` is **excluded**: its live surface is tenant-scoped, and showing
-> its rows under a role gate would disclose purge activity for tenants a scoped
+> its rows under role-based gating would disclose purge activity for tenants a scoped
 > operator cannot otherwise see. That is the one place where role-gating the lane would
 > genuinely widen access, and it is the one place we exclude.
 
@@ -328,9 +328,12 @@ The projection admits a row on **class membership**, not on target resolution:
   action is never defaulted into covered** — a new emitter action must be assigned in
   the table before it can appear. `_fetch_services` sets the house pattern by failing
   closed to empty; match it.
-- **The role gate is the only per-user axis.** There is no per-row user test, because
-  there is nothing on a row to test against. A user meeting the gate sees every covered
-  row in the window; a user below it sees none.
+- **The per-user axis is the row's own class gate, and there is no other.** There is no
+  test against anything *on* the row, because a row carries nothing to test against —
+  but which gate applies **depends on the class**, per the membership table. A user
+  sees every covered row in the window whose class gate they pass, and no others. That
+  is one rule, not one gate: `deploy`, `teardown` and auto-rollback answer to
+  `operator`; `switch-source` answers to engineer-or-media-engineers.
 - **Both directions are still defects.** Rendering an excluded class is a widening of
   access — `finalise-purge` most of all, since its live surface *is* scoped. Dropping a
   covered row is a silent omission in a feed whose whole purpose is to be trusted as
@@ -353,7 +356,7 @@ AC 5a and AC 5b below are the test for all of this.
 
 > **Whatever is excluded, the lane's own description must say so.** A feed that
 > silently omits whole action classes while presenting as complete is the untruth this
-> work exists to remove — and under a role gate the lane must additionally not present
+> work exists to remove — and under role-based gating the lane must additionally not present
 > as filtered-to-you. Full run-ID → workload resolution, which would cover the
 > operator-initiated rollback case, is deferred with §5.
 
@@ -500,16 +503,30 @@ Freeze 1 names no durable-audit non-goal.
    widen access** — its live surface is tenant-scoped and this lane is not. A reader
    must be able to tell which omissions are a choice about detail and which are a
    boundary. *(§4.3)*
-5a. **The rendered set equals the expected set, asserted as an equality.** For each
-   user in the fixture, the lane's response must equal **exactly**:
+5a. **The rendered set equals the expected set, asserted as an equality, per class
+   gate.** For each user in the fixture, the lane's response must equal **exactly** the
+   set of fixture rows within the window whose class is *covered* **and whose class
+   gate that user passes** — nothing else. Not "contains", not "excludes" — **equal**.
+   The expected set is **enumerated in the fixture, never computed by calling the
+   projection under test**; deriving expectation from the code under test is a
+   tautology that passes for any implementation.
 
-   - for a user **meeting the role gate** — every fixture row of a *covered* class
-     within the window, and nothing else;
-   - for a user **below the role gate** — the empty set.
+   **The fixture must contain the four discriminator users**, because a generic
+   allowed/denied pair cannot tell a per-class implementation from a single-gate one:
 
-   Not "contains", not "excludes" — **equal**. The expected set is **enumerated in the
-   fixture, never computed by calling the projection under test**; deriving expectation
-   from the code under test is a tautology that passes for any implementation.
+   | user | expects |
+   |---|---|
+   | `operator`, **not** in media-engineers | `deploy`, `teardown`, auto-rollback — **not** `switch-source` |
+   | `viewer` **in** media-engineers | `switch-source` — **not** `deploy`/`teardown`/auto-rollback |
+   | qualifies for **both** | every covered row |
+   | qualifies for **neither** | the empty set |
+
+   > **The first two rows are the whole point.** They are the users a single gate gets
+   > wrong, in opposite directions: one gate either shows the operator-only viewer
+   > `deploy` history it must not see, or hides `switch-source` from an operator outside
+   > the group. A fixture without both cannot distinguish the correct implementation
+   > from either failure. The third and fourth rows alone would pass a single-gate
+   > implementation.
 
    The fixture must carry rows of **every covered class and every excluded class**, so
    that the equality tests inclusion and exclusion in the same assertion. Include at
