@@ -110,57 +110,31 @@ An authenticated `GET /api/audit/events` (or equivalent) over Loki `query_range`
 - **A Loki outage must render differently from an empty history.** "Nothing
   happened" and "we could not ask" are different statements.
 
-**Retrieval is two queries, not one — and that is forced by the join.** A single
-bounded result set will routinely contain a recent auto-rollback whose parent
-deploy is *older than the cap*. The join in §4.3 would then fail, authorization
-would exclude the row, and **AC 3 could not pass** — a bounded query and a
-parent join cannot both be satisfied by one retrieval.
-
-1. **Primary query** — bounded, **newest-first**, over the requested window.
-2. **Collect the distinct `linked_request_id` values** from any auto-rollback rows
-   in that result. Deduplicate; this set is small (one per auto-rollback).
-3. **Targeted parent lookup** — a second query for those specific ids, scoped to
-   the **full retention window**, not the display window. Bounded by the number of
-   distinct parents, not by stream volume.
-4. Cap the parent-lookup count too, and if a parent is still not found — genuinely
-   aged out of retention — **exclude and disclose**, per §4.3's stated limit.
-
-> **Select on the parsed field, never on a raw substring.** A line filter of
-> `|= "request_id=<id>"` **also matches `linked_request_id=<id>`** — the auto-rollback
-> row carries that field, so the lookup can return *the rollback row itself*
-> (blank `workload`) instead of its parent, and with newest-first ordering and a
-> small cap that is the *likely* result, not an edge case. AC 3 would then be
-> unreachable while every individual rule looked correct.
->
-> **Required semantics:**
-> - **Parse, then match the parsed `request_id` for exact equality.** Substring
->   matching on the raw line is not acceptable for this join.
-> - If a line filter is used to pre-narrow for efficiency, it must be
->   **delimiter-anchored** — e.g. `|~ "(^|[[:space:]])request_id=<id>"` — so
->   `linked_request_id=` cannot satisfy it. A bare `|=` cannot.
-> - **Exclude the rollback row from its own candidate set**
->   (`actor=system:auto-rollback`), and require the selected parent to carry a
->   **non-empty `workload=`**. A parent that cannot supply a workload is not a
->   usable parent.
-> - **Select by exact field match across the window, not by recency.** The parent
->   is by definition older than the child, so newest-first plus a cap of one
->   selects the wrong row by construction.
->
-> This is the same shape as the known `\b`-does-not-stop-at-a-hyphen trap, where
-> `text-accent\b` also matched `text-accent-blue` and returned 42 for a true count
-> of 29: a boundary-unaware match silently captures a superset, and the result
-> looks plausible.
-
-> **Do not solve this by paginating the primary query.** Walking back through the
-> stream until every parent is found is unbounded in the volume dimension, which
-> is the thing the cap exists to prevent. The targeted lookup is bounded by a
-> count the result set already tells you.
-
 > **The browser never talks to Loki.** It calls `dmf-cms` same-origin with its
 > session cookie; `dmf-cms` reaches Loki over cluster DNS. Loki runs
 > `auth_enabled: false` with no application auth, so anything exposing it would
 > permit an unauthenticated read of every stream in that tenant. It is a ClusterIP
 > today — keep it that way.
+
+**Retrieval mechanism is the implementer's, not this plan's.** §7's acceptance
+criteria state the properties the retrieval must satisfy; how it satisfies them —
+one query or two, ordering, pre-filtering, parse strategy — is a coding decision
+with a real feedback loop, and it belongs where it can be run and tested rather
+than argued in prose.
+
+> **Two known traps, recorded as hazards rather than prescriptions**, because
+> they were found the expensive way and are cheap to hand over:
+>
+> - **A bounded result set and the §4.3 parent join are in tension.** The parent
+>   deploy is by definition older than its auto-rollback child, so any retrieval
+>   that caps by recency can return the child without the parent.
+> - **`linked_request_id=<id>` contains the substring `request_id=<id>`.** A
+>   boundary-unaware match will select the rollback row *as its own parent* — with
+>   a blank `workload`, so authorization then drops it. Same family as
+>   `text-accent\b` also matching `text-accent-blue`.
+>
+> Both are covered by AC 3: if the implementation trips either, that criterion
+> fails. Neither is a licence to reintroduce an unbounded read.
 
 ### 4.3 Authorization — and the target field is not uniform
 
@@ -303,10 +277,14 @@ Freeze 1 names no durable-audit non-goal.
    failure shows what happened, what it means for the facility, and what to do
    next; the raw class is reachable only at expert level, off the same record.
    *(§4.5)*
-3. **Auto-rollback events appear**, resolved via the `linked_request_id` join —
-   proving both that the query did not filter on the audit logger *(§4.1)* and
-   that the join survives the authorization projection *(§4.3)*. Operator-initiated
-   `rollback` is **not** expected to appear; it is excluded and disclosed.
+3. **An auto-rollback event appears in the lane with its workload resolved** —
+   which is only possible if the query did not filter on the audit logger *(§4.1)*,
+   the parent deploy was retrieved despite being older than the child, the
+   *parent* was selected rather than the child, and the row then survived the
+   authorization projection *(§4.3)*. **Test this against a real auto-rollback,
+   not a synthetic row** — it is one assertion covering four ways to get the
+   retrieval wrong. Operator-initiated `rollback` is **not** expected to appear;
+   it is excluded and disclosed.
 4. The lane's stated window matches deployed retention. *(#530)*
 5. Rows whose target cannot be resolved are excluded **and the lane says so**.
    *(§4.3)*
