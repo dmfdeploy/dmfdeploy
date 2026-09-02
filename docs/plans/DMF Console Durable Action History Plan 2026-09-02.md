@@ -414,18 +414,33 @@ Freeze 1 names no durable-audit non-goal.
 5. Rows whose target cannot be resolved are excluded **and the lane says so**.
    The disclosure names what is excluded, and **`verify-drain` and operator-initiated
    `rollback` are both in that set** this round. *(§4.3)*
-5a. **The projection admits exactly the user's own scope — proved in both polarities.**
-   The fixture must contain **at least one row resolving only to scope A and one
-   resolving only to scope B**, and the assertions must be four, not two: user A **sees
-   the A row** and **does not see** the B row; user B **sees the B row** and **does not
-   see** the A row.
+5a. **The projection admits exactly the user's own scope — proved in both polarities,
+   for every action the lane includes.** The fixture carries an **A-only row and a
+   B-only row of each included action**, and asserts four cases per action: user A sees
+   the A row and not the B row; user B sees the B row and not the A row.
 
-   > **Negative assertions alone cannot pass this criterion.** An endpoint that returns
-   > **zero rows to everyone** satisfies every "does not see" clause while being
-   > completely broken, and that failure — a silently empty feed — is the one this work
-   > exists to remove. The positive half is what makes the test discriminate; a
-   > two-scope fixture without A-only and B-only rows leaves a leak test that also
-   > passes vacuously. *(§4.3)*
+   **Coverage is derived from §4.3's table, not from a list fixed here** — every action
+   the lane includes needs its own pair, so the criterion cannot go stale as the table
+   changes. On today's table that is `deploy`, `teardown`, `finalise-purge`,
+   `switch-source`, and the **resolved auto-rollback** path. Excluded actions —
+   operator-initiated `rollback` and `verify-drain` — are asserted **absent for both
+   users**, so the exclusion is tested rather than merely disclosed.
+
+   > **Two ways this criterion has already been too weak, both fixed above, both worth
+   > keeping visible because they are the same mistake:**
+   >
+   > - **Negative-only.** An endpoint returning **zero rows to everyone** satisfies every
+   >   "does not see" clause while being completely broken — a silently empty feed
+   >   clearing the gate meant to catch it. The positive half is what discriminates.
+   > - **Action-blind.** A single A/B pair is almost certainly a `deploy` pair, the one
+   >   case that already resolves. An implementation handling `deploy` and silently
+   >   dropping or mis-scoping the other three would pass. **§4.3 documents that these
+   >   actions carry incompatible `target=`/`workload=` shapes, so a per-action property
+   >   needs per-action coverage** — that is the whole point of the enumeration, and an
+   >   action-blind fixture throws it away.
+   >
+   > The shared lesson: **a gate must fail the implementation its own section describes
+   > as broken.** Check any future amendment against that. *(§4.3)*
 
 5b. **The projection fails closed on every unresolved path**, not only the expected
    one. Exercise at least: an empty scope set for the user, a row whose target parses
