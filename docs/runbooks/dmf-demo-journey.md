@@ -212,7 +212,7 @@ it would (full detail in §6a; this line used to say the round trip "wasn't
 re-walked" and pointed at §9 — that was true through 0.24.0 and is fixed
 here now that it's been walked).
 
-**(Table-row status, precisely, as of 2026-09-02.** The clean-inventory row
+(Table-row status, precisely, as of 2026-09-02. The clean-inventory row
 is confirmed live this round (the string itself changed — §0's table
 above). Cluster-reachable and console-healthy were both independently
 re-checked this round (`curl` returned `HTTP/2 200`; the console loaded
@@ -374,11 +374,18 @@ gap noted above. What follows about the resulting screen IS confirmed live
 `marty-mcfly` — never a real operator name). No password was typed *(this
 specific claim is carried forward along with the rest of the login act)*.
 The left rail is **permanently icon-only** — three icons (Workspace,
-Facilities, Media Workloads), no text labels at all; hover or
-keyboard-focus an icon to see its name as a tooltip. A page's own name
+Facilities, Media Workloads), no text labels at all, each confirmed to
+carry an `aria-label` naming it. *(Carried forward, not confirmed this
+round: that hovering or keyboard-focusing an icon shows its name as a
+**visible** tooltip — this round confirmed the accessible name a screen
+reader would announce, not that a hover/focus popup actually renders; see
+§9.)* A page's own name
 lives in the **topbar breadcrumb**, not the rail — the same pattern the
 workload's own pages use (§4). **Admin** appears as a fourth icon, below a
-divider, only if the persona is an admin. **There is no Catalog icon** —
+divider, only if the persona is an admin — this round's own persona
+(engineer) confirms the **absent** half of that claim directly; the
+**present**-for-an-admin half isn't independently re-tested this round
+(this walk never used an admin persona). **There is no Catalog icon** —
 the page still technically exists in the app, but nothing links to it any
 more, and this journey never visits it (see §2 for where its job moved).
 The topbar's own avatar (top-right, initials in a
@@ -471,7 +478,9 @@ edits to Studio name stop touching it from then on. The identity showing
 when you advance, auto-derived or hand-edited, is the literal value the
 platform records. If it isn't valid (lowercase letters, digits, hyphens;
 can't start or end with a hyphen; 40 chars max — the identity field's own
-rule, not the Studio name's, which takes any free text), a red hint says so.
+rule, not the Studio name's, which takes any free text), a red hint says so
+*(this round didn't type an invalid identity to trigger it — carried
+forward, not observed 2026-09-02)*.
 An amber note states the honest limit up front — **wording changed since
 0.24.0**, now more precise about what actually gets recorded, verbatim (confirmed
 live 2026-09-02): *"This draft lives only in this browser tab until Provision
@@ -660,15 +669,24 @@ current, not the 0.24.0 wording.**
    **"Workload not found"** heading instead, with a companion line —
    quoted here with single quotes since the string itself contains
    double quotes — reading: 'No workload named "`<slug>`" is in your
-   scope right now.' (`WorkloadHome.tsx`). Once the record exists, home
+   scope right now.' (`WorkloadHome.tsx`). *(The string itself is
+   genuinely confirmed live 2026-09-02 — it's the exact one Delete
+   permanently lands on, §6a. This specific SCENARIO — following an
+   active "View live" link early, mid-Provision, before the record
+   exists — was not deliberately re-triggered this round; that half of
+   this point is carried forward.)* Once the record exists, home
    only renders §4's monitoring view once it reaches Operate
    (`lifecycle === 'operate'` internally); short of that it shows a
    "Continue setup" panel or an unresolved-status notice instead, not
-   §4's three tiles. If you follow the link early and land on any of
+   §4's three tiles — **the "Continue setup" panel specifically was
+   observed this round**, during the gap before full convergence (see
+   the mid-convergence transient note above); the unresolved-status
+   notice was not. If you follow the link early and land on any of
    these three, that's expected — but waiting it out only converges if
    the launch is actually succeeding. If it isn't, the tell is back on
    the Provisioning screen (§3): a failed job replaces "Deploy
-   accepted." with "The launch job for this workload did not succeed.",
+   accepted." with "The launch job for this workload did not succeed."
+   *(not exercised this round — this walk's own Provision succeeded)*,
    and the failure copy then tells you which of two things happened: a
    launch that never started, where nothing was recorded, or a job that
    failed after starting, where the record may or may not exist and the
@@ -762,12 +780,16 @@ sentence: watch here, act on the guided flow.
   raw slugs with friendly *names* on this tile — that's the title half; the
   raw identifier staying visible underneath is the intended design, not
   something #401 missed.
-- **The viewer's tile is captioned, verbatim, "Live · sidecar preview"**, and
-  it delivers on that caption: confirmed by a two-hour access-log sample
-  against the live env, **2033 successful preview fetches against 49
-  failures — a 97.6% success rate**, with the rare single-tick failure
-  recovering on the very next poll. The preview genuinely works; don't
-  undersell a working feature by hedging on it.
+- **The viewer's tile is captioned, verbatim, "Live · sidecar preview"** —
+  the caption text itself reconfirmed live 2026-09-02. The measurement
+  behind "it delivers on that caption" is older, not repeated this round:
+  a two-hour access-log sample against the live env (0.24.0-era), **2033
+  successful preview fetches against 49 failures — a 97.6% success rate**,
+  with the rare single-tick failure recovering on the very next poll. This
+  round's own walk saw the preview area render without incident on every
+  page load it made, consistent with that number but not a re-measurement
+  of it. The preview genuinely works; don't undersell a working feature by
+  hedging on it.
 - **Both source tiles read, verbatim, "Sidecar live · no preview on this
   side"**, next to a small placeholder that renders, in caps, **"NO
   PREVIEW"** (the underlying label is lowercase; the console styles it
@@ -1051,10 +1073,14 @@ cannot be undone.' — plus a reason textarea. Description, confirmed live
 *"Removes this workload's residual catalog records from the source of truth
 via the finalise-purge automation. The entry stops existing — there is no
 rollback."* The button itself reads **"Delete permanently"** (not a separate
-"Confirm" label). **Two independent gates, confirmed by direct test both
-rounds:** the button stays disabled until BOTH the exact slug is typed AND
-a reason is supplied — typing a wrong slug alone leaves it disabled, and
-typing the correct slug alone with no reason also leaves it disabled. Per
+"Confirm" label). **Two independent gates** — the button stays disabled
+until BOTH the exact slug is typed AND a reason is supplied — typing a
+wrong slug alone leaves it disabled, and typing the correct slug alone with
+no reason also leaves it disabled. **Confirmed by direct test on 0.24.0.
+This round typed both fields together and confirmed the button then
+enabled and the action worked — consistent with the gate logic, but not a
+re-test of the two disabled sub-states independently** (didn't check the
+button stayed disabled with only one field filled). Per
 dmf-runbooks' finalise-purge playbook, this is the **only** launcher that
 deletes NetBox records outright (every other launcher only flips a
 lifecycle tag) — it runs under its own delete-only credential for exactly
