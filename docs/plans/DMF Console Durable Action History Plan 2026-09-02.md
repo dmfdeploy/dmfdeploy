@@ -417,10 +417,29 @@ Freeze 1 names no durable-audit non-goal.
    The disclosure names what is excluded, and **`launch`, `verify-drain` and
    operator-initiated `rollback` are all in that set** this round — the three whose
    `target=` does not resolve to a scope. *(§4.3)*
-5a. **The projection admits exactly the user's own scope — proved in both polarities,
-   for every action the lane includes.** The fixture carries an **A-only row and a
-   B-only row of each included action**, and asserts four cases per action: user A sees
-   the A row and not the B row; user B sees the B row and not the A row.
+5a. **The rendered set equals the expected set, asserted as an equality.** For each
+   user in the fixture, the lane's response must equal **exactly** the set of fixture
+   rows whose record class is *covered* (below) **and** whose target resolves into that
+   user's held scopes. Not "contains", not "excludes" — **equal**.
+
+   The fixture must span **at least two scopes**, carry rows of every covered class in
+   each, and include **at least three users: one holding only A, one holding only B, and
+   one holding both.** The expected set for each user is **enumerated in the fixture,
+   never computed by calling the projection under test** — deriving expectation from the
+   code under test makes the assertion a tautology that passes for any implementation.
+
+   > **This is stated as an equality on purpose, and the reason is the more useful part
+   > of this criterion.** Written as a list of polarity assertions, it was found too
+   > weak four times running — each round adding the case the previous one missed, and
+   > each fix admitting a differently-broken implementation. Enumeration does not
+   > converge here: there is always another combination.
+   >
+   > A set equality closes the class by construction. Any omission fails it, any
+   > admission fails it, and the cases found the expensive way — a zero-row response,
+   > a deploy-only implementation, a dropped `launch`, a user granted only one of two
+   > held scopes — are all just instances of set inequality, none needing its own
+   > clause. **If a future gap is found here, prefer strengthening the predicate over
+   > appending a case.**
 
    **Coverage is defined as a partition of §4.3's record classes, and no list is
    repeated here.** The classes are the `action=` values of §4.3's field table, **except
@@ -430,7 +449,8 @@ Freeze 1 names no durable-audit non-goal.
    resolvable). Partitioning on the raw `action=` string would put `rollback` in both
    sets at once and make this criterion incoherent. Each class is in exactly one of:
 
-   - **covered** — has an A-only/B-only fixture pair and the four assertions above; or
+   - **covered** — carries fixture rows in each scope and participates in the equality
+     above; or
    - **excluded** — named in AC 5's disclosure **and asserted absent for both users**,
      so the exclusion is tested rather than merely disclosed.
 
@@ -461,29 +481,27 @@ Freeze 1 names no durable-audit non-goal.
    > what would make these rows scopeable. If it lands, revisit all three exclusions
    > together rather than this one alone.
 
-   > **Three ways this criterion has already been too weak, all fixed above, all worth
-   > keeping visible because they are the same mistake:**
+   > **Four implementations that passed this criterion while being broken.** Kept
+   > because the sequence is the lesson, not any one of them:
    >
-   > - **Negative-only.** An endpoint returning **zero rows to everyone** satisfies every
-   >   "does not see" clause while being completely broken — a silently empty feed
-   >   clearing the gate meant to catch it. The positive half is what discriminates.
-   > - **Action-blind.** A single A/B pair is almost certainly a `deploy` pair, the one
-   >   case that already resolves. An implementation handling `deploy` and silently
-   >   dropping or mis-scoping the other three would pass. **§4.3 documents that these
-   >   actions carry incompatible `target=`/`workload=` shapes, so a per-action property
-   >   needs per-action coverage** — that is the whole point of the enumeration, and an
-   >   action-blind fixture throws it away.
-   > - **Enumerated.** The fix for the previous point *named the covered actions* — and
-   >   omitted `launch`, which AC 2 requires to render. An implementation dropping
-   >   `launch` passed. The hand-maintained list was itself the defect: it had to stay in
-   >   step with §4.1's query scope, §4.3's table and §4.4's outcome table, and it did
-   >   not. **That is why coverage is now a partition of the table rather than a list** —
-   >   the third instance is what showed the enumeration, not any particular omission,
-   >   was the thing to remove.
+   > | Passed anyway | Because the criterion was |
+   > |---|---|
+   > | returned **zero rows to everyone** | negative-only — every "does not see" clause held |
+   > | handled **`deploy` only**, dropping the rest | action-blind — one A/B pair is a `deploy` pair |
+   > | dropped **`launch`** | enumerated — the fix above *listed* covered actions and missed one |
+   > | gave a user **one of two held scopes** | per-user polarity, which says nothing about completeness within a user |
    >
-   > The shared lesson: **a gate must fail the implementation its own section describes
-   > as broken** — and when the same gate is found too weak three times, the next fix
-   > should change its shape, not extend it. Check any future amendment against both.
+   > Each fix was correct and each admitted the next broken implementation, because they
+   > all **appended a case to an enumeration**. Four rounds is enough evidence that the
+   > enumeration was the defect: there is always another combination, and the author is
+   > reliably not the one who finds it.
+   >
+   > **Hence the equality.** It is not a fifth case — it is the shape that makes cases
+   > unnecessary, and all four rows above are instances of set inequality under it.
+   >
+   > Two lessons for any future amendment, in order: **a gate must fail the
+   > implementation its own section describes as broken**; and **when a gate is found
+   > too weak repeatedly, strengthen the predicate rather than extend the list.**
    > *(§4.3)*
 
 5b. **The projection fails closed on every unresolved path**, not only the expected
