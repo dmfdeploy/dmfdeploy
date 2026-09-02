@@ -332,9 +332,20 @@ Then release and verify **by the bar in §1** — action in browser A, read in a
   > production-profile change and carries its own selector work. Neither is in
   > scope here — this slice adds no label at all and queries by namespace.
 - **Full ADR-0028 D7 compliance** — six-month hot security retention plus
-  near-real-time 12-month WORM object-lock. The 7-day sandbox profile is an
-  environment tuning override on the same architecture; **the UI must not claim
-  otherwise.**
+  near-real-time 12-month WORM object-lock.
+
+  > **Deferred, not dropped — and the distinction is load-bearing.** Operator
+  > ruling, 2026-09-02: rigorous WORM and audit-retention constraints are **out of
+  > scope for this sandbox demo**, and are **valid and not off the table**. D7
+  > remains an accepted decision that a production profile must meet; nothing here
+  > weakens it. What this slice ships is the **same architecture at a different
+  > retention setting** — 7 days instead of 6 months, a dial, not a redesign.
+  >
+  > Two consequences. A later reader must not cite this plan as evidence that D7
+  > was reconsidered, softened, or superseded — it was scoped out of one
+  > environment. And **the UI must not claim otherwise**: a surface reading a
+  > 7-day store must say 7 days (#530), and nothing may present this slice as an
+  > audit trail meeting a retention or immutability guarantee it does not have.
 - **dmfdeploy/dmfdeploy#419** — security-scoped Recent Changes over global audit
   history. Related in intent, materially larger, must not be silently absorbed.
 - **A bespoke persistence layer.** See §1.
