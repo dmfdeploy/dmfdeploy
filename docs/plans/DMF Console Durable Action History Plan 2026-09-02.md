@@ -125,12 +125,28 @@ selector.
 
 > **`target` is not always a workload slug**, and assuming it is would silently
 > drop rows. **`rollback` and auto-rollback carry a run ID** (`main.py:5168`,
-> `:5196`, `:2502`). For this round: resolve `target` to a workload where the
-> `workload=` field or an existing lookup allows it and apply the read check;
-> where it **cannot** be resolved, exclude the row — **and say so in the lane's
-> own description**, because a feed that silently omits rollbacks while calling
-> itself complete is the untruth this work exists to remove. Resolving run IDs to
-> workloads properly is deferred with §5.
+> `:5196`, `:2502`). The two rollback kinds resolve differently, and the
+> difference is load-bearing — an earlier draft of this plan excluded *all*
+> unresolvable rows while also requiring auto-rollback rows to appear, which is
+> self-contradictory.
+
+**Resolution rules, in order:**
+
+| Record | Resolves how |
+|---|---|
+| Normal actions (deploy, teardown, switch, purge, clear) | `workload=` is populated on dispatch (`main.py:4794`, `:4936`); early refusals carry a workload key in `target=`. Apply the read check directly. |
+| **Auto-rollback** (`actor=system:auto-rollback`, 2 sites: `main.py:2501`, `:2510`) | `workload=` is **empty**, but both sites emit **`linked_request_id`** — documented at `main.py:2428-2432` as tying back to *"the failed deploy's own request_id for correlation."* **Join `linked_request_id` → the deploy record's `request_id`**, take that record's `workload=`, and apply the read check to it. Durable: the join is Loki-to-Loki, needing no in-memory store. |
+| **Operator-initiated `rollback`** (`main.py:5168`, `:5196`) | Carries **neither** `workload=` **nor** `linked_request_id`. **Not resolvable this round** — exclude, and say so. |
+
+> **The join's one limit, stated rather than discovered.** It only resolves while
+> the linked deploy record is still inside the retention window — a rollback near
+> the 7-day boundary may have lost its parent. Treat an unresolvable join exactly
+> like an unresolvable target: exclude and disclose.
+>
+> **Whatever is excluded, the lane's own description must say so.** A feed that
+> silently omits rollbacks while presenting as complete is the untruth this work
+> exists to remove. Full run-ID → workload resolution, which would cover the
+> operator-initiated case, is deferred with §5.
 
 ### 4.4 Honest labelling — the load-bearing requirement
 
@@ -189,8 +205,10 @@ Freeze 1 names no durable-audit non-goal.
 1. An action performed in browser A is visible in a fresh browser B. *(§1)*
 2. The lane states it shows **actions taken, not outcomes**, and does not render
    the acceptance `outcome=` as a terminal verdict. *(§4.4)*
-3. Auto-rollback events appear — proving the query did not filter on the audit
-   logger. *(§4.1)*
+3. **Auto-rollback events appear**, resolved via the `linked_request_id` join —
+   proving both that the query did not filter on the audit logger *(§4.1)* and
+   that the join survives the authorization projection *(§4.3)*. Operator-initiated
+   `rollback` is **not** expected to appear; it is excluded and disclosed.
 4. The lane's stated window matches deployed retention. *(#530)*
 5. Rows whose target cannot be resolved are excluded **and the lane says so**.
    *(§4.3)*
