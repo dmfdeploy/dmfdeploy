@@ -195,9 +195,43 @@ dispatch being `outcome: in-progress` with `outcome_detail: launched | dispatche
 and switch-source terminals mapping to `active` / `failed_rollback_required` with
 their **raw `SwitchStatus` values, never renamed**.
 
+**The terminal mapping — this plan's own design work, and it must not be skipped.**
+The spec's mapping table covers dispatch acceptance and switch-source terminals,
+and then says explicitly of the terminal producer: *"it does not exist yet; its
+`OperationState → outcome` mapping is **that producer's own design work, not
+pre-committed here**."* That producer is this plan. So the mapping is defined
+here, over `_WATCHED_TERMINAL_STATES` (`operations.py:99-106`), against the closed
+enum `{ in-progress | succeeded | failed | partial | cancelled }`:
+
+| `OperationState` | `outcome` | `outcome_detail` | Note |
+|---|---|---|---|
+| `RUN_COMPLETE` | `succeeded` | `run_complete` | |
+| `RUN_FAILED` | `failed` | `run_failed` | |
+| `FAILED_ROLLBACK_REQUIRED` | `failed` | `failed_rollback_required` | In `DIRTY_STATES` — surfaces need to say the facility may be inconsistent |
+| `ROLLBACK_INCOMPLETE` | `partial` | `rollback_incomplete` | In `DIRTY_STATES`. **`partial`, not `failed`** — the rollback ran and did not finish; calling it `failed` implies nothing moved |
+| `RUN_STATUS_UNKNOWN` | `partial` | `run_status_unknown` | **See below — the one worth challenging** |
+| `ERROR` | `failed` | the specific error string | Console-side fault (e.g. AWX wake failed), not a run verdict |
+
+> **`RUN_STATUS_UNKNOWN` is the uncomfortable one, and it is deliberate.** The
+> closed enum has no *unknown* member, so every choice is imperfect. `succeeded`
+> is plainly untrue. `failed` asserts a verdict nobody reached and would send an
+> operator to undo work that may have completed. `in-progress` is a different lie
+> — the state is terminal, nothing will move it further. **`partial` is the
+> least-wrong bucket** — "not cleanly either" — and `outcome_detail:
+> run_status_unknown` carries the actual truth. **The UI must render the detail
+> for this row, not just the bucket**, or it will state something the system does
+> not know. If any mapping here deserves a second look, it is this one.
+
+**`launch`'s sync-branch `"launched"` is explicitly OUT of scope.** The spec flags
+it as unresolved and warns it *"must not answer by analogy to the watched actions
+— they are not the same mechanism,"* to be resolved when #496 touches that call
+site. This slice does not touch it: `launch` is not in `_WATCHED_ACTIONS` and is
+not a demo beat. **Do not map it by analogy while passing.** It stays open.
+
 **The read endpoint collapses the pair into one lane row**, joining on
-`request_id` and preferring the terminal event where present. Define what a row
-shows when only a dispatch exists (still in flight) versus when both exist.
+`request_id` and preferring the terminal event where present. A row with only a
+dispatch renders as still in flight; a row with both renders the terminal
+`outcome` plus `outcome_detail`.
 
 **5.2 The endpoint.** Add a backend Loki client and an authenticated
 `GET /api/audit/events` (or equivalent) querying `query_range`.
@@ -283,10 +317,20 @@ Then release and verify **by the bar in §1** — action in browser A, read in a
 
 ## 6. Explicitly not in scope
 
-- **A dedicated `job=dmf-cms-audit` stream label.** Correct production/D7
-  hardening and required for deterministic per-stream retention — but it needs a
-  Promtail relabel rule, so an infra release, which re-introduces #282. **Because
-  this is deferred, #496 does not close on these rounds.**
+- **A dedicated stream label.** Needs a Promtail relabel rule, so an infra
+  release, which re-introduces #282. **Because this is deferred, #496 does not
+  close on these rounds.**
+
+  > **Two different labels, and conflating them is the trap.** The shipped
+  > security-relevant selector is `{job=~".+-security"}`, so **`dmf-cms-audit`
+  > does not match it** — a stream labelled that way falls through to the general
+  > default and gets **no** D7 retention. The D7-correct label would be
+  > **`dmf-cms-security`**, which *does* match — and which is precisely why it
+  > must **not** be used on this sandbox, where it would attach the six-month
+  > selector to a 7-day-retention profile. So: `dmf-cms-audit` is the
+  > **demo-safe** label, not the D7 one; adopting `dmf-cms-security` is a
+  > production-profile change and carries its own selector work. Neither is in
+  > scope here — this slice adds no label at all and queries by namespace.
 - **Full ADR-0028 D7 compliance** — six-month hot security retention plus
   near-real-time 12-month WORM object-lock. The 7-day sandbox profile is an
   environment tuning override on the same architecture; **the UI must not claim
