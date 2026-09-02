@@ -150,13 +150,28 @@ selector.
 
 ### 4.4 Honest labelling — the load-bearing requirement
 
-**These records are dispatch, not outcome.** The watcher updates `OperationStore`
-and emits no audit event, so nothing here says whether an action succeeded.
+**`outcome=` semantics are PER ACTION, not uniform.** An earlier draft of this
+plan said the field is *always* an acceptance mode and never a terminal verdict.
+That is wrong, and wrong in the worst place — it would have mislabelled
+**switch-source, the north-star demo beat**, as perpetually in flight when it had
+in fact succeeded. The spec's own mapping table governs:
 
-- The lane states it shows **actions taken**, not results.
-- The `outcome=` field present on these lines is an **acceptance** mode
-  (`launched`, `dispatched`, or a refusal such as `facility-busy`) — **never a
-  terminal verdict.** Do not render it as one.
+| Record | `outcome` is | Render as |
+|---|---|---|
+| **Watched actions** — deploy, teardown, rollback, finalise-purge (`_WATCHED_ACTIONS`) — at `outcome=launched`/`dispatched` | **acceptance only.** AWX took the job, a watcher attached, *nothing about the run is known yet* | in flight — **never** a verdict |
+| **switch-source** — runs **synchronously** before the audit line is written | **terminal.** `active` → `succeeded`; `failed_rollback_required` → `failed`; a `SwitchSourceError.code` → `failed` | a real outcome |
+| **Any precondition/validation refusal**, any action (`capacity-denied`, `facility-busy`, `template-not-found`, `awx-not-configured`, `awx-error:<status>`) | **terminal.** The action did not happen, full stop | `failed`, with the raw string as detail |
+| **`launch`** | **explicitly unresolved by the spec** — its sync branch's `launched` may map to `succeeded` or `in-progress`, and the spec forbids answering by analogy to the watched actions | **do not claim either.** Show it without a verdict |
+
+> **This is the good news in the round.** Switch-source already carries a true
+> terminal outcome today, so the demo's key beat can honestly read *succeeded* —
+> no producer change needed. Preserve the raw `SwitchStatus` value as the detail;
+> it is spec-locked per `switch_source.py` §6.1 and **never renamed** to match the
+> `outcome` enum.
+
+**What genuinely has no outcome is the watched actions.** For those the watcher
+updates `OperationStore` and emits no audit event, so the lane says **actions
+taken**, not results — and must not imply completion.
 - The window is **7 days** — not the 30 the spec currently mandates
   (dmfdeploy/dmfdeploy#530, must be resolved before this ships). Derive it from
   deployed retention rather than hardcoding.
@@ -203,8 +218,11 @@ Freeze 1 names no durable-audit non-goal.
 ## 7. Acceptance
 
 1. An action performed in browser A is visible in a fresh browser B. *(§1)*
-2. The lane states it shows **actions taken, not outcomes**, and does not render
-   the acceptance `outcome=` as a terminal verdict. *(§4.4)*
+2. **`outcome=` is rendered per action, per §4.4's table** — switch-source shows a
+   real terminal verdict (`succeeded`/`failed`) with its raw `SwitchStatus` as
+   detail; watched-action `launched`/`dispatched` shows as in flight and never as
+   completion; refusals show as `failed`; `launch` shows no verdict. A blanket
+   rule in either direction fails this criterion. *(§4.4)*
 3. **Auto-rollback events appear**, resolved via the `linked_request_id` join —
    proving both that the query did not filter on the audit logger *(§4.1)* and
    that the join survives the authorization projection *(§4.3)*. Operator-initiated
