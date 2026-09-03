@@ -104,19 +104,31 @@ own rulings.
     pre-export mutation window, which a delayed export would leave open for
     the full 6 months. General operational logs get 30 days hot, no
     archival.
-  - **Shipped default, verified against `dmf-infra`'s Loki role config:** 720h
-    (30 days) general retention, plus a 4380h (6-month) security-relevant
-    *stream selector* that already matches the D7 number. An earlier 168h/7d
-    figure was only ever a sandbox-monitoring-doc *plan target* — it was never
-    deployed and must not be repeated as current behaviour.
+  - **Role default, `dmf-infra`'s Loki role (`k3s-lab-bootstrap/roles/stack/operator/loki/defaults/main.yml`):**
+    720h (30 days) general retention, plus a 4380h (6-month) security-relevant
+    *stream selector* that already matches the D7 number — **a global
+    default a deploying profile overrides, not a figure every environment
+    runs.** The sandbox profile deployed here overrides both to 168h (7 days):
+    `dmf-env/bin/init-wizard.sh:1822-1823` renders `loki_retention: 168h` and
+    `loki_security_retention: 168h` into the per-env inventory — this
+    profile's committed, deployed *intent*, not a plan target someone might
+    revert to. Rendered inventory proves intent, not what Loki is actually
+    running or enforcing; the [Durable Action History
+    Plan](../plans/DMF%20Console%20Durable%20Action%20History%20Plan%202026-09-02.md)'s
+    §3 records a point-in-time confirmation of that intent, re-verified live
+    twice. Neither is a substitute for Art. 1's runtime discovery below — a
+    surface derives the window from the running value, never from this
+    paragraph.
   - **D7's 6-month hot retention is UNMET for `dmf_cms.audit` today — a gap,
     not an assumed-solved detail.** The shipped security-relevant selectors
     are `{job="k3s-audit"}`, `{job="authentik-audit"}`, and
     `{job=~".+-security"}` (`dmf-infra`
-    `roles/stack/operator/loki/templates/values.yml.j2`). `dmf_cms.audit`
-    exits as ordinary pod stdout, picked up by the generic Kubernetes-pods
-    scrape job, and carries none of those labels — so today it falls through
-    to the 30-day general default regardless of what this doc calls it.
+    `k3s-lab-bootstrap/roles/stack/operator/loki/templates/values.yml.j2`).
+    `dmf_cms.audit` exits as ordinary pod stdout, picked up by the generic
+    Kubernetes-pods scrape job, and carries none of those labels — so today
+    it falls through to the general default, whatever that is on the
+    deploying profile (168h here, 720h at role default), regardless of what
+    this doc calls it.
     `k3s-audit`'s own dedicated scrape config is not a template for this
     fix — it tails a host file (`__path__: /var/log/kubernetes/audit*.log`
     via a static Promtail scrape target), not pod stdout, so its exact shape
@@ -151,11 +163,50 @@ own rulings.
        *ordinary* 30-day line, planted the same way, does not survive — so
        the positive result in step 3 isn't a false positive.
     Tracked under #496.
-  - **UI honesty rule (Art. 1), unconditional:** any user-facing surface
-    reading this log states its window as **"last 30 days," full stop** —
-    never 7, and never a future "last 6 months" claim either, because until
-    the routing gap above is closed and verified, no surface reads the
-    security-relevant stream at all.
+  - **UI honesty rule (Art. 1), derived not hardcoded:** a surface reading
+    this log derives its stated window from the deployed retention
+    *applicable to the stream it actually queries* — never a hardcoded
+    number, and never the global default when the surface queries a
+    security-relevant stream that overrides it. Read that value from the
+    running Loki instance over the cluster-DNS path — never from rendered
+    inventory intent or role defaults, since a direct `dmf-infra` invocation
+    with a different or missing inventory can silently restore the role
+    defaults. That read must also establish that retention is actually
+    **enforced**, not merely configured — a `retention_period` value with
+    `retention_enabled` false, or with enforcement otherwise unhealthy, is
+    not a valid ceiling and is treated as unknown, the same as an unreadable
+    policy value below (`dmf-infra`
+    `k3s-lab-bootstrap/roles/stack/operator/loki/templates/values.yml.j2:19-26`:
+    `retention_period` is policy-but-not-enforced without the compactor
+    running). State the window as a **ceiling with an as-of sense** —
+    "searches up to `X` ago" — never as a
+    claim that a complete `X`-day history is present. Retention is a
+    ceiling, not coverage: a policy change is not retroactive, a young
+    environment has less than the ceiling, a filled volume has less, and the
+    compactor's delete delay makes the cutoff eventual, not exact. Keep
+    these states distinct — never collapse them into one:
+    - Loki unavailable — the query itself failed.
+    - Query succeeded, no rows — nothing found inside the window.
+    - Partial or truncated — some rows returned, more may exist.
+    - **Retention/policy read failed but data returned** — a real state, not
+      an edge case: render the data *with* "window unavailable" rather than
+      guessing. **No hardcoded fallback, anywhere** — an unreadable policy
+      value stays unknown; a fallback here reintroduces the defect this
+      rule exists to close.
+
+    **Hazard, latent today:** per-stream `retention_stream` selectors
+    (`dmf-infra`
+    `k3s-lab-bootstrap/roles/stack/operator/loki/templates/values.yml.j2:28-47`)
+    take precedence over the global `retention_period`, which is only the
+    **fallback for streams matching no selector** — not a minimum every
+    stream receives. On the sandbox profile both values happen to be 168h,
+    so a surface that reads only the global figure looks correct **today**
+    and passes every test available today — it becomes wrong the moment a
+    profile's two values diverge (the role default already does: 720h vs
+    4380h), and again the day #496's Promtail rule moves `dmf_cms.audit`
+    onto the `dmf-cms-security` job. Bind the derived value to the labels
+    the surface actually queries, not to whichever retention figure is
+    easiest to read.
 - **Rejected: NATS / a broker.** Wrong layer for one in-process producer and
   one consumer at single-replica scale — it adds delivery semantics the
   console doesn't need and still leaves the storage question open. Revisit

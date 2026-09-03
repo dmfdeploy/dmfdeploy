@@ -264,7 +264,7 @@ inconsistent answers to "what happened"**:
 | `store/topbarMessage.ts` | in-memory, single slot | 6 seconds |
 | `store/activity.ts` | localStorage | this browser only; never other operators |
 | `/changes` | live AWX + Forgejo scrape | whatever those APIs return |
-| `audit_logger` (`dmf_cms.audit`) | prose to stdout → Loki | 30d general — the 6mo security-relevant stream exists in Loki but nothing routes this logger into it today (gap, see §2a) |
+| `audit_logger` (`dmf_cms.audit`) | prose to stdout → Loki | general default (168h here, 720h at role default) — the 6mo security-relevant stream exists in Loki but nothing routes this logger into it today (gap, see §2a) |
 
 **Ruling: collapse all four into projections of one record.** The bus is the
 missing read side of Art. 10, not a fifth surface.
@@ -312,19 +312,27 @@ tracked, not this plan alone.
   is closing the pre-export mutation window; a delayed export would leave
   that window open for the full 6 months, defeating the point. Loki is the
   hot cache of an append-only stream, not "our audit database".
-  **The shipped default, verified against `dmf-infra`'s Loki role, is 30 days
-  (720h) general retention plus a 4380h (6-month) security-relevant stream
-  that already matches ADR-0028 D7's number** — the earlier 168h/7d figure was
-  only ever a sandbox-monitoring-doc *plan target*, never what is actually
-  deployed.
+  **`dmf-infra`'s Loki role default is 30 days (720h) general retention plus
+  a 4380h (6-month) security-relevant stream that already matches ADR-0028
+  D7's number — a global default a deploying profile overrides, not a
+  figure every environment runs.** The sandbox profile deployed here
+  overrides both to 168h (7 days): `dmf-env/bin/init-wizard.sh:1822-1823`
+  renders `loki_retention: 168h` and `loki_security_retention: 168h` into the
+  per-env inventory — this profile's committed, deployed *intent*, not
+  necessarily what Loki is actually running or enforcing right now — see
+  the [Audit and Event-Log
+  Spec](../design/DMF%20Console%20Audit%20and%20Event-Log%20Spec.md)'s Art. 1
+  rule for how a surface derives the actual window at runtime.
 - **D7's 6-month hot retention is UNMET for `dmf_cms.audit` today — an
   explicit gap, not an assumed-solved detail.** Confirmed against
   `dmf-infra`: the security-relevant retention selectors are
   `{job="k3s-audit"}`, `{job="authentik-audit"}`, and `{job=~".+-security"}`
-  (`roles/stack/operator/loki/templates/values.yml.j2`). Ordinary pod
-  stdout — which is all `dmf_cms.audit` is today — is picked up by the
-  generic Kubernetes-pods scrape job and carries none of those labels, so it
-  falls through to the 30-day general default. **The exact Promtail rule and
+  (`k3s-lab-bootstrap/roles/stack/operator/loki/templates/values.yml.j2`).
+  Ordinary pod stdout — which is all `dmf_cms.audit` is today — is picked up
+  by the generic Kubernetes-pods scrape job and carries none of those
+  labels, so it falls through to the general default, whatever that is on
+  the deploying profile (168h here, 720h at role default). **The exact
+  Promtail rule and
   the acceptance check that actually proves survival past 30 days (not just
   a line's continued presence) are specified once, in full, in the
   [Audit and Event-Log Spec](../design/DMF%20Console%20Audit%20and%20Event-Log%20Spec.md)'s
@@ -333,10 +341,13 @@ tracked, not this plan alone.
   selector with no Loki-role change), then a paired nonce + negative-control
   query proves both the label assignment and the >30-day survival, not one
   without the other. Tracked under #496.
-- **The UI states its window honestly (Art. 1): "last 30 days," full stop —
-  no future exception.** Until the routing gap above is closed and verified,
-  no surface reads the security-relevant stream at all, so nothing can
-  honestly claim a 6-month window yet either.
+- **The UI states its window honestly (Art. 1): derived from deployed
+  retention, never hardcoded** — see the [Audit and Event-Log
+  Spec](../design/DMF%20Console%20Audit%20and%20Event-Log%20Spec.md)'s Art. 1
+  rule for the full statement (ceiling-not-coverage, per-stream binding, no
+  fallback). Until the routing gap above is closed and verified, no surface
+  reads the security-relevant stream at all, so nothing can honestly claim a
+  6-month window yet either.
 - **Rejected: NATS / a broker.** Wrong layer — one in-process producer, one
   consumer, single replica. It adds delivery semantics we don't need and still
   leaves the storage question open. Revisit only if multiple repos publish.

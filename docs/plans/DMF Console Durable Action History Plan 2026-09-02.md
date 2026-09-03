@@ -413,9 +413,11 @@ the addition.
 > leak the raw string, or show a failure with no explanation — and both are
 > defects. `facility-busy` is *"another operation is using this facility; wait
 > for it to finish"*, not `facility-busy`.
-- The window is **7 days** — not the 30 the spec currently mandates
-  (dmfdeploy/dmfdeploy#530, must be resolved before this ships). Derive it from
-  deployed retention rather than hardcoding.
+- This lane derives its stated window from deployed retention, never a
+  hardcoded number — see the [Audit and Event-Log
+  Spec](../design/DMF%20Console%20Audit%20and%20Event-Log%20Spec.md)'s Art. 1
+  rule for the derivation, and §3 above for this environment's measured
+  value. `dmfdeploy/dmfdeploy#530` corrected the spec to this rule.
 
 ## 5. Deferred as one coherent piece — the proper solution
 

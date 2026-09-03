@@ -1188,11 +1188,10 @@ reads, verbatim, **"Activity — History · DMF Console"**.
   emits on every media-workload write (source-confirmed: a shared
   `_audit_awx_write` helper covers Provision/Deploy, Switch, Teardown, and
   Delete permanently; Clear for deployment emits its own equivalent line),
-  which lands in Loki — bounded too, not permanent: the platform's shipped
-  default retention is 30 days, with a 6-month override for streams
-  labelled as security-relevant. Even the longer of the two is still a
-  bound, not an indefinite record. The passkey invitation in §1 is the one
-  write in this journey that emits neither this log line nor a
+  which lands in Loki — bounded too, not permanent: the retention window is
+  set per deployment profile, not a fixed platform default. Either way it
+  is a bound, not an indefinite record. The passkey invitation in §1 is the
+  one write in this journey that emits neither this log line nor a
   Console-actions row — it isn't a media-workload write, and it isn't
   covered by this record at all.
 
