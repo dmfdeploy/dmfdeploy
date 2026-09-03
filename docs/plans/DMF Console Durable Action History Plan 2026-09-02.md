@@ -72,16 +72,39 @@ so a standalone monitoring re-run stays sandbox-fit.
 needed for this round.**
 
 **And the records are already field-structured**, not free prose
-(`main.py:952-1001`):
+(`main.py:952-1001`). The shape as this plan was written:
 
 ```
 awx write: action=%s actor=%s role=%s real_role=%s request_id=%s
            target=%s reason=%r outcome=%s workload=%s capacity=%s
 ```
 
+> **Superseded during implementation, 2026-09-03 — this shape is no longer what
+> is emitted or accepted.** Every externally-influenced field is now quoted and
+> the line carries an explicit format marker:
+>
+> ```
+> awx write: fmt=2 action=%s actor=%r role=%s real_role=%s request_id=%s
+>            target=%r reason=%r outcome=%s workload=%r capacity=%r
+> ```
+>
+> `action`, `role`, `real_role`, `request_id` and `outcome` stay unquoted because
+> each is code-generated with a constrained shape; `target`, `actor`, `workload`
+> and `capacity` are externally sourced and are now boundary-proven rather than
+> boundary-guessed. **A line without a well-formed `fmt=2` marker is not
+> rendered.** See §4.1a for why.
+
 ## 4. The round
 
-**Scope: read path only. Zero producer changes. Zero infra changes.**
+**Scope: read path, plus a producer change that implementation proved
+unavoidable. Zero infra changes.**
+
+> **Corrected 2026-09-03.** This section originally read *"read path only, zero
+> producer changes"*, and that is no longer true — the record of what was built
+> must say what was built. Seven forgery vectors were found against the
+> read-path-only design, six by review and one by proof; the seventh
+> demonstrated that **no reader-side check could exist**, because a forged line
+> and a legitimate line can be byte-identical. See §4.1a.
 
 ### 4.1 The query — match on content, not on logger
 
@@ -99,6 +122,46 @@ awx write: action=%s actor=%s role=%s real_role=%s request_id=%s
 Parse the `key=value` fields for the lane. Nine split trivially; **`reason=%r` is
 a Python repr** — quoted, may contain spaces and escapes — so parse it last and
 tolerantly, and never let a malformed `reason` drop the whole row.
+
+### 4.1a Why the producer changed — the finding this plan did not anticipate
+
+**Superseding §4.1's parsing guidance, 2026-09-03.** The instruction above is
+what a reader must do when field boundaries are *inferred from content*. That
+approach cannot be made safe on this format, and the implementation round proved
+it rather than suspected it.
+
+`target`, `workload` and `actor` are externally sourced. A value containing
+marker-shaped text (` outcome=…`) shifted the parse of every field after it, so a
+**refused** deploy could be made to render as **in flight** for an
+attacker-chosen target — on well-formed input, on the normal path. Six such
+vectors were found and individually closed; each fix was correct and the next
+vector appeared anyway.
+
+**The seventh ended the approach.** A forged line and a legitimate emission whose
+real field values happen to match are **byte-identical**. There is therefore no
+reader-side check that can separate them — not a stricter scanner, not a better
+heuristic. The defect was never the parser; it was a format in which content and
+syntax are indistinguishable.
+
+So the fix moved to where the ambiguity is created:
+
+- **The writer quotes** every externally-influenced field, making boundaries
+  *proven* rather than guessed.
+- **The line declares its grammar** (`fmt=2`), so the reader never infers which
+  format it is reading — a second-order instance of the same disease, found
+  immediately after the first was cured.
+- **Records without a valid marker are not rendered.** Retained pre-change lines
+  cannot be vouched for, and a durable action history must not display records it
+  cannot vouch for. This deleted the legacy parser outright (**−1040 lines**).
+
+> **The reusable finding, which outlives this lane and the transport under it:**
+> *every place a reader infers structure that the writer could have stated is a
+> defect waiting to be found.* It held for field boundaries, for which grammar a
+> line uses, and for how the completeness guard located the code it guards — three
+> instances in one round, each found only after the previous was fixed.
+
+This does **not** pre-empt the structured envelope in §5. It is the same lesson
+arriving early and cheaply, and it narrows what the envelope has left to do.
 
 ### 4.2 The endpoint
 
