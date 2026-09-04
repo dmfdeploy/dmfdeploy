@@ -5,7 +5,9 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/496
 ---
 # DMF Console Durable Action History Plan (2026-09-02)
 
-> **STATUS: ACTIVE — one read-only round that demonstrates the mechanism.**
+> **STATUS: ACTIVE — one round that demonstrates the mechanism.** *(Was "one
+> read-only round"; corrected 2026-09-03 — implementation proved a producer
+> change unavoidable. See §4 and §4.1a.)*
 > **Rescoped by operator decision, 2026-09-02**, after the original three-round
 > spec: *"for the demo I would be fine to just have a timeline of the sentences,
 > who did what when. Later we can investigate a proper solution … just to
@@ -68,8 +70,13 @@ so a standalone monitoring re-run stays sandbox-fit.
 
 **The console's lines already reach Loki** — 958 lines/hour for
 `{namespace="dmf-cms"}`, labelled `namespace`, `job`, `app`, `container`, `pod`,
-`node_name`, `level`, `stream`. Collection is not the gap. **No producer change is
-needed for this round.**
+`node_name`, `level`, `stream`. Collection is not the gap. ~~**No producer change
+is needed for this round.**~~
+
+> **Superseded 2026-09-03.** Collection is indeed not the gap — but a producer
+> change *was* needed, for a reason this section did not anticipate: the records
+> reach Loki, and the reader could not safely tell which of them the writer
+> actually emitted. See §4.1a.
 
 **And the records are already field-structured**, not free prose
 (`main.py:952-1001`). The shape as this plan was written:
