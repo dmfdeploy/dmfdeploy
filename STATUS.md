@@ -21,6 +21,43 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 <!-- HUMAN-START -->
 
+### ✅ dmf-cms v0.37.0 released and deployed — source tiles and outcome-confirmed Activity (2026-09-07, later)
+
+Two features landed and shipped in one round, both closed against the demo milestone.
+
+**[#452](https://github.com/dmfdeploy/dmfdeploy/issues/452) — source tiles say what they emit.** A topology-spawned source tile used to be a blank "no preview" box, so `source-a` and `source-b` were indistinguishable. Each now draws a static inline-SVG illustration of the test pattern it is *configured* to emit, marked `STATIC`, with sr-only text stating it is not a live picture. The pattern resolves server-side from NetBox-stamped topology provenance and is null on any miss — never guessed from a name. Two gate rounds: round 1 caught a real flip-flop (the card branch and the cache-bust tick were derived from different expressions, so a preview-capable instance with a failing image oscillated). Root cause was the work order specifying both clauses independently; fixed by deriving both from one condition so the disagreement is unrepresentable.
+
+**[#419](https://github.com/dmfdeploy/dmfdeploy/issues/419) — Activity says whether it worked.** A row read "Deploy dispatched for X" forever, even after the job failed. It now carries the terminal outcome, identically on Workspace → Activity and Activity → History. The switch row also names the value it set rather than only the instance.
+
+**Six rounds, four blocking findings from `lkirc`, all real, none caught by three codex gate rounds.** Worth recording because it recalibrates how much a clean adversarial pass is worth on a correlation invariant spread across call sites:
+
+| Finding | What it would have shipped |
+|---|---|
+| Forgeable reserved actor | A user whose IdP subject matched the reserved actor had their deploy rows silently dropped from the audit lane |
+| Give-up reported as failure | A watcher timeout, three lost reads, or a crash reported the job as **failed** — nobody observed it fail |
+| Join too broad | A preflight row inherited the job's verdict, duplicating the outcome and destroying its own |
+| Join too narrow | Reattach rows could never join, ageing to unknown despite a known result |
+
+The last two are one defect — `request_id` identifies a *request*, not a *run*. The final round fixed the generator rather than the instances: correlation is by run identity, and the audit writer now refuses to emit a row referencing an existing operation without carrying its identity, with the guard's token set **derived** from the join's own eligibility set so the two cannot drift.
+
+**Release.** `v0.37.0` tagged on the merged HEAD, published to GHCR, mirrored by 630 (`ok=16 changed=4 failed=0`), deployed by 650 (`ok=42 changed=3 failed=0`). Verification passed on all four axes — tag, rollout, **running pod digest equals the published GHCR arm64 digest**, and `/healthz` 200.
+
+**Also this round:** a live walk of 0.36.0 verified both its surfaces (the Activity ⓘ is keyboard-operable with an 11:1 focus ring; Provision members carry honest requested-state labels). New issues [#558](https://github.com/dmfdeploy/dmfdeploy/issues/558) (NetBox records neither facility nor node for an instance), [#559](https://github.com/dmfdeploy/dmfdeploy/issues/559) (setup stages show a bare state word instead of progress), [#560](https://github.com/dmfdeploy/dmfdeploy/issues/560) (auto-rollback rows still never say whether the rollback worked), [#561](https://github.com/dmfdeploy/dmfdeploy/issues/561), [#562](https://github.com/dmfdeploy/dmfdeploy/issues/562) (workloads are derived from members, so an empty container cannot exist) and [#563](https://github.com/dmfdeploy/dmfdeploy/issues/563) (start `netbox-media-plugin`).
+
+**Read [discussion #564](https://github.com/dmfdeploy/dmfdeploy/discussions/564) before picking up the create/authoring arc.** It carries the design-persistence investigation: EBU's own Design/Plan boundary, why relationships are not NMOS territory, and the leading answer that design intent belongs in Forgejo — already an integration hub both AWX and NetBox read from — with the console staying glue rather than acquiring a database. It also records that #563's leading justification (tenancy) may be hollow given ADR-0039 and ADR-0020.
+
+### ✅ dmf-cms v0.36.0 published and deployed to the current sandbox (2026-09-07)
+
+- Built the clean, tagged `v0.36.0` release on the Colima `docker-build` ARM64 VM.
+- Published `ghcr.io/dmfdeploy/dmf-cms:0.36.0` at
+  `sha256:5112135c1108fadbfaf60e8caa4faee24c8af9db172ea9429682c3f6bfe44356`.
+- Playbook 630 mirrored the CMS image from GHCR into the sandbox Zot registry
+  (`ok=16`, `changed=4`, `failed=0`); playbook 650 deployed it via Helm
+  (`ok=42`, `changed=4`, `failed=0`).
+- Canonical verification passed: requested tag matches, rollout completed, the
+  running ARM64 image digest matches the published GHCR platform digest, and
+  `/healthz` returned HTTP 200.
+
 ### 🧭 Console shell round landed — throbber, ghost grid, design record (2026-08-30, later)
 
 Five PRs merged across three repos in one round. Started as "add a throbber" after an
