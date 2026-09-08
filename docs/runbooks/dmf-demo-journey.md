@@ -39,7 +39,9 @@ rather than implying a fresh end-to-end verification:
 - **§6b's audit trail** (v0.37.0) — rewritten. The browser-local "Console
   actions" panel earlier editions taught is a **temporary measure being
   retired**; the record to present is the server-side one, and it is on
-  Workspace. Rows now carry the **outcome** of the job they dispatched.
+  Workspace. Deploy, teardown and source-switch rows now carry the
+  **outcome** of the job they dispatched; automatic-rollback rows still do
+  not (#560).
   Re-walked live at both surfaces.
 - **§5/§6b's switch action line** (v0.37.0) — now names the value it set.
 
@@ -449,7 +451,8 @@ It means the console never got a clean terminal read for that job — the
 watcher timed out, lost the job, or the console restarted mid-watch. The
 lane deliberately says so rather than guessing at success. Older rows
 predating 0.37.0 have no outcome record at all and age into that state too;
-rows for jobs run since then carry real outcomes.
+deploy, teardown and source-switch rows for jobs run since then carry real
+outcomes. Automatic-rollback rows are a separate case and carry none — §6b.
 
 **Correction to the previous edition's framing.** It described this panel as
 "a genuinely different data source" from §6b's Activity → History — the
@@ -1238,7 +1241,8 @@ further than Workspace shows — otherwise stay on Workspace.
   than a per-browser artifact; and it is **role-scoped**, so what a viewer sees
   is not what an engineer sees — that is deliberate, not a gap.
 - **Row shape, confirmed live 2026-09-08.** An action line; the actor, their
-  role and the reason they typed in curly quotes; an outcome; a timestamp. For
+  role and the reason they typed in curly quotes; a timestamp; and — for
+  deploy, teardown and source-switch rows — an outcome. For
   example: *"Deploy succeeded for macmini — dmfdeploy-tester (engineer) ·
   "mini" — Succeeded — run_complete"*.
 - **Action-line formats seen on this walk:** **"Deploy succeeded for
