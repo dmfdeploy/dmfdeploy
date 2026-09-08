@@ -39,10 +39,10 @@ rather than implying a fresh end-to-end verification:
 - **§6b's audit trail** (v0.37.0) — rewritten. The browser-local "Console
   actions" panel earlier editions taught is a **temporary measure being
   retired**; the record to present is the server-side one, and it is on
-  Workspace. Deploy, teardown and source-switch rows now carry the
-  **outcome** of the job they dispatched; automatic-rollback rows still do
-  not (#560).
-  Re-walked live at both surfaces.
+  Workspace. Deploy, teardown and source-switch rows now carry an
+  **outcome** — by two different mechanisms, which §6b separates — while
+  automatic-rollback rows still do not (#560). Re-walked live at both
+  surfaces.
 - **§5/§6b's switch action line** (v0.37.0) — now names the value it set.
 
 Everything else below stands from the 2026-09-02 walk and is **not**
@@ -436,23 +436,28 @@ What it shows now is the **server-side audit record**: deploys, teardowns,
 source switches and automatic rollbacks, each row carrying who did it, the
 role they held and the reason they typed — e.g. *"Deploy succeeded for
 macmini — dmfdeploy-tester (engineer) · "mini""*. Since **v0.37.0**
-**deploy, teardown and source-switch rows** additionally carry the
-**outcome** of the job they dispatched, so you will see **"Deploy succeeded
-for …"**, **"Deploy failed for …"** and **"Deploy — outcome unknown for …"**
-rather than those rows reading "dispatched" forever. **Automatic-rollback
-rows are the exception and still do not** — see §6b before you narrate this
-as universal.
+**deploy, teardown and source-switch rows** additionally carry an
+**outcome**, so you will see **"Deploy succeeded for …"**, **"Deploy failed
+for …"** and **"Deploy — outcome unknown for …"** rather than a deploy or
+teardown row reading "dispatched" forever. Deploy/teardown rows and
+source-switch rows arrive at their outcome by **different routes** — §6b has
+the distinction, and it is the one an engineer in the room is most likely to
+ask about. **Automatic-rollback
+rows are the exception and carry no outcome at all** — see §6b before you
+narrate this as universal.
 An ⓘ disclosure beside the heading, **"About this record"**, is closed by
 default and explains the lane's own limits — open it if an audience asks
 what the record does and does not promise.
 
 **"Outcome unknown" is not an error, and you should not apologise for it.**
-It means the console never got a clean terminal read for that job — the
-watcher timed out, lost the job, or the console restarted mid-watch. The
-lane deliberately says so rather than guessing at success. Older rows
-predating 0.37.0 have no outcome record at all and age into that state too;
-deploy, teardown and source-switch rows for jobs run since then carry real
-outcomes. Automatic-rollback rows are a separate case and carry none — §6b.
+It is a **deploy/teardown** state. The console watches those two jobs after
+dispatch, and when it never gets a clean terminal read — the watch timed
+out, lost the job, or the console restarted mid-watch — the lane says so
+rather than guessing at success. **Source-switch rows do not reach this
+state**, because nothing watches them after the fact (§6b). Older rows
+predating 0.37.0 have no outcome record at all, whatever their kind, and age
+into "unknown" too. Automatic-rollback rows are a separate case and carry
+none — §6b.
 
 **Correction to the previous edition's framing.** It described this panel as
 "a genuinely different data source" from §6b's Activity → History — the
@@ -1256,12 +1261,27 @@ further than Workspace shows — otherwise stay on Workspace.
   it does not yet cover every row.** Before it, a row said only what was
   *requested* — "dispatched" — and never came back to say whether it worked,
   so a row could read "dispatched" indefinitely after the job had failed.
-  **Deploy, teardown and source-switch rows** now carry the terminal outcome
-  of the job they dispatched.
+  **Deploy and teardown rows** now get that answer: the console watches the
+  job it dispatched and, when that job ends, joins its terminal result onto
+  the row — succeeded, failed, or "outcome unknown" when the watch never got
+  a clean read.
+- **Source-switch rows carry a verdict too, but by a different route — and
+  this is the distinction to get right.** Nothing watches a switch after the
+  fact. The console holds the switch request open until the switch job
+  itself finishes (which is why §5's **Confirm switch** takes ~110–180 s)
+  and writes the row **once, already resolved**: *succeeded* if the switch
+  reached its active state, *failed* if it did not. So a switch row is never
+  in flight, never revises itself the way a deploy row does, and never reads
+  "outcome unknown". *(Mechanism is source-derived, not walked — a failed
+  switch was not staged this round. Two consequences worth knowing before
+  you present: the row appears when the switch **completes**, not when you
+  click, so don't go hunting for it mid-switch; and if an engineer asks why
+  a deploy row changes after it appears while a switch row never does, that
+  is the answer.)*
 - **The exception: automatic rollbacks.** The record includes them, but a
   rollback row still reports only that a rollback was *triggered*, never
-  whether it succeeded — the terminal-outcome work covered deploy and teardown
-  and deliberately left the rollback branch out of scope. Tracked as
+  whether it succeeded — the job-watching work above covered deploy and
+  teardown and deliberately left the rollback branch out of scope. Tracked as
   [dmfdeploy/dmfdeploy#560](https://github.com/dmfdeploy/dmfdeploy/issues/560),
   open as of v0.38.0. **Do not tell an audience that every row now carries its
   outcome.** If a rollback happens to appear during your demo, narrate it as
@@ -1269,12 +1289,13 @@ further than Workspace shows — otherwise stay on Workspace.
   than a blanket claim, and it is the very gap this lane's own design exists to
   avoid.
 - **"Outcome unknown" is not an error, and you should not apologise for it.**
-  It means the console never got a clean terminal read for that job — the
-  watcher timed out, lost the job, or the console restarted mid-watch — so the
-  lane says exactly that instead of guessing at success. Rows predating 0.37.0
-  have no outcome record at all and age into the same state. **This is the
-  honesty story, not a rough edge:** the surface refuses to claim an outcome it
-  did not observe.
+  It means the console watched a deploy or teardown job and never got a clean
+  terminal read of it — the watch timed out, lost the job, or the console
+  restarted mid-watch — so the lane says exactly that instead of guessing at
+  success. It is confined to those two kinds of row (a switch row resolves at
+  write time and cannot land here). Rows predating 0.37.0 have no outcome
+  record at all and age into the same state. **This is the honesty story, not
+  a rough edge:** the surface refuses to claim an outcome it did not observe.
 - **Retention is bounded, and the page is honest when it cannot say by how
   much.** On this walk the lane displayed, verbatim: *"Search window unknown —
   retention could not be confirmed."* The underlying record lands in Loki with
