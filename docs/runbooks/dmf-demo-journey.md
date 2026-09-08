@@ -450,14 +450,15 @@ default and explains the lane's own limits — open it if an audience asks
 what the record does and does not promise.
 
 **"Outcome unknown" is not an error, and you should not apologise for it.**
-It is a **deploy/teardown** state. The console watches those two jobs after
-dispatch, and when it never gets a clean terminal read — the watch timed
-out, lost the job, or the console restarted mid-watch — the lane says so
-rather than guessing at success. **Source-switch rows do not reach this
-state**, because nothing watches them after the fact (§6b). Older rows
-predating 0.37.0 have no outcome record at all, whatever their kind, and age
-into "unknown" too. Automatic-rollback rows are a separate case and carry
-none — §6b.
+It has **two sources**, and only one of them is about watching. On a
+**deploy or teardown** row it most often means the console watched that job
+and never got a clean terminal read — the watch timed out, lost the job, or
+the console restarted mid-watch. On **any row, of any kind — a source switch
+included** — it also means the record itself came back with no outcome
+recorded, and the lane renders that as unknown rather than guessing at
+success or calling it a failure. Older rows predating 0.37.0 have no outcome
+record at all and read this way for that second reason. Automatic-rollback
+rows are a separate case and carry no outcome at all — §6b.
 
 **Correction to the previous edition's framing.** It described this panel as
 "a genuinely different data source" from §6b's Activity → History — the
@@ -1263,16 +1264,19 @@ further than Workspace shows — otherwise stay on Workspace.
   so a row could read "dispatched" indefinitely after the job had failed.
   **Deploy and teardown rows** now get that answer: the console watches the
   job it dispatched and, when that job ends, joins its terminal result onto
-  the row — succeeded, failed, or "outcome unknown" when the watch never got
-  a clean read.
+  the row — succeeded, failed, or "outcome unknown" (one cause of which is a
+  watch that never got a clean read; see the "Outcome unknown" bullet below
+  for the other).
 - **Source-switch rows carry a verdict too, but by a different route — and
   this is the distinction to get right.** Nothing watches a switch after the
   fact. The console holds the switch request open until the switch job
   itself finishes (which is why §5's **Confirm switch** takes ~110–180 s)
   and writes the row **once, already resolved**: *succeeded* if the switch
   reached its active state, *failed* if it did not. So a switch row is never
-  in flight, never revises itself the way a deploy row does, and never reads
-  "outcome unknown". *(Mechanism is source-derived, not walked — a failed
+  in flight and never revises itself the way a deploy row does. It **can**
+  still read "outcome unknown", but only for the one reason any row can —
+  its recorded outcome field came back blank — never because something was
+  still being watched. *(Mechanism is source-derived, not walked — a failed
   switch was not staged this round. Two consequences worth knowing before
   you present: the row appears when the switch **completes**, not when you
   click, so don't go hunting for it mid-switch; and if an engineer asks why
@@ -1289,13 +1293,16 @@ further than Workspace shows — otherwise stay on Workspace.
   than a blanket claim, and it is the very gap this lane's own design exists to
   avoid.
 - **"Outcome unknown" is not an error, and you should not apologise for it.**
-  It means the console watched a deploy or teardown job and never got a clean
-  terminal read of it — the watch timed out, lost the job, or the console
-  restarted mid-watch — so the lane says exactly that instead of guessing at
-  success. It is confined to those two kinds of row (a switch row resolves at
-  write time and cannot land here). Rows predating 0.37.0 have no outcome
-  record at all and age into the same state. **This is the honesty story, not
-  a rough edge:** the surface refuses to claim an outcome it did not observe.
+  **Two different situations produce it**, and it is worth knowing which you
+  are looking at. On a deploy or teardown row it most often means the console
+  watched that job and never got a clean terminal read of it — the watch
+  timed out, lost the job, or the console restarted mid-watch. On **any** row,
+  switch rows included, it also means that row's own recorded outcome field
+  came back blank: the lane renders a lost field as unknown rather than as a
+  failure, because losing the field is not evidence the action failed. Rows
+  predating 0.37.0 have no outcome record at all and land here for that
+  second reason. **This is the honesty story, not a rough edge:** the surface
+  refuses to claim an outcome it did not observe.
 - **Retention is bounded, and the page is honest when it cannot say by how
   much.** On this walk the lane displayed, verbatim: *"Search window unknown —
   retention could not be confirmed."* The underlying record lands in Loki with
