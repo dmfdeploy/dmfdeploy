@@ -433,10 +433,13 @@ walk, expect **Activity**.
 What it shows now is the **server-side audit record**: deploys, teardowns,
 source switches and automatic rollbacks, each row carrying who did it, the
 role they held and the reason they typed — e.g. *"Deploy succeeded for
-macmini — dmfdeploy-tester (engineer) · "mini""*. Since **v0.37.0** each row
-also carries the **outcome** of the job it dispatched, so you will see
-**"Deploy succeeded for …"**, **"Deploy failed for …"** and **"Deploy —
-outcome unknown for …"** rather than every row reading "dispatched" forever.
+macmini — dmfdeploy-tester (engineer) · "mini""*. Since **v0.37.0**
+**deploy, teardown and source-switch rows** additionally carry the
+**outcome** of the job they dispatched, so you will see **"Deploy succeeded
+for …"**, **"Deploy failed for …"** and **"Deploy — outcome unknown for …"**
+rather than those rows reading "dispatched" forever. **Automatic-rollback
+rows are the exception and still do not** — see §6b before you narrate this
+as universal.
 An ⓘ disclosure beside the heading, **"About this record"**, is closed by
 default and explains the lane's own limits — open it if an audience asks
 what the record does and does not promise.
@@ -1245,11 +1248,22 @@ further than Workspace shows — otherwise stay on Workspace.
   source it switched TO rather than only the instance it acted on. Earlier
   editions recorded the old string, **"Switched source on `<instance>`"**; that
   is what a pre-0.37.0 screenshot shows and is not what is on screen now.
-- **Outcome confirmation is new in v0.37.0, and it is worth narrating.** Before
-  it, a row said only what was *requested* — "dispatched" — and never came back
-  to say whether it worked, so a row could read "dispatched" indefinitely after
-  the job had failed. Now the row carries the terminal outcome of the job it
-  dispatched.
+- **Outcome confirmation is new in v0.37.0, and it is worth narrating — but
+  it does not yet cover every row.** Before it, a row said only what was
+  *requested* — "dispatched" — and never came back to say whether it worked,
+  so a row could read "dispatched" indefinitely after the job had failed.
+  **Deploy, teardown and source-switch rows** now carry the terminal outcome
+  of the job they dispatched.
+- **The exception: automatic rollbacks.** The record includes them, but a
+  rollback row still reports only that a rollback was *triggered*, never
+  whether it succeeded — the terminal-outcome work covered deploy and teardown
+  and deliberately left the rollback branch out of scope. Tracked as
+  [dmfdeploy/dmfdeploy#560](https://github.com/dmfdeploy/dmfdeploy/issues/560),
+  open as of v0.38.0. **Do not tell an audience that every row now carries its
+  outcome.** If a rollback happens to appear during your demo, narrate it as
+  the one place the record is not yet complete — which is a more honest story
+  than a blanket claim, and it is the very gap this lane's own design exists to
+  avoid.
 - **"Outcome unknown" is not an error, and you should not apologise for it.**
   It means the console never got a clean terminal read for that job — the
   watcher timed out, lost the job, or the console restarted mid-watch — so the
