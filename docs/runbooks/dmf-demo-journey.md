@@ -26,6 +26,31 @@ round specifically — anything still marked *(carried forward)* survives
 unconfirmed from an earlier edit and is not contradicted by anything any
 round has found. What no round has yet covered is concentrated in §9.
 
+**Fourth pass (2026-09-08, against dmf-cms v0.38.0) — TARGETED, NOT
+end-to-end.** Five releases of drift since the 2026-09-02 walk. This pass
+re-walked only the beats those releases demonstrably changed, and says so
+rather than implying a fresh end-to-end verification:
+
+- **§4's source tiles** (v0.37.0, corrected in v0.38.0) — the blank "no
+  preview" placeholder is gone; both source tiles now show a still picture of
+  the pattern that source emits. Re-walked live.
+- **§1's Workspace panel** (v0.35.0) — "Recent changes" is renamed **Activity**
+  and is now the server-side audit record, not an AWX-job feed. Re-walked live.
+- **§6b's audit trail** (v0.37.0) — rewritten. The browser-local "Console
+  actions" panel earlier editions taught is a **temporary measure being
+  retired**; the record to present is the server-side one, and it is on
+  Workspace. Rows now carry the **outcome** of the job they dispatched.
+  Re-walked live at both surfaces.
+- **§5/§6b's switch action line** (v0.37.0) — now names the value it set.
+
+Everything else below stands from the 2026-09-02 walk and is **not**
+reconfirmed against v0.38.0 — in particular §2 (Create), §3 (Provision), §5's
+own switch mechanics, §6a (Teardown/Delete) and §6c/§6d were not re-executed
+this pass. Treat them exactly as the previous edition left them. The demo's
+focus is deliberately the **Workspace** and **Media Workloads** pages; where
+this pass touched a beat that sent a presenter elsewhere, it points back at
+those two.
+
 Three things changed shape since the last edit, which is why this is a
 rewrite rather than a touch-up:
 
@@ -104,10 +129,11 @@ Once a workload's identity (its **slug**, e.g. `studio-a`) exists, every
 route that names it in its own URL is one of exactly three addresses —
 confirmed this round by reading the router directly, not just by clicking
 around. (This journey visits a fourth page too — Activity → History, §6b —
-but that route is never slug-scoped; it's a browser-local log (§6b: this
-browser's writes only, not facility-wide) that happens to list rows about
-this workload alongside everything else, not a fourth workload-specific
-address.)
+but that route is never slug-scoped; it's the facility-wide audit record
+(§6b), paging the same rows the Workspace **Activity** panel shows, so it
+lists this workload alongside everything else rather than being a fourth
+workload-specific address. You do not have to go there: the same record is
+on Workspace.)
 
 | Address | What's there |
 |---|---|
@@ -398,17 +424,45 @@ an empty landing page.** Two count tiles (**Critical** / **Warning**, both
 facility, verbatim: *"✓ No problems — facility monitoring reports all
 quiet."* plus *"Verified: the alert pipeline's always-on Watchdog signal is
 arriving, so silence means healthy, not broken."*, tagged **"live · updates
-in place every 30s"** — and a **"Recent changes"** panel, which is a
-facility-wide feed of the actual AWX/automation jobs run against this
-facility (Deploy/Teardown/etc., each with its own template name and a real
-timestamp) — cross-checked directly against AWX's own job list this round
-and it matches. This is a genuinely different data source from §6b's
-Activity → History: that one is this **browser's own** action log; this one
-is **every job run on the facility**, by anyone. On a facility where nothing
-has run recently it reads, verbatim, *"Facility automation is not running —
-recent changes appear when it next runs."* A presenter can point at this
-panel while Provision (§3) or Teardown/Delete (§6a) run to show the same job
-landing on the facility-wide record, not just the browser-local one.
+in place every 30s"** — and — **renamed and re-sourced since this runbook's 0.33.0 walk; confirmed
+live 2026-09-08 against v0.38.0** — an **"Activity"** panel. Earlier editions
+described a **"Recent changes"** panel fed by AWX job runs; that title no
+longer appears on the page at all, so if you are presenting from an older
+walk, expect **Activity**.
+
+What it shows now is the **server-side audit record**: deploys, teardowns,
+source switches and automatic rollbacks, each row carrying who did it, the
+role they held and the reason they typed — e.g. *"Deploy succeeded for
+macmini — dmfdeploy-tester (engineer) · "mini""*. Since **v0.37.0** each row
+also carries the **outcome** of the job it dispatched, so you will see
+**"Deploy succeeded for …"**, **"Deploy failed for …"** and **"Deploy —
+outcome unknown for …"** rather than every row reading "dispatched" forever.
+An ⓘ disclosure beside the heading, **"About this record"**, is closed by
+default and explains the lane's own limits — open it if an audience asks
+what the record does and does not promise.
+
+**"Outcome unknown" is not an error, and you should not apologise for it.**
+It means the console never got a clean terminal read for that job — the
+watcher timed out, lost the job, or the console restarted mid-watch. The
+lane deliberately says so rather than guessing at success. Older rows
+predating 0.37.0 have no outcome record at all and age into that state too;
+rows for jobs run since then carry real outcomes.
+
+**Correction to the previous edition's framing.** It described this panel as
+"a genuinely different data source" from §6b's Activity → History — the
+former being facility-wide AWX runs, the latter this browser's own action
+log. That contrast no longer describes the page. As of the unification, this
+Workspace panel and §6b's **"Facility activity"** lane are **the same
+server-side record shown in two places** — the record itself says so,
+verbatim: *"recorded server-side, the same for every browser."* The AWX-job
+view the old framing attributed to this panel still exists, as its own
+**"Recent automation runs"** lane on §6b's page. A third lane there logs this
+browser's own actions — that one is a temporary measure on its way out; §6b
+says why you should not present from it.
+
+A presenter can still point at this panel while Provision (§3) or
+Teardown/Delete (§6a) run, to show the same action landing on the
+facility-wide record.
 
 > **PRESENTER NOTE — SECURITY (non-blocking).** This is the whole identity
 > story in one gesture: **passkey-only, no passwords**
@@ -722,10 +776,12 @@ ssh <ssh-target> 'sudo k3s kubectl get pods -n mxl -w'
 > reason-required** — a missing/empty reason is refused before any AWX
 > call — and the reason is recorded in the audit trail: actor, effective
 > role, request id, reason. Provision's own attribution lives in the
-> server's structured log, not in Activity → History — that surface is
-> browser-local and, per §6b, never gets a row for this journey's
-> Provision at all. What you'll read back in §6b are the journey's later
-> browser-recorded actions instead (Switch, Teardown, Delete permanently).
+> server's structured log **and**, since the audit lane went server-side, in
+> the Activity record itself — confirmed live 2026-09-08, where Deploy rows
+> appear with real outcomes (*"Deploy succeeded for `<slug>`"*). Earlier
+> editions of this runbook said Provision never produced a row at all; that
+> was true of the retired browser-local panel, and is no longer true of the
+> record §1 and §6b describe.
 
 If you ever need to re-run Provision on a workload that **already exists**
 (not part of this journey's path), the button, panel copy, and confirm-label
@@ -790,15 +846,39 @@ sentence: watch here, act on the guided flow.
   page load it made, consistent with that number but not a re-measurement
   of it. The preview genuinely works; don't undersell a working feature by
   hedging on it.
-- **Both source tiles read, verbatim, "Sidecar live · no preview on this
-  side"**, next to a small placeholder that renders, in caps, **"NO
-  PREVIEW"** (the underlying label is lowercase; the console styles it
-  uppercase). This is **by design, not a defect or a limitation**: a source
-  *produces* the pattern and has nothing incoming to preview, so the
-  platform says so rather than faking one — confirmed intended, not a gap
-  to apologise for on stage. All three tiles, viewer and both sources alike,
-  render in the same shared tile template; that's the intended presentation
-  too, not a fallback.
+- **Both source tiles show a still picture of the test pattern that source
+  emits** — confirmed live 2026-09-08 against **v0.38.0**. This replaced the
+  blank "no preview" placeholder earlier editions of this runbook described;
+  **if you are presenting from memory of an older walk, this is the beat that
+  changed.** `source-a` shows the SMPTE frame — colour bars across the top,
+  the castellation strip below them, and the pluge section with its noise
+  block bottom-right. `source-b` shows a fine red/green checkerboard. Each
+  carries a small **`STATIC`** mark in its top-left corner, and is captioned,
+  verbatim, **"Emits the smpte pattern · static illustration"** and **"Emits
+  the checkers-8 pattern · static illustration"** respectively. Neither
+  carries the green live dot the viewer's tile has.
+- **What that picture is, and what it is not — say this precisely if asked.**
+  It is the *canonical frame* for the pattern the source is configured to
+  emit, generated at build time from the very same pattern index the source
+  itself uses, and shipped inside the console. It is **not** a live capture,
+  and **not** an artist's impression: it is what that pattern looks like,
+  with no clock and no overlay, because nothing adds those at that stage. A
+  source *produces* a pattern and has nothing incoming to preview, so rather
+  than showing an empty box the console shows what the source is configured
+  to emit — marked `STATIC` and captioned so it can never be mistaken for a
+  live signal. That is the honest middle between a blank tile that tells the
+  operator nothing and a live preview that would cost as much again to run.
+- **This is what makes the two sources tellable apart on screen**, which
+  matters most at §5 — before this, both source tiles were identical grey
+  boxes and only the identifier underneath distinguished them.
+- **A nice corroboration to point out, if the moment allows.** With
+  `source-b` active, the viewer's own *live* preview reads as a yellow-green
+  dithered field — which is exactly what a fine red/green checkerboard looks
+  like once it is scaled down to tile size. So the source tile and the
+  viewer's live output visibly agree with each other. Note the viewer's live
+  frame also carries a burned-in **`EBU DMF MXL`** legend and a running
+  timecode; those belong to the live path only, which is why the static
+  illustrations do not show them.
 - An **active-source panel** lists both sources by pattern, verbatim format:
   **"source-a (smpte)"** and **"source-b (checkers-8)"**. A separate section
   immediately below it, **"Request a configuration change"**, carries a
@@ -959,7 +1039,7 @@ walk.
 permanently, Review.** The Finalise & Review step's own body renders as
 three small labelled sections — **TEARDOWN**, **DELETE PERMANENTLY**,
 **REVIEW** (the console styles them uppercase; the underlying text is
-title-case, same NO-PREVIEW-style CSS transform as §4's placeholder) — not
+title-case, the same uppercase CSS transform §4's `STATIC` mark uses) — not
 a simple two-way fork as the previous edition described from source alone.
 
 **Before any teardown has run** (something is still active), Delete
@@ -1124,85 +1204,76 @@ releases (this round's own AWX job list showed the finalise-purge job
 part of #418 above — that issue covers both Teardown's and Delete
 permanently's post-action landing.
 
-**6b. The audit trail — Activity → History. Confirmed live both rounds.**
-There is no Activity icon in the rail — like Catalog, the route still
-exists, it's simply not linked from anywhere in the nav (the same S1 IA
-cut). Type the URL directly:
-`https://console.<env-base-domain>/activity/history`. The browser tab
-reads, verbatim, **"Activity — History · DMF Console"**.
+**6b. The audit trail — on Workspace, and paged at Activity → History.
+Re-walked 2026-09-08 against v0.38.0.**
 
-- **Expected, confirmed live both rounds, byte-identical.** The **"Console
-  actions"** panel (a real heading, not this runbook's paraphrase) lists
-  this browser's persisted writes — a row per action, titled in operator
-  language. The **common** shape is four lines: the action line; the
-  outcome and the reason you typed, in curly quotes; actor, role, and
-  request id; a timestamp — this four-line shape is what this round's own
-  Teardown/Switch/Delete rows show, directly confirmed. A **Clear for
-  deployment** row (§6a) is the one exception this journey hits: it
-  carries a genuine **fifth line**, a reconcile-expectation note, every
-  time *(this specific claim is 0.24.0-only — this round deliberately
-  didn't confirm a Clear for deployment action, §6a, so it never produced
-  its own row to check)* — don't describe the shape as
-  universal if you're demoing that control, or the row on screen won't
-  match what you just said. Confirmed action-line formats: **"Tore down
-  mxl-videotest-view"** (there being only one catalog entry, that string is
-  also the receiver's own instance name here — don't read that as a
-  coincidence the console intends), **"Switched source on `<instance>`"**,
-  and **"Deleted `<slug>` permanently"**. **Not on this list: "Deployed
-  mxl-videotest-view."** That action-line format exists, source-confirmed —
-  but this journey's own Provision never produces the row: it fires from
-  the create wizard (§3), and that wizard never calls the console-local
-  recorder this panel reads from. At the audit-trail beat, there is no
-  "Deployed" row for the Provision you just performed; say so plainly
-  rather than pointing at the panel for a row that isn't there — reconfirmed
-  again this round (this workload's own Provision left no "Deployed
-  runbook-walk" row anywhere in the panel). (The backend's own structured
-  log line still covers Provision — see the next bullet.) The actor line
-  reads **`<persona> (<role>) · request <id>`**, with the request id
-  truncated to its first 8 characters — `<role>` is a live value (whatever
-  role the acting operator actually held), not a fixed label; don't quote
-  it as always reading "admin" just because an admin persona happened to be
-  the one testing it. **New this round:** the same job-completion facts
-  also surface a second, facility-wide way — see §1's "Recent changes"
-  finding on the Workspace dashboard; that one is every job on the
-  facility, this one is this browser's own actions.
-- **Honest scope, confirmed live both rounds, byte-identical — verbatim,
-  right on the panel itself:** *"Actions taken from this console in this
-  browser —
-  correlated by request id. Other operators' sessions are not shown
-  here."* Read that literally: it's **this browser's persisted record, not
-  this session's** — the store is `localStorage`-backed, not in-memory, and
-  capped at the newest 50 actions (the 51st write evicts the oldest; no
-  storage-clearing involved). On an ordinary profile, that record survives
-  a reload, a tab close, even quitting and reopening the browser. §1 has
-  you open the console in a private/incognito window for the login beat,
-  though, and that cuts the other way here: private-mode storage is
-  discarded when the private session ends, so in the window this journey
-  actually prescribes, the record lasts only for that session, not across
-  a browser restart. What the private window *does* still buy you is a
-  clean starting profile — on a reused ordinary profile, rows from an
-  earlier run are still there and can read as if they belonged to this
-  walkthrough. It deliberately does *not* claim facility-wide
-  completeness, because the backend has no queryable audit store yet. The
-  facility-wide record is the server-side structured log line the backend
-  emits on every media-workload write (source-confirmed: a shared
-  `_audit_awx_write` helper covers Provision/Deploy, Switch, Teardown, and
-  Delete permanently; Clear for deployment emits its own equivalent line),
-  which lands in Loki — bounded too, not permanent: the retention window is
-  set per deployment profile, not a fixed platform default. Either way it
-  is a bound, not an indefinite record. The passkey invitation in §1 is the
-  one write in this journey that emits neither this log line nor a
-  Console-actions row — it isn't a media-workload write, and it isn't
-  covered by this record at all.
+> **CHANGED — do not present this beat from an older walk.** Earlier editions
+> of this runbook taught a **"Console actions"** panel: a `localStorage`-backed
+> log of *this browser's* writes, capped at 50 rows, explicitly not
+> facility-wide. That panel existed because, as the previous edition put it,
+> "the backend has no queryable audit store yet". **It does now.** The
+> browser-local lane is a temporary measure on its way out; **do not build a
+> demo beat on it**, and do not tell an audience the console can only show them
+> their own browser's actions. It can't be the story any more, and it won't be
+> there indefinitely.
+
+**Where to show it: Workspace.** The audit trail is on the Workspace dashboard
+itself, in the **Activity** panel (§1) — so this beat needs no detour away from
+the two pages this journey is built around. The same record is also available
+paged, under **"Facility activity"** at
+`https://console.<env-base-domain>/activity/history` (tab title, verbatim:
+**"Activity — History · DMF Console"**); there is still no Activity icon in the
+rail, so that route is URL-only. Use it if an audience wants to scroll back
+further than Workspace shows — otherwise stay on Workspace.
+
+- **What the record is, verbatim from the page itself:** *"Deploys, teardowns,
+  source switches, and automatic rollbacks — recorded server-side, the same for
+  every browser. Shows what your role is permitted to see, not a merged view
+  across every role: deploy/teardown/rollback need operator, source switches
+  need engineer or media-engineers membership."* Two things to take from that
+  sentence: it is **server-side**, so it is the same for every operator rather
+  than a per-browser artifact; and it is **role-scoped**, so what a viewer sees
+  is not what an engineer sees — that is deliberate, not a gap.
+- **Row shape, confirmed live 2026-09-08.** An action line; the actor, their
+  role and the reason they typed in curly quotes; an outcome; a timestamp. For
+  example: *"Deploy succeeded for macmini — dmfdeploy-tester (engineer) ·
+  "mini" — Succeeded — run_complete"*.
+- **Action-line formats seen on this walk:** **"Deploy succeeded for
+  `<slug>`"**, **"Deploy failed for `<slug>`"**, **"Deploy — outcome unknown
+  for `<slug>`"**, **"Teardown succeeded for `<instance>`"**, and — new in
+  v0.37.0 — **"Set source to `<value>` on `<instance>`"**, which names the
+  source it switched TO rather than only the instance it acted on. Earlier
+  editions recorded the old string, **"Switched source on `<instance>`"**; that
+  is what a pre-0.37.0 screenshot shows and is not what is on screen now.
+- **Outcome confirmation is new in v0.37.0, and it is worth narrating.** Before
+  it, a row said only what was *requested* — "dispatched" — and never came back
+  to say whether it worked, so a row could read "dispatched" indefinitely after
+  the job had failed. Now the row carries the terminal outcome of the job it
+  dispatched.
+- **"Outcome unknown" is not an error, and you should not apologise for it.**
+  It means the console never got a clean terminal read for that job — the
+  watcher timed out, lost the job, or the console restarted mid-watch — so the
+  lane says exactly that instead of guessing at success. Rows predating 0.37.0
+  have no outcome record at all and age into the same state. **This is the
+  honesty story, not a rough edge:** the surface refuses to claim an outcome it
+  did not observe.
+- **Retention is bounded, and the page is honest when it cannot say by how
+  much.** On this walk the lane displayed, verbatim: *"Search window unknown —
+  retention could not be confirmed."* The underlying record lands in Loki with
+  a window set per deployment profile rather than a fixed platform default.
+  Either way it is a bound, not an indefinite record — don't promise an
+  audience permanent history.
+- **One write in this journey is not in this record at all:** the passkey
+  invitation in §1. It isn't a media-workload write and isn't covered.
 
 One nuance worth a sentence: the **Review** section back on Finalise &
 Review — the third of §6a's three sections — reads, verbatim, *"No
 teardown, switch, or delete has run yet in this session."* and is genuinely
 **session-scoped local state**, not read from the server: it resets on
 reload or on switching to a different workload, so it can read that way
-even minutes after this page's own History shows real records for the same
+even minutes after the Activity record shows real rows for the same
 session. A presenter reloading mid-demo will see it blank — don't read
-that as History itself being wrong.
+that as the audit record itself being wrong.
 
 **6c. Autonomous re-idle (scale-to-zero) — confirmed observed, both
 directions, on the 2026-08-19 walk; NOT independently re-checked
@@ -1210,8 +1281,8 @@ directions, on the 2026-08-19 walk; NOT independently re-checked
 where the walk was run, so AWX's own replica count before/after wasn't
 re-observed — the walk instead confirmed every job (Provision, Switch,
 Teardown, Delete permanently) actually ran and succeeded, directly in AWX's
-own job list (cross-referenced against the Workspace "Recent changes" panel,
-§1), which is consistent with AWX being awake for each job but doesn't by
+own job list (cross-referenced against the Workspace panel then called
+"Recent changes" and since renamed **Activity**, §1), which is consistent with AWX being awake for each job but doesn't by
 itself prove it went back to zero afterward. Treat the paragraph below as
 **still standing from 0.24.0**, not re-confirmed, and re-verify replica
 counts specifically on the next walk (§9). By design, AWX is meant to scale
@@ -1441,7 +1512,8 @@ issue plus a corrected presenter note (§4) rather than a deferred check.
   workload is still on the live view (§4) or mid-Switch (§5) — genuinely
   still running, not mid-Teardown.
 - The stale/failed "Failed to remove MXL Test-Pattern Viewer" entry this
-  round noticed at the top of Workspace's new "Recent changes" panel (§1) —
+  round noticed at the top of the Workspace panel then called "Recent
+  changes", since renamed **Activity** (§1) —
   confirmed NOT from this round's own run (this run's AWX jobs all show
   Succeeded), but unconfirmed whether it's a genuinely still-relevant
   problem from an earlier session or safe to ignore as historical noise.
