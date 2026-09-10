@@ -113,6 +113,11 @@ a single AWX job (`media-launch-nmos-cpp`) for operator ergonomics. The
 *role-level* split (`provision.yml`, `configure.yml`, `finalise.yml`)
 is preserved, idempotent, and is what defends the ADR-0012 decision.
 
+**Console label.** The operator-facing console calls that combined launch
+action **Provision**: one action dispatches the merged Provision+Configure
+job. Configure remains the distinct EBU lifecycle stage at the role and
+playbook level beneath that operator-facing action.
+
 The in-cluster SA approach remains valid architecture for a mature
 K8s-native AWX deployment; it is preserved as deferred capability in
 `dmf-infra/k3s-lab-bootstrap/roles/stack/operator/awx-integration/`
