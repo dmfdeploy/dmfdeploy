@@ -476,6 +476,14 @@ A presenter can still point at this panel while Provision (§3) or
 Teardown/Delete (§6a) run, to show the same action landing on the
 facility-wide record.
 
+> **PRESENTER NOTE — CAPTURE (non-blocking).** Deploy and Teardown rows for
+> the *same* workload list together in this panel, in recency order. For a
+> capture that needs to frame the deploy record alone (e.g. a still of "Deploy
+> succeeded for …"), scroll or crop before any Teardown row for that workload
+> lands, rather than relying on the panel to separate them for you. No
+> product change requested — noted here because a prior demo-video review
+> flagged it as a framing trap, not a bug.
+
 > **PRESENTER NOTE — SECURITY (non-blocking).** This is the whole identity
 > story in one gesture: **passkey-only, no passwords**
 > ([ADR-0015](../decisions/0015-dmf-console-passkey-only.md)), and the platform
