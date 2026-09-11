@@ -590,58 +590,93 @@ site term anywhere in the mapping. The decision above therefore *describes what
 the console already does* and names site as placement metadata rather than an
 ownership component.
 
-### 9.1a Which "tenant" — and why a tenant join is the wrong mechanism
+### 9.1a Which "tenant" — and the restriction that makes the answer true
 
-**There are three different things called "tenant" in this platform. Conflating
-them produces a filter that looks like a security boundary and enforces
-nothing.**
+**There are three different things called "tenant" in this platform.** Conflating
+them produces either a filter that looks like a security boundary and enforces
+nothing, or a boundary removed on a proof that was never made.
 
 | # | Thing | What it actually is |
 |---|---|---|
-| 1 | **NetBox Tenant `DMF`** (slug `dmf`) | Created by born-inventory. **A constant.** ADR-0039 states it outright: *"All envs share a single Tenant `DMF` (slug `dmf`) — tenant does not discriminate envs."* Envs are discriminated by **Site + Cluster** carrying `dmf_env_id`, never by tenant |
-| 2 | **The media tenant (ADR-0020)** | A commercial boundary realised as **cluster-per-tenant** — a separate cluster, therefore a separate NetBox and Authentik. **Not a row inside this NetBox** |
-| 3 | **Console media tenancy** (`DMF_CONSOLE_MEDIA_TENANCY`) | The posture switch: `""` unconfigured · `single` = *explicitly declared* single-tenant, "all instances visible to permitted roles" · `scoped` = enforce an OIDC-group→tenant map |
+| 1 | **NetBox Tenant `DMF`** (slug `dmf`) | Created by born-inventory from a **configurable default**, created-if-absent. ADR-0039: *"All envs share a single Tenant `DMF` (slug `dmf`) — tenant does not discriminate envs."* Envs are discriminated by **Site + Cluster** carrying `dmf_env_id` |
+| 2 | **The media tenant (ADR-0020)** | A commercial boundary realised as **cluster-per-tenant**. Mode B is **Proposed**, and the ADR does **not** require one NetBox per cluster or forbid several tenant rows in a shared inventory |
+| 3 | **Console media tenancy** (`DMF_CONSOLE_MEDIA_TENANCY`) | `""` unset — the Media Workloads page stays **dark**, fail-closed · `single` = declared single-tenant, no tenant filter · `scoped` = enforce an OIDC-group→tenant map |
 
-**Consequence, and it simplifies the build considerably.** Because (1) is a
-single shared constant, **joining a workload container to its NetBox tenant
-filters nothing** — the join returns everything, always. Implementing container
-scope as a tenant filter would be a vacuous check presented as an authorization
-boundary: exactly the "silently invent or weaken the boundary" failure this
-decision exists to prevent.
+**The restriction, stated as an authority rather than derived (operator,
+2026-09-11):**
 
-**So the mechanism is not a tenant join.** Within one env, every `workload:*`
-container is visible to every **authorised media operator** — the gate is the
-**role check**, and the env itself is the outer boundary. No per-container tenant
-stamp is required for the decided posture.
+> **A dmfdeploy installation has exactly one NetBox media tenant. If a second
+> tenant is ever needed, that is a separate dmfdeploy installation.** Isolation
+> is by **separation**, not by filtering within a shared inventory.
 
-**"Record the tenant boundary explicitly in configuration" has an exact existing
-home:** set `DMF_CONSOLE_MEDIA_TENANCY=single`. The setting's own contract
-distinguishes `""` (unconfigured — what a deployed env has today) from `single`
-(the *explicitly declared* posture). Declaring it is the difference between a
-decision and an accident, and it is a config change, not code.
+**This is a declared deployment posture, not a property of the code, and the
+distinction matters.** It cannot be derived from source, and an earlier draft of
+this section wrongly tried to: born-inventory's tenant name is a configurable
+default that is merely created-if-absent, `single` mode returns *no filter*
+rather than *one tenant*, and the console's NetBox read permissions carry no
+tenant or site constraint — so the reachable data universe is "everything this
+NetBox connection can see", which is **not** the same statement as "everything
+belongs to one tenant". The two coincide **only because the restriction above
+says they do**.
 
-**The cross-tenant disclosure risk is deferred, not dismissed.** It becomes real
-only under `scoped` mode with a populated group→tenant map — the first step of
-the evolution path above. Whoever builds that must supply the per-container
-ownership record then; under ADR-0020's cluster-per-tenant it may never be
-needed at all, since separation, not filtering, is how that model isolates
-tenants.
+**The case against it, recorded because it is real.** A service provider running
+facilities for several customers would naturally want one inventory with many
+tenants — that is what NetBox tenancy is *for*, and it is cheaper than
+duplicating NetBox, Authentik, AWX, OpenBao and Prometheus per customer.
+ADR-0020 already made that trade deliberately and records the cost. So the
+restriction is a **supported posture, not an impossibility** — a third party
+could run this platform multi-tenant, and nothing in the code stops them.
 
-**Instruction carried into implementation:** record all of this against the
-existing tenant/site contract explicitly, so nobody reintroduces a site term,
-weakens the role gate, or builds a tenant join believing ADR-0046 requires it.
+**What follows under the restriction — and only under it:**
 
-**What this settles, and what it does not.** It settles the *visibility* rule
-(property 4 now has meaning: within a tenant, everything; across tenants,
-nothing). It does **not** settle where the tenant is persisted for a memberless
-container — see §9.2, which is the coupled half, and which the decision below
-constrains rather than answers.
+- A workload container needs **no per-container tenant stamp**, because within a
+  single-tenant installation the tenant term is trivially satisfied.
+- **Do not conclude that tenant checks are vacuous in general, do not forbid a
+  site term, and do not remove `scoped` mode.** The machinery stays intact; the
+  restriction narrows the deployment, not the contract. Lifting the restriction
+  must re-introduce a real ownership join, and the no-disclosure property (§8.4)
+  stays in force as the thing that would then have teeth.
 
-**The honest-failure rule stands unchanged**, though §9.1a narrows what it
-guards: an enumeration that cannot establish *whether it is complete* must say
-so rather than presenting a partial list as the full one (property 2). The
-cross-tenant name-disclosure concern specifically is deferred with `scoped`
-mode — see §9.1a.
+**Configuration, corrected.** An earlier draft told the operator that deployed
+envs leave `DMF_CONSOLE_MEDIA_TENANCY` unset. **That is false.** The Python and
+chart defaults are empty, but dmf-infra's console role defaults
+`cms_media_tenancy` to **`single` for the `sandbox-single-node` profile** and
+threads it through to the container environment. Correct statement: **the
+sandbox profile already declares `single`; other profiles are empty until
+deliberately configured, and an empty value leaves the surface dark by design.**
+So "record the boundary explicitly in configuration" is already satisfied for the
+sandbox and is an open action only for other profiles.
+
+**Authorization, corrected and made precise.** "The gate is the role check" was
+right in substance and sloppy in detail — there is **not one uniform gate**:
+
+| Path | Gate |
+|---|---|
+| Workload **reads** (flat and grouped) | engineer-or-higher **or** `media-engineers` group; 401 anonymous, 403 otherwise — then reject unconfigured tenancy |
+| **Provision**-route create | operator-or-higher (a *different* gate) |
+| **Purge** | operator-or-higher |
+| **Name-only container create** | **does not exist yet — its gate is undefined and must be decided, not assumed** |
+
+Read, create and delete keep **separate** authorization contracts. Do not
+collapse them into one guard.
+
+**Instruction carried into implementation:** record the restriction explicitly
+alongside the existing tenant/site contract, so nobody reintroduces a site term,
+collapses the three gates, removes `scoped`, or treats the single-tenant
+coincidence as a property of the code rather than a declared posture.
+
+**What this settles, and what it does not.** Under the §9.1a restriction it
+settles the *visibility* rule: within the installation's single tenant,
+everything, gated by role. It does **not** make property 4 (§8.4) redundant —
+that property remains in force and becomes load-bearing the moment the
+restriction is lifted.
+
+**Two independent rules, not one.** *Completeness*: an enumeration that cannot
+establish whether it is complete must say so rather than presenting a partial
+list as the full one (property 2). *No-disclosure*: a container whose ownership
+cannot be established must not be rendered (property 4). These are separate
+properties — the §9.1a restriction makes the second trivially satisfiable today,
+it does not merge it into the first or delete it.
 
 ---
 
@@ -755,12 +790,12 @@ The existing tag-creation call already sets a `description` alongside `name` and
 `slug` in the initial POST, using only `add`. That is a free-text field, not a
 structured scope, so it is not a solution — but it does show that
 "no `change` permission" alone cannot rule a creation-time scheme out. **So a
-creation-time scheme is not ruled out** — but §9.1a establishes that the decided
-posture does not need one. The tag's inability to hold a tenant stops being a
-problem once the tenant is understood as a shared constant rather than a
-discriminator. Should `scoped` mode ever be adopted, this constraint returns and
-the options are free text in the tag description, a companion object, or the
-design artifact.
+creation-time scheme is not ruled out** — and §9.1a's restriction means the
+decided posture does not need one. The tag's inability to hold a tenant stops
+being a problem only *because the installation is declared single-tenant*, not
+because tenancy is meaningless. Should that restriction be lifted or `scoped`
+mode adopted, this constraint returns, and the options are free text in the tag
+description, a companion object, or the design artifact.
 
 **#487 is now a hard prerequisite, not a conditional one.** The console's NetBox
 writer credential is set by **no chart and no role**, so the existing
@@ -768,14 +803,27 @@ writer-dependent console endpoint is 503 on every deployed env. Under the
 console-side branch — which is the decided one — nothing can create until that
 is wired.
 
-### 9.3 The delete path breaks the moment blank containers become visible
+### 9.3 The delete path refuses blank containers — for *scoped* callers
 
-A scoped caller with zero visible members is **deliberately** told
+A **scoped** caller with zero visible members is **deliberately** told
 `workload-not-found` even when the tag exists, specifically to avoid tenant
-leakage. Once a blank owned container becomes visible, the current purge path
-will refuse to remove it. "Delete permanently is the sole removal transition"
-therefore needs a replacement **fail-closed proof**, not a check that the old
-path still works.
+leakage.
+
+**Narrowed by the tenant cross-check.** That refusal is conditional, not
+universal: the same code preserves a **tag-only path when there is no tenant
+filter** — which is exactly `single` mode, the posture §9.1a declares — and an
+existing test asserts that case dispatches successfully with zero expected
+services. So under the decided posture the purge path is **not** proven broken.
+
+**What this does and does not change.** It does *not* license shipping
+visibility and create without delete: a dispatching purge call is not a working
+empty-workload product flow — the role gate, confirmation, observability, AWX
+leg and UI all still have to hold, and none of that is established by that test.
+Keep the three inside one delivery boundary (§10 step 1). What changes is the
+task: **verify and integrate the `single`-mode path**, rather than build a
+replacement for a refusal that does not apply. Should the §9.1a restriction ever
+be lifted, the scoped refusal becomes live again and needs its own fail-closed
+proof.
 
 ### 9.4 Facility modelling is thinner than it looks — context, not scope
 
@@ -845,11 +893,14 @@ duplicate-name semantics; retry behaviour; and audit-failure behaviour when the
 container is created but its record is not. Derive these from source, not from
 prose.
 
-**No longer remaining:** "where is the tenant persisted at creation" — §9.1a
-resolves it. The decided posture needs **no per-container tenant stamp at all**,
-because the NetBox tenant is a shared constant and a join on it filters nothing.
-The config declaration (`DMF_CONSOLE_MEDIA_TENANCY=single`) carries the posture
-instead.
+**Resolved, but conditionally:** "where is the tenant persisted at creation"
+needs no answer **under §9.1a's declared single-tenant restriction** — not
+because a tenant join is vacuous in general, but because the installation is
+declared to hold one tenant. Lifting that restriction reopens the question.
+
+**Added by the tenant cross-check:** the name-only create endpoint's own
+authorization gate must be decided. Reads, Provision-route create and purge use
+three *different* gates today; the new endpoint inherits none of them.
 
 **1. Blank containers become real — one indivisible delivery boundary.**
 Visibility, create and delete ship together or not at all:
@@ -859,17 +910,19 @@ Visibility, create and delete ship together or not at all:
 - **The writer seam** (#487) — provision the console's NetBox writer credential
   in a chart or role. **A hard prerequisite now that step 0 has chosen
   console-side writes**: nothing can create until it is wired.
-- **Name-only create** (#490) — direct console write via the scoped writer,
-  stamping the owning tenant at creation per step 0.
+- **Name-only create** (#490) — direct console write via the scoped writer.
+  **No tenant stamp**, per §9.1a's restriction. Its authorization gate does not
+  exist yet and must be decided rather than inherited from the read gate.
 - **Blank-container delete** — a *scoped* permanent delete that works on a
   container with zero members, with a **fail-closed proof** that it neither
   discloses nor deletes across scope.
 
-The delete is inside this boundary deliberately (codex round 1, accepted). The
-current purge path answers `workload-not-found` for a scoped caller with zero
-visible members (§9.3), so shipping visibility and create *without* it strands
-containers that the promised "delete permanently" cannot remove — the platform
-would create a thing it cannot destroy. Note the delete principal is the
+The delete is inside this boundary deliberately (codex round 1, accepted):
+shipping visibility and create without it risks stranding containers the
+promised "delete permanently" cannot remove — a platform that creates a thing it
+cannot destroy. Under `single` mode the underlying purge call is **not** proven
+broken (§9.3), so the work here is **verification and integration of the whole
+product flow**, not building a replacement. Note the delete principal is the
 separate purge identity, not the writer (§9.2).
 
 **2. Stage behaviour** (#557) — narrowed per §9.5.
@@ -1029,3 +1082,29 @@ concrete requirement rather than a preference.
 tenant/site contract explicitly, so an implementer can neither silently
 reintroduce a site term nor weaken the tenant term while believing they are
 satisfying ADR-0046.
+
+---
+
+**Round 3 — codex targeted cross-check of the tenant correction, 2026-09-11,
+commit `b075dcc`. Verdict: GATE: FAIL (P0 0, P1 2, P2 3). All five verified and
+folded.** The direction survived; the *proof* did not.
+
+| Finding | What was wrong |
+|---|---|
+| **P1** | The vacuity of a tenant join was **derived**, and it is not derivable. born-inventory's tenant name is a configurable created-if-absent default; `single` returns *no filter*, not *one tenant*; the console's NetBox read grants carry no tenant or site constraint. The reachable universe is "whatever this connection can see", which only equals "one tenant's data" **because a deployment restriction says so** |
+| **P1** | ADR-0020 Mode B is **Proposed** and does not require one NetBox per cluster or forbid multiple tenant rows in a shared inventory. Declaring tenant checks universally vacuous, forbidding a site term, or deferring no-disclosure because mode is `single` would be a **contract change**, not a reading of ADR-0046 |
+| **P2** | **The claim that deployed envs leave `DMF_CONSOLE_MEDIA_TENANCY` unset is false.** dmf-infra defaults `cms_media_tenancy` to `single` for the sandbox profile and threads it to the container |
+| **P2** | Propagation was incomplete — §10 still required create to stamp a tenant while §9.1a said no stamp; and property 4's no-disclosure had been folded into property 2's completeness. They are independent properties |
+| **P2** | The empty-delete hazard was overstated as unconditional. The scoped refusal preserves a tag-only path when there is no tenant filter — i.e. `single` — with a test asserting it dispatches |
+
+**Confirmed by the same pass:** the read authorization gate is real
+(engineer-or-higher **or** `media-engineers`, 401/403, on both flat and grouped
+reads). But it is **not** one uniform guard — Provision-route create and purge
+use operator-or-higher, and the name-only create endpoint does not exist, so its
+gate is undefined and must be decided.
+
+**The correction to the correction:** the single-tenant conclusion is right, but
+it is an **operator-declared deployment restriction**, not a fact about the code.
+§9.1a now states it as an authority, records the service-provider case against
+it, and keeps `scoped` mode and the no-disclosure property intact so lifting the
+restriction re-arms a real boundary instead of finding none.
