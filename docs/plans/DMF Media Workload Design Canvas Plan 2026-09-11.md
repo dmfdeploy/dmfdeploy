@@ -13,11 +13,17 @@ date: 2026-09-11
 > Gate B is not met.
 >
 > **On unfreeze:**
-> 1. File the tracking issue for §10's first step only (`component:dmf-cms`,
->    `workstream:entrance`; milestone per WORKING-MODEL §2).
-> 2. Add its URL to this file's `tracking_issue` frontmatter.
-> 3. Flip `status: draft` → `active`.
-> 4. Open the PR.
+> 1. **Settle §10 step 0 first — the container scope posture (§9.1), coupled
+>    with the producer question (§9.2). It is an operator decision, not a
+>    build, and every other step depends on it.** Record the outcome in this
+>    doc before filing anything.
+> 2. Then file **one** tracking issue for §10 step 1 — the indivisible
+>    visibility + create + delete boundary (`component:dmf-cms`,
+>    `workstream:entrance`; milestone per WORKING-MODEL §2). Do not file the
+>    later steps yet.
+> 3. Add its URL to this file's `tracking_issue` frontmatter.
+> 4. Flip `status: draft` → `active`.
+> 5. Open the PR.
 >
 > No `tracking_issue` key is present yet **by design** — `bin/check-docs.sh`
 > treats a missing one as a warning, not a failure, which is the correct signal
@@ -148,14 +154,18 @@ constraints, plus the compatibility validation that makes typed ports worth
 having, and a handful of reference functions to prove it. Representation before
 authoring. **The canvas UI is explicitly not on the critical path.**
 
-## 4. What the source actually says — five corrections
+## 4. What the source actually says — five reconciliations
 
 Discussion #564 §"Things any answer must reconcile" lists five constraints.
-**Two are factually wrong**, and both errors make the problem look harder than
-it is. Anyone starting from #564 will work from wrong premises; start here
-instead.
+Each is reconciled below: **4.1 is a genuine correction**, **4.5 corrects an
+error this document itself made in its first draft**, and **4.2, 4.3 and 4.4
+are narrowings** — #564 was directionally right and the detail matters.
 
-### 4.1 There is no competing edge store — git already won
+*An earlier draft of this section claimed "two of the five are factually wrong",
+naming 4.3 as one of them. That overstated the case: #564 item 3 already says
+placement is a chart value and that the launcher passes no selector. See 4.3.*
+
+### 4.1 There is no competing edge store — but git holds intent, not live truth
 
 **#564 claims** the launcher persists instance-to-instance edges in NetBox as
 `topology-parent:`/`topology-source:` tags, so a new relationship model would be
@@ -166,17 +176,37 @@ a second store and we must say which wins.
 **declared element**, neither of which is an instance. The viewer release gets
 **neither tag**, deliberately.
 
-So **NetBox records no edge at all.** The actual edge — source-a feeds viewer-a
-— lives only in git, as `viewer.source_selection` in the topology instance, and
-the console reads it back by loading that file from the git catalog.
+So **NetBox records no edge at all.**
 
-**What follows.** Git already owns edges; NetBox already holds a generic
-back-pointer *into* git. That is ADR-0037's split working as written, and it is
-the Forgejo design-store shape **already in production on the one workload we
-run**. The recommendation inverts: do not invent a relationship model —
-*widen the two tags that exist* into a design-ref/design-element pair over a
-larger domain. Same semantics, no migration, and #564's "which wins" question
-dissolves.
+**But git does not hold "the edge" either — it holds the *initial declared*
+one.** A connection has three distinct representations, and conflating them is
+the trap this correction must not create:
+
+| Plane | Where it lives | Example |
+|---|---|---|
+| **Design intent** — what was declared | git catalog (`viewer.source_selection`) | source-a feeds the viewer |
+| **Actuation state** — what was last commanded | the coordinator ConfigMap key the switch playbook writes | active-source is now source-b |
+| **Observed** — what is actually happening | read from the running instance | the viewer is receiving source-b's flow |
+
+A switch rewrites actuation state without touching git, so after one switch the
+catalog's declared selection is **stale as live truth**. The console already
+knows this and says so at the call site: previous-source *"must reflect what was
+ACTUALLY running, never the catalog's own (possibly stale)
+`viewer.source_selection`"*, with the catalog value kept only as a fallback for
+a caller with no observed truth.
+
+**What follows.** Git owns declared design intent; NetBox holds a generic
+back-pointer *into* git; neither is a live-state store. That is ADR-0037's split
+working as written, and the design-store shape is **already in production on the
+one workload we run**. The recommendation inverts: do not invent a relationship
+model — *widen the two tags that exist* into a design-ref/design-element pair
+over a larger domain. Same semantics, no migration, and #564's "which wins"
+question dissolves.
+
+**Hazard.** A design canvas renders *declared intent*. If it renders declared
+intent while presenting it as the live signal path, it violates UX Constitution
+gate 1 (requested ≠ observed) on its first screen. The three planes above must
+stay separable in whatever the canvas reads.
 
 ### 4.2 The one-hop star: freeze it, do not grow it
 
@@ -195,17 +225,34 @@ artifact at a different layer; `topology_params` becomes something the
 This is what lets the whole arc proceed **without touching the deployed demo
 path**.
 
-### 4.3 The placement channel exists; the launcher never threads it
+### 4.3 Chart-level selector inputs exist; the launcher never threads them
 
-**#564 claims** there is no actuation channel for placement.
+**This is a narrowing of #564, not a refutation of it.** #564 item 3 already
+says placement *is* a chart value and that the launcher passes no selector — it
+is describing the missing end-to-end connection, and that description is
+correct. What follows only sharpens which half is missing.
 
-**Source says** the chart already accepts `placement.nodeSelector` and
-`placement.tolerations` and consumes both in its templates. A grep for
+**Source says** the chart accepts `placement.nodeSelector` and
+`placement.tolerations` and consumes both in its templates, and a search for
 `nodeSelector|affinity|tolerations` across all of dmf-runbooks returns **zero
 hits** — the launcher passes only `placementMode`, which selects a
 networking/pinning *mode*, not a node.
 
-So the gap is **one thread-through**, not a missing channel.
+**So the correction is narrow and must stay narrow:** *chart-level
+selector/toleration inputs exist and are unthreaded.* That is **not** a general
+placement solution. There is no demonstrated channel or representation for site,
+colocation, anti-affinity, timing domain or latency budget — the constraints
+§3 wants Plan to own. Do not read "the channel exists" as "the compiler has
+somewhere to send its output".
+
+**Hazard.** In split-node mode the templates inject *additional per-role node
+selectors* of their own. Any resolved selector mapping has to coexist with those
+role pins rather than replace them, and a mapping that silently overwrites them
+will schedule correctly in single-node mode and wrongly in split-node.
+
+**Deferred, separately from this correction:** the compiler itself, which subset
+of constraints is actually supported, and how a placement decision agrees with
+provision-time preflight.
 
 **Decision on #564's question 6 (persist a Plan decision with nothing to
 actuate?): persist the constraint, do not emit a resolution.** Plan's output is
@@ -217,9 +264,15 @@ instance (#558).
 
 ### 4.4 Typed ports: the stub exists and nothing reads it
 
-`mxl_flows: { produces, consumes }` is declared on the one live catalog entry.
-A global search across all nine repos finds it in that entry and one 2026-05-17
-plan doc — **no code reads it**, in neither the console nor the runbooks.
+`mxl_flows: { produces, consumes }` is declared on the one live catalog entry,
+and **no code consumes it** — the console's catalog loader parses the entry and
+*drops* the field rather than reading it, and dmf-runbooks never references it.
+
+*(Correction, codex round 1: an earlier draft claimed the field appears only in
+that entry and one 2026-05-17 plan. It is also specified in ADR-0017 and
+referenced in ADR-0046 — see §11. The no-consumer conclusion is unaffected, but
+the field has more decision history behind it than the draft implied, and
+ADR-0017 is where its contract was actually written.)*
 
 Its shape was already argued: that plan's §D4 chose **option A** (bare flow
 IDs) over **option B** (per-flow `{id, media_type, grain_rate,
@@ -240,20 +293,37 @@ round from here on. Name the new concept distinctly (`interfaces` /
 UUID-equality edge that nothing validates today. Typed ports are what make it
 explicit and checkable.
 
-### 4.5 One catalog entry produces several services, with different lifetimes
+### 4.5 One catalog entry produces several services
 
 The one live catalog entry declares **three** `netbox_service` records — the
-viewer plus two sources — and they are not peers: the source records exist only
-while a topology launch is live and are removed by teardown/rollback, while the
-viewer's record is standing.
+viewer plus two sources. So a designed function maps to **{0, 1, N} service
+records**, and there is no 1:1 mapping to recover.
 
-So a designed function maps to **{0, 1, N} services depending on lifecycle
-stage**, with mixed lifetimes inside one entry.
+**Correction, 2026-09-11 (codex round 1).** An earlier draft of this section
+claimed the source records exist only while a topology launch is live and are
+removed by teardown/rollback. **That is false against executable source.**
+Normal teardown runs the finalise stage per source, which **PATCHes the
+lifecycle tag back to `bootstrapped` and clears monitoring stamps — it does not
+DELETE the record.** Rollback is the only path that removes anything, and it
+deliberately distinguishes records that pre-existed the run (restore) from those
+the run created (attempt deletion). The claim came from a comment in the catalog
+entry, which is **misleading against the code it describes** — a reminder that a
+declarative file's prose is not a source of truth about runtime behaviour.
 
-**What follows.** The design store must key nothing on service records. A design
-element's identity is the declared-element slug; its binding to a running
-service is exactly the two provenance tags from §4.1. That is an independent
-second argument for widening those tags rather than replacing them.
+**The identity argument, re-derived without the false premise.** Two properties
+survive and both still point the same way:
+
+1. **Record presence does not track design-element existence.** A record
+   persists across teardown with its lifecycle tag flipped. So "is this designed
+   function deployed?" is answered by the **lifecycle tag** (requested state,
+   ADR-0013/0037), never by whether a record exists.
+2. **One entry yields N records**, so no designed element can be keyed to "its"
+   service record.
+
+**What follows** is unchanged: the design store must key nothing on service
+records. A design element's identity is the declared-element slug; its binding
+to a running service is exactly the two provenance tags from §4.1 — an
+independent second argument for widening those tags rather than replacing them.
 
 ## 5. The neutral canvas
 
@@ -334,9 +404,20 @@ arrives correct and sets the pattern for everything after it.
 ## 6. Vendor adoption — the real blocker is not UI
 
 `dmf-runbooks/playbooks/` contains **nine playbooks, all bespoke**. There is no
-generic launcher. `generic-chart-policy/v1` exists only as a normative appendix
-in ADR-0047 and in the 2026-07-17 roadmap — **zero lines of implementation**.
-The one live catalog entry binds to a playbook by name.
+generic launcher, and `generic-chart-policy/v1` has **zero lines of
+implementation** anywhere — it exists as a normative appendix in ADR-0047, in
+the 2026-07-17 roadmap, and in the 2026-07-18 make-vs-adopt OSS evaluation. The
+one live catalog entry binds to a playbook by name.
+
+**Worth knowing before anyone starts it:** that OSS evaluation already carries a
+recommendation for *how* to build it — author Appendix A as Kyverno policies
+evaluated offline by `kyverno apply` against rendered manifests, rather than as a
+bespoke validator plus fixture harness. Whoever picks this up should start
+there, not from scratch.
+
+**Also narrower than an earlier draft claimed:** ADR-0047 gates vendor
+deployment on **both** the generic launcher *and* its ingestion policy, not the
+launcher alone.
 
 ADR-0047 makes bespoke launchers **`project`-source-only**. So importing a
 generic Docker/Helm media application today means writing an Ansible playbook in
@@ -397,15 +478,25 @@ about what the Media Function actually does"; platform truth must survive
 vendor-UI failure; a function is a semantic capability, not a container with a
 web UI).
 
-They also break binding gates. The UX Constitution §3 names four **day-one hard
-gates** — "*these block. A change that reintroduces a violation is not done.*"
-A vendor-rendered surface violates three by construction: we cannot attest
-provenance or freshness of state it renders (gate 1); a configuration change
-made inside it cannot carry our per-action request-id without calling our API,
-in which case it is Level 1 with extra steps (gate 3); and its error surface is
-not ours to shape (gate 4). Art. 15 compounds it for a hosted workspace — the
-console makes *zero* runtime dependency on any external network, because it
-must run in China without Google/GitHub and on the air-gapped flypack lane.
+**Correction, 2026-09-11 (codex round 1).** An earlier draft claimed a
+vendor-rendered surface violates three day-one hard gates **by construction**.
+That is an overclaim, and the citations do not support it. The UX Constitution's
+gates specify provenance/freshness, action completion, the C5 quartet with
+graduated friction, and operator-facing errors — they do **not** require that
+rendering code be platform-authored. A vendor renderer that consumes platform
+APIs, surfaces their provenance and errors, and routes actions through audited
+endpoints could satisfy all four without being a Level-1 declarative renderer.
+Art. 15 likewise forbids external *runtime dependencies*, not vendor
+*authorship*: bundled in-cluster assets satisfy it.
+
+**The honest form of the exclusion.** Levels 2 and 3 are ruled out here as a
+deliberate **product and security scope decision**, not as a constitutional
+impossibility. The cost being declined is a real one: an integration contract
+that would have to *prove* gate compliance for code we did not write — provenance
+attestation, per-action request-id propagation, error-surface shaping, isolation
+and CSP, version compatibility — none of which exists, and all of which would be
+built for **zero current vendors**. The gates are what make that contract
+expensive; they are not what make it impossible.
 
 **Shape for future expansion, so this is not a corner:** declare the extension
 points in the schema and implement none of them. A package may carry a
@@ -420,17 +511,25 @@ later changes what the *binder* produces, not how the console reads.
 Properties, not procedures. Each is one executable assertion covering several
 failure modes.
 
-1. **Existence is read, not inferred.** The set of workloads rendered equals the
-   set of containers NetBox holds within the viewer's scope — proven by a test,
-   not by inspection, and agreeing across the flat and grouped reads.
+1. **Existence is read, not inferred.** On a **complete** enumeration, the
+   *multiset* of workloads rendered equals the containers NetBox holds within
+   the viewer's current authorization — same membership **and** no duplicates —
+   with the expected inventory **seeded independently of the code under test**,
+   and the flat and grouped reads agreeing. Set equality alone is not enough: it
+   admits duplicate tiles, and it must not be asserted at all when the
+   enumeration was incomplete (see property 2, which is what an incomplete read
+   must produce instead).
 2. **Three states are independently representable.** A container with zero
    members reads as healthy-and-empty; one whose member read failed reads as a
    fault; and the two never render identically. The response contract carries
    three independent facts: enumeration was complete enough to claim
    exhaustiveness; this authorized container's member read succeeded and
    returned zero; member data was unavailable or incomplete.
-3. **Emptiness never removes a tile.** A container leaves the page only by
-   explicit permanent delete.
+3. **Emptiness never removes a tile.** Having zero members is never a reason a
+   container stops rendering. Stated as an absolute this would forbid a tile
+   disappearing when the viewer's authorization is revoked — which property 4
+   requires — so it is scoped deliberately: within a fixed authorization, a
+   container leaves the page only by explicit permanent delete.
 4. **Scope widens what exists, never who can see it.** An unscoped enumeration
    must not disclose another tenant's blank workload name. *(See §9.1 — this is
    currently unsatisfiable as stated and is a decision, not an implementation
@@ -447,10 +546,14 @@ failure modes.
 8. **A count is never manufactured.** A progress count renders only when the
    authoritative read succeeded; a failed read never becomes zero; no
    `0 of 0` claim appears for a blank container.
-9. **Compatibility validation discriminates.** A connection between
-   incompatible typed ports is refused, and the refusal names the incompatible
-   property. Prove it with a mutation: a test suite that passes when the
-   validator is disabled is not testing the validator.
+9. **Compatibility validation discriminates *in both directions*.** A connection
+   between incompatible typed ports is refused and the refusal names the
+   incompatible property; **and** a connection between compatible ports is
+   accepted. Both halves are required — a validator that rejects *every*
+   connection satisfies the negative case and fails the mutation check exactly
+   as asked, while leaving every real graph unbuildable. Prove the negative half
+   by mutation (a suite that still passes with the validator disabled is not
+   testing it) and the positive half against compatible reference functions.
 10. **The console names no media function.** No media-domain proper noun
     appears in console source outside a narrow, justified, platform-owned
     binding configuration — a grep-able gate that fails today on five known
@@ -461,44 +564,90 @@ failure modes.
 Traps found the expensive way. These are hazards, not prescriptions — framed as
 *this will fail an acceptance criterion*, never as a mandated implementation.
 
-### 9.1 Container scope is unsatisfiable as currently stated
+### 9.1 Container scope — DECISION GATE, blocks everything in §10
 
-The workload container tag "carries no tenant field at all", while ADR-0046
-requires workload identity to be `(tenant/site scope, slug)` — a requirement
-satisfied today only *via members*. So "every container is shown, subject to
-scope" and "scope may be undefined for a container" are **mutually
-unsatisfiable**, and an unscoped enumeration is a tenant-disclosure risk.
+> **⛔ OPERATOR DECISION REQUIRED. Nothing in §10 can start until this is
+> settled, including step 1.** This is not a hazard to keep in mind while
+> building; it is the first unit of work, and it is a decision, not an
+> implementation.
 
-This is a data-model and authorization decision, not a left join. It must name
-the authoritative persisted container scope (tenant *and* site semantics), its
-read/write authority, missing/malformed-scope behaviour, and a no-disclosure
-rule. **Derive the mapping from source with file:line evidence; do not design
-it in prose.** "Not determinable from source" is a finding; a confidently
-asserted wrong binding encoded into a security boundary is worse than an
-admitted gap.
+The workload container tag **carries no tenant field at all**, while ADR-0046
+requires workload identity to be `(tenant/site scope, slug)` — satisfied today
+only *via members*. So "every container is shown, subject to scope" and "scope
+may be undefined for a container" are **mutually unsatisfiable**, and an
+unscoped enumeration is a tenant-disclosure risk.
 
-Note the tenancy premise that made a plugin look necessary may be hollow:
-ADR-0039 gives every env a single shared tenant and ADR-0020 assigns the tenant
-axis to cluster-per-tenant. Settle that before treating tenancy as the driver.
+**Why this cannot be delegated to an implementer (codex round 1, accepted).**
+Property 4 has no operational meaning until "resolves into the viewer's scope"
+is defined for a **memberless** container. Source cannot supply it: the console
+deliberately *rejects* inferring an owner for a container with no visible
+members, and the existing group-to-tenant mapping assigns no tenant or site to a
+bare tag. Whoever writes the fixture would therefore invent the mapping — and
+invent the implementation's — so the test would establish neither no-leak nor
+completeness. **When the mechanism defines the property's terms, the mechanism
+belongs in the plan.** This instance is squarely on that side of the line.
 
-### 9.2 Create's producer is a security decision — and it is already made
+**Correction, 2026-09-11 (codex round 1).** An earlier draft argued the tenancy
+premise "may be hollow" because ADR-0039 gives every env one shared tenant while
+ADR-0020 puts tenancy on a cluster-per-tenant axis. **That misreads ADR-0039**,
+which says the opposite in its own consequences: *"the shared `DMF` tenant is
+unchanged; ADR-0020 cluster-per-tenant is a different (**media-tenant**) axis and
+is not affected."* The two axes are deliberately distinct, so the shared
+infrastructure tenant does **not** dissolve the media-tenant question. Do not
+reuse the hollow-premise argument.
+
+**What the decision must name:** the authoritative persisted container scope
+(tenant *and* site semantics); where it lives, given that the tag itself cannot
+hold it (§9.2 — the writer identity holds no `change` on tags); its read and
+write authority; behaviour on missing or malformed scope; and an explicit
+no-disclosure rule. **Derive from source with file:line evidence; do not design
+it in prose.** "Not determinable from source" is a finding to bring back, not a
+gap to paper over — a confidently asserted wrong binding encoded into a security
+boundary is worse than an admitted one.
+
+### 9.2 Create's producer — leading direction, not a settled decision
 
 The console creates no container tags today; identity is stamped by the deploy
-launcher, and the console's NetBox layer states it never creates or deletes
-tag objects. The only existing direct write is a narrowly scoped lifecycle
-PATCH.
+launcher, and the console's NetBox layer states it never creates or deletes tag
+objects. The only existing direct write is a narrowly scoped lifecycle PATCH.
 
-**Decision: the producer is the scoped NetBox writer (ADR-0032), not an
-AWX/launcher transaction.** Rationale is the standing backend-flip filter —
-AWX gets ops-fixes only because the orchestration backend may move to Temporal,
-so work must land left of that seam. Binding a *design-time* write to the
-orchestration backend binds it to the component most likely to be replaced, for
-no benefit; NetBox is the source of truth either way.
+**Correction, 2026-09-11 (codex round 1).** An earlier draft recorded this as
+**decided** — "the producer is the scoped NetBox writer, not an AWX/launcher
+transaction" — on the backend-flip argument. That **overstated what is
+settled**, on two counts:
 
-**Consequence: the writer token is a prerequisite.** The console's NetBox
-writer credential is required by the console and set by no chart and no role —
-the existing writer-dependent endpoint is 503 on every deployed env (#487).
-Name-only create cannot exist until that seam is actually provisioned.
+1. **Principal and execution location are different decisions.** An
+   AWX/launcher transaction *already uses that same scoped writer identity*, so
+   "use the scoped writer" does not by itself choose direct HTTP writes over a
+   launcher transaction.
+2. **The backend-flip argument does not discriminate here.** The repo already
+   demonstrates an actuator-independent domain contract implemented over AWX
+   (the switch actuator's `Protocol` seam), so a Temporal move does not by
+   itself require design-time writes to bypass the actuator.
+
+**What is confirmed, and it constrains the answer hard.** The catalog writer
+identity holds `view, add` on tags — **no `change`, no `delete`**. Deletion
+lives with a *separate* identity whose delete is constrained to the
+`workload:`-prefixed namespace, and the two identities' non-overlapping powers
+are a deliberate, ADR-recorded invariant (the writer never holds delete; the
+purge identity never holds add or change).
+
+The consequence is sharp: **a create transaction cannot be "add a tag and record
+its scope on that tag"** — the tag carries no scope field (§9.1) *and* the
+writer cannot modify a tag once created. So the scope decision in §9.1 and the
+producer decision here are **one coupled problem**, not two.
+
+**Leading direction** (not settled): console-side create via the scoped writer,
+because it keeps a design-time write off the actuator. **Before it can be
+treated as decided, name separately:** the API producer, the principal it acts
+as, transaction atomicity across tag-plus-scope, duplicate-slug semantics, retry
+and partial-success recovery, and what happens when the audit write fails but
+the container create succeeded.
+
+**Confirmed prerequisite regardless of which producer wins.** The console's
+NetBox writer credential is required by the console and is set by **no chart and
+no role** — the existing writer-dependent endpoint is 503 on every deployed env
+(#487).
 
 ### 9.3 The delete path breaks the moment blank containers become visible
 
@@ -560,19 +709,45 @@ stripped of a stale user-facing reason. Those produce very different diffs.
 Strictly ordered; each step is a prerequisite for the next, and **only the
 first should be filed as an issue when the gate lifts**.
 
-1. **Container enumeration** (#562) — existence read from NetBox; the three
-   states of §8.2 independently representable. Read-path only; no writer needed.
-2. **The writer seam** (#487) — provision the console's NetBox writer
-   credential in a chart or role. Prerequisite for anything that creates.
-3. **Name-only create** (#490) — via the scoped NetBox writer, resolving §9.1
-   and §9.2 first.
-4. **Stage behaviour** (#557) — narrowed per §9.5.
-5. **The design schema** — functions, typed ports, connections, constraints,
-   compatibility validation, reference functions. Schema and validation only;
-   no editor.
-6. **Design persistence** — the Forgejo artifact contract of §2.
-7. *Not scheduled:* the canvas UI; the compiler's placement emission; the
-   generic declarative launcher (§6); everything in §7.
+**0. Settle the container scope posture (§9.1) — a decision, not a build.**
+Nothing below may start first, **including enumeration**. An earlier draft put
+enumeration first and scope resolution at create; that was wrong, because the
+first rendered blank container is already an authorization claim, and the
+acceptance property governing it has no meaning until the mapping exists.
+Outcome is a written posture covering tenant/site semantics, where scope is
+persisted given a tag cannot hold it, missing/malformed-scope behaviour, and the
+no-disclosure rule. **Coupled with §9.2's producer question — settle them
+together.**
+
+**1. Blank containers become real — one indivisible delivery boundary.**
+Visibility, create and delete ship together or not at all:
+
+- **Enumeration** (#562) — existence read from NetBox; the three states of §8.2
+  independently representable. Read path only.
+- **The writer seam** (#487) — provision the console's NetBox writer credential
+  in a chart or role. Prerequisite for anything that creates.
+- **Name-only create** (#490) — per the posture settled in step 0.
+- **Blank-container delete** — a *scoped* permanent delete that works on a
+  container with zero members, with a **fail-closed proof** that it neither
+  discloses nor deletes across scope.
+
+The delete is inside this boundary deliberately (codex round 1, accepted). The
+current purge path answers `workload-not-found` for a scoped caller with zero
+visible members (§9.3), so shipping visibility and create *without* it strands
+containers that the promised "delete permanently" cannot remove — the platform
+would create a thing it cannot destroy. Note the delete principal is the
+separate purge identity, not the writer (§9.2).
+
+**2. Stage behaviour** (#557) — narrowed per §9.5.
+
+**3. The design schema** — functions, typed ports, connections, constraints,
+compatibility validation (both directions, §8.9), reference functions. Schema
+and validation only; no editor.
+
+**4. Design persistence** — the Forgejo artifact contract of §2.
+
+***Not scheduled:*** the canvas UI; the compiler and its placement emission
+(§4.3's deferred half); the generic declarative launcher (§6); everything in §7.
 
 **Backend-flip check.** Steps 1–6 all land left of the AWX/Temporal seam —
 git artifacts, a NetBox read path, a NetBox write via a scoped writer, a schema
@@ -592,19 +767,31 @@ these anchors. **They decay silently. Re-verify before building.**
 | dmf-media | `c0ea827` | tag `v0.1.0` |
 | dmf-infra | `e496478` | — |
 
-**Claims to re-check first, because they are the load-bearing ones:**
+**Source anchors.** Paths are relative to the umbrella; `../` is a sibling
+component repo.
 
-- §4.1 — that the two provenance tags carry a *catalog entry key* and a
-  *declared element id*, that the viewer release carries neither, and that no
-  instance-to-instance edge exists in NetBox.
-- §4.3 — that the chart accepts `placement.nodeSelector`/`tolerations` and that
-  dmf-runbooks sets neither.
-- §4.4 — that `mxl_flows` has **no** code consumer in any repo.
-- §5.4 — the five non-neutral sites, and that no PTP/ST 2110/AES67/2022-7
-  reference exists in console source.
-- §6 — that dmf-runbooks holds nine bespoke playbooks and no generic launcher,
-  and that `generic-chart-policy/v1` has no implementation.
-- §9.2 — that the console's NetBox writer credential is still unprovisioned.
+| Claim | Anchors |
+|---|---|
+| §4.1 tags name a catalog entry + declared element; viewer gets neither | `../dmf-runbooks/roles/mxl/defaults/main.yml:85-110`; `../dmf-runbooks/playbooks/launch-mxl-fabrics-demo.yml:237-247` |
+| §4.1 three planes (declared / actuated / observed) | `../dmf-media/catalog/topology-params.j1.yaml:95-100`; `../dmf-runbooks/playbooks/switch-mxl-fabrics-demo.yml:598-609`; `../dmf-cms/src/dmf_cms/switch_source.py:521-534,:777-789` |
+| §4.2 `schema_version == 1` hard reject, two validators; flat naming | `../dmf-cms/src/dmf_cms/catalog.py:297`; `../dmf-runbooks/roles/l3_run_guard/filter_plugins/l3_topology.py:50,:114-160` |
+| §4.3 chart accepts selector/tolerations; split-node injects per-role pins | `../dmf-media/charts/mxl-fabrics-demo/values.yaml:158-166`, `templates/target.yaml:28-45`, `templates/initiator.yaml:26-41` |
+| §4.3 runbooks sets neither | search over `../dmf-runbooks` for `nodeSelector\|affinity\|tolerations` — no hits |
+| §4.4 `mxl_flows` declared, parsed-and-dropped, never consumed | `../dmf-cms/src/dmf_cms/catalog.py:192-204`; contract in `docs/decisions/0017-mxl-intra-host-data-plane.md:136,226,247`; referenced `docs/decisions/0046-first-class-media-workload-entity.md:112` |
+| §4.5 teardown PATCHes lifecycle, does not delete; rollback distinguishes | `../dmf-runbooks/playbooks/teardown-mxl-fabrics-demo.yml:200-212`; `../dmf-runbooks/roles/mxl/tasks/finalise.yml:46-58`; `../dmf-runbooks/roles/l3_run_guard/tasks/rollback_netbox_surface.yml:116-124`. **The misleading comment:** `../dmf-media/catalog/mxl-videotest-view.yaml:57-60` |
+| §5.4 non-neutral sites | `../dmf-cms/frontend/src/lib/labels.ts:57-63` (and the refusal-to-widen note at `:76-79`); `frontend/src/components/Sidebar.tsx:88`; `frontend/src/App.tsx:118`; `../dmf-cms/src/dmf_cms/media_workloads.py:47-48` |
+| §6 nine bespoke playbooks, no generic launcher | `../dmf-runbooks/playbooks/` (9 files); `docs/decisions/0047-…:91-103` (gates on launcher **and** ingestion policy); Kyverno recommendation `docs/reviews/DMF v0.2 Make-vs-Adopt OSS Evaluation 2026-07-18.md:88,107` |
+| §7 exclusions | `docs/decisions/architectural-commitments-v1.md:70-71`; `docs/decisions/0037-…:111-114`; `docs/decisions/0047-…:169-173`; `docs/design/DMF Console UX Constitution 2026-05-25.md:149-153` (gates), `:138-141` (Art. 15) |
+| §9.1 blank-container owner cannot be inferred; scoped identity required | `../dmf-cms/src/dmf_cms/media_workloads.py:981-1000`; `docs/decisions/0046-…:27-31`; `../dmf-cms/src/dmf_cms/settings.py:240-275`; media-tenant axis distinction `docs/decisions/0039-…:82-83` |
+| §9.2 writer holds add-not-change on tags; delete is a separate identity | `../dmf-infra/k3s-lab-bootstrap/roles/stack/operator/netbox-sot/defaults/main.yml:180-205`; `docs/decisions/0032-…:358-372`; actuator-independent contract precedent `../dmf-cms/src/dmf_cms/switch_source.py:14-25` |
+
+**Search scope, stated because exhaustive claims are only as good as it was.**
+Code-consumer claims (§4.4) were checked across all nine repos over `*.py`,
+`*.ts`, `*.tsx`, `*.yml`, `*.yaml`, `*.md`, excluding `node_modules`. The first
+draft's *document* counts were wrong as a result of narrower greps and have been
+removed rather than restated — see the corrections in §4.4 and §6. Treat any
+"only occurs in N places" phrasing anywhere in this doc as a claim about code
+consumers, never about documents.
 
 **Inputs.** Operator decisions recorded on #490 and #562 (2026-09-07); the
 adversarial cross-check recorded on #562; discussion #564 (whose §"Things any
@@ -619,3 +806,35 @@ unavailable`), the resource-semantics taxonomy (scalar / discrete / topological
 under-count as a modelling error rather than a calibration error), and the
 relationship-versus-internal ownership default. Their rejected proposals are
 enumerated in §7.
+
+## 12. Review history
+
+**Round 1 — codex adversarial cross-review, 2026-09-11, against umbrella
+`e817a4a`. Verdict: GATE: FAIL (P0 0, P1 3, P2 6). All nine findings verified
+against source and folded.**
+
+The three that changed the substance rather than the wording:
+
+| Finding | What the first draft got wrong |
+|---|---|
+| §4.5 | Claimed source service records are deleted by teardown. **False** — teardown PATCHes the lifecycle tag back to `bootstrapped`; only rollback deletes, and only records the run created. The claim came from a catalog-entry comment that contradicts its own executable source |
+| §4.1 | Claimed "the actual edge lives only in git". **Overstated** — git holds the *initial declared* connection; a switch writes actuation state elsewhere and the console already treats the catalog value as possibly stale. Now three planes |
+| §9.1 | Deferred the container scope mapping to an implementer. **Wrong side of the line** — the mapping defines the acceptance property's terms, so withholding it left the criterion meaningless. Now an explicit operator decision gate that blocks §10 entirely, including enumeration |
+
+Also folded: the §9.1 claim that ADR-0039 makes the tenancy premise hollow was a
+**misreading** — ADR-0039 explicitly keeps the media-tenant axis distinct;
+§9.2's producer choice was **downgraded from "decided" to a leading direction**
+once it emerged that the writer identity holds no `change` on tags and delete
+belongs to a separate principal, coupling it to §9.1; §7.1's "violates the gates
+by construction" was an **overclaim** and is now an explicit scope decision with
+its cost named; §4.3 was **narrowed** from a refutation of #564 to an agreement
+with it; three acceptance properties admitted broken implementations (duplicate
+tiles, an authorization-revocation conflict, a reject-everything validator); and
+§11's exhaustive document counts were false and are replaced with anchors plus a
+stated search scope.
+
+**Not folded, deliberately:** nothing. No finding was judged wrong.
+
+**Open for the operator, carried out of this round:** §9.1's scope posture and
+§9.2's coupled producer question. Both are decisions, and neither should be
+resolved by whoever implements.
