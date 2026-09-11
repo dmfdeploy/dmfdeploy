@@ -12,9 +12,13 @@ date: 2026-09-11
 > (#379) landed. #379 closed 2026-09-02; **episode 001 has not published**, so
 > Gate B is not met.
 >
-> **§10 step 0 — the scope posture and create producer — was settled by the
-> operator on 2026-09-11 and is recorded in §9.1 and §9.2.** No open decision
-> now blocks this arc.
+> **§10 step 0 — the scope posture and the create producer — was settled by the
+> operator on 2026-09-11 and is recorded in §9.1/§9.1a and §9.2.** Those two
+> choices no longer block the arc. **One decision remains open and is not the
+> operator's to pre-empt:** the name-only create endpoint's own authorization
+> gate, which inherits nothing from the existing read or operator gates
+> (§9.1a, §10). Leaving it open is correct for a parked record — it must be
+> decided before implementation, not before parking.
 >
 > **On unfreeze:**
 > 1. File **one** tracking issue for §10 step 1 — the indivisible visibility +
@@ -28,18 +32,30 @@ date: 2026-09-11
 > treats a missing one as a warning, not a failure, which is the correct signal
 > for a parked spec.
 >
-> **Re-verify before building.** Every source claim in this document is pinned
-> in §11 to a commit and a line. Those decay silently. Re-check §11's anchors
-> before treating any of §4 as current.
+> **Re-verify before building.** §11 pins the load-bearing source claims to a
+> commit and a file:line anchor — those in §4, §5.4, §6, §9.1 and §9.2. It does
+> **not** anchor every claim in the document: §2's store-ownership assertions,
+> §3, and §5.1–5.3 are unanchored and should be checked against source before
+> being relied on. Anchors decay silently; re-check §11 before treating any of
+> §4 as current.
 
 ## 0. Why this exists now, and what it is not
 
 The design work is cheap and perishable; the build is neither. During
 2026-09-07→11 a persistence investigation, an adversarial cross-check, and two
-externally-authored concept reviews converged on one arc. Several of their
-premises were **wrong against source**, and finding that out cost real reading.
-Capturing the corrected version while it is verified costs nothing and saves
-rediscovery later.
+externally-authored concept reviews converged on one arc. Several premises —
+**including this document's own first draft** — turned out to be wrong against
+source, and finding that out cost real reading. Capturing the corrected version
+while it is verified costs nothing and saves rediscovery later.
+
+**Be precise about whose errors these were**, because the value of this record is
+that it is honest about its own provenance. Of §4's five reconciliations only
+**4.1** corrects discussion #564; **4.5 corrects an error this document
+introduced itself** (it trusted a catalog comment over the code that comment
+described), and 4.2–4.4 are narrowings where #564 was directionally right. Later
+rounds found more of the same: a misread ADR, an overclaimed gate argument, and a
+citation that did not transfer. Every one is recorded in §12 rather than quietly
+fixed.
 
 **Writing this down is not a decision to build it.**
 
@@ -79,10 +95,17 @@ overlapping; per-stage progress counts are honest from the first moment
 
 ## 2. Where design intent persists
 
-**The gap.** Today a workload *is whatever is currently running*. Design and
-Plan are read-only renderings derived from member services. There is no durable
+**The gap.** Today a workload exists only as a **grouping derived from its
+member service records** — there is no independent container to enumerate, and
+Design and Plan are read-only renderings over those members. There is no durable
 record of a selection, no per-container facility assignment, and no write seam
 for either. Selection lives in browser state and is lost on refresh.
+
+*(An earlier draft said a workload "is whatever is currently running". That is
+false, and §4.5 is why: member records **survive teardown** with their lifecycle
+tag flipped to desired state, and the read path fetches catalog services with no
+running-state filter. The grouping is over inventory records, not over observed
+runtime.)*
 
 **The answer: design intent persists as declarative artifacts in in-cluster
 Forgejo. Save is a commit.**
@@ -534,9 +557,11 @@ failure modes.
    requires — so it is scoped deliberately: within a fixed authorization, a
    container leaves the page only by explicit permanent delete.
 4. **Scope widens what exists, never who can see it.** An unscoped enumeration
-   must not disclose another tenant's blank workload name. *(See §9.1 — this is
-   currently unsatisfiable as stated and is a decision, not an implementation
-   detail.)*
+   must not disclose another tenant's blank workload name. *(Conditionally
+   resolved: under §9.1a's declared single-tenant restriction this is trivially
+   satisfiable, because there is no other tenant to disclose to. The property
+   stays in force and becomes load-bearing the moment that restriction is
+   lifted — it is not deleted, and it is not merged into property 2.)*
 5. **Create is attributable and idempotent.** A created container carries an
    audit record with the C5 quartet; a duplicate-slug create has defined
    semantics; a partial success leaves no half-created container.
@@ -744,10 +769,11 @@ orchestration event and must not depend on the orchestrator being awake.**
 - The **writer** creates; the **purge identity** deletes. Two principals, kept
   non-overlapping exactly as ADR-0032 records. The blank-container delete in §10
   is purge-identity work, not writer work.
-- Because the writer cannot amend a tag after creation, the tenant from §9.1
-  must be recorded **in the creating call or alongside it** — there is no second
-  chance. Where exactly is the remaining open sub-question; the permissions
-  narrow it but do not answer it (see below).
+- The writer cannot amend a tag after creation, so **if** a per-container
+  tenant ever had to be recorded it would have to go in the creating call —
+  there is no second chance. Under the declared single-tenant restriction
+  (§9.1a) **no such record is needed**, so this is not an open question today.
+  It reopens only if that restriction is lifted or `scoped` mode is adopted.
 - #487 moves from an unmilestoned plumbing gap to a **hard prerequisite**, since
   the console-side branch is now the chosen one.
 
@@ -903,8 +929,12 @@ because a tenant join is vacuous in general, but because the installation is
 declared to hold one tenant. Lifting that restriction reopens the question.
 
 **Added by the tenant cross-check:** the name-only create endpoint's own
-authorization gate must be decided. Reads, Provision-route create and purge use
-three *different* gates today; the new endpoint inherits none of them.
+authorization gate must be decided. Today there are **two** role-gate rules, not
+three — reads use engineer-or-higher **or** `media-engineers`, while
+Provision-route create and purge both use operator-or-higher (the same
+`_require_min_role(..., "operator")` call). Read, create and delete nonetheless
+keep **separate authorization contracts**, and the new endpoint inherits none of
+them.
 
 **1. Blank containers become real — one indivisible delivery boundary.**
 Visibility, create and delete ship together or not at all:
@@ -940,10 +970,17 @@ and validation only; no editor.
 ***Not scheduled:*** the canvas UI; the compiler and its placement emission
 (§4.3's deferred half); the generic declarative launcher (§6); everything in §7.
 
-**Backend-flip check.** Steps 1–6 all land left of the AWX/Temporal seam —
-git artifacts, a NetBox read path, a NetBox write via a scoped writer, a schema
-contract, and resolution logic. Only the eventual placement emission touches
-the actuator. That is an independent argument that this is the right work.
+**Backend-flip check, with one honest exception.** Most of steps 1–4 lands
+**left** of the AWX/Temporal seam — git artifacts, a NetBox read path, a NetBox
+write via a scoped writer, and a schema contract. **The exception is the delete
+leg of step 1:** permanent delete is not a NetBox write, it is a background task
+that **wakes AWX and launches a job**, so integrating it is actuator-dependent
+work. That does not change the sequence — a workload you cannot delete is worse
+— but it does mean this arc is not *entirely* backend-agnostic, and an earlier
+draft claiming "steps 1–6" (a range that no longer exists; the sequence ends at
+step 4) and "only the eventual placement emission touches the actuator" was
+wrong on both counts. Compiler and resolution logic are deferred, not
+sequenced.
 
 ## 11. Provenance — what was verified, against what, when
 
@@ -1082,10 +1119,12 @@ and stays clear of Freeze 2. Decision 2's rationale is grounded in ADR-0043's
 authorised AWX scale-to-zero, which is why "works while AWX is asleep" is a
 concrete requirement rather than a preference.
 
-**Instruction carried into implementation:** record both against the existing
-tenant/site contract explicitly, so an implementer can neither silently
-reintroduce a site term nor weaken the tenant term while believing they are
-satisfying ADR-0046.
+**Instruction carried into implementation** *(superseded — see §9.1a, which is
+authoritative; retained only as the record of what was said at the time)*: this
+originally read "so an implementer can neither silently reintroduce a site term
+nor weaken the tenant term". **The site-term half was withdrawn in round 4** —
+this document records a posture *within* the existing tenant/site contract and
+has no authority to narrow it.
 
 ---
 
@@ -1160,3 +1199,36 @@ the existing tenant/site contract, only to record a posture within it.
 itself adopt or revive it, and the scope note was judged sufficient for
 historical context — it simply could not cure the authority transfer. P1-a,
 P2-c, P2-d and P2-e from round 3 are all confirmed addressed.
+
+---
+
+**Round 5 — codex whole-document consistency pass, 2026-09-11, at `0f36780`.
+Verdict: GATE: FAIL (P0 0, P1 0, **P2 7**). Deliberately not a diff review, and
+that is why it found what it found.** Four prior rounds each reviewed a *diff*;
+every defect below is an edit that was correct in isolation while contradicting
+something in a section nobody re-read. Two more were found by an independent
+whole-document read on this side. All nine are folded here.
+
+| # | Defect |
+|---|---|
+| 1 | §9.2 still required recording a tenant "in the creating call or alongside it" and called its location an open question — both removed by §9.1a's restriction |
+| 2 | The **site-term prohibition survived in §12's review history** as a live instruction, after round 4 removed it from §9.1a and claimed it was gone |
+| 3 | Acceptance property 4 still declared itself "currently unsatisfiable", after §9.1a conditionally resolved it |
+| 4 | The header claimed "no open decision now blocks this arc" while §9.1a and §10 leave the new create endpoint's authorization gate explicitly undecided |
+| 5 | §10's backend-flip check cited "Steps 1–6" (the sequence ends at 4) and claimed only placement emission touches the actuator — **permanent delete wakes AWX and launches a job**, so the delete leg of step 1 is actuator-dependent |
+| 6 | §2 still opened with "a workload *is whatever is currently running*" — false, and §4.5 is why: member records survive teardown, and the read path applies no running-state filter |
+| 7 | §10 claimed "three different gates today". There are **two** role-gate rules — reads, then operator-or-higher shared by Provision-route create *and* purge — plus the undecided new one |
+| 8 | *(found here)* The header claimed **every** source claim is pinned in §11. It pins the load-bearing ones; §2, §3 and §5.1–5.3 are unanchored |
+| 9 | *(found here)* §0 attributed the wrong premises to the external inputs. The largest single factual error in this document was **its own** |
+
+**Method note worth keeping.** Findings 8 and 9 came from a whole-document read
+on the authoring side; the other seven from an independent whole-document read.
+Neither reader found the other's set, and **no diff round found any of them in
+four attempts**. A document assembled across many commits needs at least one
+pass that reads it as an artifact rather than as a series of changes — and
+finding 2 is the sharp case: a round-4 fix that was applied in one place, claimed
+complete, and left standing as a live instruction in another.
+
+**Closing assessment (codex):** *"These are narrow factual and propagation
+corrections. They do not call for another architecture round or for completing
+this parked design."*
