@@ -936,14 +936,29 @@ Provision-route create and purge both use operator-or-higher (the same
 keep **separate authorization contracts**, and the new endpoint inherits none of
 them.
 
+**0b. Wire the console's NetBox writer credential (#487) — first, and on its
+own.** Operator ruling, 2026-09-11: this is picked up **before** the arc rather
+than inside it. Two reasons, and the second is the load-bearing one:
+
+- The gap is **already user-visible** — the existing writer-dependent endpoint
+  returns 503 on every deployed env — so it is justified by its own
+  `v0.1-polish` milestone without reference to anything here. The create arc
+  should not be what finally forces it.
+- It keeps step 1 honest. Step 1 is an **indivisible** visibility + create +
+  delete boundary; a round that has to fix its own prerequisites mid-flight is
+  the shape that produces "almost done" for a week.
+
+Done when the credential is set by a chart or role and the writer-dependent
+endpoint stops failing on a deployed env — not when the variable exists
+somewhere.
+
 **1. Blank containers become real — one indivisible delivery boundary.**
 Visibility, create and delete ship together or not at all:
 
 - **Enumeration** (#562) — existence read from NetBox; the three states of §8.2
   independently representable. Read path only.
-- **The writer seam** (#487) — provision the console's NetBox writer credential
-  in a chart or role. **A hard prerequisite now that step 0 has chosen
-  console-side writes**: nothing can create until it is wired.
+*(The writer seam, #487, is **no longer part of this boundary** — operator
+ruling 2026-09-11 moved it ahead of the arc as step 0b. See below.)*
 - **Name-only create** (#490) — direct console write via the scoped writer.
   **No tenant stamp**, per §9.1a's restriction. Its authorization gate does not
   exist yet and must be decided rather than inherited from the read gate.
