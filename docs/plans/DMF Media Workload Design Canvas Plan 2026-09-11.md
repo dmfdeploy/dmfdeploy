@@ -584,13 +584,52 @@ Traps found the expensive way. These are hazards, not prescriptions — framed a
 **This is a reading of ADR-0046, not an amendment — which matters, because an
 amendment would be Freeze-2 blocked.** ADR-0046 scopes workload identity by
 `(tenant/site scope, slug)` "applied only *after* the console's existing
-tenant/site scoping". That existing scoping is, in implementation, **tenant-only**:
-the console maps OIDC groups to NetBox **tenant** slugs and filters members by
-tenant, with no site term anywhere in the mapping. The decision above therefore
-*describes what the console already does* and names site as placement metadata
-rather than an ownership component. **Record it explicitly against that contract
-so an implementer cannot silently reintroduce a site term, or weaken the tenant
-term, while believing they are satisfying ADR-0046.**
+tenant/site scoping". That existing scoping is, in implementation,
+**tenant-only**: the console maps OIDC groups to NetBox **tenant** slugs, with no
+site term anywhere in the mapping. The decision above therefore *describes what
+the console already does* and names site as placement metadata rather than an
+ownership component.
+
+### 9.1a Which "tenant" — and why a tenant join is the wrong mechanism
+
+**There are three different things called "tenant" in this platform. Conflating
+them produces a filter that looks like a security boundary and enforces
+nothing.**
+
+| # | Thing | What it actually is |
+|---|---|---|
+| 1 | **NetBox Tenant `DMF`** (slug `dmf`) | Created by born-inventory. **A constant.** ADR-0039 states it outright: *"All envs share a single Tenant `DMF` (slug `dmf`) — tenant does not discriminate envs."* Envs are discriminated by **Site + Cluster** carrying `dmf_env_id`, never by tenant |
+| 2 | **The media tenant (ADR-0020)** | A commercial boundary realised as **cluster-per-tenant** — a separate cluster, therefore a separate NetBox and Authentik. **Not a row inside this NetBox** |
+| 3 | **Console media tenancy** (`DMF_CONSOLE_MEDIA_TENANCY`) | The posture switch: `""` unconfigured · `single` = *explicitly declared* single-tenant, "all instances visible to permitted roles" · `scoped` = enforce an OIDC-group→tenant map |
+
+**Consequence, and it simplifies the build considerably.** Because (1) is a
+single shared constant, **joining a workload container to its NetBox tenant
+filters nothing** — the join returns everything, always. Implementing container
+scope as a tenant filter would be a vacuous check presented as an authorization
+boundary: exactly the "silently invent or weaken the boundary" failure this
+decision exists to prevent.
+
+**So the mechanism is not a tenant join.** Within one env, every `workload:*`
+container is visible to every **authorised media operator** — the gate is the
+**role check**, and the env itself is the outer boundary. No per-container tenant
+stamp is required for the decided posture.
+
+**"Record the tenant boundary explicitly in configuration" has an exact existing
+home:** set `DMF_CONSOLE_MEDIA_TENANCY=single`. The setting's own contract
+distinguishes `""` (unconfigured — what a deployed env has today) from `single`
+(the *explicitly declared* posture). Declaring it is the difference between a
+decision and an accident, and it is a config change, not code.
+
+**The cross-tenant disclosure risk is deferred, not dismissed.** It becomes real
+only under `scoped` mode with a populated group→tenant map — the first step of
+the evolution path above. Whoever builds that must supply the per-container
+ownership record then; under ADR-0020's cluster-per-tenant it may never be
+needed at all, since separation, not filtering, is how that model isolates
+tenants.
+
+**Instruction carried into implementation:** record all of this against the
+existing tenant/site contract explicitly, so nobody reintroduces a site term,
+weakens the role gate, or builds a tenant join believing ADR-0046 requires it.
 
 **What this settles, and what it does not.** It settles the *visibility* rule
 (property 4 now has meaning: within a tenant, everything; across tenants,
@@ -598,9 +637,11 @@ nothing). It does **not** settle where the tenant is persisted for a memberless
 container — see §9.2, which is the coupled half, and which the decision below
 constrains rather than answers.
 
-**The disclosure rule stands unchanged:** an enumeration that cannot establish a
-container's tenant must not render it. Unknown ownership fails closed, because
-the workload *name itself* is the thing that leaks.
+**The honest-failure rule stands unchanged**, though §9.1a narrows what it
+guards: an enumeration that cannot establish *whether it is complete* must say
+so rather than presenting a partial list as the full one (property 2). The
+cross-tenant name-disclosure concern specifically is deferred with `scoped`
+mode — see §9.1a.
 
 ---
 
@@ -714,12 +755,12 @@ The existing tag-creation call already sets a `description` alongside `name` and
 `slug` in the initial POST, using only `add`. That is a free-text field, not a
 structured scope, so it is not a solution — but it does show that
 "no `change` permission" alone cannot rule a creation-time scheme out. **So a
-creation-time scheme is not ruled out — it is simply not yet designed.** This is
-the one open sub-question the producer decision leaves behind: given the
-tenant from §9.1 must be recorded at creation and the tag has no field for it,
-**where does it go?** Free text in the tag description, a companion object, or
-the design artifact — to be settled with the transaction shape below, and
-derived from source rather than chosen in prose.
+creation-time scheme is not ruled out** — but §9.1a establishes that the decided
+posture does not need one. The tag's inability to hold a tenant stops being a
+problem once the tenant is understood as a shared constant rather than a
+discriminator. Should `scoped` mode ever be adopted, this constraint returns and
+the options are free text in the tag description, a companion object, or the
+design artifact.
 
 **#487 is now a hard prerequisite, not a conditional one.** The console's NetBox
 writer credential is set by **no chart and no role**, so the existing
@@ -800,10 +841,15 @@ wrong — because the first rendered blank container is already an authorization
 claim, and the property governing it had no meaning until ownership was defined.
 
 **Remaining before step 1 can be implemented** (design work, not decisions):
-where the tenant is persisted at creation given the tag has no field for it and
-cannot be amended afterwards; duplicate-name semantics; retry behaviour; and
-audit-failure behaviour when the container is created but its record is not.
-Derive these from source, not from prose.
+duplicate-name semantics; retry behaviour; and audit-failure behaviour when the
+container is created but its record is not. Derive these from source, not from
+prose.
+
+**No longer remaining:** "where is the tenant persisted at creation" — §9.1a
+resolves it. The decided posture needs **no per-container tenant stamp at all**,
+because the NetBox tenant is a shared constant and a join on it filters nothing.
+The config declaration (`DMF_CONSOLE_MEDIA_TENANCY=single`) carries the posture
+instead.
 
 **1. Blank containers become real — one indivisible delivery boundary.**
 Visibility, create and delete ship together or not at all:
