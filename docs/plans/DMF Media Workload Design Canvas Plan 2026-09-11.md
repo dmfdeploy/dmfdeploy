@@ -661,9 +661,13 @@ Read, create and delete keep **separate** authorization contracts. Do not
 collapse them into one guard.
 
 **Instruction carried into implementation:** record the restriction explicitly
-alongside the existing tenant/site contract, so nobody reintroduces a site term,
-collapses the three gates, removes `scoped`, or treats the single-tenant
-coincidence as a property of the code rather than a declared posture.
+alongside the existing tenant/site contract, and **preserve that contract as it
+stands** — do not collapse the three gates, do not remove `scoped` mode, and do
+not treat the single-tenant posture as a property of the code rather than a
+declared one. *(An earlier draft said "so nobody reintroduces a site term". That
+was a prohibition this document has no authority to impose, and it contradicted
+the rule two paragraphs above not to forbid a site term. Removed — the tenant
+and site terms of the existing contract are preserved, not narrowed.)*
 
 **What this settles, and what it does not.** Under the §9.1a restriction it
 settles the *visibility* rule: within the installation's single tenant,
@@ -1108,3 +1112,51 @@ it is an **operator-declared deployment restriction**, not a fact about the code
 §9.1a now states it as an authority, records the service-provider case against
 it, and keeps `scoped` mode and the no-disclosure property intact so lifting the
 restriction re-arms a real boundary instead of finding none.
+
+---
+
+**Round 4 — codex re-review of the ADR-0020 grounding, 2026-09-11,
+`b075dcc..01040a4`. Verdict: GATE: FAIL (P0 0, P1 1 NEW, P2 2 NEW + 1
+CARRYOVER). The new commit was reverted; the carryover was fixed.**
+
+**The P1 was the thing this round existed to test, and it failed.** Commit
+`01040a4` tried to ground the single-tenant restriction in ADR-0020 rather than
+in the operator's declaration. It does not transfer, and the ADR says so about
+itself:
+
+- Its amendment states Mode B's constraints *"remain authoritative reference
+  text but **bind no implementation today**"*. Mode A — the accepted mode —
+  carries **one** binding constraint (no outbound dependency on dmfdeploy.io),
+  silent on tenancy.
+- The same ADR **rejects** a single-posture alternative precisely because it
+  *"forces the cluster-per-tenant decision before it's needed in Mode A"*. The
+  commit cited an ADR to support a restriction that ADR explicitly defers for
+  the mode we are in.
+- ADR-0020 rejected a shared **workload cluster**, which is not the same
+  proposition as a shared **NetBox inventory** — a distinction this document
+  draws elsewhere and that commit collapsed.
+
+Two further defects in the same material: B.1 excludes provider-side custody of
+unseal material *regardless* of whether clusters are shared, so it does not
+establish that a shared control plane cannot hold per-customer quorums; and
+ADR-0039's teardown consequence scopes an environment's Site and Cluster
+**records**, not the lifetime of the NetBox instance containing them, so it does
+not establish that this NetBox is env-lifecycle-scoped rather than
+customer-lifecycle-scoped.
+
+**Reverted in full.** The restriction in §9.1a stands on the operator's
+declaration, which was always its stated basis and which no review round has
+challenged. The lesson is recorded rather than the citation: **a Proposed mode's
+rejected alternative is not authority for the Accepted mode**, and wanting a
+declaration to have more backing than it has is not a reason to go looking for
+some.
+
+**The carryover** (P1-b, partial): an implementation instruction still read *"so
+nobody reintroduces a site term"*, contradicting the rule two paragraphs above
+not to forbid a site term. Removed — this document has no authority to narrow
+the existing tenant/site contract, only to record a posture within it.
+
+**Cleared without finding:** citing a Proposed mode in a parked record does not
+itself adopt or revive it, and the scope note was judged sufficient for
+historical context — it simply could not cure the authority transfer. P1-a,
+P2-c, P2-d and P2-e from round 3 are all confirmed addressed.
