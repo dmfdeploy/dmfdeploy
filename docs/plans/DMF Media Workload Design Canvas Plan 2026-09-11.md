@@ -622,10 +622,33 @@ says they do**.
 **The case against it, recorded because it is real.** A service provider running
 facilities for several customers would naturally want one inventory with many
 tenants — that is what NetBox tenancy is *for*, and it is cheaper than
-duplicating NetBox, Authentik, AWX, OpenBao and Prometheus per customer.
-ADR-0020 already made that trade deliberately and records the cost. So the
+duplicating NetBox, Authentik, AWX, OpenBao and Prometheus per customer. So the
 restriction is a **supported posture, not an impossibility** — a third party
 could run this platform multi-tenant, and nothing in the code stops them.
+
+**But the restriction is not resting on this record alone.** ADR-0020 already
+considered the shared-tenancy alternative for the managed-service mode and
+rejected it: *"Multi-tenant shared cluster for Mode B — better unit economics,
+worse compliance blast-radius, and incompatible with the existing
+Authentik-per-cluster / `dmf-central` posture. Rejected."* Its binding
+constraint B.1 explains why the rejection gets **stronger** at scale rather than
+weaker: Shamir shares must originate customer-side and never traverse
+dmfdeploy.io, which that ADR names as *"the dividing line between 'we are a data
+processor' and 'we are a software supplier'."* A shared multi-tenant control
+plane cannot hold per-customer unseal quorums in any meaningful sense, so
+tenancy-in-a-shared-stack would trade the regulatory position for unit
+economics.
+
+*(Scope note: ADR-0020 lists Mode A **Accepted** and Modes B and C **Proposed**.
+Nothing here adopts, revives or plans Mode B — it is cited only because the
+alternative this restriction rules out was already examined there.)*
+
+**One more reason the service-provider case does not transfer to *this* NetBox.**
+Our NetBox is **env-lifecycle-scoped, not customer-lifecycle-scoped**: ADR-0039
+records that on teardown the Site and Cluster are deleted wholesale, which is
+precisely why it needs no per-env tag. It is disposable platform state, not a
+durable multi-customer asset. A provider wanting one inventory spanning
+customers would run their own NetBox alongside, not repurpose this one.
 
 **What follows under the restriction — and only under it:**
 
