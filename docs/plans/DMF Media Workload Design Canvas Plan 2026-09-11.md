@@ -12,18 +12,17 @@ date: 2026-09-11
 > (#379) landed. #379 closed 2026-09-02; **episode 001 has not published**, so
 > Gate B is not met.
 >
+> **§10 step 0 — the scope posture and create producer — was settled by the
+> operator on 2026-09-11 and is recorded in §9.1 and §9.2.** No open decision
+> now blocks this arc.
+>
 > **On unfreeze:**
-> 1. **Settle §10 step 0 first — the container scope posture (§9.1), coupled
->    with the producer question (§9.2). It is an operator decision, not a
->    build, and every other step depends on it.** Record the outcome in this
->    doc before filing anything.
-> 2. Then file **one** tracking issue for §10 step 1 — the indivisible
->    visibility + create + delete boundary (`component:dmf-cms`,
->    `workstream:entrance`; milestone per WORKING-MODEL §2). Do not file the
->    later steps yet.
-> 3. Add its URL to this file's `tracking_issue` frontmatter.
-> 4. Flip `status: draft` → `active`.
-> 5. Open the PR.
+> 1. File **one** tracking issue for §10 step 1 — the indivisible visibility +
+>    create + delete boundary (`component:dmf-cms`, `workstream:entrance`;
+>    milestone per WORKING-MODEL §2). Do not file the later steps yet.
+> 2. Add its URL to this file's `tracking_issue` frontmatter.
+> 3. Flip `status: draft` → `active`.
+> 4. Open the PR.
 >
 > No `tracking_issue` key is present yet **by design** — `bin/check-docs.sh`
 > treats a missing one as a warning, not a failure, which is the correct signal
@@ -568,17 +567,49 @@ failure modes.
 Traps found the expensive way. These are hazards, not prescriptions — framed as
 *this will fail an acceptance criterion*, never as a mandated implementation.
 
-### 9.1 Container scope — DECISION GATE, blocks everything in §10
+### 9.1 Container scope — RESOLVED (operator, 2026-09-11)
 
-> **⛔ OPERATOR DECISION REQUIRED. Nothing in §10 can start until this is
-> settled, including step 1.** This is not a hazard to keep in mind while
-> building; it is the first unit of work, and it is a decision, not an
-> implementation.
+> **✅ DECIDED. Ownership is the media tenant. Placement is not ownership.**
+>
+> **Shared ownership within one media tenant.** Every authorised media operator
+> sees **every** workload belonging to that tenant, **including empty ones**. The
+> tenant may span multiple sites and clusters. **Placement is decided at Plan and
+> does not determine ownership.** The tenant boundary is recorded **explicitly in
+> configuration**, never inferred.
+>
+> **Evolution path, in order, none of it now:** structured per-workload
+> ownership → migrate existing workloads into a default shared workspace → finer
+> team/project permissions.
+
+**This is a reading of ADR-0046, not an amendment — which matters, because an
+amendment would be Freeze-2 blocked.** ADR-0046 scopes workload identity by
+`(tenant/site scope, slug)` "applied only *after* the console's existing
+tenant/site scoping". That existing scoping is, in implementation, **tenant-only**:
+the console maps OIDC groups to NetBox **tenant** slugs and filters members by
+tenant, with no site term anywhere in the mapping. The decision above therefore
+*describes what the console already does* and names site as placement metadata
+rather than an ownership component. **Record it explicitly against that contract
+so an implementer cannot silently reintroduce a site term, or weaken the tenant
+term, while believing they are satisfying ADR-0046.**
+
+**What this settles, and what it does not.** It settles the *visibility* rule
+(property 4 now has meaning: within a tenant, everything; across tenants,
+nothing). It does **not** settle where the tenant is persisted for a memberless
+container — see §9.2, which is the coupled half, and which the decision below
+constrains rather than answers.
+
+**The disclosure rule stands unchanged:** an enumeration that cannot establish a
+container's tenant must not render it. Unknown ownership fails closed, because
+the workload *name itself* is the thing that leaks.
+
+---
+
+**Why this needed deciding at all** (kept as the record of the problem):
 
 The workload container tag **carries no tenant field at all**, while ADR-0046
 requires workload identity to be `(tenant/site scope, slug)` — satisfied today
 only *via members*. So "every container is shown, subject to scope" and "scope
-may be undefined for a container" are **mutually unsatisfiable**, and an
+may be undefined for a container" were **mutually unsatisfiable**, and an
 unscoped enumeration is a tenant-disclosure risk.
 
 **Why this cannot be delegated to an implementer (codex round 1, accepted).**
@@ -609,16 +640,52 @@ it in prose.** "Not determinable from source" is a finding to bring back, not a
 gap to paper over — a confidently asserted wrong binding encoded into a security
 boundary is worse than an admitted one.
 
-### 9.2 Create's producer — leading direction, not a settled decision
+### 9.2 Create's producer — RESOLVED (operator, 2026-09-11)
+
+> **✅ DECIDED. Direct creation through the console backend.**
+>
+> **Creating a named workload must work while AWX is asleep or unavailable.**
+> Use the scoped NetBox writer; fix #487's credential plumbing; **retain the
+> separate purge identity for deletion**. Duplicate-name, retry and
+> audit-failure behaviour must be defined **before** implementation.
+
+**The rationale is stronger than the one this document originally gave.** An
+earlier draft argued for direct writes on the grounds that AWX may be replaced by
+Temporal — an argument codex correctly showed does not discriminate, since a
+domain contract can outlive its actuator. The operator's rationale is concrete
+and verifiable instead: **AWX is deliberately asleep most of the time.** ADR-0043
+authorises on-demand scale-to-zero for AWX specifically, so routing a create
+through it means waking a stack to record a name — with the cold-wake failure
+modes that already have their own open issue. **Naming a workload is not an
+orchestration event and must not depend on the orchestrator being awake.**
+
+**What the decision constrains downstream:**
+
+- The **writer** creates; the **purge identity** deletes. Two principals, kept
+  non-overlapping exactly as ADR-0032 records. The blank-container delete in §10
+  is purge-identity work, not writer work.
+- Because the writer cannot amend a tag after creation, the tenant from §9.1
+  must be recorded **in the creating call or alongside it** — there is no second
+  chance. Where exactly is the remaining open sub-question; the permissions
+  narrow it but do not answer it (see below).
+- #487 moves from an unmilestoned plumbing gap to a **hard prerequisite**, since
+  the console-side branch is now the chosen one.
+
+**Still to define before implementation, explicitly called out by the operator:**
+duplicate-name semantics, retry behaviour, and what happens when the container is
+created but its audit record is not.
+
+---
+
+**The analysis that led here** (kept, because it constrains the open
+sub-questions):
 
 The console creates no container tags today; identity is stamped by the deploy
 launcher, and the console's NetBox layer states it never creates or deletes tag
 objects. The only existing direct write is a narrowly scoped lifecycle PATCH.
 
-**Correction, 2026-09-11 (codex round 1).** An earlier draft recorded this as
-**decided** — "the producer is the scoped NetBox writer, not an AWX/launcher
-transaction" — on the backend-flip argument. That **overstated what is
-settled**, on two counts:
+**Two arguments that do *not* support the decision**, kept so nobody re-derives
+the direction from reasoning that fails (codex round 1):
 
 1. **Principal and execution location are different decisions.** An
    AWX/launcher transaction *already uses that same scoped writer identity*, so
@@ -646,27 +713,19 @@ than the tag.
 The existing tag-creation call already sets a `description` alongside `name` and
 `slug` in the initial POST, using only `add`. That is a free-text field, not a
 structured scope, so it is not a solution — but it does show that
-"no `change` permission" alone cannot rule a creation-time scheme out. **Leave
-the storage decision open to §10 step 0; do not derive impossibility from these
-permissions.**
+"no `change` permission" alone cannot rule a creation-time scheme out. **So a
+creation-time scheme is not ruled out — it is simply not yet designed.** This is
+the one open sub-question the producer decision leaves behind: given the
+tenant from §9.1 must be recorded at creation and the tag has no field for it,
+**where does it go?** Free text in the tag description, a companion object, or
+the design artifact — to be settled with the transaction shape below, and
+derived from source rather than chosen in prose.
 
-Either way the scope decision in §9.1 and the producer decision here are **one
-coupled problem**, not two.
-
-**Leading direction** (not settled): console-side create via the scoped writer,
-because it keeps a design-time write off the actuator. **Before it can be
-treated as decided, name separately:** the API producer, the principal it acts
-as, transaction atomicity across tag-plus-scope, duplicate-slug semantics, retry
-and partial-success recovery, and what happens when the audit write fails but
-the container create succeeded.
-
-**Prerequisite *if* console-side writes win — not unconditionally** (corrected,
-codex round 2). The console's NetBox writer credential is set by **no chart and
-no role**, so the existing writer-dependent console endpoint is 503 on every
-deployed env (#487). But that gates *console-side* writes specifically: AWX
-already receives its own catalog writer credential, and the launcher uses it to
-create tags today. So #487 is a real and independent plumbing gap, and it blocks
-create **only under the console-side branch** of the producer decision above.
+**#487 is now a hard prerequisite, not a conditional one.** The console's NetBox
+writer credential is set by **no chart and no role**, so the existing
+writer-dependent console endpoint is 503 on every deployed env. Under the
+console-side branch — which is the decided one — nothing can create until that
+is wired.
 
 ### 9.3 The delete path breaks the moment blank containers become visible
 
@@ -725,18 +784,26 @@ stripped of a stale user-facing reason. Those produce very different diffs.
 
 ## 10. Sequencing on unfreeze
 
-Strictly ordered; each step is a prerequisite for the next, and **only the
-first should be filed as an issue when the gate lifts**.
+Strictly ordered; each step is a prerequisite for the next. Step 0 is closed;
+**only step 1 should be filed as an issue when the gate lifts**.
 
-**0. Settle the container scope posture (§9.1) — a decision, not a build.**
-Nothing below may start first, **including enumeration**. An earlier draft put
-enumeration first and scope resolution at create; that was wrong, because the
-first rendered blank container is already an authorization claim, and the
-acceptance property governing it has no meaning until the mapping exists.
-Outcome is a written posture covering tenant/site semantics, where scope is persisted,
-noting that no supported contract exists today (§9.2), missing/malformed-scope behaviour, and the
-no-disclosure rule. **Coupled with §9.2's producer question — settle them
-together.**
+**0. Scope posture and create producer — SETTLED 2026-09-11 (§9.1, §9.2).**
+This step was an open operator decision and is now closed: **ownership is the
+media tenant, shared across all authorised media operators, empty workloads
+included; placement is a Plan concern and never an ownership term; the tenant
+boundary is recorded explicitly in configuration. Creation is a direct console
+backend write via the scoped NetBox writer, so naming a workload works while AWX
+is asleep; deletion stays with the separate purge identity.**
+
+It had to come first — and an earlier draft that put enumeration first was
+wrong — because the first rendered blank container is already an authorization
+claim, and the property governing it had no meaning until ownership was defined.
+
+**Remaining before step 1 can be implemented** (design work, not decisions):
+where the tenant is persisted at creation given the tag has no field for it and
+cannot be amended afterwards; duplicate-name semantics; retry behaviour; and
+audit-failure behaviour when the container is created but its record is not.
+Derive these from source, not from prose.
 
 **1. Blank containers become real — one indivisible delivery boundary.**
 Visibility, create and delete ship together or not at all:
@@ -744,10 +811,10 @@ Visibility, create and delete ship together or not at all:
 - **Enumeration** (#562) — existence read from NetBox; the three states of §8.2
   independently representable. Read path only.
 - **The writer seam** (#487) — provision the console's NetBox writer credential
-  in a chart or role. **Required only if step 0 chooses console-side writes**;
-  the launcher already holds its own catalog writer credential. #487 is a real
-  gap either way, but it is not unconditionally on this critical path.
-- **Name-only create** (#490) — per the posture settled in step 0.
+  in a chart or role. **A hard prerequisite now that step 0 has chosen
+  console-side writes**: nothing can create until it is wired.
+- **Name-only create** (#490) — direct console write via the scoped writer,
+  stamping the owning tenant at creation per step 0.
 - **Blank-container delete** — a *scoped* permanent delete that works on a
   container with zero members, with a **fail-closed proof** that it neither
   discloses nor deletes across scope.
@@ -885,3 +952,34 @@ iteration is unnecessary."*
 fix-induced with zero carryover — the signature that says stop patching, and the
 reviewer said the same independently. A third round would be reviewing the
 review.
+
+---
+
+**Operator decisions, 2026-09-11 — §10 step 0 closed.** Both questions this
+record escalated were answered, verbatim intent preserved in §9.1 and §9.2:
+
+1. **Ownership = the media tenant, shared.** All authorised media operators see
+   every workload belonging to that tenant, empty ones included. The tenant may
+   span multiple sites and clusters; **placement is decided at Plan and does not
+   determine ownership.** The boundary is recorded explicitly in configuration.
+   Later: structured per-workload ownership → migrate existing workloads into a
+   default shared workspace → finer team/project permissions.
+2. **Direct creation through the console backend**, via the scoped NetBox
+   writer, because **creating a named workload must work while AWX is asleep or
+   unavailable**. #487's credential plumbing becomes a hard prerequisite; the
+   separate purge identity is retained for deletion; duplicate-name, retry and
+   audit-failure behaviour are to be defined before implementation.
+
+Visibility, create and empty-workload delete ship together (§10 step 1).
+
+**Checked before recording:** decision 1 is a *reading* of ADR-0046 rather than
+an amendment — the console's existing scoping is already tenant-only, with no
+site term in the group-to-tenant mapping — so it does not require an ADR change
+and stays clear of Freeze 2. Decision 2's rationale is grounded in ADR-0043's
+authorised AWX scale-to-zero, which is why "works while AWX is asleep" is a
+concrete requirement rather than a preference.
+
+**Instruction carried into implementation:** record both against the existing
+tenant/site contract explicitly, so an implementer can neither silently
+reintroduce a site term nor weaken the tenant term while believing they are
+satisfying ADR-0046.
