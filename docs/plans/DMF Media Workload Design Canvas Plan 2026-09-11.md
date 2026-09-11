@@ -314,9 +314,13 @@ declarative file's prose is not a source of truth about runtime behaviour.
 survive and both still point the same way:
 
 1. **Record presence does not track design-element existence.** A record
-   persists across teardown with its lifecycle tag flipped. So "is this designed
-   function deployed?" is answered by the **lifecycle tag** (requested state,
-   ADR-0013/0037), never by whether a record exists.
+   persists across teardown with its lifecycle tag flipped. So record presence
+   answers nothing about deployment — but neither does the lifecycle tag on its
+   own: it is **desired** state, recorded without being converged (the console
+   says so explicitly at the flip site; Provision is what deploys). *"Is this
+   designed function deployed?"* therefore needs an **observed** read. The tag
+   answers only *what was last requested* — the same requested-vs-observed split
+   §4.1 draws for connections.
 2. **One entry yields N records**, so no designed element can be keyed to "its"
    service record.
 
@@ -597,10 +601,10 @@ infrastructure tenant does **not** dissolve the media-tenant question. Do not
 reuse the hollow-premise argument.
 
 **What the decision must name:** the authoritative persisted container scope
-(tenant *and* site semantics); where it lives, given that the tag itself cannot
-hold it (§9.2 — the writer identity holds no `change` on tags); its read and
-write authority; behaviour on missing or malformed scope; and an explicit
-no-disclosure rule. **Derive from source with file:line evidence; do not design
+(tenant *and* site semantics); **where it is persisted — no supported contract
+exists today, and §9.2 records what the existing permissions do and do not rule
+out**; its read and write authority; behaviour on missing or malformed scope;
+and an explicit no-disclosure rule. **Derive from source with file:line evidence; do not design
 it in prose.** "Not determinable from source" is a finding to bring back, not a
 gap to paper over — a confidently asserted wrong binding encoded into a security
 boundary is worse than an admitted one.
@@ -632,10 +636,22 @@ lives with a *separate* identity whose delete is constrained to the
 are a deliberate, ADR-recorded invariant (the writer never holds delete; the
 purge identity never holds add or change).
 
-The consequence is sharp: **a create transaction cannot be "add a tag and record
-its scope on that tag"** — the tag carries no scope field (§9.1) *and* the
-writer cannot modify a tag once created. So the scope decision in §9.1 and the
-producer decision here are **one coupled problem**, not two.
+The consequence is real but must not be over-derived. **What is true today: no
+supported container-scope contract exists** — NetBox tags carry no tenant field,
+and the writer cannot amend a tag after creation, so any scope a console-side
+create records has to be written *in the creating call* or held somewhere other
+than the tag.
+
+**What does NOT follow** (codex round 2): that scope is unstorable at creation.
+The existing tag-creation call already sets a `description` alongside `name` and
+`slug` in the initial POST, using only `add`. That is a free-text field, not a
+structured scope, so it is not a solution — but it does show that
+"no `change` permission" alone cannot rule a creation-time scheme out. **Leave
+the storage decision open to §10 step 0; do not derive impossibility from these
+permissions.**
+
+Either way the scope decision in §9.1 and the producer decision here are **one
+coupled problem**, not two.
 
 **Leading direction** (not settled): console-side create via the scoped writer,
 because it keeps a design-time write off the actuator. **Before it can be
@@ -644,10 +660,13 @@ as, transaction atomicity across tag-plus-scope, duplicate-slug semantics, retry
 and partial-success recovery, and what happens when the audit write fails but
 the container create succeeded.
 
-**Confirmed prerequisite regardless of which producer wins.** The console's
-NetBox writer credential is required by the console and is set by **no chart and
-no role** — the existing writer-dependent endpoint is 503 on every deployed env
-(#487).
+**Prerequisite *if* console-side writes win — not unconditionally** (corrected,
+codex round 2). The console's NetBox writer credential is set by **no chart and
+no role**, so the existing writer-dependent console endpoint is 503 on every
+deployed env (#487). But that gates *console-side* writes specifically: AWX
+already receives its own catalog writer credential, and the launcher uses it to
+create tags today. So #487 is a real and independent plumbing gap, and it blocks
+create **only under the console-side branch** of the producer decision above.
 
 ### 9.3 The delete path breaks the moment blank containers become visible
 
@@ -714,8 +733,8 @@ Nothing below may start first, **including enumeration**. An earlier draft put
 enumeration first and scope resolution at create; that was wrong, because the
 first rendered blank container is already an authorization claim, and the
 acceptance property governing it has no meaning until the mapping exists.
-Outcome is a written posture covering tenant/site semantics, where scope is
-persisted given a tag cannot hold it, missing/malformed-scope behaviour, and the
+Outcome is a written posture covering tenant/site semantics, where scope is persisted,
+noting that no supported contract exists today (§9.2), missing/malformed-scope behaviour, and the
 no-disclosure rule. **Coupled with §9.2's producer question — settle them
 together.**
 
@@ -725,7 +744,9 @@ Visibility, create and delete ship together or not at all:
 - **Enumeration** (#562) — existence read from NetBox; the three states of §8.2
   independently representable. Read path only.
 - **The writer seam** (#487) — provision the console's NetBox writer credential
-  in a chart or role. Prerequisite for anything that creates.
+  in a chart or role. **Required only if step 0 chooses console-side writes**;
+  the launcher already holds its own catalog writer credential. #487 is a real
+  gap either way, but it is not unconditionally on this critical path.
 - **Name-only create** (#490) — per the posture settled in step 0.
 - **Blank-container delete** — a *scoped* permanent delete that works on a
   container with zero members, with a **fail-closed proof** that it neither
@@ -838,3 +859,29 @@ stated search scope.
 **Open for the operator, carried out of this round:** §9.1's scope posture and
 §9.2's coupled producer question. Both are decisions, and neither should be
 resolved by whoever implements.
+
+**Round 2 — codex re-gate, 2026-09-11, `e817a4a..12f775d`. Verdict: GATE: PASS
+(P0 0, P1 0, P2 3, all NEW, zero carryover).** All nine round-1 findings were
+confirmed addressed. The three new ones were fix-induced over-corrections and
+are folded:
+
+- §4.5 had started answering *"is this deployed?"* with the lifecycle tag. That
+  tag is **desired** state, recorded without being converged — deployment needs
+  an **observed** read.
+- §9.1/§9.2 had turned "no `change` permission on tags" into a storage
+  **impossibility**. The existing tag-creation call already sets a description
+  in its initial POST using only `add`, so no-change alone rules nothing out.
+  Restated as *no supported contract exists today*, decision open to step 0.
+- §9.2/§10 had made the console writer credential (#487) an **unconditional**
+  create prerequisite, contradicting the same round's reopening of the producer
+  choice. AWX already holds its own catalog writer credential and creates tags
+  with it, so #487 gates the **console-side branch** only.
+
+Codex's closing assessment: *"The remaining corrections are narrow factual
+qualifications. The record is sound enough to park; another architectural
+iteration is unnecessary."*
+
+**Review closed at round 2 deliberately.** Round 2's findings were 100%
+fix-induced with zero carryover — the signature that says stop patching, and the
+reviewer said the same independently. A third round would be reviewing the
+review.
