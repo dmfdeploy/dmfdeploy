@@ -20,24 +20,30 @@ date: 2026-09-11
 > (§9.1a, §10). Leaving it open is correct for a parked record — it must be
 > decided before implementation, not before parking.
 >
-> **On unfreeze:**
-> 1. File **one** tracking issue for §10 step 1 — the indivisible visibility +
->    create + delete boundary (`component:dmf-cms`, `workstream:entrance`;
->    milestone per WORKING-MODEL §2). Do not file the later steps yet.
-> 2. Add its URL to this file's `tracking_issue` frontmatter.
-> 3. Flip `status: draft` → `active`.
-> 4. Open the PR.
+> **On unfreeze: follow §13.4.** It carries the mechanical sequence and §13.5
+> carries the issue body ready to paste, so the lift costs minutes rather than a
+> rediscovery round.
+>
+> **⛔ HARD LIMIT while episode 001 is being captured (operator, 2026-09-15):
+> the live env must not be mutated. Read-only access is fine.** This does not
+> block authorship but it does block two *completion* conditions — see §13.2.
+> Nothing in this arc may be closed on the strength of unit tests alone.
 >
 > No `tracking_issue` key is present yet **by design** — `bin/check-docs.sh`
 > treats a missing one as a warning, not a failure, which is the correct signal
 > for a parked spec.
 >
 > **Re-verify before building.** §11 pins the load-bearing source claims to a
-> commit and a file:line anchor — those in §4, §5.4, §6, §9.1 and §9.2. It does
-> **not** anchor every claim in the document: §2's store-ownership assertions,
-> §3, and §5.1–5.3 are unanchored and should be checked against source before
-> being relied on. Anchors decay silently; re-check §11 before treating any of
-> §4 as current.
+> commit and a file:line anchor — those in §4, §5.4, §6, §9.1 and §9.2.
+> **§11a records a full re-verification on 2026-09-15**: the commit pins still
+> hold, 11 of 12 anchors were exact, and §2 — previously unanchored — is now
+> anchored and **partly corrected**. Read §11a before §11. §3 and §5.1–5.3
+> remain unanchored. Anchors decay silently; re-check both sections before
+> treating any of §4 as current.
+>
+> **The one finding that changes scope:** §2's "Save is a commit" assumed a
+> Forgejo write seam. There is none — the console's Forgejo client is GET-only
+> and its identity is read-only *by design*. Step 4 is larger than it read.
 
 ## 0. Why this exists now, and what it is not
 
@@ -114,7 +120,8 @@ Load-bearing properties:
 
 - **Not a fourth store.** Both consumers already read Forgejo — AWX SCM-syncs
   projects from it (ADR-0014), and NetBox syncs from it through its own native
-  git Data Source, live today.
+  git Data Source, live today. *(Verified 2026-09-15, §11a: all three legs are
+  configured in the deploy path, not merely designed.)*
 - **Concurrency is optimistic on the SHA.** Read at a SHA, save with
   expected-SHA. A concurrent save produces a genuine conflict with a real diff,
   never a lock and never a silent overwrite.
@@ -127,11 +134,58 @@ Load-bearing properties:
   lands (structural preconditions gate *actions*, not *navigation*) rather than
   inventing one.
 - **Local designs never leave the cluster.** Private by construction,
-  air-gap-safe. Designs a facility chooses to publish mirror outward. This
-  refines ADR-0014's mirror model (inbound for upstream sources, **origin** for
-  local designs, outbound for published ones) rather than contradicting it.
+  air-gap-safe. Designs a facility chooses to publish mirror outward.
+  **Corrected 2026-09-15 — an earlier draft called this a *refinement* of
+  ADR-0014's mirror model, which overclaimed what that ADR says.** ADR-0014
+  establishes the existing component-source mirror-to-AWX path — canonical
+  remote → downstream Forgejo mirror — and its "source repos remain canonical"
+  consequence is expressly about not copying or syncing roles into
+  `dmf-runbooks`. It is **silent** on the canonical location of locally-authored
+  design artifacts: a separate repo for them makes no component source repo
+  non-canonical and copies no role anywhere. The **origin** and **outbound**
+  legs are therefore this proposal's own new scope for a distinct content
+  class — neither authorised nor forbidden by ADR-0014.
+
+  *(Round 5 correction, accepted from codex: an intermediate draft said this was
+  "a new posture in tension with ADR-0014", which over-corrected in the opposite
+  direction. **Silent and in-tension are different claims**, and the difference
+  is load-bearing: "in tension" would present an ADR amendment as mandatory
+  remediation of a conflict that does not exist. Whether this persistence model
+  warrants an amendment is an operator decision about documenting new scope, not
+  a cure for an ADR-0014 violation.)*
 - **Layout is stored apart from semantics**, so moving a box on a canvas does
   not dirty the design and does not need a commit per drag.
+
+> **⛔ The write seam does not exist. This is the single largest gap in §2 and
+> it was found only by verifying an unanchored claim (2026-09-15, §11a).**
+>
+> "Save is a commit" needs the console to *write* to Forgejo. Today it cannot,
+> and not by accident:
+>
+> - The console's entire Forgejo client implements three methods — `list_repos`,
+>   `list_commits`, `list_pulls`. **All GET.** There is no commit, push, or
+>   create-file path anywhere in it.
+> - The console's Forgejo identity is provisioned **read-only by explicit
+>   design** — playbook 698's own header says it "creates **read-only** service
+>   accounts in both systems", and the `dmf-cms-svc` token carries
+>   `read:user, read:repository, read:issue, read:organization`. No
+>   `write:repository`.
+> - A write-capable identity does exist (`forgejo-svc`, with
+>   `write:repository`), but it is Ansible-bootstrap-only: it seeds local repos
+>   once at cluster bootstrap, guarded idempotent on a 404. It is not an
+>   application-driven authoring path, and it is a **more privileged identity
+>   than the console holds**.
+>
+> So step 4 is not "use the seam both consumers already use" — readers and
+> writers are different things, and the platform has only readers. Step 4
+> requires **minting a new write-scoped console credential and building a git
+> write client**, and it must justify overriding a read-only posture that was
+> chosen deliberately. That is real work with a security argument attached, and
+> it belongs in step 4's scope explicitly rather than being discovered during
+> it. It does **not** invalidate the Forgejo answer — git remains the right
+> store for versioned declarative artifacts, and the *consumers* really are
+> already wired — but the "not a fourth store" argument is weaker than it read:
+> nothing is free on the write side.
 
 **The honest limitation.** A git Data Source syncs *files*, not queryable
 objects. "Which workloads use function X" is not answered by the sync. An index
@@ -408,10 +462,20 @@ vendor-declared**. Not-hardcoded ≠ vendor-declared.
 ### 5.4 Where the console is not neutral today
 
 Five sites, all verified (§11): a hardcoded map of five function keys to display
-names — **already stale**, since two of those functions no longer have catalog
-entries or are pending retirement; an MXL sidebar icon key; an `/mxl-flows`
-route; an MXL-shaped response type family and endpoint; and the sidecar
-allowlist above.
+names — **already stale**, since **four of those five** functions no longer have
+catalog entries; an MXL sidebar icon key; an `/mxl-flows` route; an MXL-shaped
+response type family and endpoint; and the sidecar allowlist above.
+
+*(Restated 2026-09-15 — **not** a like-for-like numeric correction.* The map
+holds `mxl-videotestsrc`, `mxl-videotest-view`, `mxl-hello`, `nmos-cpp`,
+`nmos-crosspoint`; `dmf-media/catalog/` holds exactly one function entry,
+`mxl-videotest-view.yaml`. So four of five keys lack a catalog entry. An earlier
+draft said "two … no longer have catalog entries **or are pending retirement**"
+— a *disjunction*, and this sentence measures only the first disjunct, so the
+figures are not comparable. A search of the catalog and media docs found no
+recorded retirement status for the surviving entry. The operational conclusion
+is unchanged and the debt is larger than the old figure implied, but do not read
+this as "2 was wrong, 4 is right" — the property being counted changed.)*
 
 **The pattern to follow already exists in-tree, chosen twice.** #401 added a
 catalog-declared display noun *specifically* so the console reads the name
@@ -923,6 +987,59 @@ duplicate-name semantics; retry behaviour; and audit-failure behaviour when the
 container is created but its record is not. Derive these from source, not from
 prose.
 
+> **✅ DERIVED FROM SOURCE 2026-09-15 (§11a).** All three are now answered, and
+> the answers are worse than the questions implied — each names a *mechanism
+> that does not exist yet*, not a behaviour to pick from existing options.
+>
+> **First, the fact that reframes all three: there is no container object, and
+> the console has never created one.** A workload today is a derived grouping
+> over `ipam.Service` records carrying a `workload:<slug>` tag. "Create a blank
+> container" therefore means **creating an `extras.Tag` with no members** — and
+> the console's own NetBox client documents that dmf-cms *never creates or
+> deletes Tag objects today*; that mutation is AWX/launcher-side. The scoped
+> writer identity does hold `add` on `extras.tag` (§9.2), so the permission is
+> there — but there is **no existing console code path that creates a NetBox
+> object at all**. The only console-initiated NetBox write in the entire
+> media-workloads surface is a tag-flip PATCH on an *existing* Service. Step 1
+> is thus the console's first create, not a variation on an existing one.
+>
+> - **Duplicate-name — today it silently merges.** Two workloads that derive the
+>   same slug become one grouping bucket, with no collision detection anywhere;
+>   the only related check flags a *single service* carrying more than one
+>   `workload:*` tag. Slug shape is validated (`^[a-z0-9]([a-z0-9-]{0,38}[a-z0-9])?$`)
+>   but uniqueness never is, and **no name→slug derivation function exists** —
+>   an operator-supplied display name has nothing to turn it into a slug today.
+>   Both the derivation and the uniqueness check are new. Pre-checking a tag's
+>   existence and then creating it is a TOCTOU race, so uniqueness must rest on
+>   the store's own constraint, not on a read-then-write.
+> - **Retry — there is none, and nothing to build on.** The NetBox writer makes
+>   exactly one unretried HTTP call; no backoff, no idempotency key, no
+>   transactional grouping. The console's substantial dedupe machinery
+>   (`get_or_create_exclusive`) lives on the **AWX launch** side and does not
+>   touch the NetBox writer. Partial-write is not a live failure mode today only
+>   because every existing write is a single PATCH — a create is a different
+>   shape, and inherits no precedent.
+> - **Audit-failure — fire-and-forget, and the bigger problem is visibility.**
+>   The audit record is a synchronous log line on a dedicated logger, emitted
+>   *after* the action, with no exception handling at any of its ~40 call sites
+>   (deliberate: the action already succeeded, so raising would turn it into a
+>   spurious 500). A crash between the action and the emit leaves the action done
+>   with **zero** audit record, and nothing guards that window.
+>
+> **⚠️ The trap this exposes, which none of the three questions asked.** The one
+> existing direct-NetBox-write endpoint (`clear-for-deployment`) does **not**
+> use the audit emitter — it logs a C5-shaped line on the *plain* logger, while
+> the Activity History reader parses `fmt=2` `awx write:` records from the
+> `dmf_cms.audit` logger (emitted by `_audit_awx_write` **and** the auto-rollback
+> dispatch's direct emissions). The plain-logger line matches neither the logger
+> name nor the prefix, so it is dropped. **A create modelled on that endpoint
+> would satisfy §8's
+> property 5 (an audit record with the C5 quartet exists) while being invisible
+> in the console's own Activity lane** — the operator would create a workload
+> and see no trace of it where every other consequential action appears. Property
+> 5 is therefore necessary but not sufficient as written, and step 1 must assert
+> Activity-lane *visibility*, not merely record existence. See §13.
+
 **Resolved, but conditionally:** "where is the tenant persisted at creation"
 needs no answer **under §9.1a's declared single-tenant restriction** — not
 because a tenant join is vacuous in general, but because the installation is
@@ -935,6 +1052,42 @@ Provision-route create and purge both use operator-or-higher (the same
 `_require_min_role(..., "operator")` call). Read, create and delete nonetheless
 keep **separate authorization contracts**, and the new endpoint inherits none of
 them.
+
+> **Verified 2026-09-15 (§11a): the two-rule claim is correct — and verifying it
+> surfaced a live asymmetry the claim did not mention.**
+>
+> `ROLE_ORDER` is `("viewer", "operator", "engineer", "admin")`, so **operator
+> ranks *below* engineer**. The write gate's floor is therefore numerically
+> *lower* than the read gate's:
+>
+> | principal | can purge? | can list? |
+> |---|---|---|
+> | `dmf-console-engineer` / `admin` | yes | yes |
+> | `dmf-console-operator` **in** `media-engineers` | yes | yes |
+> | `dmf-console-operator` **not in** `media-engineers` | **yes** | **no** |
+> | `dmf-console-viewer` in `media-engineers` | no | yes |
+>
+> A bare operator can **deploy and permanently delete** a media workload through
+> the API while being unable to list or read one. That is write-without-read on
+> the console's most consequential media write. It is pre-existing and not
+> introduced by this arc — but a new create endpoint would extend it, so it must
+> be decided rather than inherited.
+>
+> **Recommendation (not yet an operator ruling): gate create on the
+> *intersection* — `_require_media_workloads_access` AND operator-or-higher.**
+> Rationale: it composes the two rules that already exist rather than inventing a
+> third ladder; it means *anyone who can create a workload can also see the one
+> they created*, which the plain-operator case currently violates; and it fails
+> closed in both directions (a viewer in `media-engineers` is refused because a
+> viewer holds no consequential-write capability; a bare operator is refused
+> because they cannot see the surface they would be writing to). The cost is that
+> create becomes **stricter than purge**, which is an odd shape — the honest
+> resolution is to bring purge onto the same intersection, but that is a change
+> to an existing security boundary and belongs on its own issue, not smuggled
+> into this arc.
+>
+> **This is the one decision still open.** It is a security boundary, so record
+> the ruling before implementation, not during.
 
 **0b. Wire the console's NetBox writer credential (#487) — first, and on its
 own.** Operator ruling, 2026-09-11: this is picked up **before** the arc rather
@@ -1024,7 +1177,7 @@ component repo.
 | §4.5 teardown PATCHes lifecycle, does not delete; rollback distinguishes | `../dmf-runbooks/playbooks/teardown-mxl-fabrics-demo.yml:200-212`; `../dmf-runbooks/roles/mxl/tasks/finalise.yml:46-58`; `../dmf-runbooks/roles/l3_run_guard/tasks/rollback_netbox_surface.yml:116-124`. **The misleading comment:** `../dmf-media/catalog/mxl-videotest-view.yaml:57-60` |
 | §5.4 non-neutral sites | `../dmf-cms/frontend/src/lib/labels.ts:57-63` (and the refusal-to-widen note at `:76-79`); `frontend/src/components/Sidebar.tsx:88`; `frontend/src/App.tsx:118`; `../dmf-cms/src/dmf_cms/media_workloads.py:47-48` |
 | §6 nine bespoke playbooks, no generic launcher | `../dmf-runbooks/playbooks/` (9 files); `docs/decisions/0047-…:91-103` (gates on launcher **and** ingestion policy); Kyverno recommendation `docs/reviews/DMF v0.2 Make-vs-Adopt OSS Evaluation 2026-07-18.md:88,107` |
-| §7 exclusions | `docs/decisions/architectural-commitments-v1.md:70-71`; `docs/decisions/0037-…:111-114`; `docs/decisions/0047-…:169-173`; `docs/design/DMF Console UX Constitution 2026-05-25.md:149-153` (gates), `:138-141` (Art. 15) |
+| §7 exclusions | `docs/decisions/architectural-commitments-v1.md:70-71`; `docs/decisions/0037-…:93` (**corrected 2026-09-15** — the "no new platform component (no CRD, no custom operator)" phrasing is the first Consequences bullet at `:93`; `:111-114` is the *Alternatives considered* paragraph, which carries the door-open clause but not the quoted line); `docs/decisions/0047-…:169-173`; `docs/design/DMF Console UX Constitution 2026-05-25.md:149-153` (gates), `:138-141` (Art. 15) |
 | §9.1 blank-container owner cannot be inferred; scoped identity required | `../dmf-cms/src/dmf_cms/media_workloads.py:981-1000`; `docs/decisions/0046-…:27-31`; `../dmf-cms/src/dmf_cms/settings.py:240-275`; media-tenant axis distinction `docs/decisions/0039-…:82-83` |
 | §9.2 writer holds add-not-change on tags; delete is a separate identity | `../dmf-infra/k3s-lab-bootstrap/roles/stack/operator/netbox-sot/defaults/main.yml:180-205`; `docs/decisions/0032-…:358-372`; actuator-independent contract precedent `../dmf-cms/src/dmf_cms/switch_source.py:14-25` |
 
@@ -1049,6 +1202,51 @@ unavailable`), the resource-semantics taxonomy (scalar / discrete / topological
 under-count as a modelling error rather than a calibration error), and the
 relationship-versus-internal ownership default. Their rejected proposals are
 enumerated in §7.
+
+## 11a. Re-verification — 2026-09-15
+
+Three parallel read-only passes, run because §11's anchors decay silently and
+because §2 was flagged as unanchored and load-bearing. **Nothing here was
+verified against a live cluster** — the live env is reserved for episode 001
+capture (see the header), so every infrastructure claim below is
+*configured-in-the-deploy-path*, never *observed-running*.
+
+**Commit pins still hold.** dmf-cms `321dd63`, dmf-runbooks `17f535a`, dmf-media
+`c0ea827`, dmf-infra `e496478` are byte-identical to §11. The umbrella advanced
+one commit (`3193025` → `ee75c59`), touching only a presenter-capture framing
+note in `docs/runbooks/dmf-demo-journey.md` — no §11 anchor file.
+
+**§11 anchor sweep: 11 of 12 rows exactly OK.** One row decayed — the §7
+exclusions row's ADR-0037 sub-anchor, corrected in place above. The claim it
+supports was and remains true; only the citation was wrong.
+
+**What changed substantively.** Three findings, in descending order of cost if
+missed:
+
+| # | Finding | Where folded |
+|---|---|---|
+| 1 | **No Forgejo write seam exists.** The console's Forgejo client is GET-only and its service identity is provisioned read-only *by design*. "Save is a commit" needs a new write-scoped credential and a new git write client. | §2 (⛔ block) |
+| 2 | **A create modelled on the one existing direct-write endpoint would be invisible in Activity History** — that endpoint logs on a different logger than the Activity reader parses. §8 property 5 is necessary but not sufficient. | §10 step 0, §13 |
+| 3 | **Write-without-read asymmetry:** `operator` ranks below `engineer`, so a bare operator can purge a workload they cannot list. | §10 auth-gate block |
+
+**Newly anchored — §2's previously unanchored infrastructure claims.** All
+confirmed as configured:
+
+| Claim | Anchor |
+|---|---|
+| Forgejo deployed in-cluster, in the bootstrap chain | `../dmf-infra/k3s-lab-bootstrap/roles/stack/operator/forgejo/tasks/main.yml:100-113`; playbook `playbooks/620-forgejo.yml`; imported by `bootstrap-provision-post-seed.yml:83`, `bootstrap-sandbox-provision-post-seed.yml:53` |
+| AWX SCM-syncs from the **in-cluster** Forgejo service URL | `../dmf-infra/k3s-lab-bootstrap/roles/stack/operator/awx-integration/defaults/main.yml:67` (`forgejo-http.<ns>.svc.cluster.local:3000`), `:87-88`, `:157,:372,:376`; applied at `tasks/catalog-project.yml:28-42,:127-137` |
+| NetBox Data Source `forgejo-netbox-data`, enabled, 1440 min, OpenBao credential | `../dmf-infra/.../netbox-sot/defaults/main.yml:484-485,:491`; `tasks/main.yml:2543-2553` (OpenBao `secret/apps/forgejo/runtime`), `:2605-2612` (URL), `:2636-2654` (POST) |
+| Console Forgejo client is GET-only | `../dmf-cms/src/dmf_cms/forgejo.py` — `list_repos`, `list_commits`, `list_pulls`, nothing else |
+| Console Forgejo identity is read-only **by design** | `../dmf-infra/k3s-lab-bootstrap/playbooks/698-cms-netbox-forgejo-tokens.yml:7`, `:32`, `:506-510` |
+| ADR-0014 establishes only the inbound mirror leg | `docs/decisions/0014-awx-project-layout.md:37-39,:53` |
+| No container object; console never creates NetBox Tags | `../dmf-cms/src/dmf_cms/netbox.py:100-118` (docstring), `media_workloads.py:526-543`, `:643-666` |
+| Writer path: single unretried call, no idempotency | `../dmf-cms/src/dmf_cms/netbox.py:21-51`; sole write caller `media_workloads.py:1177-1248` |
+| Audit emitter is fire-and-forget; reader accepts `fmt=2` `awx write:` on the `dmf_cms.audit` logger (`_audit_awx_write` + auto-rollback direct emissions), so the plain-logger line is dropped | `../dmf-cms/src/dmf_cms/main.py:953-1093` (esp. `:1018-1029`); `audit_events.py:1-5,:200-210,:308-341`; divergent site `main.py:6043-6054` |
+| Role ladder and the two gates | `../dmf-cms/src/dmf_cms/security.py:15-21,:45-63`; read gate `main.py:278-296`; write gate `main.py:5018`, `:6367` |
+| `FUNCTION_NOUNS` five keys vs one catalog entry | `../dmf-cms/frontend/src/lib/labels.ts:57-63`; `../dmf-media/catalog/` (one function YAML) |
+
+**Re-verify again before building.** These anchors are as perishable as §11's.
 
 ## 12. Review history
 
@@ -1247,3 +1445,161 @@ complete, and left standing as a live instruction in another.
 **Closing assessment (codex):** *"These are narrow factual and propagation
 corrections. They do not call for another architecture round or for completing
 this parked design."*
+
+**Round 5 — re-verification + codex adversarial cross-review, 2026-09-15.**
+
+Three read-only source sweeps (§11a) followed by a codex round on the resulting
+delta. Verdict: **1 BLOCKING, 2 MINOR — all three accepted and fixed above.**
+
+| finding | severity | disposition |
+|---|---|---|
+| §2/§13.3 said the Forgejo-canonical posture was "in tension with" ADR-0014 | **BLOCKING** | **Accepted.** ADR-0014 is *silent* on this content class; "in tension" would have presented an ADR amendment as mandatory remediation of a conflict that does not exist. Reworded in both places. |
+| §5.4's count correction changed the measured predicate while calling itself a numeric fix | MINOR | **Accepted.** Restated as a predicate change, not "2 was wrong, 4 is right". |
+| "the reader parses `awx write:` only" is too narrow — it also accepts the auto-rollback direct emissions on the same logger | MINOR | **Accepted.** Reworded in §10 and §11a; the substantive invisibility finding is unaffected. |
+
+**What codex confirmed rather than faulted**, which is the more useful half:
+the write-seam negative conclusion (it searched dmf-cms, dmf-infra and
+dmf-runbooks for Forgejo mutations, content/commit endpoints, `git push`,
+webhooks and commit-authoring jobs, and found none reachable by the console);
+every row of the authorization table independently; that the recommended
+intersection gate does close the asymmetry and fails closed both ways; and §6's
+consistency sweep — §8 property 5, §9.2/§9.3, the header-versus-§13 sequence,
+and §10's backend-flip paragraph all survive the new material without
+contradiction.
+
+**The pattern worth keeping.** The blocking finding was an **over-correction**,
+not an original error — round 5 fixed a true overclaim ("refines ADR-0014") by
+replacing it with a different overclaim in the opposite direction. That is the
+third time this document has produced a fix-induced defect, and it is the reason
+the review prompt named over-correction as a target. When a correction round
+rewrites a claim about what a document *permits*, check whether the source is
+**silent** before asserting conflict; silence is the common case and the easy
+one to overshoot.
+
+**Closing assessment (codex):** *"One targeted correction round is warranted;
+after that, another whole-document round is likely to add noise rather than
+correctness."* Taken — round 5 closes here.
+
+## 13. Readiness — prepared 2026-09-15, still parked
+
+Prepared at operator request so that work can start the moment Gate B lifts,
+**without** filing anything or starting anything now. Parking discipline is
+unchanged: no issue exists, `status` is still `draft`, nothing is authorised.
+
+### 13.1 Where Gate B actually stands
+
+| conjunct | status |
+|---|---|
+| presenter runbook (`#379`) landed | **met** — closed 2026-09-02 |
+| episode 001 published **with its evidence bundle** | **outstanding** — the only remaining conjunct |
+
+The evidence bundle, not publication alone, is what clears it: adversarial script
+review *before* recording, `bin/publish-preflight.sh` green on the final render,
+the per-episode `publish.md` complete, on-camera claims reconciled against the
+never-claim list, an immutable URL, and the reviewed render bound to the
+published one by digest.
+
+*Note for whoever reads `STATUS.md` next:* its line 190 still says `#379`
+"remains open". That is stale — the issue closed 2026-09-02. Worth a sweep when
+the Gate B record is written, not a reason to doubt this table.
+
+### 13.2 The live-env constraint on this arc
+
+**Operator, 2026-09-15: the live env must not be mutated while episode 001 is
+being captured. Read-only access is fine. This is a hard limit.**
+
+It does not block authorship, but it *does* block two completion conditions:
+
+- **Step 0b (#487)** is done when "the credential is set by a chart or role and
+  the writer-dependent endpoint stops failing on a deployed env". The code and
+  chart change can be written, reviewed and merged now; the **deployed-env
+  verification cannot happen on the capture env**, so #487 cannot be *closed*
+  until the env is released or a separate non-capture env is stood up. Say this
+  on the issue rather than letting it look stalled.
+- **Step 1** likewise cannot be live-walked on the capture env. Given this
+  project's record on false greens, a create/delete flow asserted only from unit
+  tests is not verified — plan for a verification env, not for a waiver.
+
+### 13.3 Freeze 2 is narrower than the shorthand
+
+Freeze 2 prohibits **new ADRs, reopened non-goals, and consolidation rounds** —
+not design work in general. Mapping the sequence onto that:
+
+| step | needs an ADR? |
+|---|---|
+| 0b — `#487` writer credential | **no** — a filed `v0.1-polish` bug, justified without reference to this arc |
+| 1 — enumeration + create + delete | **no** — console implementation against accepted ADRs, though the create gate is a security decision (§10) |
+| 2 — stage behaviour (`#557`) | **no** |
+| 3 — design schema + typed ports | **probably yes** — typed ports belong in the ADR-0047 package spec (#564 Q4), which is an amendment |
+| 4 — design persistence in Forgejo | **probably yes** — but as a *new decision*, not a conflict: it introduces a new persistence and security model (the write seam overrides a deliberate read-only design). ADR-0014 is silent on this content class, so there is nothing to cure — only new scope worth recording |
+
+So steps 3 and 4 are genuinely Freeze-2-bound. Steps 0b–2 are bound by the
+*parking decision* — an operator instrument — rather than by Freeze 2's own
+terms. That distinction is the operator's to exercise, not the agent's to
+enforce either way.
+
+### 13.4 On unfreeze — the mechanical sequence
+
+1. File **one** issue, body drafted at §13.5. Labels `component:dmf-cms`,
+   `workstream:entrance`; milestone per WORKING-MODEL §2. **Do not file steps
+   2–4 yet.**
+2. Put its URL in this file's `tracking_issue` frontmatter.
+3. Flip `status: draft` → `active`.
+4. Re-run the §11 + §11a anchor sweep — by then these facts are weeks old.
+5. Open the PR.
+
+### 13.5 Ready-to-file issue body for step 1
+
+> **Title:** dmf-cms: blank media workload containers — enumerate, create by
+> name, delete — one indivisible boundary
+>
+> **Body:**
+>
+> A media workload is currently a *derived grouping* over member services, so a
+> workload with no members cannot exist. Create therefore cannot mean "make a
+> named container and land on its home" — there is nothing to make. This issue
+> makes blank containers real, and ships visibility, creation and deletion
+> together or not at all.
+>
+> Spec: `docs/plans/DMF Media Workload Design Canvas Plan 2026-09-11.md` §10
+> step 1, with acceptance properties in §8 and hazards in §9. Design context:
+> discussion #564.
+>
+> **Scope — all three, indivisibly:**
+> - **Enumerate** (#562) — container existence read from NetBox, not inferred
+>   from members. The three states of §8.2 independently representable:
+>   healthy-and-empty, member-read-failed, and enumeration-incomplete.
+> - **Create by name** — a direct console write through the scoped NetBox
+>   writer, so naming a workload works while AWX is asleep. No tenant stamp
+>   (§9.1a). **This is the console's first create of a NetBox object** — no
+>   existing code path creates one.
+> - **Delete a blank container** — a scoped permanent delete that works with
+>   zero members, with a fail-closed proof it neither discloses nor deletes
+>   across scope. The delete principal is the separate purge identity, not the
+>   writer (§9.2).
+>
+> **Prerequisite:** #487 (writer credential) must land first — step 0b. This
+> issue must not be the thing that finally forces it.
+>
+> **Decide before implementing:**
+> - The create endpoint's authorization gate. §10 recommends the intersection of
+>   the read gate and operator-or-higher; note the write-without-read asymmetry
+>   documented there.
+> - Slug derivation from an operator-supplied name (none exists), and uniqueness
+>   — which must rest on a store constraint, not a read-then-write TOCTOU.
+>
+> **Acceptance:** §8 properties 1, 2, 3, 5, and 8 — plus, added 2026-09-15:
+> **the create must be visible in Activity History**, not merely audited. The
+> one existing direct-write endpoint logs on a different logger than the
+> Activity reader parses, so "an audit record exists" is satisfiable while the
+> operator sees nothing.
+>
+> **Verification:** unit tests are not sufficient — a live walk on a
+> non-capture env is required before close.
+
+### 13.6 What is explicitly NOT prepared
+
+No issue filed. No branch cut in dmf-cms. No implementation started. Steps 2–4
+have no drafted issues **deliberately** — drafting them would recreate the
+backlog pressure this parking exists to avoid, and step 1's outcome should
+inform them.
