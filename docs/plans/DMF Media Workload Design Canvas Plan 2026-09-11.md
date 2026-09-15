@@ -1545,30 +1545,42 @@ It does not block authorship, but it *does* block two completion conditions:
   project's record on false greens, a create/delete flow asserted only from unit
   tests is not verified — plan for a verification env, not for a waiver.
 
-**Which env is the capture env is INFERRED, not established.** The best
-candidate is the most recently registered sandbox env — the only one carrying a
-demo label, and consistent with every "sandbox demo env" reference across the
-relevant window with nothing contradicting it. But **no file states an
-active/capture env**, and the registry is disk state with no liveness field
-(ADR-0035). Confirm with a read-only check before treating it as excluded;
-inference is not proof. *(Concrete env ids are operator-local by convention —
-read them from the generated `STATUS.local.md`, never from a committed doc.)*
+**✅ SURVEYED 2026-09-16, read-only — and the answer is worse than the open
+question.** A TCP reachability probe across every env in the operator-local
+registry, followed by a read-only `kubectl` read on the one that answered:
 
-**Verification-env options, honestly ranked.** The read-only liveness check the
-operator's limit already permits is the cheapest real path and has not been run:
+- **Exactly one registered env is reachable**, and it is the demo-labelled one.
+  Its single node reports `Ready`, with an uptime consistent with its
+  registration date. That **confirms the capture-env inference** — it is not
+  merely the best candidate, it is the only live cluster.
+- **Every other registered env is unreachable.** Six of seven refused on port 22
+  (several are LAN/VM addresses whose hosts are gone; one has no host in its
+  inventory at all). Unreachable is not formally proof of destruction — a
+  firewall could account for it — but for spot-provisioned sandboxes, combined
+  with the staleness signals already on record, it is decisive enough to plan
+  against.
 
-1. **Author, review and merge the change now** — fully unblocked by anything above.
-2. **Read-only liveness check** — confirm which env is actually the capture env,
-   then probe the registered envs that carry no evidence either way. If one is
-   live and free, that is the verification env. Several registered envs carry
-   staleness signals: two pairs share an address with a newer sibling, and one of
-   those was logged torn down after its validation run. Read the current registry
-   from `STATUS.local.md` rather than trusting any list written here.
-3. **Fresh env via dmf-init** — real, exercised end-to-end once, but **not
-   cheap**: it needs an ARM64 Debian node supplied first, and no total wall-clock
-   figure exists in source. Do not quote a duration; it is not known.
-4. **Otherwise blocked** until the capture env is released — timeline
-   undetermined, and the `episode-001-capture` milestone carries no due date.
+**So there is no spare verification env.** The cheapest option is not merely
+untried — it is **exhausted**. The ranked menu collapses to three:
+
+1. **Author, review and merge the change now** — fully unblocked, and the only
+   option that makes progress today.
+2. **Stand up a fresh env** — real, exercised end-to-end once, but **not cheap**:
+   it needs an ARM64 Debian node supplied first, and no total wall-clock figure
+   exists in source. Do not quote a duration; it is not known.
+3. **Wait** for the capture env to be released — timeline undetermined; the
+   `episode-001-capture` milestone carries no due date.
+
+*(Concrete env ids, hosts and keys are operator-local by convention — read them
+from the generated `STATUS.local.md` and the env registry, never from a
+committed doc.)*
+
+**The gap is now confirmed live, not merely from source.** A read-only read of
+the console Deployment on that env shows its NetBox-related environment
+variables are exactly three — API URL, API token, SSL verify.
+**`DMF_CONSOLE_NETBOX_WRITER_TOKEN` is absent from the running pod spec**,
+precisely as #487 states, on the console release currently deployed. #487 is
+therefore verified as a live defect and not a stale report.
 
 ### 13.2a Step 0b scoped — #487 is three pieces across two repos
 
