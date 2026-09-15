@@ -19,11 +19,10 @@ date: 2026-09-11
 > already-used `engineer` capability, plus a stated direction toward
 > fine-grained per-action permissions (§9.3a, §10).
 >
-> **⛔ One security-boundary decision remains open and DOES block
-> implementation:** whether that gate carries the `media-engineers` group along
-> with it, which decides whether a **viewer** in that group may create. The
-> ruling named a capability, not a mechanism. §10 recommends carrying the group,
-> but a grant to a non-engineer must be the operator's, not an inference.
+> **The mechanism was settled the same day**: the gate carries the
+> `media-engineers` group (reuse `_require_media_workloads_access`), so a
+> **viewer** in that group may create — deliberate, and recorded as a ruling
+> rather than inferred (§10). **No step-0 decision now blocks the arc.**
 >
 > **On unfreeze: follow §13.4.** It carries the mechanical sequence and §13.5
 > carries the issue body ready to paste, so the lift costs minutes rather than a
@@ -1210,37 +1209,37 @@ them.
 > pre-existing, is not introduced or worsened by this ruling, and is not this
 > arc's to fix; it needs its own issue (§9.3a).
 >
-> > **⛔ STILL OPEN — and it blocks implementation. The ruling names a
-> > *capability*; it does not settle whether the non-role *group* rides along.**
-> > "The already-used engineer role" has two mechanisations, and they differ for
-> > a real principal class:
-> >
-> > | reading | mechanism | admits a **viewer** in `media-engineers`? |
-> > |---|---|---|
-> > | (a) reuse the surface gate | `_require_media_workloads_access` — `engineer`-or-higher **OR** `media-engineers` | **yes** |
-> > | (b) bare engineer floor | `_require_min_role(request, "engineer")` | no |
-> >
-> > **This document previously asserted (a) was "what already used denotes".
-> > That was an inference, not a ruling, and it was wrong to record as settled**
-> > (codex round 6, accepted). What is actually verified is narrower: **no
-> > endpoint anywhere uses a bare `engineer` floor** — the floors in production
-> > are `admin` (4), `operator` (6), `viewer` (1) — so **(b) would be a new gate
-> > shape**. That establishes something about (b); it establishes *nothing*
-> > about what the operator meant.
-> >
-> > The distinction matters because **(a) grants create to a principal the
-> > literal `engineer` role excludes**: `media-engineers` is not a role — it is
-> > absent from `ROLE_ORDER` and `ROLE_GROUPS`, and its own source comment says
-> > it grants the surface *"without granting the engineer capability"*. An access
-> > grant to a non-engineer must come from the operator, never from an agent's
-> > reading of an absence.
-> >
-> > **Recommendation — (a)**, because it matches ADR-0037 §5's definition of that
-> > group as granting the Media Workloads surface *including the
-> > `clear-for-deployment` write*, and because create commits no resources (§1),
-> > so it is consistent with the group's existing reach rather than a widening.
-> > **A recommendation, not a ruling.** Put (a) vs (b) to the operator
-> > explicitly before implementing.
+> **✅ DECIDED (operator, 2026-09-16) — the mechanism: the gate carries the
+> `media-engineers` group.** Reuse `_require_media_workloads_access` —
+> `engineer`-or-higher **OR** `media-engineers`. Create then sits with the
+> existing Media Workloads reads, `clear-for-deployment` and `switch-source`
+> (**not** purge, which keeps its deliberate operator-only floor).
+>
+> **This grants create to a principal the literal `engineer` role excludes** — a
+> **viewer** who is in `media-engineers` — and that is the point of recording it
+> as a ruling rather than an inference. `media-engineers` is not a role: it is
+> absent from `ROLE_ORDER` and `ROLE_GROUPS`, and its own source comment says it
+> grants the surface *"without granting the engineer capability"*. The grant is
+> defensible — ADR-0037 §5 already defines that group as carrying the surface
+> *including the `clear-for-deployment` write*, and create commits no resources
+> (§1), so it mints a name and nothing more — but defensible is not the same as
+> authorised, and the authorisation is what this line records.
+>
+> | principal | create? |
+> |---|---|
+> | `engineer` / `admin` | yes |
+> | `operator` + `media-engineers` | yes |
+> | `viewer` + `media-engineers` | **yes** — deliberate |
+> | bare `operator` | no |
+>
+> *Process note, kept because it cost a round.* An earlier draft asserted this
+> mechanism was "what already used denotes" and recorded it as settled. That was
+> an agent inference presented as an operator ruling on a security boundary
+> (codex round 6, §12). The verified fact was only ever narrower — **no endpoint
+> anywhere uses a bare `engineer` floor**; production floors are `admin` (4),
+> `operator` (6), `viewer` (1) — which says something about the alternative and
+> nothing about intent. The ruling above is the operator's, given 2026-09-16
+> after the question was put explicitly.
 
 **0b. Wire the console's NetBox writer credential (#487) — first, and on its
 own.** Operator ruling, 2026-09-11: this is picked up **before** the arc rather
@@ -1266,10 +1265,9 @@ Visibility, create and delete ship together or not at all:
 *(The writer seam, #487, is **no longer part of this boundary** — operator
 ruling 2026-09-11 moved it ahead of the arc as step 0b. See below.)*
 - **Name-only create** (#490) — direct console write via the scoped writer.
-  **No tenant stamp**, per §9.1a's restriction. Gated at the `engineer`
-  capability (operator ruling 2026-09-16); whether the gate carries the
-  `media-engineers` group is **still open and blocks implementation** — see the
-  authorization block below.
+  **No tenant stamp**, per §9.1a's restriction. Gated by
+  `_require_media_workloads_access` — `engineer`-or-higher OR `media-engineers`
+  (operator ruling 2026-09-16); see the authorization block below.
 - **Blank-container delete** — a *scoped* permanent delete that works on a
   container with zero members, with a **fail-closed proof** that it neither
   discloses nor deletes across scope.
@@ -1642,7 +1640,7 @@ result. Verdict: **2 BLOCKING, 1 MINOR — all accepted and fixed above.**
 
 | finding | severity | disposition |
 |---|---|---|
-| §10/header recorded reading (a) as *settled*, when the ruling named a **capability** and (a) additionally grants create to a **viewer** in `media-engineers` — a non-engineer | **BLOCKING** | **Accepted.** The absence of bare-`engineer` endpoints proves (b) would be a new shape; it proves nothing about what was meant. Capability level recorded as ruled; the group question restored to **open and implementation-blocking**, (a) demoted to a recommendation. Header, §10 and §13.5 all corrected — they had been mutually contradictory. |
+| §10/header recorded reading (a) as *settled*, when the ruling named a **capability** and (a) additionally grants create to a **viewer** in `media-engineers` — a non-engineer | **BLOCKING** | **Accepted.** The absence of bare-`engineer` endpoints proves (b) would be a new shape; it proves nothing about what was meant. The claim was withdrawn, the question put to the operator explicitly, and **ruled the same day in favour of carrying the group** — so the outcome matches the withdrawn inference, which is exactly why it needed asking rather than assuming. Header, §10 and §13.5 were mutually contradictory and are now consistent. |
 | §9.3a called the binding docs **"silent"** on refusal logging and concluded it was net-new scope | **BLOCKING** | **Accepted.** D6 requires *"one row per human-initiated action"* — not scoped to successes — and simply does not define whether a refusal is such an action. The obligation is **ambiguous, not absent**, and an implementation gap cannot narrow a binding requirement by implication. |
 | "the same gate every other Media Workloads endpoint uses" | MINOR | **Accepted.** False: purge is a Media Workloads endpoint and deliberately does not use that helper — as §9.3a's own table shows. Narrowed to reads + `clear-for-deployment` + `switch-source`. |
 
@@ -1850,13 +1848,12 @@ enforce either way.
 > **Prerequisite:** #487 (writer credential) must land first — step 0b. This
 > issue must not be the thing that finally forces it.
 >
-> **Authorization:** create is gated at the `engineer` capability (operator
-> ruling 2026-09-16, §9.3a). **Blocking sub-decision, settle before coding:**
-> whether the gate also carries the `media-engineers` group — i.e. reuse
-> `_require_media_workloads_access` (which gates the existing reads,
-> `clear-for-deployment` and `switch-source`, but **not** purge), or add a bare
-> engineer floor. Only the first admits a viewer in that group. §10 recommends
-> the first; it is not yet ruled.
+> **Authorization:** reuse `_require_media_workloads_access` — `engineer`-or-higher
+> **OR** `media-engineers` (operator ruling 2026-09-16, §10). That is the gate
+> already used by the Media Workloads reads, `clear-for-deployment` and
+> `switch-source`; purge deliberately keeps its own operator-only floor. A
+> **viewer** in `media-engineers` may create: deliberate, since create commits
+> no resources. Add a test asserting exactly that admission set.
 >
 > **Decide before implementing:**
 > - Slug derivation from an operator-supplied name (none exists), and uniqueness
