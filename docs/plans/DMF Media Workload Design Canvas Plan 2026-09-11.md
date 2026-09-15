@@ -14,11 +14,14 @@ date: 2026-09-11
 >
 > **§10 step 0 — the scope posture and the create producer — was settled by the
 > operator on 2026-09-11 and is recorded in §9.1/§9.1a and §9.2.** Those two
-> choices no longer block the arc. **One decision remains open and is not the
-> operator's to pre-empt:** the name-only create endpoint's own authorization
-> gate, which inherits nothing from the existing read or operator gates
-> (§9.1a, §10). Leaving it open is correct for a parked record — it must be
-> decided before implementation, not before parking.
+> choices no longer block the arc. **The create endpoint's authorization gate
+> was settled by the operator on 2026-09-16** — the already-used `engineer`
+> role, plus a stated direction toward fine-grained per-action permissions
+> (§9.3a, §10). One sub-question remains for implementation time: which of two
+> readings of "the already-used engineer role" is meant, which decides whether a
+> viewer in `media-engineers` may create (§10 — reading (a) is recommended).
+>
+> **No step-0 decision now blocks the arc.**
 >
 > **On unfreeze: follow §13.4.** It carries the mechanical sequence and §13.5
 > carries the issue body ready to paste, so the lift costs minutes rather than a
@@ -919,6 +922,93 @@ replacement for a refusal that does not apply. Should the §9.1a restriction eve
 be lifted, the scoped refusal becomes live again and needs its own fail-closed
 proof.
 
+### 9.3a Permissions: the direction, its ADR anchor, and what is NOT yet decided
+
+**Operator ruling, 2026-09-16:** *"these should certainly be permissions
+assignable by role or user. for now we can keep it to the already used
+'engineer' role. the goal eventually is to have fine grained control which
+users / groups / roles have permissions to which actions."*
+
+So: **`engineer` now (§10), fine-grained per-action grants as the stated
+direction.** This subsection records the direction and its anchor so the eventual
+work starts from a true picture rather than a reconstruction.
+
+**Where this lands in the ADR corpus — verified 2026-09-16, and narrower than it
+looks.**
+
+ADR-0028 (identity and authority chain) is the compliance ADR, and it commits to
+fine-grained authorization **only on the machine axis** — C3/C3.1 and D5, scoped
+named service accounts, which ADR-0032 and ADR-0033 both refine. For **humans**
+it commits to the opposite: one undifferentiated `ops-admin` group projected via
+OIDC group mapping (D4), under an explicit single-operator assumption.
+
+It does, however, **name this exact direction as its own deferred work** — the
+Neutral consequence at `0028:140-145`: *"Multi-user model remains explicitly
+deferred… ops-admin group is undifferentiated. The future revision expands actor
+cardinality and adds role-differentiation."* The architecture doc it binds to
+says the same and names itself as the place that revision lands.
+
+**Therefore the honest shape is an amendment to ADR-0028 — a new or extended
+D-decision — not a freestanding new ADR.** But do not oversell the anchor:
+ADR-0028 states the *direction* and nothing else. **No mechanism, no matrix
+design, no grant model, no decision framework exists** anywhere in the corpus. A
+corpus-wide sweep of all 47 ADRs found **no existing commitment to fine-grained
+per-action human RBAC**; every apparent hit is the machine axis (ADR-0043's
+"RBAC-enforced" is a Kubernetes Role on a ServiceAccount; ADR-0047's is a
+supply-chain clause) or unrelated (ADR-0020's is a GDPR controller/processor
+split). The one adjacent signal is ADR-0037's own Negative consequence, flagging
+per-user NetBox tokens as an unresolved security-sensitive surface.
+
+> **⚠️ Guardrail. ADR-0031:162 explicitly excludes "Enterprise RBAC, policy
+> administration, or audit retention guarantees" from what v0.1 claims.**
+> Recording a *direction* must not become a v0.1 capability claim. Nothing here
+> is promised to an outsider, and the console's public claims must stay behind
+> what is built.
+
+**Freeze note.** An ADR-0028 amendment is Freeze-2 work (§13.3) and cannot land
+until Gate B. The ruling is therefore recorded *here*, on a parked branch, and
+the amendment is filed on unfreeze — not now.
+
+**What the eventual model must reckon with, stated so it is not rediscovered:**
+
+1. **Roles are capability; groups are tenancy.** The console already separates
+   these deliberately (`MediaTenancySettings`: *"Groups are tenancy, roles are
+   capability"*), and tenancy is consulted only *after* a role gate passes. A
+   per-action grant model must not collapse the two axes.
+2. **`media-engineers` is not a role.** It sits outside `ROLE_ORDER`, never
+   affects the computed role, and is checked out-of-band as an OR inside exactly
+   one helper. It is a **surface grant**, and a general model has to decide
+   whether such grants survive as a concept or are absorbed into per-action
+   permissions.
+3. **A permissions table will expose a live asymmetry for the first time.** See
+   below — it is pre-existing, and it should be fixed on its own issue rather
+   than silently inside whatever round first renders the table.
+4. **Refusal logging is not required by anything today.** Verified: ADR-0028,
+   its digest and the architecture doc are **silent** on whether a *denied*
+   authorization must be recorded. C5, D6 and D7 are all phrased around
+   successful consequential actions ("one row per human-initiated action"). If
+   denied-authorization events should be auditable — and for a compliance story
+   they probably should — **that is a new requirement to add, not an existing
+   one to cite.**
+
+**The pre-existing asymmetry, for the issue that fixes it.** `ROLE_ORDER` is
+`("viewer", "operator", "engineer", "admin")`, so `operator` ranks **below**
+`engineer` and an `operator` floor is the *wider* one. Today a bare
+`dmf-console-operator` who is not in `media-engineers`:
+
+| action | gate | bare operator |
+|---|---|---|
+| list / read a media workload | `engineer` OR `media-engineers` | **refused** |
+| `clear-for-deployment` | `engineer` OR `media-engineers` | **refused** |
+| `switch-source` | `engineer` OR `media-engineers` | **refused** |
+| **permanent purge** | `operator`-or-higher, no group check | **allowed** |
+
+So the console's most destructive media-workloads write has a **weaker**
+requirement than every read in the same feature area. The purge gate's own
+docstring calls itself "stricter" — true only in the sense of *no group bypass*,
+not in `ROLE_ORDER` rank, and that wording is worth fixing alongside the gate.
+**Not this arc's scope.** File it separately.
+
 ### 9.4 Facility modelling is thinner than it looks — context, not scope
 
 Born-inventory writes one site, one tenant, one k3s cluster, control-plane and
@@ -1096,21 +1186,39 @@ them.
 > introduced by this arc — but a new create endpoint would extend it, so it must
 > be decided rather than inherited.
 >
-> **Recommendation (not yet an operator ruling): gate create on the
-> *intersection* — `_require_media_workloads_access` AND operator-or-higher.**
-> Rationale: it composes the two rules that already exist rather than inventing a
-> third ladder; it means *anyone who can create a workload can also see the one
-> they created*, which the plain-operator case currently violates; and it fails
-> closed in both directions (a viewer in `media-engineers` is refused because a
-> viewer holds no consequential-write capability; a bare operator is refused
-> because they cannot see the surface they would be writing to). The cost is that
-> create becomes **stricter than purge**, which is an odd shape — the honest
-> resolution is to bring purge onto the same intersection, but that is a change
-> to an existing security boundary and belongs on its own issue, not smuggled
-> into this arc.
+> **✅ DECIDED (operator, 2026-09-16): gate create on the already-used
+> `engineer` role — i.e. reuse `_require_media_workloads_access` verbatim, the
+> same gate every other Media Workloads endpoint uses.** Create then sits with
+> its true neighbours (the reads, `clear-for-deployment`, `switch-source`)
+> rather than inventing a gate shape.
 >
-> **This is the one decision still open.** It is a security boundary, so record
-> the ruling before implementation, not during.
+> *Supersedes* this document's earlier intersection recommendation. **Be honest
+> about what that costs:** the intersection was proposed to close the
+> write-without-read asymmetry, and the `engineer` ruling **does not close it**.
+> A bare operator still cannot create — but still *can* purge. The asymmetry is
+> pre-existing, is not introduced or worsened by this ruling, and is not this
+> arc's to fix; it needs its own issue (§9.3a).
+>
+> **One thing to disambiguate before implementing, because it decides a real
+> principal class.** "The already-used engineer role" has two readings:
+>
+> | reading | mechanism | admits a **viewer** who is in `media-engineers`? |
+> |---|---|---|
+> | **(a) reuse the surface gate** *(recommended)* | `_require_media_workloads_access` — `engineer`-or-higher **OR** `media-engineers` | **yes** |
+> | (b) a bare engineer floor | `_require_min_role(request, "engineer")` | no |
+>
+> **(a) is what "already used" denotes** — and (b) would be a **new gate shape**:
+> verified 2026-09-16, **no endpoint anywhere in the console uses a bare
+> `engineer` floor**. The floors actually in production are `admin` (4 sites),
+> `operator` (6), and `viewer` (1). `engineer` appears only ever as one branch
+> of that OR.
+>
+> (a) also matches the group's documented purpose — ADR-0037 §5 defines
+> `media-engineers` as granting the Media Workloads surface *including the
+> `clear-for-deployment` write* without granting the engineer capability. Create
+> commits no resources (§1), so admitting it to the same group's reach is
+> consistent rather than a widening. **Confirm (a) before implementation**; it is
+> a security boundary, so it wants a recorded ruling, not an inference.
 
 **0b. Wire the console's NetBox writer credential (#487) — first, and on its
 own.** Operator ruling, 2026-09-11: this is picked up **before** the arc rather
@@ -1685,10 +1793,12 @@ enforce either way.
 > **Prerequisite:** #487 (writer credential) must land first — step 0b. This
 > issue must not be the thing that finally forces it.
 >
+> **Authorization:** gate create on the already-used `engineer` role — reuse
+> `_require_media_workloads_access`, the same gate every other Media Workloads
+> endpoint uses (operator ruling 2026-09-16, §9.3a). Confirm the one open
+> reading first: whether a viewer in `media-engineers` may create (§10).
+>
 > **Decide before implementing:**
-> - The create endpoint's authorization gate. §10 recommends the intersection of
->   the read gate and operator-or-higher; note the write-without-read asymmetry
->   documented there.
 > - Slug derivation from an operator-supplied name (none exists), and uniqueness
 >   — which must rest on a store constraint, not a read-then-write TOCTOU.
 >
