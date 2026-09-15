@@ -966,6 +966,54 @@ per-user NetBox tokens as an unresolved security-sensitive surface.
 > is promised to an outsider, and the console's public claims must stay behind
 > what is built.
 
+> **🛑 Operator, 2026-09-16 — read this before doing anything with the anchor
+> above.**
+>
+> **ADR-0028 may itself be stale.** The post-freeze goal includes *robust user
+> management via Authentik, with high compatibility for external IdPs*. That is
+> a larger change than differentiating one group: it reopens whose model of
+> identity is authoritative, which is ADR-0028's own subject. So "amend
+> ADR-0028" is the right *starting* guess, not a conclusion — the amendment may
+> turn out to be a rewrite, or ADR-0028 may be superseded outright. **Do not
+> treat the amendment shape as settled.**
+>
+> **Present state, for calibration:** there is exactly **one** user at the
+> `engineer` role today. More are expected. So nothing here is urgent, and the
+> single-operator assumption ADR-0028 records is still *true* — it is the
+> forward direction that has moved, not the current facts.
+>
+> **Explicitly not being unravelled now.** An identity inventory-and-minimise
+> pass across all systems was proposed and **stood down on operator
+> instruction** — analysing today's identity model in detail would be
+> scoping work against a model that is about to be replaced. Revisit after Gate
+> B, alongside the Authentik direction, not before.
+>
+> **Four facts the stood-down pass had already established.** Kept because they
+> are cheap to lose and two of them bear on step 1; **not** an inventory, and
+> not to be built on without re-verification:
+>
+> 1. Every downstream app (NetBox, AWX, Forgejo, Grafana, LibreNMS, Zot) checks
+>    exactly **one** Authentik group — `ops-admin`. Nothing else is projected
+>    anywhere.
+> 2. `ops-admin` is **two different objects sharing a name** — an Authentik
+>    group and a separate OpenBao local userpass identity. A naming coincidence,
+>    not one principal.
+> 3. **`dmf-console-{viewer,operator,engineer}` and `media-engineers` are
+>    created by dmf-cms itself at startup, with no Ansible-side creation and no
+>    *automated* assignment path in source.** Membership is therefore assigned
+>    by hand in Authentik — which is consistent with the operator's statement
+>    that one `engineer`-role user exists today; source would not show that.
+> 4. `ops-operator` and a bare `viewer` Authentik group are declared in the
+>    baseline-groups blueprint with **no consumers found**.
+>
+> **Why (3) matters to step 1, concretely.** The create gate carries
+> `media-engineers` by ruling — but if that group has no members, the grant
+> admits nobody *today*. That makes the ruling safe to implement now, and it
+> means **the assignment path is the thing that gives the grant effect**. Do not
+> read a passing test against an empty group as evidence the grant works; the
+> admission-set test §13.5 asks for must construct its principals explicitly
+> rather than relying on live membership.
+
 **Freeze note.** An ADR-0028 amendment is Freeze-2 work (§13.3) and cannot land
 until Gate B. The ruling is therefore recorded *here*, on a parked branch, and
 the amendment is filed on unfreeze — not now.
