@@ -996,12 +996,35 @@ prose.
 > over `ipam.Service` records carrying a `workload:<slug>` tag. "Create a blank
 > container" therefore means **creating an `extras.Tag` with no members** — and
 > the console's own NetBox client documents that dmf-cms *never creates or
-> deletes Tag objects today*; that mutation is AWX/launcher-side. The scoped
-> writer identity does hold `add` on `extras.tag` (§9.2), so the permission is
-> there — but there is **no existing console code path that creates a NetBox
-> object at all**. The only console-initiated NetBox write in the entire
-> media-workloads surface is a tag-flip PATCH on an *existing* Service. Step 1
-> is thus the console's first create, not a variation on an existing one.
+> deletes Tag objects today*; that mutation is AWX/launcher-side. There is
+> **no existing console code path that creates a NetBox object at all**. The
+> only console-initiated NetBox write in the entire media-workloads surface is
+> a tag-flip PATCH on an *existing* Service. Step 1 is thus the console's first
+> create, not a variation on an existing one.
+>
+> **⚠️ Corrected 2026-09-16 — do not read §9.2's permission matrix as the
+> console's.** An intermediate round-5 draft said "the scoped writer identity
+> does hold `add` on `extras.tag`, so the permission is there". That conflates
+> two principals. The identity carrying those permissions is
+> **`dmf-catalog-svc`** — *AWX's* catalog writer, delivered as job-template
+> extra-vars, not as a pod credential. **The console has no writer identity at
+> all**: `DMF_CONSOLE_NETBOX_WRITER_TOKEN` is unset, no chart or role sets it,
+> and no NetBox user is minted for it. The permission is not "already there"
+> for this caller — there is no caller yet.
+>
+> **And the permission set §9.2 names is probably not the one #487 needs.**
+> §9.2's "add-not-change on tags" describes `dmf-catalog-svc`'s *tag*
+> permissions. But `clear-for-deployment`'s only write is a **PATCH on
+> `ipam.service`**, which structurally needs `change` on `ipam.service` — not
+> `add` on `extras.tag`. (`dmf-catalog-svc` holds `view/add/change` on
+> `ipam.service` and `view/add` on `extras.tag`.) The eventual console writer
+> likely needs **both** — `change` on `ipam.service` for #487, plus `add` on
+> `extras.tag` for step 1's container create — but that should be decided
+> explicitly against the code paths, not copied from `dmf-catalog-svc`'s list
+> unexamined. Whether NetBox's nested tag serializer additionally demands
+> `add`-on-tag to resolve an existing tag by name inside that PATCH is a
+> NetBox-behaviour question the codebase does not settle; it needs a live probe
+> on a non-capture env.
 >
 > - **Duplicate-name — today it silently merges.** Two workloads that derive the
 >   same slug become one grouping bucket, with no collision detection anywhere;
@@ -1516,9 +1539,78 @@ It does not block authorship, but it *does* block two completion conditions:
   verification cannot happen on the capture env**, so #487 cannot be *closed*
   until the env is released or a separate non-capture env is stood up. Say this
   on the issue rather than letting it look stalled.
+
+  **Scoped 2026-09-16 (§13.2a) — it is three pieces, not a one-line fix.**
 - **Step 1** likewise cannot be live-walked on the capture env. Given this
   project's record on false greens, a create/delete flow asserted only from unit
   tests is not verified — plan for a verification env, not for a waiver.
+
+**Which env is the capture env is INFERRED, not established.** The best
+candidate is the most recently registered sandbox env — the only one carrying a
+demo label, and consistent with every "sandbox demo env" reference across the
+relevant window with nothing contradicting it. But **no file states an
+active/capture env**, and the registry is disk state with no liveness field
+(ADR-0035). Confirm with a read-only check before treating it as excluded;
+inference is not proof. *(Concrete env ids are operator-local by convention —
+read them from the generated `STATUS.local.md`, never from a committed doc.)*
+
+**Verification-env options, honestly ranked.** The read-only liveness check the
+operator's limit already permits is the cheapest real path and has not been run:
+
+1. **Author, review and merge the change now** — fully unblocked by anything above.
+2. **Read-only liveness check** — confirm which env is actually the capture env,
+   then probe the registered envs that carry no evidence either way. If one is
+   live and free, that is the verification env. Several registered envs carry
+   staleness signals: two pairs share an address with a newer sibling, and one of
+   those was logged torn down after its validation run. Read the current registry
+   from `STATUS.local.md` rather than trusting any list written here.
+3. **Fresh env via dmf-init** — real, exercised end-to-end once, but **not
+   cheap**: it needs an ARM64 Debian node supplied first, and no total wall-clock
+   figure exists in source. Do not quote a duration; it is not known.
+4. **Otherwise blocked** until the capture env is released — timeline
+   undetermined, and the `episode-001-capture` milestone carries no due date.
+
+### 13.2a Step 0b scoped — #487 is three pieces across two repos
+
+Traced from source 2026-09-16. Verified independently: the permission matrix,
+the chart location, and a repo-wide grep confirming **zero** wiring for
+`DMF_CONSOLE_NETBOX_WRITER_TOKEN` anywhere in `dmf-infra` or the chart.
+
+**The chart is in dmf-cms, not dmf-infra** — `dmf-cms/charts/dmf-cms/`, staged
+and helm-upgraded by dmf-infra's `cms` role. That matters for the change shape:
+
+| piece | files | note |
+|---|---|---|
+| (a) chart env wiring | `dmf-cms/charts/dmf-cms/templates/deployment.yaml`, `values.yaml` | mirror the existing NetBox read-token block; `optional: true` so a missing value is not a regression |
+| (b) role default + values template | `dmf-infra/.../roles/stack/operator/cms/defaults/main.yml`, `templates/values.yml.j2` | mirrors the existing `netbox:` block |
+| (c) mint + deliver the token | `dmf-infra/.../roles/stack/operator/netbox-sot/` (new identity) + playbook `698` or a successor | the genuinely open piece |
+
+**Applying it needs two runs, and neither alone suffices:** `650-dmf-cms.yml`
+(helm upgrade — the only place a new `env[]` entry reaches the pod spec; a bare
+Secret patch cannot add one), then the mint-and-deliver step. Order matters;
+650 first is safe even with the token absent.
+
+**Two decisions this surfaces, neither settled by source:**
+
+1. **Reuse `dmf-catalog-svc` or mint a console identity?** The source *leans*
+   toward a separate identity — ADR-0032 Amendment 4 explicitly rejected routing
+   a console-side NetBox read through the AWX identity, to preserve one-principal-
+   per-job attribution — but no ADR or issue states this as a closed ruling for
+   the console's *write* case. Strongly supported, not formally decided. Minting
+   is additive: netbox-sot's group/permission/user/token block is already generic
+   and has been extended this way twice.
+2. **Which permissions.** See the ⚠️ correction in §10 — §9.2's "add-not-change
+   on tags" is `dmf-catalog-svc`'s shape, not necessarily this caller's.
+
+**A pre-existing divergence worth knowing about, which #487 is not obliged to
+fix.** ADR-0008 says pods consume secrets via External Secrets Operator. dmf-cms
+does not: all four of its secret-backed tokens are delivered by Ansible doing
+`bao kv get` then a raw Secret patch plus a checksum-annotation bump to force
+rollout. The platform's one working ESO precedent is dmf-promsd, pulling the
+*same* `secret/apps/netbox/runtime` path into another namespace. So there is a
+conscious choice here: follow dmf-cms's own established pattern, or introduce
+ESO to this app for the first time. Decide it deliberately rather than by
+default — but do not let #487 become the round that fixes ADR-0008 drift.
 
 ### 13.3 Freeze 2 is narrower than the shorthand
 
