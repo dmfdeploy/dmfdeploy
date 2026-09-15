@@ -15,7 +15,7 @@ date: 2026-09-11
 > **§10 step 0 — the scope posture and the create producer — was settled by the
 > operator on 2026-09-11 and is recorded in §9.1/§9.1a and §9.2.** Those two
 > choices no longer block the arc. **The create endpoint's authorization
-> *capability level* was settled by the operator on 2026-09-16** — the
+> *capability level* was settled by the operator on 2026-09-15** — the
 > already-used `engineer` capability, plus a stated direction toward
 > fine-grained per-action permissions (§9.3a, §10).
 >
@@ -925,7 +925,7 @@ proof.
 
 ### 9.3a Permissions: the direction, its ADR anchor, and what is NOT yet decided
 
-**Operator ruling, 2026-09-16:** *"these should certainly be permissions
+**Operator ruling, 2026-09-15:** *"these should certainly be permissions
 assignable by role or user. for now we can keep it to the already used
 'engineer' role. the goal eventually is to have fine grained control which
 users / groups / roles have permissions to which actions."*
@@ -934,7 +934,7 @@ So: **`engineer` now (§10), fine-grained per-action grants as the stated
 direction.** This subsection records the direction and its anchor so the eventual
 work starts from a true picture rather than a reconstruction.
 
-**Where this lands in the ADR corpus — verified 2026-09-16, and narrower than it
+**Where this lands in the ADR corpus — verified 2026-09-15, and narrower than it
 looks.**
 
 ADR-0028 (identity and authority chain) is the compliance ADR, and it commits to
@@ -966,7 +966,7 @@ per-user NetBox tokens as an unresolved security-sensitive surface.
 > is promised to an outsider, and the console's public claims must stay behind
 > what is built.
 
-> **🛑 Operator, 2026-09-16 — read this before doing anything with the anchor
+> **🛑 Operator, 2026-09-15 — read this before doing anything with the anchor
 > above.**
 >
 > **ADR-0028 may itself be stale.** The post-freeze goal includes *robust user
@@ -1033,7 +1033,7 @@ the amendment is filed on unfreeze — not now.
    below — it is pre-existing, and it should be fixed on its own issue rather
    than silently inside whatever round first renders the table.
 4. **Refusal logging is *undefined*, not absent — and the amendment must settle
-   it rather than assume.** *(Corrected 2026-09-16, codex round 6. An earlier
+   it rather than assume.** *(Corrected 2026-09-15, codex round 6. An earlier
    draft called the binding documents "silent" and concluded refusal auditing
    would be wholly new scope. Both halves were wrong.)*
 
@@ -1152,7 +1152,7 @@ prose.
 > a tag-flip PATCH on an *existing* Service. Step 1 is thus the console's first
 > create, not a variation on an existing one.
 >
-> **⚠️ Corrected 2026-09-16 — do not read §9.2's permission matrix as the
+> **⚠️ Corrected 2026-09-15 — do not read §9.2's permission matrix as the
 > console's.** An intermediate round-5 draft said "the scoped writer identity
 > does hold `add` on `extras.tag`, so the permission is there". That conflates
 > two principals. The identity carrying those permissions is
@@ -1246,7 +1246,7 @@ them.
 > introduced by this arc — but a new create endpoint would extend it, so it must
 > be decided rather than inherited.
 >
-> **✅ DECIDED (operator, 2026-09-16) — the capability level: create is gated at
+> **✅ DECIDED (operator, 2026-09-15) — the capability level: create is gated at
 > the already-used `engineer` capability, not at `operator` and not behind a new
 > role.** That much is the operator's ruling and is settled.
 >
@@ -1257,7 +1257,7 @@ them.
 > pre-existing, is not introduced or worsened by this ruling, and is not this
 > arc's to fix; it needs its own issue (§9.3a).
 >
-> **✅ DECIDED (operator, 2026-09-16) — the mechanism: the gate carries the
+> **✅ DECIDED (operator, 2026-09-15) — the mechanism: the gate carries the
 > `media-engineers` group.** Reuse `_require_media_workloads_access` —
 > `engineer`-or-higher **OR** `media-engineers`. Create then sits with the
 > existing Media Workloads reads, `clear-for-deployment` and `switch-source`
@@ -1286,7 +1286,7 @@ them.
 > (codex round 6, §12). The verified fact was only ever narrower — **no endpoint
 > anywhere uses a bare `engineer` floor**; production floors are `admin` (4),
 > `operator` (6), `viewer` (1) — which says something about the alternative and
-> nothing about intent. The ruling above is the operator's, given 2026-09-16
+> nothing about intent. The ruling above is the operator's, given 2026-09-15
 > after the question was put explicitly.
 
 **0b. Wire the console's NetBox writer credential (#487) — first, and on its
@@ -1315,7 +1315,7 @@ ruling 2026-09-11 moved it ahead of the arc as step 0b. See below.)*
 - **Name-only create** (#490) — direct console write via the scoped writer.
   **No tenant stamp**, per §9.1a's restriction. Gated by
   `_require_media_workloads_access` — `engineer`-or-higher OR `media-engineers`
-  (operator ruling 2026-09-16); see the authorization block below.
+  (operator ruling 2026-09-15); see the authorization block below.
 - **Blank-container delete** — a *scoped* permanent delete that works on a
   container with zero members, with a **fail-closed proof** that it neither
   discloses nor deletes across scope.
@@ -1681,7 +1681,7 @@ one to overshoot.
 after that, another whole-document round is likely to add noise rather than
 correctness."* Taken — round 5 closes here.
 
-**Round 6 — permissions ruling + codex adversarial cross-review, 2026-09-16.**
+**Round 6 — permissions ruling + codex adversarial cross-review, 2026-09-15.**
 
 Recorded the operator's authorization ruling and its ADR anchor, then gated the
 result. Verdict: **2 BLOCKING, 1 MINOR — all accepted and fixed above.**
@@ -1751,12 +1751,12 @@ It does not block authorship, but it *does* block two completion conditions:
   until the env is released or a separate non-capture env is stood up. Say this
   on the issue rather than letting it look stalled.
 
-  **Scoped 2026-09-16 (§13.2a) — it is three pieces, not a one-line fix.**
+  **Scoped 2026-09-15 (§13.2a) — it is three pieces, not a one-line fix.**
 - **Step 1** likewise cannot be live-walked on the capture env. Given this
   project's record on false greens, a create/delete flow asserted only from unit
   tests is not verified — plan for a verification env, not for a waiver.
 
-**✅ SURVEYED 2026-09-16, read-only — and the answer is worse than the open
+**✅ SURVEYED 2026-09-15, read-only — and the answer is worse than the open
 question.** A TCP reachability probe across every env in the operator-local
 registry, followed by a read-only `kubectl` read on the one that answered:
 
@@ -1795,7 +1795,7 @@ therefore verified as a live defect and not a stale report.
 
 ### 13.2a Step 0b scoped — #487 is three pieces across two repos
 
-Traced from source 2026-09-16. Verified independently: the permission matrix,
+Traced from source 2026-09-15. Verified independently: the permission matrix,
 the chart location, and a repo-wide grep confirming **zero** wiring for
 `DMF_CONSOLE_NETBOX_WRITER_TOKEN` anywhere in `dmf-infra` or the chart.
 
@@ -1897,7 +1897,7 @@ enforce either way.
 > issue must not be the thing that finally forces it.
 >
 > **Authorization:** reuse `_require_media_workloads_access` — `engineer`-or-higher
-> **OR** `media-engineers` (operator ruling 2026-09-16, §10). That is the gate
+> **OR** `media-engineers` (operator ruling 2026-09-15, §10). That is the gate
 > already used by the Media Workloads reads, `clear-for-deployment` and
 > `switch-source`; purge deliberately keeps its own operator-only floor. A
 > **viewer** in `media-engineers` may create: deliberate, since create commits
