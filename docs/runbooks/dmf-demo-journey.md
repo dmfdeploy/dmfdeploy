@@ -26,8 +26,9 @@ those out of reach. A claim marked *(carried forward)* survives unconfirmed
 from an earlier edition and is not contradicted by anything any pass has
 found. UI copy in quotation marks is transcribed from a live page, not typed
 from memory — but check the date the surrounding beat gives, because copy has
-changed release to release. What no pass has covered at all is concentrated
-in §9.
+changed release to release. What this file does not vouch for against 0.39.0
+is concentrated in §9 — mostly beats an earlier pass did walk, on an older
+console, which the freeze then put out of reach.
 
 **One decoder, because it governs about fifty sentences below.** Where a beat
 says "this round", "this walk" or "confirmed live this round" **without naming
@@ -1669,14 +1670,35 @@ being briefed on it.
 
 ## 9. Deferred verification — tracked by dmfdeploy/dmfdeploy#580
 
-**This section is what no pass has yet covered — and it stays open by
-design, not as a gate this runbook is waiting on.** The first round (0.24.0) walked create through a working
-Switch; the second (0.24.0) walked Teardown through Delete permanently, the
-audit trail, and AWX's re-idle behaviour; the third (2026-09-02, v0.33.0)
-walked the whole journey end to end again, closing most of what was still
-open and surfacing new drift from the copy sweep and throbber redesign
-(corrected throughout this file, not listed again here). What's left below
-is genuinely narrower again.
+**This section is what this runbook does not currently vouch for against
+0.39.0 — and it stays open by design, not as a gate this runbook is waiting
+on.** Most of it has been walked before, some of it more than once; what it
+has not been is re-verified against the console now deployed.
+
+Three different things sit below, and it matters which one you are reading:
+
+- **Walked by an earlier pass, but not re-verified against 0.39.0.** This is
+  most of the list, and it is the category that should shape how you present.
+  The 2026-09-19 pass was read-only under a capture freeze, so every beat that
+  writes or runs something — Provision, Switch, Teardown, Delete permanently,
+  automatic rollback, the create wizard past Identity — was last seen on an
+  older console. The beats themselves are written from those earlier
+  observations and say so. Treat their exact wording as likely-but-unconfirmed
+  rather than as current fact. This is [#580](https://github.com/dmfdeploy/dmfdeploy/issues/580)'s
+  actual scope.
+- **Never walked by any pass.** A smaller set, and each item says so in its own
+  words — the cluster-convergence check is the clearest example.
+- **Closed by the 2026-09-19 pass, kept as record rather than as open work.**
+  §4's lifecycle badge on the live view, and the §4/§6a pair that turned out to
+  be settled from source. They stay listed so the next walker can see what
+  moved and why, not because anything is outstanding. Each says its own date —
+  don't confuse them with the older "Closed by the 2026-09-02 walk" paragraph
+  further down, which is a different set.
+
+For history: the first round (0.24.0) walked create through a working Switch;
+the second (0.24.0) walked Teardown through Delete permanently, the audit
+trail, and AWX's re-idle behaviour; the third (2026-09-02, v0.33.0) walked the
+whole journey end to end, which remains the last full walk anyone has done.
 
 Each item below is **deliberately deferred to**
 [dmfdeploy/dmfdeploy#580](https://github.com/dmfdeploy/dmfdeploy/issues/580)
@@ -1691,7 +1713,8 @@ re-watched, as each case actually is), and this list exists so the next live
 walk has one place to start rather than a re-read of the whole file.
 
 **MAINTENANCE NOTE, added after this section drifted from the beats it
-summarises — twice, within the same round.** This section is a DERIVED
+summarises — now three times, twice within one round and once again in the
+next.** This section is a DERIVED
 view of every beat above, not an independent source of truth. Every time a
 beat gains or loses a carried-forward hedge, this section can silently go
 stale unless it's re-checked at the same time — a beat-by-beat sweep (the
@@ -1701,7 +1724,15 @@ same editing pass: once self-caught (this section briefly listed §1's
 login as closed right after the beat itself was correctly hedged as
 unconfirmed) and once reviewer-caught (this section listed Admin-icon
 gating as fully closed after the beat itself had already been split into a
-confirmed absent-half and an unconfirmed present-half). **Whoever next adds
+confirmed absent-half and an unconfirmed present-half). **The third, caught in
+review on 2026-09-19, had a different cause and is the more instructive one:**
+this section's own opening still read "what no pass has yet covered" after the
+section had been re-homed onto #580, whose scope is version-based
+("unverified against 0.39.0"), not coverage-based. Nothing about any beat
+changed — what changed was *what this section is for*, and its thesis sentence
+was never re-read against that. So the rule is wider than beats: **a derived
+section needs re-reading whenever anything it derives from changes, its own
+tracking issue included.** **Whoever next adds
 or changes a carried-forward marker on any beat: re-read this section's
 "Closed this round" paragraph and bullet list against that specific beat
 before committing — don't assume the beat-level fix is complete on its
@@ -1711,8 +1742,8 @@ so a partially-verified beat can't collapse into one true/false flag) —
 not implemented here, but the shape to reach for if this file's own
 hedging keeps needing hand-reconciliation.
 
-**Closed this round** (kept here only as a record of what the 2026-09-02
-walk resolved, not as open items): §1's rail/topbar claims specifically
+**Closed by the 2026-09-02 walk** (kept here only as a record of what that
+round resolved, not as open items): §1's rail/topbar claims specifically
 (icon-only rail with exactly three items, each with an accessible name;
 avatar disclosure) and the **absent** half of Admin-icon gating
 specifically (confirmed no 4th icon for this round's non-admin persona) —
