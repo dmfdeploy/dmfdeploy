@@ -1052,11 +1052,22 @@ why, verbatim: *"There is no next step to configure. Finalise & Review stays
 reachable at any time from the steps above."* Its own forward exit points
 the other way, back toward the page you probably just came from, verbatim:
 *"A trusted read reports this workload operating. Open live view →"*,
-linking to the bare-slug live view (§4). Every string in this paragraph is
-confirmed both live and against source.
+linking to the bare-slug live view (§4) — and it accepts a fragment, so
+`…/setup#configure` opens the flow straight on this step if you'd rather not
+click through. Every string in this paragraph is confirmed both live and
+against source. **One timing note, caught on 2026-09-19:** that forward-exit
+line can be missing for a second or two immediately after the step renders,
+then appear. If you land on Configure and don't see it, wait a beat rather
+than concluding something is broken.
 
 Under **Source · `<receiver instance>`**, the current active source is shown
 in mono text (e.g. `source-a`). Click **Switch source**.
+
+The same lateness applies to §4's **Active source** block when you go back to
+the live view to show the result: on 2026-09-19 it was absent from a fast
+first read and present on a slower one. Give the page a moment before
+pointing at it — the tile pictures and captions show the switch landed even
+while that block is still arriving.
 
 **Expected result — the arm panel, confirmed live both 2026-08-19 and
 2026-09-02, byte-identical.** Title,
