@@ -183,8 +183,8 @@ internal vocabulary as unearned until it's explained too).
 | **AWX** | The automation engine that actually runs the deploy/switch/teardown jobs. It is not always on — see the wake step in §3. |
 | **NetBox** | The facility's own inventory system — the source of truth the console reads from and lightly writes to. The console never treats its own screen as the record. |
 | **Sidecar** | A small helper process bundled with each running piece that reports its live status and preview — separate from the piece doing the actual media work. |
-| **Reason / audit trail** | Every media-workload write this journey makes — Provision, Switch, Teardown, Delete permanently, Clear for deployment — requires you to type a short reason before it fires; that reason, plus who you are and what role you held, is recorded. That record is "the audit trail" — see §6b for the two places it lives and how long each actually keeps it. (The one write outside this set that the journey optionally touches — creating a passkey invitation, §1 — takes no reason and isn't part of that record; see §1's own note.) |
-| **The rail** | Five steps, shown as chips on the guided-flow page: **Design → Plan → Provision → Configure → Finalise & Review.** All five names are real on-screen labels. There is no sixth "Operate" chip — the word "Operate" does not render anywhere on that page at all. See **Live view**, next. |
+| **Reason / audit trail** | Every media-workload write this journey makes — Provision, Switch, Teardown, Delete permanently, Clear for deployment — requires you to type a short reason before it fires: that part is universal, with no exceptions. What the reason is then *recorded in* is narrower. Most of those writes land in the server-side record §6b calls "the audit trail", but **Delete permanently is deliberately kept out of that lane** (§6b says why), so don't describe it as covered there. See §6b for the two places the record lives and how long each keeps it. (The one write outside this set that the journey optionally touches — creating a passkey invitation, §1 — takes no reason and isn't in the record either; see §1's own note.) |
+| **The rail** | Five steps, shown as chips: **Design → Plan → Provision → Configure → Finalise & Review.** All five names are real on-screen labels. There is no sixth "Operate" chip — the word "Operate" does not render anywhere on that page at all. The chips belong to the guided flow, but they also render across the top of the live view, where none of them shows as selected — see "Three URLs, one workload" and §4. See **Live view**, next. |
 | **Live view** | The workload's own home page — its bare URL, no suffix. A read-only monitoring surface, not a rail step: this is where you *watch* the workload run. Every media-workload *write* this journey makes **against an already-real workload** happens on the guided-flow page instead — the one exception, the optional passkey invitation in §1, happens on Settings, not here or there. Provision itself is different again: it fires from the create wizard, before the workload is real at all — see "Three URLs, one workload," next. |
 
 ---
@@ -305,7 +305,10 @@ later — not part of this journey's main path, but worth knowing about if a
 facility isn't clean — the copy there is different again: an already-deployed
 template row reads, verbatim, just *"Already deployed."*, no further
 sentence, and if some member is recorded torn-down (`bootstrapped`) but not
-yet re-deployed, a **Clear for deployment** button is offered. Its own
+yet re-deployed, a **Clear for deployment** button is offered — though
+since v0.36.0 it sits inside a collapsed **"Desired state (expert)"**
+disclosure on that row, closed by default, so you have to open that summary
+before you see it at all (§6a). Its own
 confirm-panel description reads, verbatim: *"This records the intent to run
 in the facility source of truth. It shows as pending reconciliation until
 something deploys it — today, that's Provision. This action does not deploy
@@ -400,10 +403,11 @@ The **engineer** role clears every gate above on its own — **this
 journey's demo persona is created with the engineer role specifically**;
 log in as that. Group membership alone is not enough for the whole
 journey (Provision, Teardown, and Delete permanently would all refuse
-it), and **admin is never required for anything in the main path** — the
-one exception is the optional passkey-enrollment demo in §1, which needs
-admin and should be skipped if you're presenting as engineer, per that
-section's own note.
+it), and **admin is never required anywhere in this journey, main path or
+optional** — including the optional passkey-enrollment demo in §1, which an
+engineer persona can run perfectly well. Earlier editions said that beat
+needed admin and told you to skip it as engineer; that was wrong, and §1
+now says so where the beat lives.
 
 If passkeys show `0/2` or `1/2`, complete
 [`passkey-enrollment.md`](passkey-enrollment.md) **before** the demo — do not
@@ -899,8 +903,10 @@ ssh <ssh-target> 'sudo k3s kubectl get pods -n mxl -w'
 > **PRESENTER NOTE — SECURITY (non-blocking).** The reason you typed is not
 > cosmetic: **every media-workload write on this journey's path is
 > reason-required** — a missing/empty reason is refused before any AWX
-> call — and the reason is recorded in the audit trail: actor, effective
-> role, request id, reason. Provision's own attribution lives in the
+> call — and for this write the reason is recorded in the audit trail:
+> actor, effective role, request id, reason. (Reason-required is universal;
+> being recorded in *that lane* is not — Delete permanently is deliberately
+> excluded from it, §6b.) Provision's own attribution lives in the
 > server's structured log **and**, since the audit lane went server-side, in
 > the Activity record itself — confirmed live 2026-09-08, where Deploy rows
 > appear with real outcomes (*"Deploy succeeded for `<slug>`"*). Earlier
@@ -1060,13 +1066,15 @@ while a Finalise & Review job is actually running. Earlier editions spelled
 it "finalizing"; the console spells it **"finalising"**, and its source
 carries an explicit note not to "correct" it back — so a presenter watching
 for the American spelling is watching for a word that never appears. The
-value itself is still only source-confirmed, never watched by any round. Whether an equivalent badge also appears on
-**this** page —
-the bare-slug live view — is still not confirmed either way; the previous
-edition's guessed "planned" / "provisioned" / "configured" vocabulary for
-the live view specifically turns out to match real values observed
-elsewhere on `/setup`, but that's not the same as confirming the live view
-shows one too — still open, see §9.
+value itself is still only source-confirmed, never watched by any round.
+
+**Whether an equivalent badge appears on this page — the bare-slug live
+view — is settled, and the answer is no.** The 2026-09-19 pass looked, and
+the console's own source confirms why: the live view mounts no step of the
+guided flow, so there is no stage for a badge to report. The five rail
+chips do render across the top of this page (above), but none of them shows
+as selected. Earlier editions left this open and pointed at §9; §9 has
+since closed it.
 
 > **PRESENTER NOTE — the false catalog warning is BACK (umbrella#401
 > regressed, or never fully covered this state — see
