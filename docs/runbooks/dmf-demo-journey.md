@@ -689,12 +689,18 @@ current, not the 0.24.0 wording.**
 
    One signal is **the screen's own exit control**, which renders as
    **inert text, not a link** while the launch operation/job is
-   non-terminal. **Wording changed since 0.24.0** — it no longer ends with
-   "wait for its outcome"; confirmed live 2026-09-02, verbatim, it now reads
-   just: *"View live — The launch job is in progress."* That
-   text tracks job/operation terminality directly
-   (`WorkloadMaterializing.tsx`) — nothing to do with whether the
-   workload's record has shown up anywhere yet.
+   non-terminal. **On screen it reads only "View live"** — the explanation
+   ("The launch job is in progress") is not painted on the page at all. It
+   lives in the control's hover tooltip and in a screen-reader-only node, so
+   a sighted presenter sees two words and nothing else. Earlier editions
+   quoted the full sentence as visible text; don't read it aloud expecting
+   the audience to see it. What the control does still tell you is the
+   signal that matters: while it is inert rather than a link, the job has
+   not finished. That tracks job/operation terminality directly
+   (`ViewLiveExit.tsx`, `WorkloadMaterializing.tsx`) — nothing to do with
+   whether the workload's record has shown up anywhere yet.
+   *(Source-derived — the freeze blocked running a real Provision, so this
+   was read from the console's source, not watched.)*
 
    The other signal is **the screen swap itself**, to the real guided-flow
    page. That's driven by a separate poll of the facility's workload
@@ -718,14 +724,19 @@ current, not the 0.24.0 wording.**
    screen-swap number; the two were never the same thing, but this is the
    first time this file gives a figure for full convergence specifically.
 
-   **New, undocumented before this round: in the gap between the screen
-   swap and full convergence, the real workload's own Provision step can
-   show "Clear for deployment" controls for the not-yet-active sources** —
-   visually identical to §6a's post-Teardown landing, but this is a workload
-   on its first-ever deploy that was never torn down. Confirmed transient
-   and benign this round (re-polled every 15s; it resolved on its own once
-   the job actually finished) — narrate it as "still converging" if you see
-   it, not as a problem.
+   **In the gap between the screen swap and full convergence, the real
+   workload's own Provision step can offer "Clear for deployment" for the
+   not-yet-active sources** — visually identical to §6a's post-Teardown
+   landing, but this is a workload on its first-ever deploy that was never
+   torn down. Confirmed transient and benign on the 2026-09-02 walk
+   (re-polled every 15s; it resolved on its own once the job actually
+   finished) — narrate it as "still converging" if you see it, not as a
+   problem. **Since v0.36.0 you will not see it unless you go looking:**
+   the whole block now sits inside a collapsed **"Desired state (expert)"**
+   disclosure that is closed by default, so nothing appears on the step
+   until you click that summary open. *(Source-derived — the standing
+   workload was fully cleared, so this block did not render at all on the
+   2026-09-19 pass.)*
 
    Because these two signals are independent, don't narrate an order
    between them — all orderings are reachable, including an active "View
@@ -928,12 +939,12 @@ provider, MXL version, Active, and Node (NetBox) — still ticking roughly
 three different values of it, all on the guided-flow (`/setup`) page's own
 header** — **"provisioned"** (right after Provision, §3), **"configured"**
 (after a successful Switch, §5), and **"planned"** (post-Teardown, §6a). A
-fourth value, **"finalizing"**, is documented separately (§6a) as appearing
-while a Finalise & Review job is actually running — **that one is carried
-forward from 0.24.0 specifically, not re-observed this round**: this
-round's own Teardown was polled for exactly that string, among others, and
-it never matched in any poll iteration, so treat it as unconfirmed since
-0.24.0 rather than reconfirmed. Whether an equivalent badge also appears on
+fourth value, **"finalising"**, is documented separately (§6a) as appearing
+while a Finalise & Review job is actually running. Earlier editions spelled
+it "finalizing"; the console spells it **"finalising"**, and its source
+carries an explicit note not to "correct" it back — so a presenter watching
+for the American spelling is watching for a word that never appears. The
+value itself is still only source-confirmed, never watched by any round. Whether an equivalent badge also appears on
 **this** page —
 the bare-slug live view — is still not confirmed either way; the previous
 edition's guessed "planned" / "provisioned" / "configured" vocabulary for
@@ -1064,7 +1075,9 @@ walk.
 permanently, Review.** The Finalise & Review step's own body renders as
 three small labelled sections — **TEARDOWN**, **DELETE PERMANENTLY**,
 **REVIEW** (the console styles them uppercase; the underlying text is
-title-case, the same uppercase CSS transform §4's `STATIC` mark uses) — not
+sentence case — `Teardown`, `Delete permanently`, `Review`, only the first
+word capitalised — through the same uppercase CSS transform §4's `STATIC`
+mark uses) — not
 a simple two-way fork as the previous edition described from source alone.
 
 **Before any teardown has run** (something is still active), Delete
@@ -1074,29 +1087,34 @@ the separate case where nothing has ever been provisioned at all, verbatim:
 *"Nothing is running yet, so there is nothing to finalise."* Don't conflate
 the two.
 
-**Teardown.** Click **⏏ Teardown** (per catalog entry — here, the
+**Teardown.** The panel reads **"Loading template information…"** for a
+moment when you first land on the step, before the catalog entry and its
+button appear — give it a beat rather than reaching straight for the
+control. Then click **⏏ Teardown** (per catalog entry — here, the
 receiver's own entry). A confirm panel opens, title a template — verbatim
 for this entry: *"Teardown MXL Test-Pattern Viewer?"* — description,
 verbatim: *"Finalises this media function via its AWX teardown template.
 The action is operator-gated and recorded in the audit trail with your
 reason."* Both re-confirmed byte-identical 2026-09-02. **Confirm teardown**
 stays disabled until a reason is typed, same placeholder as elsewhere.
-While the job runs, the exit control is documented as reading, inert,
-verbatim: *"View live — A Finalise & Review job is in progress — wait for
-its outcome."* — **not independently re-confirmed this round** (this walk
-tracked the panel's own status text instead, not this specific exit-link
-string); given that §3's equivalent Provision string dropped its own
-"wait for its outcome" clause between 0.24.0 and 0.33.0 (§3), treat this
-one as **likely also stale** and confirm on the next walk (§9) before
-quoting it on camera. During this window the workload's lifecycle badge is
-documented (0.24.0) as reading **"finalizing"** (genuinely American
-spelling — an inconsistency with the British "Finalise" used everywhere
-else on this same page, not a transcription error in this runbook). **Not
-independently re-confirmed 2026-09-02**, despite an earlier draft of this
-edit claiming it was: this round's own Teardown was polled repeatedly for
-exactly this string among others, and it never appeared in any poll's
-captured text — either the polling window missed it, or it's changed.
-Treat as carried forward from 0.24.0 only; confirm on the next walk (§9).
+While the job runs, the exit control renders inert rather than as a link —
+but **on screen it reads only "View live"**. Earlier editions quoted it as
+reading *"View live — A Finalise & Review job is in progress — wait for its
+outcome."*; that explanation is no longer painted on the page at all. It
+survives in the control's hover tooltip and in a screen-reader-only node,
+the same shape as §3's equivalent. Read the inertness as your signal, not
+the sentence, and don't recite the sentence to a room that cannot see it.
+*(Source-derived — observing it needs a Teardown or Delete actually
+running, which the 2026-09-19 freeze forbade.)* Previously flagged to
+quoting it on camera. During this window the workload's lifecycle badge
+reads **"finalising"** — the British spelling, consistent with "Finalise"
+everywhere else on the page. Earlier editions of this runbook recorded it as
+"finalizing" and explained the inconsistency at length; that was a
+transcription error here, not an inconsistency in the console, and it
+explains why the 2026-09-02 Teardown polled for the string and never matched
+it. *(Source-derived — the badge only takes this value while a job is
+running, which the 2026-09-19 freeze forbade. The spelling itself is
+settled: the console's source pins it and warns against changing it.)*
 **Duration: 90–120 s (0.24.0 sample), 167 s (2026-09-02 sample) — widen the
 range to ~90–170 s**, not a promise either way.
 
@@ -1166,9 +1184,17 @@ here. **Also confirmed
 this round:** the Provision step for an already-provisioned, torn-down
 workload shows the inline **"▶ Deploy"** button directly in its own body
 (umbrella#518's retirement of the old promoted-action portal, dmf-cms
-46d53cb) *alongside* each member's own "Clear for deployment" row — the two
-controls sit on the same step, offering two different things (redeploy
-everything at once vs. record intent for one member at a time).
+46d53cb). **Since v0.36.0 the "Clear for deployment" rows are no longer
+alongside it by default:** that block moved inside a collapsed **"Desired
+state (expert)"** disclosure, closed until you click it open. So the step
+shows the inline **"▶ Deploy"** button, and the per-member rows only once
+you expand that summary — two different things on the same step (redeploy
+everything at once vs. record intent for one member at a time), but no
+longer both in view at once. One thing to weigh before you show it at all:
+the console's own source notes this action currently fails on deployed
+envs, so treat it as something to describe rather than to demonstrate.
+*(Source-derived — reaching this state needs a completed Teardown, which
+the 2026-09-19 freeze forbade.)*
 
 **Delete permanently.** The real gate, source-confirmed: every member
 settled to bootstrapped and not-running, plus a trustworthy read and purge
@@ -1208,14 +1234,15 @@ a fresh read confirms every member **and** the workload's own tag are gone.
 
 During the job, the panel reads, verbatim: **"Deleting `<slug>`
 permanently…"** — this specific line re-confirmed byte-identical 2026-09-02
-(matched directly in this round's own poll output). It's also documented
-as showing an operation-id line, **"op `<id>`... — running"** (the id
-truncated to its first 8 characters) — **that specific line was not
-independently re-captured this round**: this round's poll pattern included
-it, but it never matched, unlike Provision's own op-id line (§3), which
-did. Possibly just missed by the poll's timing; treat as carried forward
-from 0.24.0 for the op-id line specifically, confirmed for the "Deleting…"
-line. **Duration: 30–60 s (0.24.0), ~62 s (2026-09-02) — right at the edge
+(matched directly in this round's own poll output). Earlier editions also
+described an inline operation-id line, **"op `<id>`... — running"**. **That
+line is no longer inline.** By default the panel now shows only a status
+word; the raw id and state moved behind a collapsed **"System details"**
+disclosure, where the pair reads **"op `<id>`... · `<state>`"** — a middle
+dot, not a dash. The 2026-09-02 poll that failed to match it was not
+unlucky: the line had already moved before that walk ran. *(Source-derived
+— seeing it needs Delete permanently actually running, which the 2026-09-19
+freeze forbade.)* **Duration: 30–60 s (0.24.0), ~62 s (2026-09-02) — right at the edge
 of the same range, leave it as-is.**
 
 After completion, the page reads, verbatim, **"Workload not found"** at the
@@ -1584,12 +1611,18 @@ issue plus a corrected presenter note (§4) rather than a deferred check.
   appears on the bare-slug **live view** itself, and if so whether it uses
   the same vocabulary. Still open — this round didn't specifically check
   the bare-slug page's own header for a badge.
-- §4/§6a — The fourth badge value, **"finalizing"**, and Teardown's own
-  in-flight exit-control string (*"View live — A Finalise & Review job is
-  in progress — wait for its outcome."*) are both still only documented
-  from 0.24.0 — this round's own Teardown was polled for both and neither
-  matched in any poll iteration. Given Provision's twin exit-control string
-  dropped its own "wait for its outcome" clause between 0.24.0 and 0.33.0,
+- §4/§6a — **Both of these are now settled from source, and the answer in
+  each case is that the runbook was wrong rather than unconfirmed.** The
+  fourth badge value is spelled **"finalising"**, not "finalizing"; and
+  Teardown's in-flight exit control paints only the words "View live", with
+  its explanation in a tooltip and a screen-reader-only node rather than on
+  screen. That is why the 2026-09-02 Teardown polled for both strings and
+  matched neither — they do not exist as written. What stays open is only
+  whether the corrected forms render as source says while a job actually
+  runs; the 2026-09-19 pass could not check, because the freeze forbade
+  running one. Historical note, since it explains the old entry: Provision's
+  twin exit-control string dropped its own "wait for its outcome" clause
+  between 0.24.0 and 0.33.0,
   treat both as likely stale, not just unconfirmed. Confirm the live
   wording on the next walk before quoting either on camera.
 - §6a — Delete permanently's own in-flight operation-id line (*"op `<id>`...
