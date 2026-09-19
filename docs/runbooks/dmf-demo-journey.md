@@ -8,23 +8,42 @@ gives a concrete action and the expected result, and every domain term is
 glossed the first time it matters, so you never have to improvise or fall
 back on jargon you weren't handed.
 
-**Provenance — read this before you present from this file.** A full
-rewrite (2026-08-19, against **dmf-cms v0.24.0**, two live walks) replaced
-an entirely source-derived edit that had no standing env to watch. This
-edit (2026-09-02) is a **third live walk, end to end, against dmf-cms
-v0.33.0** — nine releases of drift since the rewrite — done beat by beat
-against the standing env, correcting every observed divergence rather than
-re-deriving from source. Where this walk didn't re-touch a beat the
-0.24.0 walks already confirmed and nothing since suggested had changed, that
-earlier confirmation stands; where this walk found real drift (mostly a
-console-wide copy sweep and a "throbber" redesign of every in-flight job
-screen, both landed after 0.24.0), the text below reflects **only what was
-observed on 2026-09-02**, not source-inference. UI copy quoted below is
-transcribed directly from the live DOM, not typed from memory. Claims
-stated as plain fact were observed live at least once, most as of this
-round specifically — anything still marked *(carried forward)* survives
-unconfirmed from an earlier edit and is not contradicted by anything any
-round has found. What no round has yet covered is concentrated in §9.
+**Provenance — read this before you present from this file.** This file is a
+layered record, not a single snapshot. Five passes have touched it, each
+against a different console, and **no single pass verified everything below**.
+The current edition is the fifth (2026-09-19, against deployed **dmf-cms
+0.39.0**), and it was **read-only**: the env was frozen mid-capture, so that
+pass could look at every surface and run nothing. The full account of what it
+watched and what it only read is in the fifth-pass note below — read that
+before you trust any single sentence here.
+
+**How to tell what a claim is worth.** Most beats say so in their own words.
+A claim stated as plain fact was watched on a live console by some pass, and
+the beat normally names which. A claim marked *(source-derived)* was read
+from the console's code and **no human has seen it on screen** — those are
+concentrated in the beats that write or run something, because the freeze put
+those out of reach. A claim marked *(carried forward)* survives unconfirmed
+from an earlier edition and is not contradicted by anything any pass has
+found. UI copy in quotation marks is transcribed from a live page, not typed
+from memory — but check the date the surrounding beat gives, because copy has
+changed release to release. What no pass has covered at all is concentrated
+in §9.
+
+**One decoder, because it governs about fifty sentences below.** Where a beat
+says "this round", "this walk" or "confirmed live this round" **without naming
+a date, it means the 2026-09-02 end-to-end walk**, not the 2026-09-19 pass.
+Those phrases were written when 2026-09-02 was the current round and were
+deliberately left alone rather than swept, so that what each pass actually
+observed stays attributable. **The 2026-09-19 pass never calls itself "this
+round"** — it names its date every time, in the fifth-pass note and in every
+beat it touched. So if a sentence claims something was seen and does not say
+2026-09-19, no one has watched it on 0.39.0.
+
+The earlier passes, for context: a full rewrite (2026-08-19, against **v0.24.0**,
+two live walks) replaced an entirely source-derived edit that had no standing
+env to watch; then a **third live walk, end to end, against v0.33.0**
+(2026-09-02), done beat by beat against the standing env, which is still the
+last time anyone walked this journey from start to finish.
 
 **Fourth pass (2026-09-08, against dmf-cms v0.38.0) — TARGETED, NOT
 end-to-end.** Five releases of drift since the 2026-09-02 walk. This pass
@@ -40,21 +59,60 @@ rather than implying a fresh end-to-end verification:
   actions" panel earlier editions taught is a **temporary measure being
   retired**; the record to present is the server-side one, and it is on
   Workspace. Deploy, teardown and source-switch rows now carry an
-  **outcome** — by two different mechanisms, which §6b separates — while
-  automatic-rollback rows still do not (#560). Re-walked live at both
+  **outcome** — by two different mechanisms, which §6b separates.
+  (Automatic-rollback rows gained one in v0.39.0, after this pass; #560 is
+  closed. See §6b, and the fifth-pass note below.) Re-walked live at both
   surfaces.
 - **§5/§6b's switch action line** (v0.37.0) — now names the value it set.
 
-Everything else below stands from the 2026-09-02 walk and is **not**
-reconfirmed against v0.38.0 — in particular §2 (Create), §3 (Provision), §5's
-own switch mechanics, §6a (Teardown/Delete) and §6c/§6d were not re-executed
-this pass. Treat them exactly as the previous edition left them. The demo's
-focus is deliberately the **Workspace** and **Media Workloads** pages; where
-this pass touched a beat that sent a presenter elsewhere, it points back at
-those two.
+Everything else stood from the 2026-09-02 walk and was **not** reconfirmed
+against v0.38.0 — in particular §2 (Create), §3 (Provision), §5's own switch
+mechanics, §6a (Teardown/Delete) and §6c/§6d were not re-executed that pass.
+The demo's focus is deliberately the **Workspace** and **Media Workloads**
+pages; where that pass touched a beat that sent a presenter elsewhere, it
+points back at those two. See the fifth pass, next, for what has since been
+re-checked and what has not.
 
-Three things changed shape since the last edit, which is why this is a
-rewrite rather than a touch-up:
+**Fifth pass (2026-09-19, against deployed dmf-cms 0.39.0) — a READ-ONLY
+re-verification under a capture freeze. NOT an end-to-end walk.** Six
+releases of drift since the 2026-09-02 walk, one since the 2026-09-08 pass.
+The env was frozen read-only mid-way through recording episode 001, so this
+pass could look at everything and touch nothing. That shapes what it can and
+cannot vouch for, and the split is the most important thing on this page:
+
+- **Watched live, on the running 0.39.0 console.** The Workspace dashboard
+  (including a real failed row in the Activity panel), the Media Workloads
+  list, the live view and all three of its tiles, all five guided-flow steps
+  at rest, Activity → Jobs and Activity → History, Facilities, and the create
+  wizard's Identity step. Route behaviour was probed directly, as was the
+  console's own version endpoint (§0). Copy quoted from these surfaces is
+  transcribed from the live page.
+- **Read from the 0.39.0 source, never watched.** Every beat that writes or
+  runs: the create wizard past Identity, a real Provision and its progress
+  screens, a Switch dispatch, Teardown, Delete permanently, an automatic
+  rollback, and the login ceremony. Corrections to those beats are marked
+  *source-derived* where they appear. **Treat them as well-founded but
+  unobserved** — that is exactly the distinction this file exists to keep.
+
+What this pass changed, in one line each: automatic-rollback rows now carry
+an outcome, so §6b no longer tells you to say otherwise (§6b, §1); Delete
+permanently is named as a second write absent from the audit record (§6b);
+§2's quoted catalog summary was replaced upstream and its jargon note
+removed; §1's login and passkey-invitation instructions were both wrong and
+are corrected; several controls that no longer paint their explanation on
+screen are described as they actually render (§3, §6a); the in-flight badge
+is spelled "finalising"; §0 gains a version check; and §7 loses a rough edge
+that no longer happens while gaining four that do.
+
+**Two issue references were resolved after this pass reported.** §9's
+deferred list now tracks
+[#580](https://github.com/dmfdeploy/dmfdeploy/issues/580), which succeeds the
+closed #379. And #383 — the outsider exit criterion — closed because it was
+**met**, on 2026-08-25, against an earlier console; the front matter now says
+so rather than implying the bar is still pending.
+
+Three things changed shape ahead of the 2026-09-02 walk, which is why that
+pass was a rewrite rather than a touch-up:
 
 1. **The route contract.** A media workload now resolves to three distinct
    URLs — a home page, a guided-flow page, and a compatibility redirect —
@@ -68,13 +126,19 @@ rewrite rather than a touch-up:
 **Scope note.** The console's demo catalog is still **one template** —
 provisioning it launches a *topology* of three pieces (a receiver plus two
 sources), not a single one (see the glossary below). The **Switch** beat is
-now a fully confirmed, working beat: this rewrite's live walk ran it end to
-end, dropdown to completion (§5) — the first time in this runbook's history.
+a confirmed, working beat: the 2026-09-02 walk ran it end to end, dropdown to
+completion (§5) — the first time in this runbook's history. It has not been
+run since; the 2026-09-19 pass could not dispatch a switch under the freeze.
 This runbook is part of the v0.2 presentable-journey track
 ([dmfdeploy/dmfdeploy#200](https://github.com/dmfdeploy/dmfdeploy/issues/200),
 [#347](https://github.com/dmfdeploy/dmfdeploy/issues/347)) and its exit
-criterion is a named outsider completing this journey **unaided**
-([#383](https://github.com/dmfdeploy/dmfdeploy/issues/383)) — that is who
+criterion was a named outsider completing this journey **unaided**
+([#383](https://github.com/dmfdeploy/dmfdeploy/issues/383)). **That bar was
+cleared once, on 2026-08-25** — observed, and anchored at commit
+`c137c8bd` on protected `main`, which is the durable record rather than any
+issue comment. Read it as a bar cleared, not a bar that stays clear: it was
+cleared against an **earlier console than the one this edition describes**,
+and the console has moved six releases since. That outsider is still who
 this file is written for, not just a presenter narrating to a room.
 
 **Assumes:** a standing env is already deployed and healthy (bring-up is
@@ -119,8 +183,8 @@ internal vocabulary as unearned until it's explained too).
 | **AWX** | The automation engine that actually runs the deploy/switch/teardown jobs. It is not always on — see the wake step in §3. |
 | **NetBox** | The facility's own inventory system — the source of truth the console reads from and lightly writes to. The console never treats its own screen as the record. |
 | **Sidecar** | A small helper process bundled with each running piece that reports its live status and preview — separate from the piece doing the actual media work. |
-| **Reason / audit trail** | Every media-workload write this journey makes — Provision, Switch, Teardown, Delete permanently, Clear for deployment — requires you to type a short reason before it fires; that reason, plus who you are and what role you held, is recorded. That record is "the audit trail" — see §6b for the two places it lives and how long each actually keeps it. (The one write outside this set that the journey optionally touches — creating a passkey invitation, §1 — takes no reason and isn't part of that record; see §1's own note.) |
-| **The rail** | Five steps, shown as chips on the guided-flow page: **Design → Plan → Provision → Configure → Finalise & Review.** All five names are real on-screen labels. There is no sixth "Operate" chip — the word "Operate" does not render anywhere on that page at all. See **Live view**, next. |
+| **Reason / audit trail** | Every media-workload write this journey makes — Provision, Switch, Teardown, Delete permanently, Clear for deployment — requires you to type a short reason before it fires: that part is universal, with no exceptions. What the reason is then *recorded in* is narrower. Most of those writes land in the server-side record §6b calls "the audit trail", but **Delete permanently is deliberately kept out of that lane** (§6b says why), so don't describe it as covered there. See §6b for the two places the record lives and how long each keeps it. (The one write outside this set that the journey optionally touches — creating a passkey invitation, §1 — takes no reason and isn't in the record either; see §1's own note.) |
+| **The rail** | Five steps, shown as chips: **Design → Plan → Provision → Configure → Finalise & Review.** All five names are real on-screen labels. There is no sixth "Operate" chip — the word "Operate" does not render anywhere on that page at all. The chips belong to the guided flow, but they also render across the top of the live view, where none of them shows as selected — see "Three URLs, one workload" and §4. See **Live view**, next. |
 | **Live view** | The workload's own home page — its bare URL, no suffix. A read-only monitoring surface, not a rail step: this is where you *watch* the workload run. Every media-workload *write* this journey makes **against an already-real workload** happens on the guided-flow page instead — the one exception, the optional passkey invitation in §1, happens on Settings, not here or there. Provision itself is different again: it fires from the create wizard, before the workload is real at all — see "Three URLs, one workload," next. |
 
 ---
@@ -135,12 +199,16 @@ but that route is never slug-scoped; it's the facility-wide audit record
 (§6b), paging the same rows the Workspace **Activity** panel shows, so it
 lists this workload alongside everything else rather than being a fourth
 workload-specific address. You do not have to go there: the same record is
-on Workspace.)
+on Workspace. If you do go: there is no Activity entry in the sidebar — the
+nav is just Workspace, Facilities and Media Workloads — and typing bare
+`/activity` redirects by role, landing this journey's engineer persona on the
+**Jobs** tab rather than History. Use the full `/activity/history` address
+§6b gives and the role stops mattering.)
 
 | Address | What's there |
 |---|---|
-| `/media-workloads/<slug>` | **Live view** — the workload's home. This is where "View live" and "Open live view →" eventually send you. Read-only. |
-| `/media-workloads/<slug>/setup` | **The guided flow** — the five-step rail. Every write this journey makes against an already-real workload happens here. |
+| `/media-workloads/<slug>` | **Live view** — the workload's home. This is where "View live" and "Open live view →" eventually send you. Read-only. The five rail chips render across the top here too (see below). |
+| `/media-workloads/<slug>/setup` | **The guided flow** — the five-step rail. Every write this journey makes against an already-real workload happens here. A single step also takes a fragment — `…/setup#configure` opens the flow on Configure — which is handy if you want to jump straight to §5. |
 | `/media-workloads/<slug>/operate` | A **compatibility redirect only**. It renders nothing of its own — it forwards straight to the bare-slug live view, and the back button doesn't bounce you back to it. Nothing in the console links here; you'd only land on it from an old bookmark. |
 
 Keep this in mind reading §3 onward: **Provision itself fires from the
@@ -152,6 +220,14 @@ live view is reached later still, once you follow an exit control (§3's
 "View live," or Configure's "Open live view →"). Three different jobs on
 three different pages — create, then setup, then watch — not one page whose
 meaning changes underneath you.
+
+**One thing that surprises people: the five rail chips render on the live
+view as well, not only on the guided flow.** They are still the guided
+flow's rail — clicking one takes you to that step on `/setup` — and nothing
+on the live view is selected, because the live view is not a step. So the
+rail being on screen doesn't mean you're in the flow; it means the flow is
+one click away. Say that if an audience asks why the same chips follow them
+around.
 
 ---
 
@@ -182,10 +258,20 @@ DMF_ENV="$(dirname "$DMFDEPLOY_UMBRELLA")/dmf-env"      # sibling checkout
 |---|---|---|
 | Cluster reachable | `curl -sI https://console.<env-base-domain>/ \| head -1` | `HTTP/2 200` (or a redirect to auth — both fine) |
 | Console app healthy | open `https://console.<env-base-domain>/` in a browser | login screen renders, no 5xx |
+| Console build matches this runbook | `curl -s https://console.<env-base-domain>/api/version` | `{"version":"0.39.0"}` — this runbook's edition. No login needed |
 | Operator passkeys enrolled | `cd "$DMF_ENV" && bin/get-passkey-enrollment-url.sh <env>` | `confirmed passkeys: 2/2 (ADR-0028 D8, live)` |
 | Demo persona has the right role | (see below) | persona holds the **engineer** role — this journey's demo persona is created with exactly that, not admin |
 | AWX is asleep at rest | (informational) | expected — the first Provision click wakes it; see §3 |
 | **Media namespace clean of this template (mandatory — see below)** | confirm no instance of **MXL Test-Pattern Viewer** is already deployed on this facility | Media Workloads reads, verbatim, *"No media workloads yet — they'll appear here once you create one."* — confirmed live 2026-09-02 (v0.33.0); this replaced the previous edition's quoted "No Media Function instances in your scope." string entirely, part of the same console-wide copy sweep §2 describes |
+
+Run the version check from a terminal rather than the browser: it needs no
+session, the same as the health endpoint beside it, so it is the quickest way
+to confirm which build is in front of you. **Do this before you rely on any
+exact string in this file.** This runbook quotes on-screen copy verbatim
+throughout, and that copy has changed release to release — if the version you
+get back isn't the one this edition names, expect wording to differ and check
+the beat before you present it. *(Endpoint, response and unauthenticated
+access confirmed live 2026-09-19.)*
 
 *(`HTTP/2 200` is a web server's own "yes, I'm here and working" answer —
 200 is the success code; `5xx` is shorthand for the whole family of server
@@ -219,7 +305,10 @@ later — not part of this journey's main path, but worth knowing about if a
 facility isn't clean — the copy there is different again: an already-deployed
 template row reads, verbatim, just *"Already deployed."*, no further
 sentence, and if some member is recorded torn-down (`bootstrapped`) but not
-yet re-deployed, a **Clear for deployment** button is offered. Its own
+yet re-deployed, a **Clear for deployment** button is offered — though
+since v0.36.0 it sits inside a collapsed **"Desired state (expert)"**
+disclosure on that row, closed by default, so you have to open that summary
+before you see it at all (§6a). Its own
 confirm-panel description reads, verbatim: *"This records the intent to run
 in the facility source of truth. It shows as pending reconciliation until
 something deploys it — today, that's Provision. This action does not deploy
@@ -314,10 +403,11 @@ The **engineer** role clears every gate above on its own — **this
 journey's demo persona is created with the engineer role specifically**;
 log in as that. Group membership alone is not enough for the whole
 journey (Provision, Teardown, and Delete permanently would all refuse
-it), and **admin is never required for anything in the main path** — the
-one exception is the optional passkey-enrollment demo in §1, which needs
-admin and should be skipped if you're presenting as engineer, per that
-section's own note.
+it), and **admin is never required anywhere in this journey, main path or
+optional** — including the optional passkey-enrollment demo in §1, which an
+engineer persona can run perfectly well. Earlier editions said that beat
+needed admin and told you to skip it as engineer; that was wrong, and §1
+now says so where the beat lives.
 
 If passkeys show `0/2` or `1/2`, complete
 [`passkey-enrollment.md`](passkey-enrollment.md) **before** the demo — do not
@@ -370,7 +460,8 @@ This beat is just the login, on the assumption that check already passed.
 this file has independently walked the actual login ceremony.** The 0.24.0
 walk started from an already-logged-in session. The 2026-09-02 walk did
 too, and found one already authenticated in the operator's own browser —
-neither round clicked **Sign in** and completed a fresh WebAuthn ceremony.
+neither round reached the identity provider cold and completed a fresh
+WebAuthn ceremony.
 The **Action** and the first sentence of **Expected result** below (landing
 on Workspace, no password typed) are therefore still *(carried forward)*,
 unconfirmed by any live walk to date — not merely unmentioned, genuinely
@@ -390,10 +481,15 @@ observations of the app's current state, just not caused by watching a
 fresh login happen:
 
 **Action.** Open `https://console.<env-base-domain>/` in a private/incognito
-window. Click **Sign in**. The browser offers the passkey picker; choose the
-demo persona's authenticator and complete the WebAuthn ceremony — the
-standard passkey handshake, no typing involved (Touch ID / security-key
-touch).
+window. **There is no "Sign in" button to click** — the console has no
+in-app login control at all; opening it unauthenticated hands you straight
+to the identity provider, which is what asks for the passkey. Earlier
+editions told you to click **Sign in**; nothing on the page says that.
+The browser then offers the passkey picker; choose the demo persona's
+authenticator and complete the WebAuthn ceremony — the standard passkey
+handshake, no typing involved (Touch ID / security-key touch).
+*(Source-derived: the redirect is read from the console's own routing, not
+watched — see the verification gap above.)*
 
 **Expected result — the login act itself is *(carried forward)*, per the
 gap noted above. What follows about the resulting screen IS confirmed live
@@ -437,14 +533,16 @@ source switches and automatic rollbacks, each row carrying who did it, the
 role they held and the reason they typed — e.g. *"Deploy succeeded for
 macmini — dmfdeploy-tester (engineer) · "mini""*. Since **v0.37.0**
 **deploy, teardown and source-switch rows** additionally carry an
-**outcome**, so you will see **"Deploy succeeded for …"**, **"Deploy failed
+**outcome**, and since **v0.39.0** automatic-rollback rows do as well, so
+you will see **"Deploy succeeded for …"**, **"Deploy failed
 for …"** and **"Deploy — outcome unknown for …"** rather than a deploy or
 teardown row reading "dispatched" forever. Deploy/teardown rows and
 source-switch rows arrive at their outcome by **different routes** — §6b has
 the distinction, and it is the one an engineer in the room is most likely to
-ask about. **Automatic-rollback
-rows are the exception and carry no outcome at all** — see §6b before you
-narrate this as universal.
+ask about. **Automatic-rollback rows carry an outcome too since v0.39.0**,
+with one exception — see §6b before you narrate this as universal.
+*(Source-derived; no automatic-rollback row was observed in the frozen
+2026-09-19 pass. See §6b for the manual-rollback exception.)*
 An ⓘ disclosure beside the heading, **"About this record"**, is closed by
 default and explains the lane's own limits — open it if an audience asks
 what the record does and does not promise.
@@ -458,7 +556,10 @@ included** — it also means the record itself came back with no outcome
 recorded, and the lane renders that as unknown rather than guessing at
 success or calling it a failure. Older rows predating 0.37.0 have no outcome
 record at all and read this way for that second reason. Automatic-rollback
-rows are a separate case and carry no outcome at all — §6b.
+rows reach an outcome the same way deploy and teardown rows do, bar the one
+exception §6b sets out. *(Source-derived; no automatic-rollback row was
+observed in the frozen 2026-09-19 pass. See §6b for the manual-rollback
+exception.)*
 
 **Correction to the previous edition's framing.** It described this panel as
 "a genuinely different data source" from §6b's Activity → History — the
@@ -493,11 +594,15 @@ facility-wide record.
 > Console's Settings → *Create new device invitation* (self-service); full
 > procedure in [`passkey-enrollment.md`](passkey-enrollment.md).
 
-If you want to show enrollment itself (optional, adds ~2 min, **requires an
-admin persona** — the invitation endpoint is admin-gated, so an engineer
-persona gets a 403; skip this beat if you're demoing as engineer): user menu
+If you want to show enrollment itself (optional, adds ~2 min): user menu
 → **Settings** → **Passkey Enrollment** → **Create new device invitation** →
-a single-use URL + QR renders. Don't complete it live unless you have a
+a single-use URL + QR renders. **Any signed-in persona can do this** — an
+earlier edition said the endpoint was admin-gated and that an engineer would
+get a 403, which was wrong and contradicted this section's own note above
+that the control is self-service. It mints an invitation for whoever is
+signed in and nobody else, so the floor is simply "be logged in".
+*(Source-derived — minting an invitation is a write, which the 2026-09-19
+freeze ruled out.)* Don't complete it live unless you have a
 second authenticator to hand — just show that the invitation minted.
 *(Carried forward from the previous edit, not independently re-verified this
 round.)*
@@ -529,7 +634,10 @@ appears once the workload is real, and even then it lives on the workload's
 own `/setup` page, not this one — §3 onward) — each step instead shows a
 small numbered header (e.g. **"1 · Design"**) with a status badge that reads
 **Now** while you're on it and **Done** once you've completed it, plus
-**Previous**/**Next** at the bottom. Work through it in order:
+**Previous**/**Next** at the bottom. **Identity is the exception: it shows a
+plain "Identity" heading with no number and no badge**, deliberately, so it
+never reads as an extra stage — don't go looking for a "1 · Identity" chip.
+Work through it in order:
 
 **Studio name** is the human-friendly name for *this* workload —
 distinct from the **Facility** it runs on, and distinct from the
@@ -560,10 +668,12 @@ An amber note states the honest limit up front — **wording changed since
 live 2026-09-02): *"This draft lives only in this browser tab until Provision
 runs — refreshing or closing the tab before then loses it. Provision records
 the workload identifier only; the studio name above is never stored
-anywhere."* A further inline line appears below the fields before you've
-typed anything: *"This is the first step. Enter a studio name that resolves
-to a valid workload identity to continue."* Enter a Studio name, confirm or
-edit the identity it proposes, and click **Next →**.
+anywhere."* Two further texts sit along the footer before you've typed
+anything — at opposite ends of the same row, not as one running sentence:
+*"This is the first step."* on one side, and *"Enter a studio name that
+resolves to a valid workload identity to continue."* on the other. Enter a
+Studio name, confirm or edit the identity it proposes, and click
+**Next →**.
 
 **Step 2 — Design.** This is the console's whole **catalog** (see Terms) —
 today, **one entry**: **"MXL Test-Pattern Viewer"** (confirmed live
@@ -571,33 +681,21 @@ today, **one entry**: **"MXL Test-Pattern Viewer"** (confirmed live
 `display_name` at `dmf-media catalog/mxl-videotest-view.yaml:2`), with a
 **"Use this template"** button (confirmed both live and against source).
 The console renders this card's summary from `entry.summary`
-(`CreateWorkload.tsx:571`) — that literal text lives in dmf-media's catalog
+(`CreateWorkload.tsx:684`) — that literal text lives in dmf-media's catalog
 data, not dmf-cms's own source, but dmf-media is readable too, and its
-committed value reads, verbatim, unchanged across both rounds: *"Media
-eXchange Layer consumer for the cross-host fabrics demo: the receiver
-target exposes the received flow and preview from the paired source over
-libfabric tcp. This is the view / receiver half of the split demo."*
-(`dmf-media catalog/mxl-videotest-view.yaml:4-6`; the console applies no
-transform to it, so what's committed there is what renders). In plain
-terms: "libfabric
-tcp" just names the low-level networking transport carrying the test video
-between pods (a "pod" is the cluster's own unit of one running piece — each
-of this workload's three pieces runs in one), and "cross-host" means it
-still works when those pods land on different nodes — the part that matters
-for you is simpler than either:
-this is the one thing you can deploy, and it is the **receiving** half of a
-source/receiver pair — provisioning it also brings its two sources along
-for the ride (that's the "topology" from Terms, above; more in §3). Click
-**Use this template**.
-
-> **PRESENTER NOTE — jargon on this screen (non-blocking, but real).** That
-> summary sentence is quoted, not paraphrased, and it is denser than this
-> runbook's own glossing standard allows — "libfabric tcp" and "cross-host
-> fabrics demo" aren't explained anywhere on screen. This rewrite treats
-> that as **evidence the surface itself needs a plainer summary**, not
-> something to paper over here; it's flagged for the surface owner rather
-> than fixed in this file. If you're asked what it means: it's the piece
-> that receives and displays the test video the two sources produce.
+committed value now reads, verbatim: *"Media eXchange Layer test-pattern
+demo: two pattern sources and one receiver that shows the received picture,
+with a live preview."* (`dmf-media catalog/mxl-videotest-view.yaml:4-5`; the
+console applies no transform to it, so what's committed there is what
+renders). **This summary was rewritten on 2026-09-10** — earlier editions of
+this runbook quoted a much denser sentence about a "cross-host fabrics demo"
+and "libfabric tcp", and carried a presenter note explaining that jargon.
+Neither phrase renders anywhere now, so if you are presenting from an older
+walk, drop that explanation: the screen no longer needs it. What the sentence
+tells you is what matters here — this is the one thing you can deploy, and it
+is the **receiving** half of a source/receiver pair, so provisioning it also
+brings its two sources along for the ride (that's the "topology" from Terms,
+above; more in §3). Click **Use this template**.
 
 **Step 3 — Plan.** A single sentence — *"This workload will run on
 `<site name>`."* — with a **Confirm placement** button, both confirmed
@@ -684,12 +782,18 @@ current, not the 0.24.0 wording.**
 
    One signal is **the screen's own exit control**, which renders as
    **inert text, not a link** while the launch operation/job is
-   non-terminal. **Wording changed since 0.24.0** — it no longer ends with
-   "wait for its outcome"; confirmed live 2026-09-02, verbatim, it now reads
-   just: *"View live — The launch job is in progress."* That
-   text tracks job/operation terminality directly
-   (`WorkloadMaterializing.tsx`) — nothing to do with whether the
-   workload's record has shown up anywhere yet.
+   non-terminal. **On screen it reads only "View live"** — the explanation
+   ("The launch job is in progress") is not painted on the page at all. It
+   lives in the control's hover tooltip and in a screen-reader-only node, so
+   a sighted presenter sees two words and nothing else. Earlier editions
+   quoted the full sentence as visible text; don't read it aloud expecting
+   the audience to see it. What the control does still tell you is the
+   signal that matters: while it is inert rather than a link, the job has
+   not finished. That tracks job/operation terminality directly
+   (`ViewLiveExit.tsx`, `WorkloadMaterializing.tsx`) — nothing to do with
+   whether the workload's record has shown up anywhere yet.
+   *(Source-derived — the freeze blocked running a real Provision, so this
+   was read from the console's source, not watched.)*
 
    The other signal is **the screen swap itself**, to the real guided-flow
    page. That's driven by a separate poll of the facility's workload
@@ -713,14 +817,19 @@ current, not the 0.24.0 wording.**
    screen-swap number; the two were never the same thing, but this is the
    first time this file gives a figure for full convergence specifically.
 
-   **New, undocumented before this round: in the gap between the screen
-   swap and full convergence, the real workload's own Provision step can
-   show "Clear for deployment" controls for the not-yet-active sources** —
-   visually identical to §6a's post-Teardown landing, but this is a workload
-   on its first-ever deploy that was never torn down. Confirmed transient
-   and benign this round (re-polled every 15s; it resolved on its own once
-   the job actually finished) — narrate it as "still converging" if you see
-   it, not as a problem.
+   **In the gap between the screen swap and full convergence, the real
+   workload's own Provision step can offer "Clear for deployment" for the
+   not-yet-active sources** — visually identical to §6a's post-Teardown
+   landing, but this is a workload on its first-ever deploy that was never
+   torn down. Confirmed transient and benign on the 2026-09-02 walk
+   (re-polled every 15s; it resolved on its own once the job actually
+   finished) — narrate it as "still converging" if you see it, not as a
+   problem. **Since v0.36.0 you will not see it unless you go looking:**
+   the whole block now sits inside a collapsed **"Desired state (expert)"**
+   disclosure that is closed by default, so nothing appears on the step
+   until you click that summary open. *(Source-derived — the standing
+   workload was fully cleared, so this block did not render at all on the
+   2026-09-19 pass.)*
 
    Because these two signals are independent, don't narrate an order
    between them — all orderings are reachable, including an active "View
@@ -794,14 +903,30 @@ ssh <ssh-target> 'sudo k3s kubectl get pods -n mxl -w'
 > **PRESENTER NOTE — SECURITY (non-blocking).** The reason you typed is not
 > cosmetic: **every media-workload write on this journey's path is
 > reason-required** — a missing/empty reason is refused before any AWX
-> call — and the reason is recorded in the audit trail: actor, effective
-> role, request id, reason. Provision's own attribution lives in the
+> call — and for this write the reason is recorded in the audit trail:
+> actor, effective role, request id, reason. (Reason-required is universal;
+> being recorded in *that lane* is not — Delete permanently is deliberately
+> excluded from it, §6b.) Provision's own attribution lives in the
 > server's structured log **and**, since the audit lane went server-side, in
 > the Activity record itself — confirmed live 2026-09-08, where Deploy rows
 > appear with real outcomes (*"Deploy succeeded for `<slug>`"*). Earlier
 > editions of this runbook said Provision never produced a row at all; that
 > was true of the retired browser-local panel, and is no longer true of the
 > record §1 and §6b describe.
+
+**The Provision step counts the pieces for you, and it is the best evidence
+on screen for this section's whole point.** Once the guided flow is up, the
+step's own body carries a heading reading **"MEDIA FUNCTION INSTANCES — N OF
+M PROVISIONED"** with every instance listed beneath it, each marked **"cleared
+to run"** as it lands — so on the finished demo workload it reads **3 OF 3**,
+naming `mxl-videotest-view` and its two sources. When the template is already
+deployed the step also says, plainly, **"Already deployed."** If an audience
+is still wondering whether one click really launched three things, this line
+is the answer: point at it rather than explaining it. *(The counts and the
+heading were read live on 2026-09-19 on a settled workload. Watching the
+number climb during an actual Provision was not possible under that pass's
+freeze, so don't promise a live-updating count — say what it reads when the
+job is done.)*
 
 If you ever need to re-run Provision on a workload that **already exists**
 (not part of this journey's path), the button, panel copy, and confirm-label
@@ -823,6 +948,13 @@ section describes what's on screen once it reaches Operate. This is the
 bare-slug route from "Three URLs, one workload," above; nothing here is
 clickable in a way that changes state, and the page is deliberately
 read-only.
+
+**The rail is above you here too, and that is expected.** The five chips —
+Design, Plan, Provision, Configure, Finalise & Review — render across the top
+of this page as well as on the guided flow. None of them shows as selected,
+because the live view is not one of them; clicking one takes you to that step
+on `/setup`. So seeing the rail here doesn't mean you've wandered back into
+the flow. *(Confirmed live 2026-09-19.)*
 
 **Page identity, confirmed against source.** The browser tab reads,
 verbatim, **"`<slug>` · DMF Console"** — no further suffix. The page's own
@@ -875,8 +1007,14 @@ sentence: watch here, act on the guided flow.
   block bottom-right. `source-b` shows a fine red/green checkerboard. Each
   carries a small **`STATIC`** mark in its top-left corner, and is captioned,
   verbatim, **"Emits the smpte pattern · static illustration"** and **"Emits
-  the checkers-8 pattern · static illustration"** respectively. Neither
-  carries the green live dot the viewer's tile has.
+  the checkers-8 pattern · static illustration"** respectively. Each also
+  spells the point out in full on the tile — verbatim, **"Static illustration
+  of the smpte test pattern this source emits — not a live picture."**, and
+  the same for `checkers-8`. That sentence is newer than the caption, so if
+  you are presenting from an older walk, expect it; it also means you don't
+  have to make the disclaimer yourself, because the tile already makes it.
+  Neither source tile carries the green live dot the viewer's tile has.
+  *(All four strings confirmed live 2026-09-19.)*
 - **What that picture is, and what it is not — say this precisely if asked.**
   It is the *canonical frame* for the pattern the source is configured to
   emit, generated at build time from the very same pattern index the source
@@ -923,18 +1061,20 @@ provider, MXL version, Active, and Node (NetBox) — still ticking roughly
 three different values of it, all on the guided-flow (`/setup`) page's own
 header** — **"provisioned"** (right after Provision, §3), **"configured"**
 (after a successful Switch, §5), and **"planned"** (post-Teardown, §6a). A
-fourth value, **"finalizing"**, is documented separately (§6a) as appearing
-while a Finalise & Review job is actually running — **that one is carried
-forward from 0.24.0 specifically, not re-observed this round**: this
-round's own Teardown was polled for exactly that string, among others, and
-it never matched in any poll iteration, so treat it as unconfirmed since
-0.24.0 rather than reconfirmed. Whether an equivalent badge also appears on
-**this** page —
-the bare-slug live view — is still not confirmed either way; the previous
-edition's guessed "planned" / "provisioned" / "configured" vocabulary for
-the live view specifically turns out to match real values observed
-elsewhere on `/setup`, but that's not the same as confirming the live view
-shows one too — still open, see §9.
+fourth value, **"finalising"**, is documented separately (§6a) as appearing
+while a Finalise & Review job is actually running. Earlier editions spelled
+it "finalizing"; the console spells it **"finalising"**, and its source
+carries an explicit note not to "correct" it back — so a presenter watching
+for the American spelling is watching for a word that never appears. The
+value itself is still only source-confirmed, never watched by any round.
+
+**Whether an equivalent badge appears on this page — the bare-slug live
+view — is settled, and the answer is no.** The 2026-09-19 pass looked, and
+the console's own source confirms why: the live view mounts no step of the
+guided flow, so there is no stage for a badge to report. The five rail
+chips do render across the top of this page (above), but none of them shows
+as selected. Earlier editions left this open and pointed at §9; §9 has
+since closed it.
 
 > **PRESENTER NOTE — the false catalog warning is BACK (umbrella#401
 > regressed, or never fully covered this state — see
@@ -988,11 +1128,22 @@ why, verbatim: *"There is no next step to configure. Finalise & Review stays
 reachable at any time from the steps above."* Its own forward exit points
 the other way, back toward the page you probably just came from, verbatim:
 *"A trusted read reports this workload operating. Open live view →"*,
-linking to the bare-slug live view (§4). Every string in this paragraph is
-confirmed both live and against source.
+linking to the bare-slug live view (§4) — and it accepts a fragment, so
+`…/setup#configure` opens the flow straight on this step if you'd rather not
+click through. Every string in this paragraph is confirmed both live and
+against source. **One timing note, caught on 2026-09-19:** that forward-exit
+line can be missing for a second or two immediately after the step renders,
+then appear. If you land on Configure and don't see it, wait a beat rather
+than concluding something is broken.
 
 Under **Source · `<receiver instance>`**, the current active source is shown
 in mono text (e.g. `source-a`). Click **Switch source**.
+
+The same lateness applies to §4's **Active source** block when you go back to
+the live view to show the result: on 2026-09-19 it was absent from a fast
+first read and present on a slower one. Give the page a moment before
+pointing at it — the tile pictures and captions show the switch landed even
+while that block is still arriving.
 
 **Expected result — the arm panel, confirmed live both 2026-08-19 and
 2026-09-02, byte-identical.** Title,
@@ -1059,7 +1210,9 @@ walk.
 permanently, Review.** The Finalise & Review step's own body renders as
 three small labelled sections — **TEARDOWN**, **DELETE PERMANENTLY**,
 **REVIEW** (the console styles them uppercase; the underlying text is
-title-case, the same uppercase CSS transform §4's `STATIC` mark uses) — not
+sentence case — `Teardown`, `Delete permanently`, `Review`, only the first
+word capitalised — through the same uppercase CSS transform §4's `STATIC`
+mark uses) — not
 a simple two-way fork as the previous edition described from source alone.
 
 **Before any teardown has run** (something is still active), Delete
@@ -1069,29 +1222,34 @@ the separate case where nothing has ever been provisioned at all, verbatim:
 *"Nothing is running yet, so there is nothing to finalise."* Don't conflate
 the two.
 
-**Teardown.** Click **⏏ Teardown** (per catalog entry — here, the
+**Teardown.** The panel reads **"Loading template information…"** for a
+moment when you first land on the step, before the catalog entry and its
+button appear — give it a beat rather than reaching straight for the
+control. Then click **⏏ Teardown** (per catalog entry — here, the
 receiver's own entry). A confirm panel opens, title a template — verbatim
 for this entry: *"Teardown MXL Test-Pattern Viewer?"* — description,
 verbatim: *"Finalises this media function via its AWX teardown template.
 The action is operator-gated and recorded in the audit trail with your
 reason."* Both re-confirmed byte-identical 2026-09-02. **Confirm teardown**
 stays disabled until a reason is typed, same placeholder as elsewhere.
-While the job runs, the exit control is documented as reading, inert,
-verbatim: *"View live — A Finalise & Review job is in progress — wait for
-its outcome."* — **not independently re-confirmed this round** (this walk
-tracked the panel's own status text instead, not this specific exit-link
-string); given that §3's equivalent Provision string dropped its own
-"wait for its outcome" clause between 0.24.0 and 0.33.0 (§3), treat this
-one as **likely also stale** and confirm on the next walk (§9) before
-quoting it on camera. During this window the workload's lifecycle badge is
-documented (0.24.0) as reading **"finalizing"** (genuinely American
-spelling — an inconsistency with the British "Finalise" used everywhere
-else on this same page, not a transcription error in this runbook). **Not
-independently re-confirmed 2026-09-02**, despite an earlier draft of this
-edit claiming it was: this round's own Teardown was polled repeatedly for
-exactly this string among others, and it never appeared in any poll's
-captured text — either the polling window missed it, or it's changed.
-Treat as carried forward from 0.24.0 only; confirm on the next walk (§9).
+While the job runs, the exit control renders inert rather than as a link —
+but **on screen it reads only "View live"**. Earlier editions quoted it as
+reading *"View live — A Finalise & Review job is in progress — wait for its
+outcome."*; that explanation is no longer painted on the page at all. It
+survives in the control's hover tooltip and in a screen-reader-only node,
+the same shape as §3's equivalent. Read the inertness as your signal, not
+the sentence, and don't recite the sentence to a room that cannot see it.
+*(Source-derived — observing it needs a Teardown or Delete actually
+running, which the 2026-09-19 freeze forbade.)* Previously flagged to
+quoting it on camera. During this window the workload's lifecycle badge
+reads **"finalising"** — the British spelling, consistent with "Finalise"
+everywhere else on the page. Earlier editions of this runbook recorded it as
+"finalizing" and explained the inconsistency at length; that was a
+transcription error here, not an inconsistency in the console, and it
+explains why the 2026-09-02 Teardown polled for the string and never matched
+it. *(Source-derived — the badge only takes this value while a job is
+running, which the 2026-09-19 freeze forbade. The spelling itself is
+settled: the console's source pins it and warns against changing it.)*
 **Duration: 90–120 s (0.24.0 sample), 167 s (2026-09-02 sample) — widen the
 range to ~90–170 s**, not a promise either way.
 
@@ -1161,9 +1319,17 @@ here. **Also confirmed
 this round:** the Provision step for an already-provisioned, torn-down
 workload shows the inline **"▶ Deploy"** button directly in its own body
 (umbrella#518's retirement of the old promoted-action portal, dmf-cms
-46d53cb) *alongside* each member's own "Clear for deployment" row — the two
-controls sit on the same step, offering two different things (redeploy
-everything at once vs. record intent for one member at a time).
+46d53cb). **Since v0.36.0 the "Clear for deployment" rows are no longer
+alongside it by default:** that block moved inside a collapsed **"Desired
+state (expert)"** disclosure, closed until you click it open. So the step
+shows the inline **"▶ Deploy"** button, and the per-member rows only once
+you expand that summary — two different things on the same step (redeploy
+everything at once vs. record intent for one member at a time), but no
+longer both in view at once. One thing to weigh before you show it at all:
+the console's own source notes this action currently fails on deployed
+envs, so treat it as something to describe rather than to demonstrate.
+*(Source-derived — reaching this state needs a completed Teardown, which
+the 2026-09-19 freeze forbade.)*
 
 **Delete permanently.** The real gate, source-confirmed: every member
 settled to bootstrapped and not-running, plus a trustworthy read and purge
@@ -1203,14 +1369,15 @@ a fresh read confirms every member **and** the workload's own tag are gone.
 
 During the job, the panel reads, verbatim: **"Deleting `<slug>`
 permanently…"** — this specific line re-confirmed byte-identical 2026-09-02
-(matched directly in this round's own poll output). It's also documented
-as showing an operation-id line, **"op `<id>`... — running"** (the id
-truncated to its first 8 characters) — **that specific line was not
-independently re-captured this round**: this round's poll pattern included
-it, but it never matched, unlike Provision's own op-id line (§3), which
-did. Possibly just missed by the poll's timing; treat as carried forward
-from 0.24.0 for the op-id line specifically, confirmed for the "Deleting…"
-line. **Duration: 30–60 s (0.24.0), ~62 s (2026-09-02) — right at the edge
+(matched directly in this round's own poll output). Earlier editions also
+described an inline operation-id line, **"op `<id>`... — running"**. **That
+line is no longer inline.** By default the panel now shows only a status
+word; the raw id and state moved behind a collapsed **"System details"**
+disclosure, where the pair reads **"op `<id>`... · `<state>`"** — a middle
+dot, not a dash. The 2026-09-02 poll that failed to match it was not
+unlucky: the line had already moved before that walk ran. *(Source-derived
+— seeing it needs Delete permanently actually running, which the 2026-09-19
+freeze forbade.)* **Duration: 30–60 s (0.24.0), ~62 s (2026-09-02) — right at the edge
 of the same range, leave it as-is.**
 
 After completion, the page reads, verbatim, **"Workload not found"** at the
@@ -1246,6 +1413,14 @@ paged, under **"Facility activity"** at
 rail, so that route is URL-only. Use it if an audience wants to scroll back
 further than Workspace shows — otherwise stay on Workspace.
 
+You don't need History to show the record's own caveats either. Workspace
+carries the identical text — coverage, exclusions, the watcher's limits,
+retention — behind the small ⓘ **"About this record"** control beside the
+Activity heading. If an audience asks "how far back does this go?" or "does
+this cover everything?", open that disclosure rather than navigating away;
+the words are the same either way. History earns the trip only when you
+actually want to scroll further back than Workspace shows.
+
 - **What the record is, verbatim from the page itself:** *"Deploys, teardowns,
   source switches, and automatic rollbacks — recorded server-side, the same for
   every browser. Shows what your role is permitted to see, not a merged view
@@ -1256,7 +1431,9 @@ further than Workspace shows — otherwise stay on Workspace.
   is not what an engineer sees — that is deliberate, not a gap.
 - **Row shape, confirmed live 2026-09-08.** An action line; the actor, their
   role and the reason they typed in curly quotes; a timestamp; and — for
-  deploy, teardown and source-switch rows — an outcome. For
+  deploy, teardown and source-switch rows — an outcome. That pass predates
+  v0.39.0, so it did not and could not see an automatic-rollback row carry
+  one; those are covered in the source-derived bullet below. For
   example: *"Deploy succeeded for macmini — dmfdeploy-tester (engineer) ·
   "mini" — Succeeded — run_complete"*.
 - **Action-line formats seen on this walk:** **"Deploy succeeded for
@@ -1290,16 +1467,38 @@ further than Workspace shows — otherwise stay on Workspace.
   click, so don't go hunting for it mid-switch; and if an engineer asks why
   a deploy row changes after it appears while a switch row never does, that
   is the answer.)*
-- **The exception: automatic rollbacks.** The record includes them, but a
-  rollback row still reports only that a rollback was *triggered*, never
-  whether it succeeded — the job-watching work above covered deploy and
-  teardown and deliberately left the rollback branch out of scope. Tracked as
-  [dmfdeploy/dmfdeploy#560](https://github.com/dmfdeploy/dmfdeploy/issues/560),
-  open as of v0.38.0. **Do not tell an audience that every row now carries its
-  outcome.** If a rollback happens to appear during your demo, narrate it as
-  the one place the record is not yet complete — which is a more honest story
-  than a blanket claim, and it is the very gap this lane's own design exists to
-  avoid.
+- **Automatic rollbacks now carry an outcome too — new in v0.39.0, with one
+  exception.** A rollback the console triggers itself joins its terminal
+  result onto its own row, the same watch-and-join mechanism deploy and
+  teardown use above: *succeeded*, *failed*, or *outcome unknown*. A rollback
+  that finished but was never confirmed clean reads **failed**, not unknown.
+  This closed
+  [dmfdeploy/dmfdeploy#560](https://github.com/dmfdeploy/dmfdeploy/issues/560)
+  — cite it now as the history of the fix, not as an open gap. Three things
+  to keep straight before you narrate it:
+  - **A succeeded rollback's title still reads "Automatic rollback dispatched
+    for `<workload>`"** — only the badge beneath it turns green and reads
+    *Succeeded*. A failed or unknown one does retitle itself. **Read the
+    badge, not the title.**
+  - **The exception, and it is narrower than it first looks:** if an
+    automatic rollback finds a rollback **already running** for that job, it
+    attaches to that one instead of starting its own. What happens next
+    depends on what it attached to. If the one already running was a
+    **manual** rollback, the attached row never gets an outcome — it reads
+    "dispatched" with no badge, and only turns to *outcome unknown* after a
+    full hour, which is far longer than any demo, so treat it as a row you
+    will not see resolve on stage. If the one already running was another
+    **automatic** rollback, the row joins that rollback's outcome normally
+    and behaves like any other.
+  - **An operator-initiated rollback is a different thing entirely** and is
+    not on this record at all — not merely missing an outcome, the row never
+    appears. Only the console's own automatic rollback is covered.
+
+  *(Source-derived, not walked — the freeze that bound the 2026-09-19 pass
+  never triggered a rollback, so no rollback row was seen on screen in the
+  2026-09-19 pass. The record's own on-screen scope line naming automatic
+  rollbacks was read live; the row's rendered text was read from the
+  console's source.)*
 - **"Outcome unknown" is not an error, and you should not apologise for it.**
   **Two different situations produce it**, and it is worth knowing which you
   are looking at. On a deploy or teardown row it most often means the console
@@ -1311,14 +1510,25 @@ further than Workspace shows — otherwise stay on Workspace.
   predating 0.37.0 have no outcome record at all and land here for that
   second reason. **This is the honesty story, not a rough edge:** the surface
   refuses to claim an outcome it did not observe.
-- **Retention is bounded, and the page is honest when it cannot say by how
-  much.** On this walk the lane displayed, verbatim: *"Search window unknown —
-  retention could not be confirmed."* The underlying record lands in Loki with
-  a window set per deployment profile rather than a fixed platform default.
-  Either way it is a bound, not an indefinite record — don't promise an
-  audience permanent history.
-- **One write in this journey is not in this record at all:** the passkey
-  invitation in §1. It isn't a media-workload write and isn't covered.
+- **Retention is bounded, and the page names the bound when it can confirm
+  one.** On the 2026-09-19 pass the lane displayed, verbatim: *"Searches up to
+  7d 0h ago."*, and closed with *"Coverage is bounded by the window stated
+  above, not a guarantee of complete history."* An earlier walk saw *"Search
+  window unknown — retention could not be confirmed"* instead; both strings
+  are real, because the underlying record lands in Loki with a window set per
+  deployment profile rather than a fixed platform default, and the page falls
+  back to the second whenever it cannot read the first. Check which one your
+  env shows before you quote a number. Either way it is a bound, not an
+  indefinite record — don't promise an audience permanent history.
+- **Two writes in this journey are not in this record at all: Delete
+  permanently, and the passkey invitation in §1.** Delete permanently is kept
+  off this lane deliberately, and the page says so in its own disclosure —
+  the reason is access, not secrecy: that action's own surface is scoped more
+  narrowly than this lane is, so listing it here would widen who can see it.
+  If you tear a workload down and then delete it permanently on camera,
+  **don't say the delete itself is in this audit trail** — it isn't. The
+  passkey invitation isn't a media-workload write at all, so it was never in
+  scope here either.
 
 One nuance worth a sentence: the **Review** section back on Finalise &
 Review — the third of §6a's three sections — reads, verbatim, *"No
@@ -1398,15 +1608,28 @@ two-hour live-env sample logged a 97.6% preview success rate, and the issue
 is closed as overstated. See §4: the preview works, and the two sources'
 lack of one is by design, not a gap. **The false "not in the current
 catalog" warning is back in the table below** — the 0.24.0 edition dropped
-it as fixed, unconfirmed live; this round confirmed live that it recurs
-(§4's presenter note has the detail and the string).
+it as fixed, unconfirmed live; the 2026-09-02 walk confirmed live that it
+recurs after a Teardown (§4's presenter note has the detail and the string).
+
+**Read the "what it is" column before you narrate a row.** Two of these
+describe something you see only in a particular state — the catalog warning
+needs a Teardown first — so a row you can't reproduce today isn't
+necessarily fixed. One row is now retired outright: the amber "isn't open
+yet" banner, which a 2026-09-19 probe could not make appear and whose issue
+closed weeks earlier. It is struck through rather than deleted, because the
+runbook carried it as current for long enough that a presenter may remember
+being briefed on it.
 
 | Symptom you might see | What it is | Reference |
 |---|---|---|
-| The guided-flow page briefly shows an amber banner, *"`<Step>` isn't open yet: `<reason>`"*, on a step that is actually open | A latched-vs-live read race during background polling — the step really is open; the banner is stale for the length of one poll and clears itself. Cosmetic and self-clearing, but voiced aloud by a screen reader while it's up. | [dmfdeploy/dmfdeploy#416](https://github.com/dmfdeploy/dmfdeploy/issues/416) |
+| ~~The guided-flow page briefly shows an amber banner, *"`<Step>` isn't open yet: `<reason>`"*, on a step that is actually open~~ **Retired — do not expect this.** | Listed as a live symptom through the 2026-09-02 walk, but #416 closed 2026-08-20, *before* that walk, and the code path that rendered it was removed in a later rail redesign. A 2026-09-19 probe drove ~35 rail-step navigations over ~90 s with a 400 ms watcher on the page's one live region and saw it zero times. That is one browser on one settled workload, so it is not proof the banner can never appear — but it is reason enough to stop briefing a presenter to expect it. Nothing in the runbook recorded whether the 2026-09-02 sighting was a regression or a row carried forward unchecked. | [dmfdeploy/dmfdeploy#416](https://github.com/dmfdeploy/dmfdeploy/issues/416) (closed) |
 | After Teardown or Delete permanently completes, you may land somewhere you didn't ask for — Teardown was observed once (2026-08-19) bouncing unprompted to the Provision step's desired-state panel; **this round's Teardown (2026-09-02) landed cleanly on Finalise & Review instead, no bounce** — so it's confirmed NOT to happen every time, not fixed. Delete permanently reliably strands you on a "Workload not found" page for the workload you just removed (confirmed again this round) | A completed lifecycle action should hand you back to the workload's home or the collection view, not to an unrelated next step or a dead URL. Disorienting, not dangerous — nothing runs automatically from either landing without another explicit confirm. | [dmfdeploy/dmfdeploy#418](https://github.com/dmfdeploy/dmfdeploy/issues/418) |
-| On the Design step, the two topology-spawned sources' function keys show *"This function key isn't in the current catalog — it may have been removed since this workload was deployed."* | Was reported fixed (0.24.0 edition). Confirmed back, live, post-Teardown, 2026-09-02. Cosmetic — the sources still deploy and run correctly regardless of what Design says about their catalog membership. | [dmfdeploy/dmfdeploy#532](https://github.com/dmfdeploy/dmfdeploy/issues/532) |
+| On the Design step, **after a Teardown**, the two topology-spawned sources' function keys show *"This function key isn't in the current catalog — it may have been removed since this workload was deployed."* | Was reported fixed (0.24.0 edition). Confirmed back, live, **post-Teardown**, 2026-09-02. **The state matters:** on a freshly provisioned workload the warning is absent — the 2026-09-19 pass looked and saw nothing — so don't read its absence before a Teardown as the bug being fixed. That pass could not re-run a Teardown to reproduce it. Cosmetic either way — the sources still deploy and run correctly regardless of what Design says about their catalog membership. | [dmfdeploy/dmfdeploy#532](https://github.com/dmfdeploy/dmfdeploy/issues/532) |
 | Provisioned instances show up **grouped as "Unassigned"** in the grid | The launcher hasn't stamped a `workload:<slug>` tag onto every member, so the grouping logic has nothing to group them by. Cosmetic/legibility only. | [dmfdeploy/dmfdeploy#239](https://github.com/dmfdeploy/dmfdeploy/issues/239) |
+| The Plan step's resource total is marked **"Partial"**, with a note that some templates don't declare a demand | By design, not a fault: not every catalog template records a resource figure, and the console sums only what it knows rather than guessing the rest. The number is a floor, not the workload's real footprint. If someone asks "is that the real cost?", the honest answer is no — not yet, for every function. | live-observed 2026-09-19; no issue filed |
+| Mid-Provision, the Design and Provision steps may show less progress detail than the finished workload does | Partly fixed. A settled workload now shows real counts ("N elements designed", "N of M provisioned" — confirmed live 2026-09-19). The in-flight reading has not been watched since the fix, and the issue stays open for it, so don't promise a live-updating number while Provision is actually running. | [dmfdeploy/dmfdeploy#559](https://github.com/dmfdeploy/dmfdeploy/issues/559) (open) |
+| You type `/activity` and land on **Jobs**, not the audit record | There is no bare `/activity` page — it redirects, and **where to depends on your role**. With this journey's engineer presenter account it goes to Jobs; a viewer is sent to History instead. Either way, go straight to `/activity/history` for the record, the address §6b uses. There is no Activity entry in the sidebar either. | live-observed 2026-09-19 (engineer session); no issue filed |
+| A row reads **"Loki unreachable"** when the store is reachable but faulty | The lane reports any store fault with the same message it uses for a missing store, so the wording can overstate what is actually wrong. Cosmetic for a demo — the record itself is unaffected — but don't diagnose the cluster from that string. | [dmfdeploy/dmfdeploy#561](https://github.com/dmfdeploy/dmfdeploy/issues/561) (open) |
 | Someone asks "what if the node dies?" (spot reclaim) | Not hypothetical — it happened to this env while the previous edition of this file was being written. The standing env's addressing is derived from the node's public IP, so a reclaimed/replaced node means a new address. **There is no cluster-state backup to restore from** — the standing archive covers operator-local material only. **Recovery is re-bootstrap plus re-pointing the IP-derived address**, not a resume-in-place and not a restore. | env recovery notes (operator-local) |
 
 > **PRESENTER NOTE — if a beat stalls.** The beats with real latency, ranges
@@ -1430,8 +1653,13 @@ it as fixed, unconfirmed live; this round confirmed live that it recurs
 - Demo track / acceptance: [dmfdeploy/dmfdeploy#347](https://github.com/dmfdeploy/dmfdeploy/issues/347)
   (part of [#200](https://github.com/dmfdeploy/dmfdeploy/issues/200))
 - Domain-outsider exit criterion (who this file is written for): [dmfdeploy/dmfdeploy#383](https://github.com/dmfdeploy/dmfdeploy/issues/383)
+  — **met once, 2026-08-25**, anchored at commit `c137c8bd` on protected
+  `main`; closed COMPLETED 2026-08-27. Cleared against an earlier console
+  than this edition describes.
 - Route contract / rail amendment (why §4 is a live view, not "Operate"): [dmfdeploy/dmfdeploy#414](https://github.com/dmfdeploy/dmfdeploy/issues/414)
-- This rewrite's own tracking issue: [dmfdeploy/dmfdeploy#379](https://github.com/dmfdeploy/dmfdeploy/issues/379)
+- Deferred verification, current tracker: [dmfdeploy/dmfdeploy#580](https://github.com/dmfdeploy/dmfdeploy/issues/580)
+  (succeeds [#379](https://github.com/dmfdeploy/dmfdeploy/issues/379), closed
+  COMPLETED 2026-09-02)
 - Filed from the 2026-09-02 walk: false catalog warning regression
   [dmfdeploy/dmfdeploy#532](https://github.com/dmfdeploy/dmfdeploy/issues/532),
   untimestamped stale Workspace job entry
@@ -1439,11 +1667,10 @@ it as fixed, unconfirmed live; this round confirmed live that it recurs
 
 ---
 
-## 9. Deferred verification — tracked by dmfdeploy/dmfdeploy#379
+## 9. Deferred verification — tracked by dmfdeploy/dmfdeploy#580
 
-**This section is what three rounds of live walking still haven't
-covered — and it stays open by design, not as a gate this runbook is
-waiting on.** The first round (0.24.0) walked create through a working
+**This section is what no pass has yet covered — and it stays open by
+design, not as a gate this runbook is waiting on.** The first round (0.24.0) walked create through a working
 Switch; the second (0.24.0) walked Teardown through Delete permanently, the
 audit trail, and AWX's re-idle behaviour; the third (2026-09-02, v0.33.0)
 walked the whole journey end to end again, closing most of what was still
@@ -1452,8 +1679,12 @@ open and surfacing new drift from the copy sweep and throbber redesign
 is genuinely narrower again.
 
 Each item below is **deliberately deferred to**
-[dmfdeploy/dmfdeploy#379](https://github.com/dmfdeploy/dmfdeploy/issues/379)
-— which stays open for exactly this reason. This runbook does not claim any
+[dmfdeploy/dmfdeploy#580](https://github.com/dmfdeploy/dmfdeploy/issues/580)
+— "the demo journey's mutating beats are unverified against 0.39.0 — blocked
+by the capture freeze" — which lists every beat the freeze blocked and names
+its own unblock condition. **It succeeds
+[#379](https://github.com/dmfdeploy/dmfdeploy/issues/379)**, which closed
+COMPLETED on 2026-09-02: the deferral did not lapse, its tracker did. This runbook does not claim any
 of the following were observed; the relevant beat above already says so in
 its own words (source-confirmed, carried forward, or not independently
 re-watched, as each case actually is), and this list exists so the next live
@@ -1537,25 +1768,35 @@ issue plus a corrected presenter note (§4) rather than a deferred check.
   actually converge to Running via the cluster itself (`kubectl get pods`),
   not just via the console's own screens. Still not done by any round —
   needs a walk run from a machine with cluster/SSH access.
-- §4 — A lifecycle-stage badge is confirmed to exist on the `/setup` page,
-  and this round independently observed three values there (`provisioned`,
-  `configured`, `planned`) — confirm whether an equivalent badge also
-  appears on the bare-slug **live view** itself, and if so whether it uses
-  the same vocabulary. Still open — this round didn't specifically check
-  the bare-slug page's own header for a badge.
-- §4/§6a — The fourth badge value, **"finalizing"**, and Teardown's own
-  in-flight exit-control string (*"View live — A Finalise & Review job is
-  in progress — wait for its outcome."*) are both still only documented
-  from 0.24.0 — this round's own Teardown was polled for both and neither
-  matched in any poll iteration. Given Provision's twin exit-control string
-  dropped its own "wait for its outcome" clause between 0.24.0 and 0.33.0,
+- §4 — **Closed 2026-09-19.** A lifecycle-stage badge exists on the `/setup`
+  page, where three values have been observed (`provisioned`, `configured`,
+  `planned`). The open question was whether the bare-slug **live view**
+  carries an equivalent. It does not, and that is deliberate: the live view
+  mounts no step of the flow, so nothing there reads as a current stage. The
+  rail's five chips do render on that page, but none of them shows as
+  selected (§4). Read live and confirmed against the console's source.
+- §4/§6a — **Both of these are now settled from source, and the answer in
+  each case is that the runbook was wrong rather than unconfirmed.** The
+  fourth badge value is spelled **"finalising"**, not "finalizing"; and
+  Teardown's in-flight exit control paints only the words "View live", with
+  its explanation in a tooltip and a screen-reader-only node rather than on
+  screen. That is why the 2026-09-02 Teardown polled for both strings and
+  matched neither — they do not exist as written. What stays open is only
+  whether the corrected forms render as source says while a job actually
+  runs; the 2026-09-19 pass could not check, because the freeze forbade
+  running one. Historical note, since it explains the old entry: Provision's
+  twin exit-control string dropped its own "wait for its outcome" clause
+  between 0.24.0 and 0.33.0,
   treat both as likely stale, not just unconfirmed. Confirm the live
   wording on the next walk before quoting either on camera.
-- §6a — Delete permanently's own in-flight operation-id line (*"op `<id>`...
-  — running"*) is likewise only documented from 0.24.0 — this round
-  confirmed the "Deleting `<slug>` permanently…" line directly but never
-  captured the op-id line specifically, unlike Provision's own (§3), which
-  this round did capture. Confirm on the next walk.
+- §6a — **Settled from source 2026-09-19, and again the runbook was wrong
+  rather than unconfirmed.** Delete permanently's operation-id line is no
+  longer inline: it moved behind a collapsed "System details" disclosure and
+  now reads *"op `<id>`... · `<state>`"* with a middle dot. That move
+  predates the 2026-09-02 walk, which is why that walk's poll never captured
+  it — not a timing miss. What remains open is only whether the relocated
+  line renders as source says while a delete actually runs; the 2026-09-19
+  freeze forbade running one.
 - §6c/§6d — Re-confirm AWX's own replica count actually returns to 0/0
   after a burst of jobs (Provision, Switch, Teardown, Delete permanently) —
   confirmed on the 0.24.0 walk, not independently re-checked 2026-09-02
