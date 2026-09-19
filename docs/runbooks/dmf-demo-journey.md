@@ -1248,6 +1248,14 @@ paged, under **"Facility activity"** at
 rail, so that route is URL-only. Use it if an audience wants to scroll back
 further than Workspace shows — otherwise stay on Workspace.
 
+You don't need History to show the record's own caveats either. Workspace
+carries the identical text — coverage, exclusions, the watcher's limits,
+retention — behind the small ⓘ **"About this record"** control beside the
+Activity heading. If an audience asks "how far back does this go?" or "does
+this cover everything?", open that disclosure rather than navigating away;
+the words are the same either way. History earns the trip only when you
+actually want to scroll further back than Workspace shows.
+
 - **What the record is, verbatim from the page itself:** *"Deploys, teardowns,
   source switches, and automatic rollbacks — recorded server-side, the same for
   every browser. Shows what your role is permitted to see, not a merged view
@@ -1258,7 +1266,7 @@ further than Workspace shows — otherwise stay on Workspace.
   is not what an engineer sees — that is deliberate, not a gap.
 - **Row shape, confirmed live 2026-09-08.** An action line; the actor, their
   role and the reason they typed in curly quotes; a timestamp; and — for
-  deploy, teardown and source-switch rows — an outcome. For
+  deploy, teardown, source-switch and automatic-rollback rows — an outcome. For
   example: *"Deploy succeeded for macmini — dmfdeploy-tester (engineer) ·
   "mini" — Succeeded — run_complete"*.
 - **Action-line formats seen on this walk:** **"Deploy succeeded for
@@ -1330,14 +1338,25 @@ further than Workspace shows — otherwise stay on Workspace.
   predating 0.37.0 have no outcome record at all and land here for that
   second reason. **This is the honesty story, not a rough edge:** the surface
   refuses to claim an outcome it did not observe.
-- **Retention is bounded, and the page is honest when it cannot say by how
-  much.** On this walk the lane displayed, verbatim: *"Search window unknown —
-  retention could not be confirmed."* The underlying record lands in Loki with
-  a window set per deployment profile rather than a fixed platform default.
-  Either way it is a bound, not an indefinite record — don't promise an
-  audience permanent history.
-- **One write in this journey is not in this record at all:** the passkey
-  invitation in §1. It isn't a media-workload write and isn't covered.
+- **Retention is bounded, and the page names the bound when it can confirm
+  one.** On the 2026-09-19 pass the lane displayed, verbatim: *"Searches up to
+  7d 0h ago."*, and closed with *"Coverage is bounded by the window stated
+  above, not a guarantee of complete history."* An earlier walk saw *"Search
+  window unknown — retention could not be confirmed"* instead; both strings
+  are real, because the underlying record lands in Loki with a window set per
+  deployment profile rather than a fixed platform default, and the page falls
+  back to the second whenever it cannot read the first. Check which one your
+  env shows before you quote a number. Either way it is a bound, not an
+  indefinite record — don't promise an audience permanent history.
+- **Two writes in this journey are not in this record at all: Delete
+  permanently, and the passkey invitation in §1.** Delete permanently is kept
+  off this lane deliberately, and the page says so in its own disclosure —
+  the reason is access, not secrecy: that action's own surface is scoped more
+  narrowly than this lane is, so listing it here would widen who can see it.
+  If you tear a workload down and then delete it permanently on camera,
+  **don't say the delete itself is in this audit trail** — it isn't. The
+  passkey invitation isn't a media-workload write at all, so it was never in
+  scope here either.
 
 One nuance worth a sentence: the **Review** section back on Finalise &
 Review — the third of §6a's three sections — reads, verbatim, *"No
