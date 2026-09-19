@@ -183,10 +183,20 @@ DMF_ENV="$(dirname "$DMFDEPLOY_UMBRELLA")/dmf-env"      # sibling checkout
 |---|---|---|
 | Cluster reachable | `curl -sI https://console.<env-base-domain>/ \| head -1` | `HTTP/2 200` (or a redirect to auth — both fine) |
 | Console app healthy | open `https://console.<env-base-domain>/` in a browser | login screen renders, no 5xx |
+| Console build matches this runbook | `curl -s https://console.<env-base-domain>/api/version` | `{"version":"0.39.0"}` — this runbook's edition. No login needed |
 | Operator passkeys enrolled | `cd "$DMF_ENV" && bin/get-passkey-enrollment-url.sh <env>` | `confirmed passkeys: 2/2 (ADR-0028 D8, live)` |
 | Demo persona has the right role | (see below) | persona holds the **engineer** role — this journey's demo persona is created with exactly that, not admin |
 | AWX is asleep at rest | (informational) | expected — the first Provision click wakes it; see §3 |
 | **Media namespace clean of this template (mandatory — see below)** | confirm no instance of **MXL Test-Pattern Viewer** is already deployed on this facility | Media Workloads reads, verbatim, *"No media workloads yet — they'll appear here once you create one."* — confirmed live 2026-09-02 (v0.33.0); this replaced the previous edition's quoted "No Media Function instances in your scope." string entirely, part of the same console-wide copy sweep §2 describes |
+
+Run the version check from a terminal rather than the browser: it needs no
+session, the same as the health endpoint beside it, so it is the quickest way
+to confirm which build is in front of you. **Do this before you rely on any
+exact string in this file.** This runbook quotes on-screen copy verbatim
+throughout, and that copy has changed release to release — if the version you
+get back isn't the one this edition names, expect wording to differ and check
+the beat before you present it. *(Endpoint, response and unauthenticated
+access confirmed live 2026-09-19.)*
 
 *(`HTTP/2 200` is a web server's own "yes, I'm here and working" answer —
 200 is the success code; `5xx` is shorthand for the whole family of server
@@ -818,6 +828,20 @@ ssh <ssh-target> 'sudo k3s kubectl get pods -n mxl -w'
 > editions of this runbook said Provision never produced a row at all; that
 > was true of the retired browser-local panel, and is no longer true of the
 > record §1 and §6b describe.
+
+**The Provision step counts the pieces for you, and it is the best evidence
+on screen for this section's whole point.** Once the guided flow is up, the
+step's own body carries a heading reading **"MEDIA FUNCTION INSTANCES — N OF
+M PROVISIONED"** with every instance listed beneath it, each marked **"cleared
+to run"** as it lands — so on the finished demo workload it reads **3 OF 3**,
+naming `mxl-videotest-view` and its two sources. When the template is already
+deployed the step also says, plainly, **"Already deployed."** If an audience
+is still wondering whether one click really launched three things, this line
+is the answer: point at it rather than explaining it. *(The counts and the
+heading were read live on 2026-09-19 on a settled workload. Watching the
+number climb during an actual Provision was not possible under that pass's
+freeze, so don't promise a live-updating count — say what it reads when the
+job is done.)*
 
 If you ever need to re-run Provision on a workload that **already exists**
 (not part of this journey's path), the button, panel copy, and confirm-label
