@@ -40,8 +40,9 @@ rather than implying a fresh end-to-end verification:
   actions" panel earlier editions taught is a **temporary measure being
   retired**; the record to present is the server-side one, and it is on
   Workspace. Deploy, teardown and source-switch rows now carry an
-  **outcome** — by two different mechanisms, which §6b separates — while
-  automatic-rollback rows still do not (#560). Re-walked live at both
+  **outcome** — by two different mechanisms, which §6b separates.
+  (Automatic-rollback rows gained one in v0.39.0, after this pass; #560 is
+  closed. See §6b, and the fifth-pass note below.) Re-walked live at both
   surfaces.
 - **§5/§6b's switch action line** (v0.37.0) — now names the value it set.
 
@@ -437,14 +438,14 @@ source switches and automatic rollbacks, each row carrying who did it, the
 role they held and the reason they typed — e.g. *"Deploy succeeded for
 macmini — dmfdeploy-tester (engineer) · "mini""*. Since **v0.37.0**
 **deploy, teardown and source-switch rows** additionally carry an
-**outcome**, so you will see **"Deploy succeeded for …"**, **"Deploy failed
+**outcome**, and since **v0.39.0** automatic-rollback rows do as well, so
+you will see **"Deploy succeeded for …"**, **"Deploy failed
 for …"** and **"Deploy — outcome unknown for …"** rather than a deploy or
 teardown row reading "dispatched" forever. Deploy/teardown rows and
 source-switch rows arrive at their outcome by **different routes** — §6b has
 the distinction, and it is the one an engineer in the room is most likely to
-ask about. **Automatic-rollback
-rows are the exception and carry no outcome at all** — see §6b before you
-narrate this as universal.
+ask about. **Automatic-rollback rows carry an outcome too since v0.39.0**,
+with one exception — see §6b before you narrate this as universal.
 An ⓘ disclosure beside the heading, **"About this record"**, is closed by
 default and explains the lane's own limits — open it if an audience asks
 what the record does and does not promise.
@@ -458,7 +459,8 @@ included** — it also means the record itself came back with no outcome
 recorded, and the lane renders that as unknown rather than guessing at
 success or calling it a failure. Older rows predating 0.37.0 have no outcome
 record at all and read this way for that second reason. Automatic-rollback
-rows are a separate case and carry no outcome at all — §6b.
+rows reach an outcome the same way deploy and teardown rows do, bar the one
+exception §6b sets out.
 
 **Correction to the previous edition's framing.** It described this panel as
 "a genuinely different data source" from §6b's Activity → History — the
@@ -1290,16 +1292,33 @@ further than Workspace shows — otherwise stay on Workspace.
   click, so don't go hunting for it mid-switch; and if an engineer asks why
   a deploy row changes after it appears while a switch row never does, that
   is the answer.)*
-- **The exception: automatic rollbacks.** The record includes them, but a
-  rollback row still reports only that a rollback was *triggered*, never
-  whether it succeeded — the job-watching work above covered deploy and
-  teardown and deliberately left the rollback branch out of scope. Tracked as
-  [dmfdeploy/dmfdeploy#560](https://github.com/dmfdeploy/dmfdeploy/issues/560),
-  open as of v0.38.0. **Do not tell an audience that every row now carries its
-  outcome.** If a rollback happens to appear during your demo, narrate it as
-  the one place the record is not yet complete — which is a more honest story
-  than a blanket claim, and it is the very gap this lane's own design exists to
-  avoid.
+- **Automatic rollbacks now carry an outcome too — new in v0.39.0, with one
+  exception.** A rollback the console triggers itself joins its terminal
+  result onto its own row, the same watch-and-join mechanism deploy and
+  teardown use above: *succeeded*, *failed*, or *outcome unknown*. A rollback
+  that finished but was never confirmed clean reads **failed**, not unknown.
+  This closed
+  [dmfdeploy/dmfdeploy#560](https://github.com/dmfdeploy/dmfdeploy/issues/560)
+  — cite it now as the history of the fix, not as an open gap. Three things
+  to keep straight before you narrate it:
+  - **A succeeded rollback's title still reads "Automatic rollback dispatched
+    for `<workload>`"** — only the badge beneath it turns green and reads
+    *Succeeded*. A failed or unknown one does retitle itself. **Read the
+    badge, not the title.**
+  - **The exception:** if an automatic rollback finds a rollback already
+    running for that job, it attaches to it instead of starting its own, and
+    *that* row never gets an outcome — it reads "dispatched" with no badge,
+    and only turns to *outcome unknown* after a full hour. An hour is far
+    longer than any demo, so treat that row as one you will not see resolve
+    on stage.
+  - **An operator-initiated rollback is a different thing entirely** and is
+    not on this record at all — not merely missing an outcome, the row never
+    appears. Only the console's own automatic rollback is covered.
+
+  *(Source-derived, not walked — the freeze that bound the 2026-09-19 pass
+  never triggered a rollback, so no rollback row was seen on screen this
+  round. The record's own on-screen scope line naming automatic rollbacks
+  was read live; the row's rendered text was read from the console's source.)*
 - **"Outcome unknown" is not an error, and you should not apologise for it.**
   **Two different situations produce it**, and it is worth knowing which you
   are looking at. On a deploy or teardown row it most often means the console
