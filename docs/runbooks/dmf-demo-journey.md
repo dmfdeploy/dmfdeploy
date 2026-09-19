@@ -1733,10 +1733,14 @@ by the capture freeze" — which lists every beat the freeze blocked and names
 its own unblock condition. **It succeeds
 [#379](https://github.com/dmfdeploy/dmfdeploy/issues/379)**, which closed
 COMPLETED on 2026-09-02: the deferral did not lapse, its tracker did.
-**Nothing in this subsection was observed on 0.39.0.** An earlier pass saw
-each of them, and the beat above says which; what none of them has is a
-current reading. This list exists so the next live walk has one place to
-start rather than a re-read of the whole file.
+**Nothing in this subsection was observed on 0.39.0**, and that is the one
+thing true of every item here. Most were seen by an earlier pass, on an older
+console, and the beat above says which — what they lack is a current reading.
+Two are narrower: the screen was walked, but the specific string was never
+captured, because the pass that watched was polling for wording the console had
+already changed. Either way nobody can tell you what is on screen today. This
+list exists so the next live walk has one place to start rather than a re-read
+of the whole file.
 
 
 - §6a — Delete permanently's two independent disabled-state gates (wrong
@@ -1756,6 +1760,19 @@ start rather than a re-read of the whole file.
 - §4 — The 97.6% preview-success figure (2033/49 fetches) is a two-hour
   log sample from 0.24.0, not repeated this round — still presented as
   current; re-measure on a future walk if it's going to keep being cited.
+- §6a — **Whether the corrected Teardown strings render during a real
+  Finalise & Review job.** Source settles what they are: the in-flight badge
+  reads `finalising`, and the exit control paints only the words "View live"
+  with its explanation in a tooltip and a screen-reader-only node. Nobody has
+  watched either appear while a job runs — the 2026-09-19 freeze forbade
+  running one. Watch both during the next Teardown; the closed half of this
+  question is recorded in §9.3.
+- §6a — **Whether Delete permanently's relocated operation-id line renders as
+  source says during a real delete.** Source settles the location and the
+  format: behind a collapsed "System details" disclosure, reading
+  *"op `<id>`... · `<state>`"* with a middle dot. Unwatched for the same
+  reason. Check it during the next Delete permanently; the closed half is in
+  §9.3.
 - §6c/§6d — Re-confirm AWX's own replica count actually returns to 0/0
   after a burst of jobs (Provision, Switch, Teardown, Delete permanently) —
   confirmed on the 0.24.0 walk, not independently re-checked 2026-09-02
@@ -1812,10 +1829,11 @@ words, and the beat it belongs to hedges accordingly.
 apply to it.** These are questions earlier editions listed as open that have
 since been answered, kept so the next walker can see what moved and why rather
 than re-opening them. Each names its own date and how it was settled — read
-live, or read from the console's source. Where one leaves a residue that still
-needs watching, it says so, and that residue sits under
-[#580](https://github.com/dmfdeploy/dmfdeploy/issues/580) with everything in
-§9.1.
+live, or read from the console's source. **Nothing here needs watching.** Where
+settling a question left a narrower one still open, that open part is not kept
+here as a footnote — it is filed as its own item in §9.1, where someone
+building the next walk's checklist will actually see it, and the entry below
+says so.
 
 
 **Closed by the 2026-09-02 walk** (kept here only as a record of what that
@@ -1852,11 +1870,10 @@ issue plus a corrected presenter note (§4) rather than a deferred check.
   Teardown's in-flight exit control paints only the words "View live", with
   its explanation in a tooltip and a screen-reader-only node rather than on
   screen. That is why the 2026-09-02 Teardown polled for both strings and
-  matched neither — they do not exist as written. What stays open is only
-  whether the corrected forms render as source says while a job actually
-  runs; the 2026-09-19 pass could not check, because the freeze forbade
-  running one. Confirm that on the next walk — but confirm the **corrected**
-  wording, not the legacy strings, which are settled and gone.
+  matched neither — they do not exist as written. That much is settled; the
+  legacy strings are gone and are not worth watching for again. **Whether the
+  corrected forms render as source says during a real job is a separate, open
+  question, and it lives in §9.1** — don't work it from here.
   Historical note, since it explains what the old entry was worried about:
   Provision's twin exit-control string dropped its own "wait for its
   outcome" clause between 0.24.0 and 0.33.0, which is what first suggested
@@ -1868,6 +1885,6 @@ issue plus a corrected presenter note (§4) rather than a deferred check.
   longer inline: it moved behind a collapsed "System details" disclosure and
   now reads *"op `<id>`... · `<state>`"* with a middle dot. That move
   predates the 2026-09-02 walk, which is why that walk's poll never captured
-  it — not a timing miss. What remains open is only whether the relocated
-  line renders as source says while a delete actually runs; the 2026-09-19
-  freeze forbade running one.
+  it — not a timing miss. That much is settled. **Whether the relocated line
+  renders as source says during a real delete is a separate, open question,
+  and it lives in §9.1** — don't work it from here.
