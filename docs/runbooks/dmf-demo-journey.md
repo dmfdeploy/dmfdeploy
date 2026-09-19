@@ -111,8 +111,8 @@ closed #379. And #383 — the outsider exit criterion — closed because it was
 **met**, on 2026-08-25, against an earlier console; the front matter now says
 so rather than implying the bar is still pending.
 
-Three things changed shape since the last edit, which is why this is a
-rewrite rather than a touch-up:
+Three things changed shape ahead of the 2026-09-02 walk, which is why that
+pass was a rewrite rather than a touch-up:
 
 1. **The route contract.** A media workload now resolves to three distinct
    URLs — a home page, a guided-flow page, and a compatibility redirect —
@@ -201,8 +201,9 @@ lists this workload alongside everything else rather than being a fourth
 workload-specific address. You do not have to go there: the same record is
 on Workspace. If you do go: there is no Activity entry in the sidebar — the
 nav is just Workspace, Facilities and Media Workloads — and typing bare
-`/activity` lands you on the **Jobs** tab, not History. Use the full
-`/activity/history` address §6b gives.)
+`/activity` redirects by role, landing this journey's engineer persona on the
+**Jobs** tab rather than History. Use the full `/activity/history` address
+§6b gives and the role stops mattering.)
 
 | Address | What's there |
 |---|---|
@@ -536,6 +537,8 @@ source-switch rows arrive at their outcome by **different routes** — §6b has
 the distinction, and it is the one an engineer in the room is most likely to
 ask about. **Automatic-rollback rows carry an outcome too since v0.39.0**,
 with one exception — see §6b before you narrate this as universal.
+*(Source-derived; no automatic-rollback row was observed in the frozen
+2026-09-19 pass. See §6b for the manual-rollback exception.)*
 An ⓘ disclosure beside the heading, **"About this record"**, is closed by
 default and explains the lane's own limits — open it if an audience asks
 what the record does and does not promise.
@@ -550,7 +553,9 @@ recorded, and the lane renders that as unknown rather than guessing at
 success or calling it a failure. Older rows predating 0.37.0 have no outcome
 record at all and read this way for that second reason. Automatic-rollback
 rows reach an outcome the same way deploy and teardown rows do, bar the one
-exception §6b sets out.
+exception §6b sets out. *(Source-derived; no automatic-rollback row was
+observed in the frozen 2026-09-19 pass. See §6b for the manual-rollback
+exception.)*
 
 **Correction to the previous edition's framing.** It described this panel as
 "a genuinely different data source" from §6b's Activity → History — the
@@ -1418,7 +1423,9 @@ actually want to scroll further back than Workspace shows.
   is not what an engineer sees — that is deliberate, not a gap.
 - **Row shape, confirmed live 2026-09-08.** An action line; the actor, their
   role and the reason they typed in curly quotes; a timestamp; and — for
-  deploy, teardown, source-switch and automatic-rollback rows — an outcome. For
+  deploy, teardown and source-switch rows — an outcome. That pass predates
+  v0.39.0, so it did not and could not see an automatic-rollback row carry
+  one; those are covered in the source-derived bullet below. For
   example: *"Deploy succeeded for macmini — dmfdeploy-tester (engineer) ·
   "mini" — Succeeded — run_complete"*.
 - **Action-line formats seen on this walk:** **"Deploy succeeded for
@@ -1465,20 +1472,25 @@ actually want to scroll further back than Workspace shows.
     for `<workload>`"** — only the badge beneath it turns green and reads
     *Succeeded*. A failed or unknown one does retitle itself. **Read the
     badge, not the title.**
-  - **The exception:** if an automatic rollback finds a rollback already
-    running for that job, it attaches to it instead of starting its own, and
-    *that* row never gets an outcome — it reads "dispatched" with no badge,
-    and only turns to *outcome unknown* after a full hour. An hour is far
-    longer than any demo, so treat that row as one you will not see resolve
-    on stage.
+  - **The exception, and it is narrower than it first looks:** if an
+    automatic rollback finds a rollback **already running** for that job, it
+    attaches to that one instead of starting its own. What happens next
+    depends on what it attached to. If the one already running was a
+    **manual** rollback, the attached row never gets an outcome — it reads
+    "dispatched" with no badge, and only turns to *outcome unknown* after a
+    full hour, which is far longer than any demo, so treat it as a row you
+    will not see resolve on stage. If the one already running was another
+    **automatic** rollback, the row joins that rollback's outcome normally
+    and behaves like any other.
   - **An operator-initiated rollback is a different thing entirely** and is
     not on this record at all — not merely missing an outcome, the row never
     appears. Only the console's own automatic rollback is covered.
 
   *(Source-derived, not walked — the freeze that bound the 2026-09-19 pass
-  never triggered a rollback, so no rollback row was seen on screen this
-  round. The record's own on-screen scope line naming automatic rollbacks
-  was read live; the row's rendered text was read from the console's source.)*
+  never triggered a rollback, so no rollback row was seen on screen in the
+  2026-09-19 pass. The record's own on-screen scope line naming automatic
+  rollbacks was read live; the row's rendered text was read from the
+  console's source.)*
 - **"Outcome unknown" is not an error, and you should not apologise for it.**
   **Two different situations produce it**, and it is worth knowing which you
   are looking at. On a deploy or teardown row it most often means the console
@@ -1608,7 +1620,7 @@ being briefed on it.
 | Provisioned instances show up **grouped as "Unassigned"** in the grid | The launcher hasn't stamped a `workload:<slug>` tag onto every member, so the grouping logic has nothing to group them by. Cosmetic/legibility only. | [dmfdeploy/dmfdeploy#239](https://github.com/dmfdeploy/dmfdeploy/issues/239) |
 | The Plan step's resource total is marked **"Partial"**, with a note that some templates don't declare a demand | By design, not a fault: not every catalog template records a resource figure, and the console sums only what it knows rather than guessing the rest. The number is a floor, not the workload's real footprint. If someone asks "is that the real cost?", the honest answer is no — not yet, for every function. | live-observed 2026-09-19; no issue filed |
 | Mid-Provision, the Design and Provision steps may show less progress detail than the finished workload does | Partly fixed. A settled workload now shows real counts ("N elements designed", "N of M provisioned" — confirmed live 2026-09-19). The in-flight reading has not been watched since the fix, and the issue stays open for it, so don't promise a live-updating number while Provision is actually running. | [dmfdeploy/dmfdeploy#559](https://github.com/dmfdeploy/dmfdeploy/issues/559) (open) |
-| You type `/activity` and land on **Jobs**, not the audit record | There is no bare `/activity` page — it redirects to Jobs. For the durable role-scoped record, go straight to `/activity/history`, the address §6b uses. There is no Activity entry in the sidebar either. | live-observed 2026-09-19; no issue filed |
+| You type `/activity` and land on **Jobs**, not the audit record | There is no bare `/activity` page — it redirects, and **where to depends on your role**. With this journey's engineer presenter account it goes to Jobs; a viewer is sent to History instead. Either way, go straight to `/activity/history` for the record, the address §6b uses. There is no Activity entry in the sidebar either. | live-observed 2026-09-19 (engineer session); no issue filed |
 | A row reads **"Loki unreachable"** when the store is reachable but faulty | The lane reports any store fault with the same message it uses for a missing store, so the wording can overstate what is actually wrong. Cosmetic for a demo — the record itself is unaffected — but don't diagnose the cluster from that string. | [dmfdeploy/dmfdeploy#561](https://github.com/dmfdeploy/dmfdeploy/issues/561) (open) |
 | Someone asks "what if the node dies?" (spot reclaim) | Not hypothetical — it happened to this env while the previous edition of this file was being written. The standing env's addressing is derived from the node's public IP, so a reclaimed/replaced node means a new address. **There is no cluster-state backup to restore from** — the standing archive covers operator-local material only. **Recovery is re-bootstrap plus re-pointing the IP-derived address**, not a resume-in-place and not a restore. | env recovery notes (operator-local) |
 
