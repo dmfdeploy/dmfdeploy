@@ -46,13 +46,49 @@ rather than implying a fresh end-to-end verification:
   surfaces.
 - **§5/§6b's switch action line** (v0.37.0) — now names the value it set.
 
-Everything else below stands from the 2026-09-02 walk and is **not**
-reconfirmed against v0.38.0 — in particular §2 (Create), §3 (Provision), §5's
-own switch mechanics, §6a (Teardown/Delete) and §6c/§6d were not re-executed
-this pass. Treat them exactly as the previous edition left them. The demo's
-focus is deliberately the **Workspace** and **Media Workloads** pages; where
-this pass touched a beat that sent a presenter elsewhere, it points back at
-those two.
+Everything else stood from the 2026-09-02 walk and was **not** reconfirmed
+against v0.38.0 — in particular §2 (Create), §3 (Provision), §5's own switch
+mechanics, §6a (Teardown/Delete) and §6c/§6d were not re-executed that pass.
+The demo's focus is deliberately the **Workspace** and **Media Workloads**
+pages; where that pass touched a beat that sent a presenter elsewhere, it
+points back at those two. See the fifth pass, next, for what has since been
+re-checked and what has not.
+
+**Fifth pass (2026-09-19, against deployed dmf-cms 0.39.0) — a READ-ONLY
+re-verification under a capture freeze. NOT an end-to-end walk.** Six
+releases of drift since the 2026-09-02 walk, one since the 2026-09-08 pass.
+The env was frozen read-only mid-way through recording episode 001, so this
+pass could look at everything and touch nothing. That shapes what it can and
+cannot vouch for, and the split is the most important thing on this page:
+
+- **Watched live, on the running 0.39.0 console.** The Workspace dashboard
+  (including a real failed row in the Activity panel), the Media Workloads
+  list, the live view and all three of its tiles, all five guided-flow steps
+  at rest, Activity → Jobs and Activity → History, Facilities, and the create
+  wizard's Identity step. Route behaviour was probed directly, as was the
+  console's own version endpoint (§0). Copy quoted from these surfaces is
+  transcribed from the live page.
+- **Read from the 0.39.0 source, never watched.** Every beat that writes or
+  runs: the create wizard past Identity, a real Provision and its progress
+  screens, a Switch dispatch, Teardown, Delete permanently, an automatic
+  rollback, and the login ceremony. Corrections to those beats are marked
+  *source-derived* where they appear. **Treat them as well-founded but
+  unobserved** — that is exactly the distinction this file exists to keep.
+
+What this pass changed, in one line each: automatic-rollback rows now carry
+an outcome, so §6b no longer tells you to say otherwise (§6b, §1); Delete
+permanently is named as a second write absent from the audit record (§6b);
+§2's quoted catalog summary was replaced upstream and its jargon note
+removed; §1's login and passkey-invitation instructions were both wrong and
+are corrected; several controls that no longer paint their explanation on
+screen are described as they actually render (§3, §6a); the in-flight badge
+is spelled "finalising"; §0 gains a version check; and §7 loses a rough edge
+that no longer happens while gaining four that do.
+
+**Two issue references in this file point at closed issues** — #379, which §9
+defers to, and #383, cited as the exit criterion. Both are flagged rather than
+rewritten here, because choosing a successor tracker is an editorial call, not
+a verification one.
 
 Three things changed shape since the last edit, which is why this is a
 rewrite rather than a touch-up:
@@ -1677,12 +1713,13 @@ issue plus a corrected presenter note (§4) rather than a deferred check.
   actually converge to Running via the cluster itself (`kubectl get pods`),
   not just via the console's own screens. Still not done by any round —
   needs a walk run from a machine with cluster/SSH access.
-- §4 — A lifecycle-stage badge is confirmed to exist on the `/setup` page,
-  and this round independently observed three values there (`provisioned`,
-  `configured`, `planned`) — confirm whether an equivalent badge also
-  appears on the bare-slug **live view** itself, and if so whether it uses
-  the same vocabulary. Still open — this round didn't specifically check
-  the bare-slug page's own header for a badge.
+- §4 — **Closed 2026-09-19.** A lifecycle-stage badge exists on the `/setup`
+  page, where three values have been observed (`provisioned`, `configured`,
+  `planned`). The open question was whether the bare-slug **live view**
+  carries an equivalent. It does not, and that is deliberate: the live view
+  mounts no step of the flow, so nothing there reads as a current stage. The
+  rail's five chips do render on that page, but none of them shows as
+  selected (§4). Read live and confirmed against the console's source.
 - §4/§6a — **Both of these are now settled from source, and the answer in
   each case is that the runbook was wrong rather than unconfirmed.** The
   fourth badge value is spelled **"finalising"**, not "finalizing"; and
@@ -1697,11 +1734,14 @@ issue plus a corrected presenter note (§4) rather than a deferred check.
   between 0.24.0 and 0.33.0,
   treat both as likely stale, not just unconfirmed. Confirm the live
   wording on the next walk before quoting either on camera.
-- §6a — Delete permanently's own in-flight operation-id line (*"op `<id>`...
-  — running"*) is likewise only documented from 0.24.0 — this round
-  confirmed the "Deleting `<slug>` permanently…" line directly but never
-  captured the op-id line specifically, unlike Provision's own (§3), which
-  this round did capture. Confirm on the next walk.
+- §6a — **Settled from source 2026-09-19, and again the runbook was wrong
+  rather than unconfirmed.** Delete permanently's operation-id line is no
+  longer inline: it moved behind a collapsed "System details" disclosure and
+  now reads *"op `<id>`... · `<state>`"* with a middle dot. That move
+  predates the 2026-09-02 walk, which is why that walk's poll never captured
+  it — not a timing miss. What remains open is only whether the relocated
+  line renders as source says while a delete actually runs; the 2026-09-19
+  freeze forbade running one.
 - §6c/§6d — Re-confirm AWX's own replica count actually returns to 0/0
   after a burst of jobs (Provision, Switch, Teardown, Delete permanently) —
   confirmed on the 0.24.0 walk, not independently re-checked 2026-09-02
