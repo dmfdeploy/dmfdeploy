@@ -136,12 +136,15 @@ but that route is never slug-scoped; it's the facility-wide audit record
 (§6b), paging the same rows the Workspace **Activity** panel shows, so it
 lists this workload alongside everything else rather than being a fourth
 workload-specific address. You do not have to go there: the same record is
-on Workspace.)
+on Workspace. If you do go: there is no Activity entry in the sidebar — the
+nav is just Workspace, Facilities and Media Workloads — and typing bare
+`/activity` lands you on the **Jobs** tab, not History. Use the full
+`/activity/history` address §6b gives.)
 
 | Address | What's there |
 |---|---|
-| `/media-workloads/<slug>` | **Live view** — the workload's home. This is where "View live" and "Open live view →" eventually send you. Read-only. |
-| `/media-workloads/<slug>/setup` | **The guided flow** — the five-step rail. Every write this journey makes against an already-real workload happens here. |
+| `/media-workloads/<slug>` | **Live view** — the workload's home. This is where "View live" and "Open live view →" eventually send you. Read-only. The five rail chips render across the top here too (see below). |
+| `/media-workloads/<slug>/setup` | **The guided flow** — the five-step rail. Every write this journey makes against an already-real workload happens here. A single step also takes a fragment — `…/setup#configure` opens the flow on Configure — which is handy if you want to jump straight to §5. |
 | `/media-workloads/<slug>/operate` | A **compatibility redirect only**. It renders nothing of its own — it forwards straight to the bare-slug live view, and the back button doesn't bounce you back to it. Nothing in the console links here; you'd only land on it from an old bookmark. |
 
 Keep this in mind reading §3 onward: **Provision itself fires from the
@@ -153,6 +156,14 @@ live view is reached later still, once you follow an exit control (§3's
 "View live," or Configure's "Open live view →"). Three different jobs on
 three different pages — create, then setup, then watch — not one page whose
 meaning changes underneath you.
+
+**One thing that surprises people: the five rail chips render on the live
+view as well, not only on the guided flow.** They are still the guided
+flow's rail — clicking one takes you to that step on `/setup` — and nothing
+on the live view is selected, because the live view is not a step. So the
+rail being on screen doesn't mean you're in the flow; it means the flow is
+one click away. Say that if an audience asks why the same chips follow them
+around.
 
 ---
 
@@ -864,6 +875,13 @@ bare-slug route from "Three URLs, one workload," above; nothing here is
 clickable in a way that changes state, and the page is deliberately
 read-only.
 
+**The rail is above you here too, and that is expected.** The five chips —
+Design, Plan, Provision, Configure, Finalise & Review — render across the top
+of this page as well as on the guided flow. None of them shows as selected,
+because the live view is not one of them; clicking one takes you to that step
+on `/setup`. So seeing the rail here doesn't mean you've wandered back into
+the flow. *(Confirmed live 2026-09-19.)*
+
 **Page identity, confirmed against source.** The browser tab reads,
 verbatim, **"`<slug>` · DMF Console"** — no further suffix. The page's own
 name lives in the topbar breadcrumb, not visible header text — a
@@ -915,8 +933,14 @@ sentence: watch here, act on the guided flow.
   block bottom-right. `source-b` shows a fine red/green checkerboard. Each
   carries a small **`STATIC`** mark in its top-left corner, and is captioned,
   verbatim, **"Emits the smpte pattern · static illustration"** and **"Emits
-  the checkers-8 pattern · static illustration"** respectively. Neither
-  carries the green live dot the viewer's tile has.
+  the checkers-8 pattern · static illustration"** respectively. Each also
+  spells the point out in full on the tile — verbatim, **"Static illustration
+  of the smpte test pattern this source emits — not a live picture."**, and
+  the same for `checkers-8`. That sentence is newer than the caption, so if
+  you are presenting from an older walk, expect it; it also means you don't
+  have to make the disclaimer yourself, because the tile already makes it.
+  Neither source tile carries the green live dot the viewer's tile has.
+  *(All four strings confirmed live 2026-09-19.)*
 - **What that picture is, and what it is not — say this precisely if asked.**
   It is the *canonical frame* for the pattern the source is configured to
   emit, generated at build time from the very same pattern index the source
