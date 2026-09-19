@@ -1245,8 +1245,9 @@ survives in the control's hover tooltip and in a screen-reader-only node,
 the same shape as §3's equivalent. Read the inertness as your signal, not
 the sentence, and don't recite the sentence to a room that cannot see it.
 *(Source-derived — observing it needs a Teardown or Delete actually
-running, which the 2026-09-19 freeze forbade.)* Previously flagged to
-quoting it on camera. During this window the workload's lifecycle badge
+running, which the 2026-09-19 freeze forbade.)*
+
+During this window the workload's lifecycle badge
 reads **"finalising"** — the British spelling, consistent with "Finalise"
 everywhere else on the page. Earlier editions of this runbook recorded it as
 "finalizing" and explained the inconsistency at length; that was a
@@ -1738,8 +1739,8 @@ was never re-read against that. So the rule is wider than beats: **a derived
 section needs re-reading whenever anything it derives from changes, its own
 tracking issue included.** **Whoever next adds
 or changes a carried-forward marker on any beat: re-read this section's
-"Closed this round" paragraph and bullet list against that specific beat
-before committing — don't assume the beat-level fix is complete on its
+"Closed by the 2026-09-02 walk" paragraph and bullet list against that
+specific beat before committing — don't assume the beat-level fix is complete on its
 own.** [dmfdeploy/dmfdeploy#536](https://github.com/dmfdeploy/dmfdeploy/issues/536)
 tracks the deeper fix (verification markers that name their source round,
 so a partially-verified beat can't collapse into one true/false flag) —
@@ -1819,11 +1820,14 @@ issue plus a corrected presenter note (§4) rather than a deferred check.
   matched neither — they do not exist as written. What stays open is only
   whether the corrected forms render as source says while a job actually
   runs; the 2026-09-19 pass could not check, because the freeze forbade
-  running one. Historical note, since it explains the old entry: Provision's
-  twin exit-control string dropped its own "wait for its outcome" clause
-  between 0.24.0 and 0.33.0,
-  treat both as likely stale, not just unconfirmed. Confirm the live
-  wording on the next walk before quoting either on camera.
+  running one. Confirm that on the next walk — but confirm the **corrected**
+  wording, not the legacy strings, which are settled and gone.
+  Historical note, since it explains what the old entry was worried about:
+  Provision's twin exit-control string dropped its own "wait for its
+  outcome" clause between 0.24.0 and 0.33.0, which is what first suggested
+  its Teardown counterpart might have drifted too. It had — further than
+  suspected, since the whole explanation left the screen, not just that
+  clause.
 - §6a — **Settled from source 2026-09-19, and again the runbook was wrong
   rather than unconfirmed.** Delete permanently's operation-id line is no
   longer inline: it moved behind a collapsed "System details" disclosure and
