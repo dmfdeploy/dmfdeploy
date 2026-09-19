@@ -8,23 +8,42 @@ gives a concrete action and the expected result, and every domain term is
 glossed the first time it matters, so you never have to improvise or fall
 back on jargon you weren't handed.
 
-**Provenance — read this before you present from this file.** A full
-rewrite (2026-08-19, against **dmf-cms v0.24.0**, two live walks) replaced
-an entirely source-derived edit that had no standing env to watch. This
-edit (2026-09-02) is a **third live walk, end to end, against dmf-cms
-v0.33.0** — nine releases of drift since the rewrite — done beat by beat
-against the standing env, correcting every observed divergence rather than
-re-deriving from source. Where this walk didn't re-touch a beat the
-0.24.0 walks already confirmed and nothing since suggested had changed, that
-earlier confirmation stands; where this walk found real drift (mostly a
-console-wide copy sweep and a "throbber" redesign of every in-flight job
-screen, both landed after 0.24.0), the text below reflects **only what was
-observed on 2026-09-02**, not source-inference. UI copy quoted below is
-transcribed directly from the live DOM, not typed from memory. Claims
-stated as plain fact were observed live at least once, most as of this
-round specifically — anything still marked *(carried forward)* survives
-unconfirmed from an earlier edit and is not contradicted by anything any
-round has found. What no round has yet covered is concentrated in §9.
+**Provenance — read this before you present from this file.** This file is a
+layered record, not a single snapshot. Five passes have touched it, each
+against a different console, and **no single pass verified everything below**.
+The current edition is the fifth (2026-09-19, against deployed **dmf-cms
+0.39.0**), and it was **read-only**: the env was frozen mid-capture, so that
+pass could look at every surface and run nothing. The full account of what it
+watched and what it only read is in the fifth-pass note below — read that
+before you trust any single sentence here.
+
+**How to tell what a claim is worth.** Most beats say so in their own words.
+A claim stated as plain fact was watched on a live console by some pass, and
+the beat normally names which. A claim marked *(source-derived)* was read
+from the console's code and **no human has seen it on screen** — those are
+concentrated in the beats that write or run something, because the freeze put
+those out of reach. A claim marked *(carried forward)* survives unconfirmed
+from an earlier edition and is not contradicted by anything any pass has
+found. UI copy in quotation marks is transcribed from a live page, not typed
+from memory — but check the date the surrounding beat gives, because copy has
+changed release to release. What no pass has covered at all is concentrated
+in §9.
+
+**One decoder, because it governs about fifty sentences below.** Where a beat
+says "this round", "this walk" or "confirmed live this round" **without naming
+a date, it means the 2026-09-02 end-to-end walk**, not the 2026-09-19 pass.
+Those phrases were written when 2026-09-02 was the current round and were
+deliberately left alone rather than swept, so that what each pass actually
+observed stays attributable. **The 2026-09-19 pass never calls itself "this
+round"** — it names its date every time, in the fifth-pass note and in every
+beat it touched. So if a sentence claims something was seen and does not say
+2026-09-19, no one has watched it on 0.39.0.
+
+The earlier passes, for context: a full rewrite (2026-08-19, against **v0.24.0**,
+two live walks) replaced an entirely source-derived edit that had no standing
+env to watch; then a **third live walk, end to end, against v0.33.0**
+(2026-09-02), done beat by beat against the standing env, which is still the
+last time anyone walked this journey from start to finish.
 
 **Fourth pass (2026-09-08, against dmf-cms v0.38.0) — TARGETED, NOT
 end-to-end.** Five releases of drift since the 2026-09-02 walk. This pass
@@ -85,10 +104,12 @@ screen are described as they actually render (§3, §6a); the in-flight badge
 is spelled "finalising"; §0 gains a version check; and §7 loses a rough edge
 that no longer happens while gaining four that do.
 
-**Two issue references in this file point at closed issues** — #379, which §9
-defers to, and #383, cited as the exit criterion. Both are flagged rather than
-rewritten here, because choosing a successor tracker is an editorial call, not
-a verification one.
+**Two issue references were resolved after this pass reported.** §9's
+deferred list now tracks
+[#580](https://github.com/dmfdeploy/dmfdeploy/issues/580), which succeeds the
+closed #379. And #383 — the outsider exit criterion — closed because it was
+**met**, on 2026-08-25, against an earlier console; the front matter now says
+so rather than implying the bar is still pending.
 
 Three things changed shape since the last edit, which is why this is a
 rewrite rather than a touch-up:
@@ -105,13 +126,19 @@ rewrite rather than a touch-up:
 **Scope note.** The console's demo catalog is still **one template** —
 provisioning it launches a *topology* of three pieces (a receiver plus two
 sources), not a single one (see the glossary below). The **Switch** beat is
-now a fully confirmed, working beat: this rewrite's live walk ran it end to
-end, dropdown to completion (§5) — the first time in this runbook's history.
+a confirmed, working beat: the 2026-09-02 walk ran it end to end, dropdown to
+completion (§5) — the first time in this runbook's history. It has not been
+run since; the 2026-09-19 pass could not dispatch a switch under the freeze.
 This runbook is part of the v0.2 presentable-journey track
 ([dmfdeploy/dmfdeploy#200](https://github.com/dmfdeploy/dmfdeploy/issues/200),
 [#347](https://github.com/dmfdeploy/dmfdeploy/issues/347)) and its exit
-criterion is a named outsider completing this journey **unaided**
-([#383](https://github.com/dmfdeploy/dmfdeploy/issues/383)) — that is who
+criterion was a named outsider completing this journey **unaided**
+([#383](https://github.com/dmfdeploy/dmfdeploy/issues/383)). **That bar was
+cleared once, on 2026-08-25** — observed, and anchored at commit
+`c137c8bd` on protected `main`, which is the durable record rather than any
+issue comment. Read it as a bar cleared, not a bar that stays clear: it was
+cleared against an **earlier console than the one this edition describes**,
+and the console has moved six releases since. That outsider is still who
 this file is written for, not just a presenter narrating to a room.
 
 **Assumes:** a standing env is already deployed and healthy (bring-up is
@@ -1606,8 +1633,13 @@ being briefed on it.
 - Demo track / acceptance: [dmfdeploy/dmfdeploy#347](https://github.com/dmfdeploy/dmfdeploy/issues/347)
   (part of [#200](https://github.com/dmfdeploy/dmfdeploy/issues/200))
 - Domain-outsider exit criterion (who this file is written for): [dmfdeploy/dmfdeploy#383](https://github.com/dmfdeploy/dmfdeploy/issues/383)
+  — **met once, 2026-08-25**, anchored at commit `c137c8bd` on protected
+  `main`; closed COMPLETED 2026-08-27. Cleared against an earlier console
+  than this edition describes.
 - Route contract / rail amendment (why §4 is a live view, not "Operate"): [dmfdeploy/dmfdeploy#414](https://github.com/dmfdeploy/dmfdeploy/issues/414)
-- This rewrite's own tracking issue: [dmfdeploy/dmfdeploy#379](https://github.com/dmfdeploy/dmfdeploy/issues/379)
+- Deferred verification, current tracker: [dmfdeploy/dmfdeploy#580](https://github.com/dmfdeploy/dmfdeploy/issues/580)
+  (succeeds [#379](https://github.com/dmfdeploy/dmfdeploy/issues/379), closed
+  COMPLETED 2026-09-02)
 - Filed from the 2026-09-02 walk: false catalog warning regression
   [dmfdeploy/dmfdeploy#532](https://github.com/dmfdeploy/dmfdeploy/issues/532),
   untimestamped stale Workspace job entry
@@ -1615,11 +1647,10 @@ being briefed on it.
 
 ---
 
-## 9. Deferred verification — tracked by dmfdeploy/dmfdeploy#379
+## 9. Deferred verification — tracked by dmfdeploy/dmfdeploy#580
 
-**This section is what three rounds of live walking still haven't
-covered — and it stays open by design, not as a gate this runbook is
-waiting on.** The first round (0.24.0) walked create through a working
+**This section is what no pass has yet covered — and it stays open by
+design, not as a gate this runbook is waiting on.** The first round (0.24.0) walked create through a working
 Switch; the second (0.24.0) walked Teardown through Delete permanently, the
 audit trail, and AWX's re-idle behaviour; the third (2026-09-02, v0.33.0)
 walked the whole journey end to end again, closing most of what was still
@@ -1628,8 +1659,12 @@ open and surfacing new drift from the copy sweep and throbber redesign
 is genuinely narrower again.
 
 Each item below is **deliberately deferred to**
-[dmfdeploy/dmfdeploy#379](https://github.com/dmfdeploy/dmfdeploy/issues/379)
-— which stays open for exactly this reason. This runbook does not claim any
+[dmfdeploy/dmfdeploy#580](https://github.com/dmfdeploy/dmfdeploy/issues/580)
+— "the demo journey's mutating beats are unverified against 0.39.0 — blocked
+by the capture freeze" — which lists every beat the freeze blocked and names
+its own unblock condition. **It succeeds
+[#379](https://github.com/dmfdeploy/dmfdeploy/issues/379)**, which closed
+COMPLETED on 2026-09-02: the deferral did not lapse, its tracker did. This runbook does not claim any
 of the following were observed; the relevant beat above already says so in
 its own words (source-confirmed, carried forward, or not independently
 re-watched, as each case actually is), and this list exists so the next live
