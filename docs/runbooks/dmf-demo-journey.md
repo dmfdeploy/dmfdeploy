@@ -371,7 +371,8 @@ This beat is just the login, on the assumption that check already passed.
 this file has independently walked the actual login ceremony.** The 0.24.0
 walk started from an already-logged-in session. The 2026-09-02 walk did
 too, and found one already authenticated in the operator's own browser —
-neither round clicked **Sign in** and completed a fresh WebAuthn ceremony.
+neither round reached the identity provider cold and completed a fresh
+WebAuthn ceremony.
 The **Action** and the first sentence of **Expected result** below (landing
 on Workspace, no password typed) are therefore still *(carried forward)*,
 unconfirmed by any live walk to date — not merely unmentioned, genuinely
@@ -391,10 +392,15 @@ observations of the app's current state, just not caused by watching a
 fresh login happen:
 
 **Action.** Open `https://console.<env-base-domain>/` in a private/incognito
-window. Click **Sign in**. The browser offers the passkey picker; choose the
-demo persona's authenticator and complete the WebAuthn ceremony — the
-standard passkey handshake, no typing involved (Touch ID / security-key
-touch).
+window. **There is no "Sign in" button to click** — the console has no
+in-app login control at all; opening it unauthenticated hands you straight
+to the identity provider, which is what asks for the passkey. Earlier
+editions told you to click **Sign in**; nothing on the page says that.
+The browser then offers the passkey picker; choose the demo persona's
+authenticator and complete the WebAuthn ceremony — the standard passkey
+handshake, no typing involved (Touch ID / security-key touch).
+*(Source-derived: the redirect is read from the console's own routing, not
+watched — see the verification gap above.)*
 
 **Expected result — the login act itself is *(carried forward)*, per the
 gap noted above. What follows about the resulting screen IS confirmed live
@@ -495,11 +501,15 @@ facility-wide record.
 > Console's Settings → *Create new device invitation* (self-service); full
 > procedure in [`passkey-enrollment.md`](passkey-enrollment.md).
 
-If you want to show enrollment itself (optional, adds ~2 min, **requires an
-admin persona** — the invitation endpoint is admin-gated, so an engineer
-persona gets a 403; skip this beat if you're demoing as engineer): user menu
+If you want to show enrollment itself (optional, adds ~2 min): user menu
 → **Settings** → **Passkey Enrollment** → **Create new device invitation** →
-a single-use URL + QR renders. Don't complete it live unless you have a
+a single-use URL + QR renders. **Any signed-in persona can do this** — an
+earlier edition said the endpoint was admin-gated and that an engineer would
+get a 403, which was wrong and contradicted this section's own note above
+that the control is self-service. It mints an invitation for whoever is
+signed in and nobody else, so the floor is simply "be logged in".
+*(Source-derived — minting an invitation is a write, which the 2026-09-19
+freeze ruled out.)* Don't complete it live unless you have a
 second authenticator to hand — just show that the invitation minted.
 *(Carried forward from the previous edit, not independently re-verified this
 round.)*
