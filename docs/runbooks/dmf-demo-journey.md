@@ -1675,47 +1675,24 @@ being briefed on it.
 
 ## 9. Deferred verification — tracked by dmfdeploy/dmfdeploy#580
 
-**This section is what this runbook does not currently vouch for against
-0.39.0 — and it stays open by design, not as a gate this runbook is waiting
-on.** Most of it has been walked before, some of it more than once; what it
-has not been is re-verified against the console now deployed.
+**This section is this runbook's own verification ledger — what it does and
+does not vouch for against 0.39.0, in one place.** It stays open by design,
+not as a gate this runbook is waiting on. Most of what it lists has been
+walked before, some of it more than once; what most of it has not been is
+re-verified against the console now deployed. A smaller part has never been
+walked at all, and a third part is settled and kept only as record.
 
-Three different things sit below, and it matters which one you are reading:
-
-- **Walked by an earlier pass, but not re-verified against 0.39.0.** This is
-  most of the list, and it is the category that should shape how you present.
-  The 2026-09-19 pass was read-only under a capture freeze, so every beat that
-  writes or runs something — Provision, Switch, Teardown, Delete permanently,
-  automatic rollback, the create wizard past Identity — was last seen on an
-  older console. The beats themselves are written from those earlier
-  observations and say so. Treat their exact wording as likely-but-unconfirmed
-  rather than as current fact. This is [#580](https://github.com/dmfdeploy/dmfdeploy/issues/580)'s
-  actual scope.
-- **Never walked by any pass.** A smaller set, and each item says so in its own
-  words — the cluster-convergence check is the clearest example.
-- **Closed by the 2026-09-19 pass, kept as record rather than as open work.**
-  §4's lifecycle badge on the live view, and the §4/§6a pair that turned out to
-  be settled from source. They stay listed so the next walker can see what
-  moved and why, not because anything is outstanding. Each says its own date —
-  don't confuse them with the older "Closed by the 2026-09-02 walk" paragraph
-  further down, which is a different set.
+It holds three different things, and conflating them is how this section has
+gone wrong before, so they are now separate subsections — **9.1 deferred and
+outstanding**, **9.2 never walked by any pass**, **9.3 closed records**. Each
+carries its own scope statement, true of that subsection and reaching no
+further. If you read only one, read 9.1: it is most of the list and it is what
+tells you when a beat's exact wording is safe to distrust.
 
 For history: the first round (0.24.0) walked create through a working Switch;
 the second (0.24.0) walked Teardown through Delete permanently, the audit
 trail, and AWX's re-idle behaviour; the third (2026-09-02, v0.33.0) walked the
 whole journey end to end, which remains the last full walk anyone has done.
-
-Each item below is **deliberately deferred to**
-[dmfdeploy/dmfdeploy#580](https://github.com/dmfdeploy/dmfdeploy/issues/580)
-— "the demo journey's mutating beats are unverified against 0.39.0 — blocked
-by the capture freeze" — which lists every beat the freeze blocked and names
-its own unblock condition. **It succeeds
-[#379](https://github.com/dmfdeploy/dmfdeploy/issues/379)**, which closed
-COMPLETED on 2026-09-02: the deferral did not lapse, its tracker did. This runbook does not claim any
-of the following were observed; the relevant beat above already says so in
-its own words (source-confirmed, carried forward, or not independently
-re-watched, as each case actually is), and this list exists so the next live
-walk has one place to start rather than a re-read of the whole file.
 
 **MAINTENANCE NOTE, added after this section drifted from the beats it
 summarises — now three times, twice within one round and once again in the
@@ -1738,7 +1715,7 @@ changed — what changed was *what this section is for*, and its thesis sentence
 was never re-read against that. So the rule is wider than beats: **a derived
 section needs re-reading whenever anything it derives from changes, its own
 tracking issue included.** **Whoever next adds
-or changes a carried-forward marker on any beat: re-read this section's
+or changes a carried-forward marker on any beat: re-read §9.3's
 "Closed by the 2026-09-02 walk" paragraph and bullet list against that
 specific beat before committing — don't assume the beat-level fix is complete on its
 own.** [dmfdeploy/dmfdeploy#536](https://github.com/dmfdeploy/dmfdeploy/issues/536)
@@ -1746,6 +1723,100 @@ tracks the deeper fix (verification markers that name their source round,
 so a partially-verified beat can't collapse into one true/false flag) —
 not implemented here, but the shape to reach for if this file's own
 hedging keeps needing hand-reconciliation.
+
+### 9.1 Deferred and outstanding — walked before, not re-verified against 0.39.0
+
+**Each item here is deliberately deferred to**
+[dmfdeploy/dmfdeploy#580](https://github.com/dmfdeploy/dmfdeploy/issues/580)
+— "the demo journey's mutating beats are unverified against 0.39.0 — blocked
+by the capture freeze" — which lists every beat the freeze blocked and names
+its own unblock condition. **It succeeds
+[#379](https://github.com/dmfdeploy/dmfdeploy/issues/379)**, which closed
+COMPLETED on 2026-09-02: the deferral did not lapse, its tracker did.
+**Nothing in this subsection was observed on 0.39.0.** An earlier pass saw
+each of them, and the beat above says which; what none of them has is a
+current reading. This list exists so the next live walk has one place to
+start rather than a re-read of the whole file.
+
+
+- §6a — Delete permanently's two independent disabled-state gates (wrong
+  slug alone stays disabled; correct slug with no reason also stays
+  disabled) — this round filled both fields together and confirmed the
+  end-to-end action worked, which is consistent with but not a direct
+  re-test of each partial state.
+- §6a — Clear for deployment's actual confirm action (clicking Confirm and
+  watching it complete) is 0.24.0-only — this round opened and read the
+  same confirm panel but deliberately didn't confirm it, to keep the one
+  workload this journey allows available for Delete permanently.
+- §3 — The specific "follow an active View live link before the record
+  exists, land on Workload not found" sequencing — the string itself is
+  confirmed (seen later, post-Delete), but this round never deliberately
+  navigated early enough during Provision to retrigger that exact
+  sequence.
+- §4 — The 97.6% preview-success figure (2033/49 fetches) is a two-hour
+  log sample from 0.24.0, not repeated this round — still presented as
+  current; re-measure on a future walk if it's going to keep being cited.
+- §6c/§6d — Re-confirm AWX's own replica count actually returns to 0/0
+  after a burst of jobs (Provision, Switch, Teardown, Delete permanently) —
+  confirmed on the 0.24.0 walk, not independently re-checked 2026-09-02
+  (no cluster/kubectl access from where that walk ran; this round could
+  only confirm every job *succeeded*, via AWX's own job list, which is
+  necessary but not sufficient evidence of re-idling afterward). Also
+  still open from before: watch AWX re-idle to zero on its own while the
+  workload is still on the live view (§4) or mid-Switch (§5) — genuinely
+  still running, not mid-Teardown.
+- The stale/failed "Failed to remove MXL Test-Pattern Viewer" entry this
+  round noticed at the top of the Workspace panel then called "Recent
+  changes", since renamed **Activity** (§1) —
+  confirmed NOT from this round's own run (this run's AWX jobs all show
+  Succeeded), but unconfirmed whether it's a genuinely still-relevant
+  problem from an earlier session or safe to ignore as historical noise.
+  Filed as
+  [dmfdeploy/dmfdeploy#533](https://github.com/dmfdeploy/dmfdeploy/issues/533)
+  rather than resolved here.
+
+### 9.2 Never walked by any pass
+
+**No round has observed any of these, on any console.** They are not stale
+readings to refresh — they have never been taken. Each item says so in its own
+words, and the beat it belongs to hedges accordingly.
+
+
+- §1 — **The login beat's actual WebAuthn ceremony has never been
+  independently live-walked, by any round to date** — every walk so far,
+  this one included, started from an already-authenticated session. See
+  §1's own gap note and
+  [dmfdeploy/dmfdeploy#535](https://github.com/dmfdeploy/dmfdeploy/issues/535).
+  This is the single most important open item in this list: it's the very
+  first beat a genuine outsider (#383) would hit.
+- §1 — Whether the rail's per-icon tooltip is a real, visible hover/focus
+  popup (not just an `aria-label` a screen reader announces) — this round
+  confirmed the accessible name, not the visible affordance.
+- §1 — The **present**-for-an-admin half of "Admin appears as a fourth
+  icon only if the persona is an admin" — this round's persona was
+  engineer, not admin, so only the absent-for-non-admin half was
+  independently re-tested. Needs a walk using an admin persona.
+- §2 — Whether an invalid workload identity actually shows the documented
+  red validation hint — this round never typed one to trigger it.
+- §3 — Watch the pods/instances for the receiver and both sources
+  actually converge to Running via the cluster itself (`kubectl get pods`),
+  not just via the console's own screens. Still not done by any round —
+  needs a walk run from a machine with cluster/SSH access.
+- Read the whole file aloud as if you were the named outsider from #383
+  and flag anywhere a term still isn't explained before it's needed. Still
+  not done by any round.
+
+### 9.3 Closed records — history, not open work
+
+**Nothing in this subsection is outstanding, and the deferral above does not
+apply to it.** These are questions earlier editions listed as open that have
+since been answered, kept so the next walker can see what moved and why rather
+than re-opening them. Each names its own date and how it was settled — read
+live, or read from the console's source. Where one leaves a residue that still
+needs watching, it says so, and that residue sits under
+[#580](https://github.com/dmfdeploy/dmfdeploy/issues/580) with everything in
+§9.1.
+
 
 **Closed by the 2026-09-02 walk** (kept here only as a record of what that
 round resolved, not as open items): §1's rail/topbar claims specifically
@@ -1767,43 +1838,7 @@ template" round trip after Teardown. The §4 false-catalog-warning item is
 also closed, but not the way hoped — it's back, confirmed, and now a filed
 issue plus a corrected presenter note (§4) rather than a deferred check.
 
-- §1 — **The login beat's actual WebAuthn ceremony has never been
-  independently live-walked, by any round to date** — every walk so far,
-  this one included, started from an already-authenticated session. See
-  §1's own gap note and
-  [dmfdeploy/dmfdeploy#535](https://github.com/dmfdeploy/dmfdeploy/issues/535).
-  This is the single most important open item in this list: it's the very
-  first beat a genuine outsider (#383) would hit.
-- §1 — Whether the rail's per-icon tooltip is a real, visible hover/focus
-  popup (not just an `aria-label` a screen reader announces) — this round
-  confirmed the accessible name, not the visible affordance.
-- §1 — The **present**-for-an-admin half of "Admin appears as a fourth
-  icon only if the persona is an admin" — this round's persona was
-  engineer, not admin, so only the absent-for-non-admin half was
-  independently re-tested. Needs a walk using an admin persona.
-- §2 — Whether an invalid workload identity actually shows the documented
-  red validation hint — this round never typed one to trigger it.
-- §6a — Delete permanently's two independent disabled-state gates (wrong
-  slug alone stays disabled; correct slug with no reason also stays
-  disabled) — this round filled both fields together and confirmed the
-  end-to-end action worked, which is consistent with but not a direct
-  re-test of each partial state.
-- §6a — Clear for deployment's actual confirm action (clicking Confirm and
-  watching it complete) is 0.24.0-only — this round opened and read the
-  same confirm panel but deliberately didn't confirm it, to keep the one
-  workload this journey allows available for Delete permanently.
-- §3 — The specific "follow an active View live link before the record
-  exists, land on Workload not found" sequencing — the string itself is
-  confirmed (seen later, post-Delete), but this round never deliberately
-  navigated early enough during Provision to retrigger that exact
-  sequence.
-- §4 — The 97.6% preview-success figure (2033/49 fetches) is a two-hour
-  log sample from 0.24.0, not repeated this round — still presented as
-  current; re-measure on a future walk if it's going to keep being cited.
-- §3 — Watch the pods/instances for the receiver and both sources
-  actually converge to Running via the cluster itself (`kubectl get pods`),
-  not just via the console's own screens. Still not done by any round —
-  needs a walk run from a machine with cluster/SSH access.
+
 - §4 — **Closed 2026-09-19.** A lifecycle-stage badge exists on the `/setup`
   page, where three values have been observed (`provisioned`, `configured`,
   `planned`). The open question was whether the bare-slug **live view**
@@ -1836,24 +1871,3 @@ issue plus a corrected presenter note (§4) rather than a deferred check.
   it — not a timing miss. What remains open is only whether the relocated
   line renders as source says while a delete actually runs; the 2026-09-19
   freeze forbade running one.
-- §6c/§6d — Re-confirm AWX's own replica count actually returns to 0/0
-  after a burst of jobs (Provision, Switch, Teardown, Delete permanently) —
-  confirmed on the 0.24.0 walk, not independently re-checked 2026-09-02
-  (no cluster/kubectl access from where that walk ran; this round could
-  only confirm every job *succeeded*, via AWX's own job list, which is
-  necessary but not sufficient evidence of re-idling afterward). Also
-  still open from before: watch AWX re-idle to zero on its own while the
-  workload is still on the live view (§4) or mid-Switch (§5) — genuinely
-  still running, not mid-Teardown.
-- The stale/failed "Failed to remove MXL Test-Pattern Viewer" entry this
-  round noticed at the top of the Workspace panel then called "Recent
-  changes", since renamed **Activity** (§1) —
-  confirmed NOT from this round's own run (this run's AWX jobs all show
-  Succeeded), but unconfirmed whether it's a genuinely still-relevant
-  problem from an earlier session or safe to ignore as historical noise.
-  Filed as
-  [dmfdeploy/dmfdeploy#533](https://github.com/dmfdeploy/dmfdeploy/issues/533)
-  rather than resolved here.
-- Read the whole file aloud as if you were the named outsider from #383
-  and flag anywhere a term still isn't explained before it's needed. Still
-  not done by any round.
