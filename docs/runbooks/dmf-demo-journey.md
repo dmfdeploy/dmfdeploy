@@ -102,8 +102,12 @@ permanently is named as a second write absent from the audit record (§6b);
 removed; §1's login and passkey-invitation instructions were both wrong and
 are corrected; several controls that no longer paint their explanation on
 screen are described as they actually render (§3, §6a); the in-flight badge
-is spelled "finalising"; §0 gains a version check; and §7 loses a rough edge
-that no longer happens while gaining four that do.
+is spelled "finalising"; §0 gains a version check; §7 loses a rough edge that
+no longer happens while gaining four that do; the five rail chips are noted as
+rendering on the live view too, and Activity as having no sidebar entry; two
+controls that can render a beat late are flagged so a presenter doesn't read
+lateness as breakage; and §9 now states the three different things it holds
+rather than claiming no pass has covered any of them.
 
 **Two issue references were resolved after this pass reported.** §9's
 deferred list now tracks
@@ -183,7 +187,7 @@ internal vocabulary as unearned until it's explained too).
 | **Topology** | How many pieces one template creates when you provision it. This demo's one template creates **three**: one receiver plus two sources. |
 | **AWX** | The automation engine that actually runs the deploy/switch/teardown jobs. It is not always on — see the wake step in §3. |
 | **NetBox** | The facility's own inventory system — the source of truth the console reads from and lightly writes to. The console never treats its own screen as the record. |
-| **Sidecar** | A small helper process bundled with each running piece that reports its live status and preview — separate from the piece doing the actual media work. |
+| **Sidecar** | A small helper process bundled with each running piece that reports its live status — separate from the piece doing the actual media work. It also serves a live preview for the **receiver**, which has an incoming picture to show; the two sources have nothing incoming, so their tiles carry a static illustration instead (§4). |
 | **Reason / audit trail** | Every media-workload write this journey makes — Provision, Switch, Teardown, Delete permanently, Clear for deployment — requires you to type a short reason before it fires: that part is universal, with no exceptions. What the reason is then *recorded in* is narrower. Most of those writes land in the server-side record §6b calls "the audit trail", but **Delete permanently is deliberately kept out of that lane** (§6b says why), so don't describe it as covered there. See §6b for the two places the record lives and how long each keeps it. (The one write outside this set that the journey optionally touches — creating a passkey invitation, §1 — takes no reason and isn't in the record either; see §1's own note.) |
 | **The rail** | Five steps, shown as chips: **Design → Plan → Provision → Configure → Finalise & Review.** All five names are real on-screen labels. There is no sixth "Operate" chip — the word "Operate" does not render anywhere on that page at all. The chips belong to the guided flow, but they also render across the top of the live view, where none of them shows as selected — see "Three URLs, one workload" and §4. See **Live view**, next. |
 | **Live view** | The workload's own home page — its bare URL, no suffix. A read-only monitoring surface, not a rail step: this is where you *watch* the workload run. Every media-workload *write* this journey makes **against an already-real workload** happens on the guided-flow page instead — the one exception, the optional passkey invitation in §1, happens on Settings, not here or there. Provision itself is different again: it fires from the create wizard, before the workload is real at all — see "Three URLs, one workload," next. |
@@ -437,9 +441,9 @@ pitfalls that runbook covers in full.
 | 1 | **Log in** | Passkey login as a demo persona — no password | Console |
 | 2 | **Create the workload** | Name a studio, pick the one template on offer, confirm where it runs | `/media-workloads/new` |
 | 3 | **Provision** | One click → automation plane wakes → three pieces go Running together | `/media-workloads/new` → `/media-workloads/<slug>/setup` |
-| 4 | **Live view** | Live tiles for all three pieces — the workload's own home page | `/media-workloads/<slug>` (bare slug) |
+| 4 | **Live view** | A tile for each of the three pieces — the receiver's a live preview, the two sources' a static illustration of the pattern they emit (§4) — on the workload's own home page | `/media-workloads/<slug>` (bare slug) |
 | 5 | **Switch** | Re-point the receiver from one source to the other | `/media-workloads/<slug>/setup` → Configure |
-| 6 | **Finalise & Review** | Two possible endings — tear down, or delete permanently — plus the audit trail | `/media-workloads/<slug>/setup` → Finalise & Review; Activity → History |
+| 6 | **Finalise & Review** | Two possible endings — tear down, or delete permanently — plus the audit trail, which covers the teardown but deliberately not the delete (§6b) | `/media-workloads/<slug>/setup` → Finalise & Review; Activity → History |
 
 **One workload only.** This journey deliberately walks **one** media
 workload through the full lifecycle and stops. With a single-template
