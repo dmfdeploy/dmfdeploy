@@ -531,7 +531,10 @@ appears once the workload is real, and even then it lives on the workload's
 own `/setup` page, not this one — §3 onward) — each step instead shows a
 small numbered header (e.g. **"1 · Design"**) with a status badge that reads
 **Now** while you're on it and **Done** once you've completed it, plus
-**Previous**/**Next** at the bottom. Work through it in order:
+**Previous**/**Next** at the bottom. **Identity is the exception: it shows a
+plain "Identity" heading with no number and no badge**, deliberately, so it
+never reads as an extra stage — don't go looking for a "1 · Identity" chip.
+Work through it in order:
 
 **Studio name** is the human-friendly name for *this* workload —
 distinct from the **Facility** it runs on, and distinct from the
@@ -562,10 +565,12 @@ An amber note states the honest limit up front — **wording changed since
 live 2026-09-02): *"This draft lives only in this browser tab until Provision
 runs — refreshing or closing the tab before then loses it. Provision records
 the workload identifier only; the studio name above is never stored
-anywhere."* A further inline line appears below the fields before you've
-typed anything: *"This is the first step. Enter a studio name that resolves
-to a valid workload identity to continue."* Enter a Studio name, confirm or
-edit the identity it proposes, and click **Next →**.
+anywhere."* Two further texts sit along the footer before you've typed
+anything — at opposite ends of the same row, not as one running sentence:
+*"This is the first step."* on one side, and *"Enter a studio name that
+resolves to a valid workload identity to continue."* on the other. Enter a
+Studio name, confirm or edit the identity it proposes, and click
+**Next →**.
 
 **Step 2 — Design.** This is the console's whole **catalog** (see Terms) —
 today, **one entry**: **"MXL Test-Pattern Viewer"** (confirmed live
@@ -573,33 +578,21 @@ today, **one entry**: **"MXL Test-Pattern Viewer"** (confirmed live
 `display_name` at `dmf-media catalog/mxl-videotest-view.yaml:2`), with a
 **"Use this template"** button (confirmed both live and against source).
 The console renders this card's summary from `entry.summary`
-(`CreateWorkload.tsx:571`) — that literal text lives in dmf-media's catalog
+(`CreateWorkload.tsx:684`) — that literal text lives in dmf-media's catalog
 data, not dmf-cms's own source, but dmf-media is readable too, and its
-committed value reads, verbatim, unchanged across both rounds: *"Media
-eXchange Layer consumer for the cross-host fabrics demo: the receiver
-target exposes the received flow and preview from the paired source over
-libfabric tcp. This is the view / receiver half of the split demo."*
-(`dmf-media catalog/mxl-videotest-view.yaml:4-6`; the console applies no
-transform to it, so what's committed there is what renders). In plain
-terms: "libfabric
-tcp" just names the low-level networking transport carrying the test video
-between pods (a "pod" is the cluster's own unit of one running piece — each
-of this workload's three pieces runs in one), and "cross-host" means it
-still works when those pods land on different nodes — the part that matters
-for you is simpler than either:
-this is the one thing you can deploy, and it is the **receiving** half of a
-source/receiver pair — provisioning it also brings its two sources along
-for the ride (that's the "topology" from Terms, above; more in §3). Click
-**Use this template**.
-
-> **PRESENTER NOTE — jargon on this screen (non-blocking, but real).** That
-> summary sentence is quoted, not paraphrased, and it is denser than this
-> runbook's own glossing standard allows — "libfabric tcp" and "cross-host
-> fabrics demo" aren't explained anywhere on screen. This rewrite treats
-> that as **evidence the surface itself needs a plainer summary**, not
-> something to paper over here; it's flagged for the surface owner rather
-> than fixed in this file. If you're asked what it means: it's the piece
-> that receives and displays the test video the two sources produce.
+committed value now reads, verbatim: *"Media eXchange Layer test-pattern
+demo: two pattern sources and one receiver that shows the received picture,
+with a live preview."* (`dmf-media catalog/mxl-videotest-view.yaml:4-5`; the
+console applies no transform to it, so what's committed there is what
+renders). **This summary was rewritten on 2026-09-10** — earlier editions of
+this runbook quoted a much denser sentence about a "cross-host fabrics demo"
+and "libfabric tcp", and carried a presenter note explaining that jargon.
+Neither phrase renders anywhere now, so if you are presenting from an older
+walk, drop that explanation: the screen no longer needs it. What the sentence
+tells you is what matters here — this is the one thing you can deploy, and it
+is the **receiving** half of a source/receiver pair, so provisioning it also
+brings its two sources along for the ride (that's the "topology" from Terms,
+above; more in §3). Click **Use this template**.
 
 **Step 3 — Plan.** A single sentence — *"This workload will run on
 `<site name>`."* — with a **Confirm placement** button, both confirmed
