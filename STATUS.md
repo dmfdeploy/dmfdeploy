@@ -21,6 +21,73 @@ For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/ar
 
 <!-- HUMAN-START -->
 
+### ✅ Demo-journey runbook re-verified against dmf-cms 0.39.0 — read-only, under the capture freeze (2026-09-19)
+
+[#579](https://github.com/dmfdeploy/dmfdeploy/issues/579), merged as `6abac3f`
+via [#581](https://github.com/dmfdeploy/dmfdeploy/pull/581). The runbook had
+last been walked end to end against **v0.33.0** and touched in a targeted pass
+against **v0.38.0**; the standing env runs **0.39.0**. Six releases of drift on
+most beats, one on the rest.
+
+**The worst of it was a scripted falsehood, not a stale fact.** §6b instructed
+the presenter, in bold, *"Do not tell an audience that every row now carries
+its outcome"*, citing [#560](https://github.com/dmfdeploy/dmfdeploy/issues/560)
+as open. #560 closed 2026-09-10 and 0.39.0 ships the fix. Since Gate B requires
+on-camera claims to reconcile against the published render, that one beat could
+have cost a take. It now describes the real behaviour, including the two cases
+that genuinely never resolve: an automatic rollback attaching to a pre-existing
+*manual* rollback never joins an outcome, and an operator-initiated rollback is
+off the record entirely.
+
+Also corrected: `Delete permanently` named as a second write outside the audit
+record (§6a walks it, §6b praised the record's completeness); §2's replaced
+catalog summary and the jargon note built on it; §1's nonexistent **Sign in**
+control and its passkey gate, which is at viewer and not admin; the `View live`
+exits, `Clear for deployment`'s collapsed disclosure and the `finalising`
+badge; §0 gains an unauthenticated `/api/version` pre-flight; §7 loses a rough
+edge whose rendering code was deleted and gains four that are real.
+
+**Method, and what it is worth.** The capture freeze held throughout — nothing
+was mutated. Non-mutating surfaces were transcribed from the live DOM; every
+beat that writes or runs was read from the 0.39.0 tree and **never watched**.
+The file now states that split per beat rather than in one assurance paragraph,
+and §9 is the ledger, restructured into **9.1 deferred and outstanding**,
+**9.2 never walked by any pass**, **9.3 closed records**, so a blanket
+statement cannot reach an entry it does not describe.
+[#580](https://github.com/dmfdeploy/dmfdeploy/issues/580) carries the mutating
+beats and unblocks when the freeze lifts.
+
+**Five review rounds from `lkirc`, 21 findings across the arc, every one real.**
+Worth recording because the pattern was consistent and is cheap to defend
+against next time:
+
+| What kept going wrong | Why | The fix that held |
+|---|---|---|
+| A correction landed where the claim lives; the glossary, §0's pre-flight table and the at-a-glance summary restated it and were not edited | Those surfaces summarise beats they do not own, so they never appear in a correction's diff | Sweep by **surface**, not by correction. Auditing each derived surface inward against all corrections found four more after two review rounds had run |
+| §9 produced three findings in three rounds | Its framing sentences were written for a section holding one category; it holds three | Structural split into subsections, so the claim lives inside the scope it describes |
+| A grouped finding naming three edit sites received two | Nothing compared the diff against the entry's own site list | A grouped entry naming N sites needs N verified edits — a five-minute check against the findings file |
+| A source-derived correction shipped inside a sentence dated *"confirmed live 2026-09-08"* | A clause dropped into an existing paragraph inherits that paragraph's date | Attribution rides on the **claim**, never on the document |
+
+**Two tooling notes that cost real time.** This file hard-wraps at ~76
+characters, and that defeats mechanical checking in both directions: a phrase
+grep cannot see a hit that wraps a line break (three stale claims survived
+line-based sweeps and were caught only by reading), while a structure check for
+severed sentences flagged 34 candidates for 3 real defects, because a wrap and
+a severed sentence look identical to it. On a hard-wrapped document the read is
+the instrument; a mechanical check can order the reading, not replace it. Any
+future audit of this file should join whitespace first.
+
+And a probe finding nothing is not a result. An earlier walk ran a real
+Teardown while polling for two on-screen strings, matched neither, and recorded
+that as uncertainty — the console had already reworded them, so the probe was
+hunting text that no longer existed. *Observing the window is not establishing
+the fact*, and "walked / never walked" is not an exhaustive taxonomy. Capturing
+a whole surface beats asserting on a predicted string for a structural reason,
+not a robustness one: a predicted string can only confirm what you already
+believe, and has no capacity to surprise you. Three of this round's findings
+were things nobody would have written a probe for.
+
+
 ### ✅ dmf-cms v0.37.0 released and deployed — source tiles and outcome-confirmed Activity (2026-09-07, later)
 
 Two features landed and shipped in one round, both closed against the demo milestone.
