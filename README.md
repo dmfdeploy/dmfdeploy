@@ -1,5 +1,7 @@
 # dmfdeploy
 
+[![CI](https://github.com/dmfdeploy/dmfdeploy/actions/workflows/ci.yml/badge.svg)](https://github.com/dmfdeploy/dmfdeploy/actions/workflows/ci.yml)
+
 **DMF Platform** — an open prototype of the [EBU](https://tech.ebu.ch/)
 *Dynamic Media Facility* Reference Architecture V2.0 on commodity
 infrastructure: k3s, Ansible, NetBox,
