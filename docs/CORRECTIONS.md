@@ -41,9 +41,11 @@ wrong, a later entry corrects it.
   [#560](https://github.com/dmfdeploy/dmfdeploy/issues/560) as open. #560 had
   closed on 2026-09-10, so the guidance described a gap the code no longer had.
 - **What is right:** since dmf-cms 0.39.0, automatic-rollback rows carry an
-  outcome, like deploy and teardown rows. Two cases still never resolve: an
-  automatic rollback that attaches to an earlier *manual* rollback never joins
-  an outcome, and an operator-initiated rollback is not on the record at all.
+  outcome, like deploy and teardown rows. Two cases differ. An automatic
+  rollback that attaches to a *manual* rollback already running never joins an
+  outcome: its row reads "dispatched" with no badge, and turns to *outcome
+  unknown* only after a full hour. An operator-initiated rollback does not
+  appear on the record at all.
   This was read from the 0.39.0 source; no automatic-rollback row was observed
   live in the 2026-09-19 pass, and the runbook marks the beat that way.
 - **What changed:** [#581](https://github.com/dmfdeploy/dmfdeploy/pull/581)
