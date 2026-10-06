@@ -20,6 +20,10 @@ catalog control chain (console → AWX → Helm → NetBox lifecycle state) — 
 larger claim — that a *stranger* can reproduce this — is exactly what v0.1 is
 closing: see the [thesis one-pager](docs/THESIS.md).
 
+**See it:** an 81-second recording of one media workload being provisioned on
+one node, with a plain account of what it does and does not show, is on the
+[organization page](https://github.com/dmfdeploy).
+
 ## Start here — pick your path
 
 | You are… | Read, in order |
