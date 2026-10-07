@@ -130,3 +130,8 @@ reservation ledger).
 - **Open (for the RFC / provider slice):** licence-class taxonomy; provider
   backend; concurrency/expiry semantics; whether Plan-stage reservation is
   separate from Provision-stage assignment; external-entitlement mapping.
+- **Reference input (added 2026-10-07):** the IAMT *Dynamic Software Licensing*
+  best practices v1.0.0 (2026-09-07) speak to all five open items above —
+  entitlement vs lease split, lease lifecycle, canonical API, grace policy.
+  Read the [summary and DMF relevance note](../references/iamt-dsl-v1.0.0-summary-and-relevance.md)
+  before opening the RFC.

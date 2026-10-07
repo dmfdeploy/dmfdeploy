@@ -27,6 +27,7 @@ verbatim (docs cross-reference each other by display name).
 | [reviews/](reviews/) | Record | Point-in-time strategic and technical reviews; current assessment is the [2026-06-06 technical evaluation](reviews/dmf-platform-technical-evaluation-2026-06-06.md). |
 | [handoffs/](handoffs/) | Record | Append-only session handoffs — newest wins; never required reading to contribute. |
 | [sessions/](sessions/) | Record | Operational session logs (rebuild notes, DR drill). |
+| [references/](references/README.md) | Record | Third-party reference documents (with licence) plus a DMF summary-and-relevance note for each — inputs to parked topics, not decisions. |
 | [questions/](questions/) | Record | Raw open-question ledgers; the curated view is [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md). |
 | [design/](design/) | **Canonical** | Operator-console UX constitution + alarm/danger/audit/glossary specs. |
 | [runbooks/](runbooks/) | **Canonical** | Copy-pasteable operator runbooks. |
