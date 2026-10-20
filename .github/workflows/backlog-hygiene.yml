@@ -2,7 +2,7 @@ name: backlog-hygiene
 
 on:
   schedule:
-    - cron: "0 6 * * 1"  # Mondays 06:00 UTC
+    - cron: "0 6 * * *"  # daily 06:00 UTC
   workflow_dispatch:
 
 permissions:
@@ -19,6 +19,14 @@ jobs:
         with:
           persist-credentials: false
 
+      # Offline check that the freshness rules still detect what they claim to.
+      # A failure here means the checker is broken, not that the backlog is.
+      - name: Self-test the freshness rules
+        run: bin/check-backlog-hygiene.sh --self-test
+
+      # Warn mode: the step records the checker exit code and never fails the
+      # job, so findings (including the freshness rules) are reported through
+      # the report issue below without turning the run red.
       - name: Run backlog-hygiene check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
