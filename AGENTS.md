@@ -14,8 +14,9 @@ Facility reference architecture.
    sessions are operator-local, and `docs/handoffs/` is a frozen archive.
 3. Skim [docs/decisions/INDEX.md](docs/decisions/INDEX.md) and apply any ADR
    that fits your task.
-4. Run `git status` in each component repo you will touch. Ask before you
-   modify one with uncommitted changes.
+4. Run `git status` in each component repo you will touch, and ask before you
+   modify one with uncommitted changes. Before you change one, read its own
+   AGENTS.md and CLAUDE.md: they carry component-scoped rules.
 5. Run `bin/install-hooks.sh` once per clone. `STATUS_HOOK_SKIP=1` skips the
    doc gates on commit, but never secret scanning.
 
