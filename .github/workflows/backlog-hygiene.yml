@@ -24,11 +24,10 @@ jobs:
       - name: Self-test the freshness rules
         run: bin/check-backlog-hygiene.sh --self-test
 
-      # Warn mode: the checker runs with --warn, so it prints findings and
-      # exits 0. Because the exit code no longer signals findings, the step
-      # reads the count from the checker's last line ("backlog-hygiene: N
-      # finding(s) ...") and records has_findings. A crash (non-zero exit, or
-      # no summary line) also counts as a finding, so it is still reported.
+      # Strict mode: the checker exits 1 on findings. The step captures the
+      # exit code instead of failing, so the report issue is still updated or
+      # closed; the last step fails the job. A crash (an exit code other than
+      # 0 or 1, or no summary line) also counts as a finding.
       - name: Run backlog-hygiene check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -37,15 +36,10 @@ jobs:
           # pipefail so rc reflects the checker, not tee
           set +e
           set -o pipefail
-          bin/check-backlog-hygiene.sh --warn 2>&1 | tee /tmp/report.txt
+          bin/check-backlog-hygiene.sh 2>&1 | tee /tmp/report.txt
           rc=$?
           set -e
-          count="$(sed -n 's/^backlog-hygiene: \([0-9][0-9]*\) finding.*/\1/p' /tmp/report.txt | tail -1)"
-          if [ "$rc" -ne 0 ]; then
-            has=true
-          elif [ -n "$count" ] && [ "$count" -gt 0 ]; then
-            has=true
-          elif grep -q '^backlog-hygiene: OK' /tmp/report.txt; then
+          if [ "$rc" -eq 0 ] && grep -q '^backlog-hygiene: OK' /tmp/report.txt; then
             has=false
           else
             has=true
@@ -100,4 +94,16 @@ jobs:
             else
               echo "No findings, no open report issue — nothing to do"
             fi
+          fi
+
+      # Fails the job when the check found drift or crashed, after the report
+      # issue is handled. Runs even if an earlier step failed.
+      - name: Fail on findings
+        if: always()
+        env:
+          HAS_FINDINGS: ${{ steps.hygiene_run.outputs.has_findings }}
+        run: |
+          if [ "${HAS_FINDINGS:-}" != "false" ]; then
+            echo "::error::backlog-hygiene found drift or did not finish; see the report issue"
+            exit 1
           fi
