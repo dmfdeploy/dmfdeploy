@@ -577,7 +577,7 @@ netbox-sot / PR 3.5; HIGH-2 dropped PR 6's verifier rewrite half).
   — adjacent identity ADR.
 - [DMF App-Admin Drift Realignment Handoff 2026-05-23](../handoffs/DMF%20App-Admin%20Drift%20Realignment%20Handoff%202026-05-23.md)
   — narrow-scope predecessor work; this plan finishes the job.
-- [DMF Convergence Next Steps Queue 2026-05-23](DMF%20Convergence%20Next%20Steps%20Queue%202026-05-23.md)
+- [DMF Convergence Next Steps Queue 2026-05-23](../archive/plans/DMF%20Convergence%20Next%20Steps%20Queue%202026-05-23.md)
   — §#1 closed by the handoff above; this plan addresses the
   bespoke-per-site pattern that the handoff left in place.
 - `dmf-infra@29ca24b` — 698 Forgejo username consolidation (inlined

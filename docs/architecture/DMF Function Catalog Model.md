@@ -378,6 +378,6 @@ catalog entry and asserts:
   (`ipam.Service` field gaps)
 - `docs/plans/dmf-platform-move-1-task-2026-05-04.md` — implementation
   task spec
-- `docs/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md` —
+- `docs/archive/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md` —
   technical reference for nmos-cpp implementation (Phase 1+2 reusable;
   Phase 3 superseded by the catalog model)

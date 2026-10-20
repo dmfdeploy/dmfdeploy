@@ -10,7 +10,7 @@
 ## TL;DR
 
 - A new **`aliyun-frankfurt`** environment was scaffolded (Tofu + inventory + manifest) and audited.
-- **Four blockers + 11 security findings** caught during audit. Documented in [`docs/reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md`](../reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md).
+- **Four blockers + 11 security findings** caught during audit. Documented in [`docs/archive/reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md`](../archive/reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md).
 - **Phase A blockers all cleared** by Qwen-Coder during this session (`dmf-infra@033d438`, `dmf-env@31f6a78`).
 - **No live ECS yet** — operator confirmed "no rush." First Tofu apply against Aliyun is still pending operator decision.
 - **Future-direction note** captured for per-resource provider+pricing chooser ([`docs/plans/dmf-multi-provider-resource-selection-future-direction-2026-05-08.md`](../plans/dmf-multi-provider-resource-selection-future-direction-2026-05-08.md)) — explicitly out of scope today.
@@ -48,7 +48,7 @@ A project memory was added: `project_multi_provider_resource_selection.md` — f
 
 ## Open questions resolved this session
 
-See [`docs/questions/aliyun-frankfurt-rollout-open-2026-05-08.md`](../questions/aliyun-frankfurt-rollout-open-2026-05-08.md).
+See [`docs/archive/questions/aliyun-frankfurt-rollout-open-2026-05-08.md`](../archive/questions/aliyun-frankfurt-rollout-open-2026-05-08.md).
 
 | Q | Decision |
 |---|---|
@@ -132,7 +132,7 @@ curl -sS https://aliyun.<lan-host>/
 # 11. Post-rollout: update STATUS.md HUMAN-START + write closure handoff
 ```
 
-Full procedure with prerequisites and verification: [`docs/reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md`](../reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md) §7.
+Full procedure with prerequisites and verification: [`docs/archive/reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md`](../archive/reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md) §7.
 
 ---
 
@@ -158,7 +158,7 @@ Full procedure with prerequisites and verification: [`docs/reviews/dmf-aliyun-fr
 2. Read [`STATUS.md`](../../STATUS.md) HUMAN-START.
 3. Read this handoff.
 4. If touching aliyun rollout:
-   - Read [`docs/reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md`](../reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md).
+   - Read [`docs/archive/reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md`](../archive/reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md).
    - Decide: rollout-now or Phase B housekeeping first.
 5. If touching anything else: this handoff is informational only — your task probably has a more relevant prior handoff in [`docs/handoffs/`](.).
 
@@ -166,8 +166,8 @@ Full procedure with prerequisites and verification: [`docs/reviews/dmf-aliyun-fr
 
 ## Cross-references
 
-- Review: [`docs/reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md`](../reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md)
-- Questions: [`docs/questions/aliyun-frankfurt-rollout-open-2026-05-08.md`](../questions/aliyun-frankfurt-rollout-open-2026-05-08.md)
+- Review: [`docs/archive/reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md`](../archive/reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md)
+- Questions: [`docs/archive/questions/aliyun-frankfurt-rollout-open-2026-05-08.md`](../archive/questions/aliyun-frankfurt-rollout-open-2026-05-08.md)
 - Future direction: [`docs/plans/dmf-multi-provider-resource-selection-future-direction-2026-05-08.md`](../plans/dmf-multi-provider-resource-selection-future-direction-2026-05-08.md)
 - Prior handoff: [`docs/handoffs/DMF Bootstrap Implementation Progress Handoff 2026-05-08.md`](DMF%20Bootstrap%20Implementation%20Progress%20Handoff%202026-05-08.md)
 - Strategic frame: [`docs/reviews/dmf-platform-strategic-review-2026-04-30.md`](../reviews/dmf-platform-strategic-review-2026-04-30.md)

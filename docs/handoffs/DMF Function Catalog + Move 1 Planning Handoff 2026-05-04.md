@@ -37,7 +37,7 @@ Task spec written:
 
 ## Relationship to existing NMOS plan
 
-`docs/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md` exists
+`docs/archive/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md` exists
 in **Proposed — awaiting approval** status. Its Phase 1+2 (Dockerfile,
 ConfigMaps, role tasks, ConfigMap shapes) is the **technical implementation
 reference** for the nmos-cpp work. Its Phase 3 ("dmf-cms integration deferred")
@@ -135,7 +135,7 @@ These need attention before Move 1 execution starts:
   reading order
 - `TODOS.md` — Move 1 entry replaced with reference to new task spec;
   scaffold rows for `lifecycle-configure.yml` and catalog mechanism added
-- `docs/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md` —
+- `docs/archive/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md` —
   header note added pointing at the Move 1 + Catalog task as the
   superseding plan for dmf-cms integration
 - `STATUS.md` operator-notes section — updated to reflect the planned
@@ -153,7 +153,7 @@ A fresh agent should:
    - `docs/architecture/DMF Function Catalog Model.md` (the architecture)
    - `docs/decisions/0012-…`, `0013-…`, `0014-…` (the decisions)
    - `docs/plans/dmf-platform-move-1-task-2026-05-04.md` (the spec)
-   - `docs/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md`
+   - `docs/archive/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md`
      (technical implementation details for nmos-cpp; treat its Phase 3 as
      superseded)
 4. Confirm decision points D1–D4 with the operator.
@@ -173,4 +173,4 @@ A fresh agent should:
 - ADR-0014: [`docs/decisions/0014-awx-project-layout.md`](../decisions/0014-awx-project-layout.md)
 - Prior handoff (Move 2 closure + Path A): [`DMF Move 2 Closure + Path A Handoff 2026-05-04.md`](DMF%20Move%202%20Closure%20+%20Path%20A%20Handoff%202026-05-04.md)
 - Strategic review: [`docs/reviews/dmf-platform-strategic-review-2026-04-30.md`](../reviews/dmf-platform-strategic-review-2026-04-30.md)
-- Existing NMOS plan: [`docs/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md`](../plans/DMF%20NMOS%20Registry%20+%20Crosspoint%20Demo%20Plan%202026-05-04.md)
+- Existing NMOS plan: [`docs/archive/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md`](../archive/plans/DMF%20NMOS%20Registry%20+%20Crosspoint%20Demo%20Plan%202026-05-04.md)

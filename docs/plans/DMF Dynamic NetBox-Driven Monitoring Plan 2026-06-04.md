@@ -5,13 +5,13 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/5
 executed: 2026-07-03
 ---
 # DMF Dynamic NetBox-Driven Monitoring Plan (2026-06-04)
-> Supersedes: [DMF Day-0 Inventory and Monitoring Plan.md](DMF%20Day-0%20Inventory%20and%20Monitoring%20Plan.md)
+> Supersedes: [DMF Day-0 Inventory and Monitoring Plan.md](../archive/plans/DMF%20Day-0%20Inventory%20and%20Monitoring%20Plan.md)
 
 > **Executed (2026-07-03).** The core pipeline (ADR-0038 incl. Amendment A,
 > the `dmf-promsd` adapter, netbox-sot seeding, born-inventory stamping)
 > shipped 2026-06-04/05 and was validated live. The two remaining items
 > closed via the
-> [Monitoring Close-Out Work Packages 2026-07-02](DMF%20Monitoring%20Close-Out%20Work%20Packages%202026-07-02.md):
+> [Monitoring Close-Out Work Packages 2026-07-02](../archive/plans/DMF%20Monitoring%20Close-Out%20Work%20Packages%202026-07-02.md):
 > **WP6 catalog-launcher stamping** (nmos-cpp stamps the Amendment-A cluster
 > coordinates; the full deploy→finalise lifecycle proven live on the NetBox
 > side) and **WP2/WP11 probe tuning** (ADR-0038 Amendment B `probe_path`
@@ -55,7 +55,7 @@ changes — with no playbook re-run.
 
 **Canonical doctrine to (re)read:**
 - `docs/architecture/DMF Platform Plan.md` §7a "Discovery architecture — three lanes"
-- `docs/plans/DMF Day-0 Inventory and Monitoring Plan.md` (this plan supersedes its
+- `docs/archive/plans/DMF Day-0 Inventory and Monitoring Plan.md` (this plan supersedes its
   §15 *bootstrap-time file_sd* choice with a *live http_sd* adapter — record in ADR)
 - ADRs: **0013** (catalog model), **0032** (scoped NetBox writer), **0037** (NetBox
   instance inventory), **0028** (identity/authority), **0034** (air-gap collections),

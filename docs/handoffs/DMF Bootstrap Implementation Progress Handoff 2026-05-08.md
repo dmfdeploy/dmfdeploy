@@ -3,7 +3,7 @@
 **Date:** 2026-05-08
 **Status:** Tier 1 (static scaffolding) complete; Tier 2 (cluster-touching) pending live cluster
 **Audience:** Next session picking up bootstrap work
-**Review:** `docs/reviews/dmf-bootstrap-tier1-review-2026-05-08.md` — Concern 1 (P0) fixed; Concern 2 (P2) annotated and deferred.
+**Review:** `docs/archive/reviews/dmf-bootstrap-tier1-review-2026-05-08.md` — Concern 1 (P0) fixed; Concern 2 (P2) annotated and deferred.
 
 ## What's done
 
@@ -60,9 +60,9 @@ Every `default('changeme')`, `default('admin')`, `default('dev')`, and `default(
 
 | File | What |
 |---|---|
-| `docs/baselines/lifecycle-provision-list-tasks-baseline-2026-05-08.txt` | Pre-refactor --list-tasks output |
-| `docs/baselines/lifecycle-provision-list-tasks-after-refactor-2026-05-08.txt` | Post-refactor --list-tasks output |
-| `docs/questions/DMF Bootstrap Implementation Questions 2026-05-08.md` | 10 Q&A + implementation status matrix |
+| `docs/archive/baselines/lifecycle-provision-list-tasks-baseline-2026-05-08.txt` | Pre-refactor --list-tasks output |
+| `docs/archive/baselines/lifecycle-provision-list-tasks-after-refactor-2026-05-08.txt` | Post-refactor --list-tasks output |
+| `docs/archive/questions/DMF Bootstrap Implementation Questions 2026-05-08.md` | 10 Q&A + implementation status matrix |
 | `STATUS.md` | HUMAN-START section updated |
 
 ## What's queued but not done

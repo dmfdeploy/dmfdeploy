@@ -287,7 +287,7 @@ the issue **and** flips this doc to `status: executed` in the same change.
 
 - **Start here:** read this doc top-to-bottom; it is self-contained. Then skim
   `docs/decisions/architectural-commitments-v1.md` (the v0.1 freeze this framing respects)
-  and `docs/plans/DMF Elastic Media Nodes and Cloud Cost Controller Plan 2026-06-01.md` (the
+  and `docs/archive/plans/DMF Elastic Media Nodes and Cloud Cost Controller Plan 2026-06-01.md` (the
   deferred elasticity track this is explicitly **not**).
 - **Status as of 2026-06-19:** **scheduled — `status: active`, tracking issue
   [dmfdeploy/dmfdeploy#97](https://github.com/dmfdeploy/dmfdeploy/issues/97).** Design captured

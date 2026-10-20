@@ -9,7 +9,7 @@ contradicts this file, this file wins — fix the other artifact.
 Enforced by: `bin/check-working-model-sync.sh` (block copies can't drift),
 `bin/check-docs.sh` (plan frontmatter), the PR-gate CI (issue linkage), and
 the backlog-hygiene detector. Plan:
-[`docs/plans/DMF Working-Model Enforcement Plan 2026-06-11.md`](plans/DMF%20Working-Model%20Enforcement%20Plan%202026-06-11.md).
+[`docs/archive/plans/DMF Working-Model Enforcement Plan 2026-06-11.md`](archive/plans/DMF%20Working-Model%20Enforcement%20Plan%202026-06-11.md).
 
 <!-- WM-DIGEST-START -->
 **DMF working model digest** (canonical: umbrella `docs/WORKING-MODEL.md`):

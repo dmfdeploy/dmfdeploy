@@ -4,7 +4,7 @@ date: 2026-05-04
 executed: 2026-06-04
 ---
 # Move 1 — NMOS spike + Function Catalog vertical slice
-> Supersedes: [DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md](DMF%20NMOS%20Registry%20%2B%20Crosspoint%20Demo%20Plan%202026-05-04.md)
+> Supersedes: [DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md](../archive/plans/DMF%20NMOS%20Registry%20%2B%20Crosspoint%20Demo%20Plan%202026-05-04.md)
 
 > **2026-05-19 update — multiple Pieces affected by the catalog launcher pivot.**
 > The catalog launcher's *transport* moves to EE-as-runtime + Helm per
@@ -28,7 +28,7 @@ executed: 2026-06-04
 
 **Date:** 2026-05-04
 **Repo scope:** `dmf-media` (primary), `dmf-infra` (lifecycle wrappers + AWX integration), `dmf-cms` (catalog page), `dmf-env` (inventory vars)
-**Reviewer that produced this task:** Claude Opus 4.7, planning session 2026-05-04 with <operator>; supersedes the dmf-cms-integration framing of `docs/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md` (Phase 3) while preserving its Phase 1+2 technical work as implementation reference.
+**Reviewer that produced this task:** Claude Opus 4.7, planning session 2026-05-04 with <operator>; supersedes the dmf-cms-integration framing of `docs/archive/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md` (Phase 3) while preserving its Phase 1+2 technical work as implementation reference.
 **Strategic context:** experiment phase (ADR-0004); commit-gate item per `docs/reviews/dmf-platform-strategic-review-2026-04-30.md`. Move 2 closed; Move 1 is the remaining gate.
 **Estimated effort:** 3–5 days realistic. Bumps the strategic review's original 1-day NMOS estimate because catalog mechanics are bundled in.
 **Closes:** strategic-review commit gate (when paired with `docs/architectural-commitments-v1.md` follow-up).
@@ -342,7 +342,7 @@ Each commit independently testable.
 - ADR-0012 (Configure split): `docs/decisions/0012-configure-stage-distinct-from-provision.md`
 - ADR-0013 (catalog model): `docs/decisions/0013-media-function-catalog-model.md`
 - ADR-0014 (AWX project layout): `docs/decisions/0014-awx-project-layout.md`
-- Existing NMOS plan (Phase 1+2 implementation reference; Phase 3 superseded by this task): `docs/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md`
+- Existing NMOS plan (Phase 1+2 implementation reference; Phase 3 superseded by this task): `docs/archive/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md`
 - DMF Platform Plan §9 (two-lane model): `docs/architecture/DMF Platform Plan.md`
 - EBU mapping (vocabulary): `docs/architecture/DMF EBU Mapping (2026-04-25).md`
 - Move 2 task spec (template for this one): `docs/plans/dmf-platform-move-2-task-2026-04-30.md`

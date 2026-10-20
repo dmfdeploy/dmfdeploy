@@ -124,8 +124,8 @@ work (shared checkouts — [[feedback_verify_main_branch_before_work]]).
 ## 5. Reference index
 
 ### Plans (the source-of-truth for this work)
-- [Idempotent Upgrade-in-Place — Findings & Plan](../plans/DMF%20Idempotent%20Upgrade-in-Place%20Mechanism%20%E2%80%94%20Findings%20and%20Plan%202026-06-01.md) (§6 = the plan we executed)
-- [Hetzner CCM Upgrade Plan](../plans/DMF%20Hetzner%20CCM%20Upgrade%20Plan%202026-06-01.md) (Path 3 chosen)
+- [Idempotent Upgrade-in-Place — Findings & Plan](../archive/plans/DMF%20Idempotent%20Upgrade-in-Place%20Mechanism%20%E2%80%94%20Findings%20and%20Plan%202026-06-01.md) (§6 = the plan we executed)
+- [Hetzner CCM Upgrade Plan](../archive/plans/DMF%20Hetzner%20CCM%20Upgrade%20Plan%202026-06-01.md) (Path 3 chosen)
 - Prior handoff: *DMF g2r6 Teardown + Upgrade-in-Place Mechanism Handoff 2026-06-01.md*
 
 ### Key artifacts touched

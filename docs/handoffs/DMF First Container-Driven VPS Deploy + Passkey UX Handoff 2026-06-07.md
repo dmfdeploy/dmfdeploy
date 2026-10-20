@@ -6,7 +6,7 @@ through the **dmf-init container**. Operator passkeys enrolled (2/2). Two `dmf-i
 committed to `main`. One new plan + several productization items opened.
 **Build model:** orchestrated — Claude drove + verified; qwen-left lifted the two committed
 playbook fixes.
-**Plan opened:** `docs/plans/DMF Sandbox Zero-Setup Addressing (sslip.io) Plan 2026-06-07.md`
+**Plan opened:** `docs/archive/plans/DMF Sandbox Zero-Setup Addressing (sslip.io) Plan 2026-06-07.md`
 **Memory:** `project_dmf_init_container_bootstrap_gaps`
 
 ## What this was

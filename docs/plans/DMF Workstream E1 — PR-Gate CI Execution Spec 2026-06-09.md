@@ -7,7 +7,7 @@ executed: 2026-06-09
 
 **Date:** 2026-06-09 · **Status:** Draft for codex cross-check → qwen lift
 **Author:** umbrella session (claude, orchestrator)
-**Parent plan:** [`DMF First Public Release Plan 2026-06-09.md`](DMF%20First%20Public%20Release%20Plan%202026-06-09.md) §Workstream E (E1)
+**Parent plan:** [`DMF First Public Release Plan 2026-06-09.md`](../archive/plans/DMF%20First%20Public%20Release%20Plan%202026-06-09.md) §Workstream E (E1)
 **Pairs with:** [`DMF Workstream D — GitHub-First Governance Execution Spec 2026-06-09.md`](DMF%20Workstream%20D%20—%20GitHub-First%20Governance%20Execution%20Spec%202026-06-09.md)
 (D shipped the DCO workflow; E1 ships the remaining PR gates. Both `.github/`
 contents **co-export into the same Workstream A orphan commit**, so a public repo

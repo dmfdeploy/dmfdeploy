@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-23
 **Origin:** Convergence queue item #1
-(`docs/plans/DMF Convergence Next Steps Queue 2026-05-23.md` §#1). The
+(`docs/archive/plans/DMF Convergence Next Steps Queue 2026-05-23.md` §#1). The
 2026-05-14 audit characterised a 6-flag `-e` override tax on
 `bootstrap-configure` runs against `aliyun-123`. This session verified
 the tax is **structurally retired** on wizard-fresh greenfields (Branch A
@@ -138,7 +138,7 @@ Per-app verdict from `audit-admin-identities.yml` on `g2r6-foa9`:
 - `docs/plans/DMF App Admin Account Drift Audit and Realignment Plan 2026-05-14.md`
   — original audit + remediation framework, superseded by this handoff
   for the immediate work but kept as Path 1/2/3 reference.
-- `docs/plans/DMF Convergence Next Steps Queue 2026-05-23.md` — §#1
+- `docs/archive/plans/DMF Convergence Next Steps Queue 2026-05-23.md` — §#1
   now closed (DONE marker added in this commit).
 - `dmf-env/bin/bootstrap-secrets.sh:926` — where
   `vault_bootstrap_admin_username` is seeded from the SOPS bundle.

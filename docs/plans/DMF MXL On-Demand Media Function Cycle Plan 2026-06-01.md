@@ -14,7 +14,7 @@ date: 2026-06-01
 - ADR-0027 — catalog **definition vs instance** separation (the *second* function is its named trigger — we hit it head-on)
 - ADR-0025 — catalog launcher = in-cluster Helm / EE-as-runtime (generic runner-pod still in flight)
 - ADR-0017 — MXL intra-host data plane; `mxlGarbageCollectFlows()` is part of the Layer-4 contract
-- **`docs/plans/DMF Elastic Media Nodes and Cloud Cost Controller Plan 2026-06-01.md`** *(to be authored on `main`)* — owns provisioning, the TTL cost sweeper, and scale-from-zero; this spike **depends** on it (§4)
+- **`docs/archive/plans/DMF Elastic Media Nodes and Cloud Cost Controller Plan 2026-06-01.md`** *(to be authored on `main`)* — owns provisioning, the TTL cost sweeper, and scale-from-zero; this spike **depends** on it (§4)
 - `docs/reviews/dmf-mxl-upstream-profile-and-contribution-review-2026-06-01.md` — upstream contribution angle (this cycle feeds #274)
 
 ---

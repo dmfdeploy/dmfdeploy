@@ -28,12 +28,12 @@ verbatim (docs cross-reference each other by display name).
 | [handoffs/](handoffs/) | Record | Append-only session handoffs — newest wins; never required reading to contribute. |
 | [sessions/](sessions/) | Record | Operational session logs (rebuild notes, DR drill). |
 | [references/](references/README.md) | Record | Third-party reference documents (with licence) plus a DMF summary-and-relevance note for each — inputs to parked topics, not decisions. |
-| [questions/](questions/) | Record | Raw open-question ledgers; the curated view is [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md). |
+| [questions/](archive/questions/) | Record | Raw open-question ledgers; the curated view is [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md). |
 | [design/](design/) | **Canonical** | Operator-console UX constitution + alarm/danger/audit/glossary specs. |
 | [runbooks/](runbooks/) | **Canonical** | Copy-pasteable operator runbooks. |
 | [processes/](processes/) | **Canonical** | BPMN 2.0 process models. |
 | [releases/](releases/) | Record | Release notes and publish artifacts. |
-| [audits/](audits/), [baselines/](baselines/), [inventory/](inventory/) | Record | Point-in-time audits, diffable baselines, inventory/boundary plans. |
+| [audits/](archive/audits/), [baselines/](archive/baselines/), [inventory/](archive/inventory/) | Record | Point-in-time audits, diffable baselines, inventory/boundary plans. |
 | [agentic/](agentic/README.md) | Record (mothballed) | The retired agentic-harness state, preserved for provenance. |
 
 ## Generated indexes

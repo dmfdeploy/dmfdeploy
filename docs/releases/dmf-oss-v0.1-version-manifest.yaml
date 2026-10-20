@@ -23,7 +23,7 @@ generated: "2026-05-26"
 generated_from: "local component repo HEADs (umbrella dmfdeploy@8ae2a34)"
 governing_adr: ADR-0031   # OSS v0.1 sandbox-and-AWS release-profile matrix
 anchor_plan: "docs/plans/DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25.md"
-verification_owner: "docs/plans/DMF OSS v0.1 WP5 Release Verification and Tagging 2026-05-25.md"
+verification_owner: "docs/archive/plans/DMF OSS v0.1 WP5 Release Verification and Tagging 2026-05-25.md"
 
 # ---------------------------------------------------------------------------
 # Lane classification vocabulary (ADR-0031 profile matrix).

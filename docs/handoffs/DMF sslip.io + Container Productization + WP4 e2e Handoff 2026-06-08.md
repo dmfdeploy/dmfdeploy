@@ -7,8 +7,8 @@ runtime patching**; mandatory passkeys enrolled **2/2 (two distinct authenticato
 invite lifecycle clean. Two plans fully delivered + an ADR decided.
 **Build model:** orchestrated — Claude drove + verified; **qwen-left** lifted all code WPs (incl.
 two verification-caught fixes); **codex** reviewed the sslip.io change set.
-**Plans delivered:** `docs/plans/DMF Sandbox Zero-Setup Addressing (sslip.io) Plan 2026-06-07.md`,
-`docs/plans/DMF dmf-init Container Productization Plan 2026-06-07.md`.
+**Plans delivered:** `docs/archive/plans/DMF Sandbox Zero-Setup Addressing (sslip.io) Plan 2026-06-07.md`,
+`docs/archive/plans/DMF dmf-init Container Productization Plan 2026-06-07.md`.
 **Decision recorded:** `docs/decisions/0040-public-tls-tiering-and-dmfdeploy-io-psl.md` (Accepted).
 **Memory:** `project_dmf_init_container_env_location`, `project_public_tls_tiering_adr0040`,
 `feedback_unwedge_qwen_with_ctrl_y`.

@@ -248,7 +248,7 @@ Source of truth: <https://github.com/sony/nmos-cpp> — specifically the
 `registry-config-schema.json` and `node-config-schema.json` under the
 `Documents/` directory of the upstream repo (or the equivalent in the
 version we built — `NMOS_CPP_VERSION=4.1.0` per
-`docs/plans/Move 1 Gate 1 — Build NMOS + Run Provision.md`).
+`docs/archive/plans/Move 1 Gate 1 — Build NMOS + Run Provision.md`).
 
 Real keys you will likely need (verify against the schema for v4.1.0):
 

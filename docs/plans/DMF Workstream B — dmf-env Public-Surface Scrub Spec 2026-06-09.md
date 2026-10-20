@@ -6,7 +6,7 @@ executed: 2026-06-09
 # DMF Workstream B — dmf-env Public-Surface Scrub Spec (rev 3)
 
 **Date:** 2026-06-09 · **Status:** Ready to execute (after codex re-review of rev3)
-**Parent plan:** `docs/plans/DMF First Public Release Plan 2026-06-09.md` (Workstream B)
+**Parent plan:** `docs/archive/plans/DMF First Public Release Plan 2026-06-09.md` (Workstream B)
 **Split:** **B1 = qwen-left** (mechanical + logic edits per exact spec). **B2 = claude** (doc rewrites).
 **Cross-check:** codex (rev1+rev2 folded; marked **[codex]**).
 

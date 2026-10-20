@@ -14,7 +14,7 @@ fixed in the same session. One pre-existing inventory gap surfaced
 ## 1. Headline
 
 The source plan
-[DMF Lifecycle-Configure Bootstrap Completion Plan 2026-05-15](../plans/DMF%20Lifecycle-Configure%20Bootstrap%20Completion%20Plan%202026-05-15.md)
+[DMF Lifecycle-Configure Bootstrap Completion Plan 2026-05-15](../archive/plans/DMF%20Lifecycle-Configure%20Bootstrap%20Completion%20Plan%202026-05-15.md)
 described three gaps in the lifecycle-configure chain that were silently
 breaking the catalog model. All three landed on `dmf-infra@main`, plus a
 fourth bug that surfaced as a direct consequence of Gap C's fail-loud
@@ -124,7 +124,7 @@ source of truth; intuition is not.**
 ## 4. Outstanding workstreams (forward to follow-ups plan)
 
 All deferred work consolidated in
-[DMF Aliyun-123 Lifecycle-Configure Follow-Ups Plan 2026-05-17](../plans/DMF%20Aliyun-123%20Lifecycle-Configure%20Follow-Ups%20Plan%202026-05-17.md).
+[DMF Aliyun-123 Lifecycle-Configure Follow-Ups Plan 2026-05-17](../archive/plans/DMF%20Aliyun-123%20Lifecycle-Configure%20Follow-Ups%20Plan%202026-05-17.md).
 That doc is the primary entry point for the next session. Highest-priority
 items at a glance:
 

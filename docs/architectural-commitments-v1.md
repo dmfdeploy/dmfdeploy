@@ -173,8 +173,8 @@ The following end-to-end path was exercised:
 | `docs/decisions/0012-configure-stage-distinct-from-provision.md` | New | ADR-0012 |
 | `docs/decisions/0013-media-function-catalog-model.md` | New | ADR-0013 |
 | `docs/decisions/0014-awx-project-layout.md` | New | ADR-0014 |
-| `docs/plans/Move 1 Gate 1 — Build NMOS + Run Provision.md` | New | Gate 1 execution guide |
-| `docs/plans/Move 1 Gate 2 — AWX Integration + Launch NMOS.md` | New | Gate 2 execution guide |
+| `docs/archive/plans/Move 1 Gate 1 — Build NMOS + Run Provision.md` | New | Gate 1 execution guide |
+| `docs/archive/plans/Move 1 Gate 2 — AWX Integration + Launch NMOS.md` | New | Gate 2 execution guide |
 | `docs/plans/dmf-platform-move-1-task-2026-05-04.md` | New | Task spec |
 | `docs/architecture/DMF Function Catalog Model.md` | New | Catalog architecture |
 
@@ -193,6 +193,6 @@ The following end-to-end path was exercised:
 
 - Strategic review: `docs/reviews/dmf-platform-strategic-review-2026-04-30.md`
 - Move 2 learnings: `docs/reviews/dmf-platform-move-2-learnings-2026-05-04.md`
-- NMOS plan: `docs/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md`
+- NMOS plan: `docs/archive/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md`
 - EBU mapping: `docs/architecture/DMF EBU Mapping (2026-04-25).md`
 - Platform plan: `docs/architecture/DMF Platform Plan.md`

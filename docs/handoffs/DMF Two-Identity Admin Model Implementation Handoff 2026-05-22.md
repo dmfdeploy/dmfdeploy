@@ -87,7 +87,7 @@ role-level divergence — every other admin chain correctly resolves
 2. **`docs/plans/DMF App Admin Account Drift Audit and Realignment Plan 2026-05-14.md`** —
    the operational record of drift on `aliyun-123` + the Path 1/2/3 framing
    for remediation.
-3. **`docs/plans/DMF Aliyun-123 Lifecycle-Configure Follow-Ups Plan 2026-05-17.md`**
+3. **`docs/archive/plans/DMF Aliyun-123 Lifecycle-Configure Follow-Ups Plan 2026-05-17.md`**
    §B.1 (lines ~210-224) — proposes the ADR-0024 title and scope.
 4. **`docs/decisions/0000-template.md`** — ADR template.
 5. **`docs/decisions/INDEX.md:48`** — the ADR-0024 reservation row to update
@@ -634,7 +634,7 @@ The PR1 unblock is genuinely 1-line; do it first regardless of when PR2 is ready
 
 - [DMF Pre-Bao Bootstrap Secrets Design 2026-05-08](../plans/DMF%20Pre-Bao%20Bootstrap%20Secrets%20Design%202026-05-08.md) — design source (§3 "One shared bootstrap admin identity")
 - [DMF App Admin Account Drift Audit and Realignment Plan 2026-05-14](../plans/DMF%20App%20Admin%20Account%20Drift%20Audit%20and%20Realignment%20Plan%202026-05-14.md) — drift catalog + Path 1/2/3 framing
-- [DMF Aliyun-123 Lifecycle-Configure Follow-Ups Plan 2026-05-17](../plans/DMF%20Aliyun-123%20Lifecycle-Configure%20Follow-Ups%20Plan%202026-05-17.md) — ADR-0024 reservation context (§B.1)
+- [DMF Aliyun-123 Lifecycle-Configure Follow-Ups Plan 2026-05-17](../archive/plans/DMF%20Aliyun-123%20Lifecycle-Configure%20Follow-Ups%20Plan%202026-05-17.md) — ADR-0024 reservation context (§B.1)
 - [DMF dmf-runbooks Public Publish Path A Handoff 2026-05-21](DMF%20dmf-runbooks%20Public%20Publish%20Path%20A%20Handoff%202026-05-21.md) — parallel workstream; coordination context
 - `docs/decisions/INDEX.md` line 48 — ADR-0024 reservation
 - `docs/decisions/0021-openbao-approle-reconciler-identity.md` — adjacent identity ADR

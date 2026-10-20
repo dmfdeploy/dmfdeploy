@@ -201,7 +201,7 @@ in the docs. **The docs settle it — `no_log` is the policy:**
   the **awx-integration role already had `no_log: true` added to its Forgejo API tasks**,
   *and* the same doc records *"the `no_log: true` … hides failures"* — the project already
   chose `no_log` despite the cost.
-- **`docs/plans/DMF OpenBao AppRole-Reconciler Implementation Brief 2026-05-13.md`**:
+- **`docs/archive/plans/DMF OpenBao AppRole-Reconciler Implementation Brief 2026-05-13.md`**:
   secrets to tasks must be `no_log: true`; **"Do not commit diagnostic `no_log: false`
   tasks."**
 - **`docs/plans/DMF In-Cluster Ansible Runner Pod Implementation Plan 2026-05-14.md §8.6`**

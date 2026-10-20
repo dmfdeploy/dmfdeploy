@@ -20,8 +20,8 @@ export DMF_BOOTSTRAP_BUNDLE_DIR=<secure-store>/dmf-bootstrap
 Then read, in order:
 
 1. **This file** — current state and next actions.
-2. `docs/reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md` — full readiness review (Phase A resolved, Phase B pending).
-3. `docs/questions/aliyun-frankfurt-rollout-open-2026-05-08.md` — resolved open questions (Q1–Q4 + N1–N3).
+2. `docs/archive/reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md` — full readiness review (Phase A resolved, Phase B pending).
+3. `docs/archive/questions/aliyun-frankfurt-rollout-open-2026-05-08.md` — resolved open questions (Q1–Q4 + N1–N3).
 4. `docs/handoffs/DMF Aliyun Frankfurt Audit + Phase A Handoff 2026-05-08.md` — prior session's Phase A audit findings.
 5. `STATUS.md` — workspace state across all repos.
 

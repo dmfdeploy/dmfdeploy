@@ -27,7 +27,7 @@ LAN Forgejo repo, then `git push -u`). 4 commits on top of 1b's `78313bd`:
 - `e9a989c` 1c.3 — manage actions + re-backup + lock wiring
 - `b5fa77b` 1c.4 — frontend Manage view
 
-**Design + slicing (the contract):** `docs/plans/DMF Init Phase 1c Manage Mode
+**Design + slicing (the contract):** `docs/archive/plans/DMF Init Phase 1c Manage Mode
 Design 2026-06-02.md` — qwen-left reviewed **twice** (design CHANGES-NEEDED → all
 folded; the 1c.2 lock/crypto **code** CHANGES-NEEDED → all folded). Read **§2
 restore ordering, §3 lock + drift, §4 actions + teardown ordering**.
@@ -128,7 +128,7 @@ decrypt-manifest — decided against in 1c.2b to avoid touching `backup.py`).
 
 ## 5. Key references
 - Repo: `dmf-init/` (`main` @ `b5fa77b`, no remote). Modules in §1.
-- Design: `docs/plans/DMF Init Phase 1c Manage Mode Design 2026-06-02.md`;
+- Design: `docs/archive/plans/DMF Init Phase 1c Manage Mode Design 2026-06-02.md`;
   parents: `…Phase 1 Implementation Plan…` + `…Bootstrap Container Plan…`. ADR-0036.
 - Reviews on disk: `/tmp/qwen-1c-review.md` (design), `/tmp/qwen-1c2-codereview.md`
   (code).

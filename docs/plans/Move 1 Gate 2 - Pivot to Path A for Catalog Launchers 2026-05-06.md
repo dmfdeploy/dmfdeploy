@@ -4,7 +4,7 @@ date: 2026-05-06
 superseded_by: "DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md"
 ---
 # Move 1 Gate 2 — Pivot to Path A for Catalog Launchers
-> Supersedes: [Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount.md](Move%201%20Gate%202%20Fix%20-%20AWX%20EE%20Pod%20Service%20Account%20Mount.md), [Move 1 Gate 2 — AWX Integration + Launch NMOS.md](Move%201%20Gate%202%20%E2%80%94%20AWX%20Integration%20%2B%20Launch%20NMOS.md)
+> Supersedes: [Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount.md](../archive/plans/Move%201%20Gate%202%20Fix%20-%20AWX%20EE%20Pod%20Service%20Account%20Mount.md), [Move 1 Gate 2 — AWX Integration + Launch NMOS.md](../archive/plans/Move%201%20Gate%202%20%E2%80%94%20AWX%20Integration%20%2B%20Launch%20NMOS.md)
 > **Superseded by** [DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md](DMF%20Cluster-Internal%20Ansible%20Execution%20and%20Catalog%20Helm%20Pivot%20Plan%202026-05-19.md) — see frontmatter.
 
 > ⚠️ **SUPERSEDED 2026-05-23** by the
@@ -310,7 +310,7 @@ Inventory of every artifact discovered during the investigation that is dead, br
 
 | Severity | Artifact | Action |
 |---|---|---|
-| `[STALE-DOC]` | `docs/plans/Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount.md` | Add a header banner: `> **Superseded by [Pivot to Path A for Catalog Launchers 2026-05-06](Move%201%20Gate%202%20-%20Pivot%20to%20Path%20A%20for%20Catalog%20Launchers%202026-05-06.md)**. The SA-mount approach proved infeasible in the project's experiment phase; see new plan for findings.` Do not delete the file — it is the failed plan that this one supersedes and the trail matters. |
+| `[STALE-DOC]` | `docs/archive/plans/Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount.md` | Add a header banner: `> **Superseded by [Pivot to Path A for Catalog Launchers 2026-05-06](Move%201%20Gate%202%20-%20Pivot%20to%20Path%20A%20for%20Catalog%20Launchers%202026-05-06.md)**. The SA-mount approach proved infeasible in the project's experiment phase; see new plan for findings.` Do not delete the file — it is the failed plan that this one supersedes and the trail matters. |
 | `[STALE-DOC]` | `docs/decisions/0012-configure-stage-distinct-from-provision.md` | Add an "Implementation note (2026-05-06)" section pointing to ADR-0016 and clarifying that catalog launchers currently use SSH-to-control-node, not in-cluster SA. The stage-split decision itself is unchanged. **In scope for Phase 4.** |
 | `[STALE-DOC]` | `docs/plans/Move 1 Gate 2 — Trials and Tribulations 2026-05-05.md` | Add a closing footnote referring to this plan and the pivot decision; the trials/tribulations entry remains historically accurate. |
 | `[STALE-DOC]` | `docs/handoffs/DMF Move 2 Closure + Path A Handoff 2026-05-04.md` and `docs/handoffs/DMF Function Catalog + Move 1 Planning Handoff 2026-05-04.md` | Both pre-date this pivot; safe to leave. The new 2026-05-06 handoff (Phase 4) becomes the authoritative pointer. |
@@ -384,7 +384,7 @@ To avoid breaking the cluster mid-pivot, do cleanup in this order:
 - `<umbrella-path>/docs/decisions/0014-awx-project-layout.md`
 - `<umbrella-path>/docs/decisions/0016-awx-control-node-ssh-via-cloud-init-and-openbao.md`
 - `<umbrella-path>/docs/architecture/DMF Function Catalog Model.md`
-- `<umbrella-path>/docs/plans/Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount.md` (the original failed plan this supersedes)
+- `<umbrella-path>/docs/archive/plans/Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount.md` (the original failed plan this supersedes)
 
 **Current state of code:**
 - `<umbrella-path>/dmf-runbooks/playbooks/launch-nmos-cpp.yml`

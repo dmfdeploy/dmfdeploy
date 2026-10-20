@@ -202,9 +202,9 @@ scope this session).
 - `dmf-infra@209601d` — original implementation commit, 2026-05-13.
 - `dmf-infra@6f6cee8` — prerequisite policy-writer session separation,
   2026-05-13.
-- `docs/plans/DMF OpenBao AppRole-Write Reconciler Plan 2026-05-13.md`
+- `docs/archive/plans/DMF OpenBao AppRole-Write Reconciler Plan 2026-05-13.md`
   — parent plan, now superseded by this handoff.
-- `docs/plans/DMF OpenBao AppRole-Reconciler Implementation Brief
+- `docs/archive/plans/DMF OpenBao AppRole-Reconciler Implementation Brief
   2026-05-13.md` — implementation brief, superseded by this handoff
   except for §6 (recovery ceremony for pre-2026-05-13 clusters, still
   active reference).

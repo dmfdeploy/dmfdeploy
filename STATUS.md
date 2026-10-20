@@ -1528,7 +1528,7 @@ console per-instance health join (v0.2 candidates).
 
 ### 🚧 WORKING-MODEL ENFORCEMENT — umbrella foundation landed; 8-repo propagation NEXT (2026-06-11)
 **Tracking: [issue #32](https://github.com/dmfdeploy/dmfdeploy/issues/32)** ·
-plan `docs/plans/DMF Working-Model Enforcement Plan 2026-06-11.md` (reviewed by
+plan `docs/archive/plans/DMF Working-Model Enforcement Plan 2026-06-11.md` (reviewed by
 claude-bottom, 5 points folded). Landed this session (umbrella): canonical
 **`docs/WORKING-MODEL.md`** (with WM-DIGEST markers), block template
 `docs/templates/working-model-block.md`, identical block in umbrella
@@ -1591,7 +1591,7 @@ repo)". CLAUDE.md backlog section now also names the milestones
 (`bin/sync-to-github.sh`, `bin/agentic/`) deliberately untouched.
 
 ### 🚧 DMF-INIT INSTALLER UI REDESIGN — pass 1 done + Lima-validated, PR pending; pass 2 specced (2026-06-10)
-**Canonical plan:** `docs/plans/DMF Init Installer UI Redesign Plan 2026-06-10.md`.
+**Canonical plan:** `docs/archive/plans/DMF Init Installer UI Redesign Plan 2026-06-10.md`.
 Pass 1 (installer-style create flow: Configure→Install→Connect→Finish→Validate,
 modal pauses → inline stations, new `POST /api/bootstrap/doctor` endpoint) is
 committed on dmf-init branch **`<handle>/installer-ui-redesign`** (3 signed-off
@@ -1609,7 +1609,7 @@ enrolled a passkey from an iPad **without** CA trust — the "fails silently"
 claim is desktop-Chrome-specific; CA station copy must be softened accordingly.
 
 ### 🚧 UMBRELLA PUBLIC ENTRANCE + GITHUB WORKING MODEL — WP1–WP11 executed (2026-06-10)
-**Canonical plan:** `docs/plans/DMF Umbrella Public Entrance and GitHub Working Model Plan 2026-06-10.md`
+**Canonical plan:** `docs/archive/plans/DMF Umbrella Public Entrance and GitHub Working Model Plan 2026-06-10.md`
 (tracking: [issue #3](https://github.com/dmfdeploy/dmfdeploy/issues/3)).
 **WP1–WP11 EXECUTED 2026-06-10** (Claude orchestrates+verifies, qwen-right lifts):
 WP1 triage table + WP2 frontmatter on all plan docs (10 active/8 draft/64 executed/
@@ -1647,13 +1647,13 @@ direction meanwhile). Gotcha: `gh project` subcommands 401 here — use raw
 
 ### ✅ POST-RELEASE DOC-HYGIENE — done (2026-06-10)
 First public-repo doc-hygiene sweep complete. Two-agent audit (claude survey +
-codex cross-check) → plan `docs/plans/DMF Public Repo Doc-Hygiene Cleanup Plan
+codex cross-check) → plan `docs/archive/plans/DMF Public Repo Doc-Hygiene Cleanup Plan
 2026-06-10.md` (+ exec/PR specs alongside). **7 PRs merged on GitHub as `<handle>`**
 (rebase, lkirc-approved, auto-merge): `dmf-runbooks#1`, doc-hygiene `#1` on
 dmf-central/dmf-cms/dmf-media/dmf-infra, and MXL spike-removal `#2` on
 dmf-infra/dmf-media. Fixed: `lkirc`→`dmfdeploy`, `all 6 repos`→`all repos`,
 README/structure/banners/links/paths. Removed the "NOT for main" MXL spike
-playbooks/handoffs; **learnings preserved** in `docs/sessions/DMF MXL Cross-Cloud
+playbooks/handoffs; **learnings preserved** in `docs/archive/sessions/DMF MXL Cross-Cloud
 Media-Node Spike — As-Built and Fabrics Result 2026-05-30.md`.
 - **PR work happens in `~/repos/dmfgithub/dmfdeploy/<repo>`** (github origin) — NOT
   the `~/repos/dmfdeploy/<repo>` LAN clones. See memory `project_github_pr_clones`.
@@ -1664,7 +1664,7 @@ Media-Node Spike — As-Built and Fabrics Result 2026-05-30.md`.
 Preparing the clean first public GitHub release. **Canonical handoff:**
 `docs/handoffs/DMF First Public Release — C+B Done, A-D-E Next — Handoff 2026-06-09.md`
 (read it first). Master plan + all locked decisions:
-`docs/plans/DMF First Public Release Plan 2026-06-09.md`.
+`docs/archive/plans/DMF First Public Release Plan 2026-06-09.md`.
 - ✅ **Workstream C** (ADR digests) — committed (umbrella `9dbdccb`/`0a8ba77`).
 - ✅ **Workstream B** (dmf-env public scrub, Hetzner+sandbox only) — committed
   (dmf-env `1827085`, umbrella `641ebf1`). New gate: `bin/dmf-env-public-surface-gate.sh`.
@@ -1780,7 +1780,7 @@ Orchestrated lift→review→fix on `dmf-infra` (codex lift, qwen-left review, C
   projection → adapter, with no `kubectl set env`. G1–G3 green.
 - Also confirmed this session: `ghcr.io/dmfdeploy/dmf-promsd:0.1.3` is **public** +
   multi-arch (amd64/arm64), anon-pullable → the canonical 630 mirror path is unblocked.
-- Task spec: `docs/plans/DMF NetBox-SoT Token-Mint Hardening Task 2026-06-04.md`.
+- Task spec: `docs/archive/plans/DMF NetBox-SoT Token-Mint Hardening Task 2026-06-04.md`.
 
 ### 🟢 NetBox-driven monitoring — built + live e2e green (2026-06-04)
 
@@ -1845,7 +1845,7 @@ sandbox — confirm true no-op off-cloud.
 ### 🟢 dmf-init Live-Sandbox FIX BATCH — #5/#7/#2/#3/#10 fixed + pushed (2026-06-03)
 
 Orchestrated batch (codex lifted → Claude verified pytest/shellcheck → qwen-left
-reviewed each diff). Work order: `docs/plans/DMF dmf-init Live-Sandbox Fix Batch Plan
+reviewed each diff). Work order: `docs/archive/plans/DMF dmf-init Live-Sandbox Fix Batch Plan
 2026-06-03.md`. **All pushed to the LAN Forgejo (`<lan-ip>`):**
 - **#7** dmf-init `main` `a1bfe4c` — repo-fetch now includes `dmf-cms` + `dmf-media`.
 - **#5** dmf-env `feat/wizard-non-interactive` `d078c67` — `unseal-openbao.sh` honors the
@@ -1921,7 +1921,7 @@ re-backup. Built **hermetically** (mock command executor + local rclone remotes;
 the live `dmf-sandbox` exercise of 1b+1c stays the deferred operator-gated
 follow-up). **4 commits on dmf-init `main` (NOT pushed — still no remote):**
 `56678df` 1c.1 + `ba36f8f` 1c.2 + `e9a989c` 1c.3 + `b5fa77b` 1c.4. Design +
-slicing: `docs/plans/DMF Init Phase 1c Manage Mode Design 2026-06-02.md`
+slicing: `docs/archive/plans/DMF Init Phase 1c Manage Mode Design 2026-06-02.md`
 (qwen-left reviewed TWICE — design CHANGES-NEEDED → folded; 1c.2 code
 CHANGES-NEEDED → folded).
 
@@ -1976,7 +1976,7 @@ Built **hermetically** (mock command runner; the live `dmf-sandbox` exercise is
 the deferred follow-up — VM was stopped). **3 commits on dmf-init `main` (NOT
 pushed — still no remote):** `96fc93f` 1b.1 engine core + `2efba64` 1b.2 real step
 graph + checkpoint #2/#3 + `78313bd` 1b.3 React bootstrap view. Design +
-slicing: `docs/plans/DMF Init Phase 1b Orchestration Design 2026-06-02.md`
+slicing: `docs/archive/plans/DMF Init Phase 1b Orchestration Design 2026-06-02.md`
 (qwen-left-reviewed, CHANGES-NEEDED → all folded).
 
 - **Engine (1b.1):** `orchestrate.py` — typed steps (Command/Checkpoint/Pause),
@@ -2017,7 +2017,7 @@ container + `99ebb39` 1a.2-i runtime repo-fetch + session-enforcement + `b355094
 1a.2-ii-a backup/restore crypto + `c237775` 1a.2-ii-b Create-new render +
 checkpoint #1. Architecture = ADR-0036 (thin control container; repos cloned at
 runtime at a selected ref; app images pulled from GHCR at bootstrap; nothing
-baked). Plan: `docs/plans/DMF Init Phase 1 Implementation Plan 2026-06-02.md`.
+baked). Plan: `docs/archive/plans/DMF Init Phase 1 Implementation Plan 2026-06-02.md`.
 
 - **Create-new flow (sandbox lane, no apply yet):** loopback FastAPI + single-use
   launch token → session; fetch dmf-env/dmf-infra/dmf-runbooks at an
@@ -2053,7 +2053,7 @@ public repos + release tags later; ref+SHA recorded in the backup manifest =
 bootstrap** (mirrored to Zot by 630). This makes the image **public-safe from day
 1** (nothing private baked) — the earlier "bake the repo layer / IP-scrub /
 operator-internal image" idea is **dropped**. Air-gap (a portable image bundle)
-is deferred. Plan: `docs/plans/DMF Init Phase 1 Implementation Plan 2026-06-02.md`
+is deferred. Plan: `docs/archive/plans/DMF Init Phase 1 Implementation Plan 2026-06-02.md`
 (qwen-left-reviewed; 5 P1/9 P2/3 P3 folded).
 
 **dmf-init `a27892e` on branch `feat/phase1-foundation` (NOT pushed, not merged):**
@@ -2175,11 +2175,11 @@ survive env teardowns).
 **Rebuild prerequisite (MANDATORY before any new Hetzner env):** bump
 `hcloud_ccm_version` ≥ `v1.30.1` in `dmf-env/tasks/hetzner/ccm.yml:15` — v1.26.0
 crashes after **30 Jun 2026**. Version path (1/2/3) deferred to rebuild time. See
-[`docs/plans/DMF Hetzner CCM Upgrade Plan 2026-06-01.md`].
+[`docs/archive/plans/DMF Hetzner CCM Upgrade Plan 2026-06-01.md`].
 
 **Upgrade-in-place mechanism still BLOCKED** (the original goal; g2r6 just exposed
 it). Fix before validating on a controlled older-`main`→`main` skew env:
-[`docs/plans/DMF Idempotent Upgrade-in-Place Mechanism — Findings and Plan 2026-06-01.md`](docs/plans/DMF%20Idempotent%20Upgrade-in-Place%20Mechanism%20%E2%80%94%20Findings%20and%20Plan%202026-06-01.md).
+[`docs/archive/plans/DMF Idempotent Upgrade-in-Place Mechanism — Findings and Plan 2026-06-01.md`](docs/archive/plans/DMF%20Idempotent%20Upgrade-in-Place%20Mechanism%20%E2%80%94%20Findings%20and%20Plan%202026-06-01.md).
 Keystone: `seed-bao` `bundle_set` fails on the cloud lane (exit 1, masked by
 `| tee`); `seed-bao` is NOT auto-invoked by the bootstrap plays; root cause
 UNPROVEN (failure precedes the sops-encrypt step). Also: `unseal-openbao.sh`
@@ -2459,7 +2459,7 @@ follow-up. ADR-0028 D8 minimum (≥2 confirmed devices) still enforced both
 in the role and via the script's live count check.
 
 **Plan B deferred:**
-[`docs/plans/DMF Authentik Bootstrap Enrollment Drop Username Prompt Plan 2026-05-28.md`](docs/plans/DMF%20Authentik%20Bootstrap%20Enrollment%20Drop%20Username%20Prompt%20Plan%202026-05-28.md)
+[`docs/archive/plans/DMF Authentik Bootstrap Enrollment Drop Username Prompt Plan 2026-05-28.md`](docs/archive/plans/DMF%20Authentik%20Bootstrap%20Enrollment%20Drop%20Username%20Prompt%20Plan%202026-05-28.md)
 captures the follow-up to drop the username prompt from the enrollment
 flow (option 2: swap identification stage for `user_write` in
 `never_create` mode reading the invitation's `fixed_data`). Land after the
@@ -2521,7 +2521,7 @@ other 9 jobs are byte-identical to chart-default.
 
 Operator brief: implement the complete monitoring stack on the sandbox env,
 sized to fit, including host (Lima VM) CPU/RAM/disk. Driven by claude-bottom
-(this pane) per the [scope-locked plan §9](docs/plans/DMF%20Sandbox%20Monitoring%20Vertical%20Integration%20Plan%202026-05-27.md);
+(this pane) per the [scope-locked plan §9](docs/archive/plans/DMF%20Sandbox%20Monitoring%20Vertical%20Integration%20Plan%202026-05-27.md);
 `claude` (pane 2) orchestrated + verified along the way. Five workstreams
 landed across three commits (+ STATUS), all on `main`, pushed to LAN Forgejo.
 
@@ -2711,7 +2711,7 @@ Catalog Deploy (`media-launch-nmos-cpp`) was failing 403 and the console showed
 launcher used the **superuser admin token** to write — the ADR-0028 C3 violation
 the operator flagged. Fix per [ADR-0032](docs/decisions/0032-catalog-launcher-scoped-netbox-writer.md)
 (qwen adversarial review, codex was out of quota):
-[plan](docs/plans/DMF%20Catalog%20NetBox%20Scoped%20Writer%20Plan%202026-05-27.md).
+[plan](docs/archive/plans/DMF%20Catalog%20NetBox%20Scoped%20Writer%20Plan%202026-05-27.md).
 
 - **Scoped writer `dmf-catalog-svc`** (group `dmf-catalog-writer`): `ipam.service`
   [view,add,change] + `extras.tag` [view,add] + `dcim.device` [view]. No superuser,
@@ -2766,7 +2766,7 @@ the pod; `/auth/login` (OIDC discovery) 500'd. This was the documented WP1S gate
 **Decision (operator + codex cross-check): do NOT mount the CA into the pod.** Brought
 Authentik into ADR-0023 compliance like awx/netbox/forgejo (already internal svc DNS)
 via an explicit front/back-channel split. Plan + pattern:
-[plan](docs/plans/DMF%20Console%20Authentik%20Internal%20Back-Channel%20Split%20Plan%202026-05-27.md).
+[plan](docs/archive/plans/DMF%20Console%20Authentik%20Internal%20Back-Channel%20Split%20Plan%202026-05-27.md).
 
 - **Back-channel** (OIDC discovery/token/userinfo + Authentik mgmt API): internal
   svc DNS, plain HTTP. **Front-channel** (browser authorize redirect, callback
@@ -3155,7 +3155,7 @@ the workstation-disk path where the `<env>` wizard actually wrote. The
 encrypted USB volume requirement is dropped for the duration of the
 experiment phase per [ADR-0004](docs/decisions/0004-experiment-phase-stance.md);
 FileVault remains the disk-layer guarantee. Decision and revisit gates
-recorded in [`docs/plans/DMF <env> Configure-Verify Follow-Ups Plan 2026-05-22.md`](docs/plans/DMF%20Lab%20Env%20Configure-Verify%20Follow-Ups%20Plan%202026-05-22.md) §D.
+recorded in [`docs/plans/DMF <env> Configure-Verify Follow-Ups Plan 2026-05-22.md`](docs/archive/plans/DMF%20Lab%20Env%20Configure-Verify%20Follow-Ups%20Plan%202026-05-22.md) §D.
 
 **Revisit when any one holds:**
 - ADR-0020 Mode B implementation begins (managed-service trust story
@@ -3554,7 +3554,7 @@ graduates from Proposed → Accepted at that point.
 ### ✅ aliyun-123 lifecycle-configure bootstrap completion — landed + live-verified (2026-05-17)
 
 The four gaps surfaced in the
-[2026-05-15 bootstrap-completion plan](docs/plans/DMF%20Lifecycle-Configure%20Bootstrap%20Completion%20Plan%202026-05-15.md)
+[2026-05-15 bootstrap-completion plan](docs/archive/plans/DMF%20Lifecycle-Configure%20Bootstrap%20Completion%20Plan%202026-05-15.md)
 all shipped and pass §6 verification against `aliyun-123`:
 
 | Commit (`dmf-infra@main`) | Topic |
@@ -3572,7 +3572,7 @@ launcher playbooks; AWX `dmf-runbooks` project synced to revision
 `/api/catalog` reachable, OIDC-gated as designed.
 
 **All follow-ups consolidated** in
-[DMF Aliyun-123 Lifecycle-Configure Follow-Ups Plan 2026-05-17](docs/plans/DMF%20Aliyun-123%20Lifecycle-Configure%20Follow-Ups%20Plan%202026-05-17.md):
+[DMF Aliyun-123 Lifecycle-Configure Follow-Ups Plan 2026-05-17](docs/archive/plans/DMF%20Aliyun-123%20Lifecycle-Configure%20Follow-Ups%20Plan%202026-05-17.md):
 five quick-win items (Class A — incl. the privkey inventory pin that
 caused today's only failure), persistent app-admin drift decision-gate
 (Class B.1 — ADR-0024 candidate: Path 3 patches vs fresh rollout),

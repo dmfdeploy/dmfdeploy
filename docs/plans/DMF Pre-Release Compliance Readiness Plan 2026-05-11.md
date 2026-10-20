@@ -8,7 +8,7 @@ date: 2026-05-11
 
 > **HISTORICAL — partially delivered.** Its **Tier A** gate (Mode A, the OSS self-host
 > path) *was* met, at the 2026-06-11 public release, and is tracked to completion by the
-> [Tier A Phase Execution Plan](DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md),
+> [Tier A Phase Execution Plan](../archive/plans/DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md),
 > now `executed`. **Tiers B and C** depend on ADR-0020 **Modes B and C**, both still
 > `Proposed` with no forcing function — no customer or partner requires them.
 >

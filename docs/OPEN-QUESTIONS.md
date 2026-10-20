@@ -3,7 +3,7 @@
 *A curated, honest view of what is deliberately frozen, what is built but
 unproven, and what is known-broken or undecided — as of 2026-06-10. The live
 backlog is [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues); raw
-question logs stay in [docs/questions/](questions/). This page is the map, not
+question logs stay in [docs/questions/](archive/questions/). This page is the map, not
 the record.*
 
 The authority for the frozen list is
