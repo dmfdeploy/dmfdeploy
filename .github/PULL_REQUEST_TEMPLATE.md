@@ -11,10 +11,13 @@ responsibility first.
 
 ## Checklist
 
-- [ ] Commits are **signed off** (`git commit -s`) — DCO check will verify.
+- [ ] The PR has one `component:*` label and one `workstream:*` label (see [`docs/WORKING-MODEL.md`](docs/WORKING-MODEL.md) section 2).
+- [ ] The description has a fully qualified issue reference: `Refs dmfdeploy/dmfdeploy#N`, or `Closes dmfdeploy/dmfdeploy#N` if this is the last PR for the issue. A bare `#N` points at the wrong repo.
+- [ ] Commits are **signed off** (`git commit -s`; DCO) — DCO check will verify.
 - [ ] Commit messages follow **Conventional Commits** (`feat:`/`fix:`/`docs:`/…).
 - [ ] `VERSION` bumped if this is a release-tagged change (ADR-0005); otherwise N/A.
 - [ ] No secrets / real IPs / DNS / operator identity anywhere in the diff or this PR.
 - [ ] CI is green (gitleaks, scrub, lint, commitlint where applicable).
 - [ ] Docs/ADRs updated if behavior or decisions changed.
+- [ ] Docs gate: `bin/check-docs.sh` passes, and a plan doc's frontmatter is updated in this PR if the PR completes it.
 - [ ] Checked the governing ADR(s) for the area I changed (see [`docs/decisions/INDEX.md`](docs/decisions/INDEX.md) → ★ Start here).

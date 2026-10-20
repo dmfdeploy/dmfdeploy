@@ -1,0 +1,10 @@
+name: Bad task form
+description: Fixture. Component dropdown is missing and workstream is not required.
+body:
+  - type: dropdown
+    id: workstream
+    attributes:
+      label: Workstream
+      options:
+        - hygiene
+    validations: { required: false }

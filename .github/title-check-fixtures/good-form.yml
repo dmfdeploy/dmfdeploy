@@ -1,0 +1,17 @@
+name: Good task form
+description: Fixture. Both dropdowns exist and are required.
+body:
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - umbrella
+    validations: { required: true }
+  - type: dropdown
+    id: workstream
+    attributes:
+      label: Workstream
+      options:
+        - hygiene
+    validations: { required: true }

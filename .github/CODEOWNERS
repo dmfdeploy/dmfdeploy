@@ -1,4 +1,4 @@
-# DMF Platform umbrella — CODEOWNERS
+# dmfdeploy umbrella — CODEOWNERS
 #
 # Activates on GitHub once branch protection is enabled and reviews are
 # required. No effect locally or on Forgejo.
@@ -28,4 +28,18 @@
 /.claude/                      @dmfdeploy/maintainers
 
 # CI / GitHub workflows
+/.github/                      @dmfdeploy/maintainers
+
+# Surface files: what a first-time reader sees. These are owned by the
+# maintainer account, so a change to the public face always gets a review.
+# They come last because the last matching rule wins.
+/README.md                     @dmfdeploy/maintainers
+/CONTRIBUTING.md               @dmfdeploy/maintainers
+/AGENTS.md                     @dmfdeploy/maintainers
+/CLAUDE.md                     @dmfdeploy/maintainers
+/QWEN.md                       @dmfdeploy/maintainers
+/ROADMAP.md                    @dmfdeploy/maintainers
+/STATUS.md                     @dmfdeploy/maintainers
+/docs/WORKING-MODEL.md         @dmfdeploy/maintainers
+/docs/decisions/               @dmfdeploy/maintainers
 /.github/                      @dmfdeploy/maintainers

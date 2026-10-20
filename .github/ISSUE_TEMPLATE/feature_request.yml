@@ -7,6 +7,41 @@ body:
       value: |
         For larger design questions, prefer **Discussions**. ⚠️ No secrets, real
         IPs/DNS, or operator identity in this issue — use placeholders.
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: The matching `component:*` label is applied when the issue is triaged. Use `umbrella` for docs and process, `cross-repo` when the work spans repos.
+      options:
+        - dmf-cms
+        - dmf-infra
+        - dmf-env
+        - dmf-central
+        - dmf-media
+        - dmf-runbooks
+        - dmf-init
+        - dmf-promsd
+        - umbrella
+        - cross-repo
+    validations: { required: true }
+  - type: dropdown
+    id: workstream
+    attributes:
+      label: Workstream
+      description: The matching `workstream:*` label is applied when the issue is triaged. See docs/WORKING-MODEL.md section 2.
+      options:
+        - release
+        - compliance
+        - monitoring
+        - infra-debt
+        - scaffold
+        - hygiene
+        - ADR
+        - catalog
+        - identity-secrets
+        - hardening
+        - entrance
+    validations: { required: true }
   - type: textarea
     id: problem
     attributes:
