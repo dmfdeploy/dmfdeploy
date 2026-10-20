@@ -67,7 +67,8 @@ the frontmatter must be flipped; frontmatter wins for design content.
   component/workstream classification; board membership is **not** a filing
   requirement (see §3).
 - **Milestones — three, each defined by an outcome.** This list is canonical;
-  agent files and ROADMAP.md point here rather than restating it.
+  agent files point here rather than restating it, and ROADMAP.md carries a
+  one-sentence public summary per milestone that links here.
   - **`v0.1-polish`** — the console tells the truth. An outsider completes
     the documented journey cold, nothing on the way tells them something
     untrue, and the public repos are safe to read and clone. Defects on that
