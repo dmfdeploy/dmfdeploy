@@ -2,8 +2,9 @@
 # check-backlog-hygiene.sh — detect GitHub backlog drift across the DMF org.
 #
 # Read-only detector: every OPEN issue in the umbrella repo must carry a
-# milestone, at least one component:* label, and at least one workstream:*
-# label. The script also flags active AND draft plan docs whose tracking issue
+# milestone or the platform-debt label (unscheduled work, see
+# docs/WORKING-MODEL.md §2), at least one component:* label, and at least one
+# workstream:* label. Issues labelled hygiene-exempt are skipped. The script also flags active AND draft plan docs whose tracking issue
 # is CLOSED, and surfaces untriaged component-repo issues older than the
 # staleness threshold. (umbrella issue #32)
 #
@@ -23,6 +24,8 @@
 # Env overrides:
 #   DMF_TRIAGE_DAYS  — staleness threshold for untriaged component issues (default 7)
 #   DMF_WIP_LIMIT    — max concurrent active plans before a WIP finding (default 3)
+#   DMF_ISSUE_LIMIT  — most open umbrella issues read (default 2000); reaching
+#                      it is a finding, because issues past it go unchecked
 
 set -uo pipefail
 
@@ -33,6 +36,7 @@ ORG="dmfdeploy"
 UMBRELLA_REPO="dmfdeploy/dmfdeploy"
 COMPONENT_REPOS=(dmf-cms dmf-runbooks dmf-central dmf-infra dmf-env dmf-media dmf-init dmf-promsd)
 STALE_DAYS="${DMF_TRIAGE_DAYS:-7}"
+ISSUE_LIMIT="${DMF_ISSUE_LIMIT:-2000}"
 
 TOTAL_FINDINGS=0
 WARN=0
@@ -40,6 +44,11 @@ WARN=0
 # overlapping rules (3 and 1) skip them and each finding prints once.
 REPORTED_ISSUES=""
 REPORTED_PLANS=""
+# Issues check 1 reported as unscheduled, so rule 4 skips them.
+REPORTED_UNSCHEDULED=""
+# Open umbrella issues as {"issues":[...]}, read once by check 1 and reused
+# by check 5. Empty when the read failed.
+UMBRELLA_ISSUES=""
 
 # ── Helpers ────────────────────────────────────────────────────────────────
 finding() {
@@ -57,48 +66,58 @@ gh_json() {
 }
 
 # ── Check 1: Umbrella issue labeling / milestone ──────────────────────────
+# Read every open umbrella issue as {"issues":[{number,title,milestone,labels}]}.
+# gh issue list pages through the API up to --limit. Exit 1 if gh fails, 2 if
+# the result reaches the limit (issues past it would go unchecked).
+fetch_umbrella_issues() {
+    local raw count
+    raw="$(gh issue list --repo "$UMBRELLA_REPO" --state open --limit "$ISSUE_LIMIT" \
+        --json number,title,milestone,labels 2>/dev/null)" || return 1
+    count="$(jq -r 'length' <<<"$raw" 2>/dev/null)" || return 1
+    [ "$count" -ge "$ISSUE_LIMIT" ] && return 2
+    jq -c '{issues: [.[] | {number, title, milestone: (.milestone.title // null),
+        labels: [.labels[].name]}]}' <<<"$raw"
+}
+
+# Check 1's findings for a {"issues":[...]} payload, one line per finding.
+# An issue without a milestone is a finding only if it lacks platform-debt.
+check1_lines() {
+    jq -r '.issues[] | select((.labels | index("hygiene-exempt")) == null)
+        | (if .milestone == null and (.labels | index("platform-debt")) == null
+             then "#\(.number) \"\(.title)\": missing milestone" else empty end),
+          (if (.labels | map(select(startswith("component:"))) | length) == 0
+             then "#\(.number) \"\(.title)\": missing component:* label" else empty end),
+          (if (.labels | map(select(startswith("workstream:"))) | length) == 0
+             then "#\(.number) \"\(.title)\": missing workstream:* label" else empty end)'
+}
+
 check_umbrella_labels() {
     echo "── check 1: umbrella issue labeling / milestone"
 
-    local payload
-    payload='{"query":"query($owner:String!,$repo:String!){repository(owner:$owner,name:$repo){issues(states:[OPEN],first:100){nodes{number,title,milestone{title},labels(first:20){nodes{name}}}}}}","variables":{"owner":"'"$ORG"'","repo":"'"${UMBRELLA_REPO#*/}"'"}}'
+    local rc=0
+    UMBRELLA_ISSUES="$(fetch_umbrella_issues)" || rc=$?
+    if [ "$rc" -eq 2 ]; then
+        UMBRELLA_ISSUES=""
+        finding "open umbrella issues reach DMF_ISSUE_LIMIT=$ISSUE_LIMIT; raise it, issues past the limit are not checked"
+        return
+    elif [ "$rc" -ne 0 ]; then
+        UMBRELLA_ISSUES=""
+        skipped "gh issue list failed — token may lack repo scope"
+        return
+    fi
 
-    local resp
-    resp="$(gh_json "$payload")" || { skipped "gh api failed — token may lack repo scope"; return; }
+    local line
+    while IFS= read -r line; do
+        [ -n "$line" ] && finding "$line"
+    done < <(check1_lines <<<"$UMBRELLA_ISSUES")
 
-    local count
-    count="$(echo "$resp" | jq -r '.data.repository.issues.nodes | length' 2>/dev/null)" || { skipped "jq parse failed"; return; }
-
-    for i in $(seq 0 $((count - 1))); do
-        local num title milestone
-        num="$(echo "$resp" | jq -r ".data.repository.issues.nodes[$i].number")"
-        title="$(echo "$resp" | jq -r ".data.repository.issues.nodes[$i].title")"
-        milestone="$(echo "$resp" | jq -r ".data.repository.issues.nodes[$i].milestone.title // empty")"
-
-        # hygiene-exempt escape hatch
-        local exempt
-        exempt="$(echo "$resp" | jq -r "[.data.repository.issues.nodes[$i].labels.nodes[].name] | map(select(.==\"hygiene-exempt\")) | length")"
-        [ "$exempt" -gt 0 ] && continue
-
-        local labels
-        labels="$(echo "$resp" | jq -r "[.data.repository.issues.nodes[$i].labels.nodes[].name] | .[]")"
-
-        if [ -z "$milestone" ]; then
-            finding "#$num \"$title\": missing milestone"
-        fi
-
-        local has_component=0 has_workstream=0
-        while IFS= read -r lbl; do
-            [[ "$lbl" == component:* ]] && has_component=1
-            [[ "$lbl" == workstream:* ]] && has_workstream=1
-        done <<<"$labels"
-
-        [ "$has_component" -eq 0 ] && finding "#$num \"$title\": missing component:* label"
-        [ "$has_workstream" -eq 0 ] && finding "#$num \"$title\": missing workstream:* label"
-        if [ "$has_component" -eq 0 ] || [ "$has_workstream" -eq 0 ]; then
-            REPORTED_ISSUES+="$num"$'\n'
-        fi
-    done
+    REPORTED_ISSUES="$(jq -r '.issues[] | select((.labels | index("hygiene-exempt")) == null)
+        | select(((.labels | map(select(startswith("component:"))) | length) == 0)
+              or ((.labels | map(select(startswith("workstream:"))) | length) == 0))
+        | .number' <<<"$UMBRELLA_ISSUES")"$'\n'
+    REPORTED_UNSCHEDULED="$(jq -r '.issues[] | select((.labels | index("hygiene-exempt")) == null)
+        | select(.milestone == null and (.labels | index("platform-debt")) == null)
+        | .number' <<<"$UMBRELLA_ISSUES")"$'\n'
 }
 
 # ── Check 2: Active plans with closed tracking issues ─────────────────────
@@ -325,17 +344,12 @@ check_freshness() {
         skipped "docs/plans directory not found"
     fi
 
-    local payload resp issues
-    payload='{"query":"query($owner:String!,$repo:String!){repository(owner:$owner,name:$repo){issues(states:[OPEN],first:100){nodes{number,title,milestone{title},labels(first:20){nodes{name}}}}}}","variables":{"owner":"'"$ORG"'","repo":"'"${UMBRELLA_REPO#*/}"'"}}'
-    resp="$(gh_json "$payload")" || { skipped "gh api failed — issue rules not run"; return; }
-    issues="$(echo "$resp" | jq -c '{issues: [.data.repository.issues.nodes[]
-        | {number, title, milestone: (.milestone.title // null), labels: [.labels.nodes[].name]}]}' 2>/dev/null)" \
-        || { skipped "jq parse failed"; return; }
-    # Rule 3 overlaps check 1 (which reports each missing label), so issues
-    # check 1 already reported are dropped; rule 4 adds the platform-debt
-    # exemption that check 1's milestone test lacks.
-    apply_rule rule_issue_label_pair "$(drop_reported_issues "$issues" "$REPORTED_ISSUES")"
-    apply_rule rule_issue_unscheduled "$issues"
+    # Check 1 read the open issues; without them the issue rules cannot run.
+    [ -n "$UMBRELLA_ISSUES" ] || { skipped "umbrella issues not read — issue rules not run"; return; }
+    # Rules 3 and 4 overlap check 1 (label pair and milestone), so issues
+    # check 1 already reported are dropped and each finding prints once.
+    apply_rule rule_issue_label_pair "$(drop_reported_issues "$UMBRELLA_ISSUES" "$REPORTED_ISSUES")"
+    apply_rule rule_issue_unscheduled "$(drop_reported_issues "$UMBRELLA_ISSUES" "$REPORTED_UNSCHEDULED")"
 }
 
 # ── Self-test: four bad payloads (one finding each), four repaired twins (0) ─
@@ -387,6 +401,61 @@ self_test() {
         "$(drop_reported_plans "$dup_plans" $'a b.md\nc.md\n')"
     expect "rule1 still fires if unreported" 1 rule_active_plan_closed_tracker \
         "$(drop_reported_plans "$dup_plans" $'a b.md\n')"
+    expect "rule4 no duplicate of check 1" 0 rule_issue_unscheduled \
+        "$(drop_reported_issues "$r4_bad" $'2\n')"
+
+    # Check 1: platform-debt and hygiene-exempt issues need no milestone; an
+    # issue with neither is still a finding.
+    local c1_debt c1_exempt c1_neither
+    c1_debt='{"issues":[{"number":3,"title":"t","milestone":null,"labels":["component:cms","workstream:ops","platform-debt"]}]}'
+    c1_exempt='{"issues":[{"number":4,"title":"t","milestone":null,"labels":["hygiene-exempt"]}]}'
+    c1_neither='{"issues":[{"number":5,"title":"t","milestone":null,"labels":["component:cms","workstream:ops"]}]}'
+    expect "check1 platform-debt, no milestone" 0 check1_lines "$c1_debt"
+    expect "check1 hygiene-exempt"              0 check1_lines "$c1_exempt"
+    expect "check1 neither, no milestone"       1 check1_lines "$c1_neither"
+
+    # Pagination: a fake gh serves 150 open issues and honours --limit (gh's
+    # own default is 30). Only the 101st lacks a milestone, so a read capped
+    # at 100 misses it. When the result reaches the limit, the read fails.
+    local ptmp fetched
+    ptmp="$(mktemp -d)"
+    mkdir -p "$ptmp/bin"
+    cat >"$ptmp/bin/gh" <<'GH'
+#!/usr/bin/env bash
+limit=30
+while [ $# -gt 0 ]; do [ "$1" = --limit ] && limit="$2"; shift; done
+jq -c --argjson n "$limit" '.[:$n]' "$FAKE_ISSUES"
+GH
+    chmod +x "$ptmp/bin/gh"
+    jq -nc '[range(1; 151) | {number: ., title: "t",
+        milestone: (if . == 101 then null else {title: "v0.2"} end),
+        labels: [{name: "component:cms"}, {name: "workstream:ops"}]}]' >"$ptmp/issues.json"
+    fetched="$(PATH="$ptmp/bin:$PATH" FAKE_ISSUES="$ptmp/issues.json" fetch_umbrella_issues)"
+    expect "check1 finds the 101st of 150 issues" 1 check1_lines "$fetched"
+    if PATH="$ptmp/bin:$PATH" FAKE_ISSUES="$ptmp/issues.json" ISSUE_LIMIT=150 \
+        fetch_umbrella_issues >/dev/null; then
+        echo "  FAIL read reaching the limit: expected a failure"
+        fails=$((fails + 1))
+    else
+        echo "  ok   read reaching the limit fails"
+    fi
+
+    # End to end: an issue with neither a milestone nor platform-debt is
+    # reported once, by check 1, not again by rule 4.
+    local e2e_n
+    cat >"$ptmp/bin/gh" <<'GH'
+#!/usr/bin/env bash
+[ "$1" = issue ] || exit 1
+echo '[{"number":7,"title":"t","milestone":null,"labels":[{"name":"component:cms"},{"name":"workstream:ops"}]}]'
+GH
+    e2e_n="$(PATH="$ptmp/bin:$PATH" UMBRELLA_DIR="$ptmp" "$BASH" "$0" --warn 2>/dev/null | grep -c '✗' || true)"
+    if [ "$e2e_n" -eq 1 ]; then
+        echo "  ok   unscheduled issue reported once end to end"
+    else
+        echo "  FAIL unscheduled issue end to end: expected 1 finding, got $e2e_n"
+        fails=$((fails + 1))
+    fi
+    rm -rf "$ptmp"
 
     # Both modes, end to end and offline: a fake gh that always fails skips
     # every network check, and a stale draft plan gives exactly one finding.
@@ -415,7 +484,7 @@ self_test() {
     fi
 
     if [ "$fails" -eq 0 ]; then
-        echo "backlog-hygiene self-test: OK (15/15 expectations)"
+        echo "backlog-hygiene self-test: OK (22/22 expectations)"
         return 0
     fi
     echo "backlog-hygiene self-test: $fails expectation(s) failed"
