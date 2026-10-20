@@ -14,6 +14,7 @@
 # Usage:
 #   bin/check-backlog-hygiene.sh          # full run (umbrella + component repos)
 #   bin/check-backlog-hygiene.sh --help   # print this header
+#   bin/check-backlog-hygiene.sh --self-test  # offline check of the freshness rules
 #
 # Exit: 0 = no findings, 1 = one or more findings detected.
 # Env overrides:
@@ -205,16 +206,164 @@ check_wip_cap() {
     fi
 }
 
+# ── Check 5: Freshness rules (rules are pure: JSON in, finding lines out) ─
+# Each rule_* function reads one JSON payload on stdin and prints one line per
+# finding. --self-test feeds each rule an inline payload with no network calls.
+# Rules 1 and 3 overlap with checks 2 and 1 on purpose: check 5 states the
+# freshness contract in one place, and --self-test proves it. Checks 1 and 2
+# keep their existing output unchanged.
+DRAFT_MAX_DAYS="${DMF_DRAFT_MAX_DAYS:-90}"
+
+# Rule 1: active plan whose tracking issue is closed.
+# Payload: {"plans":[{"file","status","tracker_state","tracker"}]}
+# shellcheck disable=SC2329  # called indirectly through apply_rule
+rule_active_plan_closed_tracker() {
+    jq -r '.plans[]? | select(.status == "active" and .tracker_state == "closed")
+        | "\(.file): status=active but tracking issue #\(.tracker) is CLOSED"'
+}
+
+# Rule 2: draft plan whose frontmatter date is older than the limit.
+# Payload: {"today":"YYYY-MM-DD","max_days":N,"plans":[{"file","status","date"}]}
+# shellcheck disable=SC2329  # called indirectly through apply_rule
+rule_stale_draft_plan() {
+    jq -r '(.today + "T00:00:00Z" | fromdate) as $now | .max_days as $max
+        | .plans[]? | select(.status == "draft")
+        | (try (.date + "T00:00:00Z" | fromdate) catch null) as $d
+        | select($d != null and (($now - $d) / 86400) > $max)
+        | "\(.file): draft plan dated \(.date) is older than \($max) days"'
+}
+
+# Rule 3: open issue lacking the label pair (component:* and workstream:*).
+# Payload: {"issues":[{"number","title","labels":[names]}]}
+# shellcheck disable=SC2329  # called indirectly through apply_rule
+rule_issue_label_pair() {
+    jq -r '.issues[]? | select((.labels | index("hygiene-exempt")) == null)
+        | select(((.labels | map(select(startswith("component:"))) | length) == 0)
+              or ((.labels | map(select(startswith("workstream:"))) | length) == 0))
+        | "#\(.number) \"\(.title)\": lacks the component:* and workstream:* label pair"'
+}
+
+# Rule 4: open issue with no milestone and no platform-debt label.
+# Payload: {"issues":[{"number","title","milestone":null|"name","labels":[names]}]}
+# shellcheck disable=SC2329  # called indirectly through apply_rule
+rule_issue_unscheduled() {
+    jq -r '.issues[]? | select((.labels | index("hygiene-exempt")) == null)
+        | select(.milestone == null and (.labels | index("platform-debt")) == null)
+        | "#\(.number) \"\(.title)\": no milestone and no platform-debt label"'
+}
+
+# Run a rule on a payload and report each output line as a finding.
+apply_rule() {
+    local rule="$1" payload="$2" line
+    while IFS= read -r line; do
+        [ -n "$line" ] && finding "$line"
+    done < <(printf '%s' "$payload" | "$rule")
+}
+
+check_freshness() {
+    echo "── check 5: freshness (closed tracker, stale draft, label pair, scheduling)"
+
+    local plan_dir="$UMBRELLA_DIR/docs/plans"
+    if [ -d "$plan_dir" ]; then
+        local plans="[]" plan_file fm status tracking pdate issue_repo issue_num state
+        for plan_file in "$plan_dir"/*.md; do
+            [ -f "$plan_file" ] || continue
+            fm="$(sed -n '/^---$/,/^---$/p' "$plan_file" 2>/dev/null)" || continue
+            status="$(echo "$fm" | sed -n 's/^status:[[:space:]]*\([^[:space:]]*\).*/\1/p' | head -1)"
+            case "$status" in active|draft) ;; *) continue ;; esac
+            pdate="$(echo "$fm" | sed -n 's/^date:[[:space:]]*\([0-9-]*\).*/\1/p' | head -1)"
+            tracking="$(echo "$fm" | sed -n 's/^tracking_issue:[[:space:]]*//p' | head -1 | tr -d '"')"
+            state=""
+            if [ "$status" = "active" ] && [ -n "$tracking" ]; then
+                issue_repo="$(echo "$tracking" | sed -n 's|https://github\.com/\([^/]*\)/\([^/]*\)/issues/.*|\1/\2|p')"
+                issue_num="$(echo "$tracking" | sed -n 's|.*/issues/\([0-9]*\).*|\1|p')"
+                if [ -n "$issue_repo" ] && [ -n "$issue_num" ]; then
+                    state="$(gh api repos/"$issue_repo"/issues/"$issue_num" 2>/dev/null | jq -r '.state // empty')"
+                fi
+            fi
+            plans="$(jq -c --arg f "$(basename "$plan_file")" --arg s "$status" --arg d "$pdate" \
+                --arg st "$state" --arg t "${issue_num:-}" \
+                '. + [{file:$f,status:$s,date:$d,tracker_state:$st,tracker:$t}]' <<<"$plans")"
+            issue_num=""
+        done
+        local today
+        today="$(date -u +%Y-%m-%d)"
+        apply_rule rule_active_plan_closed_tracker "$(jq -c '{plans:.}' <<<"$plans")"
+        apply_rule rule_stale_draft_plan \
+            "$(jq -c --arg t "$today" --argjson m "$DRAFT_MAX_DAYS" '{today:$t,max_days:$m,plans:.}' <<<"$plans")"
+    else
+        skipped "docs/plans directory not found"
+    fi
+
+    local payload resp issues
+    payload='{"query":"query($owner:String!,$repo:String!){repository(owner:$owner,name:$repo){issues(states:[OPEN],first:100){nodes{number,title,milestone{title},labels(first:20){nodes{name}}}}}}","variables":{"owner":"'"$ORG"'","repo":"'"${UMBRELLA_REPO#*/}"'"}}'
+    resp="$(gh_json "$payload")" || { skipped "gh api failed — issue rules not run"; return; }
+    issues="$(echo "$resp" | jq -c '{issues: [.data.repository.issues.nodes[]
+        | {number, title, milestone: (.milestone.title // null), labels: [.labels.nodes[].name]}]}' 2>/dev/null)" \
+        || { skipped "jq parse failed"; return; }
+    # Rule 3 overlaps check 1 (which reports each missing label); rule 4 adds
+    # the platform-debt exemption that check 1's milestone test lacks.
+    apply_rule rule_issue_label_pair "$issues"
+    apply_rule rule_issue_unscheduled "$issues"
+}
+
+# ── Self-test: four bad payloads (one finding each), four repaired twins (0) ─
+self_test() {
+    local fails=0 n
+    expect() {
+        # expect <name> <expected-count> <rule> <payload>
+        n="$(printf '%s' "$4" | "$3" | grep -c . || true)"
+        if [ "$n" -eq "$2" ]; then
+            echo "  ok   $1: $n finding(s)"
+        else
+            echo "  FAIL $1: expected $2 finding(s), got $n"
+            fails=$((fails + 1))
+        fi
+    }
+
+    local r1_bad r1_good r2_bad r2_good r3_bad r3_good r4_bad r4_good
+    r1_bad='{"plans":[{"file":"p.md","status":"active","tracker_state":"closed","tracker":"1"}]}'
+    r1_good='{"plans":[{"file":"p.md","status":"active","tracker_state":"open","tracker":"1"}]}'
+    r2_bad='{"today":"2026-10-20","max_days":90,"plans":[{"file":"p.md","status":"draft","date":"2026-01-01"}]}'
+    r2_good='{"today":"2026-10-20","max_days":90,"plans":[{"file":"p.md","status":"draft","date":"2026-09-01"}]}'
+    r3_bad='{"issues":[{"number":1,"title":"t","labels":["component:cms"]}]}'
+    r3_good='{"issues":[{"number":1,"title":"t","labels":["component:cms","workstream:ops"]}]}'
+    r4_bad='{"issues":[{"number":2,"title":"t","milestone":null,"labels":["component:cms"]}]}'
+    r4_good='{"issues":[{"number":2,"title":"t","milestone":null,"labels":["component:cms","platform-debt"]}]}'
+
+    expect "rule1 closed tracker (bad)"   1 rule_active_plan_closed_tracker "$r1_bad"
+    expect "rule1 closed tracker (good)"  0 rule_active_plan_closed_tracker "$r1_good"
+    expect "rule2 stale draft (bad)"      1 rule_stale_draft_plan "$r2_bad"
+    expect "rule2 stale draft (good)"     0 rule_stale_draft_plan "$r2_good"
+    expect "rule3 label pair (bad)"       1 rule_issue_label_pair "$r3_bad"
+    expect "rule3 label pair (good)"      0 rule_issue_label_pair "$r3_good"
+    expect "rule4 unscheduled (bad)"      1 rule_issue_unscheduled "$r4_bad"
+    expect "rule4 unscheduled (good)"     0 rule_issue_unscheduled "$r4_good"
+
+    if [ "$fails" -eq 0 ]; then
+        echo "backlog-hygiene self-test: OK (8/8 expectations)"
+        return 0
+    fi
+    echo "backlog-hygiene self-test: $fails expectation(s) failed"
+    return 1
+}
+
 # ── Main ──────────────────────────────────────────────────────────────────
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
     sed -n '/^# check-backlog-hygiene/,/^$/p' "$0" | sed 's/^# \{0,1\}//'
     exit 0
 fi
 
+if [ "${1:-}" = "--self-test" ]; then
+    self_test
+    exit $?
+fi
+
 check_umbrella_labels
 check_active_plans
 check_untriaged_component_issues
 check_wip_cap
+check_freshness
 
 echo ""
 if [ "$TOTAL_FINDINGS" -eq 0 ]; then
