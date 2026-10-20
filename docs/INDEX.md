@@ -34,6 +34,7 @@ verbatim (docs cross-reference each other by display name).
 | [processes/](processes/) | **Canonical** | BPMN 2.0 process models. |
 | [releases/](releases/) | Record | Release notes and publish artifacts. |
 | [audits/](archive/audits/), [baselines/](archive/baselines/), [inventory/](archive/inventory/) | Record | Point-in-time audits, diffable baselines, inventory/boundary plans. |
+| [archive/](archive/README.md) | Record (archived) | Executed, historical and superseded plans, audits, baselines, inventories, reviews, sessions and question ledgers, each at its original sub-path. |
 | [agentic/](agentic/README.md) | Record (mothballed) | The retired agentic-harness state, preserved for provenance. |
 
 ## Generated indexes
