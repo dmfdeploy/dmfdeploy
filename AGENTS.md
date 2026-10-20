@@ -16,7 +16,8 @@ Facility reference architecture.
    that fits your task.
 4. Run `git status` in each component repo you will touch. Ask before you
    modify one with uncommitted changes.
-5. Run `bin/install-hooks.sh` once per clone.
+5. Run `bin/install-hooks.sh` once per clone. `STATUS_HOOK_SKIP=1` skips the
+   doc gates on commit, but never secret scanning.
 
 ## Where things live
 
@@ -35,7 +36,14 @@ Facility reference architecture.
 - Author skills only in `.agents/skills/`. The `.claude/skills/` and
   `.qwen/skills/` views are generated.
 - On a feature branch, run `bin/mxl-sync-check.sh` before you build.
-- Never use the local homelab cluster. The current env is in `STATUS.local.md`.
+- Never use the local homelab cluster. Use the env id recorded in
+  `STATUS.local.md`, and run `kubectl config current-context` before any
+  cluster command.
+- Before you retrieve secrets, run cluster operations or release dmf-cms,
+  read section 0 of the matching skill in `.agents/skills/`:
+  `dmf-cluster-access`, `dmf-openbao-unseal` or `dmf-cms-build-and-release`.
+- Keep doc filenames verbatim. Do not rename a doc without sweeping the files
+  that refer to it.
 
 <!-- WORKING-MODEL-BLOCK-START — generated from umbrella docs/templates/working-model-block.md; do not edit copies, edit the template and run bin/check-working-model-sync.sh -->
 ## Working model (mandatory)
