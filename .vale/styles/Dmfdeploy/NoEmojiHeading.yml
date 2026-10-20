@@ -1,0 +1,8 @@
+extends: existence
+message: "Remove the emoji from the heading '%s'."
+link: https://developers.google.com/style/headings
+level: error
+scope: heading
+nonword: true
+tokens:
+  - '[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}]'

@@ -1,0 +1,63 @@
+name: vale
+
+# WARN mode: findings are reported, the job passes. The fixtures step proves
+# the project rules still fire (each bad fixture fails under the strict
+# config, each good twin passes). Enforcement is switched on later.
+
+on:
+  pull_request:
+    paths:
+      - "README.md"
+      - "CONTRIBUTING.md"
+      - "AGENTS.md"
+      - "ROADMAP.md"
+      - "docs/decisions/**"
+      - "docs/design/**"
+      - ".vale.ini"
+      - ".vale/**"
+      - ".github/workflows/vale.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  vale:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Install Vale
+        env:
+          VALE_VERSION: "3.9.1"
+        run: |
+          set -euo pipefail
+          url="https://github.com/errata-ai/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz"
+          sha="fbc2eb47d0b8c50220ed1a2c5c611fbe0904ed567d638143d482016a18fd2db0"
+          mkdir -p "$RUNNER_TEMP/vale"
+          curl -fsSL -o "$RUNNER_TEMP/vale.tgz" "$url"
+          echo "$sha  $RUNNER_TEMP/vale.tgz" | sha256sum -c -
+          tar -xz -C "$RUNNER_TEMP/vale" -f "$RUNNER_TEMP/vale.tgz" vale
+          echo "$RUNNER_TEMP/vale" >> "$GITHUB_PATH"
+
+      - name: Sync the Google package
+        run: vale sync
+
+      - name: Lint working surfaces (warn mode)
+        run: vale --no-exit .
+
+      - name: Check the fixtures (strict config)
+        run: |
+          set -euo pipefail
+          for bad in .vale/fixtures/bad-*.md; do
+            good="${bad/bad-/good-}"
+            if vale --config .vale/strict.ini "$bad" >/dev/null; then
+              echo "::error::$bad passed but must fail"; exit 1
+            fi
+            vale --config .vale/strict.ini "$good" >/dev/null \
+              || { echo "::error::$good must pass"; exit 1; }
+          done

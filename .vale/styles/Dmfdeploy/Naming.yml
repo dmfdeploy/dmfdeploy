@@ -1,0 +1,9 @@
+extends: existence
+message: "Write 'dmfdeploy' for what this project builds. Keep 'DMF' only for the EBU DMF reference architecture or JT-DMF. Found '%s'."
+link: https://github.com/dmfdeploy/dmfdeploy/issues/616
+level: error
+ignorecase: true
+tokens:
+  - 'DMF[\s-]+platform'
+  - '(the )?DMF[\s-]+project'
+  - 'DMF[\s-]+deployment'

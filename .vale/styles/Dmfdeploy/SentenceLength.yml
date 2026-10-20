@@ -1,0 +1,7 @@
+extends: occurrence
+message: "Shorten the sentence. It has more than 50 words."
+link: https://developers.google.com/style/tone
+level: error
+scope: sentence
+max: 50
+token: '\b(\w+)\b'
