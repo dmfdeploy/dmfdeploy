@@ -29,12 +29,17 @@ Facility reference architecture.
 
 ## Rules that are easy to miss
 
+- Before you push any dmfdeploy repo to a public GitHub mirror, read
+  `docs/handoffs/DMF Public Publish Readiness Handoff 2026-05-07.md`. Its
+  orphan rebase and push-mirror refspec gate keep pre-publish history private.
+- `dmf-env` is private and is never published. Real IPs, DNS names and SSH key
+  paths live only there; public repos use variables and placeholder values.
 - Edit docs here and code in the component repos. Do not move files between
   component repos without checking.
 - Keep public text free of real IPs, hostnames, private repo names and env
   ids. Use `dmf.example.com` and `<placeholder-name>` values.
 - Author skills only in `.agents/skills/`. The `.claude/skills/` and
-  `.qwen/skills/` views are generated.
+  `.qwen/skills/` views are generated. New skills enter through `_inbox/`.
 - On a feature branch, run `bin/mxl-sync-check.sh` before you build.
 - Never use the local homelab cluster. Use the env id recorded in
   `STATUS.local.md`, and run `kubectl config current-context` before any
@@ -44,6 +49,10 @@ Facility reference architecture.
   `dmf-cluster-access`, `dmf-openbao-unseal` or `dmf-cms-build-and-release`.
 - Keep doc filenames verbatim. Do not rename a doc without sweeping the files
   that refer to it.
+- Read the canonical doc in `docs/architecture/` before a decision that
+  depends on layer or vertical assumptions.
+- Before you stop, record changes to shared state (cross-repo decisions,
+  in-flight work) in the pinned Operator notes issue.
 
 <!-- WORKING-MODEL-BLOCK-START — generated from umbrella docs/templates/working-model-block.md; do not edit copies, edit the template and run bin/check-working-model-sync.sh -->
 ## Working model (mandatory)
