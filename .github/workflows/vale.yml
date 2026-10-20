@@ -8,6 +8,7 @@ on:
   pull_request:
     paths:
       - "README.md"
+      - "**/README.md"
       - "CONTRIBUTING.md"
       - "AGENTS.md"
       - "ROADMAP.md"
@@ -49,6 +50,9 @@ jobs:
 
       - name: Lint working surfaces (warn mode)
         run: vale --no-exit .
+
+      - name: Check the README scope
+        run: .vale/scope-test.sh
 
       - name: Check the fixtures (strict config)
         run: |
