@@ -53,6 +53,9 @@ Facility reference architecture.
   depends on layer or vertical assumptions.
 - Before you stop, record changes to shared state (cross-repo decisions,
   in-flight work) in the pinned Operator notes issue.
+- The agentic harness under `docs/agentic/` is mothballed. Its state files
+  (`backlog.yaml`, `decisions-open.md`, `issues.yaml`) are not live queues;
+  issues are the live backlog.
 
 <!-- WORKING-MODEL-BLOCK-START — generated from umbrella docs/templates/working-model-block.md; do not edit copies, edit the template and run bin/check-working-model-sync.sh -->
 ## Working model (mandatory)
