@@ -32,12 +32,12 @@ the backlog-hygiene detector. Plan:
    Discussions RFC first), STATUS.md for committed operator notes, and
    STATUS.local.md for the generated live repo snapshot.
 4. **Three milestones, and a milestone is not a bucket.** `v0.1-polish` — the
-   durable capability contract (an outsider finishes cold, nothing tells them
-   something untrue). `episode-001-capture` — what a demo recording needs;
-   dated and disposable. `v0.2` — post-validation bets, **not** "everything that
-   isn't v0.1". Scheduled work gets a milestone; **unscheduled work gets
-   `platform-debt` and none**. Milestone membership never authorises work on a
-   frozen v0.1 non-goal (§`OPEN-QUESTIONS.md`).
+   console tells the truth (an outsider finishes cold, nothing tells them
+   something untrue). `v0.2` — a team shares one console (a multi-function
+   workload switched by NMOS IS-05). `v0.3` — design and plan in the console.
+   An issue is in a milestone only if the outcome fails without it; **other
+   work gets `platform-debt` and none**. Milestone membership never authorises
+   work on a frozen v0.1 non-goal (§`OPEN-QUESTIONS.md`).
 <!-- WM-DIGEST-END -->
 
 ## 1. Source-of-truth map
@@ -65,25 +65,29 @@ the frontmatter must be flipped; frontmatter wins for design content.
   `hardening`, `entrance`). Labels are the single source of truth for
   component/workstream classification; board membership is **not** a filing
   requirement (see §3).
-- **Milestones — three, each with a different job.** This list is canonical;
-  agent files point here rather than restating it.
-  - **`v0.1-polish`** — the durable capability contract: an outsider completes
-    the canonical journey cold, a closed set of five deviations does not strand
-    them, the console never tells the user something untrue, and the runbook and
-    public claims are truthful. A *product* milestone.
-  - **`episode-001-capture`** — everything needed to record and publish episode
-    001. Dated and disposable, so a later episode cannot retroactively redefine
-    what `v0.1` meant. *(Added by operator decision, 2026-08-26, as part of the
-    milestone reconciliation.)*
-  - **`v0.2`** — post-validation product bets: sourced from the limits episode
-    001 declares on camera, selected by measured interest after publication. It
-    does **not** mean "everything that isn't v0.1" — that reading is what turned
-    it into an 85-item inbox.
+- **Milestones — three, each defined by an outcome.** This list is canonical;
+  agent files and ROADMAP.md point here rather than restating it.
+  - **`v0.1-polish`** — the console tells the truth. An outsider completes
+    the documented journey cold, nothing on the way tells them something
+    untrue, and the public repos are safe to read and clone. Defects on that
+    path, security and authorization fixes, and public-safety work.
+  - **`v0.2`** — a team shares one console. A usable workload of several media
+    functions, switched by NMOS IS-05, operated by a small team in one
+    console, where a deploy never blocks the facility. Sourced from the IS-05
+    limit episode 001 declared on camera; the team scope was added by
+    operator decision on 2026-10-20.
+  - **`v0.3`** — design and plan in the console. A team designs a workload
+    and a facility and plans them before provisioning. Sourced from the
+    Design and Plan placeholders episode 001 declared on camera. *(Added by
+    operator decision, 2026-10-20.)*
 
-  **Filing rule.** Every new issue gets a `component:*` + `workstream:*` label
-  pair. It gets a **milestone only if it is scheduled** for one of the three
-  above; **unscheduled work gets `platform-debt` and no milestone**, which keeps
-  it retrievable by label without a release-shaped bucket implying it is planned.
+  `episode-001-capture` closed on 2026-10-20 with the episode published; its
+  open issues were re-homed or closed in the same triage.
+
+  **Filing rule.** Unchanged: `component:*` + `workstream:*` on every issue; a
+  milestone only if the work is needed for that milestone's outcome;
+  otherwise `platform-debt` and no milestone. **An issue is in a milestone
+  only if the outcome fails without it.** "Nice for v0.2" is `platform-debt`.
 
   **Milestone membership never authorises work on a frozen v0.1 non-goal** —
   those keep their own re-open triggers in
