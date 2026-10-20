@@ -11,8 +11,8 @@ lives, and what the console must prove before it shows one. The work is
 scheduled under the `v0.3` milestone ("design and plan in the console"), and
 the tracking issue is [#562](https://github.com/dmfdeploy/dmfdeploy/issues/562).
 
-The plan records design state, not decisions. Where it depends on an open
-question, it names the question (the RFCs from
+The plan records existing rulings and design state; it makes no new decisions.
+Where it depends on an open question, it names the question (the RFCs from
 [Discussion #564](https://github.com/orgs/dmfdeploy/discussions/564) and the
 issues in §7) and doesn't settle it by implication.
 
@@ -62,8 +62,9 @@ Whatever store is chosen must have these properties:
 - **The console may cache, never own.** If dmf-cms stores something
   authoritative that isn't in the chosen store or NetBox, it becomes another
   source of truth.
-- **Concurrent saves conflict visibly.** A save against a stale version is
-  refused with a diff: never merged silently, never overwritten, never locked.
+- **Concurrent saves conflict visibly.** A save carrying a stale version token
+  is refused with a diff: never merged silently, never overwritten, never
+  locked.
 - **History is attributable.** Each save carries the C5 quartet (actor, role,
   request-id, reason).
 - **Incompleteness is derived on read, never stored.** A half-finished design
@@ -72,6 +73,10 @@ Whatever store is chosen must have these properties:
 - **Layout is stored apart from semantics.** Moving a box doesn't change the
   design.
 - **Any index is derived:** regenerable from the artifacts and never edited.
+
+These are properties, not yet a contract. The persistence ADR must specify the
+version token and its compare-and-swap rule, and the authorization and audit
+boundary of a save, before any of them is executable.
 
 **The write path doesn't exist yet.** The console's Forgejo client and its
 Forgejo identity are both read-only, by deliberate design. Choosing Forgejo
@@ -100,10 +105,11 @@ A connection has three representations, and they must stay separable:
 | **Observed**: what is happening | read from the running instance | the viewer receives source-b's flow |
 
 A switch rewrites actuation state without touching git, so the declared
-selection goes stale as live truth after one switch. Git owns declared intent,
-NetBox holds a back-pointer into git, and neither stores live state: the
-ADR-0037 split. The direction is to widen the two existing tags into a
-design-ref and design-element pair, not to invent a relationship model.
+selection goes stale as live truth after one switch. Today the git catalog holds
+declared intent, NetBox holds a back-pointer into it, and neither stores live
+state: the ADR-0037 split. Where new design intent persists is the open
+question in RFC #605 (§2). The direction is to widen the two existing tags into
+a design-ref and design-element pair, not to invent a relationship model.
 
 **Hazard.** A canvas that presents declared intent as the live signal path
 fails gate 1 of the UX Constitution (requested is not observed).
@@ -193,10 +199,12 @@ project-controlled index, and the launcher stamps the ADR-0038 cluster fields.
 hardcoded namespace and port set, and that set is also an SSRF gate. A real
 binder can replace it, but the allowlist must never become vendor-declared.
 
-**Where the console isn't neutral today.** Five sites: a hardcoded map of five
-function keys to display names (four no longer have catalog entries), an MXL
-sidebar icon key, an `/mxl-flows` route, an MXL-shaped response type and
-endpoint, and the allowlist above. The fix pattern already exists: a
+**Where the console isn't neutral today.** Known sites, as of 2026-10-20: the
+frontend's map of function keys to display names (five keys, four with no
+catalog entry), the MXL sidebar icon, the `/mxl-flows` route, the MXL-shaped
+response types and endpoint, and the allowlist above. This list is a starting
+point, not the test: property 10's oracle is a source sweep. The fix pattern
+already exists: a
 catalog-declared display noun, and a value resolved server-side from the
 catalog with null on every miss.
 
@@ -219,12 +227,23 @@ Each property is one executable assertion that covers several failure modes.
 4. **Scope widens what exists, never who can see it.** An unscoped enumeration
    doesn't disclose another tenant's blank workload. This holds trivially under
    the single-tenant posture (§6.1) and becomes load-bearing if it's lifted.
-5. **Create is attributable, idempotent and visible.** A created container has
-   an audit record with the C5 quartet and appears in the console's Activity
-   lane. A duplicate-slug create has defined semantics, and a partial success
-   leaves no half-created container.
-6. **A design round-trips.** A design saved at version *n* reads back as the
-   same graph; a save against a stale version is refused with a diff.
+5. **Create is attributable, visible, idempotent and atomic.** Each part has
+   its own test:
+   - *Attributable:* the created container has an audit event with the C5
+     quartet in the dedicated audit stream.
+   - *Visible:* the create appears in the console's Activity view. Assert the
+     Activity view and the audit event separately; a record that exists only
+     in a log fails.
+   - *Idempotent:* a duplicate name has documented behaviour, and a retry after
+     a timeout never produces a second container. Test it by timing out after
+     the store accepted the write, then retrying. Uniqueness rests on a store
+     constraint, not on a read followed by a write.
+   - *Atomic:* inject a failure at each step boundary of the create
+     transaction. After each one, no half-created container remains and the
+     operator sees one clear error.
+6. **A design round-trips.** A design saved against a version token reads back
+   as the same graph; a save carrying a stale token is refused with a diff and
+   is never merged or overwritten. The persistence ADR defines the token (§2).
 7. **Incompleteness gates actions, not navigation.** An incomplete design
    saves, is reachable, says what is missing, and refuses Plan and Provision
    with the same reason.
@@ -237,7 +256,18 @@ Each property is one executable assertion that covers several failure modes.
    acceptance against compatible reference functions.
 10. **The console names no media function.** No media-domain proper noun
     appears in console source outside a narrow, platform-owned binding
-    configuration. This fails today on the five sites in §4.
+    configuration. The oracle is a sweep of console source for the catalog's
+    function keys and media-domain nouns (for example `mxl`, `nmos`), with an
+    explicit allowlist for that configuration. It fails today (§4).
+11. **Blank-container delete is authorized and fail-closed.** An authorized
+    operator permanently deletes an owned blank container, and it leaves the
+    page. A caller scoped to another tenant can neither delete nor detect it:
+    the result matches the not-found result for a container that doesn't
+    exist, with no difference in error kind or timing. Run the test in both
+    unscoped (`single`) and `scoped` tenancy and assert each outcome. The
+    existing tag-only purge path is not this proof: for a scoped caller with
+    no visible members it returns `workload-not-found`, because a NetBox tag
+    has no tenant field.
 
 ## 6. Rulings
 
@@ -253,8 +283,9 @@ installation: isolation by separation, not by filtering a shared inventory.
 This is a declared deployment posture, not a property of the code; the
 console's `single` tenancy mode applies no filter at all. Under the posture a
 container needs no tenant stamp, but `scoped` mode, the tenant and site terms
-of the existing contract, and property 4 all stay. Lifting the posture
-re-introduces a real ownership join.
+of the existing contract, and property 4 all stay. Lifting the posture needs a
+real ownership join and an independent no-disclosure proof (properties 4 and
+11) before blank containers are served in `scoped` mode.
 
 Three things are called "tenant" and must not be conflated: the shared NetBox
 tenant `DMF` (ADR-0039), the media tenant (ADR-0020), and the console's media
@@ -269,11 +300,12 @@ separate purge identity: the writer never holds delete, and the purge identity
 never holds add or change (ADR-0032).
 
 The console has no writer identity yet; its credential is set by no chart or
-role ([#487](https://github.com/dmfdeploy/dmfdeploy/issues/487)). It has never
-created a NetBox object either, so its writer's permission set is decided
-against its own code paths, not copied from the AWX catalog writer.
+role ([#487](https://github.com/dmfdeploy/dmfdeploy/issues/487)). It has no
+tag-create path either (its NetBox tag access is read-only), so the create
+transaction is new work, and its writer's permission set is decided against
+its own code paths, not copied from the AWX catalog writer.
 
-Before implementation, define three behaviours:
+Before implementation, define three behaviours (property 5 tests them):
 - **Duplicate names.** Two workloads that derive the same slug merge silently
   today. Uniqueness must rest on the store's own constraint, not a
   read-then-write check.
@@ -281,9 +313,10 @@ Before implementation, define three behaviours:
 - **Audit failure.** Decide what happens when the container is created but its
   audit record is not.
 
-Under the single-tenant posture, a blank container is deleted through the
-existing tag-only purge path. The work is to verify and integrate that flow,
-not replace it.
+Under the single-tenant posture the existing tag-only purge path can remove a
+blank container, but it isn't the product proof; property 11 is. For a scoped
+caller with no visible members that path returns `workload-not-found`, so the
+blank-container delete needs its own fail-closed path and test.
 
 ### 6.3 Permissions direction (operator, 2026-09-15)
 
@@ -320,20 +353,24 @@ Each step is a prerequisite for the next.
 | Step | Scope | Issue | State |
 |---|---|---|---|
 | 0 | Wire the console's NetBox writer credential | [#487](https://github.com/dmfdeploy/dmfdeploy/issues/487) | `v0.1-polish`; done when a chart or role sets it and the writer-dependent endpoint works on a deployed env |
-| 1 | Blank containers: enumeration, name-only create, blank-container delete | [#562](https://github.com/dmfdeploy/dmfdeploy/issues/562), [#490](https://github.com/dmfdeploy/dmfdeploy/issues/490) | `v0.3`, ready |
+| 1 | Blank containers: enumeration, name-only create (property 5), blank-container delete (property 11) | [#562](https://github.com/dmfdeploy/dmfdeploy/issues/562), [#490](https://github.com/dmfdeploy/dmfdeploy/issues/490) | `v0.3`, ready |
 | 2 | Stage behaviour: preconditions gate actions, not navigation | [#557](https://github.com/dmfdeploy/dmfdeploy/issues/557); facility and node recording in [#558](https://github.com/dmfdeploy/dmfdeploy/issues/558) | `v0.3`, ready |
 | 3 | Design schema: functions, typed ports, connections, constraints, two-way validation, reference functions; no editor | none yet | **Parked** until v0.2 role gating and packaging land |
 | 4 | Design persistence (§2) | none yet | **Parked** until v0.2 role gating and packaging land and the persistence ADR is decided |
 
 - **Step 1 is one delivery boundary.** Enumeration, create and delete ship
   together or not at all; a container that can't be deleted is worse than none.
-- **Property coverage.** Step 1 satisfies properties 1, 2, 3, 5 and 8, and
-  step 2 satisfies property 7. Steps 3 and 4 own properties 6 and 9. Property
-  10 can be worked independently.
+- **Property coverage.** Step 1 satisfies properties 1, 2, 3, 4, 5, 8 and 11,
+  and step 2 satisfies property 7. Steps 3 and 4 own properties 6 and 9.
+  Property 10 can be worked independently.
 - **Steps 3 and 4 wait for decisions, not effort.** Step 3 depends on the
   package spec and typed ports (ADR-0047, RFC #601). Step 4 depends on the
   persistence ADR and the plugin question (#563, RFC #605). Both depend on the
   v0.2 identity model for who may save a design.
+- **A durable display name is out of Step 1.** A friendly workload name kept
+  apart from the slug, and its history, depend on
+  [#436](https://github.com/dmfdeploy/dmfdeploy/issues/436) (v0.2) and stay
+  parked with it.
 - **The delete leg depends on the actuator.** Permanent delete wakes AWX and
   launches a job; the rest of steps 1 to 4 doesn't.
 
