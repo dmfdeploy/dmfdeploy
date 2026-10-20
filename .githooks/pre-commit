@@ -155,6 +155,15 @@ if gate_on '^(docs/|bin/check-docs\.sh$)' && [ -x "$REPO_ROOT/bin/check-docs.sh"
                   "$REPO_ROOT/bin/check-docs.sh"
 fi
 
+# Surface checks (size budgets, filenames, archive placement; #617). WARN mode:
+# findings print but never block the commit. Enforcement flips in a later
+# change, so this gate does not call refuse().
+if gate_on '^(README\.md|AGENTS\.md|STATUS\.md|docs/|bin/check-surface\.sh$|tests/surface/)' \
+        && [ -x "$REPO_ROOT/bin/check-surface.sh" ]; then
+    # Print only the summary line; run bin/check-surface.sh --warn for details.
+    "$REPO_ROOT/bin/check-surface.sh" --warn 2>&1 | tail -1 | sed 's/^/[pre-commit] /' >&2 || true
+fi
+
 # Working-model block sync (umbrella issue #32): copies of the agent-context
 # block must match docs/templates/working-model-block.md byte-for-byte.
 if gate_on '^(CLAUDE\.md|AGENTS\.md|QWEN\.md|docs/templates/working-model-block\.md|bin/check-working-model-sync\.sh$)' \
