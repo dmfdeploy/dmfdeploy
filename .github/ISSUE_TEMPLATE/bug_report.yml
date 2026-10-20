@@ -8,6 +8,41 @@ body:
         ⚠️ **Never paste secrets, real IPs/DNS, kubeconfigs, or operator identity.**
         Use placeholders (`<control-node-public-ip>`, `dmf.example.com`, `<handle>`).
         For security vulnerabilities, **stop** — use SECURITY.md (private reporting).
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: The matching `component:*` label is applied when the issue is triaged. Use `umbrella` for docs and process, `cross-repo` when the work spans repos.
+      options:
+        - dmf-cms
+        - dmf-infra
+        - dmf-env
+        - dmf-central
+        - dmf-media
+        - dmf-runbooks
+        - dmf-init
+        - dmf-promsd
+        - umbrella
+        - cross-repo
+    validations: { required: true }
+  - type: dropdown
+    id: workstream
+    attributes:
+      label: Workstream
+      description: The matching `workstream:*` label is applied when the issue is triaged. See docs/WORKING-MODEL.md section 2.
+      options:
+        - release
+        - compliance
+        - monitoring
+        - infra-debt
+        - scaffold
+        - hygiene
+        - ADR
+        - catalog
+        - identity-secrets
+        - hardening
+        - entrance
+    validations: { required: true }
   - type: input
     id: version
     attributes:

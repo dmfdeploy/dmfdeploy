@@ -1,0 +1,57 @@
+name: Task
+description: A unit of planned work. Pick the component and workstream so it can be scheduled.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not paste secrets, real IPs or DNS names, or operator identity. Use
+        placeholders such as `<control-node-public-ip>` and `dmf.example.com`.
+        Write a plain title. Do not start it with a bracketed prefix such as
+        `[auto]`.
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: The matching `component:*` label is applied when the issue is triaged. Use `umbrella` for docs and process, `cross-repo` when the work spans repos.
+      options:
+        - dmf-cms
+        - dmf-infra
+        - dmf-env
+        - dmf-central
+        - dmf-media
+        - dmf-runbooks
+        - dmf-init
+        - dmf-promsd
+        - umbrella
+        - cross-repo
+    validations: { required: true }
+  - type: dropdown
+    id: workstream
+    attributes:
+      label: Workstream
+      description: The matching `workstream:*` label is applied when the issue is triaged. See docs/WORKING-MODEL.md section 2.
+      options:
+        - release
+        - compliance
+        - monitoring
+        - infra-debt
+        - scaffold
+        - hygiene
+        - ADR
+        - catalog
+        - identity-secrets
+        - hardening
+        - entrance
+    validations: { required: true }
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: What is true when this task is done?
+    validations: { required: true }
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: How to check it
+      description: The command or observation that proves the outcome.
+    validations: { required: true }

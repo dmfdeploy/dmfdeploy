@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Question or idea
+    url: https://github.com/dmfdeploy/dmfdeploy/discussions
+    about: Ask a question or float an idea in Discussions. Open an issue once there is work to do.
   - name: Security vulnerability (private)
     url: https://github.com/dmfdeploy/dmfdeploy/security/advisories/new
     about: Report security issues privately — never in a public issue. See SECURITY.md.

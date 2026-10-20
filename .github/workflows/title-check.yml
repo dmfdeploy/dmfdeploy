@@ -1,0 +1,36 @@
+name: title-check
+
+# Rejects titles that start with a bracketed "[auto]" prefix. Warn mode: the
+# job reports an annotation and passes. Set STRICT to 1 (see the env block) to
+# make a bad title fail the job. Enforcement is switched on later, after the
+# existing "[auto]" issues are renamed.
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+  issues:
+    types: [opened, edited]
+
+permissions: {}
+
+jobs:
+  title:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Check the title
+        env:
+          STRICT: "0"
+        # The same text runs locally against the fixtures in
+        # .github/title-check-fixtures/. Keep the logic in this one step.
+        run: |
+          title=$(jq -r '(.pull_request // .issue).title // ""' "$GITHUB_EVENT_PATH")
+          if printf '%s' "$title" | grep -Eqi '^[[:space:]]*(\[[^]]*\][[:space:]]*)*\[auto\]'; then
+            msg="Title starts with an [auto] prefix. Use a plain title."
+            if [ "${STRICT:-0}" = "1" ]; then
+              echo "::error title=title-check::$msg"
+              exit 1
+            fi
+            echo "::warning title=title-check::$msg"
+          fi
+          echo "title ok or warned: $title"
