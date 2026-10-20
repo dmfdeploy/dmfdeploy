@@ -24,6 +24,12 @@
 # The README, AGENTS.md and STATUS.md budgets come from #617. The ADR number
 # is a target, not a hard cap: it is set by #617 and plan answer 6, and the
 # ADR rewrite must show that every normative sentence survives.
+#
+# The AGENTS.md budget counts only the lines outside the working-model block:
+# the span from the line containing WORKING-MODEL-BLOCK-START to the line
+# containing WORKING-MODEL-BLOCK-END, marker lines included, is excluded. That
+# block is generated and required by bin/check-working-model-sync.sh. A block
+# with a start marker but no end marker excludes nothing.
 
 set -euo pipefail
 
@@ -75,10 +81,25 @@ is_excluded() { printf '%s\n' "$1" | grep -qE "$EXCLUDED_RE"; }
 
 line_count() { wc -l < "$1" | tr -d ' '; }
 
-# check_size FILE LABEL BUDGET
+# Number of lines outside the working-model block (marker lines excluded from
+# the count). Without a complete START..END span, this is the whole file.
+lines_outside_block() {
+    awk '
+        { total++ }
+        s == 0 && /WORKING-MODEL-BLOCK-START/ { s = NR }
+        s > 0 && e == 0 && /WORKING-MODEL-BLOCK-END/ { e = NR }
+        END { if (s > 0 && e >= s) total -= (e - s + 1); print total + 0 }
+    ' "$1"
+}
+
+# check_size FILE LABEL BUDGET [outside-block]
 check_size() {
     local n
-    n="$(line_count "$1")"
+    if [ "${4:-}" = outside-block ]; then
+        n="$(lines_outside_block "$1")"
+    else
+        n="$(line_count "$1")"
+    fi
     if [ "$n" -gt "$3" ]; then
         finding "$2: $n lines, budget is $3 ($1)"
     fi
@@ -95,7 +116,7 @@ check_file_size() {
         readme*)
             wants size && check_size "$path" "README" "$BUDGET_README" ;;
         agents*)
-            wants size && check_size "$path" "AGENTS.md" "$BUDGET_AGENTS" ;;
+            wants size && check_size "$path" "AGENTS.md" "$BUDGET_AGENTS" outside-block ;;
         adr-*|[0-9][0-9][0-9][0-9]-*)
             case "$lower" in 0000-*) return 0 ;; esac
             wants size && check_size "$path" "ADR" "$BUDGET_ADR" ;;
