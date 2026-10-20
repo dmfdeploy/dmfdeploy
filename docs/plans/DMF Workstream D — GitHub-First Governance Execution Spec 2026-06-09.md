@@ -8,7 +8,7 @@ executed: 2026-06-09
 
 **Date:** 2026-06-09 · **Status:** Draft for codex cross-check → qwen lift
 **Author:** umbrella session (claude, orchestrator)
-**Parent plan:** [`DMF First Public Release Plan 2026-06-09.md`](DMF%20First%20Public%20Release%20Plan%202026-06-09.md) §Workstream D
+**Parent plan:** [`DMF First Public Release Plan 2026-06-09.md`](../archive/plans/DMF%20First%20Public%20Release%20Plan%202026-06-09.md) §Workstream D
 **Resume handoff:** `docs/handoffs/DMF First Public Release — C+B Done, A-D-E Next — Handoff 2026-06-09.md`
 
 > **This spec is self-contained.** A lifting agent (qwen-left) should be able to
@@ -564,7 +564,7 @@ Steps:
    (Status Accepted, theme `release / governance`) and reference it from the
    deployment/release theme-cluster row if appropriate. Match the existing row format.
 4. **Fix the parent plan's stale ADR-0018 references** (codex) — the approved
-   `docs/plans/DMF First Public Release Plan 2026-06-09.md` still points future
+   `docs/archive/plans/DMF First Public Release Plan 2026-06-09.md` still points future
    agents at 0018:
    - `:7-9` (header "Supersedes/extends … → ADR-0018") → `→ ADR-0041`.
    - `:225` ("Promote `DMF Release and Contribution Model.md` → **ADR-0018

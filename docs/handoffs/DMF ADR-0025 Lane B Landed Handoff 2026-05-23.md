@@ -158,7 +158,7 @@ Examples fixed in this lane:
 - EE, NMOS registry, NMOS node, and chart defaults now point at in-cluster Zot.
 
 Cross-reference:
-`docs/plans/DMF Hardcoded Environment Literals Cleanup Plan 2026-05-19.md`.
+`docs/archive/plans/DMF Hardcoded Environment Literals Cleanup Plan 2026-05-19.md`.
 Same class of debt; different vector. That plan tracks environment literals.
 Lane B adds caller-location sensitivity: public URL for workstation/browser,
 Service DNS for in-cluster pods, and node `/etc/hosts` for containerd pulls.

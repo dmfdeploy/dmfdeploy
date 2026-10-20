@@ -4,7 +4,7 @@
 **Source of truth:** [`dmf-oss-v0.1-version-manifest.yaml`](dmf-oss-v0.1-version-manifest.yaml) (this doc is the human-facing companion; the YAML is canonical)
 **Governing ADR:** [ADR-0031 — OSS v0.1 sandbox-and-AWS release-profile matrix](../decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md)
 **Anchor plan:** [WP0 Release Contract & Profile Matrix](../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md)
-**Verification owner:** [WP5 Release Verification and Tagging](../plans/DMF%20OSS%20v0.1%20WP5%20Release%20Verification%20and%20Tagging%202026-05-25.md)
+**Verification owner:** [WP5 Release Verification and Tagging](../archive/plans/DMF%20OSS%20v0.1%20WP5%20Release%20Verification%20and%20Tagging%202026-05-25.md)
 
 ---
 

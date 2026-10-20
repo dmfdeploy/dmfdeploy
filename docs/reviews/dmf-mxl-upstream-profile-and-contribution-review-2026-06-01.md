@@ -7,8 +7,8 @@
 
 **Related:**
 - ADR-0017 — MXL is an intra-host data plane; multi-node uses bridges (this review revisits the Fabrics-API roadmap status that ADR called "roadmap, not v1.0")
-- `docs/plans/DMF MXL Single-Node Media Node Spike Plan 2026-05-17.md`
-- `docs/plans/DMF MXL Single-Node Loopback Execution Plan 2026-05-29.md`
+- `docs/archive/plans/DMF MXL Single-Node Media Node Spike Plan 2026-05-17.md`
+- `docs/archive/plans/DMF MXL Single-Node Loopback Execution Plan 2026-05-29.md`
 - `dmf-media/docs/mxl-fabrics-runbook.md` (our GREEN cross-host TCP demo, 2026-05-30)
 
 > **Process note (2026-06-01):** request submitted to join the EBU MXL mailing

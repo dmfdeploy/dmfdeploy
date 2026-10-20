@@ -43,7 +43,7 @@ skim [`docs/decisions/INDEX.md`](../decisions/INDEX.md) (esp. **ADR-0036**), and
   Forgejo, creds at runtime). **App images pulled from GHCR+upstream at bootstrap**
   (mirrored to Zot by `630`), never baked. Air-gap (a portable image bundle) is
   deferred. Image is public-safe (nothing private baked).
-- **Plan:** `docs/plans/DMF Init Phase 1 Implementation Plan 2026-06-02.md`
+- **Plan:** `docs/archive/plans/DMF Init Phase 1 Implementation Plan 2026-06-02.md`
   (qwen-left-reviewed; 5 P1/9 P2/3 P3 folded). Parent spec: `docs/plans/DMF Init
   Bootstrap Container Plan 2026-06-02.md`.
 - **What works (proven by a hermetic E2E, no cluster):** loopback FastAPI +

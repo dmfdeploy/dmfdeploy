@@ -359,8 +359,8 @@ revisiting ADR-0014 if you go this way.
 ## References
 
 - Trials doc: `docs/plans/Move 1 Gate 2 — Trials and Tribulations 2026-05-05.md`
-- Gate plan: `docs/plans/Move 1 Gate 2 — AWX Integration + Launch NMOS.md`
-- Companion review: `docs/reviews/dmf-move1-gate2-secrets-rollout-review-2026-05-05.md`
+- Gate plan: `docs/archive/plans/Move 1 Gate 2 — AWX Integration + Launch NMOS.md`
+- Companion review: `docs/archive/reviews/dmf-move1-gate2-secrets-rollout-review-2026-05-05.md`
 - ADR-0007 (secrets in argv/env/tmp/transcripts): `docs/decisions/0007-secrets-never-in-argv.md`
 - ADR-0008 (OpenBao + ESO): `docs/decisions/0008-openbao-secrets-architecture.md`
 - ADR-0010 (`bin/run-playbook.sh` is the sanctioned entry): `docs/decisions/0010-run-playbook-as-sanctioned-entry.md`

@@ -544,12 +544,12 @@ the files — `docs/plans/` history is searchable):
 
 - `docs/plans/Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md`
   — promote partial-supersession to full.
-- `docs/plans/Move 1 Gate 2 — AWX Integration + Launch NMOS.md` — full.
-- `docs/plans/Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount.md`
+- `docs/archive/plans/Move 1 Gate 2 — AWX Integration + Launch NMOS.md` — full.
+- `docs/archive/plans/Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount.md`
   — full (the SA-mount work is now Container Group, not pod_spec_override fragment).
 - `docs/plans/Move 1 Gate 2 — Trials and Tribulations 2026-05-05.md` —
   full.
-- `docs/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md`
+- `docs/archive/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md`
   — Phase 3 already noted superseded; extend to full.
 
 **Do NOT supersede:**

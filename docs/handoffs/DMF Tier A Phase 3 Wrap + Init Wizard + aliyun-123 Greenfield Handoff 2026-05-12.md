@@ -1,6 +1,6 @@
 # DMF Session Handoff — Tier A Phase 3 wrap + `init-wizard.sh` + aliyun-123 in flight (2026-05-12)
 
-**Status:** Phase 3 of 6 of the [Tier A execution plan](../plans/DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md)
+**Status:** Phase 3 of 6 of the [Tier A execution plan](../archive/plans/DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md)
 has landed (code + handoff doc). New `init-wizard.sh` greenfield tool
 shipped in `dmf-env/bin/`. Operator mid-deploy on a fresh `aliyun-123`
 environment, currently between Terraform apply and pre-seed playbook.
@@ -224,7 +224,7 @@ forgejo config`) lands:
 ## 7. References
 
 - [Tier A Phase 3 Implementation Handoff 2026-05-12](DMF%20Tier%20A%20Phase%203%20Implementation%20Handoff%202026-05-12.md) — Phase 3 canonical record
-- [Tier A Phase Execution Plan 2026-05-11](../plans/DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — phase sequence + per-actor briefs
+- [Tier A Phase Execution Plan 2026-05-11](../archive/plans/DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — phase sequence + per-actor briefs
 - [DMF Platform Deploy Quickstart](../runbooks/dmf-deploy-quickstart.md) — 9-step TL;DR (updated this session)
 - [TODOS](../../TODOS.md) §`init-wizard.sh` follow-ups — v2 work captured
 - `dmf-env/bin/init-wizard.sh` — the wizard itself

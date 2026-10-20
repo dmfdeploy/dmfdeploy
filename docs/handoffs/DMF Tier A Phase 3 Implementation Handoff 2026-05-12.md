@@ -1,6 +1,6 @@
 # DMF Tier A — Phase 3 Implementation Handoff (2026-05-12)
 
-**Plan reference:** [DMF Tier A Phase Execution Plan](../plans/DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md), §Phase 3 (vertical-resilience playbooks).
+**Plan reference:** [DMF Tier A Phase Execution Plan](../archive/plans/DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md), §Phase 3 (vertical-resilience playbooks).
 
 **Phase 3 commit chain on `dmf-infra` main:**
 

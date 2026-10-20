@@ -358,7 +358,7 @@ Two follow-ups:
 - ADR-0004 (experiment phase stance): `docs/decisions/0004-experiment-phase-stance.md`
 - Secret Ownership plan: `docs/plans/DMF Secret Ownership and OpenBao Migration Plan.md`
 - Companion reviews:
-  - `docs/reviews/dmf-move1-gate2-secrets-rollout-review-2026-05-05.md`
+  - `docs/archive/reviews/dmf-move1-gate2-secrets-rollout-review-2026-05-05.md`
   - `docs/reviews/dmf-move1-gate2-awx-ee-review-2026-05-05.md`
 - Trials doc: `docs/plans/Move 1 Gate 2 — Trials and Tribulations 2026-05-05.md`
 - Offending commit: `dmf-infra` `3a27666`

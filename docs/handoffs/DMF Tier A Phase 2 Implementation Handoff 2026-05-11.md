@@ -1,6 +1,6 @@
 # DMF Tier A — Phase 2 Implementation Handoff (2026-05-11; live-apply 2026-05-12)
 
-**Plan reference:** [DMF Tier A Phase Execution Plan](../plans/DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md), §Phase 2 (Object-storage Terraform + seed bundle).
+**Plan reference:** [DMF Tier A Phase Execution Plan](../archive/plans/DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md), §Phase 2 (Object-storage Terraform + seed bundle).
 
 **Phase 2 commit chain on `dmf-env` main:**
 

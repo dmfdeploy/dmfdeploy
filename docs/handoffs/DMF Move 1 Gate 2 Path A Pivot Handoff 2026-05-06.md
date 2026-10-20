@@ -37,7 +37,7 @@ landed and is end-to-end validated.
 **ADR-0012 implementation note** added pointing to ADR-0016. The decision
 itself (stage split) is unchanged and now confirmed implementable.
 
-**Superseded:** [`docs/plans/Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount.md`](../plans/Move%201%20Gate%202%20Fix%20-%20AWX%20EE%20Pod%20Service%20Account%20Mount.md)
+**Superseded:** [`docs/archive/plans/Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount.md`](../archive/plans/Move%201%20Gate%202%20Fix%20-%20AWX%20EE%20Pod%20Service%20Account%20Mount.md)
 carries a banner pointing here.
 
 ---
@@ -79,7 +79,7 @@ thesis — operator action with documented procedure (see Outstanding work).
 
 - `STATUS.md` — operator notes section updated with the pivot validation, outstanding follow-ups, and the new "in-flight" entry for image push.
 - `docs/decisions/0012-configure-stage-distinct-from-provision.md` — Implementation note (2026-05-06) appended.
-- `docs/plans/Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount.md` — superseded banner.
+- `docs/archive/plans/Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount.md` — superseded banner.
 - `docs/plans/Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md` — the new canonical plan (created during this session).
 
 ---
@@ -90,7 +90,7 @@ thesis — operator action with documented procedure (see Outstanding work).
    on Mac mini's Colima `docker-build` profile
    (`registry.dmf.example.com/<operator>/nmos-cpp-{registry,node}:0.1.0`). Operator
    action — documented in
-   [`docs/plans/Move 1 Gate 1 — Build NMOS + Run Provision.md`](../plans/Move%201%20Gate%201%20%E2%80%94%20Build%20NMOS%20+%20Run%20Provision.md)
+   [`docs/archive/plans/Move 1 Gate 1 — Build NMOS + Run Provision.md`](../archive/plans/Move%201%20Gate%201%20%E2%80%94%20Build%20NMOS%20+%20Run%20Provision.md)
    step 2. Use isolated `DOCKER_CONFIG` per the `dmf-cluster-access` skill
    §0 secrets discipline. Once pushed, re-launch `media-launch-nmos-cpp` to
    confirm pods come up healthy.
@@ -177,7 +177,7 @@ thesis — operator action with documented procedure (see Outstanding work).
 ## How to continue
 
 1. **Build is done; push the images.** Use the documented procedure in
-   `docs/plans/Move 1 Gate 1 — Build NMOS + Run Provision.md` step 2,
+   `docs/archive/plans/Move 1 Gate 1 — Build NMOS + Run Provision.md` step 2,
    adapted for `--password-stdin` to keep secrets out of argv.
 2. **Re-launch `media-launch-nmos-cpp`** after push to verify pods come
    up healthy and the registry/node containers actually start.
@@ -192,7 +192,7 @@ thesis — operator action with documented procedure (see Outstanding work).
 ## Reference
 
 - Plan: [`docs/plans/Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md`](../plans/Move%201%20Gate%202%20-%20Pivot%20to%20Path%20A%20for%20Catalog%20Launchers%202026-05-06.md)
-- Superseded plan: [`docs/plans/Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount.md`](../plans/Move%201%20Gate%202%20Fix%20-%20AWX%20EE%20Pod%20Service%20Account%20Mount.md)
+- Superseded plan: [`docs/archive/plans/Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount.md`](../archive/plans/Move%201%20Gate%202%20Fix%20-%20AWX%20EE%20Pod%20Service%20Account%20Mount.md)
 - ADR-0012 (with implementation note): [`docs/decisions/0012-configure-stage-distinct-from-provision.md`](../decisions/0012-configure-stage-distinct-from-provision.md)
 - ADR-0016 (Path A): [`docs/decisions/0016-awx-control-node-ssh-via-cloud-init-and-openbao.md`](../decisions/0016-awx-control-node-ssh-via-cloud-init-and-openbao.md)
 - Function Catalog Model: [`docs/architecture/DMF Function Catalog Model.md`](../architecture/DMF%20Function%20Catalog%20Model.md)

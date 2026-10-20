@@ -50,9 +50,9 @@ every pane/agent). A parallel **MXL agent** keeps `dmf-env` / `dmf-infra` /
 2. `STATUS.md` — current state; the `<!-- HUMAN-START -->` block has the 2026-05-29 entries.
 3. **This handoff.**
 4. `docs/decisions/INDEX.md` — ADRs. Most relevant below (§5).
-5. Active gate docs: `docs/plans/DMF OSS v0.1 WP1S Single-Node Sandbox Lane 2026-05-25.md`
+5. Active gate docs: `docs/archive/plans/DMF OSS v0.1 WP1S Single-Node Sandbox Lane 2026-05-25.md`
    (§8 gate checklist, §8.1 the imc1-cyh4 findings) and
-   `docs/plans/DMF OSS v0.1 WP5 Release Verification and Tagging 2026-05-25.md` (§4.1 sandbox-row).
+   `docs/archive/plans/DMF OSS v0.1 WP5 Release Verification and Tagging 2026-05-25.md` (§4.1 sandbox-row).
 
 **Verification discipline (hard lesson):** ground every claim on real artifacts —
 on-disk playbook logs (`/tmp/dmf-playbook-logs/…`), live `kubectl`, `awx-manage shell`.
@@ -97,7 +97,7 @@ confirm against cluster state.
 ### 4.3 Authentik usernameless login (operator-flagged 2026-05-29)
 - **Why:** with resident passkeys enrolled, the Authentik **authentication** flow still
   prompts for username before the WebAuthn challenge — unnecessary friction.
-- **Nuance:** `docs/plans/DMF Authentik Bootstrap Enrollment Drop Username Prompt Plan 2026-05-28.md`
+- **Nuance:** `docs/archive/plans/DMF Authentik Bootstrap Enrollment Drop Username Prompt Plan 2026-05-28.md`
   (status: not implemented) covers the **enrollment** flow only. This is a **separate**
   instance on the **authentication/login** flow: the identification stage needs a
   passkey-first / discoverable-credential ("Use a passkey") path. Extend that plan or

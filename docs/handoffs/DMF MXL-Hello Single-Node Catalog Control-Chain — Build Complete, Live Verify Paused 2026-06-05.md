@@ -3,7 +3,7 @@
 **Date:** 2026-06-05
 **Status:** Code-complete on `main`; chart published to GHCR. **Live verify intentionally
 paused** (operator) until a confirmed sandbox env is up again.
-**Plan:** `docs/plans/DMF MXL-Hello Single-Node Catalog Control-Chain Validation Plan 2026-06-05.md`
+**Plan:** `docs/archive/plans/DMF MXL-Hello Single-Node Catalog Control-Chain Validation Plan 2026-06-05.md`
 **Build model:** orchestrated — Claude verified, qwen-left lifted (3 slices); qwen adversarial
 cross-check folded into the plan.
 

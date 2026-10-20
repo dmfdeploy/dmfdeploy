@@ -137,9 +137,9 @@ gated by `dmf-passkey-login`. Service accounts (AWX/NetBox/Forgejo/Grafana) use
 API tokens, not browser SSO, so they are untouched by either lever.
 
 Status remains **Accepted**; this amendment widens scope from console-only to
-brand-wide. See `docs/plans/DMF Authentik Brand-Wide Passkey-First Login Plan
+brand-wide. See `docs/archive/plans/DMF Authentik Brand-Wide Passkey-First Login Plan
 2026-05-29.md` for the file edits and verification matrix. The separate
-`docs/plans/DMF Authentik Bootstrap Enrollment Drop Username Prompt Plan
+`docs/archive/plans/DMF Authentik Bootstrap Enrollment Drop Username Prompt Plan
 2026-05-28.md` (enrollment-flow username prompt) is a distinct, unimplemented
 item and is **not** affected by this change.
 

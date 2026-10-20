@@ -62,7 +62,7 @@ fix and a clean rebuild (with a mandatory Hetzner CCM bump) are the open work.
 ## 3. Open work (priority order)
 
 ### 3.1 Fix the upgrade-in-place mechanism — **keystone**
-Plan: [`docs/plans/DMF Idempotent Upgrade-in-Place Mechanism — Findings and Plan 2026-06-01.md`](../plans/DMF%20Idempotent%20Upgrade-in-Place%20Mechanism%20%E2%80%94%20Findings%20and%20Plan%202026-06-01.md)
+Plan: [`docs/archive/plans/DMF Idempotent Upgrade-in-Place Mechanism — Findings and Plan 2026-06-01.md`](../archive/plans/DMF%20Idempotent%20Upgrade-in-Place%20Mechanism%20%E2%80%94%20Findings%20and%20Plan%202026-06-01.md)
 - **`seed-bao` `bundle_set` aborts (exit 1) on the cloud lane** — root cause UNPROVEN
   (failure precedes the `sops --encrypt` step; the repo-level-`.sops` theory is likely
   a red herring). Instrument first (per-step exit markers on a throwaway bundle; **no
@@ -74,7 +74,7 @@ Plan: [`docs/plans/DMF Idempotent Upgrade-in-Place Mechanism — Findings and Pl
 - **Validate** on a controlled skew env, not on organic drift.
 
 ### 3.2 Rebuild — **mandatory CCM bump first**
-Plan: [`docs/plans/DMF Hetzner CCM Upgrade Plan 2026-06-01.md`](../plans/DMF%20Hetzner%20CCM%20Upgrade%20Plan%202026-06-01.md)
+Plan: [`docs/archive/plans/DMF Hetzner CCM Upgrade Plan 2026-06-01.md`](../archive/plans/DMF%20Hetzner%20CCM%20Upgrade%20Plan%202026-06-01.md)
 - Bump `hcloud_ccm_version` ≥ **v1.30.1** in `dmf-env/tasks/hetzner/ccm.yml:15` before
   standing up *any* new Hetzner env — v1.26.0 **crashes after 30 Jun 2026** (datacenter
   API removal). Version path (1/2/3) is an open operator decision (§4 of that plan).
@@ -118,8 +118,8 @@ Plan: [`docs/plans/DMF Hetzner CCM Upgrade Plan 2026-06-01.md`](../plans/DMF%20H
 ## 5. Reference index
 
 ### Plans / decisions
-- [Idempotent Upgrade-in-Place — Findings & Plan](../plans/DMF%20Idempotent%20Upgrade-in-Place%20Mechanism%20%E2%80%94%20Findings%20and%20Plan%202026-06-01.md) (Codex-reviewed)
-- [Hetzner CCM Upgrade Plan](../plans/DMF%20Hetzner%20CCM%20Upgrade%20Plan%202026-06-01.md)
+- [Idempotent Upgrade-in-Place — Findings & Plan](../archive/plans/DMF%20Idempotent%20Upgrade-in-Place%20Mechanism%20%E2%80%94%20Findings%20and%20Plan%202026-06-01.md) (Codex-reviewed)
+- [Hetzner CCM Upgrade Plan](../archive/plans/DMF%20Hetzner%20CCM%20Upgrade%20Plan%202026-06-01.md)
 - [`STATUS.md`](../../STATUS.md) — operator notes (🟢 teardown) at top
 - ADRs: [`docs/decisions/INDEX.md`](../decisions/INDEX.md) — **0032** (scoped NetBox
   writer), **0033** (zot-svc machine-write), **0028** (identity & authority chain),

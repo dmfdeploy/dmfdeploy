@@ -203,7 +203,7 @@ flow has the node key needed to SSH for the decommission.
 - (umbrella docs: this findings handoff + STATUS update.)
 
 ### Fix batch 2026-06-03 (orchestrated: codex lift → Claude verify → qwen review)
-Work order: `docs/plans/DMF dmf-init Live-Sandbox Fix Batch Plan 2026-06-03.md`.
+Work order: `docs/archive/plans/DMF dmf-init Live-Sandbox Fix Batch Plan 2026-06-03.md`.
 All pushed to the LAN Forgejo (`<lan-ip>`).
 - dmf-init `main` `a1bfe4c` — **#7** fetch dmf-cms + dmf-media.
 - dmf-env `feat/wizard-non-interactive` `d078c67` — **#5** unseal honors env SSH key

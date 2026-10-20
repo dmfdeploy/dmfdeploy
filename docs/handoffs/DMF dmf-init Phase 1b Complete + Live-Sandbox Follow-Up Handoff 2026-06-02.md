@@ -25,7 +25,7 @@ LAN Forgejo repo, then `git push -u`). 3 commits on top of 1a's `c237775`:
 - `2efba64` 1b.2 — real sandbox step graph + checkpoint #2/#3 (qwen secret-capture gate)
 - `78313bd` 1b.3 — React bootstrap view
 
-**Design + slicing (the contract):** `docs/plans/DMF Init Phase 1b Orchestration
+**Design + slicing (the contract):** `docs/archive/plans/DMF Init Phase 1b Orchestration
 Design 2026-06-02.md` — qwen-left-reviewed (CHANGES-NEEDED → all 7 folded). Read
 **§2 concurrency, §3 events, §4 step graph, §5 checkpoints, §6 secret hygiene**.
 
@@ -119,8 +119,8 @@ DRY. Push dmf-init once the operator creates the LAN Forgejo repo.
 
 ## 5. Key references
 - Repo: `dmf-init/` (`main` @ `78313bd`, no remote). Modules in §1.
-- Design: `docs/plans/DMF Init Phase 1b Orchestration Design 2026-06-02.md`;
-  parent: `docs/plans/DMF Init Phase 1 Implementation Plan 2026-06-02.md` +
+- Design: `docs/archive/plans/DMF Init Phase 1b Orchestration Design 2026-06-02.md`;
+  parent: `docs/archive/plans/DMF Init Phase 1 Implementation Plan 2026-06-02.md` +
   `…Bootstrap Container Plan 2026-06-02.md`. ADR-0036.
 - dmf-env `feat/wizard-non-interactive` (`2a75774`) — the wrapped wizard (1b clones
   it at runtime).

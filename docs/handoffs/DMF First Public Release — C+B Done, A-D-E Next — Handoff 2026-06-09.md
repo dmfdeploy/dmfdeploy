@@ -6,7 +6,7 @@
 
 **Author:** umbrella session (claude), orchestrating qwen-left (lifting) +
 codex (independent cross-check).
-**Canonical plan:** [`docs/plans/DMF First Public Release Plan 2026-06-09.md`](../plans/DMF%20First%20Public%20Release%20Plan%202026-06-09.md)
+**Canonical plan:** [`docs/archive/plans/DMF First Public Release Plan 2026-06-09.md`](../archive/plans/DMF%20First%20Public%20Release%20Plan%202026-06-09.md)
 — read it in full; it carries every locked decision and the per-workstream steps.
 
 ---
@@ -134,8 +134,8 @@ D are largely independent. See the master plan for the full step lists.
 
 ## Doc index (where everything lives)
 
-- Master plan: `docs/plans/DMF First Public Release Plan 2026-06-09.md`
-- C spec: `docs/plans/DMF Workstream C — ADR Digest Execution Spec 2026-06-09.md`
+- Master plan: `docs/archive/plans/DMF First Public Release Plan 2026-06-09.md`
+- C spec: `docs/archive/plans/DMF Workstream C — ADR Digest Execution Spec 2026-06-09.md`
 - B spec: `docs/plans/DMF Workstream B — dmf-env Public-Surface Scrub Spec 2026-06-09.md`
 - ADR digests: `docs/decisions/digests/`
 - Surface gate: `bin/dmf-env-public-surface-gate.sh`

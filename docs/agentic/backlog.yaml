@@ -380,7 +380,7 @@
     - file_exists: dmf-runbooks/roles/nmos-cpp/files/Dockerfile.registry
     - file_exists: dmf-runbooks/roles/nmos-cpp/files/Dockerfile.node
     - file_exists: dmf-runbooks/roles/nmos-cpp/scripts/push-nmos-images.sh
-    - source_ref: "docs/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md Phase 1 Steps 1-2 (Dockerfile + role tasks + ConfigMaps + Helm template)"
+    - source_ref: "docs/archive/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md Phase 1 Steps 1-2 (Dockerfile + role tasks + ConfigMaps + Helm template)"
     - cluster_verify_optional: "provision stage runs idempotently; NetBox shows ipam.Service nmos-cpp tagged lifecycle:bootstrapped; images present in Zot"
   status: done              # 2026-05-12 shift 5 audit (Option B)
                             # Path A consolidated provision stage into the
