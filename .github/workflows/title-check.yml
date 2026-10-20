@@ -1,9 +1,16 @@
 name: title-check
 
-# Rejects titles that start with a bracketed "[auto]" prefix. Warn mode: the
-# job reports an annotation and passes. Set STRICT to 1 (see the env block) to
-# make a bad title fail the job. Enforcement is switched on later, after the
-# existing "[auto]" issues are renamed.
+# Two jobs. "title" rejects titles that start with a bracketed "[auto]"
+# prefix. It is in warn mode: the job reports an annotation and passes. Set
+# STRICT to 1 (see the env block) to make a bad title fail the job.
+# Enforcement is switched on later, after the existing "[auto]" issues are
+# renamed.
+#
+# "static" runs on pull requests only. It checks the issue forms, CODEOWNERS
+# and the PR template, then runs the same checker on the fixtures in
+# .github/title-check-fixtures/ and asserts that each bad one fails and each
+# good one passes. All logic lives in .github/scripts/hygiene-check.sh, so
+# the same code runs locally.
 
 on:
   pull_request:
@@ -17,20 +24,24 @@ jobs:
   title:
     runs-on: ubuntu-24.04
     timeout-minutes: 2
+    permissions:
+      contents: read
     steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       - name: Check the title
         env:
           STRICT: "0"
-        # The same text runs locally against the fixtures in
-        # .github/title-check-fixtures/. Keep the logic in this one step.
-        run: |
-          title=$(jq -r '(.pull_request // .issue).title // ""' "$GITHUB_EVENT_PATH")
-          if printf '%s' "$title" | grep -Eqi '^[[:space:]]*(\[[^]]*\][[:space:]]*)*\[auto\]'; then
-            msg="Title starts with an [auto] prefix. Use a plain title."
-            if [ "${STRICT:-0}" = "1" ]; then
-              echo "::error title=title-check::$msg"
-              exit 1
-            fi
-            echo "::warning title=title-check::$msg"
-          fi
-          echo "title ok or warned: $title"
+        run: .github/scripts/hygiene-check.sh title
+
+  static:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - name: Check the real files
+        run: .github/scripts/hygiene-check.sh real
+      - name: Check the fixtures
+        run: .github/scripts/hygiene-check.sh fixtures

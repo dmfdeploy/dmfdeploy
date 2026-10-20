@@ -1,0 +1,16 @@
+name: Bad task form (optional)
+description: Fixture. Both dropdowns exist but component is not required.
+body:
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - umbrella
+  - type: dropdown
+    id: workstream
+    attributes:
+      label: Workstream
+      options:
+        - hygiene
+    validations: { required: true }
