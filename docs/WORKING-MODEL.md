@@ -75,12 +75,13 @@ the frontmatter must be flipped; frontmatter wins for design content.
   - **`v0.2`** — a team shares one console. A usable workload of several media
     functions, switched by NMOS IS-05, operated by a small team in one
     console, where a deploy never blocks the facility. Sourced from the IS-05
-    limit episode 001 declared on camera; the team scope was added by
-    operator decision on 2026-10-20.
+    limit episode 001 declared on camera; the team scope and the
+    non-blocking deploy were added by operator decision on 2026-10-20.
   - **`v0.3`** — design and plan in the console. A team designs a workload
     and a facility and plans them before provisioning. Sourced from the
-    Design and Plan placeholders episode 001 declared on camera. *(Added by
-    operator decision, 2026-10-20.)*
+    Design and Plan placeholders episode 001 declared on camera; the
+    facility scope and self-enrolment were added by operator decision.
+    *(Milestone added by operator decision, 2026-10-20.)*
 
   `episode-001-capture` closed on 2026-10-20 with the episode published; its
   open issues were re-homed or closed in the same triage.
