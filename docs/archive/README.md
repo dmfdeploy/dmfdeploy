@@ -15,4 +15,8 @@ as the record of how the project got here.
 - **Not maintained.** Archived documents are not updated when the project
   changes. For current state, start at [docs/INDEX.md](../INDEX.md).
 
-Plans that are still `active` or `draft` live in [docs/plans/](../plans/INDEX.md).
+Plans that are `active` or `draft` always live in [docs/plans/](../plans/).
+Some plans that are `executed`, `historical` or `superseded` also stay there
+for now, because documents or repositories still link to them by path. The
+generated [plans index](../plans/INDEX.md) lists every plan with its status.
+Each of those plans moves here once its readers are rewritten.
