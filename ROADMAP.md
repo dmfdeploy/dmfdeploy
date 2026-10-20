@@ -46,4 +46,4 @@ Reopening one needs a dated amendment there first.
 - Live backlog: [issues](https://github.com/dmfdeploy/dmfdeploy/issues), by milestone.
 - Decisions: [docs/decisions](docs/decisions/INDEX.md).
 - Open questions and frozen claims: [docs/OPEN-QUESTIONS.md](docs/OPEN-QUESTIONS.md).
-- The demo: episode 001 on YouTube (linked from the README).
+- The demo: [episode 001 on YouTube](https://www.youtube.com/watch?v=GESnNJo1FRU).
