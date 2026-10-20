@@ -79,8 +79,9 @@ The full story — including the pivots and the mothballed machinery — is in
 - **The record lives in this repo** — ADRs ([docs/decisions/](docs/decisions/INDEX.md)),
   plans ([docs/plans/](docs/plans/INDEX.md)), reviews, handoffs.
 - **Liveness lives on GitHub** — [Issues](https://github.com/dmfdeploy/dmfdeploy/issues)
-  are the backlog, the [org project board](https://github.com/orgs/dmfdeploy/projects/1)
-  carries scheduling, and [Discussions](https://github.com/dmfdeploy/dmfdeploy/discussions)
+  are the backlog, milestones schedule it, the
+  [org project board](https://github.com/orgs/dmfdeploy/projects/1) is optional
+  curation, and [Discussions](https://github.com/dmfdeploy/dmfdeploy/discussions)
   host Q&A and the RFC-before-ADR pipeline (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 - **What comes next** is in [ROADMAP.md](ROADMAP.md): the three milestones and
   the outcome each one is defined by.
