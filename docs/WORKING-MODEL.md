@@ -80,8 +80,8 @@ the frontmatter must be flipped; frontmatter wins for design content.
   - **`v0.3`** — design and plan in the console. A team designs a workload
     and a facility and plans them before provisioning. Sourced from the
     Design and Plan placeholders episode 001 declared on camera; the
-    facility scope and self-enrolment were added by operator decision.
-    *(Milestone added by operator decision, 2026-10-20.)*
+    facility scope and self-enrolment were added by operator decision on
+    2026-10-20. *(Milestone added by operator decision, 2026-10-20.)*
 
   `episode-001-capture` closed on 2026-10-20 with the episode published; its
   open issues were re-homed or closed in the same triage.
