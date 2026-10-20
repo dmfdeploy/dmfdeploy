@@ -15,8 +15,11 @@
 #   bin/check-backlog-hygiene.sh          # full run (umbrella + component repos)
 #   bin/check-backlog-hygiene.sh --help   # print this header
 #   bin/check-backlog-hygiene.sh --self-test  # offline check of the freshness rules
+#   bin/check-backlog-hygiene.sh --warn   # print findings but always exit 0
 #
-# Exit: 0 = no findings, 1 = one or more findings detected.
+# Exit: 0 = no findings, 1 = one or more findings detected. With --warn the
+# findings still print, and the last line carries the count
+# ("backlog-hygiene: N finding(s) (warn mode, exit 0)"), but the exit is 0.
 # Env overrides:
 #   DMF_TRIAGE_DAYS  — staleness threshold for untriaged component issues (default 7)
 #   DMF_WIP_LIMIT    — max concurrent active plans before a WIP finding (default 3)
@@ -32,6 +35,11 @@ COMPONENT_REPOS=(dmf-cms dmf-runbooks dmf-central dmf-infra dmf-env dmf-media dm
 STALE_DAYS="${DMF_TRIAGE_DAYS:-7}"
 
 TOTAL_FINDINGS=0
+WARN=0
+# Newline-separated keys that checks 1 and 2 already reported, so check 5's
+# overlapping rules (3 and 1) skip them and each finding prints once.
+REPORTED_ISSUES=""
+REPORTED_PLANS=""
 
 # ── Helpers ────────────────────────────────────────────────────────────────
 finding() {
@@ -87,6 +95,9 @@ check_umbrella_labels() {
 
         [ "$has_component" -eq 0 ] && finding "#$num \"$title\": missing component:* label"
         [ "$has_workstream" -eq 0 ] && finding "#$num \"$title\": missing workstream:* label"
+        if [ "$has_component" -eq 0 ] || [ "$has_workstream" -eq 0 ]; then
+            REPORTED_ISSUES+="$num"$'\n'
+        fi
     done
 }
 
@@ -130,7 +141,10 @@ check_active_plans() {
         local state_resp state
         state_resp="$(gh api repos/"$issue_repo"/issues/"$issue_num" 2>/dev/null)" || { skipped "gh api failed for $tracking"; continue; }
         state="$(echo "$state_resp" | jq -r '.state // empty')"
-        [ "$state" = "closed" ] && finding "$(basename "$plan_file"): status=$status but tracking issue #$issue_num is CLOSED"
+        if [ "$state" = "closed" ]; then
+            finding "$(basename "$plan_file"): status=$status but tracking issue #$issue_num is CLOSED"
+            REPORTED_PLANS+="$(basename "$plan_file")"$'\n'
+        fi
     done
     [ "$found_any" -eq 0 ] && echo "  · no active/draft plans with tracking_issue found"
 }
@@ -209,9 +223,10 @@ check_wip_cap() {
 # ── Check 5: Freshness rules (rules are pure: JSON in, finding lines out) ─
 # Each rule_* function reads one JSON payload on stdin and prints one line per
 # finding. --self-test feeds each rule an inline payload with no network calls.
-# Rules 1 and 3 overlap with checks 2 and 1 on purpose: check 5 states the
-# freshness contract in one place, and --self-test proves it. Checks 1 and 2
-# keep their existing output unchanged.
+# Rules 1 and 3 overlap with checks 2 and 1: check 5 states the freshness
+# contract in one place, and --self-test proves it. Checks 1 and 2 keep their
+# output unchanged and record what they reported (REPORTED_*); check 5 drops
+# those items before the overlapping rules run, so each finding prints once.
 DRAFT_MAX_DAYS="${DMF_DRAFT_MAX_DAYS:-90}"
 
 # Rule 1: active plan whose tracking issue is closed.
@@ -252,6 +267,20 @@ rule_issue_unscheduled() {
         | "#\(.number) \"\(.title)\": no milestone and no platform-debt label"'
 }
 
+# Drop items a check already reported. Pure: JSON in, JSON out.
+# drop_reported_issues <payload> <newline-separated issue numbers>
+drop_reported_issues() {
+    printf '%s' "$1" | jq -c --arg r "$2" \
+        '($r | split("\n") | map(select(. != "") | tonumber)) as $s
+         | .issues |= map(select(.number as $n | ($s | index($n)) == null))'
+}
+# drop_reported_plans <payload> <newline-separated plan file names>
+drop_reported_plans() {
+    printf '%s' "$1" | jq -c --arg r "$2" \
+        '($r | split("\n") | map(select(. != ""))) as $s
+         | .plans |= map(select(.file as $f | ($s | index($f)) == null))'
+}
+
 # Run a rule on a payload and report each output line as a finding.
 apply_rule() {
     local rule="$1" payload="$2" line
@@ -288,7 +317,8 @@ check_freshness() {
         done
         local today
         today="$(date -u +%Y-%m-%d)"
-        apply_rule rule_active_plan_closed_tracker "$(jq -c '{plans:.}' <<<"$plans")"
+        apply_rule rule_active_plan_closed_tracker \
+            "$(drop_reported_plans "$(jq -c '{plans:.}' <<<"$plans")" "$REPORTED_PLANS")"
         apply_rule rule_stale_draft_plan \
             "$(jq -c --arg t "$today" --argjson m "$DRAFT_MAX_DAYS" '{today:$t,max_days:$m,plans:.}' <<<"$plans")"
     else
@@ -301,9 +331,10 @@ check_freshness() {
     issues="$(echo "$resp" | jq -c '{issues: [.data.repository.issues.nodes[]
         | {number, title, milestone: (.milestone.title // null), labels: [.labels.nodes[].name]}]}' 2>/dev/null)" \
         || { skipped "jq parse failed"; return; }
-    # Rule 3 overlaps check 1 (which reports each missing label); rule 4 adds
-    # the platform-debt exemption that check 1's milestone test lacks.
-    apply_rule rule_issue_label_pair "$issues"
+    # Rule 3 overlaps check 1 (which reports each missing label), so issues
+    # check 1 already reported are dropped; rule 4 adds the platform-debt
+    # exemption that check 1's milestone test lacks.
+    apply_rule rule_issue_label_pair "$(drop_reported_issues "$issues" "$REPORTED_ISSUES")"
     apply_rule rule_issue_unscheduled "$issues"
 }
 
@@ -321,12 +352,13 @@ self_test() {
         fi
     }
 
-    local r1_bad r1_good r2_bad r2_good r3_bad r3_good r4_bad r4_good
+    local r1_bad r1_good r2_bad r2_good r3_bad r3_bad2 r3_good r4_bad r4_good
     r1_bad='{"plans":[{"file":"p.md","status":"active","tracker_state":"closed","tracker":"1"}]}'
     r1_good='{"plans":[{"file":"p.md","status":"active","tracker_state":"open","tracker":"1"}]}'
     r2_bad='{"today":"2026-10-20","max_days":90,"plans":[{"file":"p.md","status":"draft","date":"2026-01-01"}]}'
     r2_good='{"today":"2026-10-20","max_days":90,"plans":[{"file":"p.md","status":"draft","date":"2026-09-01"}]}'
     r3_bad='{"issues":[{"number":1,"title":"t","labels":["component:cms"]}]}'
+    r3_bad2='{"issues":[{"number":1,"title":"t","labels":["workstream:ops"]}]}'
     r3_good='{"issues":[{"number":1,"title":"t","labels":["component:cms","workstream:ops"]}]}'
     r4_bad='{"issues":[{"number":2,"title":"t","milestone":null,"labels":["component:cms"]}]}'
     r4_good='{"issues":[{"number":2,"title":"t","milestone":null,"labels":["component:cms","platform-debt"]}]}'
@@ -336,12 +368,54 @@ self_test() {
     expect "rule2 stale draft (bad)"      1 rule_stale_draft_plan "$r2_bad"
     expect "rule2 stale draft (good)"     0 rule_stale_draft_plan "$r2_good"
     expect "rule3 label pair (bad)"       1 rule_issue_label_pair "$r3_bad"
+    expect "rule3 label pair (no component)" 1 rule_issue_label_pair "$r3_bad2"
     expect "rule3 label pair (good)"      0 rule_issue_label_pair "$r3_good"
     expect "rule4 unscheduled (bad)"      1 rule_issue_unscheduled "$r4_bad"
     expect "rule4 unscheduled (good)"     0 rule_issue_unscheduled "$r4_good"
 
+    # No duplicates: an item that matches both an existing check and a new rule
+    # prints once. The existing check reports it (REPORTED_*), so the new rule
+    # sees nothing; an unreported twin still reaches the rule.
+    local dup_issues dup_plans
+    dup_issues='{"issues":[{"number":1,"title":"t","labels":["component:cms"]},{"number":2,"title":"u","labels":[]}]}'
+    dup_plans='{"plans":[{"file":"a b.md","status":"active","tracker_state":"closed","tracker":"1"},{"file":"c.md","status":"active","tracker_state":"closed","tracker":"2"}]}'
+    expect "rule3 no duplicate of check 1" 0 rule_issue_label_pair \
+        "$(drop_reported_issues "$dup_issues" $'1\n2\n')"
+    expect "rule3 still fires if unreported" 1 rule_issue_label_pair \
+        "$(drop_reported_issues "$dup_issues" $'1\n')"
+    expect "rule1 no duplicate of check 2" 0 rule_active_plan_closed_tracker \
+        "$(drop_reported_plans "$dup_plans" $'a b.md\nc.md\n')"
+    expect "rule1 still fires if unreported" 1 rule_active_plan_closed_tracker \
+        "$(drop_reported_plans "$dup_plans" $'a b.md\n')"
+
+    # Both modes, end to end and offline: a fake gh that always fails skips
+    # every network check, and a stale draft plan gives exactly one finding.
+    local tmp rc_strict rc_warn
+    tmp="$(mktemp -d)"
+    mkdir -p "$tmp/bin" "$tmp/docs/plans"
+    printf '#!/bin/sh\nexit 1\n' >"$tmp/bin/gh"
+    chmod +x "$tmp/bin/gh"
+    printf -- '---\nstatus: draft\ndate: 2000-01-01\n---\n' >"$tmp/docs/plans/old.md"
+    PATH="$tmp/bin:$PATH" UMBRELLA_DIR="$tmp" "$BASH" "$0" >/dev/null 2>&1
+    rc_strict=$?
+    PATH="$tmp/bin:$PATH" UMBRELLA_DIR="$tmp" "$BASH" "$0" --warn >/dev/null 2>&1
+    rc_warn=$?
+    rm -rf "$tmp"
+    if [ "$rc_strict" -eq 1 ]; then
+        echo "  ok   findings without --warn: exit 1"
+    else
+        echo "  FAIL findings without --warn: expected exit 1, got $rc_strict"
+        fails=$((fails + 1))
+    fi
+    if [ "$rc_warn" -eq 0 ]; then
+        echo "  ok   findings with --warn: exit 0"
+    else
+        echo "  FAIL findings with --warn: expected exit 0, got $rc_warn"
+        fails=$((fails + 1))
+    fi
+
     if [ "$fails" -eq 0 ]; then
-        echo "backlog-hygiene self-test: OK (8/8 expectations)"
+        echo "backlog-hygiene self-test: OK (15/15 expectations)"
         return 0
     fi
     echo "backlog-hygiene self-test: $fails expectation(s) failed"
@@ -354,10 +428,16 @@ if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
     exit 0
 fi
 
-if [ "${1:-}" = "--self-test" ]; then
-    self_test
-    exit $?
-fi
+for arg in "$@"; do
+    [ "$arg" = "--warn" ] && WARN=1
+done
+
+for arg in "$@"; do
+    if [ "$arg" = "--self-test" ]; then
+        self_test
+        exit $?
+    fi
+done
 
 check_umbrella_labels
 check_active_plans
@@ -370,6 +450,10 @@ if [ "$TOTAL_FINDINGS" -eq 0 ]; then
     echo "backlog-hygiene: OK (0 findings)"
     exit 0
 else
+    if [ "$WARN" -eq 1 ]; then
+        echo "backlog-hygiene: $TOTAL_FINDINGS finding(s) (warn mode, exit 0)"
+        exit 0
+    fi
     echo "backlog-hygiene: $TOTAL_FINDINGS finding(s)"
     exit 1
 fi

@@ -24,9 +24,11 @@ jobs:
       - name: Self-test the freshness rules
         run: bin/check-backlog-hygiene.sh --self-test
 
-      # Warn mode: the step records the checker exit code and never fails the
-      # job, so findings (including the freshness rules) are reported through
-      # the report issue below without turning the run red.
+      # Warn mode: the checker runs with --warn, so it prints findings and
+      # exits 0. Because the exit code no longer signals findings, the step
+      # reads the count from the checker's last line ("backlog-hygiene: N
+      # finding(s) ...") and records has_findings. A crash (non-zero exit, or
+      # no summary line) also counts as a finding, so it is still reported.
       - name: Run backlog-hygiene check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -35,15 +37,25 @@ jobs:
           # pipefail so rc reflects the checker, not tee
           set +e
           set -o pipefail
-          bin/check-backlog-hygiene.sh 2>&1 | tee /tmp/report.txt
+          bin/check-backlog-hygiene.sh --warn 2>&1 | tee /tmp/report.txt
           rc=$?
           set -e
-          echo "exit_code=$rc" >> "$GITHUB_OUTPUT"
+          count="$(sed -n 's/^backlog-hygiene: \([0-9][0-9]*\) finding.*/\1/p' /tmp/report.txt | tail -1)"
+          if [ "$rc" -ne 0 ]; then
+            has=true
+          elif [ -n "$count" ] && [ "$count" -gt 0 ]; then
+            has=true
+          elif grep -q '^backlog-hygiene: OK' /tmp/report.txt; then
+            has=false
+          else
+            has=true
+          fi
+          echo "has_findings=$has" >> "$GITHUB_OUTPUT"
 
       - name: Manage report issue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPORT_RC: ${{ steps.hygiene_run.outputs.exit_code }}
+          HAS_FINDINGS: ${{ steps.hygiene_run.outputs.has_findings }}
         run: |
           set -euo pipefail
 
@@ -63,7 +75,7 @@ jobs:
             printf '```\n'
           } > /tmp/body.md
 
-          if [ "${REPORT_RC:-1}" -ne 0 ]; then
+          if [ "${HAS_FINDINGS:-true}" = "true" ]; then
             if [ -n "$existing" ]; then
               gh issue edit "$existing" \
                 --repo dmfdeploy/dmfdeploy \
