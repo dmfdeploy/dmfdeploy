@@ -1,116 +1,41 @@
-# DMF Platform Umbrella — AI Agent Rules
+# AGENTS.md — dmfdeploy umbrella
 
-This is the **umbrella repo** for the DMF Platform: the consolidated
-knowledge base (`docs/`) and multi-repo coordination (`STATUS.md`, `CLAUDE.md`).
-The 8 component repos are checked out as **siblings of this repo under a common
-parent directory** (`../dmf-cms`, `../dmf-infra`, …) — not nested inside it.
+This is the umbrella repo of the dmfdeploy project: the knowledge base
+(`docs/`) and the coordination point for the component repos. The 8 component
+repos are siblings under a common parent directory (`../dmf-cms`,
+`../dmf-infra`, and so on), not nested here. "DMF" means the EBU Dynamic Media
+Facility reference architecture.
 
-## Context for All Agents
+## Boot steps
 
-**Before any non-trivial change:**
+1. `git pull`, run `bin/generate-status.sh`, then read
+   `STATUS.digest.local.md` (open `STATUS.local.md` for one section only).
+2. Read the tracking issue you claim, comments included. Notes from earlier
+   sessions are operator-local, and `docs/handoffs/` is a frozen archive.
+3. Skim [docs/decisions/INDEX.md](docs/decisions/INDEX.md) and apply any ADR
+   that fits your task.
+4. Run `git status` in each component repo you will touch. Ask before you
+   modify one with uncommitted changes.
+5. Run `bin/install-hooks.sh` once per clone.
 
-1. `git fetch && git pull` (umbrella)
-2. `bin/generate-status.sh` — writes `STATUS.digest.local.md` (short boot-read) + the full `STATUS.local.md` (both gitignored)
-3. Read the **digest** (`STATUS.digest.local.md`) — the short snapshot across all 9 repos; open the full `STATUS.local.md` only for the one section you need (context economy)
-4. Read the tracking issue you are claiming, comments included — the live
-   handoff surface (R4); `docs/handoffs/` is a frozen archive
-   ([INDEX](docs/handoffs/INDEX.md)) and session-continuity notes are
-   operator-local (outside this repo)
-5. Skim [docs/decisions/INDEX.md](docs/decisions/INDEX.md) — note any ADRs applicable to your task
+## Where things live
 
-## What Lives Where
+| Question | Look in |
+|---|---|
+| What is this and why? | `docs/THESIS.md`, `docs/GLOSSARY.md`, `docs/architecture/DMF Platform Plan.md` |
+| What is frozen or undecided? | `docs/decisions/architectural-commitments-v1.md`, `docs/OPEN-QUESTIONS.md` |
+| What is the active task? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues) |
 
-| Question | Answer | Agent |
-|----------|--------|-------|
-| What is the DMF Platform supposed to be? | `docs/THESIS.md`, then `docs/architecture/DMF Platform Plan.md` | Claude/Codex |
-| What's the active task? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues) + Active section of `docs/plans/INDEX.md` | Claude |
-| What's the strategic frame? | `docs/decisions/architectural-commitments-v1.md` (+ `docs/reviews/dmf-platform-technical-evaluation-2026-06-06.md`) | Claude |
-| Who handed off what? | the tracking issue's comments (live); `docs/handoffs/` is a frozen pre-R4 archive | Claude |
-| What changed during rebuild? | `docs/sessions/` | Claude |
-| What decisions are binding? | `docs/decisions/INDEX.md` | Codex (for compliance audits) |
+## Rules that are easy to miss
 
-## Component Repos at a Glance
-
-Each is a separate git repo with its own CLAUDE.md and AGENTS.md:
-
-| Repo | Purpose | Agent-Friendly? |
-|------|---------|---|
-| `dmf-cms` | React + FastAPI operator console | **Codex** for React review; Claude for API |
-| `dmf-infra` | Ansible playbooks & roles | **Codex** for infra review; Claude for problem-solving |
-| `dmf-env` | Generic env tooling (per-env state is operator-local) | Claude only (secrets-sensitive) |
-| `dmf-central` | Central services scaffold | **Codex** for review; Claude for design |
-| `dmf-media` | Media domain modules | **Codex** for review; Claude for design |
-| `dmf-runbooks` | Thin AWX launcher playbooks + `nmos-cpp` role | **Codex** for infra review; Claude for design |
-| `dmf-init` | Day-0 init/bootstrap container (React + FastAPI) | **Codex** for review; Claude for design |
-| `dmf-promsd` | NetBox-driven Prometheus service-discovery | **Codex** for review; Claude for design |
-
-## Documentation Standards
-
-**All documentation file names are preserved verbatim from the original operator note store.**
-Many docs reference each other by display name; **don't rename without sweeping callers.**
-
-**Per-repo CLAUDE.md files still reference `<note-store>/Projects/...` paths — these are stale.**
-**Treat them as pointing at `../docs/<subdir>/<file>` in this umbrella.**
-Cleanup is deferred; agents should flag these during reviews.
-
-## Multi-Repo Coordination
-
-**Git topology:**
-- The 8 component repos are siblings of the umbrella under a common parent
-  directory — independent repos, never nested (ADR-0001, amended 2026-06-11)
-- Doc edits go in this umbrella
-- Code edits go in component repos
-- Cross-cutting task specs and reviews go in `docs/plans/` or `docs/reviews/` here
-
-**When you touch a component repo:**
-1. Check its `git status` — ask the user before modifying dirty state (another session's work)
-2. Read its CLAUDE.md + AGENTS.md
-3. Apply any relevant ADRs from `dmfdeploy/docs/decisions/`
-4. If you change cross-repo state, update `STATUS.md` before finishing
-
-## When to Use Codex
-
-**Codex is the primary agent for:**
-- **Infrastructure code review** — dmf-infra playbooks and roles for idempotency, error handling, best practices
-- **React/frontend review** — dmf-cms for component architecture, TypeScript safety, design system compliance
-- **Multi-file refactoring** — moving code between repos or large-scale reorganization
-- **Diagnostic help** — analyzing error logs, git diffs, cluster state dumps
-- **Architecture & design review** — across multiple files/repos, spotting inconsistencies
-
-**Use Claude for:**
-- **Planning & strategy** — new features, architectural decisions, multi-repo coordination
-- **Documentation** — writing ADRs, README updates, high-level design docs
-- **Secrets & policy** — anything involving OpenBao, auth, or deployment credentials (Codex skips these)
-- **One-off problem-solving** — quick bugs, script generation, interactive troubleshooting
-
-## Model & context economy (cost discipline)
-
-Correctness discipline is enforced by hooks and gates; **cost/focus discipline is on you.**
-Keep sessions lean:
-
-- **Model routing.** The main loop runs the strongest model (Opus); **spawn workflow / implementer
-  subagents on Sonnet**, mechanical or bulk passes on Haiku. Reserve high reasoning-effort for the
-  hardest verify / judge steps only. On a Fable usage limit, fall back to Opus.
-- **Subagent vs inline.** Each subagent is a **full context reload** (5 subagents ≈ 5 full loads).
-  Spawn one only when you need *fresh / isolated context* or *parallel fan-out*; do it **inline**
-  when you already hold the context. Don't fan out for a single quick lookup.
-- **Read less.** Read the **`STATUS.digest.local.md`** boot-read, not the full ~190 KB snapshot;
-  open a doc's relevant section, not the whole file. Repeated codebase re-exploration is the
-  dominant token cost — prefer a targeted `Explore` subagent that returns a *conclusion* over
-  dumping files into the main context.
-- **Bound the loop.** The `Stop` hook (`bin/session-budget.sh`) prints a soft-budget warning once a
-  session runs long (`DMF_SESSION_TOOL_BUDGET`) — treat it as a cue to wrap up, compact, or narrow scope.
-- **WIP.** Don't open new work faster than it lands; `bin/check-backlog-hygiene.sh` flags too many
-  concurrent active plans (`DMF_WIP_LIMIT`).
-
-## Agent Context Files
-
-Each agent has a persona file:
-
-- **CLAUDE.md** — umbrella boot ritual, workspace structure, secrets discipline
-- **AGENTS.md** — this file + per-repo agent rules for Codex and other tools
-
-When an agent starts a session in this workspace, it should read BOTH files.
+- Edit docs here and code in the component repos. Do not move files between
+  component repos without checking.
+- Keep public text free of real IPs, hostnames, private repo names and env
+  ids. Use `dmf.example.com` and `<placeholder-name>` values.
+- Author skills only in `.agents/skills/`. The `.claude/skills/` and
+  `.qwen/skills/` views are generated.
+- On a feature branch, run `bin/mxl-sync-check.sh` before you build.
+- Never use the local homelab cluster. The current env is in `STATUS.local.md`.
 
 <!-- WORKING-MODEL-BLOCK-START — generated from umbrella docs/templates/working-model-block.md; do not edit copies, edit the template and run bin/check-working-model-sync.sh -->
 ## Working model (mandatory)
@@ -133,37 +58,3 @@ in the umbrella repo. The three rules that matter mid-task:
    liveness; plan frontmatter = design state; ADRs = decisions (RFC in
    Discussions first); STATUS.md = committed notes; STATUS.local.md = live repo snapshot.
 <!-- WORKING-MODEL-BLOCK-END -->
-
-## Key Principles
-
-1. **Relative paths everywhere** — no hardcoded `/Users/<operator>` or `/Volumes` in code
-2. **Variables for environment-specific config** — IPs, URLs, sockets go in dmf-env inventory
-3. **Idempotency first** — all Ansible plays must be safe to re-run
-4. **Canonical docs in umbrella** — component repos reference back, not vice versa
-5. **Secrets stay in OpenBao** — never commit credentials, always use `vault_*` variables
-6. **Current phase: v0.1 committed** — experiment phase closed 2026-06-06
-   (`docs/decisions/architectural-commitments-v1.md`); choose work that makes the
-   proven core runnable and legible to an outsider
-7. **Backlog lives on GitHub** — Issues are canonical for liveness, plan
-   frontmatter for design state; a completing PR **auto-closes its issue** (the
-   daily `issue-close-reconciler` honors the qualified `Closes dmfdeploy/dmfdeploy#N`
-   ref, cross-repo included; manual close is fallback) and you **flip the
-   frontmatter by hand** in the same change (`bin/check-docs.sh` gates commits)
-
-## Running Playbooks
-
-```bash
-# From dmf-env with the wrapper (DO THIS)
-cd ../dmf-env
-bin/run-playbook.sh hetzner-arm ../dmf-infra/k3s-lab-bootstrap/playbooks/300-k3s.yml
-
-# Direct kubectl (DON'T DO THIS)
-kubectl get pods  # Will fail — no local kubeconfig wired up
-```
-
-## Codex-Specific Notes
-
-- **When reviewing dmf-infra:** Check for hardcoded paths, broken heredocs, missing idempotency guards
-- **When reviewing dmf-cms:** Check for design system compliance, TypeScript safety, query hook usage
-- **When analyzing errors:** Read from the bottom up (the bottom usually has the root cause)
-- **When suggesting refactors:** Verify the change works locally first (ask for a --check run)
