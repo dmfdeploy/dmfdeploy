@@ -26,6 +26,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `bin/check-public-commit-authors.sh` | verify every commit author/committer on every public DMF Platform repo matches the public-identity allowlist. |
 | `bin/check-public-repo-hygiene.sh` | bin/check-public-repo-hygiene.sh — per-repo Tier A.2 hygiene gate. |
 | `bin/check-ruleset-drift.sh` | assert the live branch ruleset against a committed expectation (umbrella issue #368). |
+| `bin/check-surface.sh` | check the working surface of the umbrella repo against its size budgets, filename convention and archive-placement rules (hygiene enforcement, dmfdeploy/dmfdeploy#617). |
 | `bin/check-working-model-sync.sh` | keep the working-model block from drifting. |
 | `bin/close-completed-issues.sh` | auto-close umbrella tracking issues whose completing PR has merged. |
 | `bin/dmf-env-public-surface-gate.sh` | fail-closed gate: is a dmf-env tree safe to publish as a generic env-tooling repo? |

@@ -1,0 +1,30 @@
+name: surface
+
+# Warn-mode surface checks (#617): size budgets, filenames and archive
+# placement. The fixture run must pass; the tree run reports findings and
+# exits 0 until enforcement is switched on.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: surface-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  surface:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Fixture tests
+        run: tests/surface/run.sh
+      - name: Surface checks (warn mode)
+        run: bin/check-surface.sh --warn
