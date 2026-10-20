@@ -1,0 +1,13 @@
+extends: existence
+message: "Remove the filler '%s'."
+link: https://developers.google.com/style/tone
+level: error
+ignorecase: true
+tokens:
+  - simply
+  - just
+  - please note
+  - at this time
+  - it['’]s easy
+  - it['’]s that simple
+  - quickly
