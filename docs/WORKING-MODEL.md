@@ -34,10 +34,11 @@ the backlog-hygiene detector. Plan:
 4. **Three milestones, and a milestone is not a bucket.** `v0.1-polish` — the
    console tells the truth (an outsider finishes cold, nothing tells them
    something untrue). `v0.2` — a team shares one console (a multi-function
-   workload switched by NMOS IS-05). `v0.3` — design and plan in the console.
-   An issue is in a milestone only if the outcome fails without it; **other
-   work gets `platform-debt` and none**. Milestone membership never authorises
-   work on a frozen v0.1 non-goal (§`OPEN-QUESTIONS.md`).
+   workload switched by NMOS IS-05, where a deploy never blocks the facility).
+   `v0.3` — design and plan in the console. An issue is in a milestone only
+   if the outcome fails without it; **other work gets `platform-debt` and
+   none**. Milestone membership never authorises work on a frozen v0.1
+   non-goal (§`OPEN-QUESTIONS.md`).
 <!-- WM-DIGEST-END -->
 
 ## 1. Source-of-truth map
