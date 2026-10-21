@@ -49,7 +49,7 @@ playbooks via `*_provider_tasks` inventory variables. The cluster shape, CNI
 remain identical across providers.
 
 ACK Managed Basic remains a documented **fallback option** (see "Alternatives
-considered") if self-managed maintenance burden on a specific provider becomes
+considered" in the [archive record](../archive/decisions/0018-self-managed-k3s-not-ack.md#alternatives-considered)) if self-managed maintenance burden on a specific provider becomes
 the dominant cost. The bar to invoke it is high: it must be the only friction
 preventing thesis-killer work, not a generic preference for less ops.
 

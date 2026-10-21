@@ -2,8 +2,8 @@
 
 > **⚠️ Canonical truth for this topic is consolidated in the
 > [Deployment scope and release digest](digests/deployment-scope-and-release.md).** This ADR's status: stance superseded for the committed core by `architectural-commitments-v1` (2026-06-04).
-> Full text preserved below for decision history — do not act on it without
-> reading the digest + the named successor.
+> Full text is preserved in the [archive record](../archive/decisions/0004-experiment-phase-stance.md) for decision
+> history — do not act on it without reading the digest + the named successor.
 
 **Status:** Accepted — **stance superseded for the committed core by
 [architectural-commitments-v1](architectural-commitments-v1.md)** (2026-06-06). The

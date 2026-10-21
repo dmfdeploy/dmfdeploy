@@ -15,8 +15,8 @@ Mode A, [ADR-0018](0018-self-managed-k3s-not-ack.md),
 **Filename note:** this file was renamed on 2026-05-25 from
 `0031-oss-v0-1-aws-self-contained-release-profile.md` to reflect the
 current draft shape: sandbox release gate plus AWS secondary lane under a
-release-profile matrix. The historical AWS-only draft is preserved below
-but is not binding.
+release-profile matrix. The historical AWS-only draft is preserved in the
+[archive record](../archive/decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md#historical-draft-superseded-by-current-decision--preserved-for-context-not-binding) but is not binding.
 
 ## Context
 
@@ -166,7 +166,7 @@ WP5-successor verification matrix.
 Replaces:
 
 - The earlier "AWS self-contained release profile" Decision of this ADR
-  (preserved at §Historical draft below, not binding).
+  (preserved in the [archive record](../archive/decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md#historical-draft-superseded-by-current-decision--preserved-for-context-not-binding), not binding).
 - The implicit assumption in the Mission + WP1–WP5 plans (all dated
   2026-05-25, all currently draft) that v0.1 = AWS replatform. Those
   plans must be re-scoped to the matrix before they bind code changes.
@@ -238,8 +238,8 @@ Does **not** replace or deprecate:
 
 ### Enforcement (to be elaborated in WP0)
 
-The original Enforcement section was AWS-specific and is preserved at
-§Historical draft below. Generic enforcement under the matrix framing:
+The original Enforcement section was AWS-specific and is preserved in the
+[archive record](../archive/decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md#historical-draft-superseded-by-current-decision--preserved-for-context-not-binding). Generic enforcement under the matrix framing:
 
 - `init-wizard.sh` and the future Python wizard must expose
   `sandbox-single-node` as the default install path and

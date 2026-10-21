@@ -2,8 +2,8 @@
 
 > **⚠️ Canonical truth for this topic is consolidated in the
 > [Identity and authority digest](digests/identity-and-authority.md).** This ADR's status: **largely superseded by ADR-0028**.
-> Full text preserved below for decision history — do not act on it without
-> reading the digest + the named successor.
+> Full text is preserved in the [archive record](../archive/decisions/0024-two-identity-admin-model.md) for decision
+> history — do not act on it without reading the digest + the named successor.
 
 **Status:** Accepted — largely superseded by ADR-0028
 **Date:** 2026-05-22

@@ -2,8 +2,8 @@
 
 > **⚠️ Canonical truth for this topic is consolidated in the
 > [Secrets and unseal digest](digests/secrets-and-unseal.md).** This ADR's status: reframed as "Tier 3, explicitly chosen" by **ADR-0029**; AWS-KMS variant adopted in **ADR-0031**.
-> Full text preserved below for decision history — do not act on it without
-> reading the digest + the named successor.
+> Full text is preserved in the [archive record](../archive/decisions/0011-auto-unseal-tradeoff.md) for decision
+> history — do not act on it without reading the digest + the named successor.
 
 **Status:** Accepted (with explicit known tradeoff)
 **Date:** 2026-05-03
@@ -66,7 +66,7 @@ necessarily a change):
 
 The next-state target, when one of those conditions triggers, is **HA bao**:
 3 replicas in raft mode, manual initial-boot unseal only, automation file
-deleted. Sketched in §Alternatives below; full plan to be drafted at that
+deleted. Sketched in the [archive record](../archive/decisions/0011-auto-unseal-tradeoff.md#alternatives-considered); full plan to be drafted at that
 time.
 
 ### Amendment 2026-05-30
@@ -81,11 +81,11 @@ unchanged.
   below is not retracted — it is *relabelled* as a deliberate tier choice rather than
   a silent gap. This ADR stays the operative description of today's cluster until the
   HA-bao-+-raft baseline (deferred) lands; ADR-0029 is directional.
-- **Cloud-KMS reconciliation (ADR-0031).** §Alternatives C calls cloud-KMS auto-unseal
+- **Cloud-KMS reconciliation (ADR-0031).** The archive record's [Alternatives C](../archive/decisions/0011-auto-unseal-tradeoff.md#alternatives-considered) calls cloud-KMS auto-unseal
   a "philosophical mismatch with a local-first lab." [ADR-0031](0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md)
   makes **AWS-KMS auto-unseal the release-default boot posture for the AWS profile**
   (= ADR-0029 Tier 3 sub-variant 3a, the most defensible auto-unseal form). The
-  §Alternatives C verdict is therefore **scoped to the local-first lab**, not a
+  Alternatives C verdict is therefore **scoped to the local-first lab**, not a
   platform-wide rejection: cloud-first profiles adopt KMS by design.
 - **Trigger refresh.** Of the §Decision revisit triggers: **#2 ("repo goes public")
   is now actively firing** via ADR-0031 (OSS v0.1), so outside readers do see this

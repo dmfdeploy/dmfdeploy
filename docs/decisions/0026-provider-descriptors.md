@@ -81,8 +81,6 @@ ADR-0008; descriptors *reference* them, never embed them.
 
 Proposed
 
-Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0026-provider-descriptors.md).
-
 ### Promotion criteria (Proposed → Accepted)
 
 1. `dmf-infra/k3s-lab-bootstrap/providers/tailscale.yaml` (landed
@@ -98,3 +96,5 @@ Alternatives, deliberation and implementation detail for this decision are in th
    hand-rolled `tailscale.yml` is sufficient).
 3. A second descriptor (cloudflare or hcloud) lands without schema
    mutation — i.e. v1 schema survives the second integration.
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0026-provider-descriptors.md).
