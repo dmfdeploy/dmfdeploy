@@ -1,0 +1,111 @@
+name: pr-body-lint
+
+# Lints the pull request title and body against the project voice with
+# bin/check-voice.sh (conversational mode, because the text sits outside the
+# repo) and posts the findings as one PR comment, updated on each edit.
+#
+# Advisory: the job passes whatever the findings are, and a failed Vale
+# download or API call gives a warning annotation. To require it later,
+# make the lint step exit non-zero on an error-level alert and add the check
+# to the ruleset for main.
+#
+# Trust: pull_request_target runs this file and the checkout from the BASE
+# branch, so a PR cannot change the linter or the config that judge it. The
+# job never checks out the PR head. The title and body are untrusted data:
+# they reach the script only through environment variables and a file, and
+# no step expands them into a command.
+
+on:
+  pull_request_target:
+    types: [opened, edited, reopened]
+
+permissions: {}
+
+concurrency:
+  group: pr-body-lint-${{ github.event.pull_request.number }}
+
+jobs:
+  pr-body-voice:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout the base branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Install Vale
+        continue-on-error: true
+        env:
+          VALE_VERSION: "3.9.1"
+        run: |
+          set -euo pipefail
+          url="https://github.com/errata-ai/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz"
+          sha="fbc2eb47d0b8c50220ed1a2c5c611fbe0904ed567d638143d482016a18fd2db0"
+          mkdir -p "$RUNNER_TEMP/vale"
+          curl -fsSL -o "$RUNNER_TEMP/vale.tgz" "$url"
+          echo "$sha  $RUNNER_TEMP/vale.tgz" | sha256sum -c -
+          tar -xz -C "$RUNNER_TEMP/vale" -f "$RUNNER_TEMP/vale.tgz" vale
+          echo "$RUNNER_TEMP/vale" >> "$GITHUB_PATH"
+
+      - name: Sync the Google package
+        continue-on-error: true
+        run: vale sync
+
+      - name: Lint the PR title and body
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          set -uo pipefail
+          body="$RUNNER_TEMP/pr-body.md"
+          # The title is a plain first paragraph. As a heading, every
+          # conventional-commit title ("type(scope): ...") would trip the
+          # label-style heading rule.
+          printf '%s\n\n%s\n' "${PR_TITLE}" "${PR_BODY}" >"$body"
+          bin/check-voice.sh "$body" >"$RUNNER_TEMP/voice.raw" 2>&1
+          echo "VOICE_STATUS=$?" >>"$GITHUB_ENV"
+          sed "s|$body|body|g" "$RUNNER_TEMP/voice.raw" >"$RUNNER_TEMP/voice.txt"
+          cat "$RUNNER_TEMP/voice.txt"
+
+      - name: Comment the findings
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -uo pipefail
+          marker='<!-- pr-body-voice -->'
+          comment="$RUNNER_TEMP/comment.md"
+          if [[ "${VOICE_STATUS:-2}" == 2 ]]; then
+            echo "::warning::check-voice could not run; no comment posted"; exit 0
+          fi
+          existing="$(gh api --paginate "repos/$REPO/issues/$PR_NUMBER/comments" \
+            --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | startswith(\"$marker\"))) | .id" \
+            | head -n 1)" || existing=""
+          summary="$(tail -n 1 "$RUNNER_TEMP/voice.txt")"
+          if ! grep -q ': \(error\|warning\|suggestion\): ' "$RUNNER_TEMP/voice.txt"; then
+            [[ -n "$existing" ]] || exit 0
+            printf '%s\nVoice check on the PR title and body: no findings now.\n' "$marker" >"$comment"
+          else
+            {
+              echo "$marker"
+              echo "Voice check on the PR title and body (advisory, it never blocks the merge)."
+              echo "Error-level alerts are the ones to fix. See [docs/STYLE.md](https://github.com/$REPO/blob/main/docs/STYLE.md)."
+              echo
+              echo '````text'
+              grep ': \(error\|warning\|suggestion\): ' "$RUNNER_TEMP/voice.txt" | sed -E "s/\`{3,}/\`\`/g"
+              echo "$summary"
+              echo '````'
+            } >"$comment"
+          fi
+          if [[ -n "$existing" ]]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$existing" -F "body=@$comment" >/dev/null \
+              || echo "::warning::could not update the comment"
+          else
+            gh api -X POST "repos/$REPO/issues/$PR_NUMBER/comments" -F "body=@$comment" >/dev/null \
+              || echo "::warning::could not post the comment"
+          fi

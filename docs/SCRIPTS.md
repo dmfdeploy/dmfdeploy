@@ -27,6 +27,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `bin/check-public-repo-hygiene.sh` | bin/check-public-repo-hygiene.sh — per-repo Tier A.2 hygiene gate. |
 | `bin/check-ruleset-drift.sh` | assert the live branch ruleset against a committed expectation (umbrella issue #368). |
 | `bin/check-surface.sh` | check the working surface of the umbrella repo against its size budgets, filename convention and archive-placement rules (hygiene enforcement, dmfdeploy/dmfdeploy#617). |
+| `bin/check-voice-changed.sh` | Strict Voice check on the Markdown files a change touches. |
 | `bin/check-voice-fixtures.sh` | Prove the Voice rules against their fixtures. |
 | `bin/check-voice.sh` | Lint prose against the project voice (Voice + Google + Dmfdeploy styles). |
 | `bin/check-working-model-sync.sh` | keep the working-model block from drifting. |
