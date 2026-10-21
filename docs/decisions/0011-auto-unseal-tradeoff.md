@@ -3,7 +3,7 @@
 > **⚠️ Canonical truth for this topic is consolidated in the
 > [Secrets and unseal digest](digests/secrets-and-unseal.md).** This ADR's status: reframed as "Tier 3, explicitly chosen" by **ADR-0029**; AWS-KMS variant adopted in **ADR-0031**.
 > Full text is preserved in the [archive record](../archive/decisions/0011-auto-unseal-tradeoff.md) for decision
-> history — do not act on it without reading the digest + the named successor.
+> history. Do not act on it without reading the digest + the named successor.
 
 **Status:** Accepted (with explicit known tradeoff)
 **Date:** 2026-05-03
@@ -72,26 +72,26 @@ time.
 ### Amendment 2026-05-30
 
 Recorded to close two drift gaps the 2026-05-27 portfolio review flagged
-(contradiction §2.1, staleness §3); **reopens no decision** — the live posture is
+(contradiction §2.1, staleness §3); **reopens no decision**: the live posture is
 unchanged.
 
 - **Reframed as Tier 3 (ADR-0029).** The tiered-unseal posture ADR names this
   single-replica auto-unseal arrangement as **"Tier 3 — explicitly chosen, warned,
   audited"** (sub-variant 3b, cluster-resident wrapped blob). The weakness recorded
-  below is not retracted — it is *relabelled* as a deliberate tier choice rather than
+  below is not retracted: it is *relabelled* as a deliberate tier choice rather than
   a silent gap. This ADR stays the operative description of today's cluster until the
   HA-bao-+-raft baseline (deferred) lands; ADR-0029 is directional.
 - **Cloud-KMS reconciliation (ADR-0031).** The archive record's [Alternatives C](../archive/decisions/0011-auto-unseal-tradeoff.md#alternatives-considered) calls cloud-KMS auto-unseal
   a "philosophical mismatch with a local-first lab." [ADR-0031](0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md)
   makes **AWS-KMS auto-unseal the release-default boot posture for the AWS profile**
   (= ADR-0029 Tier 3 sub-variant 3a, the most defensible auto-unseal form). The
-  Alternatives C verdict is therefore **scoped to the local-first lab**, not a
-  platform-wide rejection: cloud-first profiles adopt KMS by design.
+  Alternatives C verdict is therefore **scoped to the local-first lab**.
+  Cloud-first profiles adopt KMS by design.
 - **Trigger refresh.** Of the §Decision revisit triggers: **#2 ("repo goes public")
   is now actively firing** via ADR-0031 (OSS v0.1), so outside readers do see this
-  posture — which is exactly why ADR-0029 names it explicitly. **#4's "Move 2 lands"
+  posture, which is exactly why ADR-0029 names it explicitly. **#4's "Move 2 lands"
   is retired vocabulary**; post-experiment hardening is now tracked per release-profile
-  (ADR-0031) and via the tiered framework (ADR-0029), not a "Move 2" milestone.
+  (ADR-0031) and via the tiered framework (ADR-0029).
 
 ## Consequences
 

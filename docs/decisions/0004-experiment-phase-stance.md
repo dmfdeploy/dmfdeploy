@@ -3,7 +3,7 @@
 > **⚠️ Canonical truth for this topic is consolidated in the
 > [Deployment scope and release digest](digests/deployment-scope-and-release.md).** This ADR's status: stance superseded for the committed core by `architectural-commitments-v1` (2026-06-04).
 > Full text is preserved in the [archive record](../archive/decisions/0004-experiment-phase-stance.md) for decision
-> history — do not act on it without reading the digest + the named successor.
+> history. Do not act on it without reading the digest + the named successor.
 
 **Status:** Accepted — **stance superseded for the committed core by
 [architectural-commitments-v1](architectural-commitments-v1.md)** (2026-06-06). The
@@ -65,7 +65,7 @@ thesis-killer experiment.
 
 ## Status
 
-Accepted — **stance superseded for the committed core by
+Accepted: **stance superseded for the committed core by
 [architectural-commitments-v1](architectural-commitments-v1.md)** (2026-06-06). The
 commit gate this ADR implied fired on 2026-06-04 (Move 1 + Move 2 closed); the project
 has committed v0.1. This ADR remains accurate history + still describes the *reserved*

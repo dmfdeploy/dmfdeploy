@@ -3,7 +3,7 @@
 > **⚠️ Canonical truth for this topic is consolidated in the
 > [Identity and authority digest](digests/identity-and-authority.md).** This ADR's status: **largely superseded by ADR-0028**.
 > Full text is preserved in the [archive record](../archive/decisions/0024-two-identity-admin-model.md) for decision
-> history — do not act on it without reading the digest + the named successor.
+> history. Do not act on it without reading the digest + the named successor.
 
 **Status:** Accepted — largely superseded by ADR-0028
 **Date:** 2026-05-22
@@ -139,7 +139,7 @@ not on lifecycle. Each is the canonical implementation for its backend.
 All tasks touching passwords carry `no_log: true`; both helpers satisfy
 ADR-0007 (env-var-via-stdin pattern, no argv exposure).
 
-#### K8s-Secret backend — `common/admin-identity-resolve`
+#### K8s-Secret backend: `common/admin-identity-resolve`
 
 For apps whose local admin credentials live in a Kubernetes Secret
 (currently only AWX, via `<instance>-admin-password`). Reads via
@@ -147,7 +147,7 @@ For apps whose local admin credentials live in a Kubernetes Secret
 
 Consumer list: see the [archive record](../archive/decisions/0024-two-identity-admin-model.md).
 
-#### OpenBao backend — `common/app-admin-facts` (two modes)
+#### OpenBao backend: `common/app-admin-facts` (two modes)
 
 For apps whose local admin credentials live in OpenBao at
 `secret/apps/<app>/admin`. Pre-condition: caller must have included
@@ -186,6 +186,6 @@ For apps whose local admin credentials live in OpenBao at
 
 ## Status
 
-Accepted — largely superseded by ADR-0028
+Accepted: largely superseded by ADR-0028
 
 Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0024-two-identity-admin-model.md).

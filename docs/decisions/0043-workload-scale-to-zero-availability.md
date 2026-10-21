@@ -35,7 +35,7 @@ Treat **workload scale-to-zero as an availability primitive, narrowly scoped to 
 
 ### Enforcement
 
-The boundary's teeth are **RBAC + scope**: the `awx-autoscale` helper holds a namespaced Role limited to the AWX CR (`get`,`patch`), Deployments (`get`), and a coordination Lease — **no** `secrets` verbs, **no** job-launch path — so it is structurally incapable of touching job/catalog/media semantics. Any proposal to scale a *different* workload to zero must open a new ADR rather than extend this one. Tracked by issue #97; implemented in `dmf-infra` (`roles/stack/operator/awx-presence`, `roles/stack/operator/awx-autoscale`).
+The boundary's teeth are **RBAC + scope**: the `awx-autoscale` helper holds a namespaced Role limited to the AWX CR (`get`,`patch`), Deployments (`get`), and a coordination Lease, with **no** `secrets` verbs and **no** job-launch path, so it is structurally incapable of touching job/catalog/media semantics. Any proposal to scale a *different* workload to zero must open a new ADR rather than extend this one. Tracked by issue #97; implemented in `dmf-infra` (`roles/stack/operator/awx-presence`, `roles/stack/operator/awx-autoscale`).
 
 ## Status
 

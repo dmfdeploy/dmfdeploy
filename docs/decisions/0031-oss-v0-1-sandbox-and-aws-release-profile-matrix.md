@@ -166,7 +166,7 @@ WP5-successor verification matrix.
 Replaces:
 
 - The earlier "AWS self-contained release profile" Decision of this ADR
-  (preserved in the [archive record](../archive/decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md#historical-draft-superseded-by-current-decision--preserved-for-context-not-binding), not binding).
+  (preserved in the [archive record](../archive/decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md#historical-draft-superseded-by-current-decision--preserved-for-context-not-binding) and no longer binding).
 - The implicit assumption in the Mission + WP1–WP5 plans (all dated
   2026-05-25, all currently draft) that v0.1 = AWS replatform. Those
   plans must be re-scoped to the matrix before they bind code changes.
@@ -262,7 +262,7 @@ The original Enforcement section was AWS-specific and is preserved in the
 
 ## Status
 
-Accepted (2026-05-26; operator open decisions closed; WP0 successor plan drafted —
+Accepted (2026-05-26; operator open decisions closed; WP0 successor plan drafted:
 [DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25](../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md);
 premise basis: [Contributor Replicability Premise Pass 2026-05-25](../plans/DMF%20OSS%20v0.1%20Contributor%20Replicability%20Premise%20Pass%202026-05-25.md)).
 

@@ -1,4 +1,4 @@
-# ADR-0020: Deployment scope and regulatory posture — three named modes
+# ADR-0020: Deployment scope and regulatory posture (three named modes)
 
 **Status:** Accepted (Mode A); Proposed (Mode B, Mode C)
 **Date:** 2026-05-11
@@ -113,7 +113,7 @@ breach assessment.
    it does so via an explicitly-installed customer-side relay; the
    flypack must function disconnected.
 
-### Amendment 2026-05-23 — Mode A Accepted; Modes B and C remain Proposed
+### Amendment 2026-05-23: Mode A Accepted; Modes B and C remain Proposed
 
 Operator answer and reconciliation lead-in: see the [archive record](../archive/decisions/0020-deployment-scope-and-regulatory-posture.md).
 
@@ -126,7 +126,7 @@ Reconciling that answer with this ADR's promotion gates:
   enforce in practice today. The Mode-A "promote when…" gates in the Status section
   (B.4 boundary confirmation, B.3 unit-economics, ADR-0011 Mode B exit,
   GDPR role split, flypack reference platform) describe **Mode B / Mode C**
-  promotion, not Mode A. Promoting Mode A does not require any of them.
+  promotion. Promoting Mode A does not require any of them.
 
 - **Mode B (managed `dmfdeploy.io`) remains Proposed.** The B.1–B.4
   architectural constraints stand as the authoritative reference for any
@@ -149,7 +149,7 @@ and the [alternatives](../archive/decisions/0020-deployment-scope-and-regulatory
 
 > **2026-05-30 correction (portfolio-review §2.2):** an earlier draft of
 > this paragraph predicted "ADR-0028 managed-service, ADR-0029
-> flypack-offline." Those numbers were assigned to **other** decisions —
+> flypack-offline." Those numbers were assigned to **other** decisions:
 > ADR-0028 is the Identity & Authority Chain, ADR-0029 is the Tiered
 > Unseal Posture. Do not infer Mode B/C ADR numbers from this section;
 > they will be numbered when written.
@@ -163,7 +163,7 @@ and the [alternatives](../archive/decisions/0020-deployment-scope-and-regulatory
   pass these gates before publish (Move 7 prep).
 - The compliance-framework plan and pre-release-compliance-checklist
   reference downstream stop treating Mode A's posture as "to be
-  determined" — it is fixed at "no attestation claimed; Apache-2.0 use
+  determined": it is fixed at "no attestation claimed; Apache-2.0 use
   at own risk."
 - No public-repo manifest, default, or Helm value may add a runtime
   dependency on `dmfdeploy.io`-resident services without superseding
@@ -173,13 +173,13 @@ and the [alternatives](../archive/decisions/0020-deployment-scope-and-regulatory
 
 - Mode B's architectural constraints (B.1–B.4) and Mode C's (C.1–C.4)
   remain authoritative reference text but bind no implementation today.
-- ADR-0011 (auto-unseal tradeoff) is unaffected — its experiment-phase
+- ADR-0011 (auto-unseal tradeoff) is unaffected: its experiment-phase
   posture lives under Mode A, where the operator-local automation quorum
   is acceptable. The "Mode B exit path" requirement only attaches if
   and when Mode B promotes.
 - ADR-0027's promotion criterion #4 ("ADR-0020 promotes to Accepted with
-  Mode B active") still refers to a future Mode-B-Accepted event, not
-  this Mode-A-only promotion. Cross-reference updated in ADR-0027.
+  Mode B active") still refers to a future Mode-B-Accepted event.
+  Cross-reference updated in ADR-0027.
 
 ## Consequences
 

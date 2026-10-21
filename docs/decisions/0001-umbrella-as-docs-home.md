@@ -21,13 +21,13 @@ plans, and Claude Code skills (`.claude/skills/`). The 5 component repos sit
 inside it as `.gitignore`d sibling directories — each retains its own `.git`
 and remote, ships independently, and is **not** a git submodule.
 
-### Amendment (2026-06-11): components are siblings, not nested
+### Amendment (2026-06-11): components are siblings
 
 With the first public release (all 9 repos at `github.com/dmfdeploy/<repo>`),
 the canonical checkout layout changed: the (now 8) component repos sit
 **beside** the umbrella under a common parent directory
 (`<parent>/dmfdeploy/` + `<parent>/dmf-*/`), no longer nested inside it.
-The decision itself stands — the umbrella remains the docs home and the
+The decision itself stands: the umbrella remains the docs home and the
 component repos remain independent gits (still not submodules).
 
 Consequences of the amendment:
@@ -63,6 +63,6 @@ CLAUDE.md tells agents to `git fetch && git pull` the umbrella first.
 
 ## Status
 
-Accepted (amended 2026-06-11 — sibling layout)
+Accepted (amended 2026-06-11, sibling layout)
 
 Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0001-umbrella-as-docs-home.md).
