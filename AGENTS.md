@@ -33,8 +33,8 @@ Facility reference architecture.
 - Before you push any dmfdeploy repo to a public GitHub mirror, read
   `docs/handoffs/DMF Public Publish Readiness Handoff 2026-05-07.md`. Its
   orphan rebase and push-mirror refspec gate keep pre-publish history private.
-- `dmf-env` is public. Env material never enters a repository; it lives in the
-  operator-local store (ADR-0035). `bin/dmf-env-public-surface-gate.sh` checks.
+- `dmf-env` is public. Env material never enters a repository; it lives in the operator-local store (ADR-0035).
+  Before you publish, run `bin/dmf-env-public-surface-gate.sh` from the umbrella root. It fails on unlisted paths, banned files, and identity leaks.
 - Edit docs here and code in the component repos. Do not move files between
   component repos without checking.
 - Keep public text free of real IPs, hostnames, private repo names and env
