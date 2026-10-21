@@ -5,10 +5,10 @@ name: vale
 # under the strict config, each good twin passes). The Voice steps prove the
 # Voice rules against their own fixtures and a mutation test.
 #
-# One strict step: on a pull request, the Markdown files the PR touches must
-# have no error-level Voice alert (Contrast, EmDash). This blocks new
-# occurrences without a cleanup of the whole corpus first. See
-# bin/check-voice-changed.sh.
+# One strict step: on a pull request, no linted Markdown file the PR touches
+# may gain an error-level Voice alert (Contrast, EmDash). It compares counts
+# at the base and the head, so it blocks new occurrences without a cleanup of
+# the whole corpus first. See bin/check-voice-changed.sh.
 
 on:
   pull_request:
@@ -91,7 +91,7 @@ jobs:
       - name: Mutation-test the Voice rules
         run: bin/mutate-voice.sh
 
-      - name: Check the changed files (strict Voice)
+      - name: Ratchet the Voice errors in changed files
         if: github.event_name == 'pull_request'
         # HEAD is the PR merge commit; its first parent is the base branch.
         run: bin/check-voice-changed.sh HEAD^1 HEAD
