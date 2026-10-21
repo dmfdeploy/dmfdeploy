@@ -1,10 +1,10 @@
-# AGENTS.md — dmfdeploy umbrella
+# AGENTS.md for the dmfdeploy umbrella
 
 This is the umbrella repo of the dmfdeploy project: the knowledge base
 (`docs/`) and the coordination point for the component repos. The 8 component
-repos are siblings under a common parent directory (`../dmf-cms`,
-`../dmf-infra`, and so on), not nested here. "DMF" means the EBU Dynamic Media
-Facility reference architecture.
+repos are siblings of this repo under a common parent directory (`../dmf-cms`,
+`../dmf-infra`, and so on). "DMF" means the EBU Dynamic Media Facility
+reference architecture.
 
 ## Boot steps
 
@@ -35,6 +35,10 @@ Facility reference architecture.
   orphan rebase and push-mirror refspec gate keep pre-publish history private.
 - `dmf-env` is public. Env material never enters a repository; it lives in the operator-local store (ADR-0035).
   Before you publish, run `bin/dmf-env-public-surface-gate.sh` from the umbrella root. It fails on unlisted paths, banned files, and identity leaks.
+- Write prose in the voice of [docs/STYLE.md](docs/STYLE.md). Run
+  `bin/check-voice.sh` on a draft before you open a PR, start an issue or a
+  discussion, or send text outside the project. An error-level alert is a
+  blocker, so fix it first. Warnings and suggestions are review prompts.
 - Edit docs here and code in the component repos. Do not move files between
   component repos without checking.
 - Keep public text free of real IPs, hostnames, private repo names and env
@@ -58,6 +62,7 @@ Facility reference architecture.
   (`backlog.yaml`, `decisions-open.md`, `issues.yaml`) are not live queues;
   issues are the live backlog.
 
+<!-- vale off -->
 <!-- WORKING-MODEL-BLOCK-START — generated from umbrella docs/templates/working-model-block.md; do not edit copies, edit the template and run bin/check-working-model-sync.sh -->
 ## Working model (mandatory)
 
@@ -80,3 +85,4 @@ in the umbrella repo. The three rules that matter mid-task:
    Discussions first); STATUS.md = pointer file (operator notes live in pinned issue #618);
    STATUS.local.md = live repo snapshot.
 <!-- WORKING-MODEL-BLOCK-END -->
+<!-- vale on -->
