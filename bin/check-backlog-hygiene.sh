@@ -4,9 +4,10 @@
 # Read-only detector: every OPEN issue in the umbrella repo must carry a
 # milestone or the platform-debt label (unscheduled work, see
 # docs/WORKING-MODEL.md §2), at least one component:* label, and at least one
-# workstream:* label. Issues labelled hygiene-exempt are skipped. The script also flags active AND draft plan docs whose tracking issue
-# is CLOSED, and surfaces untriaged component-repo issues older than the
-# staleness threshold. (umbrella issue #32)
+# workstream:* label. Issues labelled hygiene-exempt are skipped. The script
+# also flags active AND draft plan docs whose tracking issue is CLOSED, and
+# surfaces untriaged component-repo issues older than the staleness
+# threshold. (umbrella issue #32)
 #
 # Board membership is deliberately NOT checked: org Project #1 is a human-
 # curated surface for issues of significance, not an automation target — see
@@ -18,9 +19,12 @@
 #   bin/check-backlog-hygiene.sh --self-test  # offline check of the freshness rules
 #   bin/check-backlog-hygiene.sh --warn   # print findings but always exit 0
 #
-# Exit: 0 = no findings, 1 = one or more findings detected. With --warn the
-# findings still print, and the last line carries the count
-# ("backlog-hygiene: N finding(s) (warn mode, exit 0)"), but the exit is 0.
+# Exit: 0 = no findings, 1 = one or more findings detected, or a check could
+# not read a required input (a failed gh call, no docs/plans). Each such
+# skip prints "SKIPPED", and the last line is then
+# "backlog-hygiene: INCOMPLETE (N check(s) could not run)", never the OK line.
+# With --warn the same lines print ("(warn mode, exit 0)" is appended to the
+# findings line), but the exit is 0.
 # Env overrides:
 #   DMF_TRIAGE_DAYS  — staleness threshold for untriaged component issues (default 7)
 #   DMF_WIP_LIMIT    — max concurrent active plans before a WIP finding (default 3)
@@ -39,6 +43,9 @@ STALE_DAYS="${DMF_TRIAGE_DAYS:-7}"
 ISSUE_LIMIT="${DMF_ISSUE_LIMIT:-2000}"
 
 TOTAL_FINDINGS=0
+# Every skip is a required input that could not be read, so the run is
+# incomplete. No check has an optional input that may be skipped.
+SKIPPED_COUNT=0
 WARN=0
 # Newline-separated keys that checks 1 and 2 already reported, so check 5's
 # overlapping rules (3 and 1) skip them and each finding prints once.
@@ -58,6 +65,7 @@ finding() {
 
 skipped() {
     echo "  · SKIPPED ($*)"
+    SKIPPED_COUNT=$((SKIPPED_COUNT + 1))
 }
 
 gh_json() {
@@ -190,7 +198,11 @@ check_untriaged_component_issues() {
         resp="$(gh_json "$payload")" || { skipped "gh api failed for $repo"; continue; }
 
         local count
-        count="$(echo "$resp" | jq -r '.data.repository.issues.nodes | length' 2>/dev/null)" || continue
+        # A repository that resolves to null (no access) is a failed read, not
+        # an empty one.
+        count="$(echo "$resp" | jq -r '.data.repository.issues.nodes
+            | if type == "array" then length else error("no issues") end' 2>/dev/null)" \
+            || { skipped "no issue list for $repo"; continue; }
         [ "$count" -eq 0 ] && continue
 
         for i in $(seq 0 $((count - 1))); do
@@ -327,6 +339,7 @@ check_freshness() {
                 issue_num="$(echo "$tracking" | sed -n 's|.*/issues/\([0-9]*\).*|\1|p')"
                 if [ -n "$issue_repo" ] && [ -n "$issue_num" ]; then
                     state="$(gh api repos/"$issue_repo"/issues/"$issue_num" 2>/dev/null | jq -r '.state // empty')"
+                    [ -n "$state" ] || skipped "gh api failed for $tracking"
                 fi
             fi
             plans="$(jq -c --arg f "$(basename "$plan_file")" --arg s "$status" --arg d "$pdate" \
@@ -457,6 +470,48 @@ GH
     fi
     rm -rf "$ptmp"
 
+    # A check that cannot read its input makes the run INCOMPLETE, never OK.
+    # The fake gh fails only the calls named in FAKE_GH_FAIL ("issue", "api");
+    # the others return empty, valid results.
+    local itmp out rc
+    itmp="$(mktemp -d)"
+    mkdir -p "$itmp/bin" "$itmp/repo/docs/plans" "$itmp/noplans"
+    cat >"$itmp/bin/gh" <<'GH'
+#!/usr/bin/env bash
+case " ${FAKE_GH_FAIL:-} " in *" $1 "*) exit 1 ;; esac
+case "$1" in
+    issue) echo '[]' ;;
+    api) if [ -n "${FAKE_GH_NULL:-}" ]; then echo '{"data":{"repository":null}}'
+         else echo '{"data":{"repository":{"issues":{"nodes":[]}}}}'; fi ;;
+esac
+GH
+    chmod +x "$itmp/bin/gh"
+    printf -- '---\nstatus: executed\ndate: 2026-10-01\n---\n' >"$itmp/repo/docs/plans/done.md"
+    incomplete() {
+        # incomplete <name> <expected rc> <expected summary> <env...> [-- args]
+        local name="$1" want_rc="$2" want="$3"; shift 3
+        out="$(env PATH="$itmp/bin:$PATH" "$@" 2>&1)"; rc=$?
+        if [ "$rc" -eq "$want_rc" ] && [ "$(printf '%s\n' "$out" | tail -1)" = "$want" ] \
+            && { [ "$want" = "backlog-hygiene: OK (0 findings)" ] \
+                 || ! printf '%s\n' "$out" | grep -q '^backlog-hygiene: OK'; }; then
+            echo "  ok   $name: exit $rc, $want"
+        else
+            echo "  FAIL $name: expected exit $want_rc and '$want', got exit $rc and '$(printf '%s\n' "$out" | tail -1)'"
+            fails=$((fails + 1))
+        fi
+    }
+    incomplete "issue query fails (strict)" 1 "backlog-hygiene: INCOMPLETE (2 check(s) could not run)" \
+        FAKE_GH_FAIL=issue UMBRELLA_DIR="$itmp/repo" "$BASH" "$0"
+    incomplete "issue query fails (--warn)" 0 "backlog-hygiene: INCOMPLETE (2 check(s) could not run)" \
+        FAKE_GH_FAIL=issue UMBRELLA_DIR="$itmp/repo" "$BASH" "$0" --warn
+    incomplete "no docs/plans directory" 1 "backlog-hygiene: INCOMPLETE (3 check(s) could not run)" \
+        UMBRELLA_DIR="$itmp/noplans" "$BASH" "$0"
+    incomplete "component repo resolves to null" 1 "backlog-hygiene: INCOMPLETE (8 check(s) could not run)" \
+        FAKE_GH_NULL=1 UMBRELLA_DIR="$itmp/repo" "$BASH" "$0"
+    incomplete "every input read" 0 "backlog-hygiene: OK (0 findings)" \
+        UMBRELLA_DIR="$itmp/repo" "$BASH" "$0"
+    rm -rf "$itmp"
+
     # Both modes, end to end and offline: a fake gh that always fails skips
     # every network check, and a stale draft plan gives exactly one finding.
     local tmp rc_strict rc_warn
@@ -484,7 +539,7 @@ GH
     fi
 
     if [ "$fails" -eq 0 ]; then
-        echo "backlog-hygiene self-test: OK (22/22 expectations)"
+        echo "backlog-hygiene self-test: OK (27/27 expectations)"
         return 0
     fi
     echo "backlog-hygiene self-test: $fails expectation(s) failed"
@@ -515,14 +570,14 @@ check_wip_cap
 check_freshness
 
 echo ""
-if [ "$TOTAL_FINDINGS" -eq 0 ]; then
+if [ "$TOTAL_FINDINGS" -eq 0 ] && [ "$SKIPPED_COUNT" -eq 0 ]; then
     echo "backlog-hygiene: OK (0 findings)"
     exit 0
-else
-    if [ "$WARN" -eq 1 ]; then
-        echo "backlog-hygiene: $TOTAL_FINDINGS finding(s) (warn mode, exit 0)"
-        exit 0
-    fi
-    echo "backlog-hygiene: $TOTAL_FINDINGS finding(s)"
-    exit 1
 fi
+suffix=""
+[ "$WARN" -eq 1 ] && suffix=" (warn mode, exit 0)"
+[ "$TOTAL_FINDINGS" -gt 0 ] && echo "backlog-hygiene: $TOTAL_FINDINGS finding(s)$suffix"
+# The INCOMPLETE line comes last, so a caller reading the last line sees it.
+[ "$SKIPPED_COUNT" -gt 0 ] && echo "backlog-hygiene: INCOMPLETE ($SKIPPED_COUNT check(s) could not run)"
+[ "$WARN" -eq 1 ] && exit 0
+exit 1
