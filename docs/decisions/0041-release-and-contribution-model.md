@@ -27,13 +27,14 @@ Adopt the **GitHub-canonical-forward** model codified in `docs/architecture/DMF 
 - **Negative** — DCO merge-method gap: squash-merge can drop Signed-off-by trailers; mitigated by Workstream A setting rebase-merge-only (or requiring signed-off squash messages).
 - **Neutral** — governance files (CONTRIBUTING.md, SECURITY.md, PR/issue templates, CODEOWNERS, DCO workflow) added to every repo; existing ADRs unchanged.
 
-## Alternatives considered
-
-1. **Keep Forgejo-canonical + GitHub mirror** — rejected: the GitHub org is now the public collaboration surface; maintaining Forgejo as canonical adds operational complexity without benefit.
-2. **CLA instead of DCO** — rejected: DCO is lighter-weight, requires no legal overhead, and is standard for infrastructure projects of this scale.
-
-## Enforcement
+### Enforcement
 
 - **Governance files:** CONTRIBUTING.md, SECURITY.md, `.github/` templates, CODEOWNERS, DCO workflow in every repo (this workstream).
 - **CI gates:** DCO workflow checks every PR; gitleaks/scrub/commitlint/trivy (Workstream E1).
 - **Branch protection:** GitHub rulesets enforce linear history, required reviews (CODEOWNERS), and required status checks (Workstream A).
+
+## Status
+
+Accepted
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0041-release-and-contribution-model.md).

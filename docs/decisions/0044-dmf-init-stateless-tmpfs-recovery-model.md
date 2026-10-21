@@ -21,14 +21,7 @@ with the designed `--tmpfs` mount wipes tmpfs, so "survive a restart" and
 "tmpfs-only" appear to contradict — tempting a host-mounted durable cursor, which
 would break the stateless/disposable contract.
 
-The real tension is narrower than it looks. The lockout incident's container was
-**healthy and never restarted** — the restart was forced *only* to mint a new
-launch token after the session expired (the missing facet (b)). So "must survive
-a restart" was a **symptom of missing in-band re-entry**, not an inherent need
-for durable persistence. Separately, the incident exposed a live contract
-**violation**: `DMF_DATA_ROOT` was on the container's overlay layer (no `--tmpfs`
-passed), and `_assert_data_root_tmpfs` only `logger.warning`s (`manage.py:116`) —
-so the age key and `openbao-keys.json` actually touched disk, silently.
+Problem statement and evidence: see the [archive record](../archive/decisions/0044-dmf-init-stateless-tmpfs-recovery-model.md).
 
 ## Decision
 
@@ -68,6 +61,26 @@ launch-link re-mint remove the need to restart a *healthy* container — so the
 only restart left is a genuine crash, which the (exported) bundle covers, at the
 rollback granularity stated above.
 
+### Amendment (2026-07-01): the tmpfs data root must be **exec**-mounted (#162)
+
+Problem statement and evidence: see the [archive record](../archive/decisions/0044-dmf-init-stateless-tmpfs-recovery-model.md).
+
+**Invariant (refines the Rule):** `DMF_DATA_ROOT` must be tmpfs **and**
+exec-mounted — `docker: --tmpfs /tmp/dmf-init-data:exec`. This does **not** relax
+this ADR's Rule: the mount stays tmpfs (RAM-only secrets, `docker rm`-safe) and
+retains `nosuid`/`nodev`; `exec` is orthogonal to the secrets-on-disk concern.
+`noexec` gave no real protection here — the dir exists to run the toolchain and
+`noexec` is trivially bypassed via interpreters. (A future defense-in-depth option
+is splitting into an exec repos-mount + a noexec secrets/artifacts-mount; deferred,
+tracked separately.)
+
+**Enforcement (extends the fail-closed check):** `assert_data_root_tmpfs` also
+rejects a tmpfs-but-`noexec` data root at startup with an actionable message
+pointing at `:exec`, turning the cryptic mid-render `PermissionError` into a clear
+startup refusal — same fail-closed philosophy as the tmpfs check. The README /
+`build-bundle.sh` run commands and the `bin/dmf-init` launcher are updated to
+`--tmpfs /tmp/dmf-init-data:exec` in the same change.
+
 ## Consequences
 
 - **Positive** — The stateless/`docker rm`-safe contract is preserved *and*
@@ -87,18 +100,7 @@ rollback granularity stated above.
 - **Neutral** — The README run command must show the `--tmpfs` mount as
   mandatory; a run without it now fails fast instead of degrading silently.
 
-## Alternatives considered
-
-- **Host-mounted durable cursor (persist non-secret cursor + render meta to a
-  volume; secrets stay tmpfs).** Gives seamless resume across `docker rm`. Rejected:
-  breaks the "nothing durable on host disk / safe `docker rm`" contract, adds an
-  operator-mounted volume and a new secret-scoping boundary to get wrong, for
-  marginal benefit over the already-shipped bundle-restore path.
-- **Status quo (warn-only tmpfs check, rely on accidental overlay durability).**
-  Rejected: it is exactly what let secrets touch disk in the incident, and
-  "durability by accident of a missing `--tmpfs` flag" is not a contract.
-
-## Enforcement
+### Enforcement
 
 - **CI / code:** a startup tmpfs check in dmf-init (`main.py` lifespan) that
   fail-closes on a non-tmpfs `DMF_DATA_ROOT`; promote `_assert_data_root_tmpfs`
@@ -117,35 +119,12 @@ rollback granularity stated above.
   `--tmpfs`** — fail-closed enforcement must land **with** the README/runbook
   update making `--tmpfs /tmp/dmf-init-data` mandatory, or the documented
   invocation simply starts failing.
-- **Plan linkage:** implements facet (c) of the long-run re-entry plan (#150);
-  depends on facet (b) landing first (sequencing above). The plan's step 4 +
-  verification are being realigned to bundle-only (they predated this ADR).
 - This ADR is **Proposed** — ratify via the CONTRIBUTING RFC step (Discussions)
   before flipping to Accepted; codex adversarial gate-review (CHANGES-NEEDED →
   addressed) precedes ratification.
 
-## Amendment (2026-07-01): the tmpfs data root must be **exec**-mounted (#162)
+## Status
 
-The tmpfs mandate above says nothing about the mount's `exec` flag, and Docker's
-`--tmpfs` default is **`noexec`**. But `DMF_DATA_ROOT` is an **execution root**:
-the render step execs `init-wizard.sh` directly (`createnew.py`), which in turn
-directly execs ~40 dmf-env `bin/` tools. On a `noexec` mount every render fails
-with `PermissionError: [Errno 13] … init-wizard.sh` (a direct exec returns 126;
-only interpreter-wrapped `bash script.sh` would work, which is infeasible across
-the whole toolchain). Found via the published `curl … | bash -s -- up` launcher.
+Accepted (2026-07-02 — implementation landed in dmf-init v0.3.5: fail-closed `assert_data_root_tmpfs` startup guard, forced checkpoint-export gate before long unattended phases, launcher `--tmpfs :exec` noexec guard; #150 and #162 closed)
 
-**Invariant (refines the Rule):** `DMF_DATA_ROOT` must be tmpfs **and**
-exec-mounted — `docker: --tmpfs /tmp/dmf-init-data:exec`. This does **not** relax
-this ADR's Rule: the mount stays tmpfs (RAM-only secrets, `docker rm`-safe) and
-retains `nosuid`/`nodev`; `exec` is orthogonal to the secrets-on-disk concern.
-`noexec` gave no real protection here — the dir exists to run the toolchain and
-`noexec` is trivially bypassed via interpreters. (A future defense-in-depth option
-is splitting into an exec repos-mount + a noexec secrets/artifacts-mount; deferred,
-tracked separately.)
-
-**Enforcement (extends the fail-closed check):** `assert_data_root_tmpfs` also
-rejects a tmpfs-but-`noexec` data root at startup with an actionable message
-pointing at `:exec`, turning the cryptic mid-render `PermissionError` into a clear
-startup refusal — same fail-closed philosophy as the tmpfs check. The README /
-`build-bundle.sh` run commands and the `bin/dmf-init` launcher are updated to
-`--tmpfs /tmp/dmf-init-data:exec` in the same change.
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0044-dmf-init-stateless-tmpfs-recovery-model.md).

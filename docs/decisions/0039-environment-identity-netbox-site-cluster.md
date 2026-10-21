@@ -85,25 +85,8 @@ Two further forces matter:
   **console query/UI layer**, not in the inventory model — see the work package
   `docs/plans/DMF Facility Console — Born-Inventoried Env Surfacing Plan 2026-06-04.md`.
 
-## Alternatives considered
+## Status
 
-- **Per-env tag `env:<id>` on every object.** Rejected: env ids rotate, so tags
-  accumulate and nothing prunes them; the information is redundant with the Site/Cluster
-  structure and FK chains; tags enforce nothing. Single-dimension `?tag=` filtering is the
-  only upside and is matched by `?cf_dmf_env_id=` / `?site_id=` / `?cluster_id=`.
-- **Per-env Tenant.** Rejected: tenant is the shared `DMF` and ADR-0020 already assigns
-  the tenant axis to media tenants (cluster-per-tenant); overloading it for operator envs
-  would conflict.
-- **Add `dmf_env_id` to all leaf object types now.** Deferred (see Consequences): more
-  write surface for no current need, and it would touch files the monitoring effort owns.
+Accepted
 
-## Cross-references
-
-- `dmf-infra/k3s-lab-bootstrap/roles/common/dmf-born-inventory/` — writes the Site,
-  Cluster, the four `dmf_*` custom fields, and the `dmf-day0` tag.
-- ADR-0037 — Media Workloads scope by tenant/site (server-side authz); same scoping grain.
-- ADR-0038 — PromSD adapter labels derive from `site`; this ADR keeps env scoping aligned.
-- ADR-0032 — scoped NetBox writer (`dmf-catalog-svc`); a future `ipam.Service` env field
-  would land through it.
-- `docs/plans/DMF Facility Console — Born-Inventoried Env Surfacing Plan 2026-06-04.md` —
-  the dmf-cms work package that surfaces the env on the Facility page using this model.
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0039-environment-identity-netbox-site-cluster.md).

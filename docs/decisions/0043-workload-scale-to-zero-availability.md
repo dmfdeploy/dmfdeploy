@@ -33,13 +33,12 @@ Treat **workload scale-to-zero as an availability primitive, narrowly scoped to 
 - **Negative** — two AWX-presence authorities (the bootstrap role and the steady-state helper) must agree on the CR replica semantics; the boundary needs ongoing enforcement (review + RBAC scoping).
 - **Neutral** — opt-in via `dmf_awx_autoscale_enabled`; cloud/lab lanes keep AWX at `replicas: 1` and deploy no helper, so there is no behaviour change there.
 
-## Alternatives considered
-
-- **Name it a general "scale any workload to zero" primitive** (the plan's "reusable seam" read literally) — forward-looking, but an open invitation to build more bespoke wake/sleep helpers; rejected as sprawl-inviting and premature against the v0.1 freeze. The pattern is described, not generalized; reuse goes through a new ADR.
-- **Build a general workload-elasticity actuator now** — over-engineering; conflates availability with elasticity; violates the freeze's non-goals.
-- **Let AWX manage its own sleep** — circular: the controller must be running to act, so something out-of-band must own wake/sleep.
-- **Node elasticity instead** — heavier and deferred; does not address the steady-state idle-RAM problem on a single node.
-
-## Enforcement
+### Enforcement
 
 The boundary's teeth are **RBAC + scope**: the `awx-autoscale` helper holds a namespaced Role limited to the AWX CR (`get`,`patch`), Deployments (`get`), and a coordination Lease — **no** `secrets` verbs, **no** job-launch path — so it is structurally incapable of touching job/catalog/media semantics. Any proposal to scale a *different* workload to zero must open a new ADR rather than extend this one. Tracked by issue #97; implemented in `dmf-infra` (`roles/stack/operator/awx-presence`, `roles/stack/operator/awx-autoscale`).
+
+## Status
+
+Accepted
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0043-workload-scale-to-zero-availability.md).

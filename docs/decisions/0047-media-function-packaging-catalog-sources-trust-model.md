@@ -142,49 +142,7 @@ this ADR fixes the bundle's shape only.
   reserved namespaces, what is signed) is the first implementation
   deliverable under this ADR.
 
-## Consequences
-
-- **Positive** — third-party contribution has a defined, graded path that
-  never hands out control-plane execution; promotion/revocation stay pure-git
-  plus one signed deny artifact; the four-axis model kills the
-  trust/maturity/privilege conflation; air-gap propagation has a defined
-  shape; everything unbuilt is named as unbuilt.
-- **Negative** — two-maintainer quorums put real load on a two-maintainer
-  project; ingestion-time policy validation is substantial machinery to
-  build before any vendor deployability exists; browse-only vendor listings
-  may disappoint eager publishers.
-- **Neutral** — current first-party entries become `project`-source packages
-  with no behavior change; ADR-0013's catalog model is extended, not
-  replaced; the actuator chain (ADR-0025/0037/0043) is untouched.
-
-## Alternatives considered
-
-- **Single trust_tier axis** (RFC rev 1) — rejected: conflates who controls a
-  source, how mature a release is, and what code may execute; "vendor
-  bespoke launchers, reviewed" died in cross-check round 1 because review is
-  not a boundary.
-- **Git-history-only revocation** — rejected: history proves what happened,
-  not what is currently denied; consumers need a fail-closed current-state
-  artifact.
-- **External marketplace portal** (Backstage/Devtron class) — not adopted;
-  the console Catalog rail plus classed sources covers the need, and the
-  air-gap/self-contained doctrine (ADR-0030/0034) plus the roadmap's
-  recommendation park external portals unless a real multi-publisher
-  ecosystem materialises.
-
-## Enforcement
-
-Ingestion-time: rendered-manifest validation against the versioned
-`generic-chart-policy/v1` with conformance fixtures (known-good packages
-pass; every forbidden capability has a failing fixture); signature
-verification at promotion. Runtime: revocation deny-list consumed fail-closed
-at every listed consumer; the trust-bypass override is C5-audited. Until the
-generic launcher ships, enforcement is structural: no non-`project` source is
-deployable at all. Runtime admission (Kyverno-class) is deferred Stage-5
-hardening — until then, policy conformance is ingestion-gated and
-discipline-backed at the git review step.
-
-## Appendix A — `generic-chart-policy/v1` (normative)
+### Appendix A — `generic-chart-policy/v1` (normative)
 
 Both a safety policy and a package contract; versioned; testable with
 conformance fixtures.
@@ -211,3 +169,36 @@ ResourceQuota/LimitRange compatibility required.
 
 v1 gate is ingestion-time rendered-manifest validation; runtime admission
 enforcement layers on later.
+
+## Consequences
+
+- **Positive** — third-party contribution has a defined, graded path that
+  never hands out control-plane execution; promotion/revocation stay pure-git
+  plus one signed deny artifact; the four-axis model kills the
+  trust/maturity/privilege conflation; air-gap propagation has a defined
+  shape; everything unbuilt is named as unbuilt.
+- **Negative** — two-maintainer quorums put real load on a two-maintainer
+  project; ingestion-time policy validation is substantial machinery to
+  build before any vendor deployability exists; browse-only vendor listings
+  may disappoint eager publishers.
+- **Neutral** — current first-party entries become `project`-source packages
+  with no behavior change; ADR-0013's catalog model is extended, not
+  replaced; the actuator chain (ADR-0025/0037/0043) is untouched.
+
+### Enforcement
+
+Ingestion-time: rendered-manifest validation against the versioned
+`generic-chart-policy/v1` with conformance fixtures (known-good packages
+pass; every forbidden capability has a failing fixture); signature
+verification at promotion. Runtime: revocation deny-list consumed fail-closed
+at every listed consumer; the trust-bypass override is C5-audited. Until the
+generic launcher ships, enforcement is structural: no non-`project` source is
+deployable at all. Runtime admission (Kyverno-class) is deferred Stage-5
+hardening — until then, policy conformance is ingestion-gated and
+discipline-backed at the git review step.
+
+## Status
+
+Accepted
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0047-media-function-packaging-catalog-sources-trust-model.md).

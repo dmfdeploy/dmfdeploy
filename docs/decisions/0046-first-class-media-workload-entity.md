@@ -113,73 +113,10 @@ the catalog (`mxl_flows.produces/consumes`) and observed at runtime. Flows may
 cross workload boundaries (Annex B Fig B2) — a Workload is not defined as *only*
 the flows between its members.
 
-## Consequences
-
-- **Positive** — the vocabulary becomes honest; the workload is a real home for
-  the lifecycle, the future switch target, and L3 preflight/rollback; the catalog
-  stops mis-tagging media-processing functions; minimal new infrastructure (one
-  tag, no graph object, no CRD).
-- **Negative** — launcher tag-flip hardening (decision 4) is a prerequisite, not
-  free; a console IA change and an additive API split; a catalog schema migration;
-  a one-time NetBox backfill of the two MXL services.
-- **Neutral** — Flows stay runtime/overlay (ADR-0037 unchanged on that point);
-  single-membership assumed for v0.2; the flat inventory API lives on during
-  migration.
-
-## Alternatives considered
-
-- **Catalog-level workload manifest** (declare members in YAML) — richer, but adds
-  a new store/authority duplicating NetBox's instance record. Rejected for now.
-- **Keep the page as a function inventory** (do nothing) — leaves the
-  Function/Workload conflation and gives the lifecycle/switch/budget nowhere to
-  live. Rejected.
-- **Re-stamp `workload` from the launcher as the authority** (option b) — rejected:
-  membership is a workload/design concern, not a per-launcher one; acceptable only
-  as a seed/backfill convenience.
-
-## Enforcement
-
-- **Catalog schema check** (dmf-media + dmf-cms) — enforces exactly one of
-  `ebu.vertical` (∈ {orchestration, control, monitoring, security}) or
-  `ebu.media_function_type` (∈ the enum) per entry; rejects the current
-  non-vertical pseudo-values; accepts legitimate support/control verticals.
-- **Launcher tag-preservation survival test** (dmf-runbooks) — a
-  provision→configure→finalise cycle must leave `workload:*` intact; blocks the
-  entity from shipping otherwise.
-- **Console rollup-by-identity** (dmf-cms) — workload health/lifecycle joins by
-  NetBox service/instance identity, not the `app` label.
-- **ADR-0037** carries an amendment pointer to this ADR.
-- Implementation slices open as their own issues under
-  [#189](https://github.com/dmfdeploy/dmfdeploy/issues/189), each codex-gated.
-
-## Amendment 1 (2026-08-30): EBU lifecycle stage names keep EBU's own spelling
+### Amendment 1 (2026-08-30): EBU lifecycle stage names keep EBU's own spelling
 
 **Status:** Accepted. Clarifies decision point 3 (the six-stage lifecycle
 naming) — no other decision point changes.
-
-**Problem.** During the console shell documentation round
-(dmfdeploy/dmfdeploy#480), a US-spelling house style was briefly considered
-for the console's copy, which would have made `finalizing` "correct" and
-this ADR's own `Finalise & Review` (decision 3, and the
-[Console Glossary](../design/DMF%20Console%20Glossary.md)'s stage-names
-entry) a defect to fix. **That is backwards**, and needs to be on record
-before it recurs: the near-miss is the point — someone who later sees
-`Finalise` beside a stray `finalizing` will normalise the *wrong* one
-without a written rule to check against (see dmfdeploy#499, a raw lifecycle
-token that reached an operator surface with the wrong spelling — a
-dmf-cms fix on its own branch, not this amendment, but the kind of drift
-this amendment exists to prevent).
-
-**Verification.** Checked against the primary source — the EBU white paper
-*The Dynamic Media Facility Reference Architecture* — by text extraction:
-
-| Token | Occurrences |
-|---|---|
-| `Finalise` | 6 |
-| `Finalise & Review` | 2 |
-| `Finalize` / `Finalizing` | **0** |
-
-EBU publishes the **'s'** spelling, unambiguously and exclusively.
 
 **Rule.** The six EBU lifecycle stage names (Design, Plan, Provision,
 Configure, Operate, **Finalise & Review**) are quoted domain vocabulary —
@@ -200,11 +137,38 @@ share the word: the NetBox `lifecycle-finalise` tag value, the
 Display strings and machine identifiers are separate concerns; this
 amendment is scoped to the former only.
 
-**Consistency check.** This already matches
-[`docs/architecture/DMF EBU Mapping (2026-04-25).md:39`](../architecture/DMF%20EBU%20Mapping%20(2026-04-25).md),
-this ADR's own decision 3 above, the
-[Console Glossary](../design/DMF%20Console%20Glossary.md)'s lifecycle
-stage-names entry, and the machine identifiers named above — this amendment
-records the rule those already-consistent artifacts were following
-implicitly, so a future edit cannot "fix" one of them into inconsistency
-with the rest.
+Implementation detail: see the [archive record](../archive/decisions/0046-first-class-media-workload-entity.md).
+
+## Consequences
+
+- **Positive** — the vocabulary becomes honest; the workload is a real home for
+  the lifecycle, the future switch target, and L3 preflight/rollback; the catalog
+  stops mis-tagging media-processing functions; minimal new infrastructure (one
+  tag, no graph object, no CRD).
+- **Negative** — launcher tag-flip hardening (decision 4) is a prerequisite, not
+  free; a console IA change and an additive API split; a catalog schema migration;
+  a one-time NetBox backfill of the two MXL services.
+- **Neutral** — Flows stay runtime/overlay (ADR-0037 unchanged on that point);
+  single-membership assumed for v0.2; the flat inventory API lives on during
+  migration.
+
+### Enforcement
+
+- **Catalog schema check** (dmf-media + dmf-cms) — enforces exactly one of
+  `ebu.vertical` (∈ {orchestration, control, monitoring, security}) or
+  `ebu.media_function_type` (∈ the enum) per entry; rejects the current
+  non-vertical pseudo-values; accepts legitimate support/control verticals.
+- **Launcher tag-preservation survival test** (dmf-runbooks) — a
+  provision→configure→finalise cycle must leave `workload:*` intact; blocks the
+  entity from shipping otherwise.
+- **Console rollup-by-identity** (dmf-cms) — workload health/lifecycle joins by
+  NetBox service/instance identity, not the `app` label.
+- **ADR-0037** carries an amendment pointer to this ADR.
+- Implementation slices open as their own issues under
+  [#189](https://github.com/dmfdeploy/dmfdeploy/issues/189), each codex-gated.
+
+## Status
+
+Accepted
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0046-first-class-media-workload-entity.md).
