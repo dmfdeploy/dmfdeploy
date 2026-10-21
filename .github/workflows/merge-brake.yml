@@ -27,7 +27,8 @@ name: merge-brake
 on:
   pull_request_target:
     branches: [main]
-    types: [opened, synchronize, reopened, labeled, unlabeled]
+    # "edited" gives a PR retargeted onto main its first brake run.
+    types: [opened, synchronize, reopened, labeled, unlabeled, edited]
 
 permissions: {}
 
