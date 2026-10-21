@@ -1,0 +1,9 @@
+extends: existence
+message: "Check '%s'. If it sets up a contrast with something nobody said, state the point directly."
+description: "'Rather than' and 'instead of' are often the soft form of 'A, not B'; they are sometimes plain comparisons."
+link: https://github.com/dmfdeploy/dmfdeploy/blob/main/docs/STYLE.md#soft-contrast
+level: warning
+ignorecase: true
+tokens:
+  - rather than
+  - instead of

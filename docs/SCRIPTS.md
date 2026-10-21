@@ -27,6 +27,8 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `bin/check-public-repo-hygiene.sh` | bin/check-public-repo-hygiene.sh — per-repo Tier A.2 hygiene gate. |
 | `bin/check-ruleset-drift.sh` | assert the live branch ruleset against a committed expectation (umbrella issue #368). |
 | `bin/check-surface.sh` | check the working surface of the umbrella repo against its size budgets, filename convention and archive-placement rules (hygiene enforcement, dmfdeploy/dmfdeploy#617). |
+| `bin/check-voice-fixtures.sh` | Prove the Voice rules against their fixtures. |
+| `bin/check-voice.sh` | Lint prose against the project voice (Voice + Google + Dmfdeploy styles). |
 | `bin/check-working-model-sync.sh` | keep the working-model block from drifting. |
 | `bin/close-completed-issues.sh` | auto-close umbrella tracking issues whose completing PR has merged. |
 | `bin/dmf-env-public-surface-gate.sh` | fail-closed gate: is a dmf-env tree safe to publish as a generic env-tooling repo? |
@@ -36,6 +38,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `bin/generate-scripts-catalog.sh` | scan all DMF repos for shell scripts and produce docs/SCRIPTS.md, a single discoverable index. Each script's first non-shebang comment paragraph (consecutive `#` lines until the first blank `#`, with pure-decoration lines skipped) becomes its catalog entry. |
 | `bin/generate-status.sh` | regenerate STATUS.local.md at the umbrella root. |
 | `bin/install-hooks.sh` | point this clone's git at .githooks/. |
+| `bin/mutate-voice.sh` | Mutation test for the Voice rules. |
 | `bin/mxl-sync-check.sh` | report how far each mxl-spike repo is behind origin/main. |
 | `bin/publish-chart-to-ghcr.sh` | package a Helm chart and publish it to GHCR. |
 | `bin/publish-image-to-ghcr.sh` | generic helper to publish one or more locally-built images to GHCR. Replaces the per-repo publish-to-ghcr.sh duplication (NMOS, AWX EE, dmf-cms) introduced in the 2026-05-19 Lane A work. |

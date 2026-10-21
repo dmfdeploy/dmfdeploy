@@ -1,0 +1,14 @@
+extends: existence
+message: "Three or more bullets in a row start with a bold label. Write the list as plain items or as sentences."
+description: "One bullet with a bold lead is fine; a whole list of 'bold label, then explanation' bullets is a generated-text pattern."
+link: https://github.com/dmfdeploy/dmfdeploy/blob/main/docs/STYLE.md#bold-lead-bullets
+level: warning
+scope: raw
+nonword: true
+# Vale rules cannot count bullets per list, so the pattern matches a run of
+# three consecutive bold-lead bullets (blank lines between them allowed).
+# One or two bold-lead bullets never match. If a Vale release stops
+# honoring scope: raw for Markdown, lower this rule to suggestion and use
+# the single-bullet pattern  ^\s*[-*]\s+\*\*[^*]+\*\*[:.]
+tokens:
+  - '(?m)^[ \t]*[-*][ \t]+(?:\*\*[^*\n]+[:.]\*\*|\*\*[^*\n]+\*\*[:.])[^\n]*\n(?:[ \t]*\n)?[ \t]*[-*][ \t]+(?:\*\*[^*\n]+[:.]\*\*|\*\*[^*\n]+\*\*[:.])[^\n]*\n(?:[ \t]*\n)?[ \t]*[-*][ \t]+(?:\*\*[^*\n]+[:.]\*\*|\*\*[^*\n]+\*\*[:.])'

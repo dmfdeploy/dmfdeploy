@@ -1,0 +1,52 @@
+extends: existence
+message: "Replace the stock word '%s' with a plainer one, or state the specific fact."
+description: "Words such as delve, leverage and robust appear far more often in generated text than in engineers' writing."
+link: https://github.com/dmfdeploy/dmfdeploy/blob/main/docs/STYLE.md#vocabulary
+level: warning
+ignorecase: true
+# The project vocabulary (.vale/styles/config/vocabularies/Dmfdeploy/accept.txt)
+# accepts harness, journey, realm and ensure, because they are real terms here
+# (the agentic harness, the JOURNEY page, an identity-provider realm, and steps
+# in a procedure). Their tokens stay so that the rule still works without it.
+# Checked against the synced Google package: none of these tokens is in Google.WordList, Google.Jargon, Google.Slang or Google.ExcessiveClaims (that rule names "ensure" in a comment and leaves it out).
+tokens:
+  - 'delv(?:e|es|ed|ing)'
+  - 'leverag(?:e|es|ed|ing)'
+  - 'robust(?:ness)?'
+  - 'seamless(?:ly)?'
+  - 'crucial(?:ly)?'
+  - 'pivotal'
+  - 'landscapes?'
+  - 'journeys?'
+  - 'testaments?'
+  - 'unlock(?:s|ed|ing)?'
+  - 'empower(?:s|ed|ing|ment)?'
+  - 'elevat(?:e|es|ed|ing)'
+  - 'streamlin(?:e|es|ed|ing)'
+  - 'holistic(?:ally)?'
+  - 'navigat(?:e|es|ed|ing)'
+  - 'tapestr(?:y|ies)'
+  - 'realms?'
+  - 'foster(?:s|ed|ing)?'
+  - 'underscor(?:e|es|ed|ing)'
+  - 'underpin(?:s|ning|ned)?'
+  - 'harness(?:es|ed|ing)?'
+  - 'cutting-edge'
+  - 'state-of-the-art'
+  - 'game-changers?'
+  - 'game-changing'
+  - 'paradigms?'
+  - 'synerg(?:y|ies)'
+  - 'vibrant'
+  - 'nuanced'
+  - 'multifaceted'
+  - 'intricate'
+  - 'meticulous(?:ly)?'
+  - 'comprehensive(?:ly)?'
+  - 'showcas(?:e|es|ed|ing)'
+  - 'bolster(?:s|ed|ing)?'
+  - 'spearhead(?:s|ed|ing)?'
+  - 'utiliz(?:e|es|ed|ing|ation)'
+  - 'facilitat(?:e|es|ed|ing)'
+  - 'enhanc(?:e|es|ed|ing|ement|ements)'
+  - 'ensur(?:e|es|ed|ing)'

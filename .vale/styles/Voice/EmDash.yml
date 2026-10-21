@@ -1,0 +1,10 @@
+extends: existence
+message: "Replace the dash '%s' with a period, comma, colon or parentheses."
+description: "Em dashes (and ' -- ' used as one) appear far more in generated prose than in engineering docs."
+link: https://github.com/dmfdeploy/dmfdeploy/blob/main/docs/STYLE.md#em-dashes
+level: error
+nonword: true
+# Overlaps Google.EmDash for spaced dashes. This rule also catches the unspaced form.
+tokens:
+  - '—'
+  - '\s--\s'
