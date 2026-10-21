@@ -1,71 +1,38 @@
 #!/usr/bin/env bash
-# merge-brake.sh: decide whether a pull request may merge. The merge-brake
-# workflow runs it on every label and review change, and its exit status
-# becomes the "merge-brake" check.
+# merge-brake.sh: decide whether a pull request may merge, from its labels.
+# The merge-brake workflow runs it on every label change and push, and its
+# exit status becomes the "merge-brake" check.
 #
 # Usage:
 #   merge-brake.sh < input.json
 #
 # The input is one JSON object:
-#   {
-#     "labels":  ["hold", ...],          # label names on the PR
-#     "reviews": [ <review>, ... ]       # GET /repos/{o}/{r}/pulls/{n}/reviews
-#   }
-# Each review needs .id, .user.login, .state, .author_association and
-# .submitted_at, which is what the REST API returns.
+#   { "labels": ["hold", ...] }    # label names on the PR
 #
-# The brake is on, and the script exits 1, when either:
-#   - the PR carries the "hold" label, or
-#   - a reviewer's latest decisive review is CHANGES_REQUESTED.
-# Otherwise it exits 0. Exit 2 means the input could not be read.
+# The brake is on, and the script exits 1, when the PR carries the "hold"
+# label. The match is exact, so a label such as "on-hold" doesn't count.
+# Otherwise it exits 0. Exit 2 means the input could not be read, which the
+# workflow treats as a failure too, so a broken input never passes.
 #
-# A decisive review is APPROVED, CHANGES_REQUESTED or DISMISSED. A COMMENTED
-# review does not clear an earlier request for changes, which matches how
-# GitHub itself reads review state. A dismissed request shows up as DISMISSED,
-# so dismissing it releases the brake.
-#
-# Reviews are ordered by submitted_at, then by id, so two reviews submitted in
-# the same second still resolve to the one GitHub created last.
-#
-# Only reviewers whose author_association is OWNER, MEMBER or COLLABORATOR
-# count. That keeps a drive-by review on a public repository from blocking a
-# merge. It approximates write access without an extra API call per reviewer.
+# Review state is not checked here. On main, the ruleset already refuses a
+# merge while a reviewer has an outstanding request for changes.
 set -euo pipefail
 
 input=$(cat)
 
-if ! printf '%s' "$input" | jq -e 'type == "object"
+# Slurp, so empty input or more than one JSON document is rejected too.
+if ! printf '%s' "$input" | jq -se 'length == 1 and (.[0]
+    | type == "object"
     and (.labels | type == "array")
-    and (.reviews | type == "array")' >/dev/null 2>&1; then
-  echo "::error title=merge-brake::input must be an object with labels and reviews arrays"
+    and all(.labels[]; type == "string"))' >/dev/null 2>&1; then
+  echo "::error title=merge-brake::input must be an object with a labels array of strings"
   exit 2
 fi
 
-brake=0
-
 if printf '%s' "$input" | jq -e '.labels | index("hold")' >/dev/null; then
   echo "::error title=merge-brake::the hold label is on this PR. Remove it to let the PR merge."
-  brake=1
+  exit 1
 fi
 
-blocking=$(printf '%s' "$input" | jq -r '
-  [ .reviews[]
-    | select(.state == "APPROVED" or .state == "CHANGES_REQUESTED" or .state == "DISMISSED")
-    | select(.author_association == "OWNER" or .author_association == "MEMBER" or .author_association == "COLLABORATOR") ]
-  | sort_by(.submitted_at, .id)
-  | group_by(.user.login)
-  | map(last)
-  | map(select(.state == "CHANGES_REQUESTED") | .user.login)
-  | .[]')
-
-if [ -n "$blocking" ]; then
-  while IFS= read -r login; do
-    echo "::error title=merge-brake::${login} requested changes. A new approval from ${login}, or a dismissal of that review, releases the brake."
-  done <<<"$blocking"
-  brake=1
-fi
-
-if [ "$brake" -eq 0 ]; then
-  echo "merge-brake: no hold label and no outstanding request for changes"
-fi
-exit "$brake"
+echo "merge-brake: no hold label"
+exit 0

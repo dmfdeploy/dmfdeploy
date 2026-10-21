@@ -71,10 +71,10 @@ jobs:
         # because every case mutated the EXPECTATION and none degraded the API
         # RESPONSE. Hermetic — stubs curl, no network or credential.
         run: bash tests/ruleset-drift.sh
-      - name: merge-brake decision regressions (#544, #439)
-        # The merge-brake check holds a PR on the hold label or an
-        # outstanding request for changes. Hermetic — feeds fixed label and
-        # review lists to the script, no network or credential.
+      - name: merge-brake decision regressions (#439)
+        # The merge-brake check holds a PR while it carries the hold label.
+        # Hermetic — feeds fixed label lists to the script, no network or
+        # credential.
         run: |
           set -eu
           shellcheck --severity=warning .github/scripts/merge-brake.sh
