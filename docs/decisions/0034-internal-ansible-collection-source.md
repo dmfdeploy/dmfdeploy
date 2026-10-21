@@ -88,21 +88,21 @@ launch (the exact mechanism that surfaced this bug).
 - **Neutral** — The v0.1 EE-bake unblock (FIX 2 on `<env>`) is a
   strict subset of this decision, so it is not wasted work.
 
-## Alternatives considered
-
-- **Bake into EE + delete `requirements.yml`** (the v0.1 expedient).
-  Accepted as the *interim* unblock, rejected as the *permanent* shape:
-  it discards the declarative manifest and makes the EE opaque.
-- **Vendor collections into the project repo.** Rejected as the primary
-  mechanism: bloats the repo and still runs `ansible-galaxy` per sync.
-- **Self-hosted Galaxy NG / Automation Hub.** Rejected: operationally
-  heavy for the platform's scale; Zot-OCI or Forgejo-git achieves the
-  same air-gap guarantee with existing services.
-
-## Enforcement (to be elaborated in the WP)
+### Enforcement (to be elaborated in the WP)
 
 See [DMF Internal Ansible Collection Source Plan 2026-05-29](../plans/DMF%20Internal%20Ansible%20Collection%20Source%20Plan%202026-05-29.md).
 A release-gate check must assert no DMF runtime resolves collections from
 a public Galaxy endpoint (Org Galaxy Credentials internal/none; EE
 contains the pinned collections; `project_update` succeeds with egress
 to `galaxy.ansible.com` blocked).
+
+## Status
+
+**Accepted (2026-05-29)** — mechanism locked to Forgejo-git
+(operator delegated the Zot-vs-Forgejo choice). The no-public-galaxy posture is
+binding now and partially proven: the v0.1 EE-bake interim is live and verified
+offline on `<env>` (FIX 2). The permanent Forgejo-git internal source is
+tracked for implementation by the WP below; this ADR records the decision, not
+its completion.
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0034-internal-ansible-collection-source.md).

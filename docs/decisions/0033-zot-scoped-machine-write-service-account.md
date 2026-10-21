@@ -45,15 +45,14 @@ This decision is implemented together with the **playbook-630 execution-model fi
 - **Negative** — A second htpasswd user + accessControl policy + a new OpenBao path + ESO policy widening; multi-repo work (dmf-infra zot role, 630, zot-mirror, openbao policy; dmf-env bootstrap-secrets seeding). The zot role's htpasswd task must emit two bcrypt lines instead of one.
 - **Neutral** — Pulls are already anonymous; only the authenticated write path changes. `admin` still exists (break-glass), just unused by automation. Existing envs migrate by re-running the zot role + seed-bao (adds the second user/secret; idempotent).
 
-## Alternatives considered
-
-1. **Project the machine identity from Authentik (OIDC/SAML).** Rejected — and it is a category error: ADR-0028 C3 makes machine authority *native per-app service accounts in OpenBao*, explicitly **not** Authentik (which is the *human* authority, C1). OIDC/SAML are interactive browser flows; `skopeo` and cron jobs cannot perform them, and machine work must not depend on the IdP being reachable. Even Zot's OIDC grant targets the human `ops-admin` group.
-2. **Keep using `admin` (just document it).** Rejected — that is the status quo C3/C4 violation; documenting a routine path onto the break-glass account does not make it compliant.
-3. **Give `zot-svc` full `delete`/admin too (simpler policy).** Rejected — least privilege: a seeder/mirror never deletes. `read,create,update` is the minimal write scope.
-4. **Store the `zot-svc` secret under `secret/apps/zot/admin` to dodge the ESO policy change.** Rejected — collapses the two identities back into one custody path and defeats the separation. A distinct path + a one-line policy widening is the clean form.
-
-## Enforcement
+### Enforcement
 
 - The zot role owns the `zot-svc` user + its accessControl policy; a `bootstrap-verify`-class assertion confirms `zot-svc` exists, is non-admin (no `delete`, not in `adminPolicy`), and that no steady-state path references the `admin` credential.
 - Review gate on 630 + zot-mirror + any future Zot writer: a reference to `secret/apps/zot/admin` / `zot_admin_*` from a steady-state automation path is a violation — flag against this ADR.
 - Natural home for the automated check is the audit-admin-identities / bootstrap-convergence verifier (ADR-0028 D2), alongside the ADR-0032 NetBox check.
+
+## Status
+
+Accepted
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0033-zot-scoped-machine-write-service-account.md).
