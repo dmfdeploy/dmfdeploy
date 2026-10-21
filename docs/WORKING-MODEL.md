@@ -199,6 +199,9 @@ the frontmatter must be flipped; frontmatter wins for design content.
   become auto-merge eligible, which is not always wanted. `automerge.yml`
   implements this and runs `gh pr merge --disable-auto` whenever the label is
   present.
+  The workflow reads the PR's labels when it runs, not when the event fired.
+  Add `hold` before approval: once an approved PR is green, it merges at once.
+  Removing `hold` re-arms auto-merge.
   **A deliberate merge by a maintainer stays open by design.** The label does
   not, and must not, block the merge button — that path is the point of getting
   a review without auto-landing. Do **not** "harden" `hold` into a required
