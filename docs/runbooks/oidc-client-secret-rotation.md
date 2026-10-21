@@ -12,7 +12,7 @@ OpenBao / ESO / the consuming app's K8s Secret.
    secret as compromised for its lifetime and rotate immediately. In
    the experiment phase per [ADR-0004](../decisions/0004-experiment-phase-stance.md),
    the operator may choose to defer rotation on short-lived test envs
-   (record the decision in STATUS HUMAN-START); for any environment
+   (record the decision in the operator-notes issue [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618)); for any environment
    serving real users or carrying Mode-B obligations
    ([ADR-0020](../decisions/0020-deployment-scope-and-regulatory-posture.md)),
    immediate rotation is binding.
@@ -242,8 +242,8 @@ succeeded):
 
 After successful rotation:
 
-- **STATUS HUMAN-START** — add a one-line entry to the umbrella STATUS
-  marking the rotation timestamp + the provider rotated. Brief is fine.
+- **Operator notes** — add a one-line comment to the operator-notes issue
+  [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618) with the rotation timestamp and the provider rotated. Brief is fine.
 - **If the rotation was triggered by an incident** (rule 1 of "when to
   run this procedure"), record:
   - The incident details: what surface the secret entered (transcript /
@@ -264,15 +264,15 @@ Per [ADR-0004](../decisions/0004-experiment-phase-stance.md), the
 operator may choose to defer rotation on short-lived experiment-phase
 envs. When this happens:
 
-1. **Document the decision** in STATUS HUMAN-START at the time of the
-   incident.
+1. **Document the decision** in the operator-notes issue [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618) at
+   the time of the incident.
 2. **Bound the deferral** — only defer if the env will be torn down
    before the deferred risk could plausibly be exercised. Hetzner
    experiment envs (current: `<env>`) typically have lifetimes of
    days to weeks; deferring rotation for an OIDC client_secret on such
    an env is bounded by the env teardown.
-3. **Track the deferral** — note in STATUS that the rotation was
-   deferred, the env, and the reason. When the env is torn down, the
+3. **Track the deferral** — note in the operator-notes issue that the
+   rotation was deferred, the env, and the reason. When the env is torn down, the
    risk closes; record the closure.
 4. **This option is NOT available** for any env serving real users,
    any env under Mode-B obligations

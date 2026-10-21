@@ -12,7 +12,8 @@ human);
 
 **Audience:** the human operator. Agents may execute steps on your
 behalf but should not bypass any step here without recording the
-exception in STATUS HUMAN-START.
+exception in the operator-notes issue
+([#618](https://github.com/dmfdeploy/dmfdeploy/issues/618)).
 
 ---
 
