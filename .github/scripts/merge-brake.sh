@@ -11,7 +11,7 @@
 #     "labels":  ["hold", ...],          # label names on the PR
 #     "reviews": [ <review>, ... ]       # GET /repos/{o}/{r}/pulls/{n}/reviews
 #   }
-# Each review needs .user.login, .state, .author_association and
+# Each review needs .id, .user.login, .state, .author_association and
 # .submitted_at, which is what the REST API returns.
 #
 # The brake is on, and the script exits 1, when either:
@@ -23,6 +23,9 @@
 # review does not clear an earlier request for changes, which matches how
 # GitHub itself reads review state. A dismissed request shows up as DISMISSED,
 # so dismissing it releases the brake.
+#
+# Reviews are ordered by submitted_at, then by id, so two reviews submitted in
+# the same second still resolve to the one GitHub created last.
 #
 # Only reviewers whose author_association is OWNER, MEMBER or COLLABORATOR
 # count. That keeps a drive-by review on a public repository from blocking a
@@ -49,7 +52,7 @@ blocking=$(printf '%s' "$input" | jq -r '
   [ .reviews[]
     | select(.state == "APPROVED" or .state == "CHANGES_REQUESTED" or .state == "DISMISSED")
     | select(.author_association == "OWNER" or .author_association == "MEMBER" or .author_association == "COLLABORATOR") ]
-  | sort_by(.submitted_at)
+  | sort_by(.submitted_at, .id)
   | group_by(.user.login)
   | map(last)
   | map(select(.state == "CHANGES_REQUESTED") | .user.login)

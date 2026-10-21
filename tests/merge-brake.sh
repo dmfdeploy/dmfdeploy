@@ -14,6 +14,8 @@
 #   I  reviews out of order: the later submitted_at wins  -> 0
 #   J  malformed input                                    -> 2
 #   K  CHANGES_REQUESTED, then a later one dismissed      -> 0
+#   L  same second: id 101 CHANGES_REQUESTED, 102 APPROVED, either input order -> 0
+#   M  same second: id 101 APPROVED, 102 CHANGES_REQUESTED, either input order -> 1
 #
 # Hermetic: no network or credential. Set BRAKE to test another copy of the
 # script, which is how the mutation check runs.
@@ -23,10 +25,10 @@ UMBRELLA_DIR="${UMBRELLA_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 BRAKE="${BRAKE:-$UMBRELLA_DIR/.github/scripts/merge-brake.sh}"
 pass=0; fail=0
 
-# review LOGIN STATE TIME [ASSOCIATION]
+# review LOGIN STATE TIME [ASSOCIATION] [ID]
 review() {
-  printf '{"user":{"login":"%s"},"state":"%s","submitted_at":"%s","author_association":"%s"}' \
-    "$1" "$2" "$3" "${4:-MEMBER}"
+  printf '{"id":%s,"user":{"login":"%s"},"state":"%s","submitted_at":"%s","author_association":"%s"}' \
+    "${5:-0}" "$1" "$2" "$3" "${4:-MEMBER}"
 }
 
 # check NAME WANT INPUT
@@ -78,6 +80,16 @@ check "J malformed input" 2 '{"labels":"hold"}'
 
 check "K CHANGES_REQUESTED, then a later one dismissed" 0 \
   "{\"labels\":[],\"reviews\":[$(review alice CHANGES_REQUESTED $t1),$(review alice DISMISSED $t2)]}"
+
+cr101=$(review alice CHANGES_REQUESTED $t1 MEMBER 101)
+ap102=$(review alice APPROVED $t1 MEMBER 102)
+check "L1 same second, CR 101 then APPROVED 102" 0 "{\"labels\":[],\"reviews\":[$cr101,$ap102]}"
+check "L2 same second, APPROVED 102 then CR 101" 0 "{\"labels\":[],\"reviews\":[$ap102,$cr101]}"
+
+ap101=$(review alice APPROVED $t1 MEMBER 101)
+cr102=$(review alice CHANGES_REQUESTED $t1 MEMBER 102)
+check "M1 same second, APPROVED 101 then CR 102" 1 "{\"labels\":[],\"reviews\":[$ap101,$cr102]}"
+check "M2 same second, CR 102 then APPROVED 101" 1 "{\"labels\":[],\"reviews\":[$cr102,$ap101]}"
 
 echo "merge-brake: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

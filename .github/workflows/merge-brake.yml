@@ -13,8 +13,9 @@ name: merge-brake
 # All decision logic lives in .github/scripts/merge-brake.sh, which
 # tests/merge-brake.sh covers without GitHub.
 #
-# Read-only token, no secrets, and the script never runs PR code: the checkout
-# is sparse and only the brake script is executed.
+# Read-only token, no secrets, and no PR code runs. The brake script comes
+# from the base commit, never from the PR, so a PR can't change the script to
+# pass. If the base commit has no script, the check fails closed.
 
 on:
   pull_request:
@@ -36,8 +37,11 @@ jobs:
       contents: read
       pull-requests: read
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - name: Check out the brake script from the base commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
           persist-credentials: false
           sparse-checkout: .github/scripts
       - name: Check the hold label and review state
@@ -45,10 +49,18 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           set -euo pipefail
+          brake=base/.github/scripts/merge-brake.sh
+          echo "base commit: ${BASE_SHA}"
+          if [ ! -f "$brake" ]; then
+            echo "::error title=merge-brake::the base commit has no .github/scripts/merge-brake.sh, so the brake fails closed"
+            exit 1
+          fi
+          echo "brake script sha256: $(sha256sum "$brake" | cut -d' ' -f1)"
           labels=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}" --jq '[.labels[].name]')
           reviews=$(gh api --paginate "repos/${REPO}/pulls/${PR_NUMBER}/reviews" | jq -s 'add // []')
           jq -n --argjson labels "$labels" --argjson reviews "$reviews" \
             '{labels: $labels, reviews: $reviews}' \
-            | .github/scripts/merge-brake.sh
+            | bash "$brake"
