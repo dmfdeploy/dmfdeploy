@@ -14,8 +14,9 @@ shelved, kept for provenance.
 - [DMF Internal Ansible Collection Source Plan 2026-05-29](DMF%20Internal%20Ansible%20Collection%20Source%20Plan%202026-05-29.md) — 2026-05-29
 - [DMF AWX Catalog Credential Type Migration Plan 2026-05-23](DMF%20AWX%20Catalog%20Credential%20Type%20Migration%20Plan%202026-05-23.md) — 2026-05-23
 
-## Draft (3)
+## Draft (4)
 
+- [DMF Closed-Loop Assurance Pattern Plan 2026-10-21](DMF%20Closed-Loop%20Assurance%20Pattern%20Plan%202026-10-21.md) — 2026-10-21
 - [DMF Facility Console — Born-Inventoried Env Surfacing Plan 2026-06-04](DMF%20Facility%20Console%20%E2%80%94%20Born-Inventoried%20Env%20Surfacing%20Plan%202026-06-04.md) — 2026-10-21
 - [DMF Media Workload Design Canvas Plan](DMF%20Media%20Workload%20Design%20Canvas%20Plan.md) — 2026-10-20
 - [DMF Console Shell Round 2 — Rail Band and Message Bus 2026-08-31](DMF%20Console%20Shell%20Round%202%20%E2%80%94%20Rail%20Band%20and%20Message%20Bus%202026-08-31.md) — 2026-08-31
