@@ -1,9 +1,11 @@
 ---
-status: draft
+status: historical
 date: 2026-07-17
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/245
 ---
 # DMF Marketplace Resource Model and Placement Grounded Roadmap (2026-07-17)
+
+> Historical reference. Status aligned with the backlog on 2026-10-21: a design-only roadmap; ADR-0047 landed, ADR-0045 is still Proposed, and tracker #245 stays open as platform-debt.
 
 > **STATUS: DRAFT — design-track roadmap; no implementation lands under this
 > doc.** Deliverable of umbrella

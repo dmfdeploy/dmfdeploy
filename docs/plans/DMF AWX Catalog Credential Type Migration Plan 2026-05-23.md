@@ -1,5 +1,5 @@
 ---
-status: draft
+status: active
 date: 2026-05-23
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/310
 ---
