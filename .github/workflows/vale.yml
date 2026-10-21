@@ -1,8 +1,14 @@
 name: vale
 
-# WARN mode: findings are reported, the job passes. The fixtures step proves
-# the project rules still fire (each bad fixture fails under the strict
-# config, each good twin passes). Enforcement is switched on later.
+# WARN mode for the whole tree: findings are reported, the job passes. The
+# fixtures step proves the project rules still fire (each bad fixture fails
+# under the strict config, each good twin passes). The Voice steps prove the
+# Voice rules against their own fixtures and a mutation test.
+#
+# One strict step: on a pull request, the Markdown files the PR touches must
+# have no error-level Voice alert (Contrast, EmDash). This blocks new
+# occurrences without a cleanup of the whole corpus first. See
+# bin/check-voice-changed.sh.
 
 on:
   pull_request:
@@ -14,6 +20,17 @@ on:
       - "ROADMAP.md"
       - "docs/decisions/**"
       - "docs/design/**"
+      - "docs/THESIS.md"
+      - "docs/JOURNEY.md"
+      - "docs/WORKING-MODEL.md"
+      - "docs/OPEN-QUESTIONS.md"
+      - "docs/GLOSSARY.md"
+      - "docs/INDEX.md"
+      - "docs/STYLE.md"
+      - "docs/templates/**"
+      - ".github/**/*.md"
+      - "bin/check-voice*.sh"
+      - "bin/mutate-voice.sh"
       - ".vale.ini"
       - ".vale/**"
       - ".github/workflows/vale.yml"
@@ -31,6 +48,8 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           persist-credentials: false
+          # The PR merge commit and its parents, for the changed-files step.
+          fetch-depth: 2
 
       - name: Install Vale
         env:
@@ -65,3 +84,14 @@ jobs:
             vale --config .vale/strict.ini "$good" >/dev/null \
               || { echo "::error::$good must pass"; exit 1; }
           done
+
+      - name: Check the Voice fixtures
+        run: bin/check-voice-fixtures.sh
+
+      - name: Mutation-test the Voice rules
+        run: bin/mutate-voice.sh
+
+      - name: Check the changed files (strict Voice)
+        if: github.event_name == 'pull_request'
+        # HEAD is the PR merge commit; its first parent is the base branch.
+        run: bin/check-voice-changed.sh HEAD^1 HEAD
