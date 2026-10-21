@@ -216,8 +216,8 @@ scripts/release.sh 0.6.0        # explicit
 1. Refuse if the working tree is dirty
 2. Refuse if `git tag v<NEW>` already exists
 3. Sync VERSION to all 5 derived files
-4. `git commit -m "release: v<NEW>"`
-5. `git tag -a v<NEW> -m "Release v<NEW>"`
+4. `git commit -s -m "chore(release): v<NEW>"`
+5. Tag only if you pass `--tag` (off by default; see below)
 6. Run `build-image.sh --no-push` (builds the image locally and tags it as
    `registry.dmf.example.com/dmf-cms:<NEW>` — that prefix is the *expected
    source* for `publish-to-ghcr.sh`; the image does not get pushed to Zot from
@@ -226,9 +226,14 @@ scripts/release.sh 0.6.0        # explicit
 After it finishes:
 
 ```bash
-# Push commit + tag to Forgejo
-git push origin HEAD
-git push origin v<NEW>
+# main is protected and merges are rebase-only: land the bump through a PR,
+# then tag the merged commit. Never push HEAD to main, never tag before the merge.
+git checkout -b release/<NEW> && git push -u origin release/<NEW>
+gh pr create --title "chore(release): v<NEW>" --body "Refs dmfdeploy/dmfdeploy#<N>"
+# ...after the merge:
+git fetch origin
+git tag -a v<NEW> -m "Release v<NEW>" origin/main   # origin/main, not local main
+git push origin v<NEW>    # one-shot: v* tags cannot be moved or deleted
 ```
 
 Then publish + mirror + deploy via §6.
