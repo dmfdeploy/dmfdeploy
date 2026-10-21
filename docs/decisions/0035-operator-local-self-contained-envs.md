@@ -78,20 +78,15 @@ wholesale; the resolver's legacy branch is retired.
   co-located per-env `.sops.yaml` also resolves the cloud-lane
   `bundle_sops_config_file` issue hardened earlier.
 
-## Alternatives considered
-
-- **Keep per-env artifacts in dmf-env, just fix the key mismatch.** Rejected —
-  leaves the removal friction, the identity-in-repo problem, and the shared-key
-  dances intact.
-- **Per-env keypair stored as files in a `0600` dir** (not the bundle). Rejected
-  — less aligned with the "secrets sops-encrypted at rest" policy and fragile on
-  WSL2/DrvFS, where `0600` is not preserved.
-- **Wizard runs `tofu apply` itself.** Rejected — resource creation / cost must
-  stay a deliberate, separate operator action.
-
-## Enforcement
+### Enforcement
 
 - Verification gate (per the refactor plan): `git -C dmf-env status` stays clean
   through create → apply → bootstrap → teardown.
 - `docs/plans/DMF Env Lifecycle Refactor Plan 2026-06-01.md` is the implementation
   plan; honors ADR-0031 (self-contained gate) + the secrets-discipline conventions.
+
+## Status
+
+Accepted
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0035-operator-local-self-contained-envs.md).
