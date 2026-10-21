@@ -123,7 +123,7 @@ Reconciling that answer with this ADR's promotion gates:
   mode. Its single binding constraint (no outbound dependency on
   `dmfdeploy.io`) is what `dmf-runbooks`, public registry pushes,
   `bin/scrub-public-repos.sh`, and the public-publish prep work all
-  enforce in practice today. The Mode-A "promote when…" gates above
+  enforce in practice today. The Mode-A "promote when…" gates in the Status section
   (B.4 boundary confirmation, B.3 unit-economics, ADR-0011 Mode B exit,
   GDPR role split, flypack reference platform) describe **Mode B / Mode C**
   promotion, not Mode A. Promoting Mode A does not require any of them.
@@ -131,14 +131,14 @@ Reconciling that answer with this ADR's promotion gates:
 - **Mode B (managed `dmfdeploy.io`) remains Proposed.** The B.1–B.4
   architectural constraints stand as the authoritative reference for any
   future managed-service work, but no Mode B work is in flight and no
-  ship date is committed. Promotion is gated on the original criteria 1–4
-  above and on a concrete managed-service driver (paying customer pilot,
+  ship date is committed. Promotion is gated on the original Status
+  criteria 1–4 and on a concrete managed-service driver (paying customer pilot,
   funded contract, or explicit dmfdeploy.io GmbH formation).
 
 - **Mode C (flypack) remains Proposed.** ADR-0022 (flypack-online thin
   edge) already split out the WAN-paired variant; flypack-offline (Mode C
   as originally framed) still awaits hardware-reference work. Promotion
-  is gated on criterion 5 above plus a named operator/integrator partner
+  is gated on Status criterion 5 plus a named operator/integrator partner
   for the sealed-hardware ceremony.
 
 **Mode B and Mode C may be split into their own ADRs** (numbers assigned
