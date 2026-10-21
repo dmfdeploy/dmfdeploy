@@ -35,12 +35,8 @@ reference architecture.
   orphan rebase and push-mirror refspec gate keep pre-publish history private.
 - `dmf-env` is public. Env material never enters a repository; it lives in the operator-local store (ADR-0035).
   Before you publish, run `bin/dmf-env-public-surface-gate.sh` from the umbrella root. It fails on unlisted paths, banned files, and identity leaks.
-- Write prose in the voice of [docs/STYLE.md](docs/STYLE.md). Run
-  `bin/check-voice.sh` on a draft before you open a PR, start an issue or a
-  discussion, or send text outside the project. An error-level alert is a
-  blocker, so fix it first. Warnings and suggestions are review prompts.
-- Edit docs here and code in the component repos. Do not move files between
-  component repos without checking.
+- Write in the [project voice](docs/STYLE.md). Run `bin/check-voice.sh` on every draft; errors block.
+- Edit docs here and code in the component repos. Check before you move files between repos.
 - Keep public text free of real IPs, hostnames, private repo names and env
   ids. Use `dmf.example.com` and `<placeholder-name>` values.
 - Author skills only in `.agents/skills/`. The `.claude/skills/` and
@@ -52,15 +48,12 @@ reference architecture.
 - Before you retrieve secrets, run cluster operations or release dmf-cms,
   read section 0 of the matching skill in `.agents/skills/`:
   `dmf-cluster-access`, `dmf-openbao-unseal` or `dmf-cms-build-and-release`.
-- Keep doc filenames verbatim. Do not rename a doc without sweeping the files
-  that refer to it.
-- Read the canonical doc in `docs/architecture/` before a decision that
-  depends on layer or vertical assumptions.
+- Keep doc filenames verbatim. Before you rename a doc, update every file that refers to it.
+- Before a decision that rests on layer or vertical assumptions, read the canonical doc in `docs/architecture/`.
 - Before you stop, record changes to shared state (cross-repo decisions,
   in-flight work) in the pinned Operator notes issue.
-- The agentic harness under `docs/agentic/` is mothballed. Its state files
-  (`backlog.yaml`, `decisions-open.md`, `issues.yaml`) are not live queues;
-  issues are the live backlog.
+- The agentic harness under `docs/agentic/` is mothballed. Its `backlog.yaml`,
+  `decisions-open.md` and `issues.yaml` are not live queues; issues are the backlog.
 
 <!-- vale off -->
 <!-- WORKING-MODEL-BLOCK-START — generated from umbrella docs/templates/working-model-block.md; do not edit copies, edit the template and run bin/check-working-model-sync.sh -->
