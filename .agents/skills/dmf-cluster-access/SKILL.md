@@ -288,6 +288,13 @@ bin/tf-render-inventory.sh    # regenerates hosts.ini from tofu state
 
 State lives at `<secure-store>/terraform-states/<env-name>/terraform.tfstate`.
 
+### 4.6 Manual operator restart (AWX divergence only)
+
+One sanctioned manual write sits outside the playbook path: restarting the
+`awx-operator-controller-manager` Deployment when the AWX resource is awake
+but `awx-web`/`awx-task` sit at zero. Follow
+[docs/runbooks/awx-operator-restart.md](../../../docs/runbooks/awx-operator-restart.md).
+
 ---
 
 ## 5. 🔴 DESTRUCTIVE / RECOVERY operations
