@@ -8,6 +8,8 @@
 #   B  live no hold, not draft                     -> arms
 #   C  live draft                                  -> skips
 #   D  API read fails                              -> does not arm, exits non-zero
+#   E  isDraft null or missing, labels not an array -> neither arms nor disarms,
+#      exits non-zero (a malformed reply fails closed)
 #
 # AUTOMERGE_YML overrides the workflow file (to run against an older copy).
 set -uo pipefail
@@ -64,6 +66,13 @@ if [ "$RC" = 0 ] && [ -z "$LOG" ]; then
 run_case '' 1
 if [ "$RC" != 0 ] && [[ "$LOG" != *"--auto --rebase"* ]]; then
   ok "D: failed API read does not arm"; else bad "D: read failure (rc=$RC log=[$LOG])"; fi
+
+for bad_json in '{"isDraft":null,"labels":[]}' '{"labels":[]}' \
+                '{"isDraft":false,"labels":"hold"}' '{"isDraft":false,"labels":[{"name":1}]}'; do
+  run_case "$bad_json"
+  if [ "$RC" != 0 ] && [ -z "$LOG" ]; then
+    ok "E: malformed reply $bad_json fails closed"; else bad "E: $bad_json (rc=$RC log=[$LOG])"; fi
+done
 
 echo "passed=$pass failed=$fail"
 [ "$fail" = 0 ]
