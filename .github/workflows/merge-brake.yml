@@ -1,9 +1,18 @@
 name: merge-brake
 
 # Fails while a pull request to main carries the "hold" label (umbrella
-# #439). Made a required check on main, it turns hold into a mechanical stop.
-# Auto-merge can stay armed, as it is by default; it can't fire while this
-# check is red.
+# #439). Made a required check on main, it blocks the merge: the check fails
+# on every label, push and edit event while "hold" is present, and no merge
+# can land once that run is registered. Auto-merge can stay armed; it can't
+# fire while this check is red.
+#
+# Residual window: GitHub dispatches this run after the label event, and the
+# earlier green result can still count until then. A PR that is already armed,
+# has every required check green and waits only on approval can still merge
+# if the approval lands in that short interval. automerge.yml has the same
+# lag. To leave no window, open the PR with the label (gh pr create --label
+# hold): the opened event then carries "hold", automerge.yml never arms, and
+# this check starts red.
 #
 # Why pull_request_target: it runs this workflow file and the brake script
 # from the base branch, never from the PR. Under pull_request a PR could
