@@ -119,3 +119,6 @@ secret_id.*
 __pycache__/
 *.pyc
 .gstack/
+
+# Vale Google style, fetched by `vale sync` (see .vale.ini); never committed
+.vale/styles/Google/
