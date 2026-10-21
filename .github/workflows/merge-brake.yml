@@ -1,0 +1,54 @@
+name: merge-brake
+
+# Fails while a pull request must not merge: it carries the "hold" label, or a
+# reviewer's latest decisive review is CHANGES_REQUESTED (umbrella #544,
+# #439). Made a required check on main, it turns both into a mechanical stop.
+# Auto-merge can stay armed, as it is by default; it simply cannot fire while
+# this check is red.
+#
+# It re-runs on every label and review change. Each run reads the labels and
+# reviews from the API at run time rather than from the event payload, so the
+# latest run always reflects the current state, whichever event started it.
+#
+# All decision logic lives in .github/scripts/merge-brake.sh, which
+# tests/merge-brake.sh covers without GitHub.
+#
+# Read-only token, no secrets, and the script never runs PR code: the checkout
+# is sparse and only the brake script is executed.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+  pull_request_review:
+    types: [submitted, dismissed]
+
+permissions: {}
+
+concurrency:
+  group: merge-brake-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  merge-brake:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+      - name: Check the hold label and review state
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          labels=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}" --jq '[.labels[].name]')
+          reviews=$(gh api --paginate "repos/${REPO}/pulls/${PR_NUMBER}/reviews" | jq -s 'add // []')
+          jq -n --argjson labels "$labels" --argjson reviews "$reviews" \
+            '{labels: $labels, reviews: $reviews}' \
+            | .github/scripts/merge-brake.sh
