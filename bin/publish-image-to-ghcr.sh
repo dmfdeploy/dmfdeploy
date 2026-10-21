@@ -156,4 +156,4 @@ for ns in $unique_ns; do
 done
 echo "  - Link new packages to source repos (Settings → Link a repository)."
 echo "  - Set visibility (Settings → Danger Zone → Change visibility)."
-echo "  - Record digests in release notes / STATUS.md."
+echo "  - Record digests in the release notes."
