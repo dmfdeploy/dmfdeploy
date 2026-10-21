@@ -5,7 +5,7 @@ CONTRIBUTING.md → "ADR conventions". -->
 
 **Status:** Proposed | Accepted | Superseded by ADR-NNNN | Deprecated
 **Date:** YYYY-MM-DD
-**Deciders:** @<handle>, [agent context if any]
+**Deciders:** @<handle>
 **Rule:** The single binding constraint, as one imperative sentence — what a reader must do or not do. (The decision in brief; the full rationale is below.)
 
 ## Context
@@ -23,12 +23,19 @@ What we decided. One paragraph. Make it crisp. State the rule, not the rationale
 - **Negative** — what we accept as cost
 - **Neutral** — what changes that's neither pro nor con
 
-## Alternatives considered
-
-Briefly: 1-2 alternatives we looked at and why we didn't pick them.
-
-## Enforcement
+### Enforcement
 
 How this decision is kept honest: which script checks it, which skill
 references it, which CI gate fails on violation. If "discipline only,"
 say so explicitly.
+
+## Status
+
+The status value from the metadata block, plus one line per amendment or
+supersession, with its date.
+
+Keep the ADR near 80 lines. Alternatives considered, deliberation, review
+notes and implementation plans go in a companion file at
+`docs/archive/decisions/<same-file-name>`. End this section with the sentence
+"Alternatives, deliberation and implementation detail for this decision are
+in the archive record." and make "archive record" a link to that file.
