@@ -1,0 +1,100 @@
+# ADR-0023 archive: Cross-app HTTP wiring uses cluster-internal service DNS, not public URLs
+
+This file holds material moved out of [ADR-0023](../../decisions/0023-internal-service-dns-for-cross-app-wiring.md) when the ADRs were cut to a short shape. The text is unchanged apart from headings and relative link paths. The ADR is the binding record; this file is history and is not maintained.
+
+## Context (continued)
+
+The internal-DNS path (`<svc>.<ns>.svc.cluster.local:<port>`) is:
+
+- Resolved by CoreDNS — works the moment the service object exists
+- Independent of external DNS, certs, ingress, MetalLB, public domain
+- Identical across every env — no per-env URL override needed
+- Already the working pattern in places (NetBox→Forgejo datasource sync
+  uses `forgejo-http.forgejo.svc.cluster.local:3000` after fix `07d0e00`)
+
+Today's read-only survey on `aliyun-123` confirmed that the affected apps
+accept internal hostnames (NetBox `ALLOWED_HOSTS` permissive; AWX nginx
+permissive; Forgejo unproblematic):
+
+- `http://netbox.netbox.svc.cluster.local:80/api/` → 200
+- `http://forgejo-http.forgejo.svc.cluster.local:3000/api/...` → 401 (auth-aware)
+- `http://awx-service.awx.svc.cluster.local:80/api/v2/ping/` → 200
+
+## Future direction
+
+The caller-location split exists only because configure-stage ansible
+runs on the control-node target instead of inside the cluster. A
+companion workstream (planning in a follow-up session, 2026-05-14)
+will design an **in-cluster ansible execution pod** that runs all
+configure-stage playbooks from within the cluster. Once that lands:
+
+- Configure-stage `uri:` tasks resolve DNS via CoreDNS → internal
+  service DNS works everywhere
+- The Scope table above collapses to "internal everywhere, public
+  only for user-facing flows"
+- The `*_host`-derivation pattern in ADR-0023-applying code becomes
+  a transitional artifact; defaults can switch to `http://<svc>.<ns>
+  .svc.cluster.local:<port>` uniformly
+
+That migration is **not blocked on** the current `*_host` pattern —
+they coexist cleanly. When the runner-pod lands, defaults flip in a
+follow-up commit per file.
+
+### 2026-05-19 update — realisation in progress under ADR-0025
+
+The in-cluster ansible execution pod is now being delivered as **Lane C** of
+the converged plan
+[`docs/plans/DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md`](../../plans/DMF%20Cluster-Internal%20Ansible%20Execution%20and%20Catalog%20Helm%20Pivot%20Plan%202026-05-19.md).
+The pod shares its EE image with the AWX-driven catalog-launcher pods
+(Lane B), so the caller-location split collapses for both bootstrap-configure
+and catalog-launch transports simultaneously. The Scope table will be
+simplified to "internal everywhere; public only for user-facing flows" when
+Lane C Phase 4 gate passes. Tracked as a follow-up amendment to this ADR.
+
+## Alternatives considered
+
+1. **Continue public-URL defaults.** Status quo. Failure mode is the
+   2026-05-13/14 session: fragile, requires per-env DNS coordination,
+   accumulates `-e` flags. Rejected.
+
+2. **Tailscale MagicDNS / private DNS overlay.** Still external from
+   the cluster's perspective; adds operator setup burden; doesn't help
+   during bootstrap before Tailscale is wired. ADR-0019 already documents
+   Tailscale's role for *operator* access, not app↔app traffic.
+
+3. **Raw ClusterIPs.** Brittle — ClusterIPs change on service re-create
+   and aren't stable across envs. k8s service DNS is the right
+   abstraction; ClusterIP is implementation detail.
+
+4. **Service mesh (linkerd/istio) with mTLS.** Architecturally cleaner
+   for production but too much surface for the experiment phase
+   (ADR-0004). Internal plain-HTTP via service DNS is the right
+   stop-gap until a service-mesh decision is made.
+
+## Context — failed runs and the bootstrap-time dependency chain (moved from the ADR)
+
+- Run 5 / `691-netbox-sot`: NetBox datasource pointed at `forgejo.dmf.example.com`
+  (the prose placeholder per CLAUDE.md scrub convention) — never resolved.
+  Fixed by `dmf-infra@7b006ee` (PATCH `source_url` to internal service DNS).
+- Run 9 / `697-cms-awx-token`: worked, but only because `awx_host` happened to
+  be defined in the env inventory; the role default would have hit the
+  same `dmf.example.com` trap.
+- Run 10 / `698-cms-netbox-forgejo-tokens`: defaults `cms_netbox_api_url |
+  default('https://netbox.dmf.example.com')` and `cms_forgejo_api_url |
+  default('https://forgejo.dmf.example.com')` — NXDOMAIN on the public default.
+
+Beyond DNS, public URLs at bootstrap time depend on a full chain that
+isn't yet warm:
+
+1. External DNS A/CNAME records for the env's domain
+2. cert-manager has issued a valid Let's Encrypt cert
+3. MetalLB has announced the ingress VIP
+4. Traefik/nginx-ingress is healthy and has the route
+5. Any L4/L7 firewall allows the public→ingress path
+
+## Enforcement — survey and migration tracking bullet (moved from the ADR)
+
+- Survey + migration tracked in
+  `docs/plans/DMF Internal Service DNS Migration Survey 2026-05-14.md`
+  — produces a per-file diff inventory of remaining public-URL
+  cross-app defaults to migrate.

@@ -42,60 +42,13 @@ This means:
 - **Break-glass/admin users** (akadmin, break-glass): use the Authentik
   admin UI directly or the shared default flow for other apps
 
-The blueprint change is in `20-app-providers.yaml.j2`:
-```diff
-       authentication_flow: !Find [authentik_flows.flow, [slug, dmf-passkey-login]]
-```
-
 Other apps (Forgejo, NetBox, Grafana, LibreNMS, Zot, AWX) continue to use
 `default-authentication-flow` — they retain the username+password option
 for service accounts and non-passkey users.
 
-## Consequences
+### Amendment 2026-05-29 — brand-wide passkey-first
 
-### Positive
-- **Smooth UX**: DMF Console login matches the Pocket-ID model — one click,
-  browser passkey popup, done. No username field, no password field.
-- **Security**: passkey-only removes the password attack surface entirely
-  for the operator console.
-- **Declarative**: the blueprint is idempotent; re-running 110-authentik.yml
-  won't revert the change.
-
-### Negative / Trade-offs
-- **No password fallback**: `not_configured_action: deny` means users
-  without a registered passkey cannot log in at all. The enrollment path
-  (`/api/admin/invitations` → passkey enrollment flow) must work reliably.
-- **Admin break-glass**: `akadmin` and `break-glass` users cannot log in
-  via the DMF Console OIDC flow. This is intentional — admin users access
-  the console via the Authentik admin UI or other mechanisms.
-- **Other apps unchanged**: this is DMF Console only. Other apps still
-  use `default-authentication-flow` with username+password+passkey.
-
-## Alternatives considered
-
-### A1 — Keep `default-authentication-flow` but remove the password stage
-Would require modifying the shared flow, affecting all apps. Rejected
-because other apps (AWX, NetBox, etc.) need password fallback for
-service accounts and non-passkey users.
-
-### A2 — Create a new identification stage with no `user_fields`
-Authentik's identification stage requires at least one user_field;
-setting it empty causes the stage to error. Rejected — the framework
-doesn't support this pattern.
-
-### A3 — Use `default-authentication-flow` with a policy binding
-Could add a policy to skip the identification stage for DMF Console
-users, but this adds complexity and fragility. The dedicated flow is
-cleaner and matches Authentik's intended pattern for passkey-only apps.
-
-## Amendment 2026-05-29 — brand-wide passkey-first
-
-The original decision scoped passkey-only to the DMF Console alone; every
-other app (Forgejo, AWX, NetBox, LibreNMS, Grafana, Zot) and the Authentik
-portal itself still defaulted to `default-authentication-flow`, which renders
-a username form before the WebAuthn popup. The operator found this friction
-(username prompt before the passkey picker) unacceptable for the whole brand,
-not just the console, and chose to extend the posture **platform-wide**.
+Problem statement: see the [archive record](../archive/decisions/0015-dmf-console-passkey-only.md).
 
 **Extended posture:** the DMF platform is **passkey-first across the brand**.
 The Authentik portal and every app's SSO redirect land directly on the passkey
@@ -143,9 +96,28 @@ brand-wide. See `docs/archive/plans/DMF Authentik Brand-Wide Passkey-First Login
 2026-05-28.md` (enrollment-flow username prompt) is a distinct, unimplemented
 item and is **not** affected by this change.
 
-## Amendment 2026-06-12 — cosmetic normalization (no decision change)
+## Consequences
 
-Converted the YAML frontmatter to the standard `**Status:**` / `**Date:**` /
-`**Deciders:**` header, switched the em-dash title to the `ADR-NNNN:` form, and
-reworded the self-referential "ADR-0015 precursor". Closes the §5 format nit in
-the [2026-05-27 ADR Portfolio Review](../reviews/DMF%20ADR%20Portfolio%20Review%202026-05-27.md).
+### Positive
+- **Smooth UX**: DMF Console login matches the Pocket-ID model — one click,
+  browser passkey popup, done. No username field, no password field.
+- **Security**: passkey-only removes the password attack surface entirely
+  for the operator console.
+- **Declarative**: the blueprint is idempotent; re-running 110-authentik.yml
+  won't revert the change.
+
+### Negative / Trade-offs
+- **No password fallback**: `not_configured_action: deny` means users
+  without a registered passkey cannot log in at all. The enrollment path
+  (`/api/admin/invitations` → passkey enrollment flow) must work reliably.
+- **Admin break-glass**: `akadmin` and `break-glass` users cannot log in
+  via the DMF Console OIDC flow. This is intentional — admin users access
+  the console via the Authentik admin UI or other mechanisms.
+- **Other apps unchanged**: this is DMF Console only. Other apps still
+  use `default-authentication-flow` with username+password+passkey.
+
+## Status
+
+Accepted
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0015-dmf-console-passkey-only.md).

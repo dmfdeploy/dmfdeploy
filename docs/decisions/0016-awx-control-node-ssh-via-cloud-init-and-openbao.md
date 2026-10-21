@@ -30,14 +30,7 @@ during Move 1 Gate 2 (see `docs/plans/Move 1 Gate 2 — Trials and Tribulations
    `/etc/rancher/k3s/k3s.yaml`. Matches every other 69x playbook's execution
    model (which `bin/run-playbook.sh` already drives that way).
 
-The Gate 2 spike attempted (1) under `connection: local`, hit a string of
-issues (custom EE not available, in-cluster auth requires `default(omit)`,
-ServiceAccount RBAC absent), then attempted (2) but produced an ADR-0007
-violation: a real ed25519 private key was committed in plaintext to
-`awx-integration/defaults/main.yml` "for Gate 2 spike." The incident is
-documented in
-`docs/reviews/dmf-move1-gate2-ssh-credential-incident-2026-05-05.md` and
-triggered a complete cluster redeploy (Path Y).
+Problem statement and evidence: see the [archive record](../archive/decisions/0016-awx-control-node-ssh-via-cloud-init-and-openbao.md).
 
 After redeploy, the question of which execution model AWX should use must be
 answered with a sanctioned mechanism, not another spike.
@@ -76,6 +69,41 @@ run k8s ops from the EE pod without SSH (e.g., for GitOps alignment), a
 custom EE + RBAC stack can be added as a Move 2 capability project. That work
 is its own ADR.
 
+### Amendments
+
+#### 2026-05-23 — Fully superseded for media catalog launchers (ADR-0025)
+
+Fully superseded for `media-*` JTs (ADR-0025 Accepted 2026-05-23).
+All catalog launchers now execute in-cluster via the AWX EE pod.
+SSH-to-control-node remains canonical for 693-class infra plays only.
+The Lane B band-aid at `launch-nmos-cpp.yml:28-34` (Hetzner-only private-IP
+`set_fact`) is removed.
+
+#### 2026-05-19 — Partially superseded for media catalog launchers (ADR-0025)
+
+**Scope of supersession:** AWX Job Templates whose name matches `media-*`
+(e.g. `media-launch-nmos-cpp`, `media-finalise-nmos-cpp`).
+
+**What changes:** §Decision item 4 (`Launcher playbooks target
+device_roles_k3s-control-plane[0] from the NetBox inventory ... with
+become: true`) no longer applies to media JTs. Those JTs now run in an
+AWX Execution Environment pod inside the cluster, using a custom EE image
+hosted in cluster-internal Zot, and deploy workloads via Helm charts
+rather than `kubernetes.core.k8s` over SSH.
+
+**What stays:** Path A remains canonical for **AWX → infrastructure
+plays** — the 693-class playbooks (`awx-integration`,
+`netbox-sot`, `forgejo-bootstrap`, etc.) that target the control node
+directly via the NetBox-supplied inventory. The Machine credential, the
+cloud-init pubkey wiring, and the OpenBao privkey storage all remain in
+place and continue to be used by those plays.
+
+Reason and evidence: see the [archive record](../archive/decisions/0016-awx-control-node-ssh-via-cloud-init-and-openbao.md).
+
+**See:** [ADR-0025](0025-ansible-in-cluster-pods-and-catalog-helm.md) and
+the convergence plan
+[`docs/plans/DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md`](../plans/DMF%20Cluster-Internal%20Ansible%20Execution%20and%20Catalog%20Helm%20Pivot%20Plan%202026-05-19.md).
+
 ## Consequences
 
 - **Positive** — the launcher inherits the existing 69x execution model. No
@@ -104,26 +132,7 @@ is its own ADR.
   (private/internal, not a Hetzner public IP that the EE pod cannot egress
   to). Verified during Phase 9 of the redeploy.
 
-## Alternatives considered
-
-- **EE-as-runtime with custom EE.** Closer to native AWX-on-Kubernetes and
-  GitOps patterns. Defers to a future ADR: requires `ansible-builder` workflow,
-  Zot hosting, ExecutionEnvironment resource, ServiceAccount + RoleBinding,
-  awx-operator config to inject the SA into ephemeral EE pods, and
-  `kubeconfig: "{{ kubeconfig | default(omit) }}"` plumbing in every k8s
-  task. Substantially more infrastructure than Path A; the right answer when
-  the platform has more than one media function in production but overkill
-  for the experiment phase (ADR-0004).
-- **kubectl shell-out.** Replace `kubernetes.core.k8s` with `command: kubectl
-  apply -f -` in role tasks. Default EE has `kubectl`; no Python package
-  needed. Loses idempotency-by-diff and adds YAML-rendering boilerplate.
-  Acceptable as an emergency unblock, not a sustained pattern.
-- **Embed private key in role defaults "for Gate 2 spike."** Tried during the
-  incident. Violates ADR-0007 §1, leaks via tracked file in a public repo,
-  and requires a complete cluster redeploy to remediate. Not an alternative;
-  a cautionary example.
-
-## Enforcement
+### Enforcement
 
 - **`awx-integration` role** is the single place that reads
   `secret/apps/awx/control_node_ssh` and creates the AWX Machine credential.
@@ -140,61 +149,8 @@ is its own ADR.
   reverting to `connection: local`). Discipline + launcher-playbook review at
   PR time.
 
-## References
+## Status
 
-- Incident review:
-  `docs/reviews/dmf-move1-gate2-ssh-credential-incident-2026-05-05.md`
-- AWX EE review:
-  `docs/reviews/dmf-move1-gate2-awx-ee-review-2026-05-05.md`
-- Trials doc: `docs/plans/Move 1 Gate 2 — Trials and Tribulations 2026-05-05.md`
-- ADR-0007 (secrets never in argv/env/tmp/transcripts)
-- ADR-0008 (OpenBao + ESO + AppRole shim)
-- ADR-0010 (`bin/run-playbook.sh` is the sanctioned entry)
-- ADR-0014 (AWX project layout)
-- Cloud-init template: `dmf-env/terraform/modules/hetzner-cluster/templates/user-data.yml.tftpl`
-- Reference impl for stdin secret transport: `dmf-env/bin/unseal-openbao.sh`
-- Reference impl for OpenBao read pattern:
-  `dmf-infra/k3s-lab-bootstrap/roles/stack/operator/forgejo-bootstrap/tasks/main.yml`
-  (lines around 467–522, 230–261)
+Partially superseded by ADR-0025 (canonical for `media-*` JTs; still authoritative for AWX→infrastructure plays)
 
-## Amendments
-
-### 2026-05-23 — Fully superseded for media catalog launchers (ADR-0025)
-
-Fully superseded for `media-*` JTs (ADR-0025 Accepted 2026-05-23).
-All catalog launchers now execute in-cluster via the AWX EE pod.
-SSH-to-control-node remains canonical for 693-class infra plays only.
-The Lane B band-aid at `launch-nmos-cpp.yml:28-34` (Hetzner-only private-IP
-`set_fact`) is removed.
-
-### 2026-05-19 — Partially superseded for media catalog launchers (ADR-0025)
-
-**Scope of supersession:** AWX Job Templates whose name matches `media-*`
-(e.g. `media-launch-nmos-cpp`, `media-finalise-nmos-cpp`).
-
-**What changes:** §Decision item 4 (`Launcher playbooks target
-device_roles_k3s-control-plane[0] from the NetBox inventory ... with
-become: true`) no longer applies to media JTs. Those JTs now run in an
-AWX Execution Environment pod inside the cluster, using a custom EE image
-hosted in cluster-internal Zot, and deploy workloads via Helm charts
-rather than `kubernetes.core.k8s` over SSH.
-
-**What stays:** Path A remains canonical for **AWX → infrastructure
-plays** — the 693-class playbooks (`awx-integration`,
-`netbox-sot`, `forgejo-bootstrap`, etc.) that target the control node
-directly via the NetBox-supplied inventory. The Machine credential, the
-cloud-init pubkey wiring, and the OpenBao privkey storage all remain in
-place and continue to be used by those plays.
-
-**Reason:** the first media-launcher run on `aliyun-123` (AWX job 44,
-2026-05-17) failed with `UNREACHABLE!` because
-`dmf-runbooks/playbooks/launch-nmos-cpp.yml:28-34` hardcoded the Hetzner
-private subnet (`10.0.0.4/3/2`); aliyun-123's private subnet is
-`10.0.0.40-42`. The `ansible_host` remap is a symptom — the deeper issue
-is that the launcher is using SSH-to-control-node for a workload that
-has nothing node-local about it. Each new env adds another per-env band-aid
-unless the SSH hop is removed for this class of work.
-
-**See:** [ADR-0025](0025-ansible-in-cluster-pods-and-catalog-helm.md) and
-the convergence plan
-[`docs/plans/DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md`](../plans/DMF%20Cluster-Internal%20Ansible%20Execution%20and%20Catalog%20Helm%20Pivot%20Plan%202026-05-19.md).
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0016-awx-control-node-ssh-via-cloud-init-and-openbao.md).
