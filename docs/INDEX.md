@@ -42,7 +42,7 @@ verbatim (docs cross-reference each other by display name).
 - [plans/INDEX.md](plans/INDEX.md) — by `bin/generate-plans-index.sh` (frontmatter-driven)
 - [SCRIPTS.md](SCRIPTS.md) — by `bin/generate-scripts-catalog.sh`
 - `../STATUS.local.md` — by `bin/generate-status.sh` (local operator/agent dashboard, gitignored)
-- [../STATUS.md](../STATUS.md) — committed operator notes embedded into the local dashboard
+- [../STATUS.md](../STATUS.md) — pointer file; operator notes live in the pinned issue [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618)
 
 Live backlog: [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues) ·
 [project board](https://github.com/orgs/dmfdeploy/projects/1) ·

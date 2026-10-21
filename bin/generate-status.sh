@@ -2,10 +2,10 @@
 # generate-status.sh — regenerate STATUS.local.md at the umbrella root.
 #
 # Auto-derives the parts that come from `git log` / `git status` / `git fetch`
-# across all 9 repos (umbrella + 8 components). Preserves a hand-edited
-# section from committed STATUS.md between <!-- HUMAN-START --> and
-# <!-- HUMAN-END --> markers so operators can record in-flight work,
-# pending decisions, etc. without committing volatile repo-state tables.
+# across all 9 repos (umbrella + 8 components). Copies the
+# section between <!-- HUMAN-START --> and <!-- HUMAN-END --> markers from
+# committed STATUS.md, which is a pointer to the operator-notes issue,
+# without committing volatile repo-state tables.
 #
 # Usage:
 #   bin/generate-status.sh                # regenerate STATUS.local.md (default)
@@ -331,8 +331,8 @@ compose_status() {
 # DMF Status
 
 _Auto-generated $timestamp by \`bin/generate-status.sh\`. This local snapshot is gitignored._
-_The committed [STATUS.md](STATUS.md) contains only hand-edited operator notes;
-run this generator when you need the live repo-state snapshot._
+_The committed [STATUS.md](STATUS.md) is a pointer file; operator notes live in the pinned issue [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618).
+Run this generator when you need the live repo-state snapshot._
 
 For decisions, see [docs/decisions/](docs/decisions/INDEX.md).
 For active task spec, see the most recent file in [docs/plans/](docs/plans/).
@@ -374,7 +374,7 @@ EOF
 
     cat <<EOF
 
-## Operator notes (hand-edited — preserved across regenerations)
+## Operator notes (pointer; notes live in #618)
 
 EOF
     extract_human_section
@@ -388,8 +388,8 @@ EOF
 this local snapshot, read the tracking issue you are claiming (comments
 included — the live handoff surface; \`docs/handoffs/\` is a frozen archive), run
 \`git status\` in any component repo (\`../dmf-*\`) you're about to touch, and
-ask the user before modifying any component repo with dirty state. Edit
-committed \`STATUS.md\` only for hand-maintained operator notes.
+ask the user before modifying any component repo with dirty state. Post
+operator notes as comments on the pinned issue #618; do not edit committed \`STATUS.md\`.
 EOF
 }
 
@@ -405,7 +405,7 @@ compose_digest() {
 # DMF Status — digest
 
 _Auto-generated $timestamp by \`bin/generate-status.sh\` (gitignored). Short boot-read;_
-_open [STATUS.local.md](STATUS.local.md) for recent activity + the full operator notes._
+_open [STATUS.local.md](STATUS.local.md) for recent activity; operator notes live in #618._
 
 ## Repo state
 
@@ -424,7 +424,7 @@ EOF
     collect_active_plans
 
     notes_lines="$(extract_human_section | wc -l | tr -d ' ')"
-    printf '\n## Operator notes — head (full %s-line section in STATUS.local.md)\n\n' "$notes_lines"
+    printf '\n## Operator notes (pointer; see #618; %s lines in STATUS.local.md)\n\n' "$notes_lines"
     extract_human_section | head -40
 
     printf '\n---\n_Digest only. Boot ritual: read this; open STATUS.local.md by section on demand._\n'

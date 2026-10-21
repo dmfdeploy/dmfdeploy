@@ -49,7 +49,7 @@ BackupTarget.
 **Document role:** Canonical DMF architecture and phased work plan.
 
 **Related active docs:**
-- `STATUS.local.md` (umbrella root, gitignored) — live cross-repo state, refreshed by `bin/generate-status.sh`; committed `STATUS.md` keeps operator notes
+- `STATUS.local.md` (umbrella root, gitignored) — live cross-repo state, refreshed by `bin/generate-status.sh`; operator notes live in the pinned issue [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618)
 - `docs/handoffs/` — most recent file is the canonical "what just happened / what's next"
 - `docs/plans/dmf-platform-move-1-task-2026-05-04.md` — current active task spec
 - `docs/decisions/INDEX.md` — ADRs (especially 0012/0013/0014/0016 for the catalog model)
