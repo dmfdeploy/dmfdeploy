@@ -16,6 +16,7 @@ verbatim (docs cross-reference each other by display name).
 | [decisions/INDEX.md](decisions/INDEX.md#start-here) | Which core ADRs to read, in what order? (★ Start here) |
 | [CORRECTIONS.md](CORRECTIONS.md) | What has the project said in public that was wrong, and what is right? |
 | [WORKING-MODEL.md](WORKING-MODEL.md) | How work is tracked — Issues/milestones/board/Discussions + documentation rules (canonical, enforced) |
+| [STYLE.md](STYLE.md) | How should project prose read, and which Vale rules check it? |
 
 ## Directories
 
