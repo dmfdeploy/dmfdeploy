@@ -66,21 +66,16 @@ UI uncluttered while the heavy lifting stays canonical.
   playbooks fail at role-resolution time, not at job-template-create
   time, so misconfigurations surface late.
 
-## Alternatives considered
-
-- **Option A — single `dmf-runbooks` repo with role copies.** Rejected
-  — role drift across copies becomes unmanageable as the catalog grows
-  beyond the first few entries.
-- **Option B — one project per source repo, no `dmf-runbooks` layer.**
-  Rejected — operator-facing audit needs a thin launcher layer; raw
-  role-invocation from an AWX job template makes the operator-facing
-  diff harder to review and conflates "what's published for operator
-  use" with "what's available in the source tree".
-
-## Enforcement
+### Enforcement
 
 The Move 1 task spec implements the first multi-project AWX setup
 (`dmf-runbooks` + `dmf-media` + `dmf-infra`). The
 `awx-integration` role evolves to manage multiple projects rather than
 one. Documented in `docs/architecture/DMF Function Catalog Model.md`
 §"AWX wiring".
+
+## Status
+
+Accepted
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0014-awx-project-layout.md).

@@ -142,31 +142,7 @@ v2, but only enables the ship-now subset until deferred roles land.
     or is a separate role is an implementation question, not an
     architecture decision.
 
-## Alternatives considered
-
-- **Sovereign-with-hub** (round-1 decision #2 in the wizard survey).
-  Defined flypack-online as a peer holding its own identity/secrets
-  with telemetry/config sync to a hub. Rejected because (a) it
-  duplicated the offline-lane spec at higher operational cost, (b) the
-  operator's clarified intent is a thin edge, not a federated peer,
-  and (c) OpenBao OSS does not provide Vault Enterprise-style
-  performance-replica federation, so embedded-secrets-with-sync was
-  non-trivial to build. **Superseded by this ADR.**
-
-- **Thick mirror at the edge** — full DMF stack at the edge plus
-  bidirectional sync to hub. Rejected because the resource envelope
-  at edge sites (RPi-class to 1U mini-server class) does not
-  accommodate a full stack, and because bidirectional sync of
-  OpenBao + Authentik + NetBox + AWX is an entire research project.
-
-- **Drop flypack-online entirely** — support only `cloud` and
-  `flypack-offline`. Rejected because the broadcast-facility use case
-  the operator described (local provisioning, local L2 control,
-  local boot-image caching, local data plane) is real and served by
-  neither of the other two profiles. Cloud is too far for L2;
-  flypack-offline is too thick for low-touch edge sites.
-
-## Enforcement
+### Enforcement
 
 - This ADR is the canonical reference for what `flypack-online` means.
   Any code in `dmf-infra` defaults, `dmf-cms` UI, wizard renderers, or
@@ -184,6 +160,10 @@ v2, but only enables the ship-now subset until deferred roles land.
   reading is *"no central reach for flypack-offline; flypack-online is
   governed by ADR-0022."*
 
+## Status
+
+Proposed
+
 Promote from **Proposed** → **Accepted** when:
 
 1. The wizard v2 implementation (per step-4 spike) produces a working
@@ -196,3 +176,5 @@ Promote from **Proposed** → **Accepted** when:
    has paired to a hub and run an end-to-end AWX execution job
    through Receptor + a Zot pull-through cache hit + a `remote_write`
    metrics scrape, all without local OpenBao or Authentik.
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0022-flypack-online-thin-edge-agent.md).

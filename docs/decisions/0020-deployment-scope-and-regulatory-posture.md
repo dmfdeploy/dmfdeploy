@@ -1,4 +1,4 @@
-## ADR-0020: Deployment scope and regulatory posture — three named modes
+# ADR-0020: Deployment scope and regulatory posture — three named modes
 
 **Status:** Accepted (Mode A); Proposed (Mode B, Mode C)
 **Date:** 2026-05-11
@@ -23,17 +23,7 @@ collapsed into a single posture without producing one of two failure modes:
 - **Over-build:** apply managed-service controls to the lab and OSS modes,
   stalling experimentation under audit weight
 
-The three modes are also not equivalent in terms of which EU regulatory
-regimes attach: as of May 2026, **NIS2 Implementing Regulation (EU)
-2024/2690** (17 Oct 2024) sets a technical floor for *managed service
-providers* under Annex I §8; the Directive itself
-([Directive (EU) 2022/2555](https://eur-lex.europa.eu/eli/dir/2022/2555/oj))
-imposes 24h / 72h / 1-month incident-reporting on essential and
-important entities; GDPR Art. 28 processor obligations attach the
-moment dmfdeploy.io processes customer-hub data on a customer's behalf.
-Mode B also creates controller obligations for dmfdeploy.io's own
-account, billing, support, security-log, and vulnerability-intake data.
-None of this attaches to a clone-and-self-host user.
+Regulatory background: see the [archive record](../archive/decisions/0020-deployment-scope-and-regulatory-posture.md).
 
 ## Decision
 
@@ -123,102 +113,9 @@ breach assessment.
    it does so via an explicitly-installed customer-side relay; the
    flypack must function disconnected.
 
-## Consequences
+### Amendment 2026-05-23 — Mode A Accepted; Modes B and C remain Proposed
 
-- **Positive**
-  - Every downstream compliance question now has a "for which mode?"
-    answer instead of a deferred decision.
-  - The "experiment phase" stance (ADR-0004) can continue to apply to
-    Mode A development while Mode B and Mode C accrue their own
-    readiness gates.
-  - The customer-conversation boundary is explicit: managed = attested
-    + supported, self-host = framework-provided + as-is, flypack =
-    Mode B obligations plus portable-media controls.
-- **Negative**
-  - More artifacts to maintain (three terms documents, three trust
-    packages eventually).
-  - The cluster-per-tenant decision (B.3) commits us to higher
-    per-tenant cost than a multi-tenant SaaS would; this is a
-    deliberate trade for clean compliance blast-radius and is binding.
-  - Mode B and Mode C *require* compliance work to ship; cannot be
-    deferred indefinitely the way Mode A can.
-  - Mode B requires retiring or superseding the ADR-0011 auto-unseal
-    tradeoff for customer hubs; the current experiment-phase automation
-    quorum must not become a managed-service security claim.
-- **Neutral**
-  - Adopts the GitLab / Sentry / Coder / Replicated multi-modal model
-    rather than the Elastic / Redis pure-OSS-plus-cloud model. The
-    distinction is enforced via external-service gating (see B.4),
-    chosen to avoid Elastic-style relicensing fights.
-  - Mode A is what is currently being prepared for the github.com push
-    per the 2026-05-07 Public Publish Readiness handoff; this ADR
-    formalizes the implicit posture.
-
-## Alternatives considered
-
-- **Single posture ("we are a managed service")** — over-applies NIS2
-  MSP controls to the OSS lab work, kills experiment-phase velocity,
-  and forces the cluster-per-tenant decision before it's needed in Mode
-  A. Rejected.
-- **Single posture ("we are OSS only, refer customers elsewhere")** —
-  forgoes the dmfdeploy.io revenue plan and the flypack differentiation;
-  the strategic review's career-credibility goal is met but the product
-  ceiling is low. Rejected.
-- **Open-core (managed features in a private repo)** — works
-  commercially but creates an "are you really OSS?" conversation we
-  don't need at v0.1.0. Rejected in favour of external-service-gated
-  managed features (B.4).
-- **Multi-tenant shared cluster for Mode B** — better unit economics,
-  worse compliance blast-radius, and incompatible with the existing
-  Authentik-per-cluster / `dmf-central` posture. Rejected.
-
-## Enforcement
-
-This ADR binds three things; each has a different enforcement path:
-
-- **Mode A "no outbound to dmfdeploy.io" constraint:** enforced by
-  `bin/check-public-repo-hygiene.sh` (per the Release & Contribution
-  Model implementation plan, Phase 2) — extend it to grep for
-  `dmfdeploy.io` in public-repo manifests, defaults, and Helm values
-  and fail on hit. Until that script lands, discipline-only.
-- **Mode B architectural constraints (B.1–B.4):** enforced by ADRs that
-  follow once Mode B implementation starts; until then, this ADR is the
-  authoritative reference. No code in `dmf-central` or the umbrella may
-  contradict B.1–B.4 without superseding this ADR. The first Mode B
-  implementation ADR must explicitly close the ADR-0011 auto-unseal
-  gap and include a GDPR controller/processor role matrix.
-- **Mode C architectural constraints (C.1–C.4):** enforced by the
-  flypack readiness checklist (Tier C of the
-  [Pre-Release Compliance Readiness Plan](../plans/DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md)).
-  No flypack ships without that checklist clean.
-
-Reference downstream:
-
-- [`docs/plans/DMF Pre-Release Compliance Readiness Plan 2026-05-11.md`](../plans/DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md)
-- [`docs/processes/pre-release-compliance-checklist.md`](../processes/pre-release-compliance-checklist.md)
-- [`dmf-infra/docs/security-compliance-framework-plan.md`](../../dmf-infra/docs/security-compliance-framework-plan.md) (amended to point here)
-
-Promote from **Proposed** → **Accepted** when:
-
-1. The OSS-vs-managed boundary (B.4) has been confirmed by the operator
-   as the chosen pattern (alternatives explicitly rejected above).
-2. The cluster-per-tenant constraint (B.3) has survived a unit-economics
-   sanity check.
-3. The ADR-0011 auto-unseal tradeoff has a named Mode B exit path
-   (HA OpenBao, customer-side ceremony, or another design that keeps
-   Shamir quorum material outside dmfdeploy.io custody).
-4. The GDPR role split has a first-pass matrix: dmfdeploy.io as
-   processor for customer-hub data and controller for its own account,
-   billing, support, security-log, and vulnerability-intake data.
-5. The flypack hardware story (C.1–C.4) has at least one identified
-   reference platform (TPM-equipped mini-PC class).
-
-## Amendment 2026-05-23 — Mode A Accepted; Modes B and C remain Proposed
-
-The operator answered the `adr-0020-promote` seed gate on 2026-05-12 with:
-
-> *"Mode A only. Experiment phase; no managed-service or flypack partner
-> yet. B and C become future ADRs when there's a concrete driver."*
+Operator answer and reconciliation lead-in: see the [archive record](../archive/decisions/0020-deployment-scope-and-regulatory-posture.md).
 
 Reconciling that answer with this ADR's promotion gates:
 
@@ -257,7 +154,7 @@ and alternatives sections lean on.
 > Unseal Posture. Do not infer Mode B/C ADR numbers from this section;
 > they will be numbered when written.
 
-### What flips on 2026-05-23 promotion of Mode A
+#### What flips on 2026-05-23 promotion of Mode A
 
 - Mode-A enforcement (`bin/check-public-repo-hygiene.sh` /
   `bin/scrub-public-repos.sh` Mode-A gates) is no longer "discipline-only,"
@@ -272,7 +169,7 @@ and alternatives sections lean on.
   dependency on `dmfdeploy.io`-resident services without superseding
   this ADR's Mode A constraint.
 
-### What does NOT flip
+#### What does NOT flip
 
 - Mode B's architectural constraints (B.1–B.4) and Mode C's (C.1–C.4)
   remain authoritative reference text but bind no implementation today.
@@ -283,3 +180,77 @@ and alternatives sections lean on.
 - ADR-0027's promotion criterion #4 ("ADR-0020 promotes to Accepted with
   Mode B active") still refers to a future Mode-B-Accepted event, not
   this Mode-A-only promotion. Cross-reference updated in ADR-0027.
+
+## Consequences
+
+- **Positive**
+  - Every downstream compliance question now has a "for which mode?"
+    answer instead of a deferred decision.
+  - The "experiment phase" stance (ADR-0004) can continue to apply to
+    Mode A development while Mode B and Mode C accrue their own
+    readiness gates.
+  - The customer-conversation boundary is explicit: managed = attested
+    + supported, self-host = framework-provided + as-is, flypack =
+    Mode B obligations plus portable-media controls.
+- **Negative**
+  - More artifacts to maintain (three terms documents, three trust
+    packages eventually).
+  - The cluster-per-tenant decision (B.3) commits us to higher
+    per-tenant cost than a multi-tenant SaaS would; this is a
+    deliberate trade for clean compliance blast-radius and is binding.
+  - Mode B and Mode C *require* compliance work to ship; cannot be
+    deferred indefinitely the way Mode A can.
+  - Mode B requires retiring or superseding the ADR-0011 auto-unseal
+    tradeoff for customer hubs; the current experiment-phase automation
+    quorum must not become a managed-service security claim.
+- **Neutral**
+  - Adopts the GitLab / Sentry / Coder / Replicated multi-modal model
+    rather than the Elastic / Redis pure-OSS-plus-cloud model. The
+    distinction is enforced via external-service gating (see B.4),
+    chosen to avoid Elastic-style relicensing fights.
+  - Mode A is what is currently being prepared for the github.com push
+    per the 2026-05-07 Public Publish Readiness handoff; this ADR
+    formalizes the implicit posture.
+
+### Enforcement
+
+This ADR binds three things; each has a different enforcement path:
+
+- **Mode A "no outbound to dmfdeploy.io" constraint:** enforced by
+  `bin/check-public-repo-hygiene.sh` (per the Release & Contribution
+  Model implementation plan, Phase 2) — extend it to grep for
+  `dmfdeploy.io` in public-repo manifests, defaults, and Helm values
+  and fail on hit. Until that script lands, discipline-only.
+- **Mode B architectural constraints (B.1–B.4):** enforced by ADRs that
+  follow once Mode B implementation starts; until then, this ADR is the
+  authoritative reference. No code in `dmf-central` or the umbrella may
+  contradict B.1–B.4 without superseding this ADR. The first Mode B
+  implementation ADR must explicitly close the ADR-0011 auto-unseal
+  gap and include a GDPR controller/processor role matrix.
+- **Mode C architectural constraints (C.1–C.4):** enforced by the
+  flypack readiness checklist (Tier C of the
+  [Pre-Release Compliance Readiness Plan](../plans/DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md)).
+  No flypack ships without that checklist clean.
+
+Reference downstream links: see the [archive record](../archive/decisions/0020-deployment-scope-and-regulatory-posture.md).
+
+## Status
+
+Accepted (Mode A); Proposed (Mode B, Mode C)
+
+Promote from **Proposed** → **Accepted** when:
+
+1. The OSS-vs-managed boundary (B.4) has been confirmed by the operator
+   as the chosen pattern (alternatives explicitly rejected above).
+2. The cluster-per-tenant constraint (B.3) has survived a unit-economics
+   sanity check.
+3. The ADR-0011 auto-unseal tradeoff has a named Mode B exit path
+   (HA OpenBao, customer-side ceremony, or another design that keeps
+   Shamir quorum material outside dmfdeploy.io custody).
+4. The GDPR role split has a first-pass matrix: dmfdeploy.io as
+   processor for customer-hub data and controller for its own account,
+   billing, support, security-log, and vulnerability-intake data.
+5. The flypack hardware story (C.1–C.4) has at least one identified
+   reference platform (TPM-equipped mini-PC class).
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0020-deployment-scope-and-regulatory-posture.md).

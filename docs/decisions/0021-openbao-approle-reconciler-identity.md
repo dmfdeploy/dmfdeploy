@@ -44,19 +44,7 @@ inherit `ops-admin` app-secret powers. Any future expansion beyond
 - **Neutral** — The current `common/openbao-session` mode pattern remains the
   mechanism; it gains a third mode rather than being replaced.
 
-## Alternatives considered
-
-- **Broaden `policy-reconciler` into a general bootstrap reconciler.** Simpler
-  operationally, but one identity would then rewrite ACLs, create AppRoles, and
-  write ESO binding records. Rejected because it blurs the security boundary
-  that `policy-reconciler` was created to preserve.
-- **Extend `ops-admin`.** Fastest, but operator credentials would gain platform
-  identity powers. Rejected because an operator-credential compromise could mint
-  AppRoles and escalate into broad app-data access.
-- **Reintroduce root for post-seed.** Rejected because ADR-0009 and the OpenBao
-  bootstrap model deliberately treat root as first-bootstrap-only material.
-
-## Enforcement
+### Enforcement
 
 `dmf-infra/k3s-lab-bootstrap/roles/stack/operator/openbao/tasks/main.yml` must
 create the `approle-reconciler-writer` policy and `approle-reconciler` userpass
@@ -89,3 +77,9 @@ AC-5 negative probes all return `deny`; two ClusterSecretStores Ready; six
 ExternalSecrets Ready across six target namespaces. See
 [`docs/handoffs/DMF OpenBao AppRole-Reconciler Live Verification Handoff 2026-05-23.md`](../handoffs/DMF%20OpenBao%20AppRole-Reconciler%20Live%20Verification%20Handoff%202026-05-23.md).
 Run on any new env as part of post-seed verification.
+
+## Status
+
+Accepted
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0021-openbao-approle-reconciler-identity.md).

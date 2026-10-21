@@ -51,6 +51,28 @@ v1 scope: one instance per catalog entry, single cluster, no
 parameterised launches, no per-user identity propagation (dmf-cms
 continues to act as `dmf-cms-svc` per Move 2 learnings).
 
+### Cross-references
+
+- ADR-0038 — dynamic monitoring extends this catalog model with a
+  separate monitoring contract, NetBox lane taxonomy, and k8s
+  annotation/adapter bridge.
+
+### Amendments
+
+#### 2026-05-12 — `provision.namespace` added to schema
+
+Problem statement and evidence: see the [archive record](../archive/decisions/0013-media-function-catalog-model.md).
+
+Decision
+[`catalog-namespace-source-of-truth`](../agentic/decisions-open.md)
+selected **Option A**: add `provision.namespace` (required) to the
+schema. The field is the single source of truth for where the workload's
+Helm release deploys, consumed by drift detection and any future
+operator needing to locate the workload. The architecture reference and
+`dmf-media/catalog/README.md` schema table were updated;
+`dmf-media/catalog/nmos-cpp.yaml` now declares
+`provision.namespace: nmos`.
+
 ## Consequences
 
 - **Positive** — bootstrap-but-don't-deploy becomes the default for
@@ -76,27 +98,7 @@ continues to act as `dmf-cms-svc` per Move 2 learnings).
   parameterisation, which simplifies the schema but means HA / dual-
   registry scenarios need a v2 reshape.
 
-## Alternatives considered
-
-- **NetBox-only catalog** (custom fields on `ipam.Service`). Rejected —
-  `ipam.Service` is the wrong shape for flow-producing media functions
-  (which aren't "services on a port" in the NetBox sense), and custom
-  fields accumulate without a schema home.
-- **YAML-only catalog**. Rejected — runtime state then lives outside
-  NetBox, contradicting the SoT decision (DMF Platform Plan §12, decision
-  log 2026-04-17).
-- **Pure Helm/ArgoCD model**, no catalog abstraction. Rejected — the
-  operator-facing UI needs a richer abstraction than Helm releases
-  (lifecycle state, dependencies, status semantics, dmf-cms-readable
-  display metadata).
-
-## Cross-references
-
-- ADR-0038 — dynamic monitoring extends this catalog model with a
-  separate monitoring contract, NetBox lane taxonomy, and k8s
-  annotation/adapter bridge.
-
-## Enforcement
+### Enforcement
 
 The Move 1 task spec
 (`docs/plans/dmf-platform-move-1-task-2026-05-04.md`) implements the
@@ -108,20 +110,8 @@ The architecture reference is
 split) is the lifecycle-vocabulary precondition for this ADR; ADR-0014
 (AWX project layout) is the execution precondition.
 
-## Amendments
+## Status
 
-### 2026-05-12 — `provision.namespace` added to schema
+Accepted
 
-The Move 1 P8 drift detector (`operate-catalog-drift.yml`) surfaced a
-gap: the schema had no k8s namespace field, so drift detection had to
-derive namespace from the entry's `key` — a brittle heuristic that
-produced false positives for `nmos-cpp` (actual namespace `nmos`, not
-`nmos_cpp`). Decision
-[`catalog-namespace-source-of-truth`](../agentic/decisions-open.md)
-selected **Option A**: add `provision.namespace` (required) to the
-schema. The field is the single source of truth for where the workload's
-Helm release deploys, consumed by drift detection and any future
-operator needing to locate the workload. The architecture reference and
-`dmf-media/catalog/README.md` schema table were updated;
-`dmf-media/catalog/nmos-cpp.yaml` now declares
-`provision.namespace: nmos`.
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0013-media-function-catalog-model.md).
