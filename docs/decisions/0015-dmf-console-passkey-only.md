@@ -40,11 +40,12 @@ This means:
 - **Users without a passkey**: denied access (must be enrolled first via
   the invitation flow at `/api/admin/invitations`)
 - **Break-glass/admin users** (akadmin, break-glass): use the Authentik
-  admin UI directly or the shared default flow for other apps
+  admin UI directly or the break-glass flow URL described in the 2026-05-29
+  amendment
 
-Other apps (Forgejo, NetBox, Grafana, LibreNMS, Zot, AWX) continue to use
-`default-authentication-flow` — they retain the username+password option
-for service accounts and non-passkey users.
+Other apps (Forgejo, NetBox, Grafana, LibreNMS, Zot, AWX) kept
+`default-authentication-flow` when this ADR was first accepted. The
+2026-05-29 amendment moved them to `dmf-passkey-login`.
 
 ### Amendment 2026-05-29 — brand-wide passkey-first
 
@@ -113,8 +114,10 @@ item and is **not** affected by this change.
 - **Admin break-glass**: `akadmin` and `break-glass` users cannot log in
   via the DMF Console OIDC flow. This is intentional — admin users access
   the console via the Authentik admin UI or other mechanisms.
-- **Other apps unchanged**: this is DMF Console only. Other apps still
-  use `default-authentication-flow` with username+password+passkey.
+- **Password only at the break-glass URL**: since the 2026-05-29 amendment,
+  every app uses `dmf-passkey-login`. Username and password remain only at the
+  direct `default-authentication-flow` URL, for akadmin and the break-glass
+  operator.
 
 ## Status
 
