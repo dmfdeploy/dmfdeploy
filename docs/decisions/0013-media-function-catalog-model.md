@@ -53,13 +53,13 @@ continues to act as `dmf-cms-svc` per Move 2 learnings).
 
 ### Cross-references
 
-- ADR-0038 — dynamic monitoring extends this catalog model with a
+- ADR-0038: dynamic monitoring extends this catalog model with a
   separate monitoring contract, NetBox lane taxonomy, and k8s
   annotation/adapter bridge.
 
 ### Amendments
 
-#### 2026-05-12 — `provision.namespace` added to schema
+#### 2026-05-12: `provision.namespace` added to schema
 
 Problem statement and evidence: see the [archive record](../archive/decisions/0013-media-function-catalog-model.md).
 

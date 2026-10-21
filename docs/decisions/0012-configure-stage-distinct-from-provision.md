@@ -44,7 +44,7 @@ existing Layer 1–3 + 6 baseline apps retain their current behaviour
 (provisioned-and-configured in one pass) until/unless a specific reason
 to split them appears.
 
-### Terminology — two configure-stage usages (added 2026-05-19)
+### Terminology: two configure-stage usages (added 2026-05-19)
 
 The provision/configure/finalise vocabulary appears in two places that are
 worth distinguishing:

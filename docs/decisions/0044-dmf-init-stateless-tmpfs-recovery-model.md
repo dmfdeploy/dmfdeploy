@@ -66,10 +66,10 @@ rollback granularity stated above.
 Problem statement and evidence: see the [archive record](../archive/decisions/0044-dmf-init-stateless-tmpfs-recovery-model.md).
 
 **Invariant (refines the Rule):** `DMF_DATA_ROOT` must be tmpfs **and**
-exec-mounted — `docker: --tmpfs /tmp/dmf-init-data:exec`. This does **not** relax
+exec-mounted: `docker: --tmpfs /tmp/dmf-init-data:exec`. This does **not** relax
 this ADR's Rule: the mount stays tmpfs (RAM-only secrets, `docker rm`-safe) and
 retains `nosuid`/`nodev`; `exec` is orthogonal to the secrets-on-disk concern.
-`noexec` gave no real protection here — the dir exists to run the toolchain and
+`noexec` gave no real protection here: the dir exists to run the toolchain and
 `noexec` is trivially bypassed via interpreters. (A future defense-in-depth option
 is splitting into an exec repos-mount + a noexec secrets/artifacts-mount; deferred,
 tracked separately.)
@@ -77,7 +77,7 @@ tracked separately.)
 **Enforcement (extends the fail-closed check):** `assert_data_root_tmpfs` also
 rejects a tmpfs-but-`noexec` data root at startup with an actionable message
 pointing at `:exec`, turning the cryptic mid-render `PermissionError` into a clear
-startup refusal — same fail-closed philosophy as the tmpfs check. The README /
+startup refusal. This follows the same fail-closed philosophy as the tmpfs check. The README /
 `build-bundle.sh` run commands and the `bin/dmf-init` launcher are updated to
 `--tmpfs /tmp/dmf-init-data:exec` in the same change.
 
@@ -125,6 +125,6 @@ startup refusal — same fail-closed philosophy as the tmpfs check. The README /
 
 ## Status
 
-Accepted (2026-07-02 — implementation landed in dmf-init v0.3.5: fail-closed `assert_data_root_tmpfs` startup guard, forced checkpoint-export gate before long unattended phases, launcher `--tmpfs :exec` noexec guard; #150 and #162 closed)
+Accepted (2026-07-02: implementation landed in dmf-init v0.3.5: fail-closed `assert_data_root_tmpfs` startup guard, forced checkpoint-export gate before long unattended phases, launcher `--tmpfs :exec` noexec guard; #150 and #162 closed)
 
 Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0044-dmf-init-stateless-tmpfs-recovery-model.md).

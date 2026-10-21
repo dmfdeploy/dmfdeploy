@@ -118,7 +118,7 @@ where a forged request could affect live production output.
   v3 at
   [`docs/plans/DMF Unified App-Admin Helper Plan 2026-05-23.md`](../plans/DMF%20Unified%20App-Admin%20Helper%20Plan%202026-05-23.md)
   becomes implementation under D1's OpenBao custody half.
-- **Implementation status 2026-05-25** — see the [archive record](../archive/decisions/0028-identity-and-authority-chain.md).
+- **Implementation status 2026-05-25**: see the [archive record](../archive/decisions/0028-identity-and-authority-chain.md).
 - **Neutral** — Multi-user model remains explicitly deferred
   (architecture doc §1). Single-operator assumption binds the current
   phase; ops-admin group is undifferentiated. The future revision

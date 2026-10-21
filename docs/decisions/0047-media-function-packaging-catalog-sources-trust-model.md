@@ -142,7 +142,7 @@ this ADR fixes the bundle's shape only.
   reserved namespaces, what is signed) is the first implementation
   deliverable under this ADR.
 
-### Appendix A — `generic-chart-policy/v1` (normative)
+### Appendix A: `generic-chart-policy/v1` (normative)
 
 Both a safety policy and a package contract; versioned; testable with
 conformance fixtures.
@@ -159,7 +159,7 @@ outside the signed package closure.
 `resources.requests`; health/readiness probes declared; labels/annotations
 follow the catalog contract; declared ports/services match the catalog entry;
 rendered manifests are deterministic and testable; chart values are
-constrained by versioned schemas, not free-form runtime overrides.
+constrained by versioned schemas.
 
 **Placement/isolation contract.** Namespace assigned by DMF; per-instance
 service account with `automountServiceAccountToken: false`; default-deny

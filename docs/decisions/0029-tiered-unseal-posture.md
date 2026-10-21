@@ -131,6 +131,6 @@ firing.
 
 ## Status
 
-Accepted (framework/posture only — implementation deferred)
+Accepted (framework/posture only, implementation deferred)
 
 Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0029-tiered-unseal-posture.md).

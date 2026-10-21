@@ -3,7 +3,7 @@
 > **⚠️ Canonical truth for this topic is consolidated in the
 > [Catalog and execution digest](digests/catalog-and-execution.md).** This ADR's status: **partially superseded by ADR-0025** (canonical for `media-*` JTs; still authoritative for AWX→infra plays).
 > Full text is preserved in the [archive record](../archive/decisions/0016-awx-control-node-ssh-via-cloud-init-and-openbao.md) for decision
-> history — do not act on it without reading the digest + the named successor.
+> history. Do not act on it without reading the digest + the named successor.
 
 **Status:** Partially superseded by ADR-0025 (canonical for `media-*` JTs; still authoritative for AWX→infrastructure plays)
 **Date:** 2026-05-05
@@ -71,7 +71,7 @@ is its own ADR.
 
 ### Amendments
 
-#### 2026-05-23 — Fully superseded for media catalog launchers (ADR-0025)
+#### 2026-05-23: Fully superseded for media catalog launchers (ADR-0025)
 
 Fully superseded for `media-*` JTs (ADR-0025 Accepted 2026-05-23).
 All catalog launchers now execute in-cluster via the AWX EE pod.
@@ -79,7 +79,7 @@ SSH-to-control-node remains canonical for 693-class infra plays only.
 The Lane B band-aid at `launch-nmos-cpp.yml:28-34` (Hetzner-only private-IP
 `set_fact`) is removed.
 
-#### 2026-05-19 — Partially superseded for media catalog launchers (ADR-0025)
+#### 2026-05-19: Partially superseded for media catalog launchers (ADR-0025)
 
 **Scope of supersession:** AWX Job Templates whose name matches `media-*`
 (e.g. `media-launch-nmos-cpp`, `media-finalise-nmos-cpp`).
@@ -92,7 +92,7 @@ hosted in cluster-internal Zot, and deploy workloads via Helm charts
 rather than `kubernetes.core.k8s` over SSH.
 
 **What stays:** Path A remains canonical for **AWX → infrastructure
-plays** — the 693-class playbooks (`awx-integration`,
+plays**: the 693-class playbooks (`awx-integration`,
 `netbox-sot`, `forgejo-bootstrap`, etc.) that target the control node
 directly via the NetBox-supplied inventory. The Machine credential, the
 cloud-init pubkey wiring, and the OpenBao privkey storage all remain in

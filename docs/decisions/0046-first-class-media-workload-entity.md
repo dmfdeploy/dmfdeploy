@@ -116,20 +116,20 @@ the flows between its members.
 ### Amendment 1 (2026-08-30): EBU lifecycle stage names keep EBU's own spelling
 
 **Status:** Accepted. Clarifies decision point 3 (the six-stage lifecycle
-naming) — no other decision point changes.
+naming). No other decision point changes.
 
 **Rule.** The six EBU lifecycle stage names (Design, Plan, Provision,
-Configure, Operate, **Finalise & Review**) are quoted domain vocabulary —
+Configure, Operate, **Finalise & Review**) are quoted domain vocabulary:
 UX Constitution Art. 3's **industry-standard** tier, "kept and explained in
 place," not the DMF-internal tier subject to console-authored copy
 conventions. They keep **EBU's own spelling in every locale's Latin
 rendering**, are **not** subject to any console house style (US/UK or
 otherwise), and are not to be "corrected" toward either spelling
 convention by anyone who has not first re-checked the primary source.
-`Finalise` / `Finalise & Review` — never `Finalize` / `Finalizing` — at any
+`Finalise` / `Finalise & Review`, never `Finalize` / `Finalizing`, at any
 tier, default or expert.
 
-**Scope — display strings only, not machine identifiers.** This amendment
+**Scope: display strings only.** This amendment
 governs copy an operator or reader sees. It does **not** touch, and no one
 should read it as license to rename, any machine identifier that happens to
 share the word: the NetBox `lifecycle-finalise` tag value, the

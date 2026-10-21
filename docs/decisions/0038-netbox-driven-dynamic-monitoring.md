@@ -333,22 +333,22 @@ blackbox-exporter module list.
 
 ## Consequences
 
-- **Positive** — Monitoring becomes declarative and facility-driven instead of
+- **Positive**: Monitoring becomes declarative and facility-driven instead of
   being a frozen scrape list.
-- **Positive** — NetBox remains the single source of truth for what exists and
+- **Positive**: NetBox remains the single source of truth for what exists and
   should be observed, while Kubernetes stays responsible for in-cluster pod
   discovery.
-- **Positive** — The contract is explicit enough for downstream implementation work
+- **Positive**: The contract is explicit enough for downstream implementation work
   to proceed without new architecture decisions.
-- **Positive** — The adapter can be versioned, tested, and released independently of
+- **Positive**: The adapter can be versioned, tested, and released independently of
   NetBox.
-- **Positive** — The `/sd/*` contract stays stable while the adapter’s internal
+- **Positive**: The `/sd/*` contract stays stable while the adapter’s internal
   caching strategy evolves, so Prometheus wiring does not need to change as the
   implementation matures.
-- **Negative** — There is one more component to build and operate.
-- **Negative** — The platform now has a deliberate split between scrape, probe, and
+- **Negative**: There is one more component to build and operate.
+- **Negative**: The platform now has a deliberate split between scrape, probe, and
   SNMP discovery paths, which is more to wire than a single discovery source.
-- **Neutral** — The old bootstrap-time `file_sd` approach remains documented as
+- **Neutral**: The old bootstrap-time `file_sd` approach remains documented as
   historical context, but it is no longer canonical.
 
 ### Enforcement

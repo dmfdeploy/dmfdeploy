@@ -47,7 +47,7 @@ Other apps (Forgejo, NetBox, Grafana, LibreNMS, Zot, AWX) kept
 `default-authentication-flow` when this ADR was first accepted. The
 2026-05-29 amendment moved them to `dmf-passkey-login`.
 
-### Amendment 2026-05-29 — brand-wide passkey-first
+### Amendment 2026-05-29: brand-wide passkey-first
 
 Problem statement: see the [archive record](../archive/decisions/0015-dmf-console-passkey-only.md).
 
@@ -100,7 +100,7 @@ item and is **not** affected by this change.
 ## Consequences
 
 ### Positive
-- **Smooth UX**: DMF Console login matches the Pocket-ID model — one click,
+- **Smooth UX**: DMF Console login matches the Pocket-ID model: one click,
   browser passkey popup, done. No username field, no password field.
 - **Security**: passkey-only removes the password attack surface entirely
   for the operator console.
@@ -112,7 +112,7 @@ item and is **not** affected by this change.
   without a registered passkey cannot log in at all. The enrollment path
   (`/api/admin/invitations` → passkey enrollment flow) must work reliably.
 - **Admin break-glass**: `akadmin` and `break-glass` users cannot log in
-  via the DMF Console OIDC flow. This is intentional — admin users access
+  via the DMF Console OIDC flow. This is intentional: admin users access
   the console via the Authentik admin UI or other mechanisms.
 - **Password only at the break-glass URL**: since the 2026-05-29 amendment,
   every app uses `dmf-passkey-login`. Username and password remain only at the

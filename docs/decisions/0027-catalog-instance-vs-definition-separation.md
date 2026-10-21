@@ -3,7 +3,7 @@
 > **⚠️ Canonical truth for this topic is consolidated in the
 > [Catalog and execution digest](digests/catalog-and-execution.md).** This ADR's status: **amended by ADR-0037** (instance layer in NetBox + AWX, not a CRD).
 > Full text is preserved in the [archive record](../archive/decisions/0027-catalog-instance-vs-definition-separation.md) for decision
-> history — do not act on it without reading the digest + the named successor.
+> history. Do not act on it without reading the digest + the named successor.
 
 **Status:** Proposed (deferred) — **three-layer framing survives; installation/instance-layer implementation resolved by ADR-0037** (NetBox instances + AWX reconcile, not a CRD + custom operator)
 **Date:** 2026-05-22
@@ -82,7 +82,7 @@ second function force the design** prevents premature abstraction.
 
 ## Status
 
-Proposed (deferred) — **three-layer framing survives; installation/instance-layer implementation resolved by ADR-0037** (NetBox instances + AWX reconcile, not a CRD + custom operator)
+Proposed (deferred): **three-layer framing survives; installation/instance-layer implementation resolved by ADR-0037** (NetBox instances + AWX reconcile)
 
 ### Promotion criteria (Proposed-deferred → Proposed-imminent)
 
