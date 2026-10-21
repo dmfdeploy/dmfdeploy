@@ -8,29 +8,27 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (6)
+## Active (3)
 
-- [DMF Console Durable Action History Plan 2026-09-02](DMF%20Console%20Durable%20Action%20History%20Plan%202026-09-02.md) — 2026-09-02
-- [DMF Console Shell Round Plan 2026-08-30](DMF%20Console%20Shell%20Round%20Plan%202026-08-30.md) — 2026-08-30
-- [DMF Console Arc 4 Visual Pass Plan 2026-08-11](DMF%20Console%20Arc%204%20Visual%20Pass%20Plan%202026-08-11.md) — 2026-08-11
-- [DMF v0.2b Multi-Source Switch Spec 2026-07-15](DMF%20v0.2b%20Multi-Source%20Switch%20Spec%202026-07-15.md) — 2026-07-15
-- [DMF v0.2 Presentable Journey Execution Plan 2026-07-12](DMF%20v0.2%20Presentable%20Journey%20Execution%20Plan%202026-07-12.md) — 2026-07-12
-- [DMF v0.2 EBU Facility-Orchestration Re-anchor Plan 2026-07-07](DMF%20v0.2%20EBU%20Facility-Orchestration%20Re-anchor%20Plan%202026-07-07.md) — 2026-07-07
-
-## Draft (7)
-
-- [DMF Media Workload Design Canvas Plan](DMF%20Media%20Workload%20Design%20Canvas%20Plan.md) — 2026-10-20
-- [DMF Console Shell Round 2 — Rail Band and Message Bus 2026-08-31](DMF%20Console%20Shell%20Round%202%20%E2%80%94%20Rail%20Band%20and%20Message%20Bus%202026-08-31.md) — 2026-08-31
-- [DMF Marketplace Resource Model and Placement Grounded Roadmap 2026-07-17](DMF%20Marketplace%20Resource%20Model%20and%20Placement%20Grounded%20Roadmap%202026-07-17.md) — 2026-07-17
 - [DMF Umbrella Security Audit Remediation Spec 2026-06-15](DMF%20Umbrella%20Security%20Audit%20Remediation%20Spec%202026-06-15.md) — 2026-06-15
-- [DMF Facility Console — Born-Inventoried Env Surfacing Plan 2026-06-04](DMF%20Facility%20Console%20%E2%80%94%20Born-Inventoried%20Env%20Surfacing%20Plan%202026-06-04.md) — 2026-06-04
 - [DMF Internal Ansible Collection Source Plan 2026-05-29](DMF%20Internal%20Ansible%20Collection%20Source%20Plan%202026-05-29.md) — 2026-05-29
 - [DMF AWX Catalog Credential Type Migration Plan 2026-05-23](DMF%20AWX%20Catalog%20Credential%20Type%20Migration%20Plan%202026-05-23.md) — 2026-05-23
 
-## Executed (36)
+## Draft (3)
 
+- [DMF Facility Console — Born-Inventoried Env Surfacing Plan 2026-06-04](DMF%20Facility%20Console%20%E2%80%94%20Born-Inventoried%20Env%20Surfacing%20Plan%202026-06-04.md) — 2026-10-21
+- [DMF Media Workload Design Canvas Plan](DMF%20Media%20Workload%20Design%20Canvas%20Plan.md) — 2026-10-20
+- [DMF Console Shell Round 2 — Rail Band and Message Bus 2026-08-31](DMF%20Console%20Shell%20Round%202%20%E2%80%94%20Rail%20Band%20and%20Message%20Bus%202026-08-31.md) — 2026-08-31
+
+## Executed (41)
+
+- [DMF Console Durable Action History Plan 2026-09-02](DMF%20Console%20Durable%20Action%20History%20Plan%202026-09-02.md) — 2026-09-02 (executed 2026-10-21)
+- [DMF Console Shell Round Plan 2026-08-30](DMF%20Console%20Shell%20Round%20Plan%202026-08-30.md) — 2026-08-30 (executed 2026-10-21)
 - [DMF Console UI Round Plan 2026-08-21](DMF%20Console%20UI%20Round%20Plan%202026-08-21.md) — 2026-08-21 (executed 2026-08-29)
+- [DMF Console Arc 4 Visual Pass Plan 2026-08-11](DMF%20Console%20Arc%204%20Visual%20Pass%20Plan%202026-08-11.md) — 2026-08-11 (executed 2026-10-21)
+- [DMF v0.2b Multi-Source Switch Spec 2026-07-15](DMF%20v0.2b%20Multi-Source%20Switch%20Spec%202026-07-15.md) — 2026-07-15 (executed 2026-08-28)
 - [DMF Public-Safety Pattern Manifest Plan 2026-07-13](DMF%20Public-Safety%20Pattern%20Manifest%20Plan%202026-07-13.md) — 2026-07-13 (executed 2026-07-14)
+- [DMF v0.2 Presentable Journey Execution Plan 2026-07-12](DMF%20v0.2%20Presentable%20Journey%20Execution%20Plan%202026-07-12.md) — 2026-07-12 (executed 2026-10-21)
 - [DMF Init Long-Run Re-Entry & Resume Hardening Plan 2026-06-26](DMF%20Init%20Long-Run%20Re-Entry%20%26%20Resume%20Hardening%20Plan%202026-06-26.md) — 2026-06-26 (executed 2026-06-27)
 - [DMF NMOS Crosspoint Media Function Plan 2026-06-21](DMF%20NMOS%20Crosspoint%20Media%20Function%20Plan%202026-06-21.md) — 2026-06-21 (executed 2026-06-22)
 - [DMF AWX On-Demand Scale-to-Zero Plan 2026-06-18](DMF%20AWX%20On-Demand%20Scale-to-Zero%20Plan%202026-06-18.md) — 2026-06-18 (executed 2026-06-20)
@@ -74,8 +72,10 @@ shelved, kept for provenance.
 - [DMF Release and Contribution Model Implementation Plan 2026-05-11](DMF%20Release%20and%20Contribution%20Model%20Implementation%20Plan%202026-05-11.md) — 2026-05-11 → superseded by [DMF Workstream D — GitHub-First Governance Execution Spec 2026-06-09.md](DMF%20Workstream%20D%20%E2%80%94%20GitHub-First%20Governance%20Execution%20Spec%202026-06-09.md)
 - [Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06](Move%201%20Gate%202%20-%20Pivot%20to%20Path%20A%20for%20Catalog%20Launchers%202026-05-06.md) — 2026-05-06 → superseded by [DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md](DMF%20Cluster-Internal%20Ansible%20Execution%20and%20Catalog%20Helm%20Pivot%20Plan%202026-05-19.md)
 
-## Historical (12)
+## Historical (14)
 
+- [DMF Marketplace Resource Model and Placement Grounded Roadmap 2026-07-17](DMF%20Marketplace%20Resource%20Model%20and%20Placement%20Grounded%20Roadmap%202026-07-17.md) — 2026-07-17
+- [DMF v0.2 EBU Facility-Orchestration Re-anchor Plan 2026-07-07](DMF%20v0.2%20EBU%20Facility-Orchestration%20Re-anchor%20Plan%202026-07-07.md) — 2026-07-07
 - [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06](DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) — 2026-06-06
 - [DMF MXL On-Demand Media Function Cycle Plan 2026-06-01](DMF%20MXL%20On-Demand%20Media%20Function%20Cycle%20Plan%202026-06-01.md) — 2026-06-01
 - [DMF Vendor Multi-Tenancy Vision 2026-05-29](DMF%20Vendor%20Multi-Tenancy%20Vision%202026-05-29.md) — 2026-05-29

@@ -1,9 +1,11 @@
 ---
-status: active
+status: historical
 date: 2026-07-07
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/189
 ---
 # DMF v0.2 EBU Facility-Orchestration Re-anchor Plan (2026-07-07)
+
+> Historical reference. Status aligned with the backlog on 2026-10-21: the v0.2a slices shipped and ADR-0046 is accepted; tracker #189 carries the remaining scope.
 
 > **STATUS: ACTIVE.** Re-frames the v0.2 round around the EBU Dynamic Media
 > Facility **facility-orchestration model** (whitepaper Fig. 4). Supersedes the

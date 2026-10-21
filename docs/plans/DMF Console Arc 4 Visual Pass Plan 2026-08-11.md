@@ -1,9 +1,12 @@
 ---
-status: active
+status: executed
 date: 2026-08-11
+executed: 2026-10-21
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/347
 ---
 # DMF Console Arc 4 Visual Pass Plan (2026-08-11)
+
+> Executed. Status aligned with the backlog on 2026-10-21: the maintainer confirmed that the demo bar passed.
 
 > **STATUS: ACTIVE.** Arc 4 of the demo-journey UI track (#347). Owns the
 > **visual redesign of the demo path** and the supporting doc work. Defines no

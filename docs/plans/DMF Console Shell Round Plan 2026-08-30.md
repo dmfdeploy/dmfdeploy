@@ -1,9 +1,12 @@
 ---
-status: active
+status: executed
 date: 2026-08-30
+executed: 2026-10-21
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/480
 ---
 # DMF Console Shell Round Plan (2026-08-30)
+
+> Executed. Status aligned with the backlog on 2026-10-21: the round 1 design record landed; the message bus lives on in Shell Round 2.
 
 > **STATUS: ACTIVE — Phase 0 (docs) of the console shell round.** This plan is
 > the design record for the console's **top-bar shell**: the message bus, the

@@ -1,9 +1,12 @@
 ---
-status: active
+status: executed
 date: 2026-07-12
+executed: 2026-10-21
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/200
 ---
 # DMF v0.2 Presentable Journey Execution Plan (2026-07-12)
+
+> Executed. Status aligned with the backlog on 2026-10-21: its climax, the switch, works live, and episode 001 is published.
 
 > **STATUS: ACTIVE.** Execution-sequencing supplement to the
 > [`DMF v0.2 EBU Facility-Orchestration Re-anchor Plan 2026-07-07.md`](DMF%20v0.2%20EBU%20Facility-Orchestration%20Re-anchor%20Plan%202026-07-07.md)

@@ -1,9 +1,12 @@
 ---
-status: active
+status: executed
 date: 2026-09-02
+executed: 2026-10-21
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/496
 ---
 # DMF Console Durable Action History Plan (2026-09-02)
+
+> Executed. Status aligned with the backlog on 2026-10-21: the demo slice shipped; the producer, envelope and retention work is deferred and stays on tracker #496.
 
 > **STATUS: ACTIVE — one round that demonstrates the mechanism.** *(Was "one
 > read-only round"; corrected 2026-09-03 — implementation proved a producer

@@ -1,9 +1,12 @@
 ---
-status: active
+status: executed
 date: 2026-07-15
+executed: 2026-08-28
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/201
 ---
 # DMF v0.2b Multi-Source Switch Spec (2026-07-15)
+
+> Executed. Status aligned with the backlog on 2026-10-21: the switch passed live acceptance and tracker #201 closed on 2026-08-28.
 
 > **STATUS: ACTIVE — spec before build.** This is the deliverable of umbrella
 > [#201](https://github.com/dmfdeploy/dmfdeploy/issues/201) ("v0.2b — multi-source
