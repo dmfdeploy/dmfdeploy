@@ -109,7 +109,7 @@ first. If you need a secret, ask a maintainer — do not improvise a transport.
 ### MUST
 - Open changes as **GitHub PRs against `main`** with **signed-off** commits.
 - Use Conventional Commit messages and `<handle>/<short-slug>` topic branches.
-- Follow the boot ritual (read STATUS.md, the claimed tracking issue's comments, ADRs) before touching any DMF repo.
+- Follow the boot ritual (read STATUS.md and the operator notes in pinned issue #618, the claimed tracking issue's comments, ADRs) before touching any DMF repo.
 - Use **placeholder syntax** for all IPs / DNS / operator identity in every artifact.
 
 ### MUST NOT

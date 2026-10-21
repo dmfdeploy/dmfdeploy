@@ -29,7 +29,8 @@ the backlog-hygiene detector. Plan:
 3. **Never invent a local backlog** (TODO files, ad-hoc trackers, stale
    `docs/agentic/` queues). Issues are canonical for *liveness*, plan
    frontmatter for *design state*, ADRs for *decisions* (propose via a
-   Discussions RFC first), STATUS.md for committed operator notes, and
+   Discussions RFC first), STATUS.md as a pointer file (operator notes live in the pinned issue
+   [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618)), and
    STATUS.local.md for the generated live repo snapshot.
 4. **Three milestones, and a milestone is not a bucket.** `v0.1-polish` — the
    console tells the truth (an outsider finishes cold, nothing tells them
@@ -48,7 +49,7 @@ the backlog-hygiene detector. Plan:
 | Is anyone working on X? Is it scheduled? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues) — a milestone means scheduled (§2); [org Project #1](https://github.com/orgs/dmfdeploy/projects/1) is optional human curation, not authoritative (§3) |
 | What's the design/decision state of a plan? | The plan doc's frontmatter in umbrella `docs/plans/` |
 | What architectural rules bind me? | ADRs in umbrella `docs/decisions/` ([INDEX](decisions/INDEX.md)) |
-| What's happening across repos right now? | `STATUS.local.md` (generated locally via `bin/generate-status.sh`; gitignored). Committed [STATUS.md](../STATUS.md) keeps hand-edited operator notes only. |
+| What's happening across repos right now? | `STATUS.local.md` (generated locally via `bin/generate-status.sh`; gitignored). Committed [STATUS.md](../STATUS.md) is a pointer file; operator notes live in the pinned issue [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618). |
 | Where do questions/proposals go? | [Discussions](https://github.com/dmfdeploy/dmfdeploy/discussions) |
 
 **Split-brain precedence:** on disagreement, the issue wins for liveness and
