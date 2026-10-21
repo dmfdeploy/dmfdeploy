@@ -145,9 +145,12 @@ path was removed in the 2026-05-19 ADR-0025 convergence.
                     ┌─────────┴─────────┐
                     no                  yes
                     │                   │
-                §4 commit first    §5 release.sh   (build only — no push)
+                §4 commit first    §5 release.sh on release/<NEW>   (bump + local build)
                                         │
-                                §6 publish-to-ghcr.sh   (image → GHCR)
+                                §5 release PR, merge, tag origin/main
+                                        │
+                                §6 rebuild from the tag, then
+                                   publish-to-ghcr.sh   (image → GHCR)
                                         │
                                 §6 playbook 630   (GHCR → Zot mirror)
                                         │
@@ -202,8 +205,15 @@ scripts/sync-version.sh    # propagate current VERSION to all derived files
 
 ## 5. Cutting a release (the only sanctioned path)
 
+Cut the release branch from `origin/main` first. `release.sh` commits on
+whatever branch is checked out, so running it on a stale feature branch puts
+that branch's commits in the release PR.
+
 ```bash
 cd ~/repos/dmfdeploy/dmf-cms
+
+git fetch origin
+git switch -c release/<NEW> origin/main   # never release from a feature branch
 
 # Pick one — patch / minor / major / explicit version
 scripts/release.sh patch        # 0.5.0 → 0.5.1
@@ -221,14 +231,14 @@ scripts/release.sh 0.6.0        # explicit
 6. Run `build-image.sh --no-push` (builds the image locally and tags it as
    `registry.dmf.example.com/dmf-cms:<NEW>` — that prefix is the *expected
    source* for `publish-to-ghcr.sh`; the image does not get pushed to Zot from
-   here)
+   here). This is a pre-merge build; §6 rebuilds it from the tag.
 
 After it finishes:
 
 ```bash
 # main is protected and merges are rebase-only: land the bump through a PR,
 # then tag the merged commit. Never push HEAD to main, never tag before the merge.
-git checkout -b release/<NEW> && git push -u origin release/<NEW>
+git push -u origin release/<NEW>
 gh pr create --title "chore(release): v<NEW>" --body "Refs dmfdeploy/dmfdeploy#<N>"
 # ...after the merge:
 git fetch origin
@@ -236,7 +246,9 @@ git tag -a v<NEW> -m "Release v<NEW>" origin/main   # origin/main, not local mai
 git push origin v<NEW>    # one-shot: v* tags cannot be moved or deleted
 ```
 
-Then publish + mirror + deploy via §6.
+Then rebuild from the tag, publish, mirror and deploy via §6. For the full
+procedure and the tag rulesets, see §4 and the `release.sh` section of the
+canonical doc.
 
 ### Versioning policy (until release-1)
 
@@ -248,17 +260,35 @@ Then publish + mirror + deploy via §6.
 
 ## 6. Publish + mirror + deploy (GHCR → Zot → cluster)
 
-The release path has three steps after `release.sh`. Each is idempotent.
+The release path has four steps after the tag exists: rebuild from the tag,
+publish, mirror, deploy. Each is idempotent.
 
 > **`<env-name>` in the commands below** — substitute the current Hetzner test
 > env id from the umbrella's generated `STATUS.local.md` (run `bin/generate-status.sh`; env ids rotate as we cut new test
 > clusters; this skill stays env-agnostic).
 
-### 6a. Publish the image to GHCR
+### 6a. Rebuild from the tag, then publish the image to GHCR
+
+The image that `release.sh` built carries the pre-rebase bump commit in its
+`org.opencontainers.image.revision` label. That commit never reaches
+`origin/main`. `publish-to-ghcr.sh` only re-tags and pushes the image that
+exists locally, so rebuild from the tag and check the label first:
 
 ```bash
 cd ~/repos/dmfdeploy/dmf-cms
 
+git fetch origin
+git switch --detach v<NEW>               # clean tree; builds the tagged commit
+scripts/build-image.sh --no-push
+docker inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' \
+  registry.dmf.example.com/dmf-cms:<NEW>   # must equal the next line
+git rev-parse --short v<NEW>^{commit}
+```
+
+Publish from the same detached checkout, so the image you just built is the
+one that gets pushed.
+
+```bash
 # Preconditions: the gh login must carry write:packages (see §0 rule 2).
 gh auth status                       # confirm 'write:packages' is in the scopes
 gh auth refresh -s write:packages    # only if it is absent
@@ -350,8 +380,8 @@ For broader cluster operations, use the `dmf-cluster-access` skill.
 |---|---|---|
 | `scripts/sync-version.sh` | Propagate VERSION → 5 derived files / 7 version-string fields (incl. `frontend/package-lock.json` ×2 since 2026-08-13); `--check` for CI | Every PR; after manual VERSION edit |
 | `scripts/build-image.sh` | Build a single tag locally; refuses dirty/duplicate | Rarely directly — `release.sh` calls it with `--no-push` |
-| `scripts/release.sh` | End-to-end: bump → sync → commit → tag → build (no push) | Every release |
-| `scripts/publish-to-ghcr.sh` | Push the locally-built image to `ghcr.io/dmfdeploy/dmf-cms:<VERSION>` | After every `release.sh` |
+| `scripts/release.sh` | End-to-end: bump → sync → commit → build (no push, no tag unless `--tag`); run on `release/<NEW>` cut from `origin/main` | Every release |
+| `scripts/publish-to-ghcr.sh` | Push the locally-built image to `ghcr.io/dmfdeploy/dmf-cms:<VERSION>` | After the release tag exists and you rebuilt the image from it (§6a) |
 | `scripts/verify-cluster.sh` | Confirm cluster image matches local VERSION | After every playbook 650 run |
 | Local dev | `uvicorn` + `npm run dev` | Daily |
 
@@ -370,6 +400,7 @@ that path was removed in the 2026-05-19 convergence; publish via GHCR + 630.
 | Edit `pyproject.toml` version by hand | Drifts from chart/values | `scripts/sync-version.sh X.Y.Z` |
 | `git tag` without bumping VERSION | Image doesn't match tag | `scripts/release.sh` |
 | Pushing image with dirty working tree | Can't reproduce later | Commit first, then build |
+| Publishing the image `release.sh` built | Its revision label names a pre-rebase commit that `v<NEW>` does not | Rebuild from the tag (§6a), then publish |
 | Add `frontend/src/` to `.gitignore` | Fresh clones can't build (we got bitten 2026-05-01) | Source belongs in git |
 | Re-use a tag (rebuild `0.2.2`) | Pods cache by tag, won't repull | Bump VERSION |
 | `imagePullPolicy: Always` to "fix" caching | Hides drift instead of solving it | Bump VERSION |
