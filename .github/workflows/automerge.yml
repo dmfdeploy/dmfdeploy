@@ -28,8 +28,11 @@ jobs:
           # from the event payload, which is a snapshot: `gh pr create --label`
           # fires `opened` without the label, and a late `opened` run would
           # arm a held PR (#439). If the read fails, exit non-zero without
-          # touching auto-merge, so a failed read never arms.
+          # touching auto-merge, so a failed read never arms. The same holds
+          # for a reply that is not a boolean isDraft and named labels.
           pr=$(gh pr view "${PR_URL}" --json labels,isDraft)
+          jq -e '(.isDraft | type == "boolean") and (.labels | type == "array")
+            and all(.labels[]; (.name | type) == "string")' <<<"${pr}" >/dev/null
           labels=$(jq -r '[.labels[].name] | join(" ")' <<<"${pr}")
           draft=$(jq -r '.isDraft' <<<"${pr}")
           case " ${labels} " in *" hold "*)
