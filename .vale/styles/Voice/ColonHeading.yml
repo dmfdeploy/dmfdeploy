@@ -1,0 +1,9 @@
+extends: existence
+message: "Rewrite the label-style heading as a plain sentence-case phrase without a colon."
+description: "Headings of the form 'Label: explanation' are a common generated pattern; a short noun phrase is clearer."
+link: https://github.com/dmfdeploy/dmfdeploy/blob/main/docs/STYLE.md#label-style-headings
+level: warning
+scope: heading
+nonword: true
+tokens:
+  - ':\s'

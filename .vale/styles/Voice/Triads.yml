@@ -1,0 +1,9 @@
+extends: existence
+message: "Check the three-item list '%s'. Keep it only if there are exactly three real items."
+description: "Generated text favors three parallel words ('fast, reliable, and scalable'). Low confidence: any genuine three-item list also matches."
+link: https://github.com/dmfdeploy/dmfdeploy/blob/main/docs/STYLE.md#triads
+level: suggestion
+nonword: true
+# False positives: any real three-word list, such as "Ansible, k3s, and OpenBao". Suggestion level only.
+tokens:
+  - '\b[A-Za-z-]+, [A-Za-z-]+,? (?:and|or) [A-Za-z-]+\b'

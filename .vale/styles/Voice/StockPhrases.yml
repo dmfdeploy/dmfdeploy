@@ -1,0 +1,33 @@
+extends: existence
+message: "Cut or rewrite the stock phrase '%s'."
+description: "These filler phrases announce importance or close a text; they add no fact, and readers learn to skim them."
+link: https://github.com/dmfdeploy/dmfdeploy/blob/main/docs/STYLE.md#stock-phrases
+level: warning
+ignorecase: true
+tokens:
+  - 'it(?:[\x27’]s| is) important to note'
+  - 'worth (?:noting|mentioning)'
+  - 'at its core'
+  - 'key takeaways?'
+  - '(?:moving|going) forward'
+  - 'deep[- ]dives?'
+  - 'dive(?:s|d)? (?:in|into)'
+  - 'in today[\x27’]s'
+  - 'plays? an? (?:crucial|vital|key|critical|important|pivotal) role'
+  - 'a testament to'
+  - 'serves as'
+  - 'stands as'
+  - 'in the realm of'
+  - 'a wide range of'
+  - 'a variety of'
+  - 'whether you[\x27’]re'
+  - 'here[\x27’]s the thing'
+  - 'the bottom line'
+  - 'in conclusion'
+  - 'in summary'
+  - 'to be clear'
+  - 'that (?:being )?said'
+  - 'let me know if'
+  - 'feel free to'
+  - 'happy to help'
+  - 'i hope this helps'

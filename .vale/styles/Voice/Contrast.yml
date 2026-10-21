@@ -1,0 +1,25 @@
+extends: existence
+message: "Contrastive negation reads as generated: '%s'. State the fact and delete the contrast."
+description: "Sentences built as 'A, not B' or 'not X but Y' are a common mark of generated prose; they often hide a claim nobody made."
+link: https://github.com/dmfdeploy/dmfdeploy/blob/main/docs/STYLE.md#contrast
+level: error
+ignorecase: true
+nonword: true
+# Fires only on contrast shapes. A plain negated verb ('does not', 'is not',
+# 'cannot', 'do not') never matches, because every pattern needs a comma, a
+# determiner after 'not', or a fixed idiom.
+tokens:
+  # A, not B  (but not ', not yet')
+  - ',\s+not\s+(?!yet\b)\S+'
+  # not only X but (also) Y
+  - '\bnot\s+only\b[^.!?;]{1,80}?\bbut\b(?:\s+also\b)?'
+  # not a / not the / not just ... but Y
+  - '\bnot\s+(?:a|an|the|just|merely|simply|because|so\s+much)\b[^.!?;:]{1,70}?,?\s+but\s+(?:also\s+)?\S+'
+  # It's not about A / This isn't just A
+  - '\b(?:it|this|that)(?:[\x27’]s|\s+is)\s+not\s+(?:about|just|only|merely|simply|so\s+much)\b'
+  - '\b(?:it|this|that)\s+isn[\x27’]t\s+(?:about|just|only|merely|simply|so\s+much)\b'
+  # less A, more B / less about A and more about B
+  - '\bless\s+[^.!?,;]{1,40},\s+(?:and\s+)?more\b'
+  - '\bless\s+about\b[^.!?;]{1,60}\bmore\s+about\b'
+  # Sentence-initial fragment: "Not a rewrite. A refactor."
+  - '(?:^|(?<=[.!?]\s))not\s+(?:a|an|the|just|only|about)\b[^.!?]{1,60}[.!]'

@@ -1,0 +1,10 @@
+extends: existence
+message: "Drop the sentence opener '%s'. Start with the fact."
+description: "Stacked transition adverbs at the start of sentences read as padding and are a frequent mark of generated text."
+link: https://github.com/dmfdeploy/dmfdeploy/blob/main/docs/STYLE.md#openers
+level: suggestion
+scope: sentence
+nonword: true
+tokens:
+  - '^(?:Additionally|Furthermore|Moreover|Importantly|Notably|Interestingly|Ultimately|Essentially|Crucially),?'
+  - '^Overall,'

@@ -5,3 +5,7 @@ NMOS
 OpenBao
 Ansible
 k3s
+(?i)harness(?:es)?
+(?i)journeys?
+(?i)realms?
+(?i)ensur(?:e|es|ed|ing)
