@@ -55,18 +55,15 @@ tools that fetch+use a secret server-side without exposing it to the operator
   `DEVELOPMENT-AND-BUILD-RULES.md` §3) showed argv patterns. They've been
   superseded but not all references rewritten.
 
-## Alternatives considered
-
-- **"Use OpenBao for everything."** Necessary but not sufficient — once the
-  secret is fetched, it still has to flow through some channel to where it's
-  used; the rules are about *that* channel.
-- **"Trust the operator."** Solo developer discipline is reliable; multi-agent
-  collaboration is not, especially when one agent's transcript may be visible
-  to humans/services the operator hasn't audited.
-
-## Enforcement
+### Enforcement
 
 §0 of `dmf-cluster-access`, `dmf-cms-build-and-release`, and
 `dmf-openbao-unseal` skills. `bin/unseal-openbao.sh` is the reference
 implementation of "share never in argv/env/tmp." Agent boot ritual (umbrella
 CLAUDE.md) tells agents to read these §0 sections every session.
+
+## Status
+
+Accepted
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0007-secrets-never-in-argv.md).

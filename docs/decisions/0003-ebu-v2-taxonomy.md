@@ -42,17 +42,15 @@ Canonical map: `dmfdeploy/docs/architecture/DMF EBU Mapping (2026-04-25).md`.
   workload will test it.
 - **Negative:** playbook renames break old references; one-time pain.
 
-## Alternatives considered
-
-- **Keep ad-hoc phase numbering.** Loses the credibility/OSS leverage of EBU
-  alignment.
-- **Adopt only the layer scheme, not verticals.** The verticals are where
-  cross-cutting concerns live (security, monitoring); without them, those
-  concerns end up scattered. Adopting half is worse than adopting all.
-
-## Enforcement
+### Enforcement
 
 `dmfdeploy/docs/architecture/DMF EBU Mapping (2026-04-25).md` is the canonical
 map. The renumbering plan (`docs/plans/DMF Orchestrator and Renumbering Plan
 2026-04-22.md`) is DONE. New playbooks must fit the map; if they don't, treat
 that as a smell and either split the playbook or update the ADR.
+
+## Status
+
+Accepted
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0003-ebu-v2-taxonomy.md).

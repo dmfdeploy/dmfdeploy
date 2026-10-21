@@ -55,18 +55,20 @@ at least one thesis-killer is resolved.
   oversights but are deliberate. Strategic review and this ADR are the
   explanation; new agents/collaborators must read them.
 
-## Alternatives considered
-
-- **Mode A (harden now, experiment later).** Was the implicit default until the
-  2026-04-30 strategic review. Reframed: hardening adds soft lock-in and
-  doesn't test the thesis. Retracted.
-- **Mode B (parallel hardening + experimentation).** Half-effort on each, neither
-  ships. Solo-developer constraint makes serial focus the better bet.
-
-## Enforcement
+### Enforcement
 
 `dmfdeploy/docs/reviews/dmf-platform-strategic-review-2026-04-30.md` is the
 authoritative reframe. New work proposed by agents should reference whether
 it advances a thesis-killer or is hardening. STATUS.md (auto-generated) lists
 in-flight work; agents flag hardening work that isn't supporting an active
 thesis-killer experiment.
+
+## Status
+
+Accepted — **stance superseded for the committed core by
+[architectural-commitments-v1](architectural-commitments-v1.md)** (2026-06-06). The
+commit gate this ADR implied fired on 2026-06-04 (Move 1 + Move 2 closed); the project
+has committed v0.1. This ADR remains accurate history + still describes the *reserved*
+post-v0.1 experiments (federation, taxonomy-v2).
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0004-experiment-phase-stance.md).

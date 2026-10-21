@@ -40,17 +40,15 @@ Playbooks are run via `dmf-env/bin/run-playbook.sh <env-name> <path-to-generic-p
   must NOT land in `dmf-infra`. PR reviewers and pre-commit hooks have to
   catch leaks.
 
-## Alternatives considered
-
-- **Single private repo.** Simpler tooling, defeats the credibility/OSS goals.
-- **Single public repo with secrets in OpenBao only.** All references would need
-  to be runtime-resolved; some structural config (real ingress URLs in
-  `external_base_url`) is awkward to fully externalize. Two-repo model is more
-  practical.
-
-## Enforcement
+### Enforcement
 
 `dmf-infra/CLAUDE.md` states the rule explicitly. Pre-commit / CI checks
 that scan for hardcoded IPs (`grep -E '178\.|46\.225\.|10\.0\.0\.'`) or known
 domains in `dmf-infra` would catch most violations; not yet wired
 automatically. ADR-0007 (secrets discipline) reinforces the boundary.
+
+## Status
+
+Accepted
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0002-two-repo-model.md).

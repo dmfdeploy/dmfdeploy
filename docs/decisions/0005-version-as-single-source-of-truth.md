@@ -38,17 +38,15 @@ IfNotPresent` is intentional — bumping `VERSION` is the only way to force a pu
 - **Negative:** no flexibility to ship "test" images at non-semver tags. Use
   `--no-push --dirty` for local test instead.
 
-## Alternatives considered
-
-- **Keep version in `pyproject.toml`, derive others.** Same pattern, different
-  primary file. `VERSION` was chosen because it's a one-line plain-text file
-  that's trivial to read from any language/tool (Python, JSON, YAML, shell).
-- **`latest` tag for "current".** Pods cache by tag and won't repull
-  `latest` reliably; a known anti-pattern.
-
-## Enforcement
+### Enforcement
 
 `scripts/sync-version.sh --check` (run in CI on every PR; today the check is
 local-only, formal CI is pending). `scripts/build-image.sh` and
 `scripts/release.sh` both refuse to run if `--check` fails. The
 `dmf-cms-build-and-release` skill encodes the workflow.
+
+## Status
+
+Accepted
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0005-version-as-single-source-of-truth.md).

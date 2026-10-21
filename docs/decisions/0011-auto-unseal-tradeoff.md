@@ -69,59 +69,7 @@ The next-state target, when one of those conditions triggers, is **HA bao**:
 deleted. Sketched in §Alternatives below; full plan to be drafted at that
 time.
 
-## Consequences
-
-- **Positive:** the architecture's security claims are now *honest*. No one
-  reads ADR-0009 and concludes "5-share Shamir defends all bao compromise
-  paths" — they read this ADR alongside it and see the gap.
-- **Positive:** routine cluster operations (pod restarts, node drains)
-  proceed unattended. Aligns with experiment-phase priorities (ADR-0004) —
-  unattended-DR-drill is a useful capability *during* experimentation.
-- **Negative:** real security weakness exists. A compromise of the operator
-  Mac yields the bao master, and through it, every secret consumed by every
-  app. This includes Hetzner / Cloudflare / Tailscale provider tokens, all
-  app admin passwords, AWX/NetBox/Forgejo API tokens, OIDC client secrets.
-- **Negative:** "we have Shamir" is the kind of architecture claim that
-  invites cargo-cult adoption. Public-facing materials must not over-claim.
-- **Neutral:** the 5-share scheme is still useful — the breakglass path is
-  fully redundant with the automation file, so a corrupted automation file
-  does not produce a permanently locked bao. Defense-in-depth for *availability*,
-  not for *confidentiality*, in the auto-unseal scenario.
-
-## Alternatives considered
-
-- **A. HA bao with raft.** Run 3 bao replicas. Manual unseal needed only at
-  first cluster boot or full simultaneous cluster restart; replicas
-  auto-unseal from peers via the raft protocol. Materially better security
-  (no automation file at all). Costs: ~half-day to set up, few hundred MB
-  extra memory per replica, raft init/peer-discovery learning curve. Deferred
-  per ADR-0004 — it's hardening, not thesis-killer work.
-- **B. Initial-unseal-only on single-replica bao.** No automation file;
-  every pod restart blocks until a human unseals. Operationally brutal for
-  a lab cluster with frequent restarts; would force the operator into the
-  loop multiple times per week. Rejected.
-- **C. Cloud-KMS auto-unseal.** Bao supports AWS/GCP KMS for sealing the
-  master. Trades local-only trust for cloud-vendor trust. Philosophical
-  mismatch with a local-first lab; reconsider only if the deployment
-  topology shifts to cloud-first.
-- **D. macOS Keychain-resident automation file.** Move the automation JSON
-  contents into a Keychain entry (or FileVault-protected sub-volume) that
-  requires login session unlock. Narrows the attack window but does not
-  fundamentally change the threat model — anything readable while the Mac
-  is "logged in and operating" is still readable by malicious processes
-  running as the user. Marginal gain, real complexity. Not recommended.
-
-## Enforcement
-
-This ADR is **discipline-only**. No script enforces it. What it does enforce
-is that the architecture's actual security posture is documented honestly —
-future agents and collaborators reading `docs/decisions/` see both ADR-0009
-(Shamir model) and this ADR (where Shamir doesn't defend) and aren't misled.
-
-When any of the §Decision triggers fires, an engineering plan to migrate to
-option A (HA bao) should be opened. That plan supersedes this ADR.
-
-## Amendment 2026-05-30
+### Amendment 2026-05-30
 
 Recorded to close two drift gaps the 2026-05-27 portfolio review flagged
 (contradiction §2.1, staleness §3); **reopens no decision** — the live posture is
@@ -145,14 +93,37 @@ unchanged.
   is retired vocabulary**; post-experiment hardening is now tracked per release-profile
   (ADR-0031) and via the tiered framework (ADR-0029), not a "Move 2" milestone.
 
-## Related
+## Consequences
 
-- **ADR-0029** — Tiered Unseal Posture; reframes this tradeoff as Tier 3
-- **ADR-0031** — OSS v0.1 release matrix; AWS-KMS unseal = Tier 3 sub-variant 3a
-- **ADR-0009** — 5-share Shamir, 3-of-5 threshold, distributed across 5 locations
-- **ADR-0004** — Experiment phase, not hardening (defers HA bao migration)
-- **ADR-0007** — Secrets never in argv (the discipline that makes the
-  automation file's exposure surface as small as possible *given* the design)
-- **ADR-0008** — OpenBao + ESO + AppRole shim secrets architecture
-- `dmf-openbao-unseal` skill — the operator-facing manual breakglass path
-  (which the Shamir model fully protects)
+- **Positive:** the architecture's security claims are now *honest*. No one
+  reads ADR-0009 and concludes "5-share Shamir defends all bao compromise
+  paths" — they read this ADR alongside it and see the gap.
+- **Positive:** routine cluster operations (pod restarts, node drains)
+  proceed unattended. Aligns with experiment-phase priorities (ADR-0004) —
+  unattended-DR-drill is a useful capability *during* experimentation.
+- **Negative:** real security weakness exists. A compromise of the operator
+  Mac yields the bao master, and through it, every secret consumed by every
+  app. This includes Hetzner / Cloudflare / Tailscale provider tokens, all
+  app admin passwords, AWX/NetBox/Forgejo API tokens, OIDC client secrets.
+- **Negative:** "we have Shamir" is the kind of architecture claim that
+  invites cargo-cult adoption. Public-facing materials must not over-claim.
+- **Neutral:** the 5-share scheme is still useful — the breakglass path is
+  fully redundant with the automation file, so a corrupted automation file
+  does not produce a permanently locked bao. Defense-in-depth for *availability*,
+  not for *confidentiality*, in the auto-unseal scenario.
+
+### Enforcement
+
+This ADR is **discipline-only**. No script enforces it. What it does enforce
+is that the architecture's actual security posture is documented honestly —
+future agents and collaborators reading `docs/decisions/` see both ADR-0009
+(Shamir model) and this ADR (where Shamir doesn't defend) and aren't misled.
+
+When any of the §Decision triggers fires, an engineering plan to migrate to
+option A (HA bao) should be opened. That plan supersedes this ADR.
+
+## Status
+
+Accepted (with explicit known tradeoff)
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0011-auto-unseal-tradeoff.md).
