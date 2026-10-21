@@ -33,18 +33,15 @@ node — it's a full cluster-admin certificate.
 - **Negative:** local `kubectl` is not configured for the lab cluster, by
   design. Discomfort for operators who expect it to "just work."
 
-## Alternatives considered
-
-- **Trust local kubectl but verify before each session.** Adds a verification
-  step that's easy to skip. The mistakes happen on routine operations, not on
-  ceremonial ones.
-- **Distribute the kubeconfig to each operator's machine.** Each copy is a
-  full cluster-admin cert; each is an attack surface. Centralizing on the
-  control node minimizes copies of high-value credentials.
-
-## Enforcement
+### Enforcement
 
 `dmf-cms/scripts/verify-cluster.sh` exists for this exact purpose: SSH to the
 control node and confirm the cluster's image matches local `VERSION`. The
 `dmf-cluster-access` skill (§0 rule 4) mandates the SSH path for reads. ADR-0007
 (secrets discipline) reinforces the no-copy rule for the kubeconfig.
+
+## Status
+
+Accepted
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0006-cluster-is-the-truth.md).

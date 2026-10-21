@@ -56,19 +56,16 @@ for the openbao role's auto-unseal during normal playbook runs.
 - **Negative:** if JuiceFS sync is misconfigured, shares 1+2 could end up in
   unintended cloud locations. Volume-level encryption is the mitigation.
 
-## Alternatives considered
-
-- **3-share, 2-of-3.** Smaller threshold, less resilience to share loss. Less
-  defense-in-depth.
-- **Single key (no Shamir).** Simpler ops, single point of compromise. Rejected.
-- **Cloud KMS auto-unseal.** Trades local-only security for cloud-vendor trust.
-  For an experiment-phase lab where the operator IS the security boundary,
-  Shamir is more appropriate.
-
-## Enforcement
+### Enforcement
 
 `dmf-infra/k3s-lab-bootstrap/roles/stack/operator/openbao/tasks/main.yml`
 writes the shares to all 5 locations during init. `bin/unseal-openbao.sh`
 reads from canonical paths only. The `dmf-openbao-unseal` skill is the
 operator-facing interface; never improvise share handling outside it
 (see ADR-0007).
+
+## Status
+
+Accepted
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0009-shamir-dr-model.md).

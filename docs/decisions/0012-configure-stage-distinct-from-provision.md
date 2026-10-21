@@ -44,6 +44,28 @@ existing Layer 1–3 + 6 baseline apps retain their current behaviour
 (provisioned-and-configured in one pass) until/unless a specific reason
 to split them appears.
 
+### Terminology — two configure-stage usages (added 2026-05-19)
+
+The provision/configure/finalise vocabulary appears in two places that are
+worth distinguishing:
+
+| Usage | Where | Trigger | Transport (as of ADR-0025) |
+|---|---|---|---|
+| **Bootstrap-configure** | `bootstrap-configure.yml` → 69x playbook chain (`691-netbox-sot`, `692-forgejo-bootstrap`, `693-awx-integration`, etc.) | Operator runs `bin/run-playbook.sh` once per cluster bring-up | In-cluster runner pod (Lane C of the 2026-05-19 plan) |
+| **Catalog-launcher-configure** | Per-function `launch-<key>.yml` playbooks in `dmf-runbooks`; per-function provision/configure/finalise tasks in the function's role | Operator triggers via dmf-cms catalog page → AWX JT POST | AWX EE pod in-cluster (Lane B of the 2026-05-19 plan) |
+
+Both share the EBU provision→configure→finalise vocabulary. They differ in
+trigger and transport. ADR-0023 §Scope already named the caller-location
+distinction; this clarification names the lifecycle-stage distinction in
+the same terms.
+
+**See:**
+[`docs/plans/DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md`](../plans/DMF%20Cluster-Internal%20Ansible%20Execution%20and%20Catalog%20Helm%20Pivot%20Plan%202026-05-19.md)
+for the unified architecture; [ADR-0025](0025-ansible-in-cluster-pods-and-catalog-helm.md)
+for the decision record.
+
+Implementation detail: see the [archive record](../archive/decisions/0012-configure-stage-distinct-from-provision.md).
+
 ## Consequences
 
 - **Positive** — operator-driven launch (the catalog model) becomes
@@ -64,19 +86,7 @@ to split them appears.
 - **Negative** — one more file in the lifecycle root, one more entry
   in the boot ritual mental model.
 
-## Alternatives considered
-
-- **Keep collapsed in `lifecycle-provision.yml`, gate launch via Ansible
-  vars** (e.g. `nmos_cpp_enabled: false`). Rejected — pushes the launch
-  decision into Ansible variable management, which is harder for dmf-cms
-  to drive than a tag-scoped playbook invocation, and obscures the
-  EBU lifecycle distinction.
-- **No wrapper for Configure — dmf-cms calls per-function playbooks
-  directly via AWX**. Rejected — bypasses the lifecycle vocabulary
-  ADR-0003 committed to and creates a parallel orchestration surface
-  that doesn't match the rest of the platform.
-
-## Enforcement
+### Enforcement
 
 ADR-0013 (catalog model) is the consumer of this split. The Move 1 task
 spec (`docs/plans/dmf-platform-move-1-task-2026-05-04.md`) implements
@@ -85,70 +95,8 @@ the first `lifecycle-configure.yml` and the first per-function Configure
 for nmos-cpp, the failure is a signal to reshape this ADR rather than
 fudge the implementation.
 
-## Implementation note (2026-05-06)
+## Status
 
-The first implementation attempted to give the AWX EE pod in-cluster
-auth via a mounted `awx-ee` ServiceAccount (so `kubernetes.core.k8s`
-in the catalog launcher could call the API directly). This proved
-fragile across five coupled layers (custom EE image, SA + RBAC,
-`InstanceGroup.pod_spec_override` serialization, JT execution-environment
-wiring, K8S_AUTH_* env plumbing) — see commit log
-`f669415`..`e8bc0f4` in `dmf-runbooks` for ~20 iterative fixes that
-never converged. Independent architecture review in
-[`docs/plans/Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md`](../plans/Move%201%20Gate%202%20-%20Pivot%20to%20Path%20A%20for%20Catalog%20Launchers%202026-05-06.md)
-recommended pivoting catalog launchers to ADR-0016's Path A
-(SSH-via-control-node + `become: true` + `KUBECONFIG=/etc/rancher/k3s/k3s.yaml`) —
-the same execution model already used for Layer-1..3 layer playbooks.
+Accepted
 
-**This ADR is unchanged.** The decision (Configure-vs-Provision stage
-split, per-function Configure + Finalise launcher pair, NetBox tag flip
-`lifecycle:bootstrapped` ↔ `lifecycle:active`) survived contact with the
-experiment intact. Only the *auth-mechanism implementation detail*
-changed: catalog launchers now SSH to the control node and
-`kubernetes.core.k8s` reads `/etc/rancher/k3s/k3s.yaml` natively under
-become, instead of relying on a SA token mount inside the EE pod.
-
-Note also that the launcher merges Provision and Configure stages into
-a single AWX job (`media-launch-nmos-cpp`) for operator ergonomics. The
-*role-level* split (`provision.yml`, `configure.yml`, `finalise.yml`)
-is preserved, idempotent, and is what defends the ADR-0012 decision.
-
-**Console label.** The operator-facing console calls that combined launch
-action **Provision**: one action dispatches the merged Provision+Configure
-job. Configure remains the distinct EBU lifecycle stage at the role and
-playbook level beneath that operator-facing action.
-
-The in-cluster SA approach remains valid architecture for a mature
-K8s-native AWX deployment; it is preserved as deferred capability in
-`dmf-infra/k3s-lab-bootstrap/roles/stack/operator/awx-integration/`
-and `roles/stack/operator/awx/templates/awx-instance.yml.j2`. Trigger
-for revisiting it would be a catalog playbook that *must* run in-cluster
-for latency / network / blast-radius reasons.
-
-Job 285 (`media-launch-nmos-cpp`, commit `e86ae24` of `dmf-runbooks`)
-was the first end-to-end success of the pivot: NetBox catalog tag
-taxonomy auto-created, `ipam.Service` registered with parent
-`dmf-traefik` device, K8s namespace + ConfigMaps + PVC + StatefulSet +
-Deployments + Services applied, NetBox tag flipped to `lifecycle:active`.
-That confirms ADR-0012 is implementable; further catalog functions
-can follow the same shape.
-
-## Terminology — two configure-stage usages (added 2026-05-19)
-
-The provision/configure/finalise vocabulary appears in two places that are
-worth distinguishing:
-
-| Usage | Where | Trigger | Transport (as of ADR-0025) |
-|---|---|---|---|
-| **Bootstrap-configure** | `bootstrap-configure.yml` → 69x playbook chain (`691-netbox-sot`, `692-forgejo-bootstrap`, `693-awx-integration`, etc.) | Operator runs `bin/run-playbook.sh` once per cluster bring-up | In-cluster runner pod (Lane C of the 2026-05-19 plan) |
-| **Catalog-launcher-configure** | Per-function `launch-<key>.yml` playbooks in `dmf-runbooks`; per-function provision/configure/finalise tasks in the function's role | Operator triggers via dmf-cms catalog page → AWX JT POST | AWX EE pod in-cluster (Lane B of the 2026-05-19 plan) |
-
-Both share the EBU provision→configure→finalise vocabulary. They differ in
-trigger and transport. ADR-0023 §Scope already named the caller-location
-distinction; this clarification names the lifecycle-stage distinction in
-the same terms.
-
-**See:**
-[`docs/plans/DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md`](../plans/DMF%20Cluster-Internal%20Ansible%20Execution%20and%20Catalog%20Helm%20Pivot%20Plan%202026-05-19.md)
-for the unified architecture; [ADR-0025](0025-ansible-in-cluster-pods-and-catalog-helm.md)
-for the decision record.
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0012-configure-stage-distinct-from-provision.md).

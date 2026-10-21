@@ -48,19 +48,16 @@ A companion `bin/monitor-playbook.sh <log>` streams filtered output
   see ADR-0007 §5 for sweep procedure. Trap cleanup handles the happy path
   but not Ctrl-C in some edge cases.
 
-## Alternatives considered
-
-- **Bare `ansible-playbook` with operators remembering to set env vars.** This
-  is what we had; it failed. Rejected.
-- **Ansible vault for secrets instead of OpenBao.** Adds a second secret-management
-  system; OpenBao is already the canonical runtime store (ADR-0008). Rejected.
-- **Wrap in Make / Just.** Adds a tool dependency. Bash works fine and is
-  already on every operator's box.
-
-## Enforcement
+### Enforcement
 
 `dmf-infra/CLAUDE.md` and `dmf-env/CLAUDE.md` both reference the
 wrapper as the entry point. `dmf-cluster-access` skill §4.1 states the
 "golden rule." The wrapper itself prints usage if mis-invoked. No automated
 rejection of bare `ansible-playbook` calls — discipline + skill references
 only.
+
+## Status
+
+Accepted
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0010-run-playbook-as-sanctioned-entry.md).

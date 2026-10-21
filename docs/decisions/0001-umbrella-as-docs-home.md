@@ -21,38 +21,7 @@ plans, and Claude Code skills (`.claude/skills/`). The 5 component repos sit
 inside it as `.gitignore`d sibling directories — each retains its own `.git`
 and remote, ships independently, and is **not** a git submodule.
 
-## Consequences
-
-- **Positive:** single mental model ("the umbrella has the cross-cutting stuff,
-  the component repo has the code"). One place for agents to fetch on session
-  start. Component repos still ship independently with their own release cadence.
-- **Positive:** docs that previously lived only on JuiceFS are now version-tracked,
-  pushable to Forgejo, reviewable in PRs.
-- **Negative:** standalone clones of a component repo (without the umbrella) lose
-  cross-repo references in CLAUDE.md / READMEs. Mitigated by textual paths
-  (`dmfdeploy/docs/...`) that signal where to look rather than relying on
-  filesystem resolution.
-- **Negative:** two `git push` operations needed when changes span umbrella + a
-  component. Acceptable for current scale.
-
-## Alternatives considered
-
-- **Submodules.** Add ceremony for marginal benefit in experiment phase; pinning
-  versions across 5 sibling repos is more friction than it's worth right now.
-  Reconsider when releasing publicly.
-- **Monorepo.** Would force one branching/release model on everything. Component
-  repos already have established release workflows; collapsing them is a
-  high-cost reorg without a clear forcing function.
-
-## Enforcement
-
-`.gitignore` excludes the 5 component dirs at the umbrella root. Component repo
-CLAUDE.md / README files reference `dmfdeploy/docs/<subdir>/...` as textual
-pointers; rewrite enforced by past commits (see component repo `docs: rewrite
-<note-store> refs to dmfdeploy/docs/` commits). Boot ritual in umbrella
-CLAUDE.md tells agents to `git fetch && git pull` the umbrella first.
-
-## Amendment (2026-06-11): components are siblings, not nested
+### Amendment (2026-06-11): components are siblings, not nested
 
 With the first public release (all 9 repos at `github.com/dmfdeploy/<repo>`),
 the canonical checkout layout changed: the (now 8) component repos sit
@@ -69,3 +38,31 @@ Consequences of the amendment:
 - Umbrella `bin/` tooling (`generate-status.sh`, `generate-scripts-catalog.sh`,
   scrub/hygiene/export gates, `mxl-sync-check.sh`) resolves component repos in
   either layout: nested if present, otherwise sibling.
+
+## Consequences
+
+- **Positive:** single mental model ("the umbrella has the cross-cutting stuff,
+  the component repo has the code"). One place for agents to fetch on session
+  start. Component repos still ship independently with their own release cadence.
+- **Positive:** docs that previously lived only on JuiceFS are now version-tracked,
+  pushable to Forgejo, reviewable in PRs.
+- **Negative:** standalone clones of a component repo (without the umbrella) lose
+  cross-repo references in CLAUDE.md / READMEs. Mitigated by textual paths
+  (`dmfdeploy/docs/...`) that signal where to look rather than relying on
+  filesystem resolution.
+- **Negative:** two `git push` operations needed when changes span umbrella + a
+  component. Acceptable for current scale.
+
+### Enforcement
+
+`.gitignore` excludes the 5 component dirs at the umbrella root. Component repo
+CLAUDE.md / README files reference `dmfdeploy/docs/<subdir>/...` as textual
+pointers; rewrite enforced by past commits (see component repo `docs: rewrite
+<note-store> refs to dmfdeploy/docs/` commits). Boot ritual in umbrella
+CLAUDE.md tells agents to `git fetch && git pull` the umbrella first.
+
+## Status
+
+Accepted (amended 2026-06-11 — sibling layout)
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0001-umbrella-as-docs-home.md).
