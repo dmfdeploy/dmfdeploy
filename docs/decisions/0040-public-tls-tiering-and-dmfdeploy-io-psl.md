@@ -2,8 +2,8 @@
 
 **Status:** Accepted (scoping decision, 2026-06-08) — **OSS uses Tiers 1 + 2 only;
 dmfdeploy.io (Tier 3) is deferred to a future *managed-service* model and kept entirely separate
-from OSS to protect the domain's reputation.** The Tier-3 design + hardening below are **captured
-for that future phase**, not built now. (Reasoning/dead-ends recorded so they aren't re-derived
+from OSS to protect the domain's reputation.** The Tier-3 design + hardening are **captured
+for that future phase** in the [archive record](../archive/decisions/0040-public-tls-tiering-and-dmfdeploy-io-psl.md), not built now. (Reasoning/dead-ends recorded so they aren't re-derived
 or re-proposed.)
 
 **Date:** 2026-06-08
@@ -73,8 +73,8 @@ Implementation detail: see the [archive record](../archive/decisions/0040-public
 
 Accepted (scoping decision, 2026-06-08) — **OSS uses Tiers 1 + 2 only;
 dmfdeploy.io (Tier 3) is deferred to a future *managed-service* model and kept entirely separate
-from OSS to protect the domain's reputation.** The Tier-3 design + hardening below are **captured
-for that future phase**, not built now. (Reasoning/dead-ends recorded so they aren't re-derived
+from OSS to protect the domain's reputation.** The Tier-3 design + hardening are **captured
+for that future phase** in the [archive record](../archive/decisions/0040-public-tls-tiering-and-dmfdeploy-io-psl.md), not built now. (Reasoning/dead-ends recorded so they aren't re-derived
 or re-proposed.)
 
 Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0040-public-tls-tiering-and-dmfdeploy-io-psl.md).

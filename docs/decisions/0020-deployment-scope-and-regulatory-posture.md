@@ -145,7 +145,7 @@ Reconciling that answer with this ADR's promotion gates:
 at creation time) at the moment a real driver appears, replacing the
 B / C sections of this ADR with cross-refs. Until then, keeping them in
 this ADR preserves the "three-mode framing" context that the consequences
-and alternatives sections lean on.
+and the [alternatives](../archive/decisions/0020-deployment-scope-and-regulatory-posture.md#alternatives-considered) lean on.
 
 > **2026-05-30 correction (portfolio-review §2.2):** an earlier draft of
 > this paragraph predicted "ADR-0028 managed-service, ADR-0029
@@ -241,7 +241,7 @@ Accepted (Mode A); Proposed (Mode B, Mode C)
 Promote from **Proposed** → **Accepted** when:
 
 1. The OSS-vs-managed boundary (B.4) has been confirmed by the operator
-   as the chosen pattern (alternatives explicitly rejected above).
+   as the chosen pattern (alternatives explicitly rejected in the [archive record](../archive/decisions/0020-deployment-scope-and-regulatory-posture.md#alternatives-considered)).
 2. The cluster-per-tenant constraint (B.3) has survived a unit-economics
    sanity check.
 3. The ADR-0011 auto-unseal tradeoff has a named Mode B exit path

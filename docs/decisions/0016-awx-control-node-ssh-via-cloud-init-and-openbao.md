@@ -2,8 +2,8 @@
 
 > **⚠️ Canonical truth for this topic is consolidated in the
 > [Catalog and execution digest](digests/catalog-and-execution.md).** This ADR's status: **partially superseded by ADR-0025** (canonical for `media-*` JTs; still authoritative for AWX→infra plays).
-> Full text preserved below for decision history — do not act on it without
-> reading the digest + the named successor.
+> Full text is preserved in the [archive record](../archive/decisions/0016-awx-control-node-ssh-via-cloud-init-and-openbao.md) for decision
+> history — do not act on it without reading the digest + the named successor.
 
 **Status:** Partially superseded by ADR-0025 (canonical for `media-*` JTs; still authoritative for AWX→infrastructure plays)
 **Date:** 2026-05-05
