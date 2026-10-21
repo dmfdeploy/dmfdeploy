@@ -15,15 +15,7 @@ authority chain — authorisation of the reserve/release actions)
 
 ## Context
 
-The EBU Dynamic Media Facility model treats **media-function licences as a
-reservable resource**, on the same footing as compute/network/storage. The
-whitepaper (pp. 3–4): **Plan** *"reserve … resources … and set up authorisations
-for their access"*; **Operate** changes are *"limited to available resources
-(compute, **licences**, connectivity, storage)"*; **Finalise** *"delete … Media
-Functions, authorisations and reservations."* The orchestration figure's MEDIA
-FUNCTIONS row spells out the lifecycle: **Ensure Licence Availability** (Plan) →
-**Assign Licences** (Provision) → **Release Licences** (Finalise) → **Monitor
-Licence Usage** (Monitor) → **Authorise/Audit Workload Usage** (Security).
+Background and evidence: see the [archive record](../archive/decisions/0045-media-function-licensing-reservable-resource.md).
 
 DMF today has **no licensing model at all**: no ADR, no plan, no catalog field, no
 NetBox model, no console surface. The console IA reserves a "Licenses" rail slot
@@ -100,24 +92,6 @@ reservation ledger).
    in-cluster store, OpenBao-backed, or an external entitlement service). NetBox
    may reference a `reservation_id`, but does not own the lease state.
 
-## Alternatives considered
-
-- **Mock licence pool via NetBox tags (`licence:assigned`).** Rejected: a tag
-  cannot represent counts, leases, concurrency, idempotency, rollback, expiry, or
-  external entitlement mapping. It would teach the wrong model, pollute NetBox
-  (an inventory/instance store, not a reservation ledger), and produce a
-  demo that *looks* like enforcement while proving nothing — the classic
-  misleading fake.
-- **Build a real reservation provider now (in v0.2).** Rejected for v0.2: our
-  current functions (MXL, nmos-cpp/crosspoint) are unlicensed, so there is no
-  driver, and a correct provider (atomic assign, deny-on-exhaustion, idempotent
-  release, rollback, expiry) is a workstream that would crowd out the v0.2
-  lifecycle-legibility slice. Deferred to a deliberately-chosen later slice.
-- **Omit licensing entirely / no ADR.** Rejected: the EBU model makes licences a
-  first-class reservable resource; leaving it unmodelled is the silent gap this
-  ADR exists to close. Recording the seam now (with declared-but-inert fields)
-  is the cheap, honest middle.
-
 ## Consequences
 
 - **Positive:** the EBU licence thread becomes a recorded, intentional deferral
@@ -135,3 +109,9 @@ reservation ledger).
   entitlement vs lease split, lease lifecycle, canonical API, grace policy.
   Read the [summary and DMF relevance note](../references/iamt-dsl-v1.0.0-summary-and-relevance.md)
   before opening the RFC.
+
+## Status
+
+Proposed
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0045-media-function-licensing-reservable-resource.md).

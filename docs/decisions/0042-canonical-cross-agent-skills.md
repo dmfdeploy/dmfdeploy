@@ -28,12 +28,12 @@ Adopt **one canonical, agent-neutral skills store — `.agents/skills/<name>/SKI
 - **Negative** — one new script + CI job to own; generated local views rely on `core.symlinks=true` (or a copy fallback); a handful of Claude-runtime-specific skills must be stamped `agents: [claude]` to avoid misleading other agents.
 - **Neutral** — `.claude/skills/` and `.qwen/skills/` become gitignored generated artifacts; prose references in `CLAUDE.md`/`QWEN.md` repoint to `.agents/skills/`.
 
-## Alternatives considered
-
-- **`docs/skills/` or top-level `skills/`** (the two locations #46 originally listed) — agent-neutral but **not any agent's native path**, so *every* agent (including Codex/Gemini) needs generated glue. `.agents/skills/` gives the three native-readers for free.
-- **Committed per-skill symlinks, no script** — no review gate on auto-minted skills, and whole-dir symlinking `.claude/skills/` collides with Claude's `.system/` internals. Loses the capture→promote gate that is the point of #46.
-- **Auto-absorb without an `_inbox`** — moving agent-authored skills straight into canonical bypasses PR review, the exact failure #46 exists to fix.
-
-## Enforcement
+### Enforcement
 
 `bin/sync-skills.sh --check` (wired into `.githooks/pre-commit` and a CI `skills-sync` job) fails on any drift between canonical and the generated per-agent views; the generated `…/skills/` directories are gitignored so they cannot be hand-edited into `main`. Implementation tracked by issue #46 and specified in `docs/plans/Canonical Cross-Agent Skills 2026-06-14.md`.
+
+## Status
+
+Accepted
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0042-canonical-cross-agent-skills.md).

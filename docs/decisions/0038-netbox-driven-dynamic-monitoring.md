@@ -20,16 +20,6 @@ runtime record. The missing piece is monitoring: the platform needs one declarat
 contract that lets monitoring attach and detach automatically as the facility
 changes, without a human re-running a playbook.
 
-This ADR closes that gap by defining:
-
-- a two-lane discovery model with one monitoring contract;
-- a precise catalog schema for the monitoring contract;
-- the NetBox tag and custom-field taxonomy that drives the adapter;
-- the Kubernetes annotation conventions for in-cluster scrape targets;
-- the adapter boundary for a standalone DMF PromSD service; and
-- the decision to supersede the older bootstrap-time `file_sd` bridge from the
-  Day-0 monitoring plan.
-
 ## Decision
 
 **1. NetBox is the single source of truth for monitoring intent.**
@@ -192,7 +182,7 @@ The Day-0 inventory and monitoring plan’s bootstrap-time `file_sd` bridge is n
 superseded by this ADR. Bootstrap may still seed the initial state, but the canonical
 bridge is live `http_sd` from `dmf-promsd`, not a one-time file export.
 
-## Operator decisions
+### Operator decisions
 
 **1. Create a new component repo for `dmf-promsd`.**
 
@@ -232,84 +222,13 @@ directly onto `dcim.device` via the catalog writer; external devices are stamped
 `nmos-cpp` / born-inventory under different writers today. Reconfirm in WP6 and
 bump ADR-0032 only if that case actually appears.
 
-## Consequences
-
-- **Positive** — Monitoring becomes declarative and facility-driven instead of
-  being a frozen scrape list.
-- **Positive** — NetBox remains the single source of truth for what exists and
-  should be observed, while Kubernetes stays responsible for in-cluster pod
-  discovery.
-- **Positive** — The contract is explicit enough for downstream implementation work
-  to proceed without new architecture decisions.
-- **Positive** — The adapter can be versioned, tested, and released independently of
-  NetBox.
-- **Positive** — The `/sd/*` contract stays stable while the adapter’s internal
-  caching strategy evolves, so Prometheus wiring does not need to change as the
-  implementation matures.
-- **Negative** — There is one more component to build and operate.
-- **Negative** — The platform now has a deliberate split between scrape, probe, and
-  SNMP discovery paths, which is more to wire than a single discovery source.
-- **Neutral** — The old bootstrap-time `file_sd` approach remains documented as
-  historical context, but it is no longer canonical.
-
-## Alternatives considered
-
-1. **Use the `netbox-plugin-prometheus-sd` plugin.** Rejected. It couples the DMF
-   NetBox lifecycle to a third-party plugin compatibility matrix, and it weakens the
-   platform’s ability to keep the mapping under local control.
-2. **Keep bootstrap-time `file_sd` as the bridge.** Rejected. It only captures a
-   one-time snapshot and cannot continuously reconcile target sets as the facility
-   changes.
-3. **Use only Kubernetes discovery.** Rejected. That leaves physical devices,
-   off-cluster services, and SNMP gear outside the monitoring model.
-4. **Model monitoring separately per lane.** Rejected. The platform would then need
-   multiple contracts, which creates drift between the catalog, NetBox, and the
-   launcher behavior.
-
-## Cross-references
-
-- [ADR-0010](0010-run-playbook-as-sanctioned-entry.md) — deploy/verify work packages
-  and live checks run through the sanctioned wrapper.
-- [ADR-0013](0013-media-function-catalog-model.md) for the catalog definition /
-  runtime-record split that this monitoring contract extends.
-- [ADR-0023](0023-internal-service-dns-for-cross-app-wiring.md) for the internal
-  service-DNS posture used by cross-app plumbing inside the cluster.
-- [ADR-0028](0028-identity-and-authority-chain.md) — the adapter holds a scoped
-  NetBox read token under the machine-identity model.
-- [ADR-0027](0027-catalog-instance-vs-definition-separation.md) for the layering
-  language that this ADR reuses while choosing NetBox + AWX over a custom operator.
-- [ADR-0032](0032-catalog-launcher-scoped-netbox-writer.md) for the scoped NetBox
-  writer model used when launchers stamp lifecycle and monitoring metadata.
-- [ADR-0034](0034-internal-ansible-collection-source.md) for the air-gap /
-  internal-source posture that the adapter release path must respect.
-- [ADR-0037](0037-media-workloads-netbox-instance-inventory.md) for the decision
-  that NetBox stores media-function instances and placement, not live flow state.
-
-## Enforcement
-
-The follow-on work packages must implement the contract exactly as written here.
-Any implementation that changes the monitoring contract schema, introduces a second
-contract shape, or reverts the bridge to a bootstrap-only file export should be
-treated as an ADR violation and reviewed against this decision first.
-
----
-
-## Amendment A (2026-06-04): probe / scrape targets via cluster service DNS
+### Amendment A (2026-06-04): probe / scrape targets via cluster service DNS
 
 **Status:** Accepted. Amends §3, §4, and the §5 lane-level address contract.
 
-### Problem (found in the first live e2e)
+Problem statement and evidence: see the [archive record](../archive/decisions/0038-netbox-driven-dynamic-monitoring.md).
 
-The original §5 "Probe" row said the adapter emits `__address__ = <real target>` but
-never defined how a *service* yields a target. In practice a NetBox `ipam.Service`
-registered by born-inventory (and, by extension, by the catalog launcher) carries a
-name, ports, a parent device, and the monitoring tags/fields — **but no usable
-address**: `ipaddresses` is empty, and every platform app sits behind one shared
-Traefik ingress on `LB-IP:443`, differentiated only by Host/path. So the adapter
-fetched all tagged services but emitted **zero** probe/scrape targets (no
-`__address__` to compose). Pod IPs are unusable anyway — they churn on reschedule.
-
-### Decision
+#### Decision
 
 **The probe and scrape targets for in-cluster objects are the object's stable
 cluster Service DNS name, composed by the adapter from identity recorded in NetBox —
@@ -351,7 +270,7 @@ apps and to dynamically deployed catalog/media-function services.
      devices** and the **SNMP lane** (physical gear that legitimately has an IP and no
      cluster Service).
 
-### Consequences / notes
+#### Consequences / notes
 
 - Fits the existing **ADR-0023** internal-svc-DNS-over-plain-HTTP posture exactly: no
   ingress Host/path juggling, no TLS/CA-in-pod problem, no shared-LB-IP ambiguity.
@@ -360,28 +279,14 @@ apps and to dynamically deployed catalog/media-function services.
   (does the ingress actually serve it end-to-end), composed from `exposure:*` +
   `external_base_url`. That is an optional second probe and is **deferred**; the
   internal svc-DNS probe is the robust baseline and the default.
-- Work-package impact: WP1 (netbox-sot) seeds the three custom fields; WP6 (catalog
-  launcher) and WP7 (born-inventory) stamp them; WP3 (dmf-promsd) implements the
-  composition + fallback. The `/sd/*` http_sd output contract is unchanged.
 
----
-
-## Amendment B (2026-07-03): `probe_path` probe-lane URL path
+### Amendment B (2026-07-03): `probe_path` probe-lane URL path
 
 **Status:** Accepted. Amends §3, §4, and the Amendment A adapter composition.
 
-### Problem
+Problem statement: see the [archive record](../archive/decisions/0038-netbox-driven-dynamic-monitoring.md).
 
-The probe lane composes a host:port target (Amendment A) and selects a blackbox
-module (`probe_module`), but has no way to express a URL path. Some targets are
-only meaningfully probeable on a specific path — the canonical case is Loki, whose
-root returns non-2xx by design while its health contract is `GET /ready` on the
-HTTP port. Blackbox modules cannot carry a path (the http prober takes the path
-from the *target*), and `metrics_path` is scrape-lane-only by §3. Without a
-path field the only workarounds are wrong ones: a public ingress detour for an
-internal health check, or `tcp_connect` (port-open ≠ ready).
-
-### Decision
+#### Decision
 
 **Add one custom field to the monitoring contract:**
 
@@ -418,13 +323,43 @@ Grafana's `/` → `/login` behind an OAuth auto-login chain to a local-CA URL).
 As everywhere in §3, the choice set must stay lock-step with the deployed
 blackbox-exporter module list.
 
-### Consequences / notes
+#### Consequences / notes
 
 - The catalog `monitoring.probe` block gains an optional `probe_path` key,
   mapping 1:1 to the custom field, consistent with §3's additive-schema rule.
 - Stamping follows Amendment A's "the deployer is the bridge" rule: born-inventory
   (platform apps) and the catalog launcher stamp `probe_path` alongside the other
   monitoring fields, gated on `monitoring:probe`.
-- Work-package impact (monitoring close-out plan, 2026-07-02): netbox-sot seeds
-  the field; born-inventory stamps it (`loki → /ready`); dmf-promsd implements
-  the normalization + conditional append.
+
+## Consequences
+
+- **Positive** — Monitoring becomes declarative and facility-driven instead of
+  being a frozen scrape list.
+- **Positive** — NetBox remains the single source of truth for what exists and
+  should be observed, while Kubernetes stays responsible for in-cluster pod
+  discovery.
+- **Positive** — The contract is explicit enough for downstream implementation work
+  to proceed without new architecture decisions.
+- **Positive** — The adapter can be versioned, tested, and released independently of
+  NetBox.
+- **Positive** — The `/sd/*` contract stays stable while the adapter’s internal
+  caching strategy evolves, so Prometheus wiring does not need to change as the
+  implementation matures.
+- **Negative** — There is one more component to build and operate.
+- **Negative** — The platform now has a deliberate split between scrape, probe, and
+  SNMP discovery paths, which is more to wire than a single discovery source.
+- **Neutral** — The old bootstrap-time `file_sd` approach remains documented as
+  historical context, but it is no longer canonical.
+
+### Enforcement
+
+The follow-on work packages must implement the contract exactly as written here.
+Any implementation that changes the monitoring contract schema, introduces a second
+contract shape, or reverts the bridge to a bootstrap-only file export should be
+treated as an ADR violation and reviewed against this decision first.
+
+## Status
+
+Accepted
+
+Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0038-netbox-driven-dynamic-monitoring.md).
