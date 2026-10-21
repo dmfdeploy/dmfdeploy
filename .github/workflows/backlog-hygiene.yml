@@ -26,8 +26,10 @@ jobs:
 
       # Strict mode: the checker exits 1 on findings. The step captures the
       # exit code instead of failing, so the report issue is still updated or
-      # closed; the last step fails the job. A crash (an exit code other than
-      # 0 or 1, or no summary line) also counts as a finding.
+      # closed; the last step fails the job. has_findings is false only when
+      # the checker exits 0 AND its last line is exactly the OK line. An
+      # INCOMPLETE line (a check could not read its input), a crash or a
+      # missing summary line all set it to true.
       - name: Run backlog-hygiene check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,7 +41,8 @@ jobs:
           bin/check-backlog-hygiene.sh 2>&1 | tee /tmp/report.txt
           rc=$?
           set -e
-          if [ "$rc" -eq 0 ] && grep -q '^backlog-hygiene: OK' /tmp/report.txt; then
+          last="$(grep -v '^[[:space:]]*$' /tmp/report.txt | tail -1 || true)"
+          if [ "$rc" -eq 0 ] && [ "$last" = "backlog-hygiene: OK (0 findings)" ]; then
             has=false
           else
             has=true
@@ -62,8 +65,18 @@ jobs:
             --label component:cross-repo \
             --json number --jq '.[0].number // empty' 2>/dev/null || true)"
 
+          # An incomplete or crashed run keeps the issue open and says so,
+          # because its findings list may be missing checks.
+          last="$(grep -v '^[[:space:]]*$' /tmp/report.txt | tail -1 || true)"
           {
             printf '## Backlog hygiene report — %s\n\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            case "$last" in
+              "backlog-hygiene: INCOMPLETE"*)
+                printf '**The run was incomplete:** at least one check could not read its input (see SKIPPED below), so findings may be missing.\n\n' ;;
+              "backlog-hygiene: "*) ;;
+              *)
+                printf '**The run did not finish:** the checker printed no summary line.\n\n' ;;
+            esac
             printf '```\n'
             cat /tmp/report.txt
             printf '```\n'
