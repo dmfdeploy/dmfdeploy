@@ -316,7 +316,7 @@ commodity k3s, several Move 2 commitments would be premature. Worst case for
 ## Cross-reference
 
 - Strategic review: [`docs/reviews/dmf-platform-strategic-review.md`](dmf-platform-strategic-review.md)
-- Chain review: [`docs/archive/reviews/dmf-platform-chain-review-2026-04-30.md`](../archive/reviews/dmf-platform-chain-review-2026-04-30.md)
+- Chain review: [`docs/archive/reviews/dmf-platform-chain-review-2026-04-30.md`](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/reviews/dmf-platform-chain-review-2026-04-30.md)
 - Move 2 task spec: [`docs/plans/dmf-platform-move-2-task.md`](../plans/dmf-platform-move-2-task.md)
 - Bootstrap user handoff (related side-quest): [`docs/handoffs/DMF Bootstrap User Privileges Handoff 2026-05-03.md`](../handoffs/DMF%20Bootstrap%20User%20Privileges%20Handoff%202026-05-03.md)
 - DMF Platform Plan (canonical architecture): [`docs/architecture/DMF Platform Plan.md`](../architecture/DMF%20Platform%20Plan.md)

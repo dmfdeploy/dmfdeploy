@@ -4,7 +4,7 @@ date: 2026-05-06
 superseded_by: "DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md"
 ---
 # Move 1 Gate 2 — Pivot to Path A for Catalog Launchers
-> Supersedes: [Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount.md](../archive/plans/Move%201%20Gate%202%20Fix%20-%20AWX%20EE%20Pod%20Service%20Account%20Mount.md), [Move 1 Gate 2 — AWX Integration + Launch NMOS.md](../archive/plans/Move%201%20Gate%202%20%E2%80%94%20AWX%20Integration%20%2B%20Launch%20NMOS.md)
+> Supersedes: [Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount.md](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/Move%201%20Gate%202%20Fix%20-%20AWX%20EE%20Pod%20Service%20Account%20Mount.md), [Move 1 Gate 2 — AWX Integration + Launch NMOS.md](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/Move%201%20Gate%202%20%E2%80%94%20AWX%20Integration%20%2B%20Launch%20NMOS.md)
 > **Superseded by** [DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md](DMF%20Cluster-Internal%20Ansible%20Execution%20and%20Catalog%20Helm%20Pivot%20Plan%202026-05-19.md) — see frontmatter.
 
 > ⚠️ **SUPERSEDED 2026-05-23** by the

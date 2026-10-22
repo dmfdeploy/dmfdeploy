@@ -8,7 +8,7 @@ executed: 2026-06-10
 **Date:** 2026-06-09 · **Status:** Draft for codex cross-check (PLANNING ONLY — no
 execution without explicit per-repo operator go-ahead)
 **Author:** umbrella session (claude, orchestrator)
-**Parent plan:** [`DMF First Public Release Plan 2026-06-09.md`](../archive/plans/DMF%20First%20Public%20Release%20Plan%202026-06-09.md) §Workstream A
+**Parent plan:** [`DMF First Public Release Plan 2026-06-09.md`](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20First%20Public%20Release%20Plan%202026-06-09.md) §Workstream A
 **Supersedes the push-mirror model in:** [`DMF Public Publish Readiness Handoff 2026-05-07.md`](../handoffs/DMF%20Public%20Publish%20Readiness%20Handoff%202026-05-07.md)
 **Depends on (all DONE):** C (ADR digests), B (dmf-env scrub), D (governance), E1 (PR-gate CI).
 

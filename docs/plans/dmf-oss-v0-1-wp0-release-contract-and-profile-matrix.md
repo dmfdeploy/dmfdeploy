@@ -17,7 +17,7 @@ superseded_by: "dmf-v0-1-commitment-and-30-day-focus-cut-plan.md"
 **Related ADR:** [ADR-0031](../decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md) (Accepted; this doc is its WP0 acceptance artifact)
 **Supersedes (as binding sequence):** [dmf-oss-v0-1-release-mission.md](dmf-oss-v0-1-release-mission.md) (now superseded draft)
 **Premise basis:** [dmf-oss-v0-1-contributor-replicability-premise-pass.md](dmf-oss-v0-1-contributor-replicability-premise-pass.md)
-**Work packages:** [WP1S](../archive/plans/DMF%20OSS%20v0.1%20WP1S%20Single-Node%20Sandbox%20Lane%202026-05-25.md) · [WP-LAB](../archive/plans/DMF%20OSS%20v0.1%20WP-LAB%20Reference%20Delta%202026-05-25.md) · [WP1A](../archive/plans/DMF%20OSS%20v0.1%20WP1%20AWS%20Provider%20Profile%202026-05-25.md) · [WP2](../archive/plans/DMF%20OSS%20v0.1%20WP2%20Bootstrap%20Independence%202026-05-25.md) · [WP3](../archive/plans/DMF%20OSS%20v0.1%20WP3%20In-Cluster%20Platform%20Services%202026-05-25.md) · [WP4](../archive/plans/DMF%20OSS%20v0.1%20WP4%20CMS%20User%20Administration%202026-05-25.md) · [WP5](../archive/plans/DMF%20OSS%20v0.1%20WP5%20Release%20Verification%20and%20Tagging%202026-05-25.md)
+**Work packages:** [WP1S](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP1S%20Single-Node%20Sandbox%20Lane%202026-05-25.md) · [WP-LAB](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP-LAB%20Reference%20Delta%202026-05-25.md) · [WP1A](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP1%20AWS%20Provider%20Profile%202026-05-25.md) · [WP2](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP2%20Bootstrap%20Independence%202026-05-25.md) · [WP3](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP3%20In-Cluster%20Platform%20Services%202026-05-25.md) · [WP4](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP4%20CMS%20User%20Administration%202026-05-25.md) · [WP5](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP5%20Release%20Verification%20and%20Tagging%202026-05-25.md)
 
 ---
 
@@ -63,8 +63,8 @@ to right now.
 | Lane / profile | Role in v0.1 | Substrate | Status of claim |
 |---|---|---|---|
 | **`sandbox-single-node`** | **Release gate.** Default docs path. v0.1 cannot be tagged unless this passes its gates from a fresh clone. | Generic ARM64 Debian single host: local VM, bare metal, or cheap VPS. First live implementation harness is local Lima. | The claim is generic single-node ARM64 Debian. Lima is *how we build it first*, not *what we promise*. |
-| **`aws-arm64-multi-node`** | **Secondary, eligible-if-ready.** Real work, never gating. Ships in the tag only if it catches up without delaying sandbox. | ARM64 EC2 (Graviton), self-managed k3s (ADR-0018), Route53 / S3 / SNS / KMS, in-cluster Headscale + ntfy. | Terraform skeleton is **`tofu validate`-clean and template-complete, NOT plan-proven.** A real plan/apply needs an operator-named AWS profile + real Route53 zone + read-only preflight. See [WP1A](../archive/plans/DMF%20OSS%20v0.1%20WP1%20AWS%20Provider%20Profile%202026-05-25.md). |
-| **`<env>`** (and successors) | **Live reference / regression lab.** Not a release profile. | 3-node Hetzner CAX21 ARM64, with maintainer-specific deps (Cloudflare, B2, JuiceFS, Keychain shares, external Headscale, Tailscale). | No release claim. Used to compare against sandbox requirements and harvest known-good settings. See [WP-LAB](../archive/plans/DMF%20OSS%20v0.1%20WP-LAB%20Reference%20Delta%202026-05-25.md). |
+| **`aws-arm64-multi-node`** | **Secondary, eligible-if-ready.** Real work, never gating. Ships in the tag only if it catches up without delaying sandbox. | ARM64 EC2 (Graviton), self-managed k3s (ADR-0018), Route53 / S3 / SNS / KMS, in-cluster Headscale + ntfy. | Terraform skeleton is **`tofu validate`-clean and template-complete, NOT plan-proven.** A real plan/apply needs an operator-named AWS profile + real Route53 zone + read-only preflight. See [WP1A](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP1%20AWS%20Provider%20Profile%202026-05-25.md). |
+| **`<env>`** (and successors) | **Live reference / regression lab.** Not a release profile. | 3-node Hetzner CAX21 ARM64, with maintainer-specific deps (Cloudflare, B2, JuiceFS, Keychain shares, external Headscale, Tailscale). | No release claim. Used to compare against sandbox requirements and harvest known-good settings. See [WP-LAB](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP-LAB%20Reference%20Delta%202026-05-25.md). |
 
 **Center of gravity:** `sandbox-single-node`. If a choice ever arises between
 polishing the AWS lane and making the sandbox lane concrete, the sandbox lane
@@ -140,7 +140,7 @@ bill of materials**:
   image, and Ansible collection, plus the `linux/arm64` requirement.
 - It is **mandatory**: v0.1 cannot be tagged unless the manifest is current for
   the lane being released and that lane's components are non-floating,
-  arm64-available, and free of manifest↔role-default drift. **[WP5](../archive/plans/DMF%20OSS%20v0.1%20WP5%20Release%20Verification%20and%20Tagging%202026-05-25.md)
+  arm64-available, and free of manifest↔role-default drift. **[WP5](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP5%20Release%20Verification%20and%20Tagging%202026-05-25.md)
   owns enforcement** of this gate.
 - It is WP0/WP5 release discipline under [ADR-0031](../decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md),
   **not** a new ADR.
@@ -172,7 +172,7 @@ honest. They specialize ADR-0031's per-profile resolutions.
 | **Monitoring** | Reduce in sandbox; Prometheus optional / trimmed. | A single-node sandbox does not need full kube-prometheus-stack to prove the loop. Keep enough to debug, not a full observability stack. |
 | **Overlay mesh** | Headscale **not required** in sandbox. | Sandbox-local communication suffices on one node. Headscale stays mandatory for the AWS multi-node lane. |
 | **DNS / TLS** | Local CA + explicit `.test` host mappings (default `dmf.test`) for sandbox. | ADR-0031 O1. Installer/docs must help trust the CA. User-owned DNS + ACME DNS-01 is an optional escape hatch, not the gate. Do not use `.local`. |
-| **Auth gate** | Seeded admin **passkey** login is the auth gate. | ADR-0031 O4 + [ADR-0015](../decisions/0015-dmf-console-passkey-only.md). Full signup/approval/role-assignment UI moves to v0.2 (see [WP4](../archive/plans/DMF%20OSS%20v0.1%20WP4%20CMS%20User%20Administration%202026-05-25.md)). |
+| **Auth gate** | Seeded admin **passkey** login is the auth gate. | ADR-0031 O4 + [ADR-0015](../decisions/0015-dmf-console-passkey-only.md). Full signup/approval/role-assignment UI moves to v0.2 (see [WP4](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP4%20CMS%20User%20Administration%202026-05-25.md)). |
 | **Secrets boot** | Sandbox uses locally-generated bootstrap material + documented reset. No operator-Mac / JuiceFS / Keychain dependency. AWS KMS auto-unseal is the AWS lane's posture, not the sandbox's. | ADR-0031 O4 / Profile 1. |
 | **Kiosk** | Not a hard v0.1 gate (any profile). Follow-on product work. | ADR-0031. |
 
@@ -205,13 +205,13 @@ WP0  ── Release Contract & Profile Matrix .................. THIS DOC (ancho
 | WP | Doc | Role under the matrix |
 |---|---|---|
 | **WP0** | this doc | Anchor: vocabulary, lanes, contract, gates, trims, sequence. |
-| **WP1S** | [Single-Node Sandbox Lane](../archive/plans/DMF%20OSS%20v0.1%20WP1S%20Single-Node%20Sandbox%20Lane%202026-05-25.md) | **First actionable.** The release gate. Lima Debian harness -> generic ARM64 Debian single-node claim. |
-| **WP-LAB** | [`<env>` Reference Delta](../archive/plans/DMF%20OSS%20v0.1%20WP-LAB%20Reference%20Delta%202026-05-25.md) | Reference/regression delta. Not a release profile. |
-| **WP1A** | [AWS Provider Profile](../archive/plans/DMF%20OSS%20v0.1%20WP1%20AWS%20Provider%20Profile%202026-05-25.md) | Secondary lane. Bannered; Terraform validate-clean, not plan-proven. |
-| **WP2** | [Bootstrap Independence](../archive/plans/DMF%20OSS%20v0.1%20WP2%20Bootstrap%20Independence%202026-05-25.md) | Split: sandbox-local seed for the gate; KMS/SSM/SNS for AWS. Kiosk = follow-on. |
-| **WP3** | [In-Cluster Platform Services](../archive/plans/DMF%20OSS%20v0.1%20WP3%20In-Cluster%20Platform%20Services%202026-05-25.md) | Split: sandbox trims Headscale + heavy ntfy; AWS gets in-cluster Headscale/OIDC + ntfy + SNS. |
-| **WP4** | [CMS User Administration](../archive/plans/DMF%20OSS%20v0.1%20WP4%20CMS%20User%20Administration%202026-05-25.md) | Trim: v0.1 = seeded admin passkey login + backend role guards. Full user-admin → v0.2. |
-| **WP5** | [Release Verification and Tagging](../archive/plans/DMF%20OSS%20v0.1%20WP5%20Release%20Verification%20and%20Tagging%202026-05-25.md) | Per-profile matrix. Sandbox row gates the tag; AWS row informational unless passed; lab row reference only. |
+| **WP1S** | [Single-Node Sandbox Lane](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP1S%20Single-Node%20Sandbox%20Lane%202026-05-25.md) | **First actionable.** The release gate. Lima Debian harness -> generic ARM64 Debian single-node claim. |
+| **WP-LAB** | [`<env>` Reference Delta](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP-LAB%20Reference%20Delta%202026-05-25.md) | Reference/regression delta. Not a release profile. |
+| **WP1A** | [AWS Provider Profile](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP1%20AWS%20Provider%20Profile%202026-05-25.md) | Secondary lane. Bannered; Terraform validate-clean, not plan-proven. |
+| **WP2** | [Bootstrap Independence](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP2%20Bootstrap%20Independence%202026-05-25.md) | Split: sandbox-local seed for the gate; KMS/SSM/SNS for AWS. Kiosk = follow-on. |
+| **WP3** | [In-Cluster Platform Services](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP3%20In-Cluster%20Platform%20Services%202026-05-25.md) | Split: sandbox trims Headscale + heavy ntfy; AWS gets in-cluster Headscale/OIDC + ntfy + SNS. |
+| **WP4** | [CMS User Administration](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP4%20CMS%20User%20Administration%202026-05-25.md) | Trim: v0.1 = seeded admin passkey login + backend role guards. Full user-admin → v0.2. |
+| **WP5** | [Release Verification and Tagging](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP5%20Release%20Verification%20and%20Tagging%202026-05-25.md) | Per-profile matrix. Sandbox row gates the tag; AWS row informational unless passed; lab row reference only. |
 
 ---
 
