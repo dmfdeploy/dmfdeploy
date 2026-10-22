@@ -1,0 +1,10 @@
+# Files that already have zero error-level Vale alerts. CI blocks any new
+# error in them (see the "Enforce Vale on the clean set" step in
+# .github/workflows/vale.yml). One path per line; blank lines and lines that
+# start with # are ignored. The list grows as issue dmfdeploy/dmfdeploy#688
+# sweeps more files.
+README.md
+AGENTS.md
+ROADMAP.md
+docs/JOURNEY.md
+docs/THESIS.md
