@@ -9,7 +9,8 @@
 #   filenames  Live docs use kebab-case names with no spaces and no date.
 #              README.md and INDEX.md are allowed anywhere. An upper-case
 #              landmark name such as STYLE.md or OPEN-QUESTIONS.md is allowed
-#              only directly under the top-level docs/ directory.
+#              only directly under the top-level docs/ directory. The docs
+#              in PINNED_NAMES keep their names; see the note there.
 #   placement  docs/plans/ holds only plans with status active or draft, and
 #              no live doc links into docs/archive/.
 #
@@ -49,6 +50,34 @@ ALLOWED_NAMES_RE='^(README|INDEX)\.md$'
 # Upper-case landmark names (JOURNEY.md, OPEN-QUESTIONS.md) that the filename
 # rule allows only for a file that sits directly under docs/.
 LANDMARK_NAMES_RE='^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*\.md$'
+# Live docs that keep a name the filename rule rejects. Each file keeps its
+# name because component repositories link to it by that name. Rename it, and
+# drop it from this list, when those links move. Each entry is an exact path
+# relative to the repository root, one per line.
+PINNED_NAMES='docs/architecture/DMF EBU Mapping (2026-04-25).md
+docs/architecture/DMF Function Catalog Model.md
+docs/architecture/DMF Platform Plan.md
+docs/architecture/DMF Provider Descriptor Model.md
+docs/architecture/DMF Release and Contribution Model.md
+docs/design/DMF Console Glossary.md
+docs/plans/AWX NetBox Inventory Sync Fix 2026-05-04.md
+docs/plans/DMF AWX On-Demand Scale-to-Zero Plan 2026-06-18.md
+docs/plans/DMF App Admin Account Drift Audit and Realignment Plan 2026-05-14.md
+docs/plans/DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md
+docs/plans/DMF Console Initial Implementation Plan 2026-04-26.md
+docs/plans/DMF Console UI Round Plan 2026-08-21.md
+docs/plans/DMF Deployment Workflow and Manifest Plan.md
+docs/plans/DMF In-Cluster Ansible Runner Pod Implementation Plan 2026-05-14.md
+docs/plans/DMF Init Bootstrap Container Plan 2026-06-02.md
+docs/plans/DMF Move 1 Path A Reset 2026-05-12.md
+docs/plans/DMF NMOS Crosspoint Media Function Plan 2026-06-21.md
+docs/plans/DMF Orchestrator and Renumbering Plan 2026-04-22.md
+docs/plans/DMF Per-App Identity Feasibility Survey 2026-05-24.md
+docs/plans/DMF Pre-Release Compliance Readiness Plan 2026-05-11.md
+docs/plans/DMF Public Container Registry Publishing Plan 2026-05-19.md
+docs/plans/DMF Secret Ownership and OpenBao Migration Plan.md
+docs/plans/DMF v0.2b Multi-Source Switch Spec 2026-07-15.md
+docs/plans/Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md'
 
 MODE="warn"
 SUB="all"
@@ -149,6 +178,7 @@ check_file_name() {
     printf '%s\n' "$path" | grep -qE '(^|/)docs/' || return 0
     is_excluded "$path" && return 0
     printf '%s\n' "$base" | grep -qE "$ALLOWED_NAMES_RE" && return 0
+    printf '%s\n' "$rel" | grep -qxF -e "$PINNED_NAMES" && return 0
     if printf '%s\n' "$rel" | grep -qE '^docs/[^/]+$' \
         && printf '%s\n' "$base" | grep -qE "$LANDMARK_NAMES_RE"; then
         return 0
