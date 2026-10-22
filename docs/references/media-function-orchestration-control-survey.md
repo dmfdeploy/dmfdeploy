@@ -23,7 +23,8 @@ evidence about the market. It is not a design dmfdeploy follows.
 
 ## How to read this survey
 
-- The project accessed every web source on 2026-10-22.
+- The project accessed the web sources on 2026-10-22, except where the text
+  says "search summary" or lists a page or vendor as skipped or not covered.
 - Each claim carries a source-strength tag:
   - **[DOC]**: vendor technical documentation, a standard, or source code.
   - **[MKT]**: a press release, a product page, or a trade-press article.
@@ -338,7 +339,7 @@ Sources:
   devices "reporting device status consistently", and does not mention IS-12,
   IS-14, JT-DMF or controllers. [MKT]
   <https://www.sportsvideo.org/2026/08/12/ibc-2026-amwa-and-ebu-to-demo-nmos-bcp-008-multi-vendor-ip-status-reporting/>
-- AMWA workshop page: Porto, 24 to 26 November 2025, covering "NMOS Control,
+- AMWA workshop page: Porto, November 24 to 26, 2025, covering "NMOS Control,
   Config and Minimum Status Reporting (IS-12, IS-14, BCP-008-01, BCP-008-02)",
   with a track for "Controller vendors looking to add support for
   IS-12/BCP-008", and "a tested event prior to NAB". [DOC]

@@ -71,9 +71,9 @@ and are marked "secondary" where nobody read the primary page.
   co-chairs, one from each of two public broadcasters (BBC and CBC). The
   working groups use Basecamp projects that are not public, and meet roughly
   weekly on Zoom.
-- **Meetings.** Kick-off in Geneva, 27 to 28 Nov 2025 (about 110 people).
-  North American kick-off in New York, 10 to 11 Mar 2026. Face-to-face in
-  Geneva, 8 Jun 2026. Meet-up and "Ask Me Anything" sessions at IBC 2026.
+- **Meetings.** Kick-off in Geneva, November 27 to 28, 2025 (about 110 people).
+  North American kick-off in New York, March 10 to 11, 2026. Face-to-face in
+  Geneva, June 8, 2026. Meet-up and "Ask Me Anything" sessions at IBC 2026.
   Sources: <https://tech.ebu.ch/news/2025/12/not-just-about-technology-jt-dmf-kicks-off-work-to-drive-dynamic-media-facilities-from-concept-to-production>,
   <https://tech.ebu.ch/news/2026/jt-dmf-north-american-kickoff-marks-progress-on-dynamic-media-facilities-dmf>,
   <https://www.amwa.tv/jtdmf/jt-dmf-meeting-jun2026>.
