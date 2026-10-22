@@ -155,13 +155,21 @@ if gate_on '^(docs/|bin/check-docs\.sh$)' && [ -x "$REPO_ROOT/bin/check-docs.sh"
                   "$REPO_ROOT/bin/check-docs.sh"
 fi
 
-# Surface checks (size budgets, filenames, archive placement; #617). WARN mode:
-# findings print but never block the commit. Enforcement flips in a later
-# change, so this gate does not call refuse().
+# Surface checks (size budgets, filenames, archive placement; #617). STRICT
+# mode on the staged files only, so a commit is refused only for a problem in
+# what it stages. CI runs the same checks on the whole tree.
 if gate_on '^(README\.md|AGENTS\.md|STATUS\.md|docs/|bin/check-surface\.sh$|tests/surface/)' \
         && [ -x "$REPO_ROOT/bin/check-surface.sh" ]; then
-    # Print only the summary line; run bin/check-surface.sh --warn for details.
-    "$REPO_ROOT/bin/check-surface.sh" --warn 2>&1 | tail -1 | sed 's/^/[pre-commit] /' >&2 || true
+    SURFACE_ARGS=()
+    while IFS= read -r p; do
+        if [ -f "$REPO_ROOT/$p" ]; then SURFACE_ARGS+=(--file "$REPO_ROOT/$p"); fi
+    done < <(printf '%s\n' "$STAGED_PATHS" | grep -E '^(README\.md|AGENTS\.md|STATUS\.md|docs/)' || true)
+    if [ ${#SURFACE_ARGS[@]} -gt 0 ]; then
+        "$REPO_ROOT/bin/check-surface.sh" --strict "${SURFACE_ARGS[@]}" >/dev/null 2>&1 \
+            || refuse "check-surface: staged files break a surface rule" \
+                      "see findings above (budgets, filenames, archive placement)" \
+                      "$REPO_ROOT/bin/check-surface.sh" --strict "${SURFACE_ARGS[@]}"
+    fi
 fi
 
 # Working-model block sync (umbrella issue #32): copies of the agent-context
