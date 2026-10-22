@@ -1,4 +1,4 @@
-# The DMF thesis: one page
+# The DMF thesis in one page
 
 **The claim:** a software-defined media facility, as described by the
 [EBU](https://tech.ebu.ch/) *Dynamic Media Facility* Reference Architecture,
@@ -25,7 +25,7 @@ build whose every decision is on the record.
 
 ## The first pain it solves
 
-Deploying a media function (an NMOS registry, an MXL, or Media eXchange Layer,
+Deploying a media function (an NMOS registry or a Media eXchange Layer (MXL)
 fabric) is the easy 10%.
 The hard 90% is everything around it: who may operate it, where its secrets
 live, what the facility's source of truth says is running, how it gets deployed
@@ -51,7 +51,7 @@ still open.
 3. **Deploy:** click *Deploy* on the NMOS registry catalog entry.
 4. **Inspect the receipts:** the AWX job that ran, the NetBox lifecycle tag it
    flipped, the Helm release it created, and the Prometheus targets that
-   appeared. NetBox generates the targets.
+   appeared. NetBox generates the targets. Nothing comes from a static config.
 
 That loop (catalog intent → actuated deployment → source-of-truth state →
 observed health) *is* the platform. Everything else is depth.
@@ -63,7 +63,7 @@ The non-claims are explicit by decision (see
 and [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md)): no production ST-2110/PTP/multicast
 correctness, no real-time media-plant claims, no multi-node HA, no cross-site
 federation, no performance numbers. Single-node is the proof surface; the rest
-is named future work.
+is named future work. None of it is a claimed capability.
 
 ## After v0.1
 
