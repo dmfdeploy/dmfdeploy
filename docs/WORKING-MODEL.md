@@ -7,9 +7,11 @@ SessionStart hook injects the digest below at session start. If anything else
 contradicts this file, this file wins — fix the other artifact.
 
 Enforced by: `bin/check-working-model-sync.sh` (block copies can't drift),
-`bin/check-docs.sh` (plan frontmatter), the PR-gate CI (issue linkage), and
-the backlog-hygiene detector. Plan:
-[`docs/archive/plans/DMF Working-Model Enforcement Plan 2026-06-11.md`](archive/plans/DMF%20Working-Model%20Enforcement%20Plan%202026-06-11.md).
+`bin/check-docs.sh` (plan frontmatter), the PR-gate CI (issue linkage), the
+surface and Vale checks, and the backlog-hygiene detector. Section 7 maps each
+check to where it runs and whether it blocks a merge. The archived plan that
+set up this enforcement is
+[DMF Working-Model Enforcement Plan 2026-06-11](https://github.com/dmfdeploy/dmfdeploy/blob/19b54151dcd34a1aa5946b28c707bc12ef206b02/docs/archive/plans/DMF%20Working-Model%20Enforcement%20Plan%202026-06-11.md).
 
 <!-- WM-DIGEST-START -->
 **DMF working model digest** (canonical: umbrella `docs/WORKING-MODEL.md`):
@@ -150,18 +152,33 @@ the frontmatter must be flipped; frontmatter wins for design content.
 ## 5. Plans + documentation rules
 
 - New work: **issue first**, then (if non-trivial) an on-disk spec in umbrella
-  `docs/plans/` named `DMF <Topic> Plan YYYY-MM-DD.md`, frontmatter:
+  `docs/plans/`. Give it a kebab-case filename with no date, such as
+  `dmf-<topic>-plan.md`, and record the date in the frontmatter:
   `status:` (`active` | `draft` | `executed` | `superseded` | `historical`),
   `date:`, `tracking_issue:` (issue URL), `executed:` / `superseded_by:` when
   applicable. `bin/check-docs.sh` (pre-commit + CI) rejects unparseable
-  frontmatter and checks INDEX consistency.
+  frontmatter, fails an active plan that has no `tracking_issue`, and checks
+  INDEX consistency.
+- `docs/plans/` holds only plans whose status is `active` or `draft`. A plan
+  that reaches another status moves to `docs/archive/plans/`. The plans in the
+  `FROZEN_PLANS` list in `bin/check-surface.sh` stay where they are, because
+  readers outside this tree pin their paths. That list only shrinks: a plan
+  leaves it when it moves, and no plan joins it.
+- A live doc doesn't link into `docs/archive/`. To cite an archived doc, use a
+  GitHub permalink pinned to a 40-character commit SHA. An ADR may link to its
+  own extract under `docs/archive/decisions/`, and the `ARCHIVE_LINK_EXEMPT`
+  list in `bin/check-surface.sh` names the few other links that stay.
 - The PR that completes a plan **auto-closes the issue** (the reconciler honors
   its qualified `Closes` reference — see §6) **and must flip the plan frontmatter
   in the same change**. The close is automated; the frontmatter flip is the
   manual half and is never done for you.
-- Doc filenames are preserved verbatim (docs cross-reference by display name);
-  don't rename without sweeping callers. Doc edits go in the umbrella; code
-  edits in component repos.
+- Live docs under `docs/` use kebab-case filenames with no spaces and no date.
+  `README.md` and `INDEX.md` are allowed anywhere. An upper-case landmark name
+  such as `OPEN-QUESTIONS.md` is allowed only directly under `docs/`. The files
+  in the `PINNED_NAMES` lists in `bin/check-surface.sh` keep their old names
+  until the readers that pin their paths move. Before you rename a doc, update
+  every file that refers to it. Doc edits go in the umbrella; code edits in
+  component repos.
 - Public-safety rules apply to *all* artifacts including issues/PRs/CI logs:
   placeholder syntax for IPs/DNS/identity (`<control-node-public-ip>`,
   `dmf.example.com`, `<handle>`); secrets never leave OpenBao.
@@ -276,12 +293,43 @@ Two sanctioned forms:
 | `bin/check-working-model-sync.sh --report-pins` | umbrella, on demand | reports how far behind each sibling's pin is (never fails a build) |
 | SessionStart hook → `bin/working-model-digest.sh` | Claude Code, per repo (trust-gated) | injects digest at session start |
 | PR-gate issue-linkage job (`guard.yml`) | all 9 repos | fails unqualified/missing reference |
-| `bin/check-docs.sh` | umbrella | fails bad frontmatter; W2 → fail after backfill |
+| `bin/check-docs.sh` | umbrella pre-commit; CI `check-docs` job (a required check) | fails bad frontmatter, an active plan with no `tracking_issue`, a stale plans index, ADR index drift, and broken doc-to-doc links |
+| `bin/check-surface.sh` via `surface.yml` and the pre-commit hook | umbrella | CI runs the fixture tests, then each subcommand with `--strict` as its own step; the hook runs `--strict` on the staged content of the files in the commit; fails on any finding (not a required check yet) |
+| Vale via `vale.yml` | umbrella prose that `.vale.ini` lints, on pull requests that change it | three layers: the whole tree warns; the files in `.vale/clean-set.txt` fail on an error-level alert; `bin/check-voice-changed.sh` fails when a changed file gains an error-level Voice alert (not a required check yet) |
+| `title-check.yml` | umbrella issues and pull requests | `title` job (`STRICT: "1"`) fails a title that starts with `[auto]`; `static` job runs `.github/scripts/hygiene-check.sh` on the issue forms, CODEOWNERS, and the PR template, then on its fixtures (not a required check yet) |
+| `pr-body-lint.yml` | umbrella pull requests | advisory: lints the title and body with `bin/check-voice.sh --conversational` and posts one comment; never fails |
+| `bin/check-ruleset-drift.sh` via `governance-drift.yml` (daily 07:00 UTC) | umbrella `main` ruleset | fails when the live ruleset differs from `.github/expected-ruleset.json`; `ci.yml` checks the expectation file on each PR; bypass actors are not covered |
 | Branch ruleset: approval + CODEOWNERS + required status checks + rebase-only, stale approvals dismissed on push | all 9 repos | merge is impossible otherwise |
 | `automerge.yml` + `required_status_checks` ruleset | all 9 repos | approval-driven rebase auto-merge + branch auto-delete (`hold` label disarms) |
 | `bin/close-completed-issues.sh` via `issue-close-reconciler.yml` (daily 06:00 UTC + `workflow_dispatch`) | umbrella issues with a merged completing PR | auto-closes from GitHub-parsed closing refs (`closedByPullRequestsReferences`, cross-repo included); manual close is fallback; `--self-test` gated in CI |
-| `bin/check-backlog-hygiene.sh` (scheduled) | umbrella + component intake | weekly drift report |
+| `bin/check-backlog-hygiene.sh` via `backlog-hygiene.yml` (daily 06:00 UTC + `workflow_dispatch`) | umbrella issues and plans + component intake | runs `--self-test` first; fails the job on findings or an incomplete run, and keeps one open report issue up to date |
 | Codex adversarial gate (§6: interactive bridge or one-shot `codex exec --sandbox read-only`) | non-trivial changes, pre-PR | operator discipline; prompt/SHA/command/output retained in operator-local review records |
+
+The four `bin/check-surface.sh` subcommands check these rules:
+
+- **`size`**: `README.md` stays within 100 lines, and `AGENTS.md` within 60
+  lines outside the working-model block. Every ADR stays within 80 lines. The
+  ADRs that were longer when enforcement started each have a ceiling in
+  `ADR_CEILINGS`. Such an ADR may not grow past its ceiling, and a ceiling only
+  goes down as the ADR is trimmed.
+- **`filenames`**: the kebab-case rule, the landmark rule, and the
+  `PINNED_NAMES` lists from §5.
+- **`placement`**: the plan-status rule with its `FROZEN_PLANS` list, and the
+  archive-link rule with the ADR extract case, the pinned-permalink case,
+  and the `ARCHIVE_LINK_EXEMPT` list (§5).
+- **`statuslog`**: `STATUS.md` stays within 30 lines, so it can't grow back
+  into a status log.
+
+The required status checks on umbrella `main` are the ones listed in
+`.github/expected-ruleset.json`: `actionlint`, `check-docs`, `commitlint`,
+`dco`, `gitleaks`, `issue-link`, `shellcheck`, `skills-sync`, and `trivy`.
+The working-model block sync runs inside the `check-docs` job. None of the
+newer hygiene checks is required yet: the surface checks, Vale, the title
+and static checks, the PR-body lint, backlog hygiene, and the ruleset drift
+check. A failing one shows on the pull request, but auto-merge still lands an
+approved PR once the required checks pass. Backlog hygiene and the ruleset
+drift check run on a schedule, so they never report on a pull request. The voice sweep that would let more files join the Vale clean set is
+tracked in [#688](https://github.com/dmfdeploy/dmfdeploy/issues/688).
 
 ## 8. New-repo bootstrap checklist
 
