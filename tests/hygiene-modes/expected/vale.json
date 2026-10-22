@@ -1,0 +1,100 @@
+{
+  "jobs": {
+    "vale": {
+      "runs-on": "ubuntu-24.04",
+      "steps": [
+        {
+          "name": "Checkout",
+          "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "with": {
+            "fetch-depth": 2,
+            "persist-credentials": false
+          }
+        },
+        {
+          "env": {
+            "VALE_VERSION": "3.24.0"
+          },
+          "name": "Install Vale",
+          "run": "set -euo pipefail\nurl=\"https://github.com/errata-ai/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz\"\nsha=\"867534ddb678abca7f214bc4706ead0922bd5252ffe8035fc227013f66c8b214\"\nmkdir -p \"$RUNNER_TEMP/vale\"\ncurl -fsSL -o \"$RUNNER_TEMP/vale.tgz\" \"$url\"\necho \"$sha  $RUNNER_TEMP/vale.tgz\" | sha256sum -c -\ntar -xz -C \"$RUNNER_TEMP/vale\" -f \"$RUNNER_TEMP/vale.tgz\" vale\necho \"$RUNNER_TEMP/vale\" >> \"$GITHUB_PATH\"\n"
+        },
+        {
+          "name": "Sync the Google package",
+          "run": "vale sync"
+        },
+        {
+          "name": "Lint working surfaces (warn mode)",
+          "run": "vale --no-exit ."
+        },
+        {
+          "name": "Enforce Vale on the clean set (error level blocks)",
+          "run": "set -euo pipefail\ngrep -v -e '^#' -e '^[[:space:]]*$' .vale/clean-set.txt \\\n  | xargs vale --minAlertLevel=error\n"
+        },
+        {
+          "name": "Check the README scope",
+          "run": ".vale/scope-test.sh"
+        },
+        {
+          "name": "Check the fixtures (strict config)",
+          "run": "set -euo pipefail\nfor bad in .vale/fixtures/bad-*.md; do\n  good=\"${bad/bad-/good-}\"\n  if vale --config .vale/strict.ini \"$bad\" >/dev/null; then\n    echo \"::error::$bad passed but must fail\"; exit 1\n  fi\n  vale --config .vale/strict.ini \"$good\" >/dev/null \\\n    || { echo \"::error::$good must pass\"; exit 1; }\ndone\n"
+        },
+        {
+          "name": "Check the Voice fixtures",
+          "run": "bin/check-voice-fixtures.sh"
+        },
+        {
+          "name": "Mutation-test the Voice rules",
+          "run": "bin/mutate-voice.sh"
+        },
+        {
+          "if": "github.event_name == 'pull_request'",
+          "name": "Ratchet the Voice errors in changed files",
+          "run": "bin/check-voice-changed.sh HEAD^1 HEAD"
+        },
+        {
+          "name": "Test that the ratchet reads HEAD, not the checkout",
+          "run": "tests/voice-changed-head.sh"
+        },
+        {
+          "name": "Test that the ratchet counts encoded link targets the same way",
+          "run": "tests/voice-changed-links.sh"
+        }
+      ],
+      "timeout-minutes": 10
+    }
+  },
+  "name": "vale",
+  "on": {
+    "pull_request": {
+      "paths": [
+        "README.md",
+        "**/README.md",
+        "CONTRIBUTING.md",
+        "AGENTS.md",
+        "ROADMAP.md",
+        "docs/decisions/**",
+        "docs/design/**",
+        "docs/THESIS.md",
+        "docs/JOURNEY.md",
+        "docs/WORKING-MODEL.md",
+        "docs/OPEN-QUESTIONS.md",
+        "docs/GLOSSARY.md",
+        "docs/INDEX.md",
+        "docs/STYLE.md",
+        "docs/templates/**",
+        ".github/**/*.md",
+        "bin/check-voice*.sh",
+        "bin/mutate-voice.sh",
+        "tests/voice-changed-head.sh",
+        "tests/voice-changed-links.sh",
+        ".vale.ini",
+        ".vale/**",
+        ".github/workflows/vale.yml"
+      ]
+    },
+    "workflow_dispatch": null
+  },
+  "permissions": {
+    "contents": "read"
+  }
+}

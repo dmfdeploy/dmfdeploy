@@ -1,0 +1,58 @@
+{
+  "jobs": {
+    "hygiene": {
+      "runs-on": "ubuntu-24.04",
+      "steps": [
+        {
+          "name": "Checkout",
+          "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Self-test the freshness rules",
+          "run": "bin/check-backlog-hygiene.sh --self-test"
+        },
+        {
+          "env": {
+            "GH_TOKEN": "${{ secrets.GITHUB_TOKEN }}"
+          },
+          "id": "hygiene_run",
+          "name": "Run backlog-hygiene check",
+          "run": "# pipefail so rc reflects the checker, not tee\nset +e\nset -o pipefail\nbin/check-backlog-hygiene.sh 2>&1 | tee /tmp/report.txt\nrc=$?\nset -e\nlast=\"$(grep -v '^[[:space:]]*$' /tmp/report.txt | tail -1 || true)\"\nif [ \"$rc\" -eq 0 ] && [ \"$last\" = \"backlog-hygiene: OK (0 findings)\" ]; then\n  has=false\nelse\n  has=true\nfi\necho \"has_findings=$has\" >> \"$GITHUB_OUTPUT\"\n"
+        },
+        {
+          "env": {
+            "GH_TOKEN": "${{ secrets.GITHUB_TOKEN }}",
+            "HAS_FINDINGS": "${{ steps.hygiene_run.outputs.has_findings }}"
+          },
+          "name": "Manage report issue",
+          "run": "set -euo pipefail\n\n# The report issue carries hygiene-exempt so the checker never\n# flags its own report (no milestone/workstream by design).\nexisting=\"$(gh issue list \\\n  --repo dmfdeploy/dmfdeploy \\\n  --search \"Backlog hygiene report in:title\" \\\n  --state open \\\n  --label component:cross-repo \\\n  --json number --jq '.[0].number // empty' 2>/dev/null || true)\"\n\n# An incomplete or crashed run keeps the issue open and says so,\n# because its findings list may be missing checks.\nlast=\"$(grep -v '^[[:space:]]*$' /tmp/report.txt | tail -1 || true)\"\n{\n  printf '## Backlog hygiene report — %s\\n\\n' \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"\n  case \"$last\" in\n    \"backlog-hygiene: INCOMPLETE\"*)\n      printf '**The run was incomplete:** at least one check could not read its input (see SKIPPED below), so findings may be missing.\\n\\n' ;;\n    \"backlog-hygiene: \"*) ;;\n    *)\n      printf '**The run did not finish:** the checker printed no summary line.\\n\\n' ;;\n  esac\n  printf '```\\n'\n  cat /tmp/report.txt\n  printf '```\\n'\n} > /tmp/body.md\n\nif [ \"${HAS_FINDINGS:-true}\" = \"true\" ]; then\n  if [ -n \"$existing\" ]; then\n    gh issue edit \"$existing\" \\\n      --repo dmfdeploy/dmfdeploy \\\n      --body-file /tmp/body.md\n    echo \"Updated report issue #$existing\"\n  else\n    gh issue create \\\n      --repo dmfdeploy/dmfdeploy \\\n      --title \"Backlog hygiene report\" \\\n      --label component:cross-repo \\\n      --label hygiene-exempt \\\n      --body-file /tmp/body.md\n    echo \"Created report issue\"\n  fi\nelse\n  if [ -n \"$existing\" ]; then\n    gh issue close \"$existing\" \\\n      --repo dmfdeploy/dmfdeploy \\\n      --comment \"Clean run — no findings.\" \\\n      --reason completed\n    echo \"Closed report issue #$existing (clean run)\"\n  else\n    echo \"No findings, no open report issue — nothing to do\"\n  fi\nfi\n"
+        },
+        {
+          "env": {
+            "HAS_FINDINGS": "${{ steps.hygiene_run.outputs.has_findings }}"
+          },
+          "if": "always()",
+          "name": "Fail on findings",
+          "run": "if [ \"${HAS_FINDINGS:-}\" != \"false\" ]; then\n  echo \"::error::backlog-hygiene found drift or did not finish; see the report issue\"\n  exit 1\nfi\n"
+        }
+      ],
+      "timeout-minutes": 10
+    }
+  },
+  "name": "backlog-hygiene",
+  "on": {
+    "schedule": [
+      {
+        "cron": "0 6 * * *"
+      }
+    ],
+    "workflow_dispatch": null
+  },
+  "permissions": {
+    "contents": "read",
+    "issues": "write"
+  }
+}

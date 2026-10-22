@@ -1,0 +1,56 @@
+{
+  "concurrency": {
+    "cancel-in-progress": true,
+    "group": "surface-${{ github.ref }}"
+  },
+  "jobs": {
+    "surface": {
+      "runs-on": "ubuntu-24.04",
+      "steps": [
+        {
+          "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Fixture tests",
+          "run": "tests/surface/run.sh"
+        },
+        {
+          "name": "Size budgets",
+          "run": "bin/check-surface.sh --strict size"
+        },
+        {
+          "name": "Filenames",
+          "run": "bin/check-surface.sh --strict filenames"
+        },
+        {
+          "name": "Archive placement",
+          "run": "bin/check-surface.sh --strict placement"
+        },
+        {
+          "name": "Status log",
+          "run": "bin/check-surface.sh --strict statuslog"
+        }
+      ],
+      "timeout-minutes": 5
+    }
+  },
+  "name": "surface",
+  "on": {
+    "pull_request": {
+      "branches": [
+        "main"
+      ]
+    },
+    "push": {
+      "branches": [
+        "main"
+      ]
+    }
+  },
+  "permissions": {
+    "contents": "read"
+  }
+}
