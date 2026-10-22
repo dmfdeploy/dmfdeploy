@@ -63,6 +63,6 @@ CLAUDE.md tells agents to `git fetch && git pull` the umbrella first.
 
 ## Status
 
-Accepted (amended 2026-06-11, sibling layout)
+Accepted (amended 2026-06-11 — sibling layout)
 
 Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0001-umbrella-as-docs-home.md).

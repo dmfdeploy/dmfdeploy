@@ -262,7 +262,7 @@ The original Enforcement section was AWS-specific and is preserved in the
 
 ## Status
 
-Accepted (2026-05-26; operator open decisions closed; WP0 successor plan drafted:
+Accepted (2026-05-26; operator open decisions closed; WP0 successor plan drafted —
 [DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25](../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md);
 premise basis: [Contributor Replicability Premise Pass 2026-05-25](../plans/DMF%20OSS%20v0.1%20Contributor%20Replicability%20Premise%20Pass%202026-05-25.md)).
 

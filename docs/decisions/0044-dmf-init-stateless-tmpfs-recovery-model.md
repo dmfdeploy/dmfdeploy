@@ -125,6 +125,6 @@ startup refusal. This follows the same fail-closed philosophy as the tmpfs check
 
 ## Status
 
-Accepted (2026-07-02: implementation landed in dmf-init v0.3.5: fail-closed `assert_data_root_tmpfs` startup guard, forced checkpoint-export gate before long unattended phases, launcher `--tmpfs :exec` noexec guard; #150 and #162 closed)
+Accepted (2026-07-02 — implementation landed in dmf-init v0.3.5: fail-closed `assert_data_root_tmpfs` startup guard, forced checkpoint-export gate before long unattended phases, launcher `--tmpfs :exec` noexec guard; #150 and #162 closed)
 
 Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0044-dmf-init-stateless-tmpfs-recovery-model.md).

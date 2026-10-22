@@ -82,7 +82,7 @@ second function force the design** prevents premature abstraction.
 
 ## Status
 
-Proposed (deferred): **three-layer framing survives; installation/instance-layer implementation resolved by ADR-0037** (NetBox instances + AWX reconcile; no CRD and no custom operator)
+Proposed (deferred) — **three-layer framing survives; installation/instance-layer implementation resolved by ADR-0037** (NetBox instances + AWX reconcile, not a CRD + custom operator)
 
 ### Promotion criteria (Proposed-deferred → Proposed-imminent)
 
