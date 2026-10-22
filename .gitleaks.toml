@@ -33,7 +33,7 @@ paths = [
     '''^\.claude/scheduled_tasks\.lock$''',
     '''^\.qwen/''',
     '''^docs/plans/LLM-Restricted Git Pipeline''',
-    '''^docs/plans/llm-restricted-git-pipeline''',
+    '''^docs/plans/llm-restricted-git-pipeline-dev-testing-production-isolation-plan\.md$''',
     '''^dmf-cms/''',
     '''^dmf-runbooks/''',
     '''^dmf-central/''',
