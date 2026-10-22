@@ -65,17 +65,25 @@ Run the commands on the control node, with the cluster's kubeconfig.
    kubectl -n awx get deploy awx-web awx-task
    ```
 
-   The condition is `web=1 task=1` (or any value above zero) in the first
-   output, with `0/0` ready in the second.
+   The alert fires per component. A component qualifies when the first
+   output asks for more than zero replicas of it and its Deployment shows
+   `0/0` ready in the second. One component is enough: `web=1` with
+   `awx-web` at `0/0` qualifies even if `awx-task` is healthy, and the same
+   holds the other way round. Note which Deployments qualify.
 
-2. Confirm that the operator made the write. Look for the manager
-   `OpenAPI-Generator` on the `awx-web` Deployment, with an update time
+2. Confirm that the operator made the write. On each qualifying
+   Deployment, look for the manager `OpenAPI-Generator` with an update time
    after the last wake.
 
    ```bash
-   kubectl -n awx get deploy awx-web --show-managed-fields -o yaml \
-     | grep -B2 -A6 'manager: OpenAPI-Generator'
+   for d in awx-web awx-task; do
+     echo "== $d"
+     kubectl -n awx get deploy "$d" --show-managed-fields -o yaml \
+       | grep -B2 -A6 'manager: OpenAPI-Generator'
+   done
    ```
+
+   Read the output only for the Deployments you noted in step 1.
 
 3. Restart the operator controller manager.
 
