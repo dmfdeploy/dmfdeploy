@@ -13,7 +13,7 @@
 - **Four blockers + 11 security findings** caught during audit. Documented in [`docs/archive/reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md`](../archive/reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md).
 - **Phase A blockers all cleared** by Qwen-Coder during this session (`dmf-infra@033d438`, `dmf-env@31f6a78`).
 - **No live ECS yet** — operator confirmed "no rush." First Tofu apply against Aliyun is still pending operator decision.
-- **Future-direction note** captured for per-resource provider+pricing chooser ([`docs/plans/dmf-multi-provider-resource-selection-future-direction-2026-05-08.md`](../plans/dmf-multi-provider-resource-selection-future-direction-2026-05-08.md)) — explicitly out of scope today.
+- **Future-direction note** captured for per-resource provider+pricing chooser ([`docs/plans/dmf-multi-provider-resource-selection-future-direction-2026-05-08.md`](../plans/dmf-multi-provider-resource-selection-future-direction.md)) — explicitly out of scope today.
 
 ---
 
@@ -168,7 +168,7 @@ Full procedure with prerequisites and verification: [`docs/archive/reviews/dmf-a
 
 - Review: [`docs/archive/reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md`](../archive/reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md)
 - Questions: [`docs/archive/questions/aliyun-frankfurt-rollout-open-2026-05-08.md`](../archive/questions/aliyun-frankfurt-rollout-open-2026-05-08.md)
-- Future direction: [`docs/plans/dmf-multi-provider-resource-selection-future-direction-2026-05-08.md`](../plans/dmf-multi-provider-resource-selection-future-direction-2026-05-08.md)
+- Future direction: [`docs/plans/dmf-multi-provider-resource-selection-future-direction-2026-05-08.md`](../plans/dmf-multi-provider-resource-selection-future-direction.md)
 - Prior handoff: [`docs/handoffs/DMF Bootstrap Implementation Progress Handoff 2026-05-08.md`](DMF%20Bootstrap%20Implementation%20Progress%20Handoff%202026-05-08.md)
-- Strategic frame: [`docs/reviews/dmf-platform-strategic-review-2026-04-30.md`](../reviews/dmf-platform-strategic-review-2026-04-30.md)
+- Strategic frame: [`docs/reviews/dmf-platform-strategic-review-2026-04-30.md`](../reviews/dmf-platform-strategic-review.md)
 - ADRs touched: 0007 (secrets-never-in-argv), 0008 (openbao architecture), 0009 (Shamir DR), 0010 (sanctioned entry), 0012 (configure-stage distinct), 0016 (AWX SSH via cloud-init).

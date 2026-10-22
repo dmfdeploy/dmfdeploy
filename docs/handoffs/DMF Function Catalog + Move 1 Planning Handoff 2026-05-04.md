@@ -166,11 +166,11 @@ A fresh agent should:
 
 ## Cross-reference
 
-- Move 1 + Catalog task spec: [`docs/plans/dmf-platform-move-1-task-2026-05-04.md`](../plans/dmf-platform-move-1-task-2026-05-04.md)
+- Move 1 + Catalog task spec: [`docs/plans/dmf-platform-move-1-task-2026-05-04.md`](../plans/dmf-platform-move-1-task.md)
 - Catalog architecture: [`docs/architecture/DMF Function Catalog Model.md`](../architecture/DMF%20Function%20Catalog%20Model.md)
 - ADR-0012: [`docs/decisions/0012-configure-stage-distinct-from-provision.md`](../decisions/0012-configure-stage-distinct-from-provision.md)
 - ADR-0013: [`docs/decisions/0013-media-function-catalog-model.md`](../decisions/0013-media-function-catalog-model.md)
 - ADR-0014: [`docs/decisions/0014-awx-project-layout.md`](../decisions/0014-awx-project-layout.md)
 - Prior handoff (Move 2 closure + Path A): [`DMF Move 2 Closure + Path A Handoff 2026-05-04.md`](DMF%20Move%202%20Closure%20+%20Path%20A%20Handoff%202026-05-04.md)
-- Strategic review: [`docs/reviews/dmf-platform-strategic-review-2026-04-30.md`](../reviews/dmf-platform-strategic-review-2026-04-30.md)
+- Strategic review: [`docs/reviews/dmf-platform-strategic-review-2026-04-30.md`](../reviews/dmf-platform-strategic-review.md)
 - Existing NMOS plan: [`docs/archive/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md`](../archive/plans/DMF%20NMOS%20Registry%20+%20Crosspoint%20Demo%20Plan%202026-05-04.md)

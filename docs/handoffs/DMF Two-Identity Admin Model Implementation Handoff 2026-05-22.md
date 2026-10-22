@@ -632,7 +632,7 @@ The PR1 unblock is genuinely 1-line; do it first regardless of when PR2 is ready
 
 ## References
 
-- [DMF Pre-Bao Bootstrap Secrets Design 2026-05-08](../plans/DMF%20Pre-Bao%20Bootstrap%20Secrets%20Design%202026-05-08.md) — design source (§3 "One shared bootstrap admin identity")
+- [DMF Pre-Bao Bootstrap Secrets Design 2026-05-08](../plans/dmf-pre-bao-bootstrap-secrets-design.md) — design source (§3 "One shared bootstrap admin identity")
 - [DMF App Admin Account Drift Audit and Realignment Plan 2026-05-14](../plans/DMF%20App%20Admin%20Account%20Drift%20Audit%20and%20Realignment%20Plan%202026-05-14.md) — drift catalog + Path 1/2/3 framing
 - [DMF Aliyun-123 Lifecycle-Configure Follow-Ups Plan 2026-05-17](../archive/plans/DMF%20Aliyun-123%20Lifecycle-Configure%20Follow-Ups%20Plan%202026-05-17.md) — ADR-0024 reservation context (§B.1)
 - [DMF dmf-runbooks Public Publish Path A Handoff 2026-05-21](DMF%20dmf-runbooks%20Public%20Publish%20Path%20A%20Handoff%202026-05-21.md) — parallel workstream; coordination context

@@ -19,13 +19,13 @@ Two design docs are now mutually consistent and implementer-ready. **No code has
 
 The repo's standard boot ritual (in [`CLAUDE.md`](../../CLAUDE.md)) applies — run it first. Then, specifically for this work:
 
-1. [`docs/plans/DMF Bootstrap Provision Configure Split Plan 2026-05-07.md`](../plans/DMF%20Bootstrap%20Provision%20Configure%20Split%20Plan%202026-05-07.md) — Rev 5. The lifecycle split, role refactors, audit, fix list, acceptance criteria.
-2. [`docs/plans/DMF Pre-Bao Bootstrap Secrets Design 2026-05-08.md`](../plans/DMF%20Pre-Bao%20Bootstrap%20Secrets%20Design%202026-05-08.md) — Rev 1. The secret pipeline canonical design.
+1. [`docs/plans/DMF Bootstrap Provision Configure Split Plan 2026-05-07.md`](../plans/dmf-bootstrap-provision-configure-split-plan.md) — Rev 5. The lifecycle split, role refactors, audit, fix list, acceptance criteria.
+2. [`docs/plans/DMF Pre-Bao Bootstrap Secrets Design 2026-05-08.md`](../plans/dmf-pre-bao-bootstrap-secrets-design.md) — Rev 1. The secret pipeline canonical design.
 3. ADRs (cited throughout both docs, mandatory): `0007-secrets-never-in-argv`, `0008-openbao-secrets-architecture`, `0009-shamir-dr-model`, `0010-run-playbook-as-sanctioned-entry`, `0011-auto-unseal-tradeoff`, `0012-configure-stage-distinct-from-provision`, `0016-awx-control-node-ssh-via-cloud-init-and-openbao`.
 4. [`dmf-infra/docs/security-compliance-framework-plan.md`](../../dmf-infra/docs/security-compliance-framework-plan.md) — control-register baseline.
 5. [`dmf-infra/docs/openbao-bootstrap-security-model.md`](../../dmf-infra/docs/openbao-bootstrap-security-model.md) — separation of duties (root-token disposal, ops-admin, ESO AppRole).
 6. [`dmf-infra/docs/SECURITY-REMEDIATION-GUIDE.md`](../../dmf-infra/docs/SECURITY-REMEDIATION-GUIDE.md) and `dmf-infra/docs/archive/SECURITY-REMEDIATION-N1-AUDIT-LEAK.md` — prior remediations and audit-log sensitivity rules.
-7. [`docs/reviews/dmf-move1-gate2-ssh-credential-incident-2026-05-05.md`](../reviews/dmf-move1-gate2-ssh-credential-incident-2026-05-05.md) — read this. A real ed25519 key was committed in plaintext; full Path-Y redeploy followed. Do not let it happen again.
+7. [`docs/reviews/dmf-move1-gate2-ssh-credential-incident-2026-05-05.md`](../reviews/dmf-move1-gate2-ssh-credential-incident.md) — read this. A real ed25519 key was committed in plaintext; full Path-Y redeploy followed. Do not let it happen again.
 
 ## What "done" looks like
 
