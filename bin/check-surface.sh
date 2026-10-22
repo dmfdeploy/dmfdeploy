@@ -9,7 +9,7 @@
 #   filenames  Live docs use kebab-case names with no spaces and no date.
 #              README.md and INDEX.md are allowed anywhere. An upper-case
 #              landmark name such as STYLE.md or OPEN-QUESTIONS.md is allowed
-#              only directly under docs/.
+#              only directly under the top-level docs/ directory.
 #   placement  docs/plans/ holds only plans with status active or draft, and
 #              no live doc links into docs/archive/.
 #
@@ -130,15 +130,26 @@ check_file_size() {
     return 0
 }
 
+# Path relative to the scanned root. A fixture tree under tests/surface/good
+# or tests/surface/bad acts as its own root.
+rel_path() {
+    local p="$1"
+    p="${p#"$ROOT"/}"
+    p="${p#tests/surface/good/}"
+    p="${p#tests/surface/bad/}"
+    printf '%s\n' "$p"
+}
+
 # The filename rule applies to files under a docs/ directory.
 check_file_name() {
-    local path="$1" base
+    local path="$1" base rel
+    rel="$(rel_path "$path")"
     base="$(basename "$path")"
     wants filenames || return 0
     printf '%s\n' "$path" | grep -qE '(^|/)docs/' || return 0
     is_excluded "$path" && return 0
     printf '%s\n' "$base" | grep -qE "$ALLOWED_NAMES_RE" && return 0
-    if printf '%s\n' "$path" | grep -qE '(^|/)docs/[^/]+$' \
+    if printf '%s\n' "$rel" | grep -qE '^docs/[^/]+$' \
         && printf '%s\n' "$base" | grep -qE "$LANDMARK_NAMES_RE"; then
         return 0
     fi

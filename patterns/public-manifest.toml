@@ -64,6 +64,8 @@ allowlist_paths = [
     'docs/reviews/dmf-mxl-upstream-profile-and-contribution-review\.md',
     '(^|/)docs/DEVELOPMENT-AND-BUILD-RULES\.md$',
     '(^|/)docs/decisions/[0-9]+',
+    # This architecture doc keeps its name because component repositories link
+    # to it. Add the kebab-case name here when those links move.
     'docs/architecture/DMF Release and Contribution Model\.md',
     'docs/plans/DMF Release and Contribution Model Implementation Plan 2026-05-11\.md',
     'docs/plans/dmf-release-and-contribution-model-implementation-plan\.md',
@@ -103,6 +105,8 @@ comment = "Catch the well-known LAN Forgejo dev credential."
 tags = ["lab-cred", "dmf"]
 allowlist_description = "docs that intentionally call out the dev:changeme smell"
 allowlist_paths = [
+    # This architecture doc keeps its name because component repositories link
+    # to it. Add the kebab-case name here when those links move.
     '^docs/architecture/DMF Release and Contribution Model\.md$',
     '^docs/reviews/dmf-move1-gate2-ssh-credential-incident-2026-05-05\.md$',
     '^docs/reviews/dmf-move1-gate2-ssh-credential-incident\.md$',
