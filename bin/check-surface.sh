@@ -50,15 +50,16 @@ ALLOWED_NAMES_RE='^(README|INDEX)\.md$'
 # Upper-case landmark names (JOURNEY.md, OPEN-QUESTIONS.md) that the filename
 # rule allows only for a file that sits directly under docs/.
 LANDMARK_NAMES_RE='^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*\.md$'
-# Live docs that keep a name the filename rule rejects. Each file keeps its
-# name because component repositories link to it by that name. Rename it, and
-# drop it from this list, when those links move. Each entry is an exact path
-# relative to the repository root, one per line.
-PINNED_NAMES='docs/architecture/DMF EBU Mapping (2026-04-25).md
+# Live docs that keep a name the filename rule rejects. Each entry is an
+# exact path relative to the repository root, one per line. A file leaves its
+# list, and gets a kebab-case name, when the reader that pins it moves.
+
+# These files keep their names because a reader outside the docs links to
+# them or reads them by path. Rename each one when those links move.
+PINNED_BY_COMPONENT_LINKS='docs/architecture/DMF EBU Mapping (2026-04-25).md
 docs/architecture/DMF Function Catalog Model.md
 docs/architecture/DMF Platform Plan.md
 docs/architecture/DMF Provider Descriptor Model.md
-docs/architecture/DMF Release and Contribution Model.md
 docs/design/DMF Console Glossary.md
 docs/plans/AWX NetBox Inventory Sync Fix 2026-05-04.md
 docs/plans/DMF AWX On-Demand Scale-to-Zero Plan 2026-06-18.md
@@ -78,6 +79,22 @@ docs/plans/DMF Public Container Registry Publishing Plan 2026-05-19.md
 docs/plans/DMF Secret Ownership and OpenBao Migration Plan.md
 docs/plans/DMF v0.2b Multi-Source Switch Spec 2026-07-15.md
 docs/plans/Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md'
+
+# This file keeps its name because the umbrella allowlists in .gitleaks.toml
+# and patterns/public-manifest.toml match its exact path. Rename the file
+# together with those entries.
+PINNED_BY_UMBRELLA_ALLOWLISTS='docs/architecture/DMF Release and Contribution Model.md'
+
+# These files keep their names because an in-repo reader pins the path.
+# The agentic scripts under bin/agentic/ read the harness plan; it moves when
+# those readers migrate. bin/render-bpmn.sh reads the BPMN stylesheet, and
+# docs/processes/ stays in place.
+PINNED_BY_IN_REPO_READERS='docs/plans/DMF Agentic Harness Plan 2026-05-11.md
+docs/processes/diagrams/_styles.css'
+
+PINNED_NAMES="$PINNED_BY_COMPONENT_LINKS
+$PINNED_BY_UMBRELLA_ALLOWLISTS
+$PINNED_BY_IN_REPO_READERS"
 
 MODE="warn"
 SUB="all"
