@@ -2,39 +2,45 @@
 
 [![CI](https://github.com/dmfdeploy/dmfdeploy/actions/workflows/ci.yml/badge.svg)](https://github.com/dmfdeploy/dmfdeploy/actions/workflows/ci.yml)
 
-**DMF Platform** — an open prototype of the [EBU](https://tech.ebu.ch/)
-*Dynamic Media Facility* Reference Architecture V2.0 on commodity
-infrastructure: k3s, Ansible, NetBox,
-AWX, Authentik, OpenBao, and a React operator console. A blank ARM64 node
-becomes a software-defined media facility — identity, secrets custody,
-source-of-truth inventory, and a deployable media-function catalog — driven by a
-Day-0 installer container. This repository is the **umbrella**: the consolidated
-knowledge base, decision record, and cross-repo coordination point for the
-eight component repos.
+dmfdeploy is an open prototype of the [EBU](https://tech.ebu.ch/) *Dynamic
+Media Facility* (DMF) architecture on commodity infrastructure: k3s, Ansible,
+NetBox, AWX, Authentik, OpenBao, and a React operator console. A Day-0
+installer container turns a blank ARM64 node into a software-defined media
+facility with identity, secrets custody, a source-of-truth inventory, and a
+catalog of media functions to deploy. This repository is the **umbrella**: the
+knowledge base, the decision record, and the coordination point for the eight
+component repos.
+
+<!-- Goal statement (short, mid and long term): dmfdeploy/dmfdeploy#675 -->
 
 **Proven so far** (first-party, on the author's environments): NMOS IS-04/05
-deploys and runs on commodity ARM k3s, driven end-to-end through the platform's
-catalog control chain (console → AWX → Helm → NetBox lifecycle state) — closed
-2026-06-04 as "Move 1", the NMOS spike
-([learnings](docs/reviews/dmf-platform-move-1-learnings-2026-06-04.md)). The
-larger claim — that a *stranger* can reproduce this — is exactly what v0.1 is
-closing: see the [thesis one-pager](docs/THESIS.md).
+deploys and runs on commodity ARM k3s, driven end to end through the
+platform's catalog chain: console, AWX, Helm, and NetBox lifecycle state
+([learnings, 2026-06-04](docs/reviews/dmf-platform-move-1-learnings-2026-06-04.md)).
+Whether an outsider can repeat that cold is the test of the current
+[`v0.1-polish` milestone](https://github.com/dmfdeploy/dmfdeploy/milestone/1).
+An 81-second recording of one workload being provisioned, with a plain account
+of what it shows, is on the [organization page](https://github.com/dmfdeploy).
 
-**See it:** an 81-second recording of one media workload being provisioned on
-one node, with a plain account of what it does and does not show, is on the
-[organization page](https://github.com/dmfdeploy).
+## Purpose
 
-## Start here — pick your path
+dmfdeploy stays an independent, open prototype of a Dynamic Media Facility.
+It earns trust by proving its claims with conformance checks against
+published specifications and by sharing what it learns upstream as evidence.
+It does not call itself a reference; only a standards body can name one.
+Any change of direction goes through a
+[Discussions RFC](docs/decisions/README.md) first.
 
-| You are… | Read, in order |
+## Start here
+
+| You are | Read, in order |
 |---|---|
-| **Curious / evaluating** — "what is this and does it work?" | [docs/THESIS.md](docs/THESIS.md) → the [dmf-init quickstart](https://github.com/dmfdeploy/dmf-init) (Day-0 installer) |
-| **A potential contributor** | [docs/JOURNEY.md](docs/JOURNEY.md) (how we got here) → [core ADRs — start here](docs/decisions/INDEX.md#start-here) → [CONTRIBUTING.md](CONTRIBUTING.md) → [Issues](https://github.com/dmfdeploy/dmfdeploy/issues) + [project board](https://github.com/orgs/dmfdeploy/projects/1) |
-| **An AI-agent operator** — working *on* the platform with agents | [CLAUDE.md](CLAUDE.md) / [AGENTS.md](AGENTS.md) boot ritual, then [STATUS.md](STATUS.md) |
+| **Evaluating** the platform | [docs/THESIS.md](docs/THESIS.md), then the [dmf-init quickstart](https://github.com/dmfdeploy/dmf-init) (Day-0 installer) |
+| **A potential contributor** | [CONTRIBUTING.md](CONTRIBUTING.md), the [core ADRs](docs/decisions/INDEX.md#start-here), then the [issues](https://github.com/dmfdeploy/dmfdeploy/issues) |
+| **An AI-agent operator** working on the platform | [AGENTS.md](AGENTS.md) and its boot steps |
 
-The knowledge base is mapped in [docs/INDEX.md](docs/INDEX.md). What's
-deliberately frozen, unproven, or undecided is curated honestly in
-[docs/OPEN-QUESTIONS.md](docs/OPEN-QUESTIONS.md).
+The [docs landing page](docs/README.md) maps the knowledge base, and
+[OPEN-QUESTIONS](docs/OPEN-QUESTIONS.md) lists what is frozen or unproven.
 
 ## Component repos
 
@@ -55,51 +61,40 @@ checked out as a sibling directory of this umbrella under a common parent:
 Canonical architecture: [`docs/architecture/DMF Platform Plan.md`](docs/architecture/DMF%20Platform%20Plan.md).
 Canonical vocabulary (layers/verticals/lifecycle): [`docs/architecture/DMF EBU Mapping (2026-04-25).md`](docs/architecture/DMF%20EBU%20Mapping%20%282026-04-25%29.md).
 
-## Current phase: v0.1 committed
+## Where it is going
 
-The experiment phase **closed on 2026-06-06** —
+[ROADMAP.md](ROADMAP.md) describes three milestones, each defined by an outcome:
+
+- [`v0.1-polish`](https://github.com/dmfdeploy/dmfdeploy/milestone/1): the
+  console tells the truth. An outsider completes the documented journey cold.
+- [`v0.2`](https://github.com/dmfdeploy/dmfdeploy/milestone/2): a team shares
+  one console to run a multi-function workload switched by NMOS IS-05.
+- [`v0.3`](https://github.com/dmfdeploy/dmfdeploy/milestone/4): a team designs
+  and plans a workload and a facility in the console.
+
 [architectural-commitments-v1](docs/decisions/architectural-commitments-v1.md)
-froze the v0.1 architecture (single-node proof surface, AWX as catalog actuator,
-NetBox tags as lifecycle state, dmf-init as installer, rebuild-only lifecycle)
-and named the explicit non-goals. The work-selection rule is now: **make the
-proven core runnable and legible to an outsider** — the active plan is the
-[v0.1 commitment & focus-cut plan](docs/plans/DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md).
-
-Thesis scorecard from the experiment phase:
-
-1. **NMOS IS-04/05 on commodity k3s** — ✅ confirmed (Move 1, 2026-06-04)
-2. **Cross-cluster Authentik federation** — ❄️ frozen (never started; post-v0.1 spike)
-3. **EBU taxonomy under a two-function hard case** — ⏸ paused (the MXL — Media eXchange Layer — spike; code-complete, live verification paused)
-
-The full story — including the pivots and the mothballed machinery — is in
-[docs/JOURNEY.md](docs/JOURNEY.md).
+fixes the v0.1 architecture and its non-goals; [JOURNEY](docs/JOURNEY.md) tells the history.
 
 ## Working model
 
-- **The record lives in this repo** — ADRs ([docs/decisions/](docs/decisions/INDEX.md)),
-  plans ([docs/plans/](docs/plans/INDEX.md)), reviews, handoffs.
-- **Liveness lives on GitHub** — [Issues](https://github.com/dmfdeploy/dmfdeploy/issues)
-  are the backlog, milestones schedule it, the
-  [org project board](https://github.com/orgs/dmfdeploy/projects/1) is optional
-  curation, and [Discussions](https://github.com/dmfdeploy/dmfdeploy/discussions)
-  host Q&A and the RFC-before-ADR pipeline (see [CONTRIBUTING.md](CONTRIBUTING.md)).
-- **What comes next** is in [ROADMAP.md](ROADMAP.md): the three milestones and
-  the outcome each one is defined by.
-- Much of the platform is built by AI agents under operator orchestration — by
-  design, and documented as method in
-  [JOURNEY.md](docs/JOURNEY.md#working-with-agents-the-method).
+The record lives in this repo: ADRs in [docs/decisions/](docs/decisions/INDEX.md)
+and plans in [docs/plans/](docs/plans/INDEX.md). Liveness lives on GitHub:
+[issues](https://github.com/dmfdeploy/dmfdeploy/issues) are the backlog,
+milestones schedule them, and
+[Discussions](https://github.com/dmfdeploy/dmfdeploy/discussions) hold
+questions and RFCs. The rules are in [docs/WORKING-MODEL.md](docs/WORKING-MODEL.md).
+AI agents under operator orchestration build much of the platform, by design
+([the method](docs/JOURNEY.md#working-with-agents-the-method)).
 
 ## Provenance
 
-The knowledge base was consolidated on 2026-05-03 from an operator-local note
-store; document filenames are preserved verbatim because docs cross-reference
-each other by display name. The repo is published with its full record —
-pivots, superseded plans, and mothballed tooling included — because the record
-is part of the method. Identity and topology details are placeholder-scrubbed
-(`<control-node-public-ip>`, `dmf.example.com`, `<handle>`); concrete values
-never lived in public repos.
+The knowledge base moved here from an operator-local note store on 2026-05-03,
+with filenames kept verbatim because docs cite each other by name. It is
+published with its full record, pivots and mothballed tooling included,
+because the record is part of the method. Identity and topology details use
+placeholders such as `dmf.example.com`.
 
 ## License
 
-Apache License, Version 2.0 — see [LICENSE](LICENSE).
+Apache License, Version 2.0. See [LICENSE](LICENSE).
 Third-party components are listed in [NOTICE](NOTICE).
