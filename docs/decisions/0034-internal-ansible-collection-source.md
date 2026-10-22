@@ -4,7 +4,7 @@
 (operator delegated the Zot-vs-Forgejo choice). The no-public-galaxy posture is
 binding now and partially proven: the v0.1 EE-bake interim is live and verified
 offline on `<env>` (FIX 2). The permanent Forgejo-git internal source is
-tracked for implementation by the WP linked under Enforcement; this ADR records the decision.
+tracked for implementation by the WP linked under Enforcement; this ADR records the decision, and the WP records its completion.
 **Deciders:** @<handle>, Claude (orchestrator), Claude (implementer, `<env>` diagnosis)
 **Touches:** [ADR-0030](0030-console-i18n-and-airgap-posture.md) (air-gap/offline posture),
 [ADR-0031](0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md) (self-contained sandbox release gate),
@@ -101,6 +101,6 @@ to `galaxy.ansible.com` blocked).
 (operator delegated the Zot-vs-Forgejo choice). The no-public-galaxy posture is
 binding now and partially proven: the v0.1 EE-bake interim is live and verified
 offline on `<env>` (FIX 2). The permanent Forgejo-git internal source is
-tracked for implementation by the WP linked under Enforcement; this ADR records the decision.
+tracked for implementation by the WP linked under Enforcement; this ADR records the decision, and the WP records its completion.
 
 Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0034-internal-ansible-collection-source.md).

@@ -178,7 +178,8 @@ and the [alternatives](../archive/decisions/0020-deployment-scope-and-regulatory
   is acceptable. The "Mode B exit path" requirement only attaches if
   and when Mode B promotes.
 - ADR-0027's promotion criterion #4 ("ADR-0020 promotes to Accepted with
-  Mode B active") still refers to a future Mode-B-Accepted event.
+  Mode B active") still refers to a future Mode-B-Accepted event. This Mode-A-only promotion
+  does not trigger it.
   Cross-reference updated in ADR-0027.
 
 ## Consequences
