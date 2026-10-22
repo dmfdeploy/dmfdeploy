@@ -132,8 +132,9 @@ header prepends; everything else is verify-only).
 ## 5. Wire the digests into INDEX.md
 
 In `INDEX.md`, in the existing "Theme clusters & canonical pointer" section, add a
-link from each cluster row to its new digest file (e.g. append
-"· [digest](../../decisions/digests/identity-and-authority.md)" to the cluster's "Canonical" cell).
+link from each cluster row to its new digest file (e.g. append a "digest" link
+to `digests/identity-and-authority.md` to the cluster's "Canonical" cell).
+(The digests were removed on 2026-10-22, so this example is no longer a live link.)
 Do not restructure the table.
 
 ## 6. Acceptance — reply with this grep-proof checklist filled

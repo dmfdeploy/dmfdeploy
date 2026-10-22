@@ -1,9 +1,9 @@
 # ADR-0004: Experiment phase, not hardening
 
-> **⚠️ Canonical truth for this topic is consolidated in the
-> [Deployment scope and release digest](digests/deployment-scope-and-release.md).** This ADR's status: stance superseded for the committed core by `architectural-commitments-v1` (2026-06-04).
+> **⚠️ Canonical truth for this topic is in
+> [ADR-0031](0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md).** This ADR's status: stance superseded for the committed core by `architectural-commitments-v1` (2026-06-04).
 > Full text is preserved in the [archive record](../archive/decisions/0004-experiment-phase-stance.md) for decision
-> history. Do not act on it without reading the digest + the named successor.
+> history. Do not act on it without reading the canonical ADR and the named successor.
 
 **Status:** Accepted — **stance superseded for the committed core by
 [architectural-commitments-v1](architectural-commitments-v1.md)** (2026-06-06). The

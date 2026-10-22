@@ -40,7 +40,7 @@ public" repo — that gate is reversed per ADR-0035 (per-env state is operator-l
 ## DONE (committed)
 
 ### Workstream C — ADR digests (umbrella `9dbdccb` plan/spec, `0a8ba77` digests)
-- 4 canonical digests under `docs/decisions/digests/` (identity, secrets-and-unseal,
+- 4 canonical digests (identity, secrets-and-unseal,
   catalog-and-execution, deployment-scope-and-release) with verbatim ADR-cited bullets.
 - Canonical-pointer headers prepended to superseded/amended ADRs **0004, 0011,
   0016, 0024, 0027** (bodies unchanged). INDEX theme-cluster table wired to the digests.
@@ -137,7 +137,7 @@ D are largely independent. See the master plan for the full step lists.
 - Master plan: `docs/archive/plans/DMF First Public Release Plan 2026-06-09.md`
 - C spec: `docs/archive/plans/DMF Workstream C — ADR Digest Execution Spec 2026-06-09.md`
 - B spec: `docs/plans/DMF Workstream B — dmf-env Public-Surface Scrub Spec 2026-06-09.md`
-- ADR digests: `docs/decisions/digests/`
+- ADR digests: removed 2026-10-22; the theme-cluster table in `docs/decisions/INDEX.md` names the canonical ADRs.
 - Surface gate: `bin/dmf-env-public-surface-gate.sh`
 - Import tool (import-only): `bin/sync-to-github.sh`; scrub: `bin/scrub-public-repos.sh`
 - Release/contribution model (→ ADR-0018): `docs/architecture/DMF Release and Contribution Model.md`
