@@ -159,7 +159,7 @@ operator decision**, not a hygiene task.
 | 0020 (Mode B/C) | Managed `dmfdeploy.io` + flypack modes | Mode A is Accepted; B/C stay Proposed until a managed-service or flypack customer forces them. |
 | 0022 | Flypack-online thin edge agent | Depends on a flypack customer; parked. |
 | 0026 | Provider descriptors (one YAML/provider) | **Same problem, two sides:** the `init-wizard.sh` "provider-aware defaults" hardening stub (TODOS §init-wizard) is exactly what 0026 would formalize. Adopt 0026 ⇄ implement the wizard provider table together, or neither. |
-| 0027 | Catalog instance vs definition separation (CRD + operator) | Proposed-deferred since 2026-05-22. Its own digest records **no forcing function to build a custom operator**; ADR-0037 already took the non-CRD path for the parts that were needed. |
+| 0027 | Catalog instance vs definition separation (CRD + operator) | Proposed-deferred since 2026-05-22. None of the promotion criteria in [ADR-0027](0027-catalog-instance-vs-definition-separation.md) has fired, so **nothing forces a custom operator**; ADR-0037 already took the non-CRD path for the parts that were needed. |
 | 0030 | Console i18n + air-gap posture | Re-opens Radix→React Aria; defer until i18n is on the console roadmap. |
 
 ## Portfolio reviews
