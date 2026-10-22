@@ -35,7 +35,7 @@ language instead of inventing its own. The notes were consolidated into this
 umbrella on 2026-05-03; filenames were preserved verbatim, which is why the doc
 titles read like a lab notebook. They are one.
 
-## The reframe: experiments first (2026-04-30)
+## The reframe to experiments over polish (2026-04-30)
 
 In mid-April, two independent reviews flagged the same P0s: the console-to-AWX
 loop had never closed, no alerts, no backups, a token in plaintext. Two weeks
@@ -60,7 +60,7 @@ foundations*. That stance was codified as
 [ADR-0004](decisions/0004-experiment-phase-stance.md). Everything between
 2026-04-30 and 2026-06-06 happened inside that frame.
 
-## Move 2: the vertical slice (closed 2026-05-04)
+## Move 2, the vertical slice (closed 2026-05-04)
 
 The first experiment was the cheaper one: wire one console page end-to-end to a
 real AWX job running against NetBox-derived inventory
@@ -73,7 +73,7 @@ widening into a service catalog. The catalog source of truth settled on NetBox.
 That asymmetry (plans bending on contact, the architecture holding) became the
 recurring pattern.
 
-## Move 1: NMOS on commodity k3s (closed 2026-06-04)
+## Move 1, NMOS on commodity k3s (closed 2026-06-04)
 
 The big one. Sony's `nmos-cpp` registry, built from source for ARM64, deployed
 through the full catalog control chain: catalog YAML → Provision → AWX job →
@@ -95,7 +95,7 @@ The most valuable finding was the
 assumed lifecycle stages would live in wrapper playbooks. Reality put them in
 the *role*, invoked by a thin AWX launcher with a stage variable. Two planned deliverables were obviated mid-move, and the lesson
 generalized: **lifecycle-stage identity belongs to the unit that owns the
-workload.** An orchestration wrapper does not own it. The record tells the pivot as a
+workload. It does not belong to an orchestration wrapper.** The record tells the pivot as a
 finding. [ADR-0014](decisions/0014-awx-project-layout.md),
 [ADR-0016](decisions/0016-awx-control-node-ssh-via-cloud-init-and-openbao.md) and
 later [ADR-0025](decisions/0025-ansible-in-cluster-pods-and-catalog-helm.md)
@@ -133,7 +133,7 @@ them):
 - **dmf-init** ([ADR-0036](decisions/0036-dmf-init-thin-control-container.md)):
   a Day-0 stateless installer container that takes a blank node to a full
   facility and restores from passphrase-wrapped backups. On 2026-06-07 it ran
-  its first full bootstrap against a real cloud VPS, end to end.
+  its first full bootstrap against a real cloud VPS, end to end. It was not the development sandbox.
 
 ## The third thesis-killer, unfinished
 
