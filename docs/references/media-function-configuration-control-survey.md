@@ -68,8 +68,9 @@ and are marked "secondary" where nobody read the primary page.
   <https://tech.ebu.ch/news/2025/09/ebu-and-amwa-form-joint-task-force-on-dynamic-media-facilities-for-transition-to-software-based-media-production>.
 - **Home pages.** AMWA: <https://www.amwa.tv/jtdmf>. EBU group page:
   <https://tech.ebu.ch/groups/dynamic-media-facility>, which lists two
-  co-chairs, one from each of two public broadcasters. The working groups use
-  member-only workspaces that are not public, and meet roughly weekly online.
+  co-chairs, one from each of two public broadcasters (BBC and CBC). The
+  working groups use Basecamp projects that are not public, and meet roughly
+  weekly on Zoom.
 - **Meetings.** Kick-off in Geneva, 27 to 28 Nov 2025 (about 110 people).
   North American kick-off in New York, 10 to 11 Mar 2026. Face-to-face in
   Geneva, 8 Jun 2026. Meet-up and "Ask Me Anything" sessions at IBC 2026.
@@ -140,10 +141,11 @@ same content also sits in `AMWA-TV/jt-dmf-crm`, Apache-2.0):
   storage). The repository has a `validate_manifest.py`.
 - **Configuration parameters are not declared.** `spec.args` is
   `type: array, items: {type: object}` with no further schema.
-- Example: the repository holds an example manifest and presentation for an
-  MXL sink demonstration contributed by a vendor. It runs on kind with
-  Kubernetes Dynamic Resource Allocation (`resource.k8s.io/v1` ResourceSlice
-  for memory throughput) and needs Kubernetes v1.35 or later.
+- Example: the repository holds an example manifest and a presentation
+  (`JT-DMF-CRM-Riedel-Example.pdf`) for an MXL sink demonstration contributed
+  by Riedel. It runs on kind with Kubernetes Dynamic Resource Allocation
+  (`resource.k8s.io/v1` ResourceSlice for memory throughput) and needs
+  Kubernetes v1.35 or later.
 
 **IN-004** (<https://specs.amwa.tv/in-004>):
 
@@ -290,14 +292,14 @@ found no normative statement of derivation.
 
 ### Open implementations (facts)
 
-| Project | Licence | What it covers |
-|---|---|---|
-| nmos-cpp (<https://github.com/sony/nmos-cpp>) | Apache-2.0 | README lists IS-12, IS-13, IS-14, BCP-007-03, BCP-008-01/02, MS-05-01/02. No tagged releases; master pushed 2026-10-05 |
-| AMWA NMOS testing tool (`nmos-testing`) | Apache-2.0 | Suites IS-12-01, IS-14-01, BCP-008-01-01, BCP-008-02-01, MS-05, BCP-007-03-01; invasive tests sit behind `MS05_INVASIVE_TESTING`. Last tagged release 2022, so use master |
-| nmos-device-control-mock (AMWA) | Apache-2.0 | TypeScript device with MS-05-02, IS-12, BCP-008, IS-14 |
-| nmos-js | Apache-2.0 | Browser IS-04/IS-05 controller |
-| easy-nmos (third party) | Apache-2.0 | Docker Compose bundle of registry, controller and test node |
-| nmos-control-serpenty-device (third party) | MIT | Example IS-12 device |
+| Project | Owner | Licence | What it covers |
+|---|---|---|---|
+| nmos-cpp (<https://github.com/sony/nmos-cpp>) | Sony (open source) | Apache-2.0 | README lists IS-12, IS-13, IS-14, BCP-007-03, BCP-008-01/02, MS-05-01/02. No tagged releases; master pushed 2026-10-05 |
+| AMWA NMOS testing tool (`nmos-testing`) | AMWA | Apache-2.0 | Suites IS-12-01, IS-14-01, BCP-008-01-01, BCP-008-02-01, MS-05, BCP-007-03-01; invasive tests sit behind `MS05_INVASIVE_TESTING`. Last tagged release 2022, so use master |
+| nmos-device-control-mock | AMWA | Apache-2.0 | TypeScript device with MS-05-02, IS-12, BCP-008, IS-14 |
+| nmos-js | Sony | Apache-2.0 | Browser IS-04/IS-05 controller |
+| easy-nmos | third party | Apache-2.0 | Docker Compose bundle of registry, controller and test node |
+| nmos-control-serpenty-device | third party | MIT | Example IS-12 device |
 
 Source: `gh api` reads of each repository, 2026-10-22. Badge pass status and
 nmos-cpp version numbers were not verified.
@@ -354,14 +356,14 @@ Facts (secondary):
 
 - The Open Services Alliance merged into SMPTE as a Rapid Industry Solution
   (RIS-OSA). <https://www.smpte.org/rapid-industry-solutions/osa>.
-- **Catena, SMPTE ST 2138**: an open control framework that started as a
-  vendor's open hardware-platform work. Parts: -00 overview, -10 model, -11
+- **Catena, SMPTE ST 2138**: an open control framework that started as Ross
+  Video openGear work. Parts: -00 overview, -10 model, -11
   gRPC, -12 REST, -19 protocol objects, -50 security. The documents seen are
   Public Committee Drafts dated 2025-09 to 2026-03, and -12 is a working
   draft. It is not yet published as a standard.
 - Repositories: `github.com/SMPTE/st2138-a` (BSD-3-Clause, pre-FCD tags
-  v1.1.0 and v1.1.1, latest 2026-10-19) and a vendor-maintained SDK
-  repository (BSD-3-Clause).
+  v1.1.0 and v1.1.1, latest 2026-10-19) and `github.com/rossvideo/Catena` (the Ross Video SDK,
+  BSD-3-Clause).
 - Model (verified from `st2138-a/interface/proto`): a device has params,
   commands and shared constraints keyed by OID. Types include INT32, FLOAT32,
   STRING, STRUCT, variants and arrays. Constraints include ranges with step
@@ -413,17 +415,17 @@ validate and restore step. Watch it, and wait before building on it.
   (announced October 2024). Free to implement.
   Sources: <https://ocaalliance.com/>,
   <https://www.prosoundweb.com/oca-alliance-announces-public-availability-of-aes70-2024/>.
-- **Adoption:** strong in pro audio and live sound, where several loudspeaker
-  and network-media manufacturers adopted it (another vendor joined in 2025).
+- **Adoption:** strong in pro audio and live sound, where d&b audiotechnik,
+  L-Acoustics and others adopted it (NDI joined in 2025).
   Little in video facilities.
-- **Implementations:** AES70.js (GPL-2.0, controller only), OCAMicro (C++
+- **Implementations:** AES70.js (DeutscheSoft, GPL-2.0, controller only), OCAMicro (C++
   device), SwiftOCA, and an open conformance test tool.
 - **Capabilities:** typed properties with ranges, Get and Set, and
   property-changed events. No standard validate step was confirmed.
 
 ### Ember+
 
-- **What:** open protocol, originated by a broadcast vendor. Repository
+- **What:** open protocol from Lawo. Repository
   <https://github.com/Lawo/ember-plus>, Boost Software Licence 1.0. It defines
   the transport (Glow over S101) and a tree of nodes, parameters and
   functions, and leaves the tree's content to each device.
@@ -538,9 +540,9 @@ standardised, or limited. **No** = not provided. **?** = not verified.
 | IS-05 + BCP-004 (+ BCP-007-03) | Open, AMWA | High | Yes, transport constraints and caps | Partial, staging is rejected if invalid | Yes, `/active` | Partial, IS-04 version bumps |
 | IS-13 | Open, AMWA (WIP) | None yet | Partial, labels and tags only | No | Yes | Partial, IS-04 |
 | JT-DMF IN-003 | Open, AMWA/EBU (WIP) | Prototype | Yes for resources; **No for config params** | Partial, schema validation | No | No |
-| Catena ST 2138 | Open, SMPTE (draft) | Early | Yes, ranges, choices, read-only | No dry run seen | Yes, GetValue | Yes, streams |
+| Catena ST 2138 | Open, SMPTE (draft) | Early, Ross openGear | Yes, ranges, choices, read-only | No dry run seen | Yes, GetValue | Yes, streams |
 | AES70 | Open, AES | Pro audio | Yes, typed properties with ranges | ? | Yes | Yes |
-| Ember+ | Open protocol, vendor-originated | Very high | Partial, per-device trees, no shared schema | No | Yes | Yes |
+| Ember+ | Open protocol, Lawo | Very high | Partial, per-device trees, no shared schema | No | Yes | Yes |
 | SNMP | Open, IETF | Legacy monitoring | Yes, SMIv2 | No | Yes | Yes, traps |
 | NETCONF/YANG | Open, IETF | None found | Yes, YANG | **Yes, candidate + validate** | **Yes, operational datastore** | Yes, YANG-Push |
 | gNMI/OpenConfig | Open, OpenConfig | None found | Yes, YANG | Partial, atomic Set | Yes | Yes |
