@@ -92,6 +92,12 @@ jobs:
         # PATH-shimmed helm and docker, placeholder token. A piped run without
         # GHCR_USER must fail with a message that names it, before any tool runs.
         run: bash tests/ghcr-publish-user.sh
+      - name: hygiene checks stay in their modes (#617)
+        # Parses surface.yml, vale.yml, title-check.yml, backlog-hygiene.yml
+        # and the pre-commit hook. Fails if a check falls back to warn mode,
+        # gains continue-on-error or "|| true", or loses its fixture step.
+        # ci.yml has no path filter, so this runs on every PR.
+        run: bash tests/hygiene-modes.sh
       - name: gitleaks rules generator — drift check + self-test (R1 §4/§9)
         # --check: the .gitleaks.toml [[rules]] region matches the manifest.
         # --self-test: per-engine canary MATCH tests + the useDefault coverage
