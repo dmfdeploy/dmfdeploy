@@ -408,7 +408,7 @@ Open. This is the strongest EBU text on the subject.
 ### 4.1 IAMT Dynamic Software Licensing (DSL) v1.0.0
 
 Published best practice, 2026-09-07. The repository holds a
-[summary](iamt-dsl-v1.0.0-summary-and-relevance.md) and a copy of the
+[summary](iamt-dsl-v1-0-0-summary-and-relevance.md) and a copy of the
 [PDF](iamt-dynamic-software-licensing-best-practices-v1.0.0.pdf). Page
 numbers below are printed pages.
 
@@ -852,7 +852,7 @@ The SMPTE documents below were downloaded free from `pub.smpte.org` on
 - Issue #634 defines `dmf-function.yaml` with "lifecycle, health, and
   dependency declarations". It also defines a conformance tool that renders
   named fixtures and compares the descriptor with the render.
-- The [closed-loop assurance plan](../plans/DMF%20Closed-Loop%20Assurance%20Pattern%20Plan%202026-10-21.md)
+- The [closed-loop assurance plan](../plans/dmf-closed-loop-assurance-pattern-plan.md)
   (§1, §2, §5) maps observed state to the monitoring vertical, extract-intent
   to dmf-promsd, and deltas to `operate-catalog-drift.yml` and alerts. Gap 1
   is a Problems view. Gap 5 is an NMOS flow comparison. Media observed state

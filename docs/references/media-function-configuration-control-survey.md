@@ -327,7 +327,7 @@ nmos-cpp version numbers were not verified.
 ### IAMT Dynamic Software Licensing (DSL) v1.0.0
 
 Facts (from the project's
-[summary of the IAMT document](iamt-dsl-v1.0.0-summary-and-relevance.md); the
+[summary of the IAMT document](iamt-dsl-v1-0-0-summary-and-relevance.md); the
 PDF reading was secondary):
 
 - Published 2026-09-07, Apache-2.0, 297 pages. It uses the DMF terms Media
