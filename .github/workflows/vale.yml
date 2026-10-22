@@ -31,6 +31,7 @@ on:
       - ".github/**/*.md"
       - "bin/check-voice*.sh"
       - "bin/mutate-voice.sh"
+      - "tests/voice-changed-head.sh"
       - ".vale.ini"
       - ".vale/**"
       - ".github/workflows/vale.yml"
