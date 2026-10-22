@@ -7,6 +7,11 @@ but the web and task Deployments have no running pods.
 **Audience:** the human operator. Agents may run the read-only checks. Run
 the restart in step 3 only with the operator's go-ahead.
 
+**How you get here:** the alert's `runbook_url` points at this page. The
+Prometheus role in dmf-infra sets that link
+([dmfdeploy/dmf-infra#96](https://github.com/dmfdeploy/dmf-infra/pull/96)),
+and that change merges after this page exists.
+
 ## What the alert means
 
 The `AWXReplicaDivergence` alert fires when both of these hold for most of
