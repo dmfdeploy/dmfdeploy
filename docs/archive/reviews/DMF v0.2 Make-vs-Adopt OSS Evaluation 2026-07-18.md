@@ -11,6 +11,13 @@
 
 ---
 
+> **Status update, 2026-10-22.** AMWA released BCP-007-03 as
+> [v1.0.0 on 2026-08-18](https://github.com/AMWA-TV/bcp-007-03/releases/tag/v1.0.0),
+> after this review called it work in progress. The
+> [nmos-cpp README](https://github.com/sony/nmos-cpp#readme) now lists support
+> for it. Both triggers of the first watch item in section 6 have fired. The
+> rest of this review is unchanged and describes the state on 2026-07-18.
+
 ## 1. Method
 
 Multi-agent evaluation, three phases:
@@ -144,6 +151,8 @@ equivalents when those builds start.
 | keygen (ADR-0045 backend) | (1) a genuinely licensed function is proposed; (2) live arm64 test resolves the docs-vs-images contradiction; (3) explicit operator decision on a first non-OSI (Fair Core) dependency |
 | Hauler bug 667 (cosign signatures dropped in `store copy`) | recheck at bundle-tooling build time |
 | Sigstore policy-controller | Stage-5 hardening; key-based mode required for air-gap |
+
+Both BCP-007-03 triggers have fired: the spec had its first tagged release on 2026-08-18. See the status update at the top of this review.
 
 ## 7. Coverage and skip reasons
 
