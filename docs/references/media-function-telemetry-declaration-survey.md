@@ -16,7 +16,8 @@ decides nothing and schedules nothing. The RFC tracked in
 builds on it, together with the descriptor work in
 [#634](https://github.com/dmfdeploy/dmfdeploy/issues/634).
 
-**How to read it:** the project accessed every web source on 2026-10-22. Five
+**How to read it:** the project accessed the web sources on 2026-10-22, except
+where a line marks a source (U) as not read or not fetched. Five
 slices of research ran in parallel (JT-DMF and EBU, AMWA, broadcast transport,
 cloud native, open industry initiatives). The project then spot-checked the
 load-bearing AMWA claims directly: the BCP-008-01 release date, IN-003 fields,
