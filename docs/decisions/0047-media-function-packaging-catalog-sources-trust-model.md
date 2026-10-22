@@ -159,7 +159,8 @@ outside the signed package closure.
 `resources.requests`; health/readiness probes declared; labels/annotations
 follow the catalog contract; declared ports/services match the catalog entry;
 rendered manifests are deterministic and testable; chart values are
-constrained by versioned schemas.
+constrained by versioned schemas. Free-form runtime overrides of chart values
+are prohibited.
 
 **Placement/isolation contract.** Namespace assigned by DMF; per-instance
 service account with `automountServiceAccountToken: false`; default-deny
