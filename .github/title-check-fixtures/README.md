@@ -21,6 +21,7 @@ Run one check by hand:
     GITHUB_EVENT_PATH=.github/title-check-fixtures/bad-pr.json STRICT=1 \
       .github/scripts/hygiene-check.sh title
 
+The `title-check` workflow sets `STRICT=1`, so a bad title fails the job.
 Without `STRICT=1` the title check always exits 0 and prints a warning for a
 bad title.
 
