@@ -1,7 +1,10 @@
 # ADR-0027: Separate catalog-entry, installation, and runtime-instance layers for media functions
 
 > **⚠️ Canonical truth for this topic is in
-> [ADR-0013](0013-media-function-catalog-model.md).** This ADR's status: **amended by ADR-0037** (instance layer in NetBox + AWX, not a CRD).
+> [ADR-0037](0037-media-workloads-netbox-instance-inventory.md) (instances in NetBox, amended by
+> [ADR-0046](0046-first-class-media-workload-entity.md)) and
+> [ADR-0013](0013-media-function-catalog-model.md) (catalog model, extended by
+> [ADR-0047](0047-media-function-packaging-catalog-sources-trust-model.md)).** This ADR's status: **amended by ADR-0037** (instance layer in NetBox + AWX, not a CRD).
 > Full text is preserved in the [archive record](../archive/decisions/0027-catalog-instance-vs-definition-separation.md) for decision
 > history. Do not act on it without reading the canonical ADR and the named successor.
 
