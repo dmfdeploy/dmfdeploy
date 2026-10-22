@@ -77,9 +77,9 @@ launch (the exact mechanism that surfaced this bug).
 
 ## Consequences
 
-- **Positive** — No DMF runtime depends on public Galaxy; air-gap /
+- **Positive**: No DMF runtime depends on public Galaxy; air-gap /
   China / offline installs work; supply chain is internal and pinnable.
-- **Positive** — Reuses Zot/Forgejo; no new heavyweight service.
+- **Positive**: Reuses Zot/Forgejo; no new heavyweight service.
 - **Positive** — Scales to every collection, not just `netbox.netbox`.
 - **Negative** — Collection version bumps now require an internal
   mirror update + EE rebuild, a deliberate (slower) process.
