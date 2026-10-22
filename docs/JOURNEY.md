@@ -212,21 +212,28 @@ Read them in that order and the project's two phases explain each other.
 
 ## Where it stands now
 
-The [v0.1 plan](plans/DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md)
-is one move: **reproducibility, then publish** — a stranger clones, runs one
-command, gets DMF on a blank node, deploys a media function from the console,
-and inspects the receipts. The first container-driven cold bootstrap on a real
-VPS succeeded 2026-06-07 and caught an entire class of first-boot bugs, which is
-exactly what it was for. The eight component repositories went public on
-2026-06-09/10 as clean imports; this umbrella — the knowledge base you are
-reading — is the last piece, made public with its history of pivots,
-mothballed machinery, and honest evidence gaps intact, because the record *is*
-the product of the method.
+The v0.1 work after the gate was one move: reproducibility, then publish. A
+stranger clones, runs one command, gets the platform on a blank node, deploys
+a media function from the console, and inspects the receipts. The first
+container-driven cold bootstrap on a real VPS succeeded on 2026-06-07 and
+caught a whole class of first-boot bugs, which is what it was for. The eight
+component repositories went public on 2026-06-09/10 as clean imports. This
+umbrella followed, with its pivots, mothballed machinery, and evidence gaps
+intact, because the record is part of the method.
+
+The work is now scheduled in three milestones, each defined by an outcome and
+summarized in the [roadmap](../ROADMAP.md):
+[`v0.1-polish`](https://github.com/dmfdeploy/dmfdeploy/milestone/1) (the
+console tells the truth),
+[`v0.2`](https://github.com/dmfdeploy/dmfdeploy/milestone/2) (a team shares
+one console), and
+[`v0.3`](https://github.com/dmfdeploy/dmfdeploy/milestone/4) (design and plan
+in the console).
 
 What remains open, frozen, or unproven is curated in
 [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md). The live backlog is
-[GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues). If you want to
-understand the decisions, start with the
+[GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues). To understand
+the decisions, start with the
 [ADR Start here section](decisions/INDEX.md#start-here).
 
 ---
@@ -246,3 +253,4 @@ understand the decisions, start with the
 | 2026-06-06 | Technical evaluation + dual-voice review → architectural-commitments-v1; experiment phase closed |
 | 2026-06-07 | First container-driven cold bootstrap on a real VPS (dmf-init) |
 | 2026-06-09/10 | Component repos published; umbrella front-door work (this document) |
+| 2026-10-20 | Public [roadmap](../ROADMAP.md) with three outcome-defined milestones: `v0.1-polish`, `v0.2`, `v0.3` |

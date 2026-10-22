@@ -5,13 +5,14 @@
 can run on one commodity ARM64 box using only open-source infrastructure — and
 a stranger can stand it up and verify it without talking to a vendor or to me.
 
-**Where the claim stands:** the first half is demonstrated — first-party, on
+**Where the claim stands:** the first half is demonstrated first-party, on
 the author's environments
 ([Move 1 learnings](reviews/dmf-platform-move-1-learnings-2026-06-04.md)). The
-second half — *stranger*-reproducibility — has not happened yet and is the
-entire point of the current
-[v0.1 plan](plans/DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md).
-If you run the loop below, you are the experiment.
+second half, reproduction by a stranger, has not happened yet. It is the
+outcome of the current
+[`v0.1-polish` milestone](https://github.com/dmfdeploy/dmfdeploy/milestone/1):
+an outsider completes the documented journey cold. If you run the loop below,
+you are the experiment.
 
 ## Who it's for
 
@@ -35,10 +36,11 @@ NetBox (source of truth), AWX (commissioning engine), Prometheus/Grafana
 (NetBox-driven monitoring), and an operator console — with a deployable
 media-function catalog on top.
 
-## What a stranger validates in under an hour — the v0.1 gate
+## What a stranger validates in under an hour
 
-This loop has been run first-party; making it stranger-runnable from public
-artifacts is the v0.1 release gate, not an accomplished fact.
+This loop has been run first-party. Making it runnable by a stranger from
+public artifacts is the goal of the `v0.1-polish` milestone, and that goal is
+still open.
 
 1. **Bootstrap:** run the [dmf-init](https://github.com/dmfdeploy/dmf-init)
    container against a blank ARM64 Debian node (one node, ≥4 vCPU / 8 GiB —
@@ -62,6 +64,14 @@ and [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md)): no production ST-2110/PTP/multicast
 correctness, no real-time media-plant claims, no multi-node HA, no cross-site
 federation, no performance numbers. Single-node is the proof surface; the rest
 is named future work, not implied capability.
+
+## After v0.1
+
+The [roadmap](../ROADMAP.md) names two more milestones.
+[`v0.2`](https://github.com/dmfdeploy/dmfdeploy/milestone/2) has a team share
+one console to run a multi-function workload switched by NMOS IS-05.
+[`v0.3`](https://github.com/dmfdeploy/dmfdeploy/milestone/4) has the team
+design and plan a workload and a facility in the console.
 
 ## Why believe it
 
