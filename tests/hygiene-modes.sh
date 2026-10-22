@@ -31,18 +31,21 @@
 # checks must stay wired into their workflows.
 #
 # Naming one risky field at a time never ends, so the test also pins whole
-# objects. Every guarded step (the surface fixture and check steps, the title
-# step, the Vale clean-set, whole-tree, strict-config fixture, Voice fixture
-# and ratchet steps, the backlog self-test, check and gate steps) must equal an
-# expected mapping written in this file: same keys, same values, nothing
-# extra. Each owning job may carry only its current keys with their current
+# objects. Every step of the four guarded jobs (surface, title, vale and the
+# backlog-hygiene job) must equal an expected mapping written in this file,
+# in order: same keys, same values, nothing extra. That includes every
+# checkout, setup, install, cache and download step, so a "ref: main" on a
+# checkout cannot move the checks off the pull request. Each job must also
+# have exactly the expected number of steps, so an added or removed step
+# fails. Each owning job may carry only its current keys with their current
 # values (steps aside). No workflow or job may set "defaults", and no workflow
 # may set a top-level "env". The pre-commit hook's whole surface block is
 # pinned as exact text.
 #
 # What this test guards is an accidental or unreviewed change to how a
-# hygiene check runs. A deliberate change to a guarded step, a job, or the
-# hook block means editing this test in the same PR, so a reviewer sees it.
+# hygiene check runs. This test pins every step of the guarded jobs. A
+# deliberate change to any step in those jobs, to a job, or to the hook block
+# means editing this test in the same PR, so a reviewer sees it.
 #
 # The workflows are parsed as YAML: with PyYAML when python3 has it, else with
 # Ruby's built-in YAML library. If neither is there, the test fails rather
@@ -168,6 +171,30 @@ def pin_step(rel, steps, name, expected):
           "tests/hygiene-modes.sh in the same PR")
 
 
+def pin_all_steps(rel, job, steps, expected):
+    """Every step of a guarded job equals its expected mapping, in order.
+
+    This covers the steps around the guarded ones too (checkout, setup,
+    install, cache, download), so an edit such as "ref: main" on a checkout
+    cannot move the checks off the pull request.
+    """
+    hint = ("If the change is deliberate, update tests/hygiene-modes.sh "
+            "in the same PR")
+    check(len(steps) == len(expected),
+          f"{rel}: job {job!r} has exactly {len(expected)} steps",
+          f"job has {len(steps)} steps, expected {len(expected)}. A step was "
+          f"added or removed. {hint}")
+    for i, (got, want) in enumerate(zip(steps, expected), 1):
+        label = got.get("name") or got.get("uses") or "(unnamed)"
+        extra = sorted(set(got) - set(want))
+        missing = sorted(set(want) - set(got))
+        changed = sorted(k for k in want if k in got and got[k] != want[k])
+        check(not (extra or missing or changed),
+              f"{rel}: {job} step {i} ({label}) matches its pinned mapping",
+              f"extra keys {extra}, missing keys {missing}, changed values "
+              f"{changed}. {hint}")
+
+
 def pin_job(rel, doc, job, expected, top_keys):
     """An owning job has only its current keys (steps aside), with current values."""
     j = (doc.get("jobs") or {}).get(job) or {}
@@ -204,6 +231,135 @@ def common_rules(rel, doc):
           "; ".join(tail))
 
 
+# --- expected steps of the guarded jobs, in order --------------------------
+SURFACE_STEPS = [
+    {"uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683", "with": {"persist-credentials": False}},
+    {"name": "Fixture tests", "run": "tests/surface/run.sh"},
+    {"name": "Size budgets", "run": "bin/check-surface.sh --strict size"},
+    {"name": "Filenames", "run": "bin/check-surface.sh --strict filenames"},
+    {"name": "Archive placement", "run": "bin/check-surface.sh --strict placement"},
+    {"name": "Status log", "run": "bin/check-surface.sh --strict statuslog"},
+]
+
+TITLE_STEPS = [
+    {"uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683"},
+    {"name": "Check the title", "env": {"STRICT": "1"}, "run": ".github/scripts/hygiene-check.sh title"},
+]
+
+VALE_STEPS = [
+    {"name": "Checkout", "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683", "with": {"persist-credentials": False, "fetch-depth": 2}},
+    {"name": "Install Vale", "env": {"VALE_VERSION": "3.24.0"}, "run": (
+        "set -euo pipefail\n"
+        "url=\"https://github.com/errata-ai/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz\"\n"
+        "sha=\"867534ddb678abca7f214bc4706ead0922bd5252ffe8035fc227013f66c8b214\"\n"
+        "mkdir -p \"$RUNNER_TEMP/vale\"\n"
+        "curl -fsSL -o \"$RUNNER_TEMP/vale.tgz\" \"$url\"\n"
+        "echo \"$sha  $RUNNER_TEMP/vale.tgz\" | sha256sum -c -\n"
+        "tar -xz -C \"$RUNNER_TEMP/vale\" -f \"$RUNNER_TEMP/vale.tgz\" vale\n"
+        "echo \"$RUNNER_TEMP/vale\" >> \"$GITHUB_PATH\"\n")},
+    {"name": "Sync the Google package", "run": "vale sync"},
+    {"name": "Lint working surfaces (warn mode)", "run": "vale --no-exit ."},
+    {"name": "Enforce Vale on the clean set (error level blocks)", "run": (
+        "set -euo pipefail\n"
+        "grep -v -e '^#' -e '^[[:space:]]*$' .vale/clean-set.txt \\\n"
+        "  | xargs vale --minAlertLevel=error\n")},
+    {"name": "Check the README scope", "run": ".vale/scope-test.sh"},
+    {"name": "Check the fixtures (strict config)", "run": (
+        "set -euo pipefail\n"
+        "for bad in .vale/fixtures/bad-*.md; do\n"
+        "  good=\"${bad/bad-/good-}\"\n"
+        "  if vale --config .vale/strict.ini \"$bad\" >/dev/null; then\n"
+        "    echo \"::error::$bad passed but must fail\"; exit 1\n"
+        "  fi\n"
+        "  vale --config .vale/strict.ini \"$good\" >/dev/null \\\n"
+        "    || { echo \"::error::$good must pass\"; exit 1; }\n"
+        "done\n")},
+    {"name": "Check the Voice fixtures", "run": "bin/check-voice-fixtures.sh"},
+    {"name": "Mutation-test the Voice rules", "run": "bin/mutate-voice.sh"},
+    {"name": "Ratchet the Voice errors in changed files", "if": "github.event_name == 'pull_request'", "run": "bin/check-voice-changed.sh HEAD^1 HEAD"},
+    {"name": "Test that the ratchet reads HEAD, not the checkout", "run": "tests/voice-changed-head.sh"},
+    {"name": "Test that the ratchet counts encoded link targets the same way", "run": "tests/voice-changed-links.sh"},
+]
+
+HYGIENE_STEPS = [
+    {"name": "Checkout", "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683", "with": {"persist-credentials": False}},
+    {"name": "Self-test the freshness rules", "run": "bin/check-backlog-hygiene.sh --self-test"},
+    {"name": "Run backlog-hygiene check", "env": {"GH_TOKEN": "${{ secrets.GITHUB_TOKEN }}"}, "id": "hygiene_run", "run": (
+        "# pipefail so rc reflects the checker, not tee\n"
+        "set +e\n"
+        "set -o pipefail\n"
+        "bin/check-backlog-hygiene.sh 2>&1 | tee /tmp/report.txt\n"
+        "rc=$?\n"
+        "set -e\n"
+        "last=\"$(grep -v '^[[:space:]]*$' /tmp/report.txt | tail -1 || true)\"\n"
+        "if [ \"$rc\" -eq 0 ] && [ \"$last\" = \"backlog-hygiene: OK (0 findings)\" ]; then\n"
+        "  has=false\n"
+        "else\n"
+        "  has=true\n"
+        "fi\n"
+        "echo \"has_findings=$has\" >> \"$GITHUB_OUTPUT\"\n")},
+    {"name": "Manage report issue", "env": {"GH_TOKEN": "${{ secrets.GITHUB_TOKEN }}", "HAS_FINDINGS": "${{ steps.hygiene_run.outputs.has_findings }}"}, "run": (
+        "set -euo pipefail\n"
+        "\n"
+        "# The report issue carries hygiene-exempt so the checker never\n"
+        "# flags its own report (no milestone/workstream by design).\n"
+        "existing=\"$(gh issue list \\\n"
+        "  --repo dmfdeploy/dmfdeploy \\\n"
+        "  --search \"Backlog hygiene report in:title\" \\\n"
+        "  --state open \\\n"
+        "  --label component:cross-repo \\\n"
+        "  --json number --jq '.[0].number // empty' 2>/dev/null || true)\"\n"
+        "\n"
+        "# An incomplete or crashed run keeps the issue open and says so,\n"
+        "# because its findings list may be missing checks.\n"
+        "last=\"$(grep -v '^[[:space:]]*$' /tmp/report.txt | tail -1 || true)\"\n"
+        "{\n"
+        "  printf '## Backlog hygiene report — %s\\n\\n' \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"\n"
+        "  case \"$last\" in\n"
+        "    \"backlog-hygiene: INCOMPLETE\"*)\n"
+        "      printf '**The run was incomplete:** at least one check could not read its input (see SKIPPED below), so findings may be missing.\\n\\n' ;;\n"
+        "    \"backlog-hygiene: \"*) ;;\n"
+        "    *)\n"
+        "      printf '**The run did not finish:** the checker printed no summary line.\\n\\n' ;;\n"
+        "  esac\n"
+        "  printf '```\\n'\n"
+        "  cat /tmp/report.txt\n"
+        "  printf '```\\n'\n"
+        "} > /tmp/body.md\n"
+        "\n"
+        "if [ \"${HAS_FINDINGS:-true}\" = \"true\" ]; then\n"
+        "  if [ -n \"$existing\" ]; then\n"
+        "    gh issue edit \"$existing\" \\\n"
+        "      --repo dmfdeploy/dmfdeploy \\\n"
+        "      --body-file /tmp/body.md\n"
+        "    echo \"Updated report issue #$existing\"\n"
+        "  else\n"
+        "    gh issue create \\\n"
+        "      --repo dmfdeploy/dmfdeploy \\\n"
+        "      --title \"Backlog hygiene report\" \\\n"
+        "      --label component:cross-repo \\\n"
+        "      --label hygiene-exempt \\\n"
+        "      --body-file /tmp/body.md\n"
+        "    echo \"Created report issue\"\n"
+        "  fi\n"
+        "else\n"
+        "  if [ -n \"$existing\" ]; then\n"
+        "    gh issue close \"$existing\" \\\n"
+        "      --repo dmfdeploy/dmfdeploy \\\n"
+        "      --comment \"Clean run — no findings.\" \\\n"
+        "      --reason completed\n"
+        "    echo \"Closed report issue #$existing (clean run)\"\n"
+        "  else\n"
+        "    echo \"No findings, no open report issue — nothing to do\"\n"
+        "  fi\n"
+        "fi\n")},
+    {"name": "Fail on findings", "if": "always()", "env": {"HAS_FINDINGS": "${{ steps.hygiene_run.outputs.has_findings }}"}, "run": (
+        "if [ \"${HAS_FINDINGS:-}\" != \"false\" ]; then\n"
+        "  echo \"::error::backlog-hygiene found drift or did not finish; see the report issue\"\n"
+        "  exit 1\n"
+        "fi\n")},
+]
+
 # --- surface.yml -----------------------------------------------------------
 rel = ".github/workflows/surface.yml"
 doc = load_yaml(rel)
@@ -214,6 +370,7 @@ no_if(rel, "the surface job", (doc.get("jobs") or {}).get("surface") or {})
 steps = steps_of(doc, "surface")
 pin_job(rel, doc, "surface", {"runs-on": "ubuntu-24.04", "timeout-minutes": 5},
         ["name", "on", "permissions", "concurrency", "jobs"])
+pin_all_steps(rel, "surface", steps, SURFACE_STEPS)
 pin_step(rel, steps, "Fixture tests",
          {"name": "Fixture tests", "run": "tests/surface/run.sh"})
 for _n, _sub in (("Size budgets", "size"), ("Filenames", "filenames"),
@@ -348,6 +505,7 @@ runs = [run_of(s) for s in steps]
 no_if(rel, "the vale job", (doc.get("jobs") or {}).get("vale") or {})
 pin_job(rel, doc, "vale", {"runs-on": "ubuntu-24.04", "timeout-minutes": 10},
         ["name", "on", "permissions", "jobs"])
+pin_all_steps(rel, "vale", steps, VALE_STEPS)
 RATCHET_IF = "github.event_name == 'pull_request'"
 VALE_EXACT = {
     "bin/check-voice-changed.sh": "bin/check-voice-changed.sh HEAD^1 HEAD",
@@ -425,6 +583,7 @@ pin_job(rel, doc, "title",
         {"runs-on": "ubuntu-24.04", "timeout-minutes": 2,
          "permissions": {"contents": "read"}},
         ["name", "on", "permissions", "jobs"])
+pin_all_steps(rel, "title", job.get("steps") or [], TITLE_STEPS)
 pin_step(rel, job.get("steps") or [], "Check the title",
          {"name": "Check the title", "env": {"STRICT": "1"},
           "run": ".github/scripts/hygiene-check.sh title"})
@@ -474,6 +633,7 @@ steps = steps_of(doc, "hygiene")
 runs = [run_of(s) for s in steps]
 pin_job(rel, doc, "hygiene", {"runs-on": "ubuntu-24.04", "timeout-minutes": 10},
         ["name", "on", "permissions", "jobs"])
+pin_all_steps(rel, "hygiene", steps, HYGIENE_STEPS)
 pin_step(rel, steps, "Self-test the freshness rules",
          {"name": "Self-test the freshness rules",
           "run": "bin/check-backlog-hygiene.sh --self-test"})
