@@ -83,9 +83,18 @@ sed -i.bak '/^Vocab =/d' "$tmp/probe.ini"
 
 # Spread copies sit at their real paths in scratch trees, because Vale
 # matches .vale.ini globs against the path relative to the working directory.
+# Vale decodes each link target (a%20b.md becomes "a b.md") and masks it in
+# the source. A decoded target is not in the source, so Vale masks its words
+# one by one, wherever each first occurs. That can hide a later line, and
+# Vale then drops or misplaces that line's alerts. The spread copy writes
+# '%' before two hex digits as '-' and '+' as '_', so decoding changes
+# nothing. Both swaps keep every line's length, and neither can add or remove
+# a Contrast or EmDash match.
 spread() { # spread <out>: stdin with a blank line after every line
   mkdir -p "$(dirname "$1")"
-  python3 -I -c 'import sys; sys.stdout.write("\n\n".join(sys.stdin.read().split("\n")))' >"$1"
+  python3 -I -c 'import re, sys
+text = re.sub("%(?=[0-9A-Fa-f]{2})", "-", sys.stdin.read()).replace("+", "_")
+sys.stdout.write("\n\n".join(text.split("\n")))' >"$1"
 }
 for f in "${files[@]}"; do
   git -C "$root" show "$head:$f" >"$tmp/raw" \
