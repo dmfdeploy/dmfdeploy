@@ -9,7 +9,7 @@
 #
 # Why session-start, not pre-push: you want to know you're stale BEFORE building
 # on a stale base, so you sync and avoid the conflict — not discover it at push.
-# See `docs/plans/DMF MXL On-Demand Media Function Cycle Plan 2026-06-01.md`.
+# See the MXL On-Demand Media Function Cycle Plan (2026-06-01) in `docs/plans/`.
 #
 # Usage:
 #   bin/mxl-sync-check.sh            # fetch + report drift for all spike repos

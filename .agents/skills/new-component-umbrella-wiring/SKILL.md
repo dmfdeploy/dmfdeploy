@@ -24,7 +24,7 @@ Apply this checklist before committing the scaffold.
 | `.gitignore` | (pattern) | Excludes the new dir from the umbrella git tree |
 | `CLAUDE.md` / `QWEN.md` | prose | "N component repos" count + component table entry |
 | `bin/generate-status.sh` | `COMPONENT_REPOS` | STATUS.local.md generation (gitignored snapshot) |
-| `bin/generate-scripts-catalog.sh` | `COMPONENT_REPOS` | SCRIPTS.md generation |
+| `bin/generate-scripts-catalog.sh` | `COMPONENT_REPOS` | Scripts catalog generation (under `docs/`) |
 | `bin/scrub-public-repos.sh` | `PUBLIC_REPOS_DEFAULT` | Pre-publish secret/topology scan |
 | `bin/check-public-commit-authors.sh` | `PUBLIC_REPOS_DEFAULT` | Author identity gate |
 | `bin/check-public-repo-hygiene.sh` | `PUBLIC_REPOS` | Hygiene checks |

@@ -29,7 +29,7 @@
 #
 # Refs:
 #   docs/processes/pre-release-compliance-checklist.md  (Tier A.2 specifically)
-#   docs/plans/DMF Release and Contribution Model Implementation Plan 2026-05-11.md (Phase 0)
+#   the Release and Contribution Model Implementation Plan (2026-05-11) in docs/plans/ (Phase 0)
 #   docs/agentic/CONSTITUTION.md (Rule 10 VERSION SSOT, Rule 8 placeholder syntax)
 
 set -uo pipefail

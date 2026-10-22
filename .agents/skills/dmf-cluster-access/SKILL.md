@@ -42,8 +42,8 @@ Hard rules. Violations leak secrets into transcripts, prompt caches, shell histo
 
 4. **Never copy `/etc/rancher/k3s/k3s.yaml` off the control node** — except
    for the operator's primary workstation (mac-mini), under the documented
-   Tailscale-only pattern in
-   `dmfdeploy/docs/architecture/DMF Local kubectl via Tailscale.md`. That
+   Tailscale-only pattern in the Local kubectl via Tailscale doc in
+   `dmfdeploy/docs/architecture/`. That
    exception is read-only-intent, tailnet-only, mode-0600 under `~/.kube/`.
    The cluster-admin kubeconfig is **never** copied to CI, containers, other
    workstations, gists, chat, or transcripts. Writes still flow through
@@ -134,8 +134,8 @@ Two paths, both valid for reads:
   stale local context.
 - **Local kubectl via Tailscale** — set up on the operator's mac-mini under the
   exception in §0.4. Lower-latency, doesn't tie up an SSH session, fine for
-  routine reads. See
-  `dmfdeploy/docs/architecture/DMF Local kubectl via Tailscale.md` for the
+  routine reads. See the Local kubectl via Tailscale doc in
+  `dmfdeploy/docs/architecture/` for the
   contract (read-only intent, no `apply`/`patch`/`exec`/`port-forward`).
 
 Don't trust an arbitrary local `kubectl get` if you don't know which kubeconfig
@@ -421,7 +421,7 @@ ssh k3s-admin@<control-node-public-ip> \
 
 - `dmfdeploy/docs/architecture/DMF Platform Plan.md` — system overview, status snapshot at top
 - `dmfdeploy/docs/architecture/DMF EBU Mapping (2026-04-25).md` — playbook layer/vertical map
-- `dmfdeploy/docs/plans/DMF Improvement Run Plan 2026-04-22.md` — Shamir unseal sequence
+- The Improvement Run Plan (2026-04-22) in `dmfdeploy/docs/plans/`, for the Shamir unseal sequence
 - `dmfdeploy/docs/plans/DMF Secret Ownership and OpenBao Migration Plan.md` — secret tier classification
 - `dmf-infra/CLAUDE.md` — kubectl quick refs and Longhorn / Prometheus troubleshooting
 - `dmf-env/CLAUDE.md` — OpenBao AppRole shim, secret-injection model

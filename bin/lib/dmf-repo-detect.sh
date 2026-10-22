@@ -5,7 +5,7 @@
 # git worktree (there `.git` is a *file* — a `gitdir:` pointer — not a directory).
 # The old test silently skips worktrees, so the pre-publish scrub reports clean
 # without scanning anything. See the R1 spec §7:
-#   docs/plans/DMF Public-Safety Pattern Manifest Plan 2026-07-13.md
+#   the Public-Safety Pattern Manifest Plan (2026-07-13) in docs/plans/
 #
 # This is a sourced library, not an executable — it defines a function and returns.
 #

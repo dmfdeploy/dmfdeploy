@@ -8,7 +8,7 @@ ephemeral merged gitleaks configs, pinned-gitleaks resolution, the git-grep
 pass runner, worktree-safe repo detection, redacted private output, and the
 machine-readable failure classes.
 
-Spec: docs/plans/DMF Public-Safety Pattern Manifest Plan 2026-07-13.md
+Spec: the Public-Safety Pattern Manifest Plan (2026-07-13) in docs/plans/
   §4.2 redaction   §5.1 ephemeral configs   §5.4 opt-out authorization
   §5.5 failure classes   §6 library/callers   §7 worktree detection
 

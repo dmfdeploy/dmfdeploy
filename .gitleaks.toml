@@ -33,6 +33,7 @@ paths = [
     '''^\.claude/scheduled_tasks\.lock$''',
     '''^\.qwen/''',
     '''^docs/plans/LLM-Restricted Git Pipeline''',
+    '''^docs/plans/llm-restricted-git-pipeline''',
     '''^dmf-cms/''',
     '''^dmf-runbooks/''',
     '''^dmf-central/''',
@@ -66,14 +67,20 @@ description = "docs that intentionally call out the dev:changeme smell"
 paths = [
     '''^docs/architecture/DMF Release and Contribution Model\.md$''',
     '''^docs/reviews/dmf-move1-gate2-ssh-credential-incident-2026-05-05\.md$''',
+    '''^docs/reviews/dmf-move1-gate2-ssh-credential-incident\.md$''',
     '''^docs/plans/DMF Public Repo Identity Leak Sweep 2026-05-11\.md$''',
+    '''^docs/plans/dmf-public-repo-identity-leak-sweep\.md$''',
     '''^bin/scrub-public-repos\.sh$''',
     '''^bin/dmf-env-public-surface-gate\.sh$''',
     '''^bin/export-scan\.sh$''',
     '''^docs/plans/DMF Workstream B .*Scrub Spec 2026-06-09\.md$''',
+    '''^docs/plans/dmf-workstream-b-.*scrub-spec\.md$''',
     '''^docs/plans/DMF Workstream D .*Governance Execution Spec 2026-06-09\.md$''',
+    '''^docs/plans/dmf-workstream-d-.*governance-execution-spec\.md$''',
     '''^docs/plans/DMF Workstream E1 .*Execution Spec 2026-06-09\.md$''',
+    '''^docs/plans/dmf-workstream-e1-.*execution-spec\.md$''',
     '''^docs/plans/DMF Workstream A .*Spec 2026-06-09\.md$''',
+    '''^docs/plans/dmf-workstream-a-.*spec\.md$''',
 ]
 
 # Catch macOS metadata leaking into the tracked tree (.DS_Store, etc.).
@@ -88,6 +95,7 @@ paths = [
     '''^bin/scrub-public-repos\.sh$''',
     '''^\.gitleaks\.toml$''',
     '''^docs/plans/DMF Public Repo Identity Leak Sweep 2026-05-11\.md$''',
+    '''^docs/plans/dmf-public-repo-identity-leak-sweep\.md$''',
     '''(^|/)\.gitignore$''',
     '''(^|/)docs/DEVELOPMENT-AND-BUILD-RULES\.md$''',
 ]
@@ -113,6 +121,7 @@ paths = [
     '''^bin/dmf-env-public-surface-gate\.sh$''',
     '''^bin/export-scan\.sh$''',
     '''^docs/plans/DMF Umbrella Security Audit Remediation Spec''',
+    '''^docs/plans/dmf-umbrella-security-audit-remediation-spec''',
 ]
 
 # Acceptance-fixture sentinel (R1 spec §8, §11 decision 3): a bespoke shape the

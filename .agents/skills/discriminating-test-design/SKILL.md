@@ -129,9 +129,9 @@ The three cases above were all caught by reviewers, and this section was written
 day to prevent the next one. **The very next criterion written — the replacement for case 1,
 authored hours after this rule existed — reproduced the same defect.**
 
-The criterion lives in `docs/plans/DMF Console Shell Round Plan 2026-08-30.md` (§7 of the
+The criterion lives in the Console Shell Round Plan (2026-08-30) in `docs/plans/` (§7 of the
 deliverables list); the identifier rules it turns on are in `§2a. Storage` of that plan and
-in `## Storage architecture` of `docs/design/DMF Console Audit and Event-Log Spec.md`. Read
+in `## Storage architecture` of the Console Audit and Event-Log Spec in `docs/design/`. Read
 them if you want to check this example rather than take it.
 
 The two rules, stated here so the example is checkable even standalone: **`request_id` is

@@ -114,7 +114,7 @@ fi
 
 # ── R7: the doc gates below are CHECK-ONLY and PATH-SCOPED. The hook never
 # mutates or stages anything (the old auto-refresh once ate sibling-repo
-# sections of SCRIPTS.md when run from a worktree); on drift it refuses and
+# sections of the scripts catalog when run from a worktree); on drift it refuses and
 # points at bin/fix-docs.sh. Each gate fires only when the staged paths can
 # actually affect it, so code-only commits skip the doc machinery entirely.
 # --no-renames: a rename must surface BOTH paths (as D+A) — with rename
@@ -137,9 +137,9 @@ refuse() {  # refuse <label> <fix-hint> <recheck-cmd...>
     exit 1
 }
 
-if gate_on '^(bin/|tests/|docs/SCRIPTS\.md)' && [ -x "$REPO_ROOT/bin/generate-scripts-catalog.sh" ]; then
+if gate_on '^(bin/|tests/|docs/(SCRIPTS|scripts)\.md)' && [ -x "$REPO_ROOT/bin/generate-scripts-catalog.sh" ]; then
     "$REPO_ROOT/bin/generate-scripts-catalog.sh" --check >/dev/null 2>&1 \
-        || refuse "docs/SCRIPTS.md is stale" "bin/fix-docs.sh && git add docs/SCRIPTS.md" \
+        || refuse "the scripts catalog in docs/ is stale" "bin/fix-docs.sh, then git add the regenerated catalog" \
                   "$REPO_ROOT/bin/generate-scripts-catalog.sh" --check
 fi
 
