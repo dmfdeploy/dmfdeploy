@@ -14,7 +14,7 @@ DMF is my attempt to find out whether the EBU's *Dynamic Media Facility* referen
 architecture (the broadcast industry's blueprint for software-defined,
 IP-based media facilities) can be built on commodity hardware and commodity
 open-source infrastructure: k3s, Ansible, NetBox, AWX, Authentik, OpenBao, a React
-operator console. The scope is the whole operational fabric:
+operator console. It is not a demo of a single media app. The scope is the whole operational fabric:
 identity, secrets custody, source-of-truth inventory, a deployable media-function
 catalog, and a Day-0 installer that takes a blank machine to a running facility.
 I build it solo, working with AI agents as a deliberate part of the method (more
@@ -42,7 +42,7 @@ loop had never closed, no alerts, no backups, a token in plaintext. Two weeks
 later none of them were fixed. The
 [strategic review of 2026-04-30](reviews/dmf-platform-strategic-review-2026-04-30.md)
 made the call that shaped everything since: **stop treating that as a hardening
-backlog.** In an experiment phase, the right metric is *"what irreversible decisions am I de-risking before I commit?"*
+backlog.** In an experiment phase, the right metric is *"what irreversible decisions am I de-risking before I commit?"* Hardening is the wrong measure in this phase.
 The review named three **thesis-killers**: the assumptions that, if false, would
 make DMF a fundamentally different product:
 
@@ -89,14 +89,14 @@ failing run, recorded as an evidence gap.
 **Thesis-killer #1 did not fire.** NMOS runs on commodity ARM k3s, driven from
 the console.
 
-The most valuable finding was the
+Even more valuable than the confirmation was the
 [**Path A pivot**](handoffs/DMF%20Move%201%20Gate%202%20Path%20A%20Pivot%20Handoff%202026-05-06.md)
 (2026-05-06, named for the execution-transport option that won). The task spec
 assumed lifecycle stages would live in wrapper playbooks. Reality put them in
 the *role*, invoked by a thin AWX launcher with a stage variable. Two planned deliverables were obviated mid-move, and the lesson
 generalized: **lifecycle-stage identity belongs to the unit that owns the
 workload. It does not belong to an orchestration wrapper.** The record tells the pivot as a
-finding. [ADR-0014](decisions/0014-awx-project-layout.md),
+finding. The record does not count it as a failure. [ADR-0014](decisions/0014-awx-project-layout.md),
 [ADR-0016](decisions/0016-awx-control-node-ssh-via-cloud-init-and-openbao.md) and
 later [ADR-0025](decisions/0025-ansible-in-cluster-pods-and-catalog-helm.md)
 carry the corrected shape.
@@ -133,7 +133,7 @@ them):
 - **dmf-init** ([ADR-0036](decisions/0036-dmf-init-thin-control-container.md)):
   a Day-0 stateless installer container that takes a blank node to a full
   facility and restores from passphrase-wrapped backups. On 2026-06-07 it ran
-  its first full bootstrap against a real cloud VPS, end to end. It was not the development sandbox.
+  its first full bootstrap against a real cloud VPS, end to end. That VPS was not the development sandbox.
 
 ## The third thesis-killer, unfinished
 
