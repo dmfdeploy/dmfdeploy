@@ -97,11 +97,11 @@ must not be required for the OSS v0.1 path.
 
 | Work package | Doc | Primary outcome |
 |---|---|---|
-| WP1 | [DMF OSS v0.1 WP1 AWS Provider Profile 2026-05-25.md](../archive/plans/DMF%20OSS%20v0.1%20WP1%20AWS%20Provider%20Profile%202026-05-25.md) | AWS becomes the only supported v0.1 provider profile. |
-| WP2 | [DMF OSS v0.1 WP2 Bootstrap Independence 2026-05-25.md](../archive/plans/DMF%20OSS%20v0.1%20WP2%20Bootstrap%20Independence%202026-05-25.md) | Cluster reaches and recovers steady state without recurring operator-laptop dependency. |
-| WP3 | [DMF OSS v0.1 WP3 In-Cluster Platform Services 2026-05-25.md](../archive/plans/DMF%20OSS%20v0.1%20WP3%20In-Cluster%20Platform%20Services%202026-05-25.md) | ntfy is internal; Headscale is internal, OIDC-wired, and sequenced after base bootstrap. |
-| WP4 | [DMF OSS v0.1 WP4 CMS User Administration 2026-05-25.md](../archive/plans/DMF%20OSS%20v0.1%20WP4%20CMS%20User%20Administration%202026-05-25.md) | CMS supports signup/invite, admin approval, role assignment, and role-gated operations. |
-| WP5 | [DMF OSS v0.1 WP5 Release Verification and Tagging 2026-05-25.md](../archive/plans/DMF%20OSS%20v0.1%20WP5%20Release%20Verification%20and%20Tagging%202026-05-25.md) | Release gates, greenfield verification, docs, and tags are repeatable. |
+| WP1 | [DMF OSS v0.1 WP1 AWS Provider Profile 2026-05-25.md](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP1%20AWS%20Provider%20Profile%202026-05-25.md) | AWS becomes the only supported v0.1 provider profile. |
+| WP2 | [DMF OSS v0.1 WP2 Bootstrap Independence 2026-05-25.md](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP2%20Bootstrap%20Independence%202026-05-25.md) | Cluster reaches and recovers steady state without recurring operator-laptop dependency. |
+| WP3 | [DMF OSS v0.1 WP3 In-Cluster Platform Services 2026-05-25.md](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP3%20In-Cluster%20Platform%20Services%202026-05-25.md) | ntfy is internal; Headscale is internal, OIDC-wired, and sequenced after base bootstrap. |
+| WP4 | [DMF OSS v0.1 WP4 CMS User Administration 2026-05-25.md](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP4%20CMS%20User%20Administration%202026-05-25.md) | CMS supports signup/invite, admin approval, role assignment, and role-gated operations. |
+| WP5 | [DMF OSS v0.1 WP5 Release Verification and Tagging 2026-05-25.md](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20OSS%20v0.1%20WP5%20Release%20Verification%20and%20Tagging%202026-05-25.md) | Release gates, greenfield verification, docs, and tags are repeatable. |
 
 ---
 

@@ -198,7 +198,7 @@ behaviour for MXL endpoints:
   (`dmf.io/mxl=true` taint + processor-node selector, ADR-0017), and a decision
   on how MXL Fabrics / libfabric-TCP v1.1 fits ADR-0017.
 
-Cross-ref ADR-0017, [`DMF MXL Single-Node Loopback Execution Plan 2026-05-29.md`](../archive/plans/DMF%20MXL%20Single-Node%20Loopback%20Execution%20Plan%202026-05-29.md) §6,
+Cross-ref ADR-0017, [`DMF MXL Single-Node Loopback Execution Plan 2026-05-29.md`](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20MXL%20Single-Node%20Loopback%20Execution%20Plan%202026-05-29.md) §6,
 and [`docs/reviews/dmf-mxl-upstream-profile-and-contribution-review.md`](../reviews/dmf-mxl-upstream-profile-and-contribution-review.md).
 Open a separate tracking issue + plan.
 

@@ -5,13 +5,13 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/5
 executed: 2026-07-03
 ---
 # DMF Dynamic NetBox-Driven Monitoring Plan (2026-06-04)
-> Supersedes: [DMF Day-0 Inventory and Monitoring Plan.md](../archive/plans/DMF%20Day-0%20Inventory%20and%20Monitoring%20Plan.md)
+> Supersedes: [DMF Day-0 Inventory and Monitoring Plan.md](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20Day-0%20Inventory%20and%20Monitoring%20Plan.md)
 
 > **Executed (2026-07-03).** The core pipeline (ADR-0038 incl. Amendment A,
 > the `dmf-promsd` adapter, netbox-sot seeding, born-inventory stamping)
 > shipped 2026-06-04/05 and was validated live. The two remaining items
 > closed via the
-> [Monitoring Close-Out Work Packages 2026-07-02](../archive/plans/DMF%20Monitoring%20Close-Out%20Work%20Packages%202026-07-02.md):
+> [Monitoring Close-Out Work Packages 2026-07-02](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20Monitoring%20Close-Out%20Work%20Packages%202026-07-02.md):
 > **WP6 catalog-launcher stamping** (nmos-cpp stamps the Amendment-A cluster
 > coordinates; the full deploy→finalise lifecycle proven live on the NetBox
 > side) and **WP2/WP11 probe tuning** (ADR-0038 Amendment B `probe_path`

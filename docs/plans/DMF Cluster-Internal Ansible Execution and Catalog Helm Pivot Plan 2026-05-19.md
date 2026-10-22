@@ -340,7 +340,7 @@ Default recommendation: **(b)** — cleaner namespace semantics; matches the "ea
 - **Does not change `bin/run-playbook.sh`-driven plays for Layers 1–3 / Layer 4a.** Provision-stage SSH-to-control-node remains the model for pre-cluster work.
 - **Does not retire ADR-0016 wholesale.** ADR-0016 remains valid for AWX→infrastructure plays (693-class) — those don't have the `ansible_host` problem because they target the actual control node and the inventory is hand-managed.
 - **Does not introduce GitOps (Argo/Flux).** Helm install runs imperatively from the AWX EE pod. GitOps is a separate ADR, deferred.
-- **Does not address the persistent `vault_netbox_admin_token` extra-var on `media-launch-nmos-cpp`.** Out of scope; tracked under [DMF Aliyun-123 Lifecycle-Configure Follow-Ups Plan 2026-05-17](../archive/plans/DMF%20Aliyun-123%20Lifecycle-Configure%20Follow-Ups%20Plan%202026-05-17.md).
+- **Does not address the persistent `vault_netbox_admin_token` extra-var on `media-launch-nmos-cpp`.** Out of scope; tracked under [DMF Aliyun-123 Lifecycle-Configure Follow-Ups Plan 2026-05-17](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20Aliyun-123%20Lifecycle-Configure%20Follow-Ups%20Plan%202026-05-17.md).
 - **Does not address App Admin drift.** Separate workstream tracked under the Aliyun-123 Follow-Ups plan §B.1.
 - **Does not migrate every 69x playbook to in-cluster transport.** Lane C ships the substrate; the per-playbook migration cadence is the runner-pod plan's §10.3 follow-on work.
 
@@ -389,8 +389,8 @@ This plan amends or cross-references the following docs. Each is updated as part
 - **Role defaults to update:** `dmf-runbooks/roles/nmos-cpp/defaults/main.yml`
 - **Runner-pod prior plan:** [DMF In-Cluster Ansible Runner Pod Implementation Plan 2026-05-14](./DMF%20In-Cluster%20Ansible%20Runner%20Pod%20Implementation%20Plan%202026-05-14.md)
 - **Runner-pod Phase 1:** `dmf-infra@ff36ee8` (foundation SA + ClusterRoleBinding + `050-ansible-runner.yml`)
-- **Lifecycle-configure completion:** [DMF Lifecycle-Configure Bootstrap Completion Plan 2026-05-15](../archive/plans/DMF%20Lifecycle-Configure%20Bootstrap%20Completion%20Plan%202026-05-15.md) — describes the gaps fixed pre-failure
-- **Follow-ups:** [DMF Aliyun-123 Lifecycle-Configure Follow-Ups Plan 2026-05-17](../archive/plans/DMF%20Aliyun-123%20Lifecycle-Configure%20Follow-Ups%20Plan%202026-05-17.md)
-- **MXL alignment:** [DMF MXL Single-Node Media Node Spike Plan 2026-05-17](../archive/plans/DMF%20MXL%20Single-Node%20Media%20Node%20Spike%20Plan%202026-05-17.md) — also needs arm64 images in Zot; aligns with Stage 4b
+- **Lifecycle-configure completion:** [DMF Lifecycle-Configure Bootstrap Completion Plan 2026-05-15](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20Lifecycle-Configure%20Bootstrap%20Completion%20Plan%202026-05-15.md) — describes the gaps fixed pre-failure
+- **Follow-ups:** [DMF Aliyun-123 Lifecycle-Configure Follow-Ups Plan 2026-05-17](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20Aliyun-123%20Lifecycle-Configure%20Follow-Ups%20Plan%202026-05-17.md)
+- **MXL alignment:** [DMF MXL Single-Node Media Node Spike Plan 2026-05-17](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20MXL%20Single-Node%20Media%20Node%20Spike%20Plan%202026-05-17.md) — also needs arm64 images in Zot; aligns with Stage 4b
 - **ADRs:** [ADR-0010](../decisions/0010-run-playbook-as-sanctioned-entry.md), [ADR-0012](../decisions/0012-configure-stage-distinct-from-provision.md), [ADR-0013](../decisions/0013-media-function-catalog-model.md), [ADR-0014](../decisions/0014-awx-project-layout.md), [ADR-0016](../decisions/0016-awx-control-node-ssh-via-cloud-init-and-openbao.md), [ADR-0023](../decisions/0023-internal-service-dns-for-cross-app-wiring.md)
 - **First-cut draft superseded by this plan:** `DMF NMOS Helm Chart and EE-Runtime Pivot Plan 2026-05-19.md` (deleted — content absorbed here)

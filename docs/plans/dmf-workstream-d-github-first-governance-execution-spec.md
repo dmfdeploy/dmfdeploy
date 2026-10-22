@@ -8,7 +8,7 @@ executed: 2026-06-09
 
 **Date:** 2026-06-09 · **Status:** Draft for codex cross-check → qwen lift
 **Author:** umbrella session (claude, orchestrator)
-**Parent plan:** [`DMF First Public Release Plan 2026-06-09.md`](../archive/plans/DMF%20First%20Public%20Release%20Plan%202026-06-09.md) §Workstream D
+**Parent plan:** [`DMF First Public Release Plan 2026-06-09.md`](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20First%20Public%20Release%20Plan%202026-06-09.md) §Workstream D
 **Resume handoff:** `docs/handoffs/DMF First Public Release — C+B Done, A-D-E Next — Handoff 2026-06-09.md`
 
 > **This spec is self-contained.** A lifting agent (qwen-left) should be able to

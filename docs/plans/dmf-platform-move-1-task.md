@@ -4,7 +4,7 @@ date: 2026-05-04
 executed: 2026-06-04
 ---
 # Move 1 — NMOS spike + Function Catalog vertical slice
-> Supersedes: [DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md](../archive/plans/DMF%20NMOS%20Registry%20%2B%20Crosspoint%20Demo%20Plan%202026-05-04.md)
+> Supersedes: [DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20NMOS%20Registry%20%2B%20Crosspoint%20Demo%20Plan%202026-05-04.md)
 
 > **2026-05-19 update — multiple Pieces affected by the catalog launcher pivot.**
 > The catalog launcher's *transport* moves to EE-as-runtime + Helm per
