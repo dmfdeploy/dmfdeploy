@@ -95,3 +95,6 @@ jobs:
         if: github.event_name == 'pull_request'
         # HEAD is the PR merge commit; its first parent is the base branch.
         run: bin/check-voice-changed.sh HEAD^1 HEAD
+
+      - name: Test that the ratchet reads HEAD, not the checkout
+        run: tests/voice-changed-head.sh
