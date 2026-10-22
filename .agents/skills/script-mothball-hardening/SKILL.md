@@ -57,7 +57,7 @@ fi
 
 ## Catalog metadata update
 
-For scripts that appear in a generated catalog (for example, the scripts catalog that `bin/generate-scripts-catalog.sh` writes under `docs/`), prefix the first descriptive comment line of each MUTATING script with:
+For scripts that appear in a generated catalog (e.g., `docs/SCRIPTS.md`), prefix the first descriptive comment line of each MUTATING script with:
 
 ```
 # MOTHBALLED YYYY-MM-DD (historical, fails closed): <original first-line description>
