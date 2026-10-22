@@ -1,9 +1,9 @@
 # ADR-0024: Two-identity admin model + live-state read for K8s-Secret-backed admins
 
-> **⚠️ Canonical truth for this topic is consolidated in the
-> [Identity and authority digest](digests/identity-and-authority.md).** This ADR's status: **largely superseded by ADR-0028**.
+> **⚠️ Canonical truth for this topic is in
+> [ADR-0028](0028-identity-and-authority-chain.md).** This ADR's status: **largely superseded by ADR-0028**.
 > Full text is preserved in the [archive record](../archive/decisions/0024-two-identity-admin-model.md) for decision
-> history. Do not act on it without reading the digest + the named successor.
+> history. Do not act on it without reading the canonical ADR and the named successor.
 
 **Status:** Accepted — largely superseded by ADR-0028
 **Date:** 2026-05-22

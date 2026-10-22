@@ -49,8 +49,7 @@ else is reference. (How the record evolved and what reversed is told in
    nothing baked.*
 
 After these, browse the full Index below; for a topic, read its **canonical**
-ADR(s) first ([Theme clusters](#theme-clusters--canonical-pointer)) and the
-matching [digest](digests/).
+ADR(s) first ([Theme clusters](#theme-clusters--canonical-pointer)).
 
 ## Format
 
@@ -141,10 +140,10 @@ rest are history or context behind them.
 
 | Cluster | Canonical — read this | History / context behind it |
 |---|---|---|
-| **Identity & authority** | **ADR-0028** (Identity & Authority Chain) · [digest](digests/identity-and-authority.md) | 0015 (passkey-only), 0021 (AppRole reconciler id), 0024 (largely superseded → 0028), 0032 (scoped NetBox writer) |
-| **Catalog & execution** | **ADR-0013** (catalog model) + **ADR-0025** (in-cluster Helm) + **ADR-0038** (dynamic monitoring contract / PromSD bridge) · [digest](digests/catalog-and-execution.md) | 0014 (AWX layout), 0016 (Path A — partially superseded → 0025), 0027 (instance/definition split, deferred → amended by 0037), 0037 (Media Workloads — instances in NetBox), 0046 (first-class Media Workload entity — amends 0037), 0038 (monitoring contract and adapter), 0047 (packaging, catalog sources & trust model — extends 0013) |
-| **Secrets / unseal** | **ADR-0029** (tiered posture, directional) + **ADR-0009** (Shamir DR) · [digest](digests/secrets-and-unseal.md) | 0008 (OpenBao/ESO arch), 0011 (auto-unseal = today's Tier 3), 0031 (AWS-KMS = Tier 3 sub-variant) |
-| **Deployment scope / release** | **ADR-0031** (OSS v0.1 release matrix) · [digest](digests/deployment-scope-and-release.md) | 0004 (experiment stance), 0018 (self-managed k3s), 0020 (three modes), 0022 (flypack-online), 0026 (provider descriptors, proposed) |
+| **Identity & authority** | **ADR-0028** (Identity & Authority Chain) | 0015 (passkey-only), 0021 (AppRole reconciler id), 0024 (largely superseded → 0028), 0032 (scoped NetBox writer) |
+| **Catalog & execution** | **ADR-0013** (catalog model) + **ADR-0025** (in-cluster Helm) + **ADR-0038** (dynamic monitoring contract / PromSD bridge) | 0014 (AWX layout), 0016 (Path A — partially superseded → 0025), 0027 (instance/definition split, deferred → amended by 0037), 0037 (Media Workloads — instances in NetBox), 0046 (first-class Media Workload entity — amends 0037), 0038 (monitoring contract and adapter), 0047 (packaging, catalog sources & trust model — extends 0013) |
+| **Secrets / unseal** | **ADR-0029** (tiered posture, directional) + **ADR-0009** (Shamir DR) | 0008 (OpenBao/ESO arch), 0011 (auto-unseal = today's Tier 3), 0031 (AWS-KMS = Tier 3 sub-variant) |
+| **Deployment scope / release** | **ADR-0031** (OSS v0.1 release matrix) | 0004 (experiment stance), 0018 (self-managed k3s), 0020 (three modes), 0022 (flypack-online), 0026 (provider descriptors, proposed) |
 
 > Note: "canonical" means *the doc that states current truth for that scope* — it does
 > not delete the others. Superseded ADRs are preserved for their decision history.

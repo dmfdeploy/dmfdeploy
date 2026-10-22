@@ -1,9 +1,9 @@
 # ADR-0027: Separate catalog-entry, installation, and runtime-instance layers for media functions
 
-> **⚠️ Canonical truth for this topic is consolidated in the
-> [Catalog and execution digest](digests/catalog-and-execution.md).** This ADR's status: **amended by ADR-0037** (instance layer in NetBox + AWX, not a CRD).
+> **⚠️ Canonical truth for this topic is in
+> [ADR-0013](0013-media-function-catalog-model.md).** This ADR's status: **amended by ADR-0037** (instance layer in NetBox + AWX, not a CRD).
 > Full text is preserved in the [archive record](../archive/decisions/0027-catalog-instance-vs-definition-separation.md) for decision
-> history. Do not act on it without reading the digest + the named successor.
+> history. Do not act on it without reading the canonical ADR and the named successor.
 
 **Status:** Proposed (deferred) — **three-layer framing survives; installation/instance-layer implementation resolved by ADR-0037** (NetBox instances + AWX reconcile, not a CRD + custom operator)
 **Date:** 2026-05-22

@@ -23,7 +23,7 @@ verbatim (docs cross-reference each other by display name).
 | Directory | Kind | One line |
 |---|---|---|
 | [architecture/](architecture/) | **Canonical** | Long-lived design docs — the [Platform Plan](architecture/DMF%20Platform%20Plan.md) and the [EBU vocabulary mapping](architecture/DMF%20EBU%20Mapping%20%282026-04-25%29.md) everything else uses. |
-| [decisions/](decisions/INDEX.md) | **Canonical** | ADRs + [architectural-commitments-v1](decisions/architectural-commitments-v1.md); [digests/](decisions/digests/) consolidate current truth per topic cluster. |
+| [decisions/](decisions/INDEX.md) | **Canonical** | ADRs + [architectural-commitments-v1](decisions/architectural-commitments-v1.md); the [theme clusters](decisions/INDEX.md#theme-clusters--canonical-pointer) name the canonical ADR per topic. |
 | [plans/](plans/INDEX.md) | Record (frontmatter-tracked) | Work plans and task specs; the generated [INDEX](plans/INDEX.md) groups them Active / Draft / Executed / Superseded / Historical. |
 | [reviews/](reviews/) | Record | Point-in-time strategic and technical reviews; current assessment is the [2026-06-06 technical evaluation](reviews/dmf-platform-technical-evaluation-2026-06-06.md). |
 | [handoffs/](handoffs/) | Record | Append-only session handoffs — newest wins; never required reading to contribute. |

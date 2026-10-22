@@ -115,7 +115,7 @@ the buttons fast — one fixed, one still open (see
 
 The experiments forced supporting architecture into existence, each piece with
 its decision record (the [Start here section](decisions/INDEX.md#start-here) sequences
-them; the [digests](decisions/digests/) hold consolidated truth):
+them):
 
 - **Identity & authority chain** ([ADR-0028](decisions/0028-identity-and-authority-chain.md)):
   Authentik as sole human identity authority, passkey-first; a two-layer model

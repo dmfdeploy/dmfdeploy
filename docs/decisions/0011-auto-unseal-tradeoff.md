@@ -1,9 +1,9 @@
 # ADR-0011: Auto-unseal trades Shamir defense-in-depth for operational tolerability
 
-> **⚠️ Canonical truth for this topic is consolidated in the
-> [Secrets and unseal digest](digests/secrets-and-unseal.md).** This ADR's status: reframed as "Tier 3, explicitly chosen" by **ADR-0029**; AWS-KMS variant adopted in **ADR-0031**.
+> **⚠️ Canonical truth for this topic is in
+> [ADR-0029](0029-tiered-unseal-posture.md).** This ADR's status: reframed as "Tier 3, explicitly chosen" by **ADR-0029**; AWS-KMS variant adopted in **ADR-0031**.
 > Full text is preserved in the [archive record](../archive/decisions/0011-auto-unseal-tradeoff.md) for decision
-> history. Do not act on it without reading the digest + the named successor.
+> history. Do not act on it without reading the canonical ADR and the named successor.
 
 **Status:** Accepted (with explicit known tradeoff)
 **Date:** 2026-05-03
