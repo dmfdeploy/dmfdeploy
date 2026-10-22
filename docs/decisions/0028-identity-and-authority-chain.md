@@ -62,6 +62,20 @@ as binding architecture. The model has five contract statements
   request id, and reason metadata, even when the downstream app
   executes under a service account.
 
+**Direction (amendment 2026-10-21).** This block records where identity
+goes next. It adds direction and changes none of C1–C5.
+
+- The multi-user model is in scope for v0.2, whose outcome is "a team
+  shares one console".
+- Authentik stays the human identity authority (C1). Compatibility with
+  external identity providers is a requirement of the multi-user model.
+- A **tenant** is an intra-organisation scope that isolates a special
+  case. For example, a vendor in a live production gets access to one
+  device, network or service and nothing else. Every operation records
+  its scope at dispatch.
+- The single-operator assumption in Consequences expires with v0.2. The
+  multi-user design lands as its own ADR.
+
 **Sanctioned exceptions to "no local accounts except break-glass"**
 (per-app feasibility survey 2026-05-24, confirmed unchanged from
 ADR-0024 §3 across seven apps):
@@ -158,5 +172,7 @@ where a forged request could affect live production output.
 ## Status
 
 Accepted
+
+Amended 2026-10-21: forward direction recorded; the multi-user design lands as its own ADR.
 
 Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0028-identity-and-authority-chain.md).
