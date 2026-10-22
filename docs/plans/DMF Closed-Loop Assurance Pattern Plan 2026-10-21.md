@@ -101,3 +101,53 @@ File each one as its own issue when the open questions have answers.
 3. Should the actuator seam come before or after the workflow engine RFC?
 4. Where does a workload's intended flow set live durably, given ADR-0037
    keeps flows out of NetBox?
+
+## 7. Target diagram
+
+![dmfdeploy closed-loop facility automation, target state](diagrams/closed-loop-target.png)
+
+The diagram keeps the pattern's layout: five discs and the seven flows of
+§1, with each flow's original label. A subtitle under each label names the
+dmfdeploy part that carries it. Line style follows the §2 mapping: solid
+lines work today, a "partial" marker means the §2 row is partial, and dashed
+lines are planned. The disc for the managed system is called "The facility"
+because it holds k3s workloads and media function pods as well as devices.
+
+Media intent from §3 sits on its own overlay, drawn in one accent colour:
+the IS-04 registry as observed flows, IS-05 as the media deploy path,
+intended flows from the workload design, PTP lock and flow health, and the
+ADR-0037 note. [The base diagram](diagrams/closed-loop-target-base.png)
+shows the loop without the overlay.
+
+### Files
+
+| File | Use |
+|---|---|
+| [`closed-loop-target.svg`](diagrams/closed-loop-target.svg) | Layered source. Edit this file. |
+| [`closed-loop-target-outlined.svg`](diagrams/closed-loop-target-outlined.svg) | The same layers with text converted to paths, for tools that don't import SVG text. |
+| [`closed-loop-target.png`](diagrams/closed-loop-target.png) | Full render at 2048x1152. |
+| [`closed-loop-target-base.png`](diagrams/closed-loop-target-base.png) | Render without the media overlay. |
+
+### Layers for motion graphics
+
+The SVG is plain: no styles, classes, markers, filters, masks or `<use>`.
+Each animatable element is one top-level group with a stable id, listed
+here back to front:
+
+1. `bg`, `title`, `footer`, `legend`.
+2. `arrow-1-observed-state` to `arrow-7-deploy-intended-state`. Each group
+   holds the arrow as one stroked path, its arrowhead as a separate path, and
+   its label lines, so a stroke-draw animation works on the main path.
+3. `seam-actuator`.
+4. `disc-assurance`, `disc-network` (labelled "The facility"), `disc-sot`,
+   `disc-operations`, `disc-automation`.
+5. `labels-assurance`, `labels-network`, `labels-sot`, `labels-operations`,
+   `labels-automation`.
+6. `overlay-media`, with the sub-groups `overlay-media-is04`,
+   `overlay-media-is05`, `overlay-media-ptp-flow-health`,
+   `overlay-media-flows`, `overlay-media-note` and `overlay-media-legend`.
+
+A suggested sequence: fade in the background and title, then the discs
+with their label cards. Draw the arrows in loop order 7, 1, 2, 3, 4, 5, 6,
+then fade in the seam, the legend and the footer. Bring in the media overlay
+after the base loop has drawn.
