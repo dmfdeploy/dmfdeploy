@@ -116,13 +116,13 @@ allowlist_paths = [
     '^bin/dmf-env-public-surface-gate\.sh$',
     '^bin/export-scan\.sh$',
     '^docs/plans/DMF Workstream B .*Scrub Spec 2026-06-09\.md$',
-    '^docs/plans/dmf-workstream-b-.*scrub-spec\.md$',
+    '^docs/plans/dmf-workstream-b-[^/]*scrub-spec\.md$',
     '^docs/plans/DMF Workstream D .*Governance Execution Spec 2026-06-09\.md$',
-    '^docs/plans/dmf-workstream-d-.*governance-execution-spec\.md$',
+    '^docs/plans/dmf-workstream-d-[^/]*governance-execution-spec\.md$',
     '^docs/plans/DMF Workstream E1 .*Execution Spec 2026-06-09\.md$',
-    '^docs/plans/dmf-workstream-e1-.*execution-spec\.md$',
+    '^docs/plans/dmf-workstream-e1-[^/]*execution-spec\.md$',
     '^docs/plans/DMF Workstream A .*Spec 2026-06-09\.md$',
-    '^docs/plans/dmf-workstream-a-.*spec\.md$',
+    '^docs/plans/dmf-workstream-a-[^/]*spec\.md$',
 ]
 
 # ── dmf-macos-metadata: macOS metadata leaking into the tracked tree ──
@@ -182,7 +182,7 @@ allowlist_paths = [
     '^bin/dmf-env-public-surface-gate\.sh$',
     '^bin/export-scan\.sh$',
     '^docs/plans/DMF Umbrella Security Audit Remediation Spec',
-    '^docs/plans/dmf-umbrella-security-audit-remediation-spec',
+    '^docs/plans/dmf-umbrella-security-audit-remediation-spec\.md$',
 ]
 
 # ════════════════════════════════════════════════════════════════════════
