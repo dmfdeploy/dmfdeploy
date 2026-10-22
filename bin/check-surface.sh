@@ -7,6 +7,9 @@
 #   size       README.md, AGENTS.md and each ADR stay under a line budget.
 #   statuslog  STATUS.md stays under its line budget (no long status log).
 #   filenames  Live docs use kebab-case names with no spaces and no date.
+#              README.md and INDEX.md are allowed anywhere. An upper-case
+#              landmark name such as STYLE.md or OPEN-QUESTIONS.md is allowed
+#              only directly under docs/.
 #   placement  docs/plans/ holds only plans with status active or draft, and
 #              no live doc links into docs/archive/.
 #
@@ -43,6 +46,9 @@ BUDGET_STATUS=30
 EXCLUDED_RE='(^|/)docs/(archive|handoffs|agentic)/'
 # Conventional upper-case names that the filename rule allows.
 ALLOWED_NAMES_RE='^(README|INDEX)\.md$'
+# Upper-case landmark names (JOURNEY.md, OPEN-QUESTIONS.md) that the filename
+# rule allows only for a file that sits directly under docs/.
+LANDMARK_NAMES_RE='^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*\.md$'
 
 MODE="warn"
 SUB="all"
@@ -132,6 +138,10 @@ check_file_name() {
     printf '%s\n' "$path" | grep -qE '(^|/)docs/' || return 0
     is_excluded "$path" && return 0
     printf '%s\n' "$base" | grep -qE "$ALLOWED_NAMES_RE" && return 0
+    if printf '%s\n' "$path" | grep -qE '(^|/)docs/[^/]+$' \
+        && printf '%s\n' "$base" | grep -qE "$LANDMARK_NAMES_RE"; then
+        return 0
+    fi
     if printf '%s\n' "$base" | grep -q ' '; then
         finding "filename has a space: $path"
     elif printf '%s\n' "$base" | grep -qE '[0-9]{4}-[0-9]{2}-[0-9]{2}'; then

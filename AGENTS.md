@@ -25,7 +25,7 @@ reference architecture.
 | Question | Look in |
 |---|---|
 | What is this and why? | `docs/THESIS.md`, `docs/GLOSSARY.md`, `docs/architecture/DMF Platform Plan.md` |
-| What is frozen or undecided? | `docs/decisions/architectural-commitments-v1.md`, and the open questions page that [docs/README.md](docs/README.md) links |
+| What is frozen or undecided? | `docs/decisions/architectural-commitments-v1.md`, `docs/OPEN-QUESTIONS.md` |
 | What is the active task? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues) |
 
 ## Rules that are easy to miss
@@ -35,7 +35,7 @@ reference architecture.
   orphan rebase and push-mirror refspec gate keep pre-publish history private.
 - `dmf-env` is public. Env material never enters a repository; it lives in the operator-local store (ADR-0035).
   Before you publish, run `bin/dmf-env-public-surface-gate.sh` from the umbrella root. It fails on unlisted paths, banned files, and identity leaks.
-- Write in the project voice: [docs/README.md](docs/README.md) links the style guide. Run `bin/check-voice.sh` on every draft; errors block.
+- Write in the [project voice](docs/STYLE.md). Run `bin/check-voice.sh` on every draft; errors block.
 - Edit docs here and code in the component repos. Check before you move files between repos.
 - Keep public text free of real IPs, hostnames, private repo names and env
   ids. Use `dmf.example.com` and `<placeholder-name>` values.
