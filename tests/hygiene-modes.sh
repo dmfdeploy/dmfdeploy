@@ -47,6 +47,13 @@
 # deliberate change to any step in those jobs, to a job, or to the hook block
 # means editing this test in the same PR, so a reviewer sees it.
 #
+# The test also pins the four guarded workflows (surface, title-check, vale and
+# backlog-hygiene) entire: each parsed document is compared with
+# tests/hygiene-modes/expected/<name>.json, and every differing key path is
+# printed. So are the hook's surface block (exact text) and the per-check modes
+# above. The per-check assertions stay for their readable messages. To update
+# the pins on purpose, run "bash tests/hygiene-modes.sh --write-expected".
+#
 # The workflows are parsed as YAML: with PyYAML when python3 has it, else with
 # Ruby's built-in YAML library. If neither is there, the test fails rather
 # than skipping. Set HYGIENE_ROOT to check another copy of the tree.
@@ -58,7 +65,7 @@ set -euo pipefail
 
 ROOT="${HYGIENE_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
-exec python3 -I - "$ROOT" <<'PY'
+exec python3 -I - "$ROOT" "$@" <<'PY'
 import json
 import os
 import re
@@ -67,6 +74,7 @@ import subprocess
 import sys
 
 root = sys.argv[1]
+write_expected = "--write-expected" in sys.argv[2:]
 fails = 0
 
 
@@ -703,6 +711,81 @@ for rel in ("tests/surface/run.sh", "bin/check-voice-fixtures.sh"):
     p = os.path.join(root, rel)
     check(os.path.isfile(p) and os.access(p, os.X_OK), f"{rel} is executable",
           "missing or not executable")
+
+# --- whole-document pin ----------------------------------------------------
+# Each guarded workflow is compared as a whole against its expected parsed
+# document, so any edit (a trigger type, a branch filter, a new top-level key)
+# shows up with its key path, not only the fields named above.
+GUARDED = ("surface", "title-check", "vale", "backlog-hygiene")
+EXPECTED_DIR = os.path.join(root, "tests", "hygiene-modes", "expected")
+
+
+def normalise(doc):
+    """Rename the top-level 'on' key. PyYAML parses it as True; Ruby's JSON
+    turns that into "true"."""
+    out = {}
+    for key, val in doc.items():
+        out["on" if key in ("on", True, "true") else key] = val
+    return out
+
+
+def canonical(doc):
+    return json.dumps(doc, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+
+
+MISSING = object()
+
+
+def diff_paths(exp, act, path=""):
+    """Yield (key path, expected, actual) for each difference."""
+    if isinstance(exp, dict) and isinstance(act, dict):
+        for key in sorted(set(exp) | set(act), key=str):
+            sub = f"{path}.{key}" if path else str(key)
+            yield from diff_paths(exp.get(key, MISSING), act.get(key, MISSING), sub)
+    elif isinstance(exp, list) and isinstance(act, list):
+        for i in range(max(len(exp), len(act))):
+            e = exp[i] if i < len(exp) else MISSING
+            a = act[i] if i < len(act) else MISSING
+            yield from diff_paths(e, a, f"{path}[{i}]")
+    elif exp != act or type(exp) is not type(act):
+        yield path, exp, act
+
+
+def show(val):
+    return "<absent>" if val is MISSING else json.dumps(val)
+
+
+if write_expected:
+    if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"):
+        sys.exit("FAIL: --write-expected is for deliberate local use, not CI")
+    os.makedirs(EXPECTED_DIR, exist_ok=True)
+    for name in GUARDED:
+        wf = normalise(load_yaml(f".github/workflows/{name}.yml"))
+        with open(os.path.join(EXPECTED_DIR, f"{name}.json"), "w",
+                  encoding="utf-8") as fh:
+            fh.write(canonical(wf))
+    print(f"hygiene-modes: wrote {len(GUARDED)} expected files to {EXPECTED_DIR}")
+    sys.exit(0)
+
+for name in GUARDED:
+    rel = f".github/workflows/{name}.yml"
+    exp_path = os.path.join(EXPECTED_DIR, f"{name}.json")
+    try:
+        with open(exp_path, encoding="utf-8") as fh:
+            exp = json.load(fh)
+    except (OSError, ValueError) as exc:
+        fail(f"{rel}: whole-document pin: cannot read {exp_path}: {exc}")
+        continue
+    act = normalise(load_yaml(rel))
+    diffs = list(diff_paths(exp, act))
+    if not diffs:
+        ok(f"{rel}: the whole document matches its pin")
+        continue
+    fail(f"{rel}: the whole document differs from its pin ({len(diffs)} keys)")
+    for path, e, a in diffs:
+        print(f"      {path}: expected {show(e)}, actual {show(a)}")
+    print("      A deliberate change means updating the expected JSON in the "
+          "same PR (tests/hygiene-modes.sh --write-expected).")
 
 if fails:
     print(f"hygiene-modes: {fails} FAIL")

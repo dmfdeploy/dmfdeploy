@@ -1,0 +1,62 @@
+{
+  "jobs": {
+    "static": {
+      "if": "github.event_name == 'pull_request'",
+      "permissions": {
+        "contents": "read"
+      },
+      "runs-on": "ubuntu-24.04",
+      "steps": [
+        {
+          "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683"
+        },
+        {
+          "name": "Check the real files",
+          "run": ".github/scripts/hygiene-check.sh real"
+        },
+        {
+          "name": "Check the fixtures",
+          "run": ".github/scripts/hygiene-check.sh fixtures"
+        }
+      ],
+      "timeout-minutes": 5
+    },
+    "title": {
+      "permissions": {
+        "contents": "read"
+      },
+      "runs-on": "ubuntu-24.04",
+      "steps": [
+        {
+          "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683"
+        },
+        {
+          "env": {
+            "STRICT": "1"
+          },
+          "name": "Check the title",
+          "run": ".github/scripts/hygiene-check.sh title"
+        }
+      ],
+      "timeout-minutes": 2
+    }
+  },
+  "name": "title-check",
+  "on": {
+    "issues": {
+      "types": [
+        "opened",
+        "edited"
+      ]
+    },
+    "pull_request": {
+      "types": [
+        "opened",
+        "edited",
+        "reopened",
+        "synchronize"
+      ]
+    }
+  },
+  "permissions": {}
+}
