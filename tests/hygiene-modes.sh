@@ -30,6 +30,20 @@
 # line ends in "|| true". The surface fixture suite and the Voice fixture
 # checks must stay wired into their workflows.
 #
+# Naming one risky field at a time never ends, so the test also pins whole
+# objects. Every guarded step (the surface fixture and check steps, the title
+# step, the Vale clean-set, whole-tree, strict-config fixture, Voice fixture
+# and ratchet steps, the backlog self-test, check and gate steps) must equal an
+# expected mapping written in this file: same keys, same values, nothing
+# extra. Each owning job may carry only its current keys with their current
+# values (steps aside). No workflow or job may set "defaults", and no workflow
+# may set a top-level "env". The pre-commit hook's whole surface block is
+# pinned as exact text.
+#
+# What this test guards is an accidental or unreviewed change to how a
+# hygiene check runs. A deliberate change to a guarded step, a job, or the
+# hook block means editing this test in the same PR, so a reviewer sees it.
+#
 # The workflows are parsed as YAML: with PyYAML when python3 has it, else with
 # Ruby's built-in YAML library. If neither is there, the test fails rather
 # than skipping. Set HYGIENE_ROOT to check another copy of the tree.
@@ -135,6 +149,41 @@ def exact_run(rel, what, step, expected):
           f"run is {got!r}, expected {expected!r}")
 
 
+def pin_step(rel, steps, name, expected):
+    """A guarded step equals its expected mapping: no extra key, no changed value."""
+    hit = [s for s in steps if s.get("name") == name]
+    if len(hit) != 1:
+        fail(f"{rel}: guarded step {name!r} exists once: found {len(hit)}. "
+             "If this change is deliberate, update tests/hygiene-modes.sh in the same PR")
+        return
+    got = hit[0]
+    extra = sorted(set(got) - set(expected))
+    missing = sorted(set(expected) - set(got))
+    changed = sorted(k for k in expected if k in got and got[k] != expected[k])
+    check(not (extra or missing or changed),
+          f"{rel}: step {name!r} matches its pinned mapping",
+          f"extra keys {extra}, missing keys {missing}, changed values {changed}. "
+          "This test guards against an accidental or unreviewed change to how a "
+          "hygiene check runs. If the change is deliberate, update "
+          "tests/hygiene-modes.sh in the same PR")
+
+
+def pin_job(rel, doc, job, expected, top_keys):
+    """An owning job has only its current keys (steps aside), with current values."""
+    j = (doc.get("jobs") or {}).get(job) or {}
+    rest = {k: v for k, v in j.items() if k != "steps"}
+    check(rest == expected, f"{rel}: job {job!r} keeps its pinned keys and values",
+          f"job has {rest!r}, expected {expected!r}. If the change is "
+          "deliberate, update tests/hygiene-modes.sh in the same PR")
+    top = sorted("on" if k in (True, "true") else k for k in doc)
+    check(top == sorted(top_keys), f"{rel}: workflow keeps its pinned top-level keys",
+          f"keys are {top}, expected {sorted(top_keys)}. No workflow-level "
+          "'env' or 'defaults' is allowed. If the change is deliberate, update "
+          "tests/hygiene-modes.sh in the same PR")
+    bad = [n for n, jb in (doc.get("jobs") or {}).items() if "defaults" in jb]
+    check(not bad, f"{rel}: no job sets defaults", "defaults set on " + ", ".join(bad))
+
+
 def common_rules(rel, doc):
     """No continue-on-error anywhere; no run line ends in '|| true'."""
     coe = []
@@ -163,6 +212,14 @@ check("pull_request" in on_of(doc), f"{rel}: keeps its pull_request trigger",
       "the 'on' block has no pull_request")
 no_if(rel, "the surface job", (doc.get("jobs") or {}).get("surface") or {})
 steps = steps_of(doc, "surface")
+pin_job(rel, doc, "surface", {"runs-on": "ubuntu-24.04", "timeout-minutes": 5},
+        ["name", "on", "permissions", "concurrency", "jobs"])
+pin_step(rel, steps, "Fixture tests",
+         {"name": "Fixture tests", "run": "tests/surface/run.sh"})
+for _n, _sub in (("Size budgets", "size"), ("Filenames", "filenames"),
+                 ("Archive placement", "placement"), ("Status log", "statuslog")):
+    pin_step(rel, steps, _n, {"name": _n,
+                              "run": f"bin/check-surface.sh --strict {_sub}"})
 runs = [run_of(s).strip() for s in steps]
 fixture_idx = [i for i, r in enumerate(runs) if r == "tests/surface/run.sh"]
 check(len(fixture_idx) == 1,
@@ -244,6 +301,40 @@ if len(pos) == 3 and call_idx:
            if re.search(r"(^|[;&|{(\s])(exit|return)\b", ln)]
     check(not bad, f"{rel}: nothing exits before the check-surface call",
           "; ".join(bad))
+HOOK_BLOCK = r'''if gate_on '^(README\.md|AGENTS\.md|STATUS\.md|docs/|bin/check-surface\.sh$|tests/surface/)' \
+        && [ -x "$REPO_ROOT/bin/check-surface.sh" ]; then
+    # Check the staged content, not the working-tree copy: export the staged
+    # blobs to a temp dir and use that dir as the scan root, so each file keeps
+    # its repo-relative path.
+    SURFACE_ARGS=()
+    SURFACE_PATHS=()
+    while IFS= read -r p; do
+        if git cat-file -e ":$p" 2>/dev/null; then SURFACE_PATHS+=("$p"); fi
+    done < <(printf '%s\n' "$STAGED_PATHS" | grep -E '^(README\.md|AGENTS\.md|STATUS\.md|docs/)' || true)
+    if [ ${#SURFACE_PATHS[@]} -gt 0 ]; then
+        SURFACE_TMP="$(mktemp -d)"
+        trap 'rm -rf "$SURFACE_TMP"' EXIT
+        git checkout-index --prefix="$SURFACE_TMP/" -- "${SURFACE_PATHS[@]}"
+        for p in "${SURFACE_PATHS[@]}"; do SURFACE_ARGS+=(--file "$SURFACE_TMP/$p"); done
+        "$REPO_ROOT/bin/check-surface.sh" --strict --root "$SURFACE_TMP" "${SURFACE_ARGS[@]}" >/dev/null 2>&1 \
+            || refuse "check-surface: staged files break a surface rule" \
+                      "see findings above (budgets, filenames, archive placement)" \
+                      "$REPO_ROOT/bin/check-surface.sh" --strict --root "$SURFACE_TMP" "${SURFACE_ARGS[@]}"
+    fi
+fi
+'''
+start = [i for i, ln in enumerate(hook_lines) if ln == GATE]
+block = None
+if len(start) == 1:
+    for j in range(start[0] + 1, len(hook_lines)):
+        if hook_lines[j] == "fi":
+            block = "\n".join(hook_lines[start[0]:j + 1]) + "\n"
+            break
+check(block == HOOK_BLOCK, f"{rel}: the whole surface block is pinned verbatim",
+      "the block from the gate_on line to its closing 'fi' changed. This test "
+      "guards against an accidental or unreviewed change to how the surface "
+      "check runs. If the change is deliberate, update HOOK_BLOCK in "
+      "tests/hygiene-modes.sh in the same PR")
 check('git checkout-index --prefix="$SURFACE_TMP/"' in text,
       f"{rel}: the scan root holds the staged blobs",
       "no checkout-index into $SURFACE_TMP")
@@ -255,6 +346,8 @@ common_rules(rel, doc)
 steps = steps_of(doc, "vale")
 runs = [run_of(s) for s in steps]
 no_if(rel, "the vale job", (doc.get("jobs") or {}).get("vale") or {})
+pin_job(rel, doc, "vale", {"runs-on": "ubuntu-24.04", "timeout-minutes": 10},
+        ["name", "on", "permissions", "jobs"])
 RATCHET_IF = "github.event_name == 'pull_request'"
 VALE_EXACT = {
     "bin/check-voice-changed.sh": "bin/check-voice-changed.sh HEAD^1 HEAD",
@@ -275,6 +368,19 @@ VALE_EXACT = {
         "done"),
     "vale --no-exit .": "vale --no-exit .",
 }
+for _name, _step in (
+    ("Lint working surfaces (warn mode)",
+     {"run": "vale --no-exit ."}),
+    ("Enforce Vale on the clean set (error level blocks)",
+     {"run": VALE_EXACT[".vale/clean-set.txt"] + "\n"}),
+    ("Check the fixtures (strict config)",
+     {"run": VALE_EXACT["--config .vale/strict.ini"] + "\n"}),
+    ("Check the Voice fixtures",
+     {"run": "bin/check-voice-fixtures.sh"}),
+    ("Ratchet the Voice errors in changed files",
+     {"if": RATCHET_IF, "run": "bin/check-voice-changed.sh HEAD^1 HEAD"}),
+):
+    pin_step(rel, steps, _name, {"name": _name, **_step})
 for key, want in VALE_EXACT.items():
     hit = [s for s in steps if key in run_of(s)]
     check(len(hit) == 1, f"{rel}: one step matches {key!r}",
@@ -315,6 +421,13 @@ common_rules(rel, doc)
 check("pull_request" in on_of(doc), f"{rel}: keeps its pull_request trigger",
       "the 'on' block has no pull_request")
 job = (doc.get("jobs") or {}).get("title") or {}
+pin_job(rel, doc, "title",
+        {"runs-on": "ubuntu-24.04", "timeout-minutes": 2,
+         "permissions": {"contents": "read"}},
+        ["name", "on", "permissions", "jobs"])
+pin_step(rel, job.get("steps") or [], "Check the title",
+         {"name": "Check the title", "env": {"STRICT": "1"},
+          "run": ".github/scripts/hygiene-check.sh title"})
 no_if(rel, "the title job", job)
 title_steps = [s for s in job.get("steps") or []
                if "hygiene-check.sh title" in run_of(s)]
@@ -333,11 +446,45 @@ for s in title_steps:
           f"STRICT is {val!r}")
 
 # --- backlog-hygiene.yml ---------------------------------------------------
+CHECK_RUN = """\
+# pipefail so rc reflects the checker, not tee
+set +e
+set -o pipefail
+bin/check-backlog-hygiene.sh 2>&1 | tee /tmp/report.txt
+rc=$?
+set -e
+last="$(grep -v '^[[:space:]]*$' /tmp/report.txt | tail -1 || true)"
+if [ "$rc" -eq 0 ] && [ "$last" = "backlog-hygiene: OK (0 findings)" ]; then
+  has=false
+else
+  has=true
+fi
+echo "has_findings=$has" >> "$GITHUB_OUTPUT"
+"""
+GATE_RUN = """\
+if [ "${HAS_FINDINGS:-}" != "false" ]; then
+  echo "::error::backlog-hygiene found drift or did not finish; see the report issue"
+  exit 1
+fi
+"""
 rel = ".github/workflows/backlog-hygiene.yml"
 doc = load_yaml(rel)
 common_rules(rel, doc)
 steps = steps_of(doc, "hygiene")
 runs = [run_of(s) for s in steps]
+pin_job(rel, doc, "hygiene", {"runs-on": "ubuntu-24.04", "timeout-minutes": 10},
+        ["name", "on", "permissions", "jobs"])
+pin_step(rel, steps, "Self-test the freshness rules",
+         {"name": "Self-test the freshness rules",
+          "run": "bin/check-backlog-hygiene.sh --self-test"})
+pin_step(rel, steps, "Run backlog-hygiene check",
+         {"name": "Run backlog-hygiene check", "id": "hygiene_run",
+          "env": {"GH_TOKEN": "${{ secrets.GITHUB_TOKEN }}"},
+          "run": CHECK_RUN})
+pin_step(rel, steps, "Fail on findings",
+         {"name": "Fail on findings", "if": "always()",
+          "env": {"HAS_FINDINGS": "${{ steps.hygiene_run.outputs.has_findings }}"},
+          "run": GATE_RUN})
 self_idx = [i for i, r in enumerate(runs)
             if "bin/check-backlog-hygiene.sh --self-test" in r]
 chk_idx = [i for i, r in enumerate(runs)
