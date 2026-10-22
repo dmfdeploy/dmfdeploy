@@ -160,15 +160,13 @@ docs/plans/move-1-gate-2-trials-and-tribulations.md'
 # Links into docs/archive/ that live docs keep on purpose. Each line is a
 # file path, " -> ", and the exact link target. docs/INDEX.md and
 # docs/OPEN-QUESTIONS.md map the docs tree, so they point readers at the
-# archive. docs/WORKING-MODEL.md keeps its link to the enforcement plan until
-# the working-model rewrite updates that page; drop the entry then (#617).
+# archive.
 ARCHIVE_LINK_EXEMPT='docs/INDEX.md -> archive/questions/
 docs/INDEX.md -> archive/audits/
 docs/INDEX.md -> archive/baselines/
 docs/INDEX.md -> archive/inventory/
 docs/INDEX.md -> archive/README.md
-docs/OPEN-QUESTIONS.md -> archive/questions/
-docs/WORKING-MODEL.md -> archive/plans/DMF%20Working-Model%20Enforcement%20Plan%202026-06-11.md'
+docs/OPEN-QUESTIONS.md -> archive/questions/'
 
 # Entries that only the fixtures under tests/surface/ use. They stand in for
 # the real lists above, so the tests do not depend on the real tree.
