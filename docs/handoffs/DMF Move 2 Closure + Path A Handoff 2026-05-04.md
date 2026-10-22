@@ -132,7 +132,7 @@ pushed.
 
 ## Cross-reference
 
-- Move 2 learnings: [`docs/reviews/dmf-platform-move-2-learnings-2026-05-04.md`](../reviews/dmf-platform-move-2-learnings-2026-05-04.md)
-- Strategic review (the framing for everything above): [`docs/reviews/dmf-platform-strategic-review-2026-04-30.md`](../reviews/dmf-platform-strategic-review-2026-04-30.md)
-- Move 2 task spec: [`docs/plans/dmf-platform-move-2-task-2026-04-30.md`](../plans/dmf-platform-move-2-task-2026-04-30.md)
+- Move 2 learnings: [`docs/reviews/dmf-platform-move-2-learnings-2026-05-04.md`](../reviews/dmf-platform-move-2-learnings.md)
+- Strategic review (the framing for everything above): [`docs/reviews/dmf-platform-strategic-review-2026-04-30.md`](../reviews/dmf-platform-strategic-review.md)
+- Move 2 task spec: [`docs/plans/dmf-platform-move-2-task-2026-04-30.md`](../plans/dmf-platform-move-2-task.md)
 - Prior session's handoff (privilege audit, still partly open): [`DMF Bootstrap User Privileges Handoff 2026-05-03.md`](DMF%20Bootstrap%20User%20Privileges%20Handoff%202026-05-03.md)

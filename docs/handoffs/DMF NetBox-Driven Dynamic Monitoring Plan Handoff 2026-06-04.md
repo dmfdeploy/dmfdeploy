@@ -6,7 +6,7 @@ monitoring** — monitoring that attaches/detaches automatically as a media faci
 devices, services, and media functions come and go. **This was a planning session
 only — NO implementation has started.**
 
-**Canonical plan:** [`docs/plans/DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04.md`](../plans/DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md)
+**Canonical plan:** [`docs/plans/DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04.md`](../plans/dmf-dynamic-netbox-driven-monitoring-plan.md)
 — read it first; it has full context, conventions, reference patterns (file paths +
 line hints), all 12 work packages, verification, and the resolved decisions. This
 handoff is just the orientation layer on top.
