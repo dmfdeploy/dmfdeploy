@@ -3,8 +3,10 @@
 The tree has three kinds of content. **Canonical** docs state current truth and
 are maintained. **Synthesis** docs are curated entry points written for
 newcomers. **Record** docs are the append-only lab notebook — point-in-time,
-never rewritten, superseded in place with banners. Filenames are preserved
-verbatim (docs cross-reference each other by display name).
+never rewritten, superseded in place with banners. Live docs use kebab-case
+filenames with the date in frontmatter. Landmark files directly under `docs/` keep
+all-caps names, and docs that readers outside this tree pin by path keep their
+names (the list is in `bin/check-surface.sh`).
 
 ## Synthesis — start here
 

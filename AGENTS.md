@@ -48,7 +48,7 @@ reference architecture.
 - Before you retrieve secrets, run cluster operations or release dmf-cms,
   read section 0 of the matching skill in `.agents/skills/`:
   `dmf-cluster-access`, `dmf-openbao-unseal` or `dmf-cms-build-and-release`.
-- Keep doc filenames verbatim. Before you rename a doc, update every file that refers to it.
+- Name live docs in kebab-case with the date in frontmatter. Top-level landmark files directly under `docs/` keep all-caps names, and the docs listed in `bin/check-surface.sh` keep their names because readers outside `docs/` pin their paths. Before you rename a doc, update every file that refers to it.
 - Before a decision that rests on layer or vertical assumptions, read the canonical doc in `docs/architecture/`.
 - Before you stop, record changes to shared state (cross-repo decisions,
   in-flight work) in the pinned Operator notes issue.
