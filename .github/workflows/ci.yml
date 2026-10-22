@@ -88,6 +88,10 @@ jobs:
         # the env store at run time so it follows rotation. Hermetic fixture —
         # never reads operator state.
         run: bash tests/live-env-leak.sh
+      - name: GHCR publish scripts require GHCR_USER on piped stdin (#677)
+        # PATH-shimmed helm and docker, placeholder token. A piped run without
+        # GHCR_USER must fail with a message that names it, before any tool runs.
+        run: bash tests/ghcr-publish-user.sh
       - name: gitleaks rules generator — drift check + self-test (R1 §4/§9)
         # --check: the .gitleaks.toml [[rules]] region matches the manifest.
         # --self-test: per-engine canary MATCH tests + the useDefault coverage

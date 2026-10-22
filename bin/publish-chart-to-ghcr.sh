@@ -9,6 +9,9 @@
 # Usage:
 #   publish-chart-to-ghcr.sh <chart-dir> <ghcr-chart-ref>
 #
+#   Piped (token from stdin; GHCR_USER is required):
+#     TOKEN_COMMAND | GHCR_USER=<user> publish-chart-to-ghcr.sh <chart-dir> <ghcr-chart-ref>
+#
 # Example:
 #   publish-chart-to-ghcr.sh dmf-media/charts/nmos-cpp ghcr.io/dmfdeploy/charts/nmos-cpp
 #
@@ -25,8 +28,18 @@ Usage: $(basename "$0") <chart-dir> <ghcr-chart-ref>
 
 Example:
   $(basename "$0") dmf-media/charts/nmos-cpp ghcr.io/dmfdeploy/charts/nmos-cpp
+
+Piped token (GHCR_USER is required):
+  TOKEN_COMMAND | GHCR_USER=<user> $(basename "$0") <chart-dir> <ghcr-chart-ref>
 USAGE
   exit 2
+fi
+
+# Fail before any prompt or tool call when stdin is a pipe and the username is
+# unset. A prompt would read the token as the username.
+if [[ -z "${GHCR_USER:-}" && ! -t 0 ]]; then
+  echo "ERROR: GHCR_USER is not set and stdin is not a terminal. Set GHCR_USER to your GitHub username when you pipe the token." >&2
+  exit 1
 fi
 
 CHART_DIR="$1"
