@@ -186,6 +186,6 @@ For apps whose local admin credentials live in OpenBao at
 
 ## Status
 
-Accepted: largely superseded by ADR-0028
+Accepted — largely superseded by ADR-0028
 
 Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0024-two-identity-admin-model.md).

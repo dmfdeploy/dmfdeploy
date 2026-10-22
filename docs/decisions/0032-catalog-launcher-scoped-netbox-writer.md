@@ -1,6 +1,6 @@
 # ADR-0032: Catalog launchers mutate NetBox via a scoped writer service account, never the admin token
 
-**Status:** Accepted (amended 2026-08-13: `delete` added on `ipam.service` + `extras.tag` for `media-finalise-purge`; amended again 2026-08-14: that `delete` grant object-scoped to workload-tagged records; amended a third time, same day: `delete` moved off `dmf-catalog-svc` entirely, onto a new delete-only `dmf-catalog-purge-svc` identity; amended a fourth time, 2026-08-16: `view` on `dcim.site` added to `dmf-catalog-writer` for the L3 topology guard's site-agreement read; see Amendments 1–4 in the Decision section)
+**Status:** Accepted (amended 2026-08-13 — `delete` added on `ipam.service` + `extras.tag` for `media-finalise-purge`; amended again 2026-08-14 — that `delete` grant object-scoped to workload-tagged records; amended a third time, same day — `delete` moved off `dmf-catalog-svc` entirely, onto a new delete-only `dmf-catalog-purge-svc` identity; amended a fourth time, 2026-08-16 — `view` on `dcim.site` added to `dmf-catalog-writer` for the L3 topology guard's site-agreement read; see Amendments 1–4 in the Decision section)
 **Date:** 2026-05-27
 **Deciders:** @<handle> (raised the least-privilege question during the `<env>` catalog-deploy debugging session), with Claude investigation
 **Refines:** [ADR-0028](0028-identity-and-authority-chain.md) C3 (scoped service accounts for machine-to-machine). Related: [ADR-0013](0013-media-function-catalog-model.md) (catalog model — NetBox runtime lifecycle tag), [ADR-0025](0025-ansible-in-cluster-pods-and-catalog-helm.md) (in-cluster launchers), [ADR-0007](0007-secrets-never-in-argv.md).
@@ -262,6 +262,6 @@ Amendment 2's constraint respectively depend on, both still holding.
 
 ## Status
 
-Accepted (amended 2026-08-13: `delete` added on `ipam.service` + `extras.tag` for `media-finalise-purge`; amended again 2026-08-14: that `delete` grant object-scoped to workload-tagged records; amended a third time, same day: `delete` moved off `dmf-catalog-svc` entirely, onto a new delete-only `dmf-catalog-purge-svc` identity; amended a fourth time, 2026-08-16: `view` on `dcim.site` added to `dmf-catalog-writer` for the L3 topology guard's site-agreement read; see Amendments 1–4 in the Decision section)
+Accepted (amended 2026-08-13 — `delete` added on `ipam.service` + `extras.tag` for `media-finalise-purge`; amended again 2026-08-14 — that `delete` grant object-scoped to workload-tagged records; amended a third time, same day — `delete` moved off `dmf-catalog-svc` entirely, onto a new delete-only `dmf-catalog-purge-svc` identity; amended a fourth time, 2026-08-16 — `view` on `dcim.site` added to `dmf-catalog-writer` for the L3 topology guard's site-agreement read; see Amendments 1–4 in the Decision section)
 
 Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0032-catalog-launcher-scoped-netbox-writer.md).

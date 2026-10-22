@@ -65,7 +65,7 @@ thesis-killer experiment.
 
 ## Status
 
-Accepted: **stance superseded for the committed core by
+Accepted — **stance superseded for the committed core by
 [architectural-commitments-v1](architectural-commitments-v1.md)** (2026-06-06). The
 commit gate this ADR implied fired on 2026-06-04 (Move 1 + Move 2 closed); the project
 has committed v0.1. This ADR remains accurate history + still describes the *reserved*
