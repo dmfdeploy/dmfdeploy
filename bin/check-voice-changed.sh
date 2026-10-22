@@ -11,7 +11,9 @@
 # corpus first: a file with older alerts passes as long as the PR adds none.
 # Both sides are linted with HEAD's rules and a config derived from HEAD's
 # .vale.ini, so the scope and the archive exemption match the warn-mode run.
-# The whole-tree run stays in warn mode.
+# Every head-side read (files, .vale.ini, .vale/styles) comes from the HEAD
+# commit, never from the working tree, so the result does not depend on what
+# is checked out. The whole-tree run stays in warn mode.
 #
 # Vale reports one alert where the same match (say, two em dashes) occurs
 # twice in one Markdown block, so a raw count can miss a new one. Each side
@@ -19,7 +21,7 @@
 # line its own block; alert lines are mapped back to the real file.
 #
 # Usage: bin/check-voice-changed.sh BASE [HEAD]
-#   HEAD defaults to HEAD and must be the checked-out tree.
+#   HEAD defaults to HEAD and can be any commit; the checkout is not read.
 #   Exit 0: no file gained an alert.  Exit 1: at least one did.
 #   Exit 2: bad usage, or git or Vale failed.
 set -euo pipefail
@@ -48,7 +50,7 @@ while IFS= read -r -d '' status; do
     R*) old="$path"; IFS= read -r -d '' path ;;         # rename with edits
     M) old="$path" ;;
   esac
-  if [[ "$path" == *.md && -f "$root/$path" ]]; then
+  if [[ "$path" == *.md ]] && git -C "$root" cat-file -e "$head:$path" 2>/dev/null; then
     files+=("$path")
     olds+=("$old")
   fi
@@ -59,10 +61,15 @@ if [[ ${#files[@]} -eq 0 ]]; then
   exit 0
 fi
 
-derive() { # derive <styles> <out>: .vale.ini with every styled section set to <styles>
-  sed -e "s|^StylesPath = .*|StylesPath = $root/.vale/styles|" \
+# HEAD's rules and config, exported from the commit into a scratch tree.
+mkdir -p "$tmp/rules"
+git -C "$root" archive "$head" .vale.ini .vale/styles | tar -x -C "$tmp/rules" \
+  || { echo "check-voice-changed: git archive $head failed" >&2; exit 2; }
+
+derive() { # derive <styles> <out>: HEAD's .vale.ini with every styled section set to <styles>
+  sed -e "s|^StylesPath = .*|StylesPath = $tmp/rules/.vale/styles|" \
     -e 's/^MinAlertLevel = .*/MinAlertLevel = error/' -e '/^Packages =/d' \
-    -e "s/^BasedOnStyles = ..*/BasedOnStyles = $1/" "$root/.vale.ini" >"$2"
+    -e "s/^BasedOnStyles = ..*/BasedOnStyles = $1/" "$tmp/rules/.vale.ini" >"$2"
 }
 derive Voice "$tmp/voice.ini"
 # The probe style fires once on any file, so its JSON keys are the files that
@@ -81,7 +88,11 @@ spread() { # spread <out>: stdin with a blank line after every line
   python3 -I -c 'import sys; sys.stdout.write("\n\n".join(sys.stdin.read().split("\n")))' >"$1"
 }
 for f in "${files[@]}"; do
-  spread "$tmp/head/$f" <"$root/$f"
+  git -C "$root" show "$head:$f" >"$tmp/raw" \
+    || { echo "check-voice-changed: git show $head:$f failed" >&2; exit 2; }
+  spread "$tmp/head/$f" <"$tmp/raw"
+  mkdir -p "$tmp/scope/$(dirname "$f")"
+  cp "$tmp/raw" "$tmp/scope/$f"
 done
 base_files=()
 for old in "${olds[@]}"; do
@@ -99,7 +110,7 @@ lint() { # lint <dir> <config> <out> FILE...
   (cd "$dir" && vale --no-exit --output=JSON --config "$ini" "$@") >"$out" \
     || { echo "check-voice-changed: vale failed in $dir" >&2; exit 2; }
 }
-lint "$root" "$tmp/probe.ini" "$tmp/scope.json" "${files[@]}"
+lint "$tmp/scope" "$tmp/probe.ini" "$tmp/scope.json" "${files[@]}"
 lint "$tmp/head" "$tmp/voice.ini" "$tmp/head.json" "${files[@]}"
 echo '{}' >"$tmp/base.json"
 if [[ ${#base_files[@]} -gt 0 ]]; then
