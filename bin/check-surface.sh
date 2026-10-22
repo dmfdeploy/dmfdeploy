@@ -16,8 +16,10 @@
 #              plans listed in FROZEN_PLANS, and no live doc links into
 #              docs/archive/. An ADR may link to its own extract under
 #              docs/archive/decisions/, and the links in ARCHIVE_LINK_EXEMPT
-#              are allowed. A link to a full URL (a permalink) is not an
-#              archive link.
+#              are allowed. A full URL is not an archive link, except a URL
+#              into this repository's docs/archive/ that names a branch or tag
+#              instead of a 40-character commit SHA: only a pinned permalink
+#              passes.
 #
 # Usage:
 #   bin/check-surface.sh [--warn|--strict] [SUBCOMMAND] [--root DIR] [--file PATH ...]
@@ -250,6 +252,10 @@ done
 if [ -z "$ROOT" ]; then
     ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 fi
+# Use absolute physical paths for the root and for --file arguments, so that
+# ./docs/x.md, docs/x.md and an absolute path all give the same result.
+ROOT="$(cd "$ROOT" 2>/dev/null && pwd -P)" \
+    || { echo "check-surface: no such directory: $ROOT" >&2; exit 2; }
 
 FINDINGS=0
 finding() {
@@ -378,13 +384,24 @@ frontmatter_status() {
     ' "$1"
 }
 
-# Link targets in a file that point into an archive/ directory. A target
-# with a URL scheme (a permalink) is not an in-repo link and is skipped. A
-# trailing #anchor is dropped.
+# Link targets in a file that point into an archive/ directory. A trailing
+# #anchor is dropped. A target with a URL scheme is not an in-repo link and is
+# skipped, with one exception: a URL into docs/archive/ of this repository
+# (github.com/dmfdeploy/dmfdeploy/blob/REF/docs/archive/...) is skipped only
+# when REF is a 40-character commit SHA. A moving ref such as main is reported.
 archive_link_targets() {
+    local t
     grep -oE '\]\([^)]*archive/[^)]*\)' "$1" \
         | sed -E 's/^\]\(//; s/\)$//; s/#.*$//' \
-        | grep -vE '^[a-zA-Z][a-zA-Z0-9+.-]*:' || true
+        | while IFS= read -r t; do
+            if printf '%s\n' "$t" | grep -qE '^[a-zA-Z][a-zA-Z0-9+.-]*:'; then
+                printf '%s\n' "$t" | grep -qE '^https?://github\.com/dmfdeploy/dmfdeploy/blob/[^/]+/docs/archive/' \
+                    || continue
+                printf '%s\n' "$t" | grep -qE '^https?://github\.com/dmfdeploy/dmfdeploy/blob/[0-9a-f]{40}/docs/archive/' \
+                    && continue
+            fi
+            printf '%s\n' "$t"
+        done || true
 }
 
 # archive_link_allowed REL TARGET: an ADR may link to its own extract under
@@ -475,6 +492,7 @@ check_one() {
 if [ ${#FILES[@]} -gt 0 ]; then
     for f in "${FILES[@]}"; do
         [ -f "$f" ] || { echo "check-surface: no such file: $f" >&2; exit 2; }
+        f="$(cd "$(dirname "$f")" && pwd -P)/$(basename "$f")"
         check_one "$f"
     done
 else
