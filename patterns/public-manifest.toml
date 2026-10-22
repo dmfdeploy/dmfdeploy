@@ -1,7 +1,7 @@
 # DMF public-safety pattern manifest — PUBLIC tier (tracked, public-safe).
 #
 # Single source for the public scanning rules (R1 spec:
-# docs/plans/DMF Public-Safety Pattern Manifest Plan 2026-07-13.md).
+# the Public-Safety Pattern Manifest Plan, 2026-07-13, in docs/plans/).
 # bin/gen-gitleaks-rules.py renders the marker-fenced [[rules]] region of
 # .gitleaks.toml from the entries whose [pattern.gitleaks].emit == true.
 # bin/dmf-scan reads every entry with a regex for its git-grep passes.
@@ -55,15 +55,22 @@ allowlist_paths = [
     '(^|/)\.github/CODEOWNERS$',
     '(^|/)patterns/public-manifest\.toml$',
     'docs/plans/DMF Workstream A .*Spec 2026-06-09\.md',
+    'docs/plans/dmf-workstream-a-.*spec\.md',
     'docs/plans/DMF Workstream B .*Scrub Spec 2026-06-09\.md',
+    'docs/plans/dmf-workstream-b-.*scrub-spec\.md',
     'docs/plans/DMF Workstream D .*Governance Execution Spec 2026-06-09\.md',
+    'docs/plans/dmf-workstream-d-.*governance-execution-spec\.md',
     'docs/reviews/dmf-mxl-upstream-profile-and-contribution-review-2026-06-01\.md',
+    'docs/reviews/dmf-mxl-upstream-profile-and-contribution-review\.md',
     '(^|/)docs/DEVELOPMENT-AND-BUILD-RULES\.md$',
     '(^|/)docs/decisions/[0-9]+',
     'docs/architecture/DMF Release and Contribution Model\.md',
     'docs/plans/DMF Release and Contribution Model Implementation Plan 2026-05-11\.md',
+    'docs/plans/dmf-release-and-contribution-model-implementation-plan\.md',
     'docs/reviews/dmf-move1-gate2-ssh-credential-incident-2026-05-05\.md',
+    'docs/reviews/dmf-move1-gate2-ssh-credential-incident\.md',
     'docs/plans/DMF Public Repo Identity Leak Sweep 2026-05-11\.md',
+    'docs/plans/dmf-public-repo-identity-leak-sweep\.md',
     'docs/handoffs/DMF Public Publish Readiness Handoff 2026-05-07\.md',
     'k3s-lab-bootstrap/docs/repo-strategy\.md',
 ]
@@ -98,14 +105,20 @@ allowlist_description = "docs that intentionally call out the dev:changeme smell
 allowlist_paths = [
     '^docs/architecture/DMF Release and Contribution Model\.md$',
     '^docs/reviews/dmf-move1-gate2-ssh-credential-incident-2026-05-05\.md$',
+    '^docs/reviews/dmf-move1-gate2-ssh-credential-incident\.md$',
     '^docs/plans/DMF Public Repo Identity Leak Sweep 2026-05-11\.md$',
+    '^docs/plans/dmf-public-repo-identity-leak-sweep\.md$',
     '^bin/scrub-public-repos\.sh$',
     '^bin/dmf-env-public-surface-gate\.sh$',
     '^bin/export-scan\.sh$',
     '^docs/plans/DMF Workstream B .*Scrub Spec 2026-06-09\.md$',
+    '^docs/plans/dmf-workstream-b-.*scrub-spec\.md$',
     '^docs/plans/DMF Workstream D .*Governance Execution Spec 2026-06-09\.md$',
+    '^docs/plans/dmf-workstream-d-.*governance-execution-spec\.md$',
     '^docs/plans/DMF Workstream E1 .*Execution Spec 2026-06-09\.md$',
+    '^docs/plans/dmf-workstream-e1-.*execution-spec\.md$',
     '^docs/plans/DMF Workstream A .*Spec 2026-06-09\.md$',
+    '^docs/plans/dmf-workstream-a-.*spec\.md$',
 ]
 
 # ── dmf-macos-metadata: macOS metadata leaking into the tracked tree ──
@@ -130,6 +143,7 @@ allowlist_paths = [
     '^bin/scrub-public-repos\.sh$',
     '^\.gitleaks\.toml$',
     '^docs/plans/DMF Public Repo Identity Leak Sweep 2026-05-11\.md$',
+    '^docs/plans/dmf-public-repo-identity-leak-sweep\.md$',
     '(^|/)\.gitignore$',
     '(^|/)docs/DEVELOPMENT-AND-BUILD-RULES\.md$',
 ]
@@ -164,6 +178,7 @@ allowlist_paths = [
     '^bin/dmf-env-public-surface-gate\.sh$',
     '^bin/export-scan\.sh$',
     '^docs/plans/DMF Umbrella Security Audit Remediation Spec',
+    '^docs/plans/dmf-umbrella-security-audit-remediation-spec',
 ]
 
 # ════════════════════════════════════════════════════════════════════════

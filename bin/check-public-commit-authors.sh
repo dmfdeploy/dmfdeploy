@@ -42,7 +42,7 @@ repo_path() {
 # on the public GitHub mirror.
 #
 # Allowlist locked 2026-05-11 after the Phase 3 filter-branch rewrite
-# (docs/plans/DMF Public Repo Identity Leak Sweep 2026-05-11.md):
+# (the Public Repo Identity Leak Sweep plan of 2026-05-11, in docs/plans/):
 # GitHub numeric user ID 6800371 is pinned. Loosening this regex to
 # accept other IDs reopens the operator-identity leak surface; only
 # extend if a second approved public identity becomes load-bearing.

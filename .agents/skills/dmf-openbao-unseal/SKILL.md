@@ -121,7 +121,7 @@ up where it left off — the partial progress is not a leak risk.
 This skill **does not** cover:
 
 - **Re-keying** (rotating Shamir share material). That's a planned procedure,
-  not yet automated. Source: `dmfdeploy/docs/plans/DMF Improvement Run Plan 2026-04-22.md`.
+  not yet automated. Source: the Improvement Run Plan (2026-04-22) in `dmfdeploy/docs/plans/`.
 - **Disaster recovery / re-init.** Uses USB shares 4+5 and the offline backup
   bundle. If the running OpenBao no longer has matching key material, you've
   crossed into re-init territory; stop and consult the relevant plan rather
@@ -134,7 +134,7 @@ This skill **does not** cover:
 
 - `dmf-env/bin/unseal-openbao.sh` — the script this skill drives
 - `dmf-infra/k3s-lab-bootstrap/roles/stack/operator/openbao/tasks/main.yml` — share writers, source of truth for the file format
-- `dmfdeploy/docs/plans/DMF Improvement Run Plan 2026-04-22.md` — Shamir layout
+- The Improvement Run Plan (2026-04-22) in `dmfdeploy/docs/plans/`, for the Shamir layout
   decisions and re-key plan
 - `dmfdeploy/docs/plans/DMF Secret Ownership and OpenBao Migration Plan.md` —
   secret-tier classification (breakglass vs runtime vs offline)
