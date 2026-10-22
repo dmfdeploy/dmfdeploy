@@ -4,9 +4,10 @@ The tree has three kinds of content. **Canonical** docs state current truth and
 are maintained. **Synthesis** docs are curated entry points written for
 newcomers. **Record** docs are the append-only lab notebook — point-in-time,
 never rewritten, superseded in place with banners. Live docs use kebab-case
-filenames with the date in frontmatter. Landmark files directly under `docs/` keep
-all-caps names, and docs that readers outside this tree pin by path keep their
-names (the list is in `bin/check-surface.sh`).
+filenames with no spaces and no date. `README.md` and `INDEX.md` are allowed
+anywhere, landmark files directly under `docs/` keep all-caps names, and docs that
+readers outside this tree pin by path keep their names (the list is in
+`bin/check-surface.sh`).
 
 ## Synthesis — start here
 
