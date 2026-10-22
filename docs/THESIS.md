@@ -7,7 +7,7 @@ a stranger can stand it up and verify it without talking to a vendor or to me.
 
 **Where the claim stands:** the first half is demonstrated first-party, on
 the author's environments
-([Move 1 learnings](reviews/dmf-platform-move-1-learnings-2026-06-04.md)). The
+([Move 1 learnings](reviews/dmf-platform-move-1-learnings.md)). The
 second half, reproduction by a stranger, has not happened yet. It is the
 outcome of the current
 [`v0.1-polish` milestone](https://github.com/dmfdeploy/dmfdeploy/milestone/1):
@@ -76,7 +76,7 @@ design and plan a workload and a facility in the console.
 ## Why believe it
 
 The thesis was tested as a falsifiable experiment. The
-[Move 1 learnings](reviews/dmf-platform-move-1-learnings-2026-06-04.md) record
+[Move 1 learnings](reviews/dmf-platform-move-1-learnings.md) record
 six architectural assumptions and their verdicts, including the one still
 unproven. The full arc is in [JOURNEY.md](JOURNEY.md); the decisions are in the
 [ADR record](decisions/INDEX.md#start-here).

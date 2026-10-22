@@ -12,7 +12,7 @@ both CONFIRMED). Operator decisions D1 (commit now) and D2 (credibility-signal f
 
 ## Why this exists
 
-The [2026-04-30 strategic review](../reviews/dmf-platform-strategic-review-2026-04-30.md)
+The [2026-04-30 strategic review](../reviews/dmf-platform-strategic-review.md)
 set an explicit commit gate:
 
 > When dmf-cms release-1's first vertical slice runs end-to-end against real backends

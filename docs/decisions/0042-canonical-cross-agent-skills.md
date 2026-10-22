@@ -30,7 +30,7 @@ Adopt **one canonical, agent-neutral skills store — `.agents/skills/<name>/SKI
 
 ### Enforcement
 
-`bin/sync-skills.sh --check` (wired into `.githooks/pre-commit` and a CI `skills-sync` job) fails on any drift between canonical and the generated per-agent views; the generated `…/skills/` directories are gitignored so they cannot be hand-edited into `main`. Implementation tracked by issue #46 and specified in `docs/plans/Canonical Cross-Agent Skills 2026-06-14.md`.
+`bin/sync-skills.sh --check` (wired into `.githooks/pre-commit` and a CI `skills-sync` job) fails on any drift between canonical and the generated per-agent views; the generated `…/skills/` directories are gitignored so they cannot be hand-edited into `main`. Implementation tracked by issue #46 and specified in `docs/plans/canonical-cross-agent-skills.md`.
 
 ## Status
 

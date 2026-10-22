@@ -8,7 +8,7 @@
 
 The DMF Platform supports three deployment profiles: `cloud`,
 `flypack-offline`, and `flypack-online`, formalised in
-[`docs/plans/DMF Init Wizard Expansion Survey 2026-05-13.md`](../plans/DMF%20Init%20Wizard%20Expansion%20Survey%202026-05-13.md)
+[`docs/plans/dmf-init-wizard-expansion-survey.md`](../plans/dmf-init-wizard-expansion-survey.md)
 §"Round 2 clarifications and decisions". The term *flypack* is overloaded
 across two of them and the difference is architectural, not cosmetic:
 
@@ -17,7 +17,7 @@ across two of them and the difference is architectural, not cosmetic:
   [`dmf-infra/k3s-lab-bootstrap/docs/flypack-offline-lane.md`](../../dmf-infra/k3s-lab-bootstrap/docs/flypack-offline-lane.md)
   binds it: no central reach, no phone-home, sealed embedded OpenBao,
   embedded Authentik, embedded Zot. The RPi appliance plan
-  ([`docs/plans/DMF RPi Flypack Appliance Implementation Plan 2026-05-13.md`](../plans/DMF%20RPi%20Flypack%20Appliance%20Implementation%20Plan%202026-05-13.md))
+  ([`docs/plans/dmf-rpi-flypack-appliance-implementation-plan.md`](../plans/dmf-rpi-flypack-appliance-implementation-plan.md))
   is the minimal-sizing variant of this profile.
 - **`flypack-online`** is materially different. It is an **edge agent**
   paired to a cloud DMF *hub*. The edge runs only the services that
@@ -150,7 +150,7 @@ v2, but only enables the ship-now subset until deferred roles land.
   local OpenBao with `flypack-online`) must supersede this ADR rather
   than contradict it.
 - The init wizard's profile prompt (per round-2 step 2 of the
-  [survey doc](../plans/DMF%20Init%20Wizard%20Expansion%20Survey%202026-05-13.md))
+  [survey doc](../plans/dmf-init-wizard-expansion-survey.md))
   is the first concrete enforcement point: its role-toggle defaults for
   `flypack-online` must match the ship-now list above and refuse the
   deferred set until those roles exist.

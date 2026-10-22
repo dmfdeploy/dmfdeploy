@@ -31,6 +31,6 @@ This file holds material moved out of [ADR-0026](../../decisions/0026-provider-d
 - ADR-0022 — flypack-online profile provides the `applies_to_profiles` enum.
 - ADR-0025 — cluster-internal Ansible execution + Catalog Helm pivot.
   Orthogonal; no overlap with descriptor scope.
-- [`docs/plans/DMF Init Wizard Expansion Survey 2026-05-13.md`](../../plans/DMF%20Init%20Wizard%20Expansion%20Survey%202026-05-13.md) —
+- [`docs/plans/dmf-init-wizard-expansion-survey.md`](../../plans/dmf-init-wizard-expansion-survey.md) —
   Survey Steps 6 + 7 + the `PRESET_DEFAULTS`-to-dmf-infra follow-up are
   absorbed by this ADR's promotion criteria.

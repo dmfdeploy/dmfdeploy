@@ -50,7 +50,7 @@ for the openbao role's auto-unseal during normal playbook runs.
   Even compromise of any two doesn't.
 - **Positive:** routine unseal (1+2+3) is fast — no USB plug required.
 - **Negative:** 5 locations to maintain. Periodic verification needed
-  (`docs/plans/DMF Improvement Run Plan 2026-04-22.md` §verify-shares).
+  (`docs/plans/dmf-improvement-run-plan.md` §verify-shares).
 - **Negative:** USB-based shares 4+5 are physical hardware — degrade over
   time, can be lost. Backup discipline matters.
 - **Negative:** if JuiceFS sync is misconfigured, shares 1+2 could end up in

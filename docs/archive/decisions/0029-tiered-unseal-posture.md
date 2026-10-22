@@ -28,4 +28,4 @@ This file holds material moved out of [ADR-0029](../../decisions/0029-tiered-uns
 - [ADR-0031](../../decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md) — the AWS-KMS
   release path that is Tier 3 sub-variant 3a.
 - [ADR-0004](../../decisions/0004-experiment-phase-stance.md) — why the implementation is deferred.
-- `docs/plans/DMF Unseal Posture Tiered Framework Plan 2026-05-24.md` — full design.
+- `docs/plans/dmf-unseal-posture-tiered-framework-plan.md` — full design.

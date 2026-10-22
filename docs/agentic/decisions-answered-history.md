@@ -98,7 +98,7 @@ Move 7 lands.
 **Surfaced**: 2026-05-04 (in source task plan); re-surfaced 2026-05-12 at
 harness kickoff.
 **Source**:
-[`docs/plans/dmf-platform-move-1-task-2026-05-04.md`](../plans/dmf-platform-move-1-task-2026-05-04.md)
+[`docs/plans/dmf-platform-move-1-task.md`](../plans/dmf-platform-move-1-task.md)
 §"Decision gates".
 **Blocks**: Move 1 Piece 4 (NMOS provision-side work).
 
@@ -128,7 +128,7 @@ NMOS Helm chart.
 
 **Surfaced**: 2026-05-04; re-surfaced 2026-05-12 at harness kickoff.
 **Source**:
-[`docs/plans/dmf-platform-move-1-task-2026-05-04.md`](../plans/dmf-platform-move-1-task-2026-05-04.md)
+[`docs/plans/dmf-platform-move-1-task.md`](../plans/dmf-platform-move-1-task.md)
 §"Decision gates".
 **Blocks**: Move 1 Piece 2, Piece 5.
 
@@ -158,7 +158,7 @@ shipped tag-driven; verified end-to-end on `aliyun-123` and again on
 
 **Surfaced**: 2026-05-04; re-surfaced 2026-05-12 at harness kickoff.
 **Source**:
-[`docs/plans/dmf-platform-move-1-task-2026-05-04.md`](../plans/dmf-platform-move-1-task-2026-05-04.md)
+[`docs/plans/dmf-platform-move-1-task.md`](../plans/dmf-platform-move-1-task.md)
 §"Decision gates".
 **Blocks**: Move 1 Piece 3, Piece 6.
 
@@ -188,7 +188,7 @@ shape.
 
 **Surfaced**: 2026-05-04; re-surfaced 2026-05-12 at harness kickoff.
 **Source**:
-[`docs/plans/dmf-platform-move-1-task-2026-05-04.md`](../plans/dmf-platform-move-1-task-2026-05-04.md)
+[`docs/plans/dmf-platform-move-1-task.md`](../plans/dmf-platform-move-1-task.md)
 §"Decision gates".
 **Blocks**: Move 1 Piece 7 (dmf-cms catalog page).
 

@@ -82,7 +82,7 @@ wholesale; the resolver's legacy branch is retired.
 
 - Verification gate (per the refactor plan): `git -C dmf-env status` stays clean
   through create → apply → bootstrap → teardown.
-- `docs/plans/DMF Env Lifecycle Refactor Plan 2026-06-01.md` is the implementation
+- `docs/plans/dmf-env-lifecycle-refactor-plan.md` is the implementation
   plan; honors ADR-0031 (self-contained gate) + the secrets-discipline conventions.
 
 ## Status

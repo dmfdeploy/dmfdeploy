@@ -7,7 +7,7 @@ date: 2026-05-25
 **Status:** Active — reference/regression aid (not a release profile)
 **Date:** 2026-05-25
 **Author:** Claude (planning sweep, under ADR-0031 framing)
-**Anchor:** [WP0 Release Contract & Profile Matrix](../../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md)
+**Anchor:** [WP0 Release Contract & Profile Matrix](../../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md)
 **Related ADR:** [ADR-0031](../../decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md) (Profile 3)
 **Profile:** `<env>` — **live reference / regression lab, NOT a release profile**
 

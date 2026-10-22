@@ -9,7 +9,7 @@ executed: 2026-06-05
 **Status:** Design proposal for M1.1 (the critical path) — pre-implementation, for review
 **Owner:** operator (with Claude)
 **Branch:** `feat/mxl-spike`
-**Parent:** `docs/plans/DMF MXL On-Demand Media Function Cycle Plan 2026-06-01.md` §3.1–3.2
+**Parent:** `docs/plans/dmf-mxl-on-demand-media-function-cycle-plan.md` §3.1–3.2
 
 ---
 

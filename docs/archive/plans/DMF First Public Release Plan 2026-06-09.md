@@ -15,8 +15,7 @@ executed: 2026-06-11
 **Cross-checked:** codex via agent-bridge — 5 rounds to convergence, closed
 **AGREE — no remaining issues** (2026-06-09). Findings marked **[codex]**.
 **Supersedes/extends:** `docs/architecture/DMF Release and Contribution Model.md`
-(→ ADR-0041 (0018 was already taken by self-managed-k3s-not-ack; next free slot 0041)) and `docs/plans/DMF Release and Contribution Model Implementation
-Plan 2026-05-11.md`; resolves that doc's §5 external-contributor TBD.
+(→ ADR-0041 (0018 was already taken by self-managed-k3s-not-ack; next free slot 0041)) and `docs/plans/dmf-release-and-contribution-model-implementation-plan.md`; resolves that doc's §5 external-contributor TBD.
 
 ## Context
 

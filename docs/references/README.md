@@ -11,4 +11,4 @@ live in [ADRs](../decisions/INDEX.md); scheduling lives in
 
 | Reference | Licence | DMF note | Relevant to |
 |---|---|---|---|
-| IAMT *Dynamic Software Licensing — Best Practices* v1.0.0 (2026-09-07) — [PDF](iamt-dynamic-software-licensing-best-practices-v1.0.0.pdf) | Apache-2.0 (licence text is in the PDF's final section) | [Summary and DMF relevance](iamt-dsl-v1.0.0-summary-and-relevance.md) | [ADR-0045](../decisions/0045-media-function-licensing-reservable-resource.md) licensing RFC (parked; #245 track) |
+| IAMT *Dynamic Software Licensing — Best Practices* v1.0.0 (2026-09-07) — [PDF](iamt-dynamic-software-licensing-best-practices-v1.0.0.pdf) | Apache-2.0 (licence text is in the PDF's final section) | [Summary and DMF relevance](iamt-dsl-v1-0-0-summary-and-relevance.md) | [ADR-0045](../decisions/0045-media-function-licensing-reservable-resource.md) licensing RFC (parked; #245 track) |

@@ -1,8 +1,8 @@
 # ADR-0031: OSS v0.1 release-profile matrix
 
 **Status:** Accepted (2026-05-26; operator open decisions closed; WP0 successor plan drafted —
-[DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25](../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md);
-premise basis: [Contributor Replicability Premise Pass 2026-05-25](../plans/DMF%20OSS%20v0.1%20Contributor%20Replicability%20Premise%20Pass%202026-05-25.md)).
+[DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25](../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md);
+premise basis: [Contributor Replicability Premise Pass 2026-05-25](../plans/dmf-oss-v0-1-contributor-replicability-premise-pass.md)).
 **Date:** 2026-05-25 (original draft); 2026-05-25 (rewritten as profile matrix)
 **Deciders:** @<handle>, Codex planning sweep, Claude CEO-mode review, Codex sequencing review
 **Specializes:** [ADR-0020](0020-deployment-scope-and-regulatory-posture.md)
@@ -263,7 +263,7 @@ The original Enforcement section was AWS-specific and is preserved in the
 ## Status
 
 Accepted (2026-05-26; operator open decisions closed; WP0 successor plan drafted —
-[DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25](../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md);
-premise basis: [Contributor Replicability Premise Pass 2026-05-25](../plans/DMF%20OSS%20v0.1%20Contributor%20Replicability%20Premise%20Pass%202026-05-25.md)).
+[DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25](../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md);
+premise basis: [Contributor Replicability Premise Pass 2026-05-25](../plans/dmf-oss-v0-1-contributor-replicability-premise-pass.md)).
 
 Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md).

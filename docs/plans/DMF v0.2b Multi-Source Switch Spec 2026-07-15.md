@@ -12,7 +12,7 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/201
 > [#201](https://github.com/dmfdeploy/dmfdeploy/issues/201) ("v0.2b — multi-source
 > videotest topology + launcher source selection + coarse connection-intent
 > switch, spec first"). It writes the full v0.2b spec that
-> `DMF v0.2 EBU Facility-Orchestration Re-anchor Plan 2026-07-07.md` §5 deferred
+> `dmf-v0-2-ebu-facility-orchestration-re-anchor-plan.md` §5 deferred
 > ("full v0.2b spec is written when we start it"). It is **doc only** — no
 > implementation lands under this doc; it defines the contract the build work
 > must honour. It is gated by codex before push, then feeds the work packages in
@@ -541,7 +541,7 @@ console form ([#231]) driving `topology_params`.
 - Umbrella issues: [#201] (this spec), [#202] (L3 preflight/rollback),
   [#200] (presentable journey), [#189] (v0.2 scope), [#231] (Design beat v1),
   [#203]/PR #237 (demo runbook).
-- Plans: `DMF v0.2 EBU Facility-Orchestration Re-anchor Plan 2026-07-07.md` §5
+- Plans: `dmf-v0-2-ebu-facility-orchestration-re-anchor-plan.md` §5
   (v0.2b framing).
 - ADRs: ADR-0037 (Media Workloads = NetBox instance inventory; flows runtime-only),
   ADR-0046 (first-class Media Workload entity — `workload:<slug>` grouping),

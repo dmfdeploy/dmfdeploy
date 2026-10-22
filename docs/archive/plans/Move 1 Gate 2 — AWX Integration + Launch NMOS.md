@@ -41,7 +41,7 @@ If any of these fail, stop and investigate before proceeding to Piece 7.
 
 ## Architecture reference
 
-- Task spec: `docs/plans/dmf-platform-move-1-task-2026-05-04.md` — Pieces 5, 6
+- Task spec: `docs/plans/dmf-platform-move-1-task.md` — Pieces 5, 6
 - ADR-0012 (Configure vs Provision): `docs/decisions/0012-configure-stage-distinct-from-provision.md`
 - ADR-0013 (Media function catalog model): `docs/decisions/0013-media-function-catalog-model.md`
 - ADR-0014 (AWX project layout): `docs/decisions/0014-awx-project-layout.md`
@@ -332,7 +332,7 @@ Once Gate 2 passes, the agent executing Piece 7 will:
 
 ## References
 
-- Move 1 task spec: `docs/plans/dmf-platform-move-1-task-2026-05-04.md`
+- Move 1 task spec: `docs/plans/dmf-platform-move-1-task.md`
 - NMOS plan (technical reference): `docs/archive/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md`
 - Catalog entry: `dmf-media/catalog/nmos-cpp.yaml`
 - ADR-0012 (Configure vs Provision): `docs/decisions/0012-configure-stage-distinct-from-provision.md`

@@ -30,7 +30,7 @@ executed: 2026-06-09
 
 - `docs/decisions/INDEX.md` — esp. the "Theme clusters & canonical pointer" table
   and "Open decision debt".
-- `docs/reviews/DMF ADR Portfolio Review 2026-05-27.md` — the nits in §5 are fixed here.
+- `docs/reviews/dmf-adr-portfolio-review.md` — the nits in §5 are fixed here.
 - The ADRs named in §2 and §3 below (read each before writing about it).
 
 ## 2. Create 4 digest docs under `docs/decisions/digests/`

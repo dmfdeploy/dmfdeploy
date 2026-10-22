@@ -33,7 +33,7 @@ Follow-Ups Plan §B.1 anticipating exactly this codification.
   let NetBox + Forgejo opt into the same abstraction. Initially
   deferred on ADR-0007 grounds. **Superseded 2026-05-24 by
   [ADR-0028](../../decisions/0028-identity-and-authority-chain.md)** and realised by
-  the [Unified App-Admin Helper Plan v3](../../plans/DMF%20Unified%20App-Admin%20Helper%20Plan%202026-05-23.md).
+  the [Unified App-Admin Helper Plan v3](../../plans/dmf-unified-app-admin-helper-plan.md).
   Implementation landed in `dmf-infra` 2026-05-24 as PR 1a / 1b / 2 /
   3 (`30dfad5`, `52b261d`, `bc6699b` + `2e13cb3`, `f74533b`). The
   kubectl-exec / bao-CLI / stdin pattern composes cleanly across
@@ -53,7 +53,7 @@ Follow-Ups Plan §B.1 anticipating exactly this codification.
 - ADR-0007 — secrets never in argv. Helper compliance.
 - ADR-0010 — `run-playbook.sh` sanctioned entry.
 - ADR-0021 — OpenBao AppRole reconciler identity. Adjacent identity ADR.
-- `docs/plans/DMF Pre-Bao Bootstrap Secrets Design 2026-05-08.md` §3
+- `docs/plans/dmf-pre-bao-bootstrap-secrets-design.md` §3
   — design source ("One shared bootstrap admin identity").
 - `docs/plans/DMF App Admin Account Drift Audit and Realignment Plan 2026-05-14.md`
   — drift catalog from the retired-cluster era.
@@ -98,8 +98,7 @@ Observed live on `<env>`
      `(<app>-break-glass, oidc, <operator-sub>)` UserSocialAuth row
      that the email-collision hijack created. The procedure for
      `<env>` (run interactively on 2026-05-28) is captured at
-     `docs/reviews/DMF Passkey Invitation Policy Alignment Survey
-     2026-05-28.md` § next-steps.
+     `docs/reviews/dmf-passkey-invitation-policy-alignment-survey.md` § next-steps.
 
 ## Enforcement — K8s-Secret backend consumers (moved from the ADR)
 

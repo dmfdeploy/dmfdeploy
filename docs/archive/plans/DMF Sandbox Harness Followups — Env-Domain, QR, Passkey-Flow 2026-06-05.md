@@ -99,7 +99,7 @@ already in hand — it's just rendered as text/link today. No QR dependency in
    `payload.enrollment_url`** alongside the existing copyable URL + the
    `confirmed N/2` status. Keep the text URL (QR is additive).
 3. Follow the **DMF Console UX Constitution** if styling matters
-   (`docs/design/DMF Console UX Constitution 2026-05-25.md`).
+   (`docs/design/dmf-console-ux-constitution.md`).
 
 **Gotchas / note in the UI:** a QR to a `.test` domain won't resolve on a phone
 off-network — it's primarily useful for **real-domain** cloud envs (and for

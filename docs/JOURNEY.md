@@ -3,7 +3,7 @@
 *Written 2026-06-10, as part of making this repository legible to outsiders. This is
 the narrative layer over the record. Every claim links into the reviews, ADRs,
 handoffs, and plans that document it. If you want the current technical assessment,
-read the [2026-06-06 technical evaluation](reviews/dmf-platform-technical-evaluation-2026-06-06.md);
+read the [2026-06-06 technical evaluation](reviews/dmf-platform-technical-evaluation.md);
 this document explains how the project got there.*
 
 ---
@@ -24,7 +24,7 @@ on that [below](#working-with-agents-the-method)).
 
 The project predates this repository. Through early 2026 it lived as a working
 Hetzner ARM lab plus a private operator note store, rebuilt and re-verified
-piece by piece. The [rebuild session notes of 2026-04-22](sessions/DMF%20Rebuild%20Session%20Notes%202026-04-22.md)
+piece by piece. The [rebuild session notes of 2026-04-22](sessions/dmf-rebuild-session-notes.md)
 are the oldest document in the tree and capture that phase's texture: thirty-odd
 numbered playbooks run in order against a fresh cluster, each failure fixed and
 recorded. On 2026-04-25 the playbook taxonomy was aligned to the EBU DMF V2.0
@@ -40,7 +40,7 @@ titles read like a lab notebook. They are one.
 In mid-April, two independent reviews flagged the same P0s: the console-to-AWX
 loop had never closed, no alerts, no backups, a token in plaintext. Two weeks
 later none of them were fixed. The
-[strategic review of 2026-04-30](reviews/dmf-platform-strategic-review-2026-04-30.md)
+[strategic review of 2026-04-30](reviews/dmf-platform-strategic-review.md)
 made the call that shaped everything since: **stop treating that as a hardening
 backlog.** In an experiment phase, the right metric is *"what irreversible decisions am I de-risking before I commit?"* Hardening is the wrong measure in this phase.
 The review named three **thesis-killers**: the assumptions that, if false, would
@@ -64,7 +64,7 @@ foundations*. That stance was codified as
 
 The first experiment was the cheaper one: wire one console page end-to-end to a
 real AWX job running against NetBox-derived inventory
-([learnings](reviews/dmf-platform-move-2-learnings-2026-05-04.md)). It closed in
+([learnings](reviews/dmf-platform-move-2-learnings.md)). It closed in
 days and confirmed the data-flow thesis, with instructive friction. NetBox v4 had
 quietly changed the `Service` model from a direct foreign key to a generic
 relation, breaking the planned schema. The console's `app-contract` survived
@@ -81,7 +81,7 @@ launcher playbook → Helm → health probe → Finalise → NetBox lifecycle ta
 (Provision/Configure/Finalise are the catalog's lifecycle stages:
 [ADR-0012](decisions/0012-configure-stage-distinct-from-provision.md),
 [ADR-0013](decisions/0013-media-function-catalog-model.md)). The
-[Move 1 learnings](reviews/dmf-platform-move-1-learnings-2026-06-04.md) test six
+[Move 1 learnings](reviews/dmf-platform-move-1-learnings.md) test six
 architectural assumptions; five confirmed outright, one (the drift detector
 firing on live divergence) still rests on code inspection rather than an observed
 failing run, recorded as an evidence gap.
@@ -141,7 +141,7 @@ The **MXL spike** (Media eXchange Layer, the EBU/LF effort for in-host media
 exchange) is the deliberate hard case for thesis-killer #3: two media functions
 (a source and a viewer) sharing a data plane, genuinely spanning layers
 ([ADR-0017](decisions/0017-mxl-intra-host-data-plane.md),
-[plan](plans/DMF%20MXL%20On-Demand%20Media%20Function%20Cycle%20Plan%202026-06-01.md)).
+[plan](plans/dmf-mxl-on-demand-media-function-cycle-plan.md)).
 Its single-node control chain is code-complete; live verification is **paused**.
 Thesis-killer #2 (cross-cluster federation) was **never started**. `dmf-central`
 remains scaffold. Neither is hidden: both are explicitly frozen or paused in
@@ -178,7 +178,7 @@ all come from this. They are the interface between me, the agents, and now you.
 ## The gate fires (2026-06-04 → 2026-06-06)
 
 Move 1's closing write-up noted that the commit gate defined on 2026-04-30 had
-quietly been met. The [technical evaluation of 2026-06-06](reviews/dmf-platform-technical-evaluation-2026-06-06.md)
+quietly been met. The [technical evaluation of 2026-06-06](reviews/dmf-platform-technical-evaluation.md)
 made it official. The result was uncomfortable. Its scorecard is candid: architecture
 coherence 8/10, identity and secrets 8/10, and **external legibility 1/10**. The
 dual-voice CEO/eng review confirmed the diagnosis from both sides. The gate had
@@ -200,9 +200,9 @@ runnable and legible to an outsider."**
 
 ## Which review is current, and why both were right
 
-The [2026-06-06 evaluation](reviews/dmf-platform-technical-evaluation-2026-06-06.md)
+The [2026-06-06 evaluation](reviews/dmf-platform-technical-evaluation.md)
 is the current assessment. The
-[2026-04-30 strategic review](reviews/dmf-platform-strategic-review-2026-04-30.md)
+[2026-04-30 strategic review](reviews/dmf-platform-strategic-review.md)
 is superseded, but it was right for its moment: it stopped a premature
 hardening push, aimed the project at its real risks, and defined the gate that
 ended its own regime. The evaluation graded the work the review commissioned.

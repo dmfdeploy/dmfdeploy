@@ -5,7 +5,7 @@ date: 2026-05-25
 # DMF OSS v0.1 WP2 - Bootstrap Independence
 
 > **⚠️ RE-SCOPED (2026-05-25): split by profile.** Under
-> [WP0](../../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md) /
+> [WP0](../../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md) /
 > [ADR-0031](../../decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md),
 > bootstrap independence has **two paths**, not one:
 > - **`sandbox-single-node` (the gate):** no **maintainer-private** SOPS bundle /
@@ -24,8 +24,8 @@ date: 2026-05-25
 
 **Status:** Active — split by profile (sandbox-local gate / AWS-KMS secondary)
 **Date:** 2026-05-25
-**Anchor:** [WP0 Release Contract & Profile Matrix](../../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md)
-**Parent mission (superseded):** [DMF OSS v0.1 Release Mission 2026-05-25.md](../../plans/DMF%20OSS%20v0.1%20Release%20Mission%202026-05-25.md)
+**Anchor:** [WP0 Release Contract & Profile Matrix](../../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md)
+**Parent mission (superseded):** [dmf-oss-v0-1-release-mission.md](../../plans/dmf-oss-v0-1-release-mission.md)
 **Outcome:** A released DMF cluster reaches and recovers steady state without
 recurring dependence on the operator laptop, Mac keychain, JuiceFS, local
 maintainer-private SOPS bundle, or external private network — **sandbox via locally-generated seed
@@ -93,7 +93,7 @@ Relevant files:
 - `dmf-infra/k3s-lab-bootstrap/bootstrap-configure.yml`
 - `dmf-infra/k3s-lab-bootstrap/roles/stack/operator/openbao`
 - `docs/decisions/0011-auto-unseal-tradeoff.md`
-- `docs/plans/DMF Unseal Posture Tiered Framework Plan 2026-05-24.md`
+- `docs/plans/dmf-unseal-posture-tiered-framework-plan.md`
 
 Observed gaps:
 

@@ -6,7 +6,7 @@ executed: 2026-06-08
 # DMF OSS v0.1 WP4 - CMS User Administration
 
 > **⚠️ RE-SCOPED (2026-05-25): scope-trimmed for v0.1.** Under
-> [WP0](../../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md) /
+> [WP0](../../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md) /
 > [ADR-0031](../../decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md):
 > - **v0.1 gate = seeded admin can log in via passkey + the backend role guards
 >   needed for the deploy path.** That is all v0.1 requires (it gates contributor
@@ -26,8 +26,8 @@ executed: 2026-06-08
 
 **Status:** Active — scope-trimmed (v0.1 = seeded-admin passkey + role guards; rest → v0.2)
 **Date:** 2026-05-25
-**Anchor:** [WP0 Release Contract & Profile Matrix](../../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md)
-**Parent mission (superseded):** [DMF OSS v0.1 Release Mission 2026-05-25.md](../../plans/DMF%20OSS%20v0.1%20Release%20Mission%202026-05-25.md)
+**Anchor:** [WP0 Release Contract & Profile Matrix](../../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md)
+**Parent mission (superseded):** [dmf-oss-v0-1-release-mission.md](../../plans/dmf-oss-v0-1-release-mission.md)
 **Outcome (v0.1 subset):** The CMS lets the **seeded admin log in via passkey**
 and enforces **backend role guards** on the deploy path. Full user
 onboarding/approval/role-assignment/MFA-enforcement lifecycle is **v0.2**.

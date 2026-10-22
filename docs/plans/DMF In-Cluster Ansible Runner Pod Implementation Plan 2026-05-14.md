@@ -20,7 +20,7 @@ superseded_by: "DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Pl
 **Date:** 2026-05-14
 **Status:** Phase 1 done · Phases 2–4 pending · Spike target: playbook 698
 **Related ADRs:** ADR-0010, ADR-0012, ADR-0016, ADR-0023, **ADR-0025 (2026-05-19)**
-**Related plans:** *DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md* (parent); *DMF App Admin Account Drift Audit and Realignment Plan 2026-05-14.md*; *DMF Internal Service DNS Migration Survey 2026-05-14.md*
+**Related plans:** *DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md* (parent); *DMF App Admin Account Drift Audit and Realignment Plan 2026-05-14.md*; *dmf-internal-service-dns-migration-survey.md*
 
 ---
 
@@ -833,7 +833,7 @@ consider:
 | Plan | Relationship |
 |---|---|
 | `DMF App Admin Account Drift Audit and Realignment Plan 2026-05-14.md` | Separate workstream; explains the drift-related `-e` overrides that persist regardless of the runner-pod migration |
-| `DMF Internal Service DNS Migration Survey 2026-05-14.md` | The migration plan that this spike enables; tracks per-file internal-vs-public URL classification |
+| `dmf-internal-service-dns-migration-survey.md` | The migration plan that this spike enables; tracks per-file internal-vs-public URL classification |
 
 ### 11.3 Related ADRs
 

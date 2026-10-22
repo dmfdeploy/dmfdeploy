@@ -83,7 +83,7 @@ Two further forces matter:
   different (media-tenant) axis and is not affected. The dmf-cms gap that prompted this
   (the Facility page querying NetBox unscoped and ignoring `dmf_env_id`) is closed in the
   **console query/UI layer**, not in the inventory model — see the work package
-  `docs/plans/DMF Facility Console — Born-Inventoried Env Surfacing Plan 2026-06-04.md`.
+  `docs/plans/dmf-facility-console-born-inventoried-env-surfacing-plan.md`.
 
 ## Status
 

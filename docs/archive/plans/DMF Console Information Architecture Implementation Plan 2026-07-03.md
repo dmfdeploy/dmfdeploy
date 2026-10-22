@@ -37,15 +37,14 @@ executed: 2026-07-05
 > Original preamble (authoring, 2026-07-03): documents-only round; no dmf-cms
 > edits yet. Second of two console plans. Implements the 4-rail Information
 > Architecture and the Workspace **"are we OK?"** core specified in
-> `../../design/DMF Console Information Architecture 2026-06-23.md`. **Sequenced
+> `../../design/dmf-console-information-architecture.md`. **Sequenced
 > after** `DMF Console Wording and Media Workloads Page Plan 2026-07-03.md`
 > (#173) and after #166's WP-B/WP-C (recording rules + alert suite) land — the
 > Workspace core consumes those signals.
 
 **Component:** `dmf-cms`. Doc lives in the umbrella per convention.
 **Governing design docs:** the IA doc (above) — this plan turns its spec into work
-packages, it does not re-litigate it; `../../design/DMF Console UX Constitution
-2026-05-25.md` (§3 hard gates); `DMF Are-We-OK Sandbox Observability and Alerting Plan
+packages, it does not re-litigate it; `../../design/dmf-console-ux-constitution.md` (§3 hard gates); `DMF Are-We-OK Sandbox Observability and Alerting Plan
 2026-06-24.md` (#166) — the signal source.
 
 ---
@@ -160,8 +159,8 @@ Workloads rail (#173) and the alert/recording-rule signals (#166).
 - This is the release that plausibly earns `dmf-cms 0.12.0`.
 
 ## 8. References
-- `../../design/DMF Console Information Architecture 2026-06-23.md` — the spec this executes.
-- `../../design/DMF Console UX Constitution 2026-05-25.md` — hard gates cited per-WP.
+- `../../design/dmf-console-information-architecture.md` — the spec this executes.
+- `../../design/dmf-console-ux-constitution.md` — hard gates cited per-WP.
 - `DMF Are-We-OK Sandbox Observability and Alerting Plan 2026-06-24.md` (#166) — signal source.
 - `DMF Console Wording and Media Workloads Page Plan 2026-07-03.md` (#173) — prerequisite rail.
-- `../../design/DMF Console Audit and Event-Log Spec.md` — `request_id` correlation (WP3).
+- `../../design/dmf-console-audit-and-event-log-spec.md` — `request_id` correlation (WP3).

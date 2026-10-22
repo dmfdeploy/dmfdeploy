@@ -19,7 +19,7 @@ executed: 2026-07-03
 > `DMF_DATA_ROOT`.
 
 > **Purpose:** operationalize the two remaining items of
-> [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04](../../plans/DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md)
+> [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04](../../plans/dmf-dynamic-netbox-driven-monitoring-plan.md)
 > (tracking issue [#5](https://github.com/dmfdeploy/dmfdeploy/issues/5)) as
 > discrete work packages a **fresh agent can execute cold**. Design was
 > adversarially cross-checked (codex) on 2026-07-02: first pass FAIL (P1:
@@ -273,7 +273,7 @@ checks only; playbook runs stay on the Manage API / `run-playbook.sh` lane
 - **Precondition:** WP0 (Amendment B) is merged — never flip the plan to
   executed while component repos carry a schema field absent from ADR-0038.
 - Flip frontmatter `active → executed` on **both**
-  [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04](../../plans/DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md)
+  [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04](../../plans/dmf-dynamic-netbox-driven-monitoring-plan.md)
   (+ short executed postscript naming what landed) **and this doc**; regenerate
   `docs/plans/INDEX.md` via `bin/generate-plans-index.sh` (pre-commit/CI
   `check-docs` hard-fails on a stale index).
@@ -303,7 +303,7 @@ checks only; playbook runs stay on the Manage API / `run-playbook.sh` lane
 - [ADR-0032 — scoped catalog NetBox writer](../../decisions/0032-catalog-launcher-scoped-netbox-writer.md)
 - [ADR-0023 — internal service DNS](../../decisions/0023-internal-service-dns-for-cross-app-wiring.md)
 - [ADR-0010 — run-playbook.sh as sanctioned entry](../../decisions/0010-run-playbook-as-sanctioned-entry.md)
-- [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04](../../plans/DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md) — parent plan (WP6/WP2/WP11 map to these items)
+- [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04](../../plans/dmf-dynamic-netbox-driven-monitoring-plan.md) — parent plan (WP6/WP2/WP11 map to these items)
 - [DMF Constrained-Node k3s Control-Plane Stability Plan 2026-06-21](DMF%20Constrained-Node%20k3s%20Control-Plane%20Stability%20Plan%202026-06-21.md) — the sandbox's failure-mode context
 - [DMF Are-We-OK Sandbox Observability and Alerting Plan 2026-06-24](DMF%20Are-We-OK%20Sandbox%20Observability%20and%20Alerting%20Plan%202026-06-24.md) — downstream consumer of these probes ([#166](https://github.com/dmfdeploy/dmfdeploy/issues/166))
 - Skills: `dmf-init-manage-playbook`, `dmf-cluster-access`, `agent-bridge`, `dmf-deploy-commit-workflow`, `cold-agent-wp-execution`

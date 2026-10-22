@@ -6,9 +6,9 @@ date: 2026-04-29
 
 > **SUPERSEDED 2026-04-30** by the strategic review and the Move 1 / Move 2
 > task specs. Kept for historical record. See
-> [`docs/reviews/dmf-platform-strategic-review-2026-04-30.md`](../../reviews/dmf-platform-strategic-review-2026-04-30.md),
-> [`dmf-platform-move-1-task-2026-05-04.md`](../../plans/dmf-platform-move-1-task-2026-05-04.md),
-> [`dmf-platform-move-2-task-2026-04-30.md`](../../plans/dmf-platform-move-2-task-2026-04-30.md).
+> [`docs/reviews/dmf-platform-strategic-review.md`](../../reviews/dmf-platform-strategic-review.md),
+> [`dmf-platform-move-1-task.md`](../../plans/dmf-platform-move-1-task.md),
+> [`dmf-platform-move-2-task.md`](../../plans/dmf-platform-move-2-task.md).
 
 > **Read this first.** Comprehensive handoff for gstack workflow. Orchestrates
 > three concurrent streams of work across three repos over 4 weeks: Layer-1

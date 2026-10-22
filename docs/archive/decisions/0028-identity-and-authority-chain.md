@@ -41,11 +41,11 @@ This file holds material moved out of [ADR-0028](../../decisions/0028-identity-a
   promotion is D6's revisit gate.
 - [ADR-0024](../../decisions/0024-two-identity-admin-model.md) — the predecessor;
   §Alternatives "Generalise the helper" entry superseded by this ADR.
-- [DMF Identity and Authority Model](../../architecture/DMF%20Identity%20and%20Authority%20Model.md)
+- [DMF Identity and Authority Model](../../architecture/dmf-identity-and-authority-model.md)
   — the canonical architecture doc.
 - [Per-App Identity Feasibility Survey 2026-05-24](../../plans/DMF%20Per-App%20Identity%20Feasibility%20Survey%202026-05-24.md)
   — exception-list data source.
-- [Unified App-Admin Helper Plan v3](../../plans/DMF%20Unified%20App-Admin%20Helper%20Plan%202026-05-23.md)
+- [Unified App-Admin Helper Plan v3](../../plans/dmf-unified-app-admin-helper-plan.md)
   — implementation under D1.
 
 ## Consequences — implementation status 2026-05-25 (moved from the ADR)

@@ -11,7 +11,7 @@ custody) per declared tier.
 **Orthogonal to:** [ADR-0009](0009-shamir-dr-model.md) (5-share Shamir remains the
 disaster-recovery custody layer for all tiers); [ADR-0020](0020-deployment-scope-and-regulatory-posture.md)
 (deployment-scope axis is independent of this security-posture axis).
-**Source plan:** `docs/plans/DMF Unseal Posture Tiered Framework Plan 2026-05-24.md`
+**Source plan:** `docs/plans/dmf-unseal-posture-tiered-framework-plan.md`
 (full design rationale, threat trees, and the passkey/PRF/QR transport design).
 
 ## Context
@@ -110,7 +110,7 @@ implementation:**
 - **Positive** — ADR-0011's tradeoff stops reading as a quiet weakness and becomes
   an explicit, audited Tier 3 *choice*.
 - **Positive** — closes the reserved-0029 numbering gap that the
-  [2026-05-27 portfolio review](../reviews/DMF%20ADR%20Portfolio%20Review%202026-05-27.md)
+  [2026-05-27 portfolio review](../reviews/dmf-adr-portfolio-review.md)
   flagged (INDEX "no gaps" rule).
 - **Negative / honest** — because the raft baseline is unbuilt, this ADR is a
   *direction*, not an operable control. If raft never lands, Tier 1/2 remain

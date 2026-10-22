@@ -81,7 +81,7 @@ preventing thesis-killer work, not a generic preference for less ops.
   features.
 - **Neutral:** the platform plan documents a separate, deferred direction
   (per-resource provider chooser from `dmf-cms`, see
-  `docs/plans/dmf-multi-provider-resource-selection-future-direction-2026-05-08.md`).
+  `docs/plans/dmf-multi-provider-resource-selection-future-direction.md`).
   That direction is compatible with this ADR — it picks providers per resource
   but always provisions self-managed k3s as the cluster shape.
 

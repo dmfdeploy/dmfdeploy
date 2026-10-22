@@ -8,7 +8,7 @@ CONTRIBUTING.md → "ADR conventions". -->
 **Deciders:** @znerol2 (Discussion [#248](https://github.com/dmfdeploy/dmfdeploy/discussions/248)), with Claude; codex adversarial cross-check (RFC 3 rounds → PASS)
 **Rule:** A media function enters a catalog only as a signed, digest-pinned **Media Function Package** from a classed catalog source (`project` / `vendor` / `community`); bespoke launcher playbooks are `project`-source-only, everything else goes through the generic declarative launcher under `generic-chart-policy/v1`, and nothing deploys past a revocation record — fail closed.
 **Cross-references / touches:** ADR-0013 (catalog model — extended, not replaced), ADR-0025 (in-cluster EE + Helm-from-Zot — why launcher code is privileged), ADR-0027 (**checklist source only** — its CRD/operator design stays retired per ADR-0037), ADR-0032/0033 (scoped writers — the per-publisher Zot namespace is a sibling), ADR-0034 (internal mirrors — generalized to catalog sources), ADR-0036 (offline bundle stays a future profile beside dmf-init), ADR-0037 (NetBox scopes; k3s schedules; AWX reconciles — untouched), ADR-0041 (GitHub + DCO contribution path), ADR-0043 (AWX sole actuator — untouched), ADR-0045 (licence seam — presence enforcement **not** decided here)
-**Plan:** `docs/plans/DMF Marketplace Resource Model and Placement Grounded Roadmap 2026-07-17.md` (#245); RFC converged in Discussion #248 (tracked by #204)
+**Plan:** `docs/plans/dmf-marketplace-resource-model-and-placement-grounded-roadmap.md` (#245); RFC converged in Discussion #248 (tracked by #204)
 
 ## Context
 

@@ -3,7 +3,7 @@
 **Status:** Operator-facing runbook. Canonical deployment procedure for any
 dmf-env environment (e.g. `hetzner-arm`, `aliyun`).
 Assumes the bring-up incorporates every fix through
-`docs/plans/DMF Bootstrap Pre-Seed Blocker Fix Implementation Plan 2026-05-09.md`
+`docs/plans/dmf-bootstrap-pre-seed-blocker-fix-implementation-plan.md`
 §§1–21 (in `main` as of 2026-05-10).
 
 **Intent model:** `docs/processes/README.md` (BPMN 2.0). Read that for *why*;
@@ -378,7 +378,7 @@ login Keychain (service `openbao-breakglass-share-3-<env>`). USB shares
 ## 9. Reset (teardown for fresh attempt)
 
 See *Reset checklist* in
-`docs/plans/DMF Bootstrap Pre-Seed Blocker Fix Implementation Plan 2026-05-09.md`
+`docs/plans/dmf-bootstrap-pre-seed-blocker-fix-implementation-plan.md`
 for the canonical sequence. Summary:
 
 ```bash
@@ -422,7 +422,7 @@ ls /Volumes/OPENBAO_A/aliyun/                       # must not exist
 ## 10. References
 
 - Intent model: `docs/processes/README.md` (BPMN 2.0)
-- Implementation plan: `docs/plans/DMF Bootstrap Pre-Seed Blocker Fix Implementation Plan 2026-05-09.md`
+- Implementation plan: `docs/plans/dmf-bootstrap-pre-seed-blocker-fix-implementation-plan.md`
 - ADR-0008 secrets architecture: `docs/decisions/0008-openbao-secrets-architecture.md`
 - ADR-0009 Shamir DR model: `docs/decisions/0009-shamir-dr-model.md`
 - ADR-0011 auto-unseal tradeoff: `docs/decisions/0011-auto-unseal-tradeoff.md`

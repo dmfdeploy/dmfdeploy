@@ -313,7 +313,7 @@ cat /var/run/secrets/kubernetes.io/serviceaccount/token | wc -c  # should be >10
 
 - **AWX Operator CRD:** https://github.com/ansible/awx-operator/blob/devel/roles/awx/templates/awx-instance.yml
 - **Kubernetes Service Account Documentation:** https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
-- **AWX Job Template Execution:** docs/plans/dmf-platform-move-1-task-2026-05-04.md § "Step 5: Launch media-launch-nmos-cpp from AWX UI"
+- **AWX Job Template Execution:** docs/plans/dmf-platform-move-1-task.md § "Step 5: Launch media-launch-nmos-cpp from AWX UI"
 
 ---
 

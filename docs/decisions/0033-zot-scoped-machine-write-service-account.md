@@ -37,7 +37,7 @@ This is the same class of gap ADR-0032 closed for NetBox ("a steady-state automa
 4. **`admin` demoted to dormant break-glass.** It remains the sole `adminPolicy` user (full `read,create,update,delete`) for emergency/manual recovery, satisfying C4: no routine path touches it. ADR-0028's sanctioned-exception list is **unchanged** — Zot `admin` stays as the break-glass username; this ADR only clarifies that the exception covers *break-glass*, not the *machine-write* path, and adds the missing C3 service account.
 5. **eso-reader policy** extended to read the new service path (`secret/data/apps/+/service`) so zot-mirror's ESO ClusterSecretStore can mount the `zot-svc` credential. (The existing glob is `secret/data/apps/+/admin`.)
 
-This decision is implemented together with the **playbook-630 execution-model fix** (630 now runs on the control node, `hosts: k3s_control[0]`, not workstation `localhost`) — see the [implementation plan](../plans/DMF%20Zot%20Machine-Identity%20Service%20Account%20Plan%202026-05-27.md). The two are coupled because both edit 630's credential handling.
+This decision is implemented together with the **playbook-630 execution-model fix** (630 now runs on the control node, `hosts: k3s_control[0]`, not workstation `localhost`) — see the [implementation plan](../plans/dmf-zot-machine-identity-service-account-plan.md). The two are coupled because both edit 630's credential handling.
 
 ## Consequences
 

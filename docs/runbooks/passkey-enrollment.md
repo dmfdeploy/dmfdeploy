@@ -258,4 +258,4 @@ bin/run-playbook.sh <env> ../dmf-infra/k3s-lab-bootstrap/playbooks/vertical-secu
   [`dmf-cms/src/dmf_cms/authentik.py`](https://github.com/dmfdeploy/dmf-cms/blob/main/src/dmf_cms/authentik.py)
   (`create_invitation`).
 - Policy alignment (this runbook's reasoning):
-  [`docs/reviews/DMF Passkey Invitation Policy Alignment Survey 2026-05-28.md`](../reviews/DMF%20Passkey%20Invitation%20Policy%20Alignment%20Survey%202026-05-28.md).
+  [`docs/reviews/dmf-passkey-invitation-policy-alignment-survey.md`](../reviews/dmf-passkey-invitation-policy-alignment-survey.md).

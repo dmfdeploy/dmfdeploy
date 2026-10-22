@@ -24,7 +24,7 @@ cleaner and matches Authentik's intended pattern for passkey-only apps.
 Converted the YAML frontmatter to the standard `**Status:**` / `**Date:**` /
 `**Deciders:**` header, switched the em-dash title to the `ADR-NNNN:` form, and
 reworded the self-referential "ADR-0015 precursor". Closes the §5 format nit in
-the [2026-05-27 ADR Portfolio Review](../../reviews/DMF%20ADR%20Portfolio%20Review%202026-05-27.md).
+the [2026-05-27 ADR Portfolio Review](../../reviews/dmf-adr-portfolio-review.md).
 
 ## Decision — blueprint change diff (moved from the ADR)
 

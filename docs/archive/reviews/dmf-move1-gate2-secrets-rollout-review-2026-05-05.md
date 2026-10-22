@@ -12,7 +12,7 @@ to ADR-0007/0008/0010 + the Secret Ownership plan.
 **For:** the agent currently driving Gate 2 (693-awx-integration → AWX UI launch).
 
 This is a checkpoint, not a verdict. The diagnostics in
-`docs/plans/Move 1 Gate 2 — Trials and Tribulations 2026-05-05.md` are good. But
+`docs/plans/move-1-gate-2-trials-and-tribulations.md` are good. But
 the working tree currently encodes one logical contradiction and a couple of
 hygiene gaps that should be resolved before another 693 run. This doc lists them
 specifically so they can be fixed (or consciously deferred) in one pass.
@@ -22,7 +22,7 @@ specifically so they can be fixed (or consciously deferred) in one pass.
 ## Inputs reviewed
 
 - `docs/archive/plans/Move 1 Gate 2 — AWX Integration + Launch NMOS.md` (gate plan)
-- `docs/plans/Move 1 Gate 2 — Trials and Tribulations 2026-05-05.md` (run notes, 9 issues)
+- `docs/plans/move-1-gate-2-trials-and-tribulations.md` (run notes, 9 issues)
 - `dmf-infra` commits: `61ea9c8` (move1-gate2 feature) and the 5 dirty files on top of it
 - `dmf-infra` working-tree diffs:
   - `k3s-lab-bootstrap/ansible.cfg`
@@ -262,5 +262,5 @@ session has authoritative confirmation that Gate 2 passed.
 - ADR-0014: `docs/decisions/0014-awx-project-layout.md`
 - Secret Ownership: `docs/plans/DMF Secret Ownership and OpenBao Migration Plan.md`
 - Gate plan: `docs/archive/plans/Move 1 Gate 2 — AWX Integration + Launch NMOS.md`
-- Trials doc: `docs/plans/Move 1 Gate 2 — Trials and Tribulations 2026-05-05.md`
+- Trials doc: `docs/plans/move-1-gate-2-trials-and-tribulations.md`
 - Reference impl for stdin secret transport: `dmf-env/bin/unseal-openbao.sh`

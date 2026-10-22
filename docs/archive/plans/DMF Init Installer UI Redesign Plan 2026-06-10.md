@@ -52,8 +52,7 @@ That keeps the change low-risk and reviewable.
 
 ## Design constraints (inherited, binding)
 
-From the umbrella **DMF Console UX Constitution** (`docs/design/DMF Console UX
-Constitution 2026-05-25.md`) — the hard gates that govern this work:
+From the umbrella **DMF Console UX Constitution** (`docs/design/dmf-console-ux-constitution.md`) — the hard gates that govern this work:
 
 - **Art. 2 — Close every loop.** Every action has a visible outcome anchored
   where it was taken (start, each step, each pause, finish).

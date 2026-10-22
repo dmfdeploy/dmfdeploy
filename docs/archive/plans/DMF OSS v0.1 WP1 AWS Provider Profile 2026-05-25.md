@@ -6,7 +6,7 @@ date: 2026-05-25
 
 > **⚠️ RE-SCOPED (2026-05-25): this is WP1A, a SECONDARY lane — not the v0.1
 > gate.** Under [ADR-0031](../../decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md)
-> and [WP0](../../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md):
+> and [WP0](../../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md):
 > - `aws-arm64-multi-node` is **secondary, eligible-if-ready**. It ships in the
 >   v0.1 tag only if it passes its gates **without delaying** the sandbox lane.
 >   It **never gates** v0.1 and **must not be sequenced ahead of**
@@ -29,8 +29,8 @@ date: 2026-05-25
 
 **Status:** Active — secondary lane (eligible-if-ready, non-gating)
 **Date:** 2026-05-25
-**Anchor:** [WP0 Release Contract & Profile Matrix](../../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md)
-**Parent mission (superseded):** [DMF OSS v0.1 Release Mission 2026-05-25.md](../../plans/DMF%20OSS%20v0.1%20Release%20Mission%202026-05-25.md)
+**Anchor:** [WP0 Release Contract & Profile Matrix](../../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md)
+**Parent mission (superseded):** [dmf-oss-v0-1-release-mission.md](../../plans/dmf-oss-v0-1-release-mission.md)
 **Outcome (re-scoped):** AWS ARM64 multi-node is a fully provisionable, verifiable
 **secondary** v0.1 lane — compute, DNS (Route53), object storage (S3), SNS,
 TLS DNS-01, KMS auto-unseal, in-cluster Headscale + ntfy — that ships only if it

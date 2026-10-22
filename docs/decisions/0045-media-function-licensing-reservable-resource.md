@@ -107,7 +107,7 @@ reservation ledger).
 - **Reference input (added 2026-10-07):** the IAMT *Dynamic Software Licensing*
   best practices v1.0.0 (2026-09-07) speak to all five open items above —
   entitlement vs lease split, lease lifecycle, canonical API, grace policy.
-  Read the [summary and DMF relevance note](../references/iamt-dsl-v1.0.0-summary-and-relevance.md)
+  Read the [summary and DMF relevance note](../references/iamt-dsl-v1-0-0-summary-and-relevance.md)
   before opening the RFC.
 
 ## Status

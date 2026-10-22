@@ -14,7 +14,7 @@ the technical findings are kept verbatim in substance.
 **Design context (umbrella):**
 [[DMF MXL Single-Node Media Node Spike Plan 2026-05-17]] (design),
 `DMF MXL Single-Node Loopback Execution Plan 2026-05-29.md`,
-`DMF MXL On-Demand Media Function Cycle Plan 2026-06-01.md`. The single-node
+`dmf-mxl-on-demand-media-function-cycle-plan.md`. The single-node
 shared-memory baseline (`mxl-hello`) preceded this cross-host fabrics test.
 
 > Placeholders: `<env>` = the live Hetzner testlab cluster slug; `<ctl-tailnet-ip>`

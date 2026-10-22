@@ -389,9 +389,9 @@ these first.**
 - `../../decisions/0038-netbox-driven-dynamic-monitoring.md` — NetBox-driven dynamic monitoring + PromSD.
 - `../../decisions/0041-release-and-contribution-model.md` — Forgejo-as-AWX-SCM; GitHub `main` canonical.
 - `../../decisions/architectural-commitments-v1.md` — ArgoCD non-goal; AWX is the v0.1 actuator.
-- `DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04.md` — WP7 (born-inventory stamping), WP10 (alerts) follow-ons.
+- `dmf-dynamic-netbox-driven-monitoring-plan.md` — WP7 (born-inventory stamping), WP10 (alerts) follow-ons.
 - `DMF Constrained-Node k3s Control-Plane Stability Plan 2026-06-21.md` (dmfdeploy#106) — the failure mode this plan instruments.
-- `../../design/DMF Console Alarm Philosophy.md` (stub) — downstream alarm classification (out of scope here).
+- `../../design/dmf-console-alarm-philosophy.md` (stub) — downstream alarm classification (out of scope here).
 - `DMF Monitoring Close-Out Work Packages 2026-07-02.md` (dmfdeploy#5, **executed
   2026-07-03**) — delivered the probe-lane prerequisites (`probe_path`,
   `http_2xx_302`, launcher stamping); the remaining `dmf-promsd` self-metrics idea

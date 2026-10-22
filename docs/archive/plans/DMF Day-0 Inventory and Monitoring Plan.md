@@ -1,10 +1,10 @@
 ---
 status: superseded
 date: 2026-05-11
-superseded_by: "DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04.md"
+superseded_by: "dmf-dynamic-netbox-driven-monitoring-plan.md"
 ---
 # DMF Day-0 Inventory and Monitoring Plan
-> **Superseded by** [DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04.md](../../plans/DMF%20Dynamic%20NetBox-Driven%20Monitoring%20Plan%202026-06-04.md) — see frontmatter.
+> **Superseded by** [dmf-dynamic-netbox-driven-monitoring-plan.md](../../plans/dmf-dynamic-netbox-driven-monitoring-plan.md) — see frontmatter.
 
 > **Vocabulary updated 2026-04-25** — playbook numbering and Phase / Layer
 > language in this doc may reference the pre-EBU naming. Canonical layer /

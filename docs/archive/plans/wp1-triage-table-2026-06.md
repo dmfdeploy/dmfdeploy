@@ -36,12 +36,12 @@ active/draft is executed-or-historical (codex finding: allowlist-first).
 | File | date | note |
 |---|---|---|
 | DMF Umbrella Public Entrance and GitHub Working Model Plan 2026-06-10.md | 2026-06-10 | this programme; frontmatter already present |
-| DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md | 2026-06-06 | canonical commitment frame |
+| dmf-v0-1-commitment-and-30-day-focus-cut-plan.md | 2026-06-06 | canonical commitment frame |
 | DMF First Public Release Plan 2026-06-09.md | 2026-06-09 | components shipped; umbrella B2 + E2 remain |
 | DMF Init Installer UI Redesign Plan 2026-06-10.md | 2026-06-10 | pass 1 PR pending; pass 2 specced |
-| DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04.md | 2026-06-04 | validated green; launcher stamping + probe tuning open |
+| dmf-dynamic-netbox-driven-monitoring-plan.md | 2026-06-04 | validated green; launcher stamping + probe tuning open |
 | DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md | 2026-05-19 | ⚠ Lane C closure unconfirmed; CLAUDE.md still names it the active task |
-| DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25.md | 2026-05-25 | ⚠ confirm still binding alongside the 2026-06-06 commitment plan |
+| dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md | 2026-05-25 | ⚠ confirm still binding alongside the 2026-06-06 commitment plan |
 | DMF OSS v0.1 WP1S Single-Node Sandbox Lane 2026-05-25.md | 2026-05-25 | remaining replicability run = v0.1 Phase 1 gate |
 | DMF OSS v0.1 WP5 Release Verification and Tagging 2026-05-25.md | 2026-05-25 | sandbox verification row still gates the v0.1 claim |
 
@@ -49,13 +49,13 @@ active/draft is executed-or-historical (codex finding: allowlist-first).
 
 | File | date | note |
 |---|---|---|
-| DMF AWX Catalog Credential Type Migration Plan 2026-05-23.md | 2026-05-23 | deferred staged follow-up to Lane B |
+| dmf-awx-catalog-credential-type-migration-plan.md | 2026-05-23 | deferred staged follow-up to Lane B |
 | DMF Authentik Bootstrap Enrollment Drop Username Prompt Plan 2026-05-28.md | 2026-05-28 | ⚠ may have landed with later enrollment work — downgrade to executed if so |
-| DMF Facility Console — Born-Inventoried Env Surfacing Plan 2026-06-04.md | 2026-06-04 | ⚠ console-side surfacing status unclear (infra side landed) |
-| DMF Internal Ansible Collection Source Plan 2026-05-29.md | 2026-05-29 | ADR-0034 follow-up, open in TODOS |
+| dmf-facility-console-born-inventoried-env-surfacing-plan.md | 2026-06-04 | ⚠ console-side surfacing status unclear (infra side landed) |
+| dmf-internal-ansible-collection-source-plan.md | 2026-05-29 | ADR-0034 follow-up, open in TODOS |
 | DMF Pre-Release Compliance Readiness Plan 2026-05-11.md | 2026-05-11 | Tier A finish open in TODOS |
 | DMF Tier A Phase Execution Plan 2026-05-11.md | 2026-05-11 | living doc; Tier A remainder open |
-| DMF Zot Machine-Identity Service Account Plan 2026-05-27.md | 2026-05-27 | ⚠ "ready for implementation" — confirm not already landed |
+| dmf-zot-machine-identity-service-account-plan.md | 2026-05-27 | ⚠ "ready for implementation" — confirm not already landed |
 | DMF dmf-init GitHub Build Workflows — Exec Spec 2026-06-10.md | 2026-06-10 | specced 2026-06-10, not started (E2-adjacent) |
 
 ## Executed (64)
@@ -63,29 +63,29 @@ active/draft is executed-or-historical (codex finding: allowlist-first).
 | File | date | executed |
 |---|---|---|
 | AWX NetBox Inventory Sync Fix 2026-05-04.md | 2026-05-04 | 2026-05-04 |
-| DMF ADR-0025 Lane B Implementation Plan 2026-05-22.md | 2026-05-22 | 2026-05-23 |
+| dmf-adr-0025-lane-b-implementation-plan.md | 2026-05-22 | 2026-05-23 |
 | DMF AWX Authentik SAML Plan 2026-04-27.md | 2026-04-27 | |
 | DMF App Admin Account Drift Audit and Realignment Plan 2026-05-14.md | 2026-05-14 | 2026-05-23 |
 | DMF Authentik Brand-Wide Passkey-First Login Plan 2026-05-29.md | 2026-05-29 | ⚠ passkey-first proven live on later sandbox envs |
 | DMF Base Domain in Bootstrap Bundle and CMS Logout Redirect 2026-05-09.md | 2026-05-09 | |
-| DMF Bootstrap Pre-Seed Blocker Fix Implementation Plan 2026-05-09.md | 2026-05-09 | |
-| DMF Bootstrap Provision Configure Split Plan 2026-05-07.md | 2026-05-07 | |
+| dmf-bootstrap-pre-seed-blocker-fix-implementation-plan.md | 2026-05-09 | |
+| dmf-bootstrap-provision-configure-split-plan.md | 2026-05-07 | |
 | DMF Catalog NetBox Scoped Writer Plan 2026-05-27.md | 2026-05-27 | 2026-05-27 |
 | DMF Console Authentik Internal Back-Channel Split Plan 2026-05-27.md | 2026-05-27 | |
 | DMF Console Initial Implementation Plan 2026-04-26.md | 2026-04-26 | |
 | DMF Doc-Hygiene Judgment-Tier Exec Spec 2026-06-10.md | 2026-06-10 | 2026-06-10 |
 | DMF Doc-Hygiene PR-Submission Spec 2026-06-10.md | 2026-06-10 | 2026-06-10 |
-| DMF Env Lifecycle Refactor Plan 2026-06-01.md | 2026-06-01 | 2026-06-01 |
+| dmf-env-lifecycle-refactor-plan.md | 2026-06-01 | 2026-06-01 |
 | DMF Forgejo Import + AWX Runbooks Plan 2026-05-04.md | 2026-05-04 | |
 | DMF Hardcoded Environment Literals Cleanup Plan 2026-05-19.md | 2026-05-19 | |
 | DMF Hetzner CCM Upgrade Plan 2026-06-01.md | 2026-06-01 | 2026-06-01 — ⚠ landed in dmf-env, not live-validated |
-| DMF Improvement Run Plan 2026-04-22.md | 2026-04-22 | |
+| dmf-improvement-run-plan.md | 2026-04-22 | |
 | DMF Init Bootstrap Container Plan 2026-06-02.md | 2026-06-02 | 2026-06-08 — remains the dmf-init architectural reference |
 | DMF Init Phase 1 Implementation Plan 2026-06-02.md | 2026-06-02 | |
 | DMF Init Phase 1b Orchestration Design 2026-06-02.md | 2026-06-02 | |
 | DMF Init Phase 1c Manage Mode Design 2026-06-02.md | 2026-06-02 | |
 | DMF Init Wizard env_id Provider Architecture Split Plan 2026-05-19.md | 2026-05-19 | |
-| DMF Internal Service DNS Migration Survey 2026-05-14.md | 2026-05-14 | |
+| dmf-internal-service-dns-migration-survey.md | 2026-05-14 | |
 | DMF LAN Forgejo Archive and GitHub-Mirror Plan 2026-06-10.md | 2026-06-10 | 2026-06-10 |
 | DMF Layer-1 OpenTofu Bootstrap Plan 2026-04-26.md | 2026-04-26 | |
 | DMF Lifecycle-Configure Bootstrap Completion Plan 2026-05-15.md | 2026-05-15 | |
@@ -94,7 +94,7 @@ active/draft is executed-or-historical (codex finding: allowlist-first).
 | DMF Montest Fresh-Bootstrap Validation Task 2026-06-04.md | 2026-06-04 | 2026-06-05 |
 | DMF Move 1 Path A Reset 2026-05-12.md | 2026-05-12 | |
 | DMF NetBox-SoT Token-Mint Hardening Task 2026-06-04.md | 2026-06-04 | 2026-06-04 |
-| DMF OSS v0.1 Contributor Replicability Premise Pass 2026-05-25.md | 2026-05-25 | promoted into ADR-0031 |
+| dmf-oss-v0-1-contributor-replicability-premise-pass.md | 2026-05-25 | promoted into ADR-0031 |
 | DMF OSS v0.1 WP2 Bootstrap Independence 2026-05-25.md | 2026-05-25 | ⚠ delivered via dmf-init |
 | DMF OSS v0.1 WP3 In-Cluster Platform Services 2026-05-25.md | 2026-05-25 | ⚠ sandbox-trim profile delivered |
 | DMF OSS v0.1 WP4 CMS User Administration 2026-05-25.md | 2026-05-25 | 2026-06-08 |
@@ -102,30 +102,30 @@ active/draft is executed-or-historical (codex finding: allowlist-first).
 | DMF OpenBao AppRole-Write Reconciler Plan 2026-05-13.md | 2026-05-13 | 2026-05-13 |
 | DMF Orchestrator and Renumbering Plan 2026-04-22.md | 2026-04-22 | |
 | DMF Per-App Identity Feasibility Survey 2026-05-24.md | 2026-05-24 | seeded ADR-0028 |
-| DMF Pre-Bao Bootstrap Secrets Design 2026-05-08.md | 2026-05-08 | |
+| dmf-pre-bao-bootstrap-secrets-design.md | 2026-05-08 | |
 | DMF Public Container Registry Publishing Plan 2026-05-19.md | 2026-05-19 | |
 | DMF Public Repo Doc-Hygiene Cleanup Plan 2026-06-10.md | 2026-06-10 | 2026-06-10 — wording-scrub follow-ups tracked in STATUS |
-| DMF Public Repo Identity Leak Sweep 2026-05-11.md | 2026-05-11 | |
+| dmf-public-repo-identity-leak-sweep.md | 2026-05-11 | |
 | DMF Sandbox Artifact Consolidation Plan 2026-05-28.md | 2026-05-28 | ⚠ confirm landed |
 | DMF Sandbox E2E Test Harness Plan 2026-06-05.md | 2026-06-05 | |
 | DMF Sandbox Harness Followups — Env-Domain, QR, Passkey-Flow 2026-06-05.md | 2026-06-05 | 2026-06-08 — ⚠ confirm QR item |
 | DMF Sandbox Monitoring Vertical Integration Plan 2026-05-27.md | 2026-05-27 | |
 | DMF Sandbox Zero-Setup Addressing (sslip.io) Plan 2026-06-07.md | 2026-06-07 | 2026-06-08 |
 | DMF Secret Ownership and OpenBao Migration Plan.md | 2026-05-11 | date = consolidation import |
-| DMF Unified App-Admin Helper Plan 2026-05-23.md | 2026-05-23 | |
-| DMF Workstream A — CI Recovery Fix Spec 2026-06-09.md | 2026-06-09 | 2026-06-10 |
-| DMF Workstream A — Clean-History Import and Canonical Flip Execution Spec 2026-06-09.md | 2026-06-09 | 2026-06-10 |
-| DMF Workstream A — Pre-A Tooling Implementation Spec 2026-06-09.md | 2026-06-09 | 2026-06-09 |
-| DMF Workstream B — dmf-env Public-Surface Scrub Spec 2026-06-09.md | 2026-06-09 | 2026-06-09 |
+| dmf-unified-app-admin-helper-plan.md | 2026-05-23 | |
+| dmf-workstream-a-ci-recovery-fix-spec.md | 2026-06-09 | 2026-06-10 |
+| dmf-workstream-a-clean-history-import-and-canonical-flip-execution-spec.md | 2026-06-09 | 2026-06-10 |
+| dmf-workstream-a-pre-a-tooling-implementation-spec.md | 2026-06-09 | 2026-06-09 |
+| dmf-workstream-b-dmf-env-public-surface-scrub-spec.md | 2026-06-09 | 2026-06-09 |
 | DMF Workstream C — ADR Digest Execution Spec 2026-06-09.md | 2026-06-09 | 2026-06-09 |
-| DMF Workstream D — GitHub-First Governance Execution Spec 2026-06-09.md | 2026-06-09 | 2026-06-09 |
-| DMF Workstream E1 — PR-Gate CI Execution Spec 2026-06-09.md | 2026-06-09 | 2026-06-09 |
+| dmf-workstream-d-github-first-governance-execution-spec.md | 2026-06-09 | 2026-06-09 |
+| dmf-workstream-e1-pr-gate-ci-execution-spec.md | 2026-06-09 | 2026-06-09 |
 | DMF dmf-init Container Productization Plan 2026-06-07.md | 2026-06-07 | 2026-06-08 |
 | DMF dmf-init Live-Sandbox Fix Batch Plan 2026-06-03.md | 2026-06-03 | 2026-06-03 — #11/#12 residue in TODOS |
 | Move 1 Gate 1 — Build NMOS + Run Provision.md | 2026-05-04 | date assigned from move-1 narrative |
 | dmf-platform-codex-cleanup-task-2026-04-30.md | 2026-04-30 | |
-| dmf-platform-move-1-task-2026-05-04.md | 2026-05-04 | 2026-06-04 |
-| dmf-platform-move-2-task-2026-04-30.md | 2026-04-30 | 2026-05-04 |
+| dmf-platform-move-1-task.md | 2026-05-04 | 2026-06-04 |
+| dmf-platform-move-2-task.md | 2026-04-30 | 2026-05-04 |
 
 > Row math: 9 active + 8 draft + 64 executed + 9 superseded + 25 historical
 > = 115 tracked plan files (machine-verified against `git ls-files`).
@@ -136,12 +136,12 @@ active/draft is executed-or-historical (codex finding: allowlist-first).
 
 | File | date | superseded_by |
 |---|---|---|
-| DMF Day-0 Inventory and Monitoring Plan.md | 2026-05-11 (import) | "DMF Dynamic NetBox-Driven Monitoring Plan 2026-06-04.md" |
+| DMF Day-0 Inventory and Monitoring Plan.md | 2026-05-11 (import) | "dmf-dynamic-netbox-driven-monitoring-plan.md" |
 | DMF In-Cluster Ansible Runner Pod Implementation Plan 2026-05-14.md | 2026-05-14 | "DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md" |
 | DMF MXL Single-Node Media Node Spike Plan 2026-05-17.md | 2026-05-17 | "DMF MXL Single-Node Loopback Execution Plan 2026-05-29.md" |
-| DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md | 2026-05-04 | "dmf-platform-move-1-task-2026-05-04.md" |
-| DMF OSS v0.1 Release Mission 2026-05-25.md | 2026-05-25 | "DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25.md" |
-| DMF Release and Contribution Model Implementation Plan 2026-05-11.md | 2026-05-11 | "DMF Workstream D — GitHub-First Governance Execution Spec 2026-06-09.md" |
+| DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md | 2026-05-04 | "dmf-platform-move-1-task.md" |
+| dmf-oss-v0-1-release-mission.md | 2026-05-25 | "dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md" |
+| dmf-release-and-contribution-model-implementation-plan.md | 2026-05-11 | "dmf-workstream-d-github-first-governance-execution-spec.md" |
 | Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md | 2026-05-06 | "DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md" |
 | Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount.md | 2026-05-05 (assigned) | "Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md" |
 | Move 1 Gate 2 — AWX Integration + Launch NMOS.md | 2026-05-04 (assigned) | "Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md" |
@@ -160,21 +160,21 @@ active/draft is executed-or-historical (codex finding: allowlist-first).
 | DMF Forgejo Repo Hosting and Migration Plan.md | 2026-05-11 (import) | Forgejo retired to archive 2026-06-10 |
 | DMF `<env>` Configure-Verify Follow-Ups Plan 2026-05-22.md | 2026-05-22 | ⚠ env long gone; open items absorbed/stale |
 | DMF Idempotent Upgrade-in-Place Mechanism — Findings and Plan 2026-06-01.md | 2026-06-01 | FROZEN (commitments); mitigations landed, root cause unproven |
-| DMF Init Wizard Expansion Survey 2026-05-13.md | 2026-05-13 | point-in-time survey |
-| DMF MXL On-Demand Media Function Cycle Plan 2026-06-01.md | 2026-06-01 | MXL spike paused by commitment gate |
+| dmf-init-wizard-expansion-survey.md | 2026-05-13 | point-in-time survey |
+| dmf-mxl-on-demand-media-function-cycle-plan.md | 2026-06-01 | MXL spike paused by commitment gate |
 | DMF MXL Single-Node Loopback Execution Plan 2026-05-29.md | 2026-05-29 | partial execution; paused; as-built in docs/sessions/ |
 | DMF Media Workloads — NetBox-Driven Media Function Inventory Plan 2026-06-03.md | 2026-06-03 | ⚠ approved model but shelved with dynamic-catalog freeze |
 | DMF OSS v0.1 WP-LAB `<env>` Reference Delta 2026-05-25.md | 2026-05-25 | reference env long gone |
 | DMF OSS v0.1 WP1 AWS Provider Profile 2026-05-25.md | 2026-05-25 | multi-provider frozen for v0.1 |
 | DMF OpenBao Policy-Writer Session Separation Plan 2026-05-13.md | 2026-05-13 | ⚠ proposed, never picked up |
-| DMF RPi Flypack Appliance Implementation Plan 2026-05-13.md | 2026-05-13 | flypack profile deferred (scaffolds reserved) |
+| dmf-rpi-flypack-appliance-implementation-plan.md | 2026-05-13 | flypack profile deferred (scaffolds reserved) |
 | DMF Staged Release Phase 2-3 Plan 2026-04-29.md | 2026-04-29 | Forgejo-era release framing |
-| DMF Unseal Posture Tiered Framework Plan 2026-05-24.md | 2026-05-24 | ⚠ pre-ADR, postponed |
-| DMF Vendor Multi-Tenancy Vision 2026-05-29.md | 2026-05-29 | vision / north star, not a build target |
+| dmf-unseal-posture-tiered-framework-plan.md | 2026-05-24 | ⚠ pre-ADR, postponed |
+| dmf-vendor-multi-tenancy-vision.md | 2026-05-29 | vision / north star, not a build target |
 | DMF Zot Cluster-Wide Pull-Through Cache Plan 2026-05-21.md | 2026-05-21 | idea, never committed |
-| LLM-Restricted Git Pipeline — Dev-Testing-Production Isolation Plan 2026-05-09.md | 2026-05-09 | proposed, never picked up |
-| Move 1 Gate 2 — Trials and Tribulations 2026-05-05.md | 2026-05-05 | war story; learnings absorbed into Move-1 learnings |
-| dmf-multi-provider-resource-selection-future-direction-2026-05-08.md | 2026-05-08 | capture-only; long-term direction |
+| llm-restricted-git-pipeline-dev-testing-production-isolation-plan.md | 2026-05-09 | proposed, never picked up |
+| move-1-gate-2-trials-and-tribulations.md | 2026-05-05 | war story; learnings absorbed into Move-1 learnings |
+| dmf-multi-provider-resource-selection-future-direction.md | 2026-05-08 | capture-only; long-term direction |
 
 ## ⚠ Uncertain calls for operator eyes (any bucket)
 

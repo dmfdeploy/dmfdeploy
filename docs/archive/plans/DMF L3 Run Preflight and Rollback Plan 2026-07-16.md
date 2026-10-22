@@ -894,7 +894,7 @@ with** the v0.2b switch demo (#201 §8).
   §8 HARD GATE), [#200] (presentable journey), [#189] (v0.2 scope), [#203]/PR #237
   (demo runbook), [#231] (Design beat v1).
 - Plans: `DMF v0.2b Multi-Source Switch Spec 2026-07-15.md` (§3, §8);
-  `DMF v0.2 EBU Facility-Orchestration Re-anchor Plan 2026-07-07.md` §5 (L3 origin,
+  `dmf-v0-2-ebu-facility-orchestration-re-anchor-plan.md` §5 (L3 origin,
   v0.2a acceptance items 5); `DMF MXL Single-Node Revival Plan 2026-07-03.md` §7
   (the 96%-CPU capacity note + the hardened idempotent finalise, dmf-runbooks#12).
 - ADRs: ADR-0037 (instances = NetBox `ipam.Service`; flows runtime-only),

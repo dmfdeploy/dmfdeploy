@@ -89,7 +89,7 @@ Implementation detail: see the [archive record](../archive/decisions/0012-config
 ### Enforcement
 
 ADR-0013 (catalog model) is the consumer of this split. The Move 1 task
-spec (`docs/plans/dmf-platform-move-1-task-2026-05-04.md`) implements
+spec (`docs/plans/dmf-platform-move-1-task.md`) implements
 the first `lifecycle-configure.yml` and the first per-function Configure
 + Finalise playbook pair. If during Move 1 the split feels artificial
 for nmos-cpp, the failure is a signal to reshape this ADR rather than

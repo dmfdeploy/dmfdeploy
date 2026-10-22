@@ -45,7 +45,7 @@ at least one thesis-killer is resolved.
 - **Positive:** clear filter on incoming work. "Does this de-risk an irreversible
   decision?" If no, defer. Spends limited time on the right experiments.
 - **Positive:** explicit permission to ship rough demos for thesis-killer tests.
-  Move 2 (`docs/plans/dmf-platform-move-2-task-2026-04-30.md`) is the active
+  Move 2 (`docs/plans/dmf-platform-move-2-task.md`) is the active
   example — it tests the SoT data model with one ugly UI and one workflow
   wired end-to-end, no polish.
 - **Negative:** soft lock-in still accumulates (dashboards, runbooks, scripts).
@@ -57,7 +57,7 @@ at least one thesis-killer is resolved.
 
 ### Enforcement
 
-`dmfdeploy/docs/reviews/dmf-platform-strategic-review-2026-04-30.md` is the
+`dmfdeploy/docs/reviews/dmf-platform-strategic-review.md` is the
 authoritative reframe. New work proposed by agents should reference whether
 it advances a thesis-killer or is hardening. STATUS.md (auto-generated) lists
 in-flight work; agents flag hardening work that isn't supporting an active

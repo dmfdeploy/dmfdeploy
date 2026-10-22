@@ -32,9 +32,8 @@ per convention.
 **Supersedes:** `DMF Media Workloads — NetBox-Driven Media Function Inventory Plan
 2026-06-03.md` (its D4 page slice is re-planned here against the current codebase; its
 D1 model shipped as ADR-0037 and is unchanged).
-**Governing design docs:** `../../design/DMF Console UX Constitution 2026-05-25.md`
-(Art. 3 three-tier vocabulary + §3 hard gates), `../../design/DMF Console Information
-Architecture 2026-06-23.md` (IA §9 label map), `../../decisions/0037-media-workloads-
+**Governing design docs:** `../../design/dmf-console-ux-constitution.md`
+(Art. 3 three-tier vocabulary + §3 hard gates), `../../design/dmf-console-information-architecture.md` (IA §9 label map), `../../decisions/0037-media-workloads-
 netbox-instance-inventory.md` (the model), `../../decisions/0038-netbox-driven-dynamic-
 monitoring.md` (status signals).
 
@@ -197,6 +196,6 @@ it does **not** require the rail restructure:
 ## 8. References
 - `../../decisions/0037-media-workloads-netbox-instance-inventory.md` — the model this implements.
 - `DMF Media Workloads — NetBox-Driven Media Function Inventory Plan 2026-06-03.md` — superseded predecessor (D4 spec).
-- `../../design/DMF Console UX Constitution 2026-05-25.md` — Art. 3 + §3 hard gates.
-- `../../design/DMF Console Information Architecture 2026-06-23.md` — §9 label map; #174 implements the rest.
+- `../../design/dmf-console-ux-constitution.md` — Art. 3 + §3 hard gates.
+- `../../design/dmf-console-information-architecture.md` — §9 label map; #174 implements the rest.
 - `DMF MXL Single-Node Revival Plan 2026-07-03.md` (#17) — WP6 consumer of this page.

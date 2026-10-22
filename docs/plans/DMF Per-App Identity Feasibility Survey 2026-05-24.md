@@ -6,7 +6,7 @@ date: 2026-05-24
 
 **Date:** 2026-05-24
 **Owner:** claude-top (per agent-bridge delegation from claude-bottom, 2026-05-24)
-**Status:** Complete — ready to fold into [DMF Identity and Authority Model](../architecture/DMF%20Identity%20and%20Authority%20Model.md) §7 and to seed ADR-0028.
+**Status:** Complete — ready to fold into [DMF Identity and Authority Model](../architecture/dmf-identity-and-authority-model.md) §7 and to seed ADR-0028.
 **Live env probed:** `<env>` (Hetzner CAX21 ARM64, nbg1), read-only.
 **Pairs with:** [ADR-0024 — Two-Identity Admin Model](../decisions/0024-two-identity-admin-model.md);
 [2026-05-23 App-Admin Drift Realignment Handoff](../handoffs/DMF%20App-Admin%20Drift%20Realignment%20Handoff%202026-05-23.md);
@@ -531,7 +531,7 @@ explicitly.
 - **Drafter:** claude-top (this pane), via agent-bridge dispatch from
   claude-bottom (2026-05-24).
 - **Architecture doc owner:** claude-bottom — author of
-  `docs/architecture/DMF Identity and Authority Model.md`, will fold
+  `docs/architecture/dmf-identity-and-authority-model.md`, will fold
   the §1 matrix into §7 of that doc on receipt of the agent-bridge
   notification.
 - **Live observation env:** `<env>` (read-only kubectl exec via

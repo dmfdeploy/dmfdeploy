@@ -394,7 +394,7 @@ A fresh `aliyun-123` (or any greenfield env) running post-seed end-to-end:
 ### Design docs
 
 - [`dmf-infra/docs/openbao-bootstrap-security-model.md`](https://github.com/dmfdeploy/dmf-infra/blob/main/docs/openbao-bootstrap-security-model.md) — separation-of-duties principle this plan upholds
-- [DMF Pre-Bao Bootstrap Secrets Design 2026-05-08](../../plans/DMF%20Pre-Bao%20Bootstrap%20Secrets%20Design%202026-05-08.md) — bootstrap-admin shared identity (orthogonal to this plan)
+- [DMF Pre-Bao Bootstrap Secrets Design 2026-05-08](../../plans/dmf-pre-bao-bootstrap-secrets-design.md) — bootstrap-admin shared identity (orthogonal to this plan)
 
 ### Source files to touch
 

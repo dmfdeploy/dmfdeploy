@@ -263,4 +263,4 @@ When an agent is asked to create or modify a diagram:
 - `feedback_excalidraw_svg_export.md` — memory on SVG export defects
 - `docs/decisions/INDEX.md` — ADRs referenced in diagrams
 - `docs/architecture/DMF EBU Mapping (2026-04-25).md` — layer/vertical vocabulary
-- `docs/plans/DMF Bootstrap Provision Configure Split Plan 2026-05-07.md` — bootstrap flow
+- `docs/plans/dmf-bootstrap-provision-configure-split-plan.md` — bootstrap flow

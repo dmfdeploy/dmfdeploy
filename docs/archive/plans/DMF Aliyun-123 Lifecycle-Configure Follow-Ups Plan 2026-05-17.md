@@ -288,7 +288,7 @@ cold-pickup. Estimated 3–4 focused hours.
 
 #### C.2 — Internal Service DNS migration execution
 
-**Plan:** [`docs/plans/DMF Internal Service DNS Migration Survey 2026-05-14.md`](../../plans/DMF%20Internal%20Service%20DNS%20Migration%20Survey%202026-05-14.md)
+**Plan:** [`docs/plans/dmf-internal-service-dns-migration-survey.md`](../../plans/dmf-internal-service-dns-migration-survey.md)
 
 **Status:** methodology + known-surface table populated; execution
 deferred. Walk §3 table; classify each `dmf.example.com` reference into

@@ -30,7 +30,7 @@ locally-created accounts except break-glass."
 ## Decision
 
 Adopt the **DMF Identity and Authority Model** documented at
-[`docs/architecture/DMF Identity and Authority Model.md`](../architecture/DMF%20Identity%20and%20Authority%20Model.md)
+[`docs/architecture/dmf-identity-and-authority-model.md`](../architecture/dmf-identity-and-authority-model.md)
 as binding architecture. The model has five contract statements
 (C1–C5), eight decisions (D1–D8), three operator-led refinements
 (R1–R3), and a bootstrap-convergence audit gate; ADR-0028 binds each.
@@ -132,7 +132,7 @@ where a forged request could affect live production output.
 - **Positive** — ADR-0024's "Generalise the helper to read OpenBao too"
   deferred-alternative is superseded. The unified app-admin helper plan
   v3 at
-  [`docs/plans/DMF Unified App-Admin Helper Plan 2026-05-23.md`](../plans/DMF%20Unified%20App-Admin%20Helper%20Plan%202026-05-23.md)
+  [`docs/plans/dmf-unified-app-admin-helper-plan.md`](../plans/dmf-unified-app-admin-helper-plan.md)
   becomes implementation under D1's OpenBao custody half.
 - **Implementation status 2026-05-25**: see the [archive record](../archive/decisions/0028-identity-and-authority-chain.md).
 - **Neutral** — Multi-user model remains explicitly deferred
@@ -145,7 +145,7 @@ where a forged request could affect live production output.
 ### Enforcement
 
 - **Architecture doc** at
-  [`docs/architecture/DMF Identity and Authority Model.md`](../architecture/DMF%20Identity%20and%20Authority%20Model.md)
+  [`docs/architecture/dmf-identity-and-authority-model.md`](../architecture/dmf-identity-and-authority-model.md)
   is the canonical reference. Schema and contract mutations land there
   as amendments; ADR-0028 binds the model but does not re-derive it.
 - **Per-app feasibility survey** at
@@ -167,7 +167,7 @@ where a forged request could affect live production output.
   accounts beyond the break-glass identity without amending this
   ADR's exception list (currently 3 entries; 4th requires amendment).
 - **Helper plan v3** — the eight-PR sequence at
-  [`docs/plans/DMF Unified App-Admin Helper Plan 2026-05-23.md`](../plans/DMF%20Unified%20App-Admin%20Helper%20Plan%202026-05-23.md)
+  [`docs/plans/dmf-unified-app-admin-helper-plan.md`](../plans/dmf-unified-app-admin-helper-plan.md)
   is implementation under ADR-0028 D1. The plan was previously framed
   against the ADR-0024 deferral; that framing is now superseded.
 

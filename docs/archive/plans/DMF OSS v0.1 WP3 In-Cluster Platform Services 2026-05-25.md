@@ -5,7 +5,7 @@ date: 2026-05-25
 # DMF OSS v0.1 WP3 - In-Cluster Platform Services
 
 > **⚠️ RE-SCOPED (2026-05-25): split / trimmed by profile.** Under
-> [WP0](../../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md) /
+> [WP0](../../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md) /
 > [ADR-0031](../../decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md):
 > - **`sandbox-single-node` (the gate):** **no Headscale requirement**
 >   (sandbox-local comms on one node). **ntfy is optional / lightweight / stub**
@@ -22,8 +22,8 @@ date: 2026-05-25
 
 **Status:** Active — split/trim by profile (sandbox-trim / AWS-full)
 **Date:** 2026-05-25
-**Anchor:** [WP0 Release Contract & Profile Matrix](../../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md)
-**Parent mission (superseded):** [DMF OSS v0.1 Release Mission 2026-05-25.md](../../plans/DMF%20OSS%20v0.1%20Release%20Mission%202026-05-25.md)
+**Anchor:** [WP0 Release Contract & Profile Matrix](../../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md)
+**Parent mission (superseded):** [dmf-oss-v0-1-release-mission.md](../../plans/dmf-oss-v0-1-release-mission.md)
 **Outcome:** Release-required platform services are provided by the cluster —
 **sandbox trims Headscale + heavy ntfy/SNS; AWS gets in-cluster Headscale/OIDC,
 ntfy, and SNS.**

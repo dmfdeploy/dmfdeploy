@@ -1086,7 +1086,7 @@ are visible on `github.com/dmfdeploy/*` at v0.1.0.
 
 ### Inputs
 
-- Phase 0-2 of the Release & Contribution Model Implementation Plan complete (LICENSE + NOTICE + VERSION + CONTRIBUTING + gitleaks per repo + `bin/check-public-repo-hygiene.sh` + `bin/sync-to-github.sh`). These are in flight per `docs/plans/DMF Release and Contribution Model Implementation Plan 2026-05-11.md`.
+- Phase 0-2 of the Release & Contribution Model Implementation Plan complete (LICENSE + NOTICE + VERSION + CONTRIBUTING + gitleaks per repo + `bin/check-public-repo-hygiene.sh` + `bin/sync-to-github.sh`). These are in flight per `docs/plans/dmf-release-and-contribution-model-implementation-plan.md`.
 - `docs/handoffs/DMF Public Publish Readiness Handoff 2026-05-07.md` — orphan-rebase to v0.1.0 + push-mirror refspec gate.
 - Identity-leak sweep close-out (per 2026-05-11 handoff).
 

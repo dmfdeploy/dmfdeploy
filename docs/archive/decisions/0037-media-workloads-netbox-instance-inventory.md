@@ -36,6 +36,6 @@ This file holds material moved out of [ADR-0037](../../decisions/0037-media-work
   thinnest model that tests the thesis).
 - `docs/architecture/DMF EBU Mapping (2026-04-25).md` — Media Workload =
   "assembly of Media Functions"; this surface is the upper-layer Design output.
-- `docs/design/DMF Console UX Constitution 2026-05-25.md` Art. 3 + Glossary —
+- `docs/design/dmf-console-ux-constitution.md` Art. 3 + Glossary —
   the vocabulary-promotion forcing function.
 - EBU DMF Reference Architecture V2.0 — Figures 1–3, Annex C orchestration grid.
