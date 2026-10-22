@@ -33,15 +33,15 @@ declaring:
 
 - `id`, `name`, `kind` (`vpn` | `dns` | `vps` | `storage` | `tls` |
   `identity` | `registry` | ...)
-- `applies_to_profiles[]` — subset of `cloud` / `flypack-offline` /
+- `applies_to_profiles[]`: subset of `cloud` / `flypack-offline` /
   `flypack-online`, per ADR-0022
-- `inputs[]` — operator-typed values; each maps to an `inventory_var`
-- `secrets[]` — declared by logical reference only, never by literal value
+- `inputs[]`: operator-typed values; each maps to an `inventory_var`
+- `secrets[]`: declared by logical reference only, never by literal value
   (ADR-0007). Each carries `bundle_path` (pre-OpenBao), `vault_path` +
   `vault_field` (post-OpenBao), `export_var` (the `vault_*` name the wrapper
   injects), `inventory_var` (the role-side input name), and `indirection`
   (the Jinja expression in the per-env `group_vars` file).
-- `group_vars_file` — the per-env binding file path
+- `group_vars_file`: the per-env binding file path
   (`group_vars/all/<file>.yml`) and a template body that the
   descriptor-renderer materializes into `dmf-env/inventories/<env_id>/...`
 - `roles_consuming[]` — the Ansible role paths that assert on the declared
