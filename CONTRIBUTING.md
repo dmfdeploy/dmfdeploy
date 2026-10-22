@@ -1,64 +1,57 @@
-# Contributing to dmfdeploy (umbrella)
+# Contributing to dmfdeploy
 
-The umbrella workspace for the DMF Platform: consolidated knowledge base (`docs/`), ADRs, plans, skills, and cross-repo status (handoffs are archived in `docs/handoffs/`; live progress is issue comments). Code lives in the component repos.
+This repository is the umbrella for the dmfdeploy platform. It holds the
+knowledge base (`docs/`), the decision records, the plans, and the agent
+skills. Code lives in the component repos, and they follow the same rules.
 
-This repo is part of the **DMF Platform**. GitHub is the canonical home and the
-single source of truth: all changes land via **Pull Request** against `main`.
-(The full pre-publish history lives in a LAN-only `dmfdeploy-archive` Forgejo
-repo, reachable as a read-only `archive` git remote — it is **not** an upstream
-and is never a contribution path.)
+## How to contribute
 
-## New contributor path
+1. **Get oriented.** Read [`docs/THESIS.md`](docs/THESIS.md) for what the
+   platform claims, then the [core decisions](docs/decisions/INDEX.md#start-here)
+   marked ★. [`docs/OPEN-QUESTIONS.md`](docs/OPEN-QUESTIONS.md) lists what is
+   frozen, unproven, or undecided.
+2. **Find work.** The backlog is
+   [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues), grouped
+   into [milestones](https://github.com/dmfdeploy/dmfdeploy/milestones) as
+   described in [ROADMAP.md](ROADMAP.md). Comment on an issue to claim it, or
+   open a new one. Ask questions in the
+   [Q&A category](https://github.com/dmfdeploy/dmfdeploy/discussions/categories/q-a)
+   of Discussions.
+3. **Propose a change.** A bug fix or a small change needs only its issue.
+   A substantial decision across repos starts as an RFC in Discussions; the
+   [RFC process](docs/decisions/README.md) explains the steps.
+4. **Open a pull request.** Fork or branch, then open a pull request against
+   `main`. Sign off every commit (see [DCO](#developer-certificate-of-origin-dco)),
+   and wait for the checks to pass. If the pull request completes an umbrella
+   issue, write `Closes dmfdeploy/dmfdeploy#N` in its description.
 
-1. **Orient:** [`docs/THESIS.md`](docs/THESIS.md) (what this is) →
-   [`docs/JOURNEY.md`](docs/JOURNEY.md) (how it got here) →
-   [`docs/decisions/INDEX.md#start-here`](docs/decisions/INDEX.md#start-here) (the
-   core ADRs that bind you, marked ★). [`docs/OPEN-QUESTIONS.md`](docs/OPEN-QUESTIONS.md)
-   tells you honestly what is frozen, unproven, or undecided.
-2. **Find work:** the live backlog is
-   [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues), scheduled on
-   the [org project board](https://github.com/orgs/dmfdeploy/projects/1).
-   Questions go to [Discussions](https://github.com/dmfdeploy/dmfdeploy/discussions) (Q&A).
-   The canonical statement of how Issues/milestones/board/Discussions and the
-   documentation rules fit together is
-   [`docs/WORKING-MODEL.md`](docs/WORKING-MODEL.md) — read it once.
-3. **Do the work:** claim or open an issue; non-trivial work gets an on-disk
-   spec in `docs/plans/` carrying `tracking_issue` frontmatter. The completing
-   PR carries a fully-qualified `Closes dmfdeploy/dmfdeploy#N` reference — the
-   daily `issue-close-reconciler` auto-closes the umbrella issue from it
-   (cross-repo included), and manual close is a fallback only. You still flip the
-   plan's frontmatter by hand in that same PR (the reconciler never touches it).
-   (Issues are canonical for liveness; frontmatter for design state.)
-4. Fork or branch, open a PR against `main`, CI green, commits **signed off**
-   (see DCO below).
+## How work is tracked
 
-## Proposing architecture: the RFC → ADR pipeline
+The canonical rules for issues, milestones, the project board, Discussions,
+and documents are in [`docs/WORKING-MODEL.md`](docs/WORKING-MODEL.md). The
+parts that matter for most pull requests:
 
-Cross-cutting decisions live as ADRs in `docs/decisions/` (see
-[INDEX.md](docs/decisions/INDEX.md)). To propose one:
+- Non-trivial work gets a plan in `docs/plans/` with `tracking_issue`
+  frontmatter.
+- A fully qualified `Closes dmfdeploy/dmfdeploy#N` lets the daily
+  issue-close reconciler close the umbrella issue, from any repo. Closing
+  the issue by hand is a fallback.
+- The reconciler never touches plan frontmatter. Update it by hand in the
+  same pull request.
 
-1. Open an **RFC thread** in Discussions (category: *Ideas*) describing
-   context, options, and your recommendation. Substantial design debate
-   happens there.
-2. When it converges, write the ADR (copy `docs/decisions/0000-template.md`,
-   next free number) and open a PR linking the RFC thread.
-3. When the ADR merges, post an **announcement thread** in Discussions for that
-   ADR (one thread per ADR going forward; the pre-existing back-catalog is
-   covered by the pinned "Decision record" index thread).
+Issues are canonical for liveness, and plan frontmatter is canonical for
+design state.
 
-Small, single-repo decisions don't need this — use the issue itself.
+GitHub is the single source of truth, and every change lands through a pull
+request against `main`. An older private archive of the pre-publish history
+exists. It is read-only and is never a contribution path.
 
-### ADR conventions
+## Architecture decisions
 
-Every ADR (copy `docs/decisions/0000-template.md`) carries:
-
-- a top-of-doc **Rule:** line — the binding constraint in one imperative sentence,
-  so a reader gets the obligation without reading the whole doc;
-- an **Enforcement** section (`## Enforcement`) — how the decision is kept honest
-  (script / CI gate / skill), or "discipline only" stated explicitly;
-- filename `NNNN-kebab-title.md` (monotonic number) and an Index row in
-  [`docs/decisions/INDEX.md`](docs/decisions/INDEX.md); the core ADRs newcomers
-  must read are marked **★** there.
+Cross-cutting decisions live as ADRs in `docs/decisions/`, listed in the
+[decision index](docs/decisions/INDEX.md). The
+[RFC process and the ADR conventions](docs/decisions/README.md) describe how
+to propose one and what every ADR carries.
 
 ## Branch & PR model
 
@@ -109,7 +102,7 @@ first. If you need a secret, ask a maintainer — do not improvise a transport.
 ### MUST
 - Open changes as **GitHub PRs against `main`** with **signed-off** commits.
 - Use Conventional Commit messages and `<handle>/<short-slug>` topic branches.
-- Follow the boot ritual (read STATUS.md and the operator notes in pinned issue #618, the claimed tracking issue's comments, ADRs) before touching any DMF repo.
+- Before you change any dmfdeploy repo, read the operator notes in pinned issue [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618), the comments on the issue you claimed, and the ADRs that apply. For the live state of the repos, run `bin/generate-status.sh`. [STATUS.md](STATUS.md) only points to where current state lives.
 - Use **placeholder syntax** for all IPs / DNS / operator identity in every artifact.
 
 ### MUST NOT
