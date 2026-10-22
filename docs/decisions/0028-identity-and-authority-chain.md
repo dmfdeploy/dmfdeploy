@@ -72,7 +72,9 @@ goes next. It adds direction and changes none of C1–C5.
 - A **tenant** is an intra-organisation scope that isolates a special
   case. For example, a vendor in a live production gets access to one
   device, network or service and nothing else. Every operation records
-  its scope at dispatch.
+  its scope at dispatch. That scope is derived from the tenant of the
+  operation's target and does not change after dispatch. The caller's
+  own permitted scope never sets it.
 - The single-operator assumption in Consequences expires with v0.2. The
   multi-user design lands as its own ADR.
 
