@@ -593,10 +593,11 @@ The SMPTE documents below were downloaded free from `pub.smpte.org` on
 - **`vsf-tv/gccg-api`:** a transport API with no health or status endpoint.
 - **VidTrans 2025 decks:**
   - A presentation on BCP-008 "Minimal Status Reporting":
-    <https://static.vsf.tv/vidtrans/presentations/2025/LedergerberNMOSIPMonitoring.pdf>.
+    listed on the VidTrans 2025 event page,
+    <https://vsf.tv/2025-vsf-vidtrans25/>.
   - A PTP best-practices deck: enable the SM TLV, monitor grandmaster ID and
-    lock state. It is opinion and no standard:
-    <https://static.vsf.tv/vidtrans/presentations/2025/WhitcombPTPMadeEasy.pdf>.
+    lock state. It is opinion and no standard. It is listed on the same
+    event page, <https://vsf.tv/2025-vsf-vidtrans25/>.
 
 ### 5.4 MXL
 
