@@ -32,6 +32,7 @@ on:
       - "bin/check-voice*.sh"
       - "bin/mutate-voice.sh"
       - "tests/voice-changed-head.sh"
+      - "tests/voice-changed-links.sh"
       - ".vale.ini"
       - ".vale/**"
       - ".github/workflows/vale.yml"
@@ -99,3 +100,6 @@ jobs:
 
       - name: Test that the ratchet reads HEAD, not the checkout
         run: tests/voice-changed-head.sh
+
+      - name: Test that the ratchet counts encoded link targets the same way
+        run: tests/voice-changed-links.sh
