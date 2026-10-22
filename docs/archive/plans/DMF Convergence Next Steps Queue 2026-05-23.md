@@ -205,7 +205,7 @@ heaviest.
 - `bin/scrub-public-repos.sh` — umbrella scrub gate.
 - `docs/handoffs/DMF dmf-runbooks Path A Public Publish Completion Handoff 2026-05-22.md` — the published-as-template procedure.
 - `docs/handoffs/DMF dmf-runbooks Public History Remediation Handoff 2026-05-23.md` — what to look out for (per-repo `.gitleaks.toml` operator-identity patterns, public guard-file leaks).
-- `docs/plans/DMF Release and Contribution Model Implementation Plan 2026-05-11.md` — the master Release Phase plan.
+- `docs/plans/dmf-release-and-contribution-model-implementation-plan.md` — the master Release Phase plan.
 
 **Acceptance criteria.**
 

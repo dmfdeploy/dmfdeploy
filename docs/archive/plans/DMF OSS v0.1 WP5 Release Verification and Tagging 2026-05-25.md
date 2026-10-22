@@ -1,17 +1,17 @@
 ---
 status: superseded
 date: 2026-05-25
-superseded_by: "DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md"
+superseded_by: "dmf-v0-1-commitment-and-30-day-focus-cut-plan.md"
 ---
 # DMF OSS v0.1 WP5 - Release Verification and Tagging
-> **Superseded by** [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md](../../plans/DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) (adjudicated 2026-06-11, refs
+> **Superseded by** [dmf-v0-1-commitment-and-30-day-focus-cut-plan.md](../../plans/dmf-v0-1-commitment-and-30-day-focus-cut-plan.md) (adjudicated 2026-06-11, refs
 > issue #32 WP5): [architectural-commitments-v1](../../decisions/architectural-commitments-v1.md)
 > re-cut v0.1 — the sandbox lane's proven core stands, the AWS/profile-matrix
 > sequencing is dropped (cloud claims are a named non-goal), and the remaining
 > gate (stranger-reproducibility) is carried by the successor plan (issue #36).
 
 > **⚠️ RE-SCOPED (2026-05-25): per-profile matrix, not one flat AWS list.** Under
-> [WP0](../../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md) /
+> [WP0](../../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md) /
 > [ADR-0031](../../decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md),
 > verification produces a **matrix with one row per profile**:
 > - **`sandbox-single-node` row — GATES v0.1.** The tag is blocked unless this
@@ -29,8 +29,8 @@ superseded_by: "DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md"
 
 **Status:** Active — per-profile verification matrix (sandbox row gates the tag)
 **Date:** 2026-05-25
-**Anchor:** [WP0 Release Contract & Profile Matrix](../../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md)
-**Parent mission (superseded):** [DMF OSS v0.1 Release Mission 2026-05-25.md](../../plans/DMF%20OSS%20v0.1%20Release%20Mission%202026-05-25.md)
+**Anchor:** [WP0 Release Contract & Profile Matrix](../../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md)
+**Parent mission (superseded):** [dmf-oss-v0-1-release-mission.md](../../plans/dmf-oss-v0-1-release-mission.md)
 **Outcome:** v0.1 is verified by a **per-profile matrix** — the sandbox row gates
 the tag, the AWS row is informational-unless-passed, the lab row is reference —
 then documented and tagged as a coherent multi-repo release.
@@ -138,8 +138,8 @@ The §4 matrix above remains the AWS-row seed.
 human companion already live in the umbrella repo (created 2026-05-26 under
 ADR-0031 / WP0 §4.3):
 
-- **Source of truth:** [`docs/releases/dmf-oss-v0.1-version-manifest.yaml`](../../releases/dmf-oss-v0.1-version-manifest.yaml)
-- **Companion:** [`docs/releases/DMF OSS v0.1 Version Manifest.md`](../../releases/DMF%20OSS%20v0.1%20Version%20Manifest.md)
+- **Source of truth:** [`docs/releases/dmf-oss-v0-1-version-manifest.yaml`](../../releases/dmf-oss-v0-1-version-manifest.yaml)
+- **Companion:** [`docs/releases/dmf-oss-v0-1-version-manifest.md`](../../releases/dmf-oss-v0-1-version-manifest.md)
 
 The manifest records release version, lane classification, component repo refs
 (currently provisional HEADs), k3s version, every Helm chart / local chart /

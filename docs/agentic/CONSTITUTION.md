@@ -178,7 +178,7 @@ branching adds coordination overhead without commensurate gain at this stage.
 Returning to feature branches is a future decision worth its own ADR.
 
 **Refs**: [`CLAUDE.md`](../../CLAUDE.md) §"Git topology",
-[`docs/reviews/dmf-platform-strategic-review-2026-04-30.md`](../reviews/dmf-platform-strategic-review-2026-04-30.md).
+[`docs/reviews/dmf-platform-strategic-review.md`](../reviews/dmf-platform-strategic-review.md).
 
 ---
 

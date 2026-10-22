@@ -14,7 +14,7 @@ deferred to operator action in dmf-cms, mirroring the
 `Download Media Functions` / `Launch Media Functions` split in EBU
 Figure 4 (white paper p.6). Move 2 closed the dmf-cms→AWX→NetBox
 vertical slice but left the dmf-cms `app-contract` as a static YAML
-fixture; the Move 2 learnings (`docs/reviews/dmf-platform-move-2-learnings-2026-05-04.md`
+fixture; the Move 2 learnings (`docs/reviews/dmf-platform-move-2-learnings.md`
 §Q2) flagged the pivot to NetBox-discovered as queued. The catalog
 idea is the natural form of that pivot, with extensions for the upper
 layers' bootstrap-but-don't-deploy semantics.
@@ -101,7 +101,7 @@ operator needing to locate the workload. The architecture reference and
 ### Enforcement
 
 The Move 1 task spec
-(`docs/plans/dmf-platform-move-1-task-2026-05-04.md`) implements the
+(`docs/plans/dmf-platform-move-1-task.md`) implements the
 first catalog entry (nmos-cpp). After Move 1 lands, every new Layer
 4–6 function gets a catalog entry as part of its initial implementation;
 PRs adding Layer 4–6 work without a catalog entry should be flagged.

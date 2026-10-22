@@ -639,7 +639,7 @@ Each commit independently testable.
 - ADR-0014 (AWX project layout — pattern reused for launcher/JT):
   `docs/decisions/0014-awx-project-layout.md`
 - Move 1 task (template for this plan + pattern for catalog/AWX/cms):
-  `docs/plans/dmf-platform-move-1-task-2026-05-04.md`
+  `docs/plans/dmf-platform-move-1-task.md`
 - Move 1 Gate 2 pivot (Path A precedent for the launcher pattern):
   `docs/plans/Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md`
 - EBU mapping (Layer 4 numbering and vocabulary):

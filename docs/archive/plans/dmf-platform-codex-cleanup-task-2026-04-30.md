@@ -8,7 +8,7 @@ date: 2026-04-30
 **Working repo:** `<repos>/dmf-infra` (NOT the operator note store)
 **Branch:** check `git status` first; expect `main` with 8 commits ahead and several uncommitted edits in flight (those are unrelated WIP — leave them alone)
 **Reviewer that produced this task:** Claude Code (Opus 4.7), critical chain review at `<repos>/dmf-platform-chain-review-2026-04-30.md`
-**Strategic context:** DMF platform is in *experiment phase* — pure hygiene only, no architectural commitments. See `<repos>/dmf-platform-strategic-review-2026-04-30.md` and `<repos>/dmf-infra/k3s-lab-bootstrap/docs/dmf-platform-plan.md` if you need framing.
+**Strategic context:** DMF platform is in *experiment phase* — pure hygiene only, no architectural commitments. See `<repos>/dmf-platform-strategic-review.md` and `<repos>/dmf-infra/k3s-lab-bootstrap/docs/dmf-platform-plan.md` if you need framing.
 
 ---
 

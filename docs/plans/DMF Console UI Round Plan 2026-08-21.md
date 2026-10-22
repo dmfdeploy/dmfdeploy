@@ -33,7 +33,7 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/449
 > and correct as provenance.
 >
 > Where this plan and the
-> [Console UX Constitution](../design/DMF%20Console%20UX%20Constitution%202026-05-25.md)
+> [Console UX Constitution](../design/dmf-console-ux-constitution.md)
 > disagree, the Constitution wins.
 
 ## 1. Why

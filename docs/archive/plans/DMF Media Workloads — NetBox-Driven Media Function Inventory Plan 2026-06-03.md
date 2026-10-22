@@ -51,7 +51,7 @@ The thread, in order:
    [DMF MXL Single-Node Loopback Execution Plan §8](DMF%20MXL%20Single-Node%20Loopback%20Execution%20Plan%202026-05-29.md).
    The **cross-host fabrics** demo (`mxl-videotestsrc`/`view`) needs ≥2 nodes by
    design and stays on the `dev/lima` 2-node harness — see
-   [DMF MXL On-Demand Media Function Cycle Plan](../../plans/DMF%20MXL%20On-Demand%20Media%20Function%20Cycle%20Plan%202026-06-01.md)
+   [DMF MXL On-Demand Media Function Cycle Plan](../../plans/dmf-mxl-on-demand-media-function-cycle-plan.md)
    and [DMF MXL M1.1 Catalog Launch Design](DMF%20MXL%20M1.1%20Catalog%20Launch%20Design%202026-06-01.md).
 
 2. **OS divergence is a non-issue.** Upstream `mxl/examples/Dockerfile` (the
@@ -128,13 +128,13 @@ custom operator. Recorded as [ADR-0037](../../decisions/0037-media-workloads-net
 **Architecture / UX**
 - [EBU DMF Mapping](../../architecture/DMF%20EBU%20Mapping%20(2026-04-25).md) — layer/vertical/lifecycle vocabulary; Media Workload = assembly.
 - Whitepaper: `~/Downloads/EBU_White_Paper_The_Dynamic_Media_Facility_Reference_Architecture.pdf` (Figures 1–3, Annex C orchestration grid).
-- [DMF Console UX Constitution](../../design/DMF%20Console%20UX%20Constitution%202026-05-25.md) — Art. 3 (vocabulary tiers), Art. 7 (consequence/impact preview).
+- [DMF Console UX Constitution](../../design/dmf-console-ux-constitution.md) — Art. 3 (vocabulary tiers), Art. 7 (consequence/impact preview).
 - [DMF Console Glossary](../../design/DMF%20Console%20Glossary.md) — the term-tier source of truth (this work promotes "Media Workload"/"Media Function").
 
 **Sandbox + MXL plans**
 - [WP1S Single-Node Sandbox Lane](DMF%20OSS%20v0.1%20WP1S%20Single-Node%20Sandbox%20Lane%202026-05-25.md) — the target lane + profile vars.
 - [MXL Single-Node Loopback Execution Plan](DMF%20MXL%20Single-Node%20Loopback%20Execution%20Plan%202026-05-29.md) — `mxl-hello` chart + local rehearsal proof.
-- [MXL upstream profile & contribution review](../../reviews/dmf-mxl-upstream-profile-and-contribution-review-2026-06-01.md).
+- [MXL upstream profile & contribution review](../../reviews/dmf-mxl-upstream-profile-and-contribution-review.md).
 
 **Skills (operational workflow — read §0 of each before running)**
 - `dmf-cms-build-and-release` — the only sanctioned dmf-cms release path; pairs with `dmf-cms/docs/DEVELOPMENT-AND-BUILD-RULES.md`.

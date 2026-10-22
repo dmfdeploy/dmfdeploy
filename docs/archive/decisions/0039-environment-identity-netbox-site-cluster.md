@@ -22,5 +22,5 @@ This file holds material moved out of [ADR-0039](../../decisions/0039-environmen
 - ADR-0038 — PromSD adapter labels derive from `site`; this ADR keeps env scoping aligned.
 - ADR-0032 — scoped NetBox writer (`dmf-catalog-svc`); a future `ipam.Service` env field
   would land through it.
-- `docs/plans/DMF Facility Console — Born-Inventoried Env Surfacing Plan 2026-06-04.md` —
+- `docs/plans/dmf-facility-console-born-inventoried-env-surfacing-plan.md` —
   the dmf-cms work package that surfaces the env on the Facility page using this model.

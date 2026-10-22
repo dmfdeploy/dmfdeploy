@@ -357,8 +357,8 @@ This plan amends or cross-references the following docs. Each is updated as part
 - `DMF MXL Single-Node Media Node Spike Plan 2026-05-17.md` — cross-ref noting unified Stage 4b path.
 - `DMF Lifecycle-Configure Bootstrap Completion Plan 2026-05-15.md` — cross-ref note.
 - `DMF Aliyun-123 Lifecycle-Configure Follow-Ups Plan 2026-05-17.md` — links job 44 + verification target.
-- `dmf-platform-move-1-task-2026-05-04.md` — Piece 4 image-push note.
-- `dmf-platform-move-2-task-2026-04-30.md` — note about ADR-0016's Move-2-deferred work landing earlier.
+- `dmf-platform-move-1-task.md` — Piece 4 image-push note.
+- `dmf-platform-move-2-task.md` — note about ADR-0016's Move-2-deferred work landing earlier.
 
 **Decisions:**
 - `0016-...` — Amendments section.

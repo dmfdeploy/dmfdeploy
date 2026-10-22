@@ -1,17 +1,17 @@
 ---
 status: superseded
 date: 2026-05-04
-superseded_by: "dmf-platform-move-1-task-2026-05-04.md"
+superseded_by: "dmf-platform-move-1-task.md"
 ---
 # DMF NMOS Registry + Crosspoint Demo — Plan 2026-05-04
-> **Superseded by** [dmf-platform-move-1-task-2026-05-04.md](../../plans/dmf-platform-move-1-task-2026-05-04.md) — see frontmatter.
+> **Superseded by** [dmf-platform-move-1-task.md](../../plans/dmf-platform-move-1-task.md) — see frontmatter.
 
 > **SUPERSEDED 2026-05-23** by ADR-0025 Lane B. NMOS-cpp now deploys as a
 > Helm chart from in-cluster Zot via an AWX EE pod; this plan remains only as
 > historical technical reference for image/config shapes and the deferred
 > crosspoint/RTP demo path.
 >
-> **Status (updated 2026-05-23):** fully superseded for implementation. Earlier Phase 3 ("dmf-cms integration deferred") was superseded by [`dmf-platform-move-1-task-2026-05-04.md`](../../plans/dmf-platform-move-1-task-2026-05-04.md); Phase 1+2 implementation shape is now superseded by ADR-0025 Lane B.
+> **Status (updated 2026-05-23):** fully superseded for implementation. Earlier Phase 3 ("dmf-cms integration deferred") was superseded by [`dmf-platform-move-1-task.md`](../../plans/dmf-platform-move-1-task.md); Phase 1+2 implementation shape is now superseded by ADR-0025 Lane B.
 >
 > **2026-05-19 update — manifests lift into a Helm chart.** The k8s manifests in this plan's Phase 1 (registry StatefulSet, node Deployments, Services, PVC, ConfigMaps) are the source material for the `dmf-media/charts/nmos-cpp/` Helm chart per the [DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19](../../plans/DMF%20Cluster-Internal%20Ansible%20Execution%20and%20Catalog%20Helm%20Pivot%20Plan%202026-05-19.md). The Ansible role's k8s tasks (`roles/nmos-cpp/tasks/configure.yml`) get deleted; the chart owns the manifests; the launcher invokes `kubernetes.core.helm`. The Dockerfile, ConfigMap shapes, runtime config, and dmf-env inventory additions remain valid as technical reference. See [ADR-0025](../../decisions/0025-ansible-in-cluster-pods-and-catalog-helm.md).
 >
@@ -19,7 +19,7 @@ superseded_by: "dmf-platform-move-1-task-2026-05-04.md"
 > - **Phase 1 (nmos-cpp registry + mock nodes)** — reused as-is. The Dockerfile, ConfigMap shapes, and role tasks survive the catalog reframe.
 > - **Phase 1 Step 3 (lifecycle registration)** — reframed: `410-nmos-cpp.yml` is split into `410-nmos-cpp-provision.yml` (registers catalog entry, does NOT launch) and `configure-media/launch-nmos-cpp.yml` (launches on operator action via `lifecycle-configure.yml`). See ADR-0012.
 > - **Phase 2 (nmos_crosspoint UI)** — deferred from Move 1 + Catalog v1. May fold into a v2 catalog entry or land as Move 1.5.
-> - **Phase 3 (dmf-cms integration)** — fully superseded. Read `dmf-platform-move-1-task-2026-05-04.md` Piece 7 instead.
+> - **Phase 3 (dmf-cms integration)** — fully superseded. Read `dmf-platform-move-1-task.md` Piece 7 instead.
 > - **Appendices A–E** — preserved unchanged; technical reference for nmos-cpp build, runtime config, dmf-env inventory additions, and the deferred RTP demo path.
 >
 > **Date:** 2026-05-04

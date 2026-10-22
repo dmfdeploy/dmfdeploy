@@ -63,7 +63,7 @@ A read of `docs/Architecture.md` plus a smoke-test build attempt
   (cluster as truth), ADR-0013 (catalog model)
 - `docs/architecture/DMF Function Catalog Model.md` §2 — catalog v2
   needs `mxl_flows` field per this ADR
-- `docs/plans/DMF Vendor Multi-Tenancy Vision 2026-05-29.md` — North Star
+- `docs/plans/dmf-vendor-multi-tenancy-vision.md` — North Star
   that generalises this ADR's node-role topology to per-vendor tenancy;
   records IS-10 (control-plane authz) vs. MXL data-plane separation gap
 - Smoke test artifacts (operator-local, left in place for follow-up):
@@ -75,7 +75,7 @@ A read of `docs/Architecture.md` plus a smoke-test build attempt
 Scrubbed two operator-local filesystem paths (a home-dir Downloads PDF
 reference and a home-dir `mxl-smoke-tmp/` working dir) to neutral references
 per the repo's no-local-paths discipline. Closes the §5 nit in the
-[2026-05-27 ADR Portfolio Review](../../reviews/DMF%20ADR%20Portfolio%20Review%202026-05-27.md).
+[2026-05-27 ADR Portfolio Review](../../reviews/dmf-adr-portfolio-review.md).
 
 ## Context — prior state of Layer 4 (moved from the ADR)
 

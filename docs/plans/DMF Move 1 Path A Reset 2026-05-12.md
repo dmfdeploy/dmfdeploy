@@ -14,7 +14,7 @@ date: 2026-05-12
 > *implementation* now restructures (chart + EE-as-runtime), but the catalog
 > *model* and Move 1 scope are unchanged.
 
-> **Supersedes parts of**: [`dmf-platform-move-1-task-2026-05-04.md`](dmf-platform-move-1-task-2026-05-04.md).
+> **Supersedes parts of**: [`dmf-platform-move-1-task.md`](dmf-platform-move-1-task.md).
 > **Trigger**: Audit during agentic shift 5 (post Phase-0 baseline) revealed
 > the May-4 Move 1 plan pre-dates the [ADR-0014 / ADR-0016 Path A pivot](../decisions/)
 > (2026-05-06). Several Pieces had been implemented under Path A architecture
@@ -196,7 +196,7 @@ requiring P7 + P8 to be observable for the write-up.
 
 ## Cross-references
 
-- Source plan: [`docs/plans/dmf-platform-move-1-task-2026-05-04.md`](dmf-platform-move-1-task-2026-05-04.md)
+- Source plan: [`docs/plans/dmf-platform-move-1-task.md`](dmf-platform-move-1-task.md)
 - Path A pivot ADRs: [ADR-0014, ADR-0016](../decisions/)
 - ADR-0012 (configure-stage-distinct-from-provision): [`docs/decisions/0012-configure-stage-distinct-from-provision.md`](../decisions/0012-configure-stage-distinct-from-provision.md)
 - ADR-0013 (media-function-catalog-model): [`docs/decisions/0013-media-function-catalog-model.md`](../decisions/0013-media-function-catalog-model.md)

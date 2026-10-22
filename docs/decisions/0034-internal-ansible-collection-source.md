@@ -90,7 +90,7 @@ launch (the exact mechanism that surfaced this bug).
 
 ### Enforcement (to be elaborated in the WP)
 
-See [DMF Internal Ansible Collection Source Plan 2026-05-29](../plans/DMF%20Internal%20Ansible%20Collection%20Source%20Plan%202026-05-29.md).
+See [DMF Internal Ansible Collection Source Plan 2026-05-29](../plans/dmf-internal-ansible-collection-source-plan.md).
 A release-gate check must assert no DMF runtime resolves collections from
 a public Galaxy endpoint (Org Galaxy Credentials internal/none; EE
 contains the pinned collections; `project_update` succeeds with egress

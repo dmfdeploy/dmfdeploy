@@ -24,10 +24,10 @@ This file holds material moved out of [ADR-0016](../../decisions/0016-awx-contro
 ## References
 
 - Incident review:
-  `docs/reviews/dmf-move1-gate2-ssh-credential-incident-2026-05-05.md`
+  `docs/reviews/dmf-move1-gate2-ssh-credential-incident.md`
 - AWX EE review:
-  `docs/reviews/dmf-move1-gate2-awx-ee-review-2026-05-05.md`
-- Trials doc: `docs/plans/Move 1 Gate 2 — Trials and Tribulations 2026-05-05.md`
+  `docs/reviews/dmf-move1-gate2-awx-ee-review.md`
+- Trials doc: `docs/plans/move-1-gate-2-trials-and-tribulations.md`
 - ADR-0007 (secrets never in argv/env/tmp/transcripts)
 - ADR-0008 (OpenBao + ESO + AppRole shim)
 - ADR-0010 (`bin/run-playbook.sh` is the sanctioned entry)
@@ -46,7 +46,7 @@ ServiceAccount RBAC absent), then attempted (2) but produced an ADR-0007
 violation: a real ed25519 private key was committed in plaintext to
 `awx-integration/defaults/main.yml` "for Gate 2 spike." The incident is
 documented in
-`docs/reviews/dmf-move1-gate2-ssh-credential-incident-2026-05-05.md` and
+`docs/reviews/dmf-move1-gate2-ssh-credential-incident.md` and
 triggered a complete cluster redeploy (Path Y).
 
 ## Amendment 2026-05-19 — reason and evidence (moved from the ADR)

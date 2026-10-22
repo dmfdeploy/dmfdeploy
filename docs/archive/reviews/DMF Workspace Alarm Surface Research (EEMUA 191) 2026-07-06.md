@@ -22,7 +22,7 @@ The surface being judged: **HealthCore** — firing Prometheus alerts rendered
 as severity tiles + a "Current Problems" list + a single verdict line
 (Watchdog-verified green, degraded-as-content, no Ack). See dmf-cms
 `pages/Workspace/` and the Console UX Constitution
-(`docs/design/DMF Console UX Constitution 2026-05-25.md`, esp. Art. 4 alarm
+(`docs/design/dmf-console-ux-constitution.md`, esp. Art. 4 alarm
 pointer + Art. 6 "one deliberate step away").
 
 Ground rules (from the plan): EEMUA 191 is paywalled — use reputable

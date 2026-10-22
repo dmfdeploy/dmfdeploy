@@ -11,7 +11,7 @@ executed: 2026-06-05
 **Env:** sandbox `zmlj-sikn` (single Lima VM, 4 vCPU / 10 GiB / 60 GiB, full platform up)
 
 **Related:**
-- `docs/plans/DMF MXL On-Demand Media Function Cycle Plan 2026-06-01.md` — the **2-node
+- `docs/plans/dmf-mxl-on-demand-media-function-cycle-plan.md` — the **2-node
   fabrics** M1 (cross-host); this plan is the **single-node predecessor**, not part of it.
 - `docs/archive/plans/DMF MXL M1.1 Catalog Launch Design 2026-06-01.md` — the fabrics control-chain
   build whose playbook/JT/chart pattern we copy.

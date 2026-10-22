@@ -17,8 +17,8 @@ canonical for AWX-to-infrastructure plays.
 AWX needs a way to drive Ansible playbooks against the DMF cluster's control
 node (`k3s-node-01`) so that catalog job templates like `media-launch-nmos-cpp`
 can stand up media functions on demand. Two execution models were considered
-during Move 1 Gate 2 (see `docs/plans/Move 1 Gate 2 — Trials and Tribulations
-2026-05-05.md`):
+during Move 1 Gate 2 (see
+`docs/plans/move-1-gate-2-trials-and-tribulations.md`):
 
 1. **EE-as-runtime** — the AWX Execution Environment pod runs the playbook
    itself with `connection: local` and talks to the Kubernetes API directly.

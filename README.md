@@ -16,7 +16,7 @@ component repos.
 **Proven so far** (first-party, on the author's environments): NMOS IS-04/05
 deploys and runs on commodity ARM k3s, driven end to end through the
 platform's catalog chain: console, AWX, Helm, and NetBox lifecycle state
-([learnings, 2026-06-04](docs/reviews/dmf-platform-move-1-learnings-2026-06-04.md)).
+([learnings, 2026-06-04](docs/reviews/dmf-platform-move-1-learnings.md)).
 Whether an outsider can repeat that cold is the test of the current
 [`v0.1-polish` milestone](https://github.com/dmfdeploy/dmfdeploy/milestone/1).
 An 81-second recording of one workload being provisioned, with a plain account

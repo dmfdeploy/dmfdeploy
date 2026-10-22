@@ -257,8 +257,8 @@ note:       Survey of P2-P8 deliverables revealed the source plan
 
 ═══ halt @ 2026-05-12T12:33:30Z ═══════════════════════════════════════════════
 condition: voluntary scope-mismatch halt (not a numbered halt condition)
-detail:    The Move 1 source plan (docs/plans/dmf-platform-move-1-task-
-           2026-05-04.md) pre-dates the ADR-0014/0016 Path A pivot
+detail:    The Move 1 source plan (docs/plans/dmf-platform-move-1-task.md)
+           pre-dates the ADR-0014/0016 Path A pivot
            (2026-05-06). Backlog entries move1-p2..p9 reference file
            paths and architecture from the pre-pivot spec. Actual repo
            state has Path-A-shaped files in different locations. Need

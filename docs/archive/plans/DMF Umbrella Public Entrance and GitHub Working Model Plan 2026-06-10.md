@@ -17,7 +17,7 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/3
 
 All 8 component repos are public (clean orphan imports, 2026-06-09/10). The umbrella is the last unpublished repo and is the **entrance** to the project for humans and agents. Today it fails that job: README still claims "Experiment phase" (closed 2026-06-06 by `../../decisions/architectural-commitments-v1.md`), 96/113 plan docs carry no status marker, STATUS.md is ~2,400 lines, TODOS.md is a ~300-line hand-maintained backlog, and ~38 operator-note-store + ~131 LAN-hostname references block publication.
 
-The canonical reviews directly endorse this work: the 2026-06-06 dual-voice evaluation (`../../reviews/dmf-platform-technical-evaluation-2026-06-06.md`) scored **external legibility 1/10**, and the committed work-selection rule is *"choose work that makes the proven core runnable and legible to an outsider."* This plan is Phase 3 ("the front door") of `DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md` + the deferred Workstream B2 (umbrella scrub+prune), extended with a GitHub-native working model.
+The canonical reviews directly endorse this work: the 2026-06-06 dual-voice evaluation (`../../reviews/dmf-platform-technical-evaluation.md`) scored **external legibility 1/10**, and the committed work-selection rule is *"choose work that makes the proven core runnable and legible to an outsider."* This plan is Phase 3 ("the front door") of `dmf-v0-1-commitment-and-30-day-focus-cut-plan.md` + the deferred Workstream B2 (umbrella scrub+prune), extended with a GitHub-native working model.
 
 ### Decisions locked with the operator (2026-06-10 session)
 
@@ -65,7 +65,7 @@ Derive an explicit **active/draft allowlist** from TODOS.md + STATUS.md operator
 
 ### WP2 — Frontmatter sweep over docs/plans/ (mechanical; blocked by WP1)
 
-Apply WP1's table: insert YAML frontmatter (schema above) as the first bytes of each `docs/plans/*.md`. Superseded docs additionally get a one-line banner under the title pointing at the successor (reciprocal where the successor exists). Edge cases: files starting with HTML comments/banners — frontmatter goes *above* them; filenames have spaces/em-dashes (26 git-quoted) — use `git ls-files -z`. Single review-file action: pointer banner on `docs/reviews/dmf-platform-strategic-review-2026-04-30.md` → the 2026-06-06 evaluation.
+Apply WP1's table: insert YAML frontmatter (schema above) as the first bytes of each `docs/plans/*.md`. Superseded docs additionally get a one-line banner under the title pointing at the successor (reciprocal where the successor exists). Edge cases: files starting with HTML comments/banners — frontmatter goes *above* them; filenames have spaces/em-dashes (26 git-quoted) — use `git ls-files -z`. Single review-file action: pointer banner on `docs/reviews/dmf-platform-strategic-review.md` → the 2026-06-06 evaluation.
 
 *Verification (orchestrator):* `git ls-files 'docs/plans/*.md' | while ...` → every file starts with `---`; status values ∈ allowed set; spot-check ≥10 against WP1 table; `git diff --stat` touches only intended files.
 

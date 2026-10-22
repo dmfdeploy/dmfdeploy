@@ -14,7 +14,7 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/61
 > they touch its domain. Net file count goes **down**, not up.
 >
 > **Provenance:** falls out of the §4 finding of
-> [`docs/reviews/DMF ADR Portfolio Review 2026-05-27.md`](../../reviews/DMF%20ADR%20Portfolio%20Review%202026-05-27.md)
+> [`docs/reviews/dmf-adr-portfolio-review.md`](../../reviews/dmf-adr-portfolio-review.md)
 > (CLOSED 2026-06-12) and the design discussion that followed it. Tracking issue:
 > [#61](https://github.com/dmfdeploy/dmfdeploy/issues/61) (see §7).
 >

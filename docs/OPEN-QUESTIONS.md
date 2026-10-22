@@ -8,7 +8,7 @@ the record.*
 
 The authority for the frozen list is
 [architectural-commitments-v1](decisions/architectural-commitments-v1.md) and the
-[v0.1 plan](plans/DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md)'s
+[v0.1 plan](plans/dmf-v0-1-commitment-and-30-day-focus-cut-plan.md)'s
 FREEZE table. Frozen ≠ abandoned: each entry names its re-open trigger.
 
 ## Frozen — explicit v0.1 non-goals
@@ -46,7 +46,7 @@ open — but it is now open for want of analysis, not for want of an environment
 ## Built but unproven — live-verification debt
 
 These exist in code and are believed correct; none has a recorded live run
-proving it. The [2026-06-06 evaluation](reviews/dmf-platform-technical-evaluation-2026-06-06.md)
+proving it. The [2026-06-06 evaluation](reviews/dmf-platform-technical-evaluation.md)
 calls this the project's systemic risk.
 
 - **Cloud-lane `seed-bao` re-bootstrap** — the `bundle_set` write-back aborted on
@@ -56,7 +56,7 @@ calls this the project's systemic risk.
   idempotency remain unproven.
 - **Catalog drift detector firing on real drift** — built and schema-sound, but
   the fault-injection run (delete a Helm release, watch the check fail and name
-  the entry) was never recorded ([Move 1 learnings](reviews/dmf-platform-move-1-learnings-2026-06-04.md) Q6).
+  the entry) was never recorded ([Move 1 learnings](reviews/dmf-platform-move-1-learnings.md) Q6).
 - **Cold-bootstrap regression gate** — the first-boot-bug class keeps being found
   by luck on fresh envs, not by an automated check. The 2026-06-07 container-driven
   VPS run seeded the checklist; the gate itself isn't automated yet.

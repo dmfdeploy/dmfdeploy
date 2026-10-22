@@ -312,7 +312,7 @@ Once Gate 1 passes, the agent executing Piece 5 will:
 
 ## References
 
-- Move 1 task spec: `docs/plans/dmf-platform-move-1-task-2026-05-04.md`
+- Move 1 task spec: `docs/plans/dmf-platform-move-1-task.md`
 - NMOS plan (technical reference): `docs/archive/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md`
 - Catalog entry: `dmf-media/catalog/nmos-cpp.yaml`
 - Build rules: `dmf-cms/docs/DEVELOPMENT-AND-BUILD-RULES.md`

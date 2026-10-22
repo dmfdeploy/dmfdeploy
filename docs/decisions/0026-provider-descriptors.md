@@ -19,7 +19,7 @@ per-env binding was rendered, so pre-seed died on the `base/tailscale`
 assertion.
 
 The Python wizard rewrite at `wizard-spike/` (53 tests, per the
-[Init Wizard Expansion Survey](../plans/DMF%20Init%20Wizard%20Expansion%20Survey%202026-05-13.md))
+[Init Wizard Expansion Survey](../plans/dmf-init-wizard-expansion-survey.md))
 models PROFILE shape (`Profile`, `Tier`, `PRESET_DEFAULTS`, discriminated-union
 `ManifestBody`) but explicitly defers PROVIDER shape (Survey Steps 6 + 7).
 There is no canonical provider abstraction shared by the bash wizard, the

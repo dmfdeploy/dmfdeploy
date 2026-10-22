@@ -291,7 +291,7 @@ Service-catalog SoT integrity:  3/10  — fragmented across Forgejo + NetBox + A
 
 ## Cross-reference
 
-- Strategic review: `~/repos/dmf-platform-strategic-review-2026-04-30.md` (experiment-phase three-move recommendation)
+- Strategic review: `~/repos/dmf-platform-strategic-review.md` (experiment-phase three-move recommendation)
 - DMF Platform Plan: `~/repos/dmf-infra/k3s-lab-bootstrap/docs/dmf-platform-plan.md` (canonical architecture reference)
 - Initial Data Gathering: `~/repos/dmf-env/docs/initial-data-gathering.md` (variable provenance, Resource Profile manifest)
 - Deployment Runbook: `~/repos/dmf-env/DEPLOYMENT.md` (operator entry point)

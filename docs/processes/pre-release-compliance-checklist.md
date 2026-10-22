@@ -47,7 +47,7 @@ This checklist is run **before** each tier's go-live. Re-run it on any material 
 
 ### A.2 — Release & Contribution Model Phases 0–2
 
-Per [DMF Release and Contribution Model Implementation Plan](../plans/DMF%20Release%20and%20Contribution%20Model%20Implementation%20Plan%202026-05-11.md):
+Per [DMF Release and Contribution Model Implementation Plan](../plans/dmf-release-and-contribution-model-implementation-plan.md):
 
 - [ ] LICENSE (Apache-2.0) at root of every public repo
 - [ ] NOTICE at root of every public repo

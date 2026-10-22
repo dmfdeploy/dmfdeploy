@@ -371,12 +371,12 @@ catalog entry and asserts:
 - `docs/architecture/DMF Platform Plan.md` §9 — two-lane model
   (config-change PR-gated, operations runtime)
 - `docs/architecture/DMF EBU Mapping (2026-04-25).md` — vocabulary
-- `docs/reviews/dmf-platform-strategic-review-2026-04-30.md` — Move 1
+- `docs/reviews/dmf-platform-strategic-review.md` — Move 1
   framing, thesis-killers
-- `docs/reviews/dmf-platform-move-2-learnings-2026-05-04.md` — what
+- `docs/reviews/dmf-platform-move-2-learnings.md` — what
   Move 2 taught us; specifically §Q2 (app-contract pivot) and §Q4
   (`ipam.Service` field gaps)
-- `docs/plans/dmf-platform-move-1-task-2026-05-04.md` — implementation
+- `docs/plans/dmf-platform-move-1-task.md` — implementation
   task spec
 - `docs/archive/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md` —
   technical reference for nmos-cpp implementation (Phase 1+2 reusable;

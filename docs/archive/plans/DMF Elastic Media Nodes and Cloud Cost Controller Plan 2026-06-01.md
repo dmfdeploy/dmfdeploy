@@ -10,7 +10,7 @@ date: 2026-06-01
 **Branch:** `main` (this is general platform infrastructure, not spike work)
 
 **Related:**
-- `docs/plans/DMF MXL On-Demand Media Function Cycle Plan 2026-06-01.md` (on `feat/mxl-spike`) — the **first consumer** / motivating use case; depends on Phase 1 here
+- `docs/plans/dmf-mxl-on-demand-media-function-cycle-plan.md` (on `feat/mxl-spike`) — the **first consumer** / motivating use case; depends on Phase 1 here
 - ADR-0025 — catalog launcher = in-cluster Helm / EE-as-runtime (ansible runtime; **not** a provisioner)
 - ADR-0024 / ADR-0033 — identity / scoped-writer model (privilege surface for cloud-spending actions)
 - `docs/plans/DMF In-Cluster Ansible Runner Pod Implementation Plan 2026-05-14.md` — states provision-stage stays on the SSH path

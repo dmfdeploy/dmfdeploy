@@ -52,7 +52,7 @@ Re-acceptance criteria met:
   decisions.
 - [x] WP0 (Release Contract & Profile Matrix) is drafted as a successor /
   replacement to the current draft Mission + WP1–WP5 plan set
-  ([DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25](../../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md);
+  ([DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25](../../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md);
   WP1S/WP-LAB added, Mission + WP1→WP1A/WP2–WP5 bannered to the matrix).
 - [x] Operator re-accepted the ADR on 2026-05-26 against the drafted WP0.
 
@@ -174,7 +174,7 @@ must treat AWS as the only supported v0.1 profile.
 ### Historical Enforcement
 
 - The implementation plan is
-  [`docs/plans/DMF OSS v0.1 Release Mission 2026-05-25.md`](../../plans/DMF%20OSS%20v0.1%20Release%20Mission%202026-05-25.md)
+  [`docs/plans/dmf-oss-v0-1-release-mission.md`](../../plans/dmf-oss-v0-1-release-mission.md)
   and its WP1-WP5 work packages.
 - `dmf-env/bin/init-wizard.sh` and the future Python wizard must expose the
   AWS profile as the v0.1 release path and must not require Cloudflare, B2,

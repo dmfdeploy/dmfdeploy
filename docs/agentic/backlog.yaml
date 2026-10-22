@@ -5,7 +5,7 @@
 # been unused since; the live backlog is TODOS.md. Still-real pending items
 # (rel-p1/p2 release tasks, group-d Tier A finish) were migrated to TODOS.md
 # §"Release & compliance". move1-p9 was closed 2026-06-04
-# (docs/reviews/dmf-platform-move-1-learnings-2026-06-04.md). Statuses below are
+# (docs/reviews/dmf-platform-move-1-learnings.md). Statuses below are
 # frozen at their 2026-05-12 values and preserved for provenance.
 #
 # Work-unit queue for the agentic loop. Mutated by the tick state machine
@@ -75,7 +75,7 @@
 
 # ─── Group B — Release & Contribution Phases 0-2 (deferred to K-future) ─────
 #
-# Source plan: docs/plans/DMF Release and Contribution Model Implementation Plan 2026-05-11.md
+# Source plan: docs/plans/dmf-release-and-contribution-model-implementation-plan.md
 # Scope:       ~35 rote tasks across 6 public repos (LICENSE, NOTICE, VERSION,
 #              .gitignore baseline, CONTRIBUTING.md stub, per-repo gitleaks
 #              hooks, dry-run of sync-to-github.sh)
@@ -95,7 +95,7 @@
     - github-org-name
   decision_gate: null
   acceptance:
-    - tasks_enumerated: "docs/plans/DMF Release and Contribution Model Implementation Plan 2026-05-11.md"
+    - tasks_enumerated: "docs/plans/dmf-release-and-contribution-model-implementation-plan.md"
   status: done              # expanded 2026-05-12 tick 1 (shift 2)
                             # produced 10 entries below (rel-p0-* + rel-p1-* + rel-p2-*)
 
@@ -266,7 +266,7 @@
 
 # ─── Group C — Move 1 (deferred to K-future; gated by D1-D4) ────────────────
 #
-# Source plan: docs/plans/dmf-platform-move-1-task-2026-05-04.md
+# Source plan: docs/plans/dmf-platform-move-1-task.md
 # Scope:       9 pieces (NMOS registry + Function Catalog spike)
 # Workers:     qwen-left (Piece 1, Piece 7 dmf-cms catalog page)
 #              qwen-right (Pieces 2, 3, 4, 5, 6, 8 — Ansible/Docker/Helm)
@@ -284,7 +284,7 @@
     - adr-0020-promote
   decision_gate: null
   acceptance:
-    - tasks_enumerated: "docs/plans/dmf-platform-move-1-task-2026-05-04.md"
+    - tasks_enumerated: "docs/plans/dmf-platform-move-1-task.md"
     - gates_answered: [D1, D2, D3, D4]
   status: done              # 2026-05-12 shift 4 tick 8 (claude)
                             # produced 9 entries below (move1-p1..p9)
@@ -292,7 +292,7 @@
 
 # ─── Group C (expanded) — Move 1 NMOS spike (9 Pieces) ──────────────────────
 #
-# Source plan: docs/plans/dmf-platform-move-1-task-2026-05-04.md
+# Source plan: docs/plans/dmf-platform-move-1-task.md
 # Decision answers in effect:
 #   D1=A — Sony nmos-cpp built from source via Conan
 #   D2=A — Tag-driven, single import per entry (lifecycle-configure pattern)
@@ -549,12 +549,12 @@
     - move1-p8-drift-detector
   decision_gate: null
   acceptance:
-    - file_exists: docs/reviews/dmf-platform-move-1-learnings-2026-06-04.md
+    - file_exists: docs/reviews/dmf-platform-move-1-learnings.md
     - file_exists: docs/architectural-commitments-v1.md
     - structure: "six Q-and-A sections matching the six §'What this falsifies' items + §Bonus learnings (per Move 2 learnings doc)"
     - includes_path_a_findings: true   # write-up MUST cover P2/P5 obviation as a learning
     - exit_criterion: "ADR-0004 revisit criteria triggered; project transitions out of pure experiment phase"
-  status: done              # 2026-06-04 — docs/reviews/dmf-platform-move-1-learnings-2026-06-04.md
+  status: done              # 2026-06-04 — docs/reviews/dmf-platform-move-1-learnings.md
                             # six Q&A + bonus + ADR-0004 revisit verdict; architectural-commitments-v1
                             # superseded. Verdict: catalog/NMOS thesis CONFIRMED (5/6 falsifications
                             # did not fire; Q6 live drift-injection = evidence gap, optional P0b).

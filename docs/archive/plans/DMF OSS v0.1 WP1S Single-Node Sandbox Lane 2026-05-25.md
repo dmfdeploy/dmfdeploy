@@ -1,10 +1,10 @@
 ---
 status: superseded
 date: 2026-05-25
-superseded_by: "DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md"
+superseded_by: "dmf-v0-1-commitment-and-30-day-focus-cut-plan.md"
 ---
 # DMF OSS v0.1 WP1S — Single-Node Sandbox Lane
-> **Superseded by** [DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md](../../plans/DMF%20v0.1%20Commitment%20%26%2030-Day%20Focus-Cut%20Plan%202026-06-06.md) (adjudicated 2026-06-11, refs
+> **Superseded by** [dmf-v0-1-commitment-and-30-day-focus-cut-plan.md](../../plans/dmf-v0-1-commitment-and-30-day-focus-cut-plan.md) (adjudicated 2026-06-11, refs
 > issue #32 WP5): [architectural-commitments-v1](../../decisions/architectural-commitments-v1.md)
 > re-cut v0.1 — the sandbox lane's proven core stands, the AWS/profile-matrix
 > sequencing is dropped (cloud claims are a named non-goal), and the remaining
@@ -13,7 +13,7 @@ superseded_by: "DMF v0.1 Commitment & 30-Day Focus-Cut Plan 2026-06-06.md"
 **Status:** Active — **first actionable work package** after WP0. **Phase 3 (AWX fit) + Phase 4 (catalog loop, machine path) PROVEN on `<env>` 2026-05-29** (see §8.1). **Operator-confirmed end-to-end on `<env>` 2026-05-29** (passkey browser → Console → AWX deploy/teardown). Remaining before a v0.1 tag: a formal non-maintainer fresh-clone replicability run.
 **Date:** 2026-05-25
 **Author:** Claude (planning sweep, under ADR-0031 framing)
-**Anchor:** [WP0 Release Contract & Profile Matrix](../../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md)
+**Anchor:** [WP0 Release Contract & Profile Matrix](../../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md)
 **Related ADR:** [ADR-0031](../../decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md) (Profile 1, O1–O6)
 **Profile:** `sandbox-single-node` — **the v0.1 release gate**
 
@@ -27,7 +27,7 @@ arises between polishing the AWS lane ([WP1A](DMF%20OSS%20v0.1%20WP1%20AWS%20Pro
 and making this lane concrete, **this lane wins**. AWS is not sequenced ahead of
 it.
 
-**Harness vs claim** (see [WP0 §1](../../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md)):
+**Harness vs claim** (see [WP0 §1](../../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md)):
 
 - **First live implementation harness:** local Lima Debian 12 ARM64 VM on the
   maintainer's Mac, for rapid ARM64 iteration while still exercising the same
@@ -392,7 +392,7 @@ Findings surfaced + fixed (all gate-relevant):
 
 ## 10. Dependencies
 
-- [WP0](../../plans/DMF%20OSS%20v0.1%20WP0%20Release%20Contract%20and%20Profile%20Matrix%202026-05-25.md) — scope, trims, gates (this profile's contract).
+- [WP0](../../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md) — scope, trims, gates (this profile's contract).
 - [WP2](DMF%20OSS%20v0.1%20WP2%20Bootstrap%20Independence%202026-05-25.md) — sandbox-local OpenBao seed path (no operator-Mac).
 - [WP3](DMF%20OSS%20v0.1%20WP3%20In-Cluster%20Platform%20Services%202026-05-25.md) — sandbox services trim (no Headscale; ntfy optional/stub).
 - [WP4](DMF%20OSS%20v0.1%20WP4%20CMS%20User%20Administration%202026-05-25.md) — seeded admin passkey login + backend role guards (trimmed).

@@ -1,7 +1,7 @@
 # Move 1 + Catalog — Architectural Commitments v1
 
 > **Status:** Superseded by
-> [`docs/reviews/dmf-platform-move-1-learnings-2026-06-04.md`](reviews/dmf-platform-move-1-learnings-2026-06-04.md)
+> [`docs/reviews/dmf-platform-move-1-learnings.md`](reviews/dmf-platform-move-1-learnings.md)
 > (2026-06-04). This doc was written **provisionally on 2026-05-05**, before the
 > 2026-05-06 **Path A pivot** (ADR-0014/0016) and before the runtime loop was
 > verified (2026-05-27/29). Several file references below are pre-Path-A and no
@@ -175,7 +175,7 @@ The following end-to-end path was exercised:
 | `docs/decisions/0014-awx-project-layout.md` | New | ADR-0014 |
 | `docs/archive/plans/Move 1 Gate 1 — Build NMOS + Run Provision.md` | New | Gate 1 execution guide |
 | `docs/archive/plans/Move 1 Gate 2 — AWX Integration + Launch NMOS.md` | New | Gate 2 execution guide |
-| `docs/plans/dmf-platform-move-1-task-2026-05-04.md` | New | Task spec |
+| `docs/plans/dmf-platform-move-1-task.md` | New | Task spec |
 | `docs/architecture/DMF Function Catalog Model.md` | New | Catalog architecture |
 
 ---
@@ -191,8 +191,8 @@ The following end-to-end path was exercised:
 
 ## 7. References
 
-- Strategic review: `docs/reviews/dmf-platform-strategic-review-2026-04-30.md`
-- Move 2 learnings: `docs/reviews/dmf-platform-move-2-learnings-2026-05-04.md`
+- Strategic review: `docs/reviews/dmf-platform-strategic-review.md`
+- Move 2 learnings: `docs/reviews/dmf-platform-move-2-learnings.md`
 - NMOS plan: `docs/archive/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md`
 - EBU mapping: `docs/architecture/DMF EBU Mapping (2026-04-25).md`
 - Platform plan: `docs/architecture/DMF Platform Plan.md`

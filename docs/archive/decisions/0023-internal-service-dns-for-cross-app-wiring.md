@@ -95,6 +95,6 @@ isn't yet warm:
 ## Enforcement — survey and migration tracking bullet (moved from the ADR)
 
 - Survey + migration tracked in
-  `docs/plans/DMF Internal Service DNS Migration Survey 2026-05-14.md`
+  `docs/plans/dmf-internal-service-dns-migration-survey.md`
   — produces a per-file diff inventory of remaining public-URL
   cross-app defaults to migrate.

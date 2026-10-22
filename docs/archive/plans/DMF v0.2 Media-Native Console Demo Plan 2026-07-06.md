@@ -2,12 +2,12 @@
 status: superseded
 date: 2026-07-06
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/185
-superseded_by: DMF v0.2 EBU Facility-Orchestration Re-anchor Plan 2026-07-07.md
+superseded_by: dmf-v0-2-ebu-facility-orchestration-re-anchor-plan.md
 ---
 # DMF v0.2 Media-Native Console Demo Plan (2026-07-06)
 
 > **STATUS: SUPERSEDED (2026-07-07)** by
-> [DMF v0.2 EBU Facility-Orchestration Re-anchor Plan 2026-07-07](../../plans/DMF%20v0.2%20EBU%20Facility-Orchestration%20Re-anchor%20Plan%202026-07-07.md),
+> [DMF v0.2 EBU Facility-Orchestration Re-anchor Plan 2026-07-07](../../plans/dmf-v0-2-ebu-facility-orchestration-re-anchor-plan.md),
 > which re-frames the v0.2 round around the EBU facility-orchestration lifecycle
 > and reconciles these work packages under it (WP-A/B shipped and stay; WP-E
 > stays as the next code WP; WP-C/D become critical-path lifecycle-observation

@@ -1,6 +1,6 @@
 # DMF Console — Glossary
 
-**Status:** 🚧 Stub — seed entries only. Owns the procedural detail behind **[UX Constitution](DMF%20Console%20UX%20Constitution%202026-05-25.md) Art. 3** ("Speak the operator's language, and teach the facility's").
+**Status:** 🚧 Stub — seed entries only. Owns the procedural detail behind **[UX Constitution](dmf-console-ux-constitution.md) Art. 3** ("Speak the operator's language, and teach the facility's").
 
 ## Why this doc exists
 Art. 3 splits vocabulary into three tiers. This glossary records, for every term the console might show, **which tier it sits in** and its **one-sentence plain-language definition** (which must itself avoid jargon). The in-place "ⓘ" affordances and any help surface read from here.

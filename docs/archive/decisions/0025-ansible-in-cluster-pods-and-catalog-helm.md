@@ -42,7 +42,7 @@ evidence: `dmf-infra@cf5ded4`, `d0831cb`, `efa9cd3`, `eb36581`, `b4822ae`;
   pod-to-pod HTTP calls; this ADR records the node-side image-pull exception.
 - `docs/plans/DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md`
   — convergence parent plan; Lane C remains in flight.
-- `docs/plans/DMF ADR-0025 Lane B Implementation Plan 2026-05-22.md` — Lane B
+- `docs/plans/dmf-adr-0025-lane-b-implementation-plan.md` — Lane B
   implementation plan and Phase 6 amendment.
 
 ## Context — incident and evidence (moved from the ADR)

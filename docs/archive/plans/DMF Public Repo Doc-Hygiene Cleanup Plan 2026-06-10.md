@@ -151,7 +151,7 @@ All line numbers verified against working trees on 2026-06-10. Severity:
 The umbrella already holds the MXL **design** learnings (`docs/archive/plans/DMF MXL
 Single-Node Media Node Spike Plan 2026-05-17.md`, `…Loopback Execution Plan
 2026-05-29.md`, `…On-Demand Media Function Cycle Plan 2026-06-01.md`,
-`docs/reviews/dmf-mxl-upstream-profile-and-contribution-review-2026-06-01.md`,
+`docs/reviews/dmf-mxl-upstream-profile-and-contribution-review.md`,
 ADR-0017). Steps:
 1. Diff the public spike/handoff docs against those — identify content **not
    already captured** (notably the **GREEN 2026-05-30 operational result** and

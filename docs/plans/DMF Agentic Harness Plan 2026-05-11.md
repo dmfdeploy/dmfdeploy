@@ -442,7 +442,7 @@ Three groups, sequenced by dependency:
 
 ### Group B — Release & Contribution Phases 0–2 (6 repos × small artifacts)
 
-Generated from `docs/plans/DMF Release and Contribution Model Implementation Plan 2026-05-11.md`:
+Generated from `docs/plans/dmf-release-and-contribution-model-implementation-plan.md`:
 
 - **Phase 0** (6 repos × 5 artifacts = 30 rote tasks): LICENSE, NOTICE, VERSION, `.gitignore` baseline, CONTRIBUTING.md stub. Worker: `qwen-left`. Acceptance per task: file exists + scrub clean.
 - **Phase 1** (1 task per repo + 1 generalization): per-repo gitleaks pre-commit hook install via extended `bin/install-hooks.sh`. Worker: `qwen-right`.
@@ -452,7 +452,7 @@ Group B is roughly **35 tasks**, all `kind: rote`, no decision gates. Should bur
 
 ### Group C — Move 1 (9 pieces, gated by D1–D4)
 
-Direct copy from `docs/plans/dmf-platform-move-1-task-2026-05-04.md`:
+Direct copy from `docs/plans/dmf-platform-move-1-task.md`:
 
 | Piece | Worker | Gate |
 |---|---|---|
@@ -658,10 +658,10 @@ then run `bin/sync-to-github.sh` for each of the 6 public repos when ready.
 ## Cross-references
 
 - `CLAUDE.md` — boot ritual + repo conventions this plan codifies
-- `docs/plans/dmf-platform-move-1-task-2026-05-04.md` — source of Group C (Move 1 Pieces 1–9, D1–D4)
-- `docs/plans/DMF Release and Contribution Model Implementation Plan 2026-05-11.md` — source of Group B (Phases 0–2)
+- `docs/plans/dmf-platform-move-1-task.md` — source of Group C (Move 1 Pieces 1–9, D1–D4)
+- `docs/plans/dmf-release-and-contribution-model-implementation-plan.md` — source of Group B (Phases 0–2)
 - `docs/plans/DMF Pre-Release Compliance Readiness Plan 2026-05-11.md` — source of Group D (Tier A.1–A.9)
-- `docs/plans/LLM-Restricted Git Pipeline — Dev-Testing-Production Isolation Plan 2026-05-09.md` — adjacent push-discipline design
+- `docs/plans/llm-restricted-git-pipeline-dev-testing-production-isolation-plan.md` — adjacent push-discipline design
 - `docs/handoffs/DMF Public Publish Readiness Handoff 2026-05-07.md` — the orphan-rebase + refspec gate this plan must not violate
 - `docs/decisions/INDEX.md` — ADR-0005, ADR-0011, ADR-0018, ADR-0020 are load-bearing
 - `bin/sync-to-github.sh` — the operator-only push gate this plan strengthens but never bypasses
