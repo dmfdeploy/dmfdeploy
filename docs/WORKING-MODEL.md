@@ -293,11 +293,11 @@ Two sanctioned forms:
 | `bin/check-working-model-sync.sh --report-pins` | umbrella, on demand | reports how far behind each sibling's pin is (never fails a build) |
 | SessionStart hook → `bin/working-model-digest.sh` | Claude Code, per repo (trust-gated) | injects digest at session start |
 | PR-gate issue-linkage job (`guard.yml`) | all 9 repos | fails unqualified/missing reference |
-| `bin/check-docs.sh` | umbrella pre-commit; CI `check-docs` job (a required check) | fails bad frontmatter, an active plan with no `tracking_issue`, a stale plans index, ADR index drift, and broken doc-to-doc links |
+| `bin/check-docs.sh` | umbrella pre-commit; CI `check-docs` job (a required check) | fails bad frontmatter, an active plan with no `tracking_issue`, a dangling `superseded_by` target, a stale plans index, ADR index drift, and broken doc-to-doc links |
 | `bin/check-surface.sh` via `surface.yml` and the pre-commit hook | umbrella | CI runs the fixture tests, then each subcommand with `--strict` as its own step; the hook runs `--strict` on the staged content of the files in the commit; fails on any finding (not a required check yet) |
 | Vale via `vale.yml` | umbrella prose that `.vale.ini` lints, on pull requests that change it | three layers: the whole tree warns; the files in `.vale/clean-set.txt` fail on an error-level alert; `bin/check-voice-changed.sh` fails when a changed file gains an error-level Voice alert (not a required check yet) |
 | `title-check.yml` | umbrella issues and pull requests | `title` job (`STRICT: "1"`) fails a title that starts with `[auto]`; `static` job runs `.github/scripts/hygiene-check.sh` on the issue forms, CODEOWNERS, and the PR template, then on its fixtures (not a required check yet) |
-| `pr-body-lint.yml` | umbrella pull requests | advisory: lints the title and body with `bin/check-voice.sh --conversational` and posts one comment; never fails |
+| `pr-body-lint.yml` | umbrella pull requests | advisory: lints the title and body with `bin/check-voice.sh` (conversational mode) and posts one comment; never fails |
 | `bin/check-ruleset-drift.sh` via `governance-drift.yml` (daily 07:00 UTC) | umbrella `main` ruleset | fails when the live ruleset differs from `.github/expected-ruleset.json`; `ci.yml` checks the expectation file on each PR; bypass actors are not covered |
 | Branch ruleset: approval + CODEOWNERS + required status checks + rebase-only, stale approvals dismissed on push | all 9 repos | merge is impossible otherwise |
 | `automerge.yml` + `required_status_checks` ruleset | all 9 repos | approval-driven rebase auto-merge + branch auto-delete (`hold` label disarms) |
@@ -328,8 +328,9 @@ newer hygiene checks is required yet: the surface checks, Vale, the title
 and static checks, the PR-body lint, backlog hygiene, and the ruleset drift
 check. A failing one shows on the pull request, but auto-merge still lands an
 approved PR once the required checks pass. Backlog hygiene and the ruleset
-drift check run on a schedule, so they never report on a pull request. The voice sweep that would let more files join the Vale clean set is
-tracked in [#688](https://github.com/dmfdeploy/dmfdeploy/issues/688).
+drift check run on a schedule, so they never report on a pull request. The
+voice sweep that would let more files join the Vale clean set is tracked in
+[#688](https://github.com/dmfdeploy/dmfdeploy/issues/688).
 
 ## 8. New-repo bootstrap checklist
 
