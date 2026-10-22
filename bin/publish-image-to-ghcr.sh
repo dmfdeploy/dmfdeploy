@@ -30,7 +30,7 @@
 #       | GHCR_USER="$USER" publish-image-to-ghcr.sh src1:tag dst1:tag
 #
 # Env knobs:
-#   GHCR_USER     GitHub username (prompts if unset and stdin is a tty)
+#   GHCR_USER     GitHub username (required when stdin is not a tty; prompts on a tty)
 #   DOCKER_HOST   defaults to Colima docker-build socket
 #
 # Output:
@@ -51,11 +51,21 @@ in pairs; both refs include the tag.
 Example:
   $(basename "$0") \\
     registry.dmf.example.com/dmf/awx-ee:0.1.0 ghcr.io/dmfdeploy/awx-ee:0.1.0
+
+Piped token (GHCR_USER is required):
+  TOKEN_COMMAND | GHCR_USER=<user> $(basename "$0") <src> <dst>
 USAGE
   exit 2
 fi
 
 PAIRS=("$@")
+
+# Fail before any prompt or tool call when stdin is a pipe and the username is
+# unset. A prompt would read the token as the username.
+if [[ -z "${GHCR_USER:-}" && ! -t 0 ]]; then
+  echo "ERROR: GHCR_USER is not set and stdin is not a terminal. Set GHCR_USER to your GitHub username when you pipe the token." >&2
+  exit 1
+fi
 
 # Preflight ---------------------------------------------------------------
 
