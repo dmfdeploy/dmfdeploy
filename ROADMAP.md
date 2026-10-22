@@ -6,19 +6,19 @@ definitions and the membership rule live in
 [docs/WORKING-MODEL.md §2](docs/WORKING-MODEL.md#2-issues); this
 page is the public summary. There are no delivery dates.
 
-## v0.1-polish — the console tells the truth
+## v0.1-polish: the console tells the truth
 
 An outsider completes the documented journey cold, nothing on the way tells
 them something untrue, and the public repos are safe to read and clone.
 
-## v0.2 — a team shares one console
+## v0.2: a team shares one console
 
 A usable workload of several media functions, switched by NMOS IS-05, operated
 by a small team in one console, where a deploy never blocks the facility.
 Episode 001 declared the IS-05 gap on camera; the team scope and the
 non-blocking deploy are maintainer decisions of 2026-10-20.
 
-## v0.3 — design and plan in the console
+## v0.3: design and plan in the console
 
 A team designs a workload and a facility in the console and plans them before
 anything is provisioned. Episode 001 declared both stages as placeholders; the

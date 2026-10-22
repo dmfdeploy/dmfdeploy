@@ -49,14 +49,14 @@ checked out as a sibling directory of this umbrella under a common parent:
 
 | Repo | EBU layer / vertical | Stack | Status |
 |---|---|---|---|
-| [`dmf-infra`](https://github.com/dmfdeploy/dmf-infra) | Layers 1–3 + verticals (Security, Monitoring, Orchestration, Control) | Ansible + Helm | **Active** — generic playbooks/roles, the bootstrap engine |
-| [`dmf-env`](https://github.com/dmfdeploy/dmf-env) | Layer 1 + generic env tooling | Terraform (OpenTofu) + Ansible vars | **Active** — generic; per-env state is operator-local (ADR-0035) |
-| [`dmf-central`](https://github.com/dmfdeploy/dmf-central) | Deploy-once central services | Ansible (stub) | Scaffold — **frozen** for v0.1 (federation is a named non-goal) |
-| [`dmf-media`](https://github.com/dmfdeploy/dmf-media) | Layers 4–5 (Media Exchange + Functions) | Ansible + Helm | **Active** — catalog metadata; v2 media roles frozen for v0.1 |
-| [`dmf-runbooks`](https://github.com/dmfdeploy/dmf-runbooks) | Layers 4–5 execution | Ansible (AWX launchers) | **Active** — thin AWX launchers + authoritative `nmos-cpp` role |
-| [`dmf-cms`](https://github.com/dmfdeploy/dmf-cms) | Layer 6 (Application & UI) | React + TypeScript / FastAPI / OIDC | **Active** — the operator console |
-| [`dmf-init`](https://github.com/dmfdeploy/dmf-init) | Day-0 bootstrap | React + FastAPI container | **Active** — the installer: blank node → full platform |
-| [`dmf-promsd`](https://github.com/dmfdeploy/dmf-promsd) | Monitoring vertical | Python | **Active** — NetBox-driven Prometheus service discovery (ADR-0038) |
+| [`dmf-infra`](https://github.com/dmfdeploy/dmf-infra) | Layers 1–3 + verticals (Security, Monitoring, Orchestration, Control) | Ansible + Helm | **Active**: generic playbooks/roles, the bootstrap engine |
+| [`dmf-env`](https://github.com/dmfdeploy/dmf-env) | Layer 1 + generic env tooling | Terraform (OpenTofu) + Ansible vars | **Active**: generic; per-env state is operator-local (ADR-0035) |
+| [`dmf-central`](https://github.com/dmfdeploy/dmf-central) | Deploy-once central services | Ansible (stub) | Scaffold: **frozen** for v0.1 (federation is a named non-goal) |
+| [`dmf-media`](https://github.com/dmfdeploy/dmf-media) | Layers 4–5 (Media Exchange + Functions) | Ansible + Helm | **Active**: catalog metadata; v2 media roles frozen for v0.1 |
+| [`dmf-runbooks`](https://github.com/dmfdeploy/dmf-runbooks) | Layers 4–5 execution | Ansible (AWX launchers) | **Active**: thin AWX launchers + authoritative `nmos-cpp` role |
+| [`dmf-cms`](https://github.com/dmfdeploy/dmf-cms) | Layer 6 (Application & UI) | React + TypeScript / FastAPI / OIDC | **Active**: the operator console |
+| [`dmf-init`](https://github.com/dmfdeploy/dmf-init) | Day-0 bootstrap | React + FastAPI container | **Active**: the installer: blank node → full platform |
+| [`dmf-promsd`](https://github.com/dmfdeploy/dmf-promsd) | Monitoring vertical | Python | **Active**: NetBox-driven Prometheus service discovery (ADR-0038) |
 
 Canonical architecture: [`docs/architecture/DMF Platform Plan.md`](docs/architecture/DMF%20Platform%20Plan.md).
 Canonical vocabulary (layers/verticals/lifecycle): [`docs/architecture/DMF EBU Mapping (2026-04-25).md`](docs/architecture/DMF%20EBU%20Mapping%20%282026-04-25%29.md).
