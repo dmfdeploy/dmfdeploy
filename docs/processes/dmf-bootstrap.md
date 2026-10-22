@@ -281,7 +281,7 @@ with the bootstrap bundle before any Layer 6 application is installed.
 | `docs/plans/dmf-bootstrap-provision-configure-split-plan.md` | Implementation plan (rev 5) — lifecycle split, role refactors, acceptance criteria |
 | `docs/plans/dmf-pre-bao-bootstrap-secrets-design.md` | Pre-Bao bundle design — secret classes, encryption, collision policy |
 | `docs/handoffs/DMF Bootstrap Pre-Seed Two Blockers Handoff 2026-05-09.md` | Current known blockers (Authentik/Zot placement, kubectl SSH target) |
-| `docs/handoffs/dmf-bootstrap-pre-seed-blocker-fix-implementation-plan.md` | Fix plan for the two blockers above |
+| `docs/plans/dmf-bootstrap-pre-seed-blocker-fix-implementation-plan.md` | Fix plan for the two blockers above |
 | `docs/decisions/ADR-0007` | Secrets never in argv / env / tmp / transcripts |
 | `docs/decisions/ADR-0008` | OpenBao + ESO + AppRole architecture |
 | `docs/decisions/ADR-0009` | 5-share Shamir model |
