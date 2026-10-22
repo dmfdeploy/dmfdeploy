@@ -7,7 +7,7 @@ responsibility first.
 
 ## What & why
 
-<!-- One paragraph: what this changes and the motivation. Link issues with #NNN. -->
+<!-- One paragraph: what this changes and the motivation. Link issues with "Closes dmfdeploy/dmfdeploy#NNN". -->
 
 ## Checklist
 
