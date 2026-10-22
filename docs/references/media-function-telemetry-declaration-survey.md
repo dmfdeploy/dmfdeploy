@@ -80,8 +80,8 @@ deltas between intended and observed state.
   and
   <https://tech.ebu.ch/news/2025/09/ebu-and-amwa-form-joint-task-force-on-dynamic-media-facilities-for-transition-to-software-based-media-production>.
   No SMPTE or VSF ownership role appears in any source read.
-- The EBU group page lists two co-chairs, one from each of two public
-  broadcasters, and named contacts at EBU and AMWA.
+- The EBU group page lists two co-chairs, one from BBC and one from
+  CBC, and named contacts at EBU and AMWA.
 - Four tracks were set at the Geneva kick-off on 2025-11-27 and 2025-11-28:
   end-to-end synchronisation, compute resource management ("multi-vendor
   hosting of media functions on shared compute nodes"), MXL flow discovery and
@@ -173,8 +173,9 @@ in any ADR.
 - **Alerts:** the spec defines no alarms. `overallStatus` "can be used
   directly as a simple pre-defined non-configurable operator alarm
   condition".
-- **Adoption:** ten vendors announced BCP-008 interoperability demonstrations
-  at IBC 2026
+- **Adoption:** ten vendors (Arkona, DirectOut, EVS, Leader, Nevion, Pebble,
+  Providius, Riedel, Simplexity and Sony) announced BCP-008 interoperability
+  demonstrations at IBC 2026
   (<https://www.tvtechnology.com/infrastructure/amwa-and-ebu-to-host-demos-at-ibc-2026>).
   AMWA ran a developer workshop from 2025-11-24 to 2025-11-26
   (<https://go.amwa.tv/nmos-workshop>). (U) No shipping product with BCP-008
@@ -306,7 +307,7 @@ in any ADR.
 
 ### 2.7 Implementations and testing
 
-- **nmos-cpp** (<https://github.com/sony/nmos-cpp>, open source): implements
+- **nmos-cpp** (<https://github.com/sony/nmos-cpp>, maintained by Sony, open source): implements
   IS-12, BCP-008-01 and -02, and IS-14. The demo node creates
   `NcReceiverMonitor` objects with simulated status. The repository has no
   tags or GitHub releases, so pin a commit or a Conan recipe.
@@ -454,7 +455,8 @@ numbers below are printed pages.
   -11, -12, -19 and -50 are Public Committee Drafts
   (<https://www.smpte.org/standards/st2138>). The schema repository
   `SMPTE/st2138-a` is at `v1.1.1-pre-fcd` (last commit 2026-10-19). The
-  reference SDK is vendor-led (BSD-3-Clause).
+  reference SDK is `rossvideo/Catena` (<https://github.com/rossvideo/Catena>),
+  led by Ross Video (BSD-3-Clause).
 - **Declaration:**
   - A typed parameter tree: INT32, FLOAT32, STRING, STRUCT, arrays and others.
   - Each parameter has `read_only`, `constraint`, and a `stateless` flag for
@@ -492,10 +494,10 @@ numbers below are printed pages.
 - **NABA, Academy Software Foundation, CNCF media groups:** nothing found.
 - **OpenTelemetry:** CNCF graduated 2026-05-21
   (<https://www.cncf.io/announcements/2026/05/21/cloud-native-computing-foundation-announces-opentelemetrys-graduation/>).
-- **SRT** (vendor-led open source): statistics with units in the field names
+- **SRT** (Haivision-led open source): statistics with units in the field names
   (`msRTT`, `pktSndLossTotal`, `byteSentTotal`), pulled by API call
   (<https://raw.githubusercontent.com/Haivision/srt/master/docs/API/statistics.md>).
-  The same vendor ships an SRT Prometheus exporter (vendor).
+  Haivision also ships an `srt-prometheus-exporter` (vendor).
 - **RIST:** libRIST stats arrive by callback at an interval, as JSON plus
   structs. (U) Read from an unofficial mirror.
 - **IETF Media over QUIC:** `draft-jennings-moq-metrics` is an expired
@@ -576,9 +578,10 @@ The SMPTE documents below were downloaded free from `pub.smpte.org` on
   - Performance records follow IEEE 1588-2019 Annex J, at 15-minute and
     24-hour intervals.
   - (U) Adoption unverified.
-- **Open exporters:** thin. A telecom-oriented, vendor-led open-source
-  linuxptp daemon exports the clock offset in nanoseconds and a clock-state
-  gauge (0 FREERUN, 1 LOCKED, 2 HOLDOVER) and similar metrics. The other
+- **Open exporters:** thin. `openshift/linuxptp-daemon` (Red Hat-led and
+  telecom-oriented, open source) exports `openshift_ptp_offset_ns`,
+  `openshift_ptp_clock_state` (0 FREERUN, 1 LOCKED, 2 HOLDOVER) and similar
+  metrics. The other
   exporters found are lab projects.
 - (J) A `ptp-monitor` sidecar built on `pmc` or libptpmgmt should name its
   metrics after RP 2059-15 leaves.
@@ -592,7 +595,7 @@ The SMPTE documents below were downloaded free from `pub.smpte.org` on
 - **Activity groups:** none for monitoring (<https://vsf.tv/activity-groups/>).
 - **`vsf-tv/gccg-api`:** a transport API with no health or status endpoint.
 - **VidTrans 2025 decks:**
-  - A presentation on BCP-008 "Minimal Status Reporting":
+  - A presentation from Simplexity on BCP-008 "Minimal Status Reporting":
     listed on the VidTrans 2025 event page,
     <https://vsf.tv/2025-vsf-vidtrans25/>.
   - A PTP best-practices deck: enable the SM TLV, monitor grandmaster ID and
@@ -616,7 +619,7 @@ The SMPTE documents below were downloaded free from `pub.smpte.org` on
 
 ### 5.5 Ember+
 
-- **What:** open protocol, originated by a broadcast vendor, BSL-1.0
+- **What:** open protocol, owner Lawo (vendor), BSL-1.0
   (<https://github.com/Lawo/ember-plus>). Specification v2.50.
 - **Parameters** carry `minimum`, `maximum`, `access`, `format`,
   `enumeration`, `factor`, `formula` and `streamIdentifier`.
@@ -638,10 +641,10 @@ The SMPTE documents below were downloaded free from `pub.smpte.org` on
 
 ### 5.7 Vendor fabric telemetry (vendor, marketing sources only)
 
-- One network-switch vendor's IP fabric for media, with its controller
-  (vendor), offers per-flow RTP loss and PTP drift.
-- A second switch vendor's media control service, with its cloud management
-  (vendor), offers streaming telemetry.
+- Cisco Nexus IP Fabric for Media with NDFC (vendor) offers per-flow RTP loss
+  and PTP drift.
+- Arista Media Control Service with CloudVision (vendor) offers streaming
+  telemetry.
 - (J) Fabric telemetry joins function telemetry through a shared flow
   identifier: the NMOS flow ID, or the multicast group and source.
 
@@ -723,7 +726,7 @@ The SMPTE documents below were downloaded free from `pub.smpte.org` on
   (<https://prometheus-operator.dev/docs/api-reference/api/>).
 - **Chart pattern:** `serviceMonitor.enabled: false` and
   `prometheusRule.enabled: false` by default (prometheus-community charts;
-  charts from other vendors follow the same default).
+  Bitnami charts (vendor, Broadcom) follow the same default).
 - **Helm:** does not upgrade CRDs. Rendering a ServiceMonitor without the CRD
   fails with "no matches for kind"
   (<https://helm.sh/docs/chart_best_practices/custom_resource_definitions/>).
@@ -770,8 +773,7 @@ The SMPTE documents below were downloaded free from `pub.smpte.org` on
 - (J) This is the network-world pattern: a typed YANG model, capability
   discovery and subscription. It fits switches, and an RP 2059-15 PTP
   collector. A containerised function has little need for it. (U) Broadcast
-  switch adoption rests on one unverified forum mention naming two switch
-  vendors.
+  switch adoption rests on one unverified forum mention (vendors: Arista and Cisco).
 
 ### 6.7 SLO standards
 
@@ -817,7 +819,7 @@ The SMPTE documents below were downloaded free from `pub.smpte.org` on
 | RP 2059-15 | SMPTE | Published 2023 | Typed YANG with units | Not defined | Not defined | None |
 | IEEE 1588 mgmt / pmc | IEEE; linuxptp open | Stable | Fixed data sets | Port identity | Pull | Profile vs data sets |
 | MXL | Open; LF, EBU, NABA | Alpha onward | None (runtime header only) | Domain listing | Local pull | Liveness only |
-| Ember+ | Open; vendor-originated | v2.50 | Range, enum, unit in format | Tree walk | Push, subscribe | None |
+| Ember+ | Open; Lawo (vendor) | v2.50 | Range, enum, unit in format | Tree walk | Push, subscribe | None |
 | Catena ST 2138 | Open; SMPTE | Public CD, pre-FCD | Typed params, alarm table, no units | Device model | Read, subscribe stream | Alarm severity |
 | ST 2126 | SMPTE | 2025 (U) | Job status, log schema | No | Logs | Level, status |
 | IAMT DSL 1.0.0 | Open; IAMT | Published 2026-09 | Licence dimensions only | No | Push, buffered | Grace and renewal alerts |
