@@ -6,7 +6,7 @@
 
 ## Context
 
-The dmfdeploy platform needs a canonical contribution and release model that all repos follow. The prior model described a Forgejo-canonical, GitHub-push-mirror, sync-to-github.sh-only workflow with a Constitution and five sibling repos — all of which are stale. Four locked decisions (2026-06-09) resolved the outstanding TBDs: GitHub-canonical-forward, DCO (not CLA), retire-to-archive for Forgejo, and Free-tier locked-window flip.
+The dmfdeploy platform needs a canonical contribution and release model that all repos follow. The prior model described a Forgejo-canonical, GitHub-push-mirror, sync-to-github.sh-only workflow with a Constitution and five sibling repos. All of them are stale. Four locked decisions (2026-06-09) resolved the outstanding TBDs: GitHub-canonical-forward, DCO (not CLA), retire-to-archive for Forgejo, and Free-tier locked-window flip.
 
 ## Decision
 
@@ -14,24 +14,24 @@ Adopt the **GitHub-canonical-forward** model codified in `docs/architecture/DMF 
 
 - **GitHub `main` is the single source of truth.** All forward work is GitHub Pull Requests. Direct push to `main` is blocked; force-push is banned.
 - **Forgejo is archive-only.** LAN Forgejo repos (`<repo>-archive`) are read-only history snapshots, never an upstream or contribution path.
-- **`bin/sync-to-github.sh` is retired** post-import — it was a one-time import tool, not the publish path.
-- **DCO, not CLA.** Every commit must carry `Signed-off-by:` (`git commit -s`); a DCO check enforces it on PRs.
+- **`bin/sync-to-github.sh` is retired** post-import. It was a one-time import tool. The publish path is GitHub Pull Requests.
+- **DCO is required; there is no CLA.** Every commit must carry `Signed-off-by:` (`git commit -s`); a DCO check enforces it on PRs.
 - **Conventional Commits required** on `main`; SemVer; `VERSION` file is the single source of truth (ADR-0005); no VERSION bump → no release.
 - **Topic branches** `<handle>/<short-slug>`; linear history; rebase-merge onto `main` so DCO trailers survive.
 
-**External contributor flow — RESOLVED.** GitHub-first PRs with DCO; no Forgejo round-trip path needed. The stale §5 TBD in the source doc is closed.
+**External contributor flow: RESOLVED.** GitHub-first PRs with DCO; no Forgejo round-trip path needed. The stale §5 TBD in the source doc is closed.
 
 ## Consequences
 
-- **Positive** — clear contribution path for external contributors; CI-enforced DCO + Conventional Commits; no more stale Forgejo-canonical confusion.
-- **Negative** — DCO merge-method gap: squash-merge can drop Signed-off-by trailers; mitigated by Workstream A setting rebase-merge-only (or requiring signed-off squash messages).
-- **Neutral** — governance files (CONTRIBUTING.md, SECURITY.md, PR/issue templates, CODEOWNERS, DCO workflow) added to every repo; existing ADRs unchanged.
+- **Positive:** clear contribution path for external contributors; CI-enforced DCO + Conventional Commits; no more stale Forgejo-canonical confusion.
+- **Negative:** DCO merge-method gap: squash-merge can drop Signed-off-by trailers; mitigated by Workstream A setting rebase-merge-only (or requiring signed-off squash messages).
+- **Neutral:** governance files (CONTRIBUTING.md, SECURITY.md, PR/issue templates, CODEOWNERS, DCO workflow) added to every repo; existing ADRs unchanged.
 
 ### Enforcement
 
-- **Governance files:** CONTRIBUTING.md, SECURITY.md, `.github/` templates, CODEOWNERS, DCO workflow in every repo (this workstream).
-- **CI gates:** DCO workflow checks every PR; gitleaks/scrub/commitlint/trivy (Workstream E1).
-- **Branch protection:** GitHub rulesets enforce linear history, required reviews (CODEOWNERS), and required status checks (Workstream A).
+- **DCO:** `.github/workflows/dco.yml` checks every PR commit for `Signed-off-by:`; `dmf-cms/.github/workflows/dco.yml` and `dmf-infra/.github/workflows/dco.yml` do the same in those repos.
+- **CI gates:** `.github/workflows/guard.yml` runs gitleaks, commitlint and trivy on every PR (Workstream E1).
+- **Branch protection:** GitHub rulesets enforce linear history, required reviews (CODEOWNERS), and required status checks (Workstream A). `bin/check-ruleset-drift.sh` asserts the live ruleset against `.github/expected-ruleset.json`.
 
 ## Status
 

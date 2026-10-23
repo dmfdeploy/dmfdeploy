@@ -14,7 +14,7 @@ leak surface: argv (visible via `ps`), environment (`/proc/<pid>/environ`),
 `/tmp` files (other users on the host), shell history (persistent on disk),
 AI conversation transcripts (captured to prompt cache and possibly telemetry).
 
-A leaked secret is rarely "just" leaked — telemetry, crash dumps, sync'd
+A leaked secret is rarely only leaked. Telemetry, crash dumps, sync'd
 shell history, screenshot captures, and prompt caches all retain copies that
 are hard to scrub.
 
@@ -34,14 +34,14 @@ operator working in any DMF repo:
 4. **Never paste OpenBao Shamir share contents into chat, recordings,
    screenshots, or notes.**
 5. **Sweep `/tmp` periodically** for stale `openbao-vars-*` and grep
-   `dmf-playbook-logs/` for accidentally-logged secrets.
+   `dmf-playbook-logs/` for secrets that were accidentally logged.
 6. **Treat any session that retrieved a secret as compromised for that
-   secret's lifetime** — rotate after.
+   secret's lifetime**, and rotate after.
 
 Mechanisms: pipe via stdin (`printf '%s' "$x" | tool`), use `read -s` for
 interactive input, use `--password-stdin` for tools that support it, prefer
 tools that fetch+use a secret server-side without exposing it to the operator
-(e.g. playbook 650 doing `docker login` inside an isolated docker config).
+(for example, playbook 650 doing `docker login` inside an isolated docker config).
 
 ## Consequences
 
@@ -51,16 +51,16 @@ tools that fetch+use a secret server-side without exposing it to the operator
   that" trigger when they see one of these patterns being proposed.
 - **Negative:** longer commands (`printf '%s' "$x" | docker login --password-stdin`
   vs `docker login -u u -p PASS`). Acceptable tax.
-- **Negative:** some legacy docs (e.g. earlier examples in
+- **Negative:** some legacy docs (for example, earlier examples in
   `DEVELOPMENT-AND-BUILD-RULES.md` §3) showed argv patterns. They've been
   superseded but not all references rewritten.
 
 ### Enforcement
 
-§0 of `dmf-cluster-access`, `dmf-cms-build-and-release`, and
-`dmf-openbao-unseal` skills. `bin/unseal-openbao.sh` is the reference
-implementation of "share never in argv/env/tmp." Agent boot ritual (umbrella
-CLAUDE.md) tells agents to read these §0 sections every session.
+`dmf-env/bin/unseal-openbao.sh` is the reference implementation of "share
+never in argv/env/tmp." Beyond that, discipline only: no check scans argv or transcripts. §0 of the `dmf-cluster-access` and `dmf-cms-build-and-release`
+skills (`.agents/skills/`) and the `dmf-openbao-unseal` skill state the rules.
+Umbrella AGENTS.md tells agents to read them every session.
 
 ## Status
 

@@ -23,7 +23,7 @@ by `scripts/sync-version.sh`. The `cms_image_tag` Ansible default is a
 The container image is **always** tagged
 `registry.dmf.example.com/dmf-cms:<VERSION>`. No `latest` tag, no `v` prefix in
 the image tag, no pre-release suffixes (`-rc1`, `-dirty`). `imagePullPolicy:
-IfNotPresent` is intentional — bumping `VERSION` is the only way to force a pull.
+IfNotPresent` is intentional. Bumping `VERSION` is the only way to force a pull.
 
 ## Consequences
 
@@ -31,7 +31,7 @@ IfNotPresent` is intentional — bumping `VERSION` is the only way to force a pu
   CI can fail PRs that break the contract.
 - **Positive:** the Ansible role can be re-run safely without downgrading the
   image to a hardcoded value.
-- **Positive:** version traceability — every image label carries its VERSION
+- **Positive:** version traceability: every image label carries its VERSION
   and git SHA, so `docker inspect <image>` is forensically useful.
 - **Negative:** the rule must be enforced; manual edits to `pyproject.toml`
   silently break it until the next `--check`.
@@ -40,10 +40,10 @@ IfNotPresent` is intentional — bumping `VERSION` is the only way to force a pu
 
 ### Enforcement
 
-`scripts/sync-version.sh --check` (run in CI on every PR; today the check is
-local-only, formal CI is pending). `scripts/build-image.sh` and
-`scripts/release.sh` both refuse to run if `--check` fails. The
-`dmf-cms-build-and-release` skill encodes the workflow.
+`dmf-cms/scripts/sync-version.sh --check` (CI does not run it yet; formal CI is
+pending). `dmf-cms/scripts/build-image.sh` runs it first and refuses to build if
+it fails. `dmf-cms/scripts/release.sh` calls `build-image.sh`, so it stops there
+too. The `dmf-cms-build-and-release` skill encodes the workflow.
 
 ## Status
 

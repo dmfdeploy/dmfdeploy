@@ -1,4 +1,4 @@
-# ADR-0002: Two-repo model — generic playbooks vs private inventory
+# ADR-0002: Two-repo model: generic playbooks versus private inventory
 
 **Status:** Accepted
 **Date:** 2026-04-17 (reaffirmed 2026-05-03 in umbrella consolidation)
@@ -7,8 +7,8 @@
 ## Context
 
 The platform's ansible code mixes two kinds of artifact: (a) generic, reusable
-playbooks/roles that any DMF deployment could consume, and (b) site-specific
-configuration — real IPs, OpenBao secret paths, ingress URLs, terraform state
+playbooks/roles that any dmfdeploy platform deployment could consume, and (b) site-specific
+configuration: real IPs, OpenBao secret paths, ingress URLs, terraform state
 location. Mixing them in one repo means either leaking site secrets into a
 public repo or making the public repo useless to anyone but the originating operator. Career
 credibility goal (i) and OSS goal (iii) require the generic part to be public.
@@ -17,10 +17,10 @@ credibility goal (i) and OSS goal (iii) require the generic part to be public.
 
 Two separate git repos:
 
-- **`dmf-infra`** — public, generic playbooks/roles only. No real IPs, no
+- **`dmf-infra`**: public, generic playbooks/roles only. No real IPs, no
   passwords, no site URLs. Hardcoded values are forbidden; everything is
   parameterized by inventory variables.
-- **`dmf-env`** — private, site-specific. Holds `inventories/<env>/`,
+- **`dmf-env`**: private, site-specific. Holds `inventories/<env>/`,
   `manifests/<env>.yaml` (Resource Profiles), `terraform/<env>/`, and the `bin/`
   wrappers that read OpenBao secrets / provider tokens at runtime.
 
@@ -36,16 +36,16 @@ Playbooks are run via `dmf-env/bin/run-playbook.sh <env-name> <path-to-generic-p
 - **Negative:** two repos to clone and keep in sync. The wrapper scripts
   reference each other via `..` paths; standalone clones of one without the
   other don't work for live runs.
-- **Negative:** secrets boundary discipline must be enforced — anything sensitive
+- **Negative:** secrets boundary discipline must be enforced: anything sensitive
   must NOT land in `dmf-infra`. PR reviewers and pre-commit hooks have to
   catch leaks.
 
 ### Enforcement
 
-`dmf-infra/CLAUDE.md` states the rule explicitly. Pre-commit / CI checks
-that scan for hardcoded IPs (`grep -E '178\.|46\.225\.|10\.0\.0\.'`) or known
-domains in `dmf-infra` would catch most violations; not yet wired
-automatically. ADR-0007 (secrets discipline) reinforces the boundary.
+`dmf-infra/CLAUDE.md` states the rule explicitly. The `dmf-private-network-literal`
+rule in `dmf-infra/.gitleaks.toml` flags private or mesh IP addresses, and
+`dmf-infra/.github/workflows/guard.yml` runs gitleaks on every pull request. No
+scan for known domains is wired. ADR-0007 (secrets discipline) reinforces the boundary.
 
 ## Status
 
