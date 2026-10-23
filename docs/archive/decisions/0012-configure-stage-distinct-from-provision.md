@@ -61,3 +61,40 @@ taxonomy auto-created, `ipam.Service` registered with parent
 Deployments + Services applied, NetBox tag flipped to `lifecycle:active`.
 That confirms ADR-0012 is implementable; further catalog functions
 can follow the same shape.
+
+## Moved from the ADR on 2026-10-23
+
+### Context (full text)
+
+EBU's *Dynamic Media Facility Reference Architecture* V2.0 lists six
+lifecycle stages: Design → Plan → **Provision** → **Configure** → Operate
+→ Finalise & Review (white paper Figure 1, p.3). Today
+`dmf-infra/k3s-lab-bootstrap/lifecycle-provision.yml` line 1 declares
+itself as covering "Provision + Configure stages" — i.e. the project has
+been knowingly conflating the two. For Layers 1–3 (Infrastructure, Host
+Platform, Container Platform) the conflation is harmless: provisioning
+k3s and configuring k3s happen in the same Ansible task graph. For
+Layers 4–6 (Media Exchange, Media Functions, Application & UI) the
+conflation breaks down: a media function can be *available in the
+cluster* (image cached, chart present, role available, manifest
+registered) without being *running and wired*. EBU Figure 4 puts these
+in distinct PROVISION and CONFIGURE columns. The catalog model (ADR-0013)
+needs the distinction to be load-bearing.
+
+### Plan and ADR-0025 pointer from the terminology section
+
+**See:**
+[`docs/plans/DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md`](../../plans/DMF%20Cluster-Internal%20Ansible%20Execution%20and%20Catalog%20Helm%20Pivot%20Plan%202026-05-19.md)
+for the unified architecture; [ADR-0025](../../decisions/0025-ansible-in-cluster-pods-and-catalog-helm.md)
+for the decision record.
+
+Implementation detail: see the [archive record](0012-configure-stage-distinct-from-provision.md).
+
+### Enforcement section as it stood
+
+ADR-0013 (catalog model) is the consumer of this split. The Move 1 task
+spec (`docs/plans/dmf-platform-move-1-task.md`) implements
+the first `lifecycle-configure.yml` and the first per-function Configure
++ Finalise playbook pair. If during Move 1 the split feels artificial
+for nmos-cpp, the failure is a signal to reshape this ADR rather than
+fudge the implementation.

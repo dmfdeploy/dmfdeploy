@@ -10,57 +10,35 @@ monitoring), ADR-0035 (operator-local self-contained envs)
 
 ## Context
 
-Starting NetBox-driven monitoring, the operator asked whether the dmf-cms **Facility**
-page could show the **born-inventoried `<env>`**, and whether every resource belonging to
-an env should be **tagged** in NetBox — or whether that already happens. A read-only
-survey of `dmf-born-inventory`, the `netbox-sot` taxonomy, the catalog/nmos writers, and
-the dmf-cms NetBox client established the facts below.
+The operator asked whether the dmf-cms **Facility** page could show the
+born-inventoried `<env>`, and whether every resource in an env should carry a
+NetBox tag. A read-only survey found that the env is already a first-class NetBox
+object, modelled structurally and not as a tag. `dmf-born-inventory`
+(`dmf-infra/k3s-lab-bootstrap/roles/common/dmf-born-inventory/`) creates a per-env
+**Site** and a **Cluster** named `<env_id>`, each with the custom fields
+`dmf_env_id`, `dmf_env_label`, `dmf_provider` and `dmf_architecture`.
 
-**The env is already a first-class NetBox object — modelled structurally, not as a tag:**
-
-- `dmf-born-inventory`
-  (`dmf-infra/k3s-lab-bootstrap/roles/common/dmf-born-inventory/tasks/main.yml`,
-  `defaults/main.yml`) creates, per env:
-  - a **Site** named `DMF <label/id>` (slug per-env), and
-  - a **Cluster** named `<env_id>` (`virtualization.cluster`),
-
-  each stamped with four **custom fields** (defined on `dcim.site` +
-  `virtualization.cluster`): `dmf_env_id`, `dmf_env_label`, `dmf_provider`,
-  `dmf_architecture` (provider/architecture are choice-set enums).
-- All envs share a single **Tenant** `DMF` (slug `dmf`) — tenant does **not**
-  discriminate envs.
-- Leaf resources carry **no** env field; they reach their env only **relationally**:
-  VM → `cluster`; the `dmf-traefik` load-balancer **device** → `site`; `ipam.Service`
-  (the platform apps) → `parent_object` → LB device → site; IP addresses →
-  interface → VM → cluster.
-- The only flat tag every DMF object shares is **`dmf-day0`** — an **env-agnostic**
-  marker (identical string on every env ever built). A grep of `dmf-infra` and
-  `dmf-runbooks` found **no `env:<id>` tag** anywhere; the catalog/nmos taxonomy
-  (`dmf-catalog`, `lifecycle:*`, `exposure:*`, `app:<key>`) likewise has no env dimension.
-
-Two further forces matter:
-
-- **Env ids rotate.** Per the platform's operating model, env identifiers are
-  short-lived — new ones are cut as the build shifts (`STATUS.local.md` holds the live id after running `bin/generate-status.sh`). A
-  per-env *tag* would therefore accumulate dead tags (`env:<env-a>`, `env:<env-b>`, …)
-  that nothing prunes.
-- **Existing consumers already scope by Site/Cluster.** AWX's `nb_inventory` groups by
-  `group_by: [sites, device_roles]` (`awx-integration`), and the ADR-0038 PromSD adapter
-  derives target labels from `site`. Site/Cluster is the established scoping grain.
+All envs share one Tenant `DMF`, so tenant does not tell envs apart. Leaf resources
+carry no env field and reach their env through foreign keys (VM to cluster, device
+to site, `ipam.Service` to parent device to site). The only shared flat tag is
+`dmf-day0`, which is the same string on every env. No `env:<id>` tag exists.
+Env ids rotate, so a per-env tag would leave dead tags that nothing prunes. AWX
+`nb_inventory` (`group_by: [sites, device_roles]`) and the ADR-0038 PromSD adapter
+already scope by Site. The survey detail is in the archive record.
 
 ## Decision
 
 1. **The env's canonical NetBox identity is its per-env Site and Cluster**, each carrying
    the `dmf_env_id` / `dmf_env_label` / `dmf_provider` / `dmf_architecture` custom fields
-   already written by born-inventory. To answer "what env is this, and what's in it",
+   already written by born-inventory. To find out which env an object belongs to and what it contains,
    read those objects and their custom fields.
 
-2. **No per-env tag.** We deliberately do **not** introduce an `env:<id>` tag (or any
-   per-env tag). Consumers scope an env by Site/Cluster directly — or by the
-   `?cf_dmf_env_id=<id>` filter on Sites/Clusters — and reach leaf resources by foreign
+2. **No per-env tag.** We deliberately introduce no `env:<id>` tag and no other
+   per-env tag. Consumers scope an env by Site/Cluster directly, or by the
+   `?cf_dmf_env_id=<id>` filter on Sites/Clusters. They reach leaf resources by foreign
    key: `dcim/devices/?site_id=`, `virtualization/virtual-machines/?cluster_id=`, and
    `ipam.Service` via its parent device. The generic `dmf-day0` tag stays as a
-   "DMF day-0 inventory" marker and is **not** repurposed to carry env identity.
+   "DMF day-0 inventory" marker. It does not carry env identity.
 
 3. **Consistency.** This matches AWX `nb_inventory` `group_by: [sites, …]` and the
    ADR-0038 adapter's site-derived labels, so monitoring, automation inventory, and the
@@ -68,22 +46,32 @@ Two further forces matter:
 
 ## Consequences
 
-- **Positive** — self-cleaning: on teardown the Site and Cluster are deleted wholesale,
-  so the env disappears with no orphaned tags; no tag sprawl across rotating env ids; the
-  model is NetBox-idiomatic (Site/Tenant/Cluster are the scoping primitives, tags are for
-  cross-cutting classification); zero new write surface in born-inventory or the catalog
-  writers.
-- **Negative** — `ipam.Service` env-reachability is a **2-hop** (service → parent device
+- **Positive:** the model is self-cleaning. On teardown the Site and Cluster are deleted
+  wholesale, so the env disappears with no orphaned tags. There is no tag sprawl across
+  rotating env ids. The model is NetBox-idiomatic: Site, Tenant and Cluster are the
+  scoping primitives, and tags are for cross-cutting classification. It adds zero new
+  write surface in born-inventory or the catalog writers.
+- **Negative:** `ipam.Service` env-reachability is a **2-hop** (service → parent device
   → site). This is acceptable for current facility sizes. If env-scoped *service* queries
   become hot, a **future option** is to add `dmf_env_id` to `ipam.Service` (and/or attach
-  services to the Cluster) — explicitly **not** done now, both because it is unnecessary
-  and to avoid editing born-inventory/`app-service.yml` while the ADR-0038 monitoring
-  effort owns those files.
-- **Neutral** — the shared `DMF` tenant is unchanged; ADR-0020 cluster-per-tenant is a
+  services to the Cluster). This is explicitly not done now. It is unnecessary, and it
+  avoids editing born-inventory/`app-service.yml` while the ADR-0038 monitoring effort
+  owns those files.
+- **Neutral:** the shared `DMF` tenant is unchanged. ADR-0020 cluster-per-tenant is a
   different (media-tenant) axis and is not affected. The dmf-cms gap that prompted this
   (the Facility page querying NetBox unscoped and ignoring `dmf_env_id`) is closed in the
-  **console query/UI layer**, not in the inventory model — see the work package
+  **console query/UI layer**. The inventory model does not change. See the work package
   `docs/plans/dmf-facility-console-born-inventoried-env-surfacing-plan.md`.
+
+### Rejected alternatives
+
+- A per-env `env:<id>` tag: rejected, env ids rotate and nothing prunes the tags.
+- A per-env Tenant: rejected, ADR-0020 assigns the tenant axis to media tenants.
+- `dmf_env_id` on every leaf object type now: deferred, more write surface for no current need.
+
+### Enforcement
+
+Discipline only: no check or test in this repo or in dmf-infra rejects an `env:<id>` tag. The rule holds because born-inventory writes none.
 
 ## Status
 

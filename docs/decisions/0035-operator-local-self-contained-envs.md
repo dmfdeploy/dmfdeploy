@@ -3,37 +3,21 @@
 **Status:** Accepted
 **Date:** 2026-06-01
 **Deciders:** @<handle>
-**Rule:** Every env (cloud + sandbox) is fully operator-local and self-contained under `~/.dmfdeploy/envs/<env>/`, with nothing per-env committed; dmf-env is generic — scripts, `terraform/modules/`, one per-provider root, neutral tasks/templates.
+**Rule:** Every env (cloud + sandbox) is fully operator-local and self-contained under `~/.dmfdeploy/envs/<env>/`, with nothing per-env committed; dmf-env is generic: scripts, `terraform/modules/`, one per-provider root, neutral tasks/templates.
 
 ## Context
 
-The cloud-env lane scattered each env's artifacts across **dmf-env** (committed
-`inventories/<env>/`, `manifests/<env>.yaml`, `terraform/<env>/`, and per-env
-`.sops.yaml` creation rules) **and** operator-local dirs (the SOPS bundle,
-`<provider>.tfvars`, Terraform state). This had three recurring costs, all hit
-while standing up a fresh Hetzner env (2026-06-01):
-
-- **Removal is manual git surgery + scattered `rm`s** across the repo and
-  `~/secure`; failed/aborted wizard runs left orphaned committed dirs and dangling
-  `.sops.yaml` rules.
-- **dmf-env carries env identity** (IPs, domains, opaque slugs, SOPS age
-  recipients, operator pubkeys), so it can never be anything but a private repo
-  and churns on every env.
-- A **shared, `prevent_destroy`'d** SSH key (`k3s-hetzner`) plus the wizard's
-  reuse-by-fingerprint logic produced cross-env key-name contamination and a
-  `prevent_destroy` replace-deadlock, requiring `state rm` / `import` dances on
-  every teardown/build.
-
-The **sandbox lane already** solved this (ADR-0031 / the 2026-05-28 consolidation):
-every sandbox env lives entirely under `~/.dmfdeploy/envs/<env>/`, is committed to
-no repo, and is removed with a single `rm -rf`. The path resolver
-`dmf-env/bin/lib/_resolve_env_paths.sh` already models a **"new"** (operator-local)
-vs **"legacy"** (in-repo) layout.
+The cloud-env lane scattered each env's artifacts across dmf-env (committed
+inventories, manifests, Terraform roots and per-env `.sops.yaml` rules) and
+operator-local directories (the SOPS bundle, tfvars, Terraform state). This made
+env removal manual, put env identity in a repo, and caused SSH key contamination
+across envs. The sandbox lane already keeps every env under
+`~/.dmfdeploy/envs/<env>/` (ADR-0031). The full cost list is in the archive record.
 
 ## Decision
 
 Extend the **operator-local "new" layout to all envs** (cloud + sandbox). Every
-env is fully self-contained under `~/.dmfdeploy/envs/<env>/` — inventory,
+env is fully self-contained under `~/.dmfdeploy/envs/<env>/`. It holds the inventory,
 manifest, SOPS bundle + co-located `.sops.yaml`, `<provider>.tfvars`, Terraform
 state, and the per-env SSH keypair. **dmf-env becomes a generic repo**: `bin/`
 scripts, `terraform/modules/`, **one generic per-provider Terraform root**
@@ -52,10 +36,10 @@ Consequences for keys and lifecycle:
   breaks on WSL2). The public key is a non-secret per-env file. The privkey is
   materialized to an ephemeral `0600` temp at runtime (mirroring how
   `run-playbook.sh` already materializes the vars file).
-- **The wizard does everything up to — but not including — resource creation.**
+- **The wizard does everything before resource creation.**
   It renders, validates (`doctor`), `tofu init`, and `tofu plan` (saving the
-  plan), then stops. `tofu apply` (cost / blast radius) stays a deliberate
-  operator action. A first-class `bin/remove-env.sh` does teardown + removal in
+  plan), then stops. The wizard does not run `tofu apply`. Creating resources
+  (cost and blast radius) stays a deliberate operator action. A first-class `bin/remove-env.sh` does teardown + removal in
   one command (`tofu destroy` → delete the per-env key → `rm -rf` the env dir).
 
 This **changes dmf-env's documented role** from "private inventory + Terraform
@@ -65,25 +49,29 @@ wholesale; the resolver's legacy branch is retired.
 
 ## Consequences
 
-- **Positive** — Removing an env is `rm -rf` + `tofu destroy`, no git surgery; no
+- **Positive:** Removing an env is `rm -rf` + `tofu destroy`, no git surgery; no
   cross-env contamination; teardown/build have no `prevent_destroy`/`import`
   dances; dmf-env stops carrying env identity and stops churning; cloud and
   sandbox share one model + one resolver; per-env keys die with their env.
-- **Negative** — One-time refactor across the resolver, `tf-apply`/`tf-destroy`,
+- **Negative:** One-time refactor across the resolver, `tf-apply`/`tf-destroy`,
   the wizard, `run-playbook`, and the Terraform layout; the generic root must take
   manifest/output paths as input variables; privkey-in-bundle adds a runtime
   materialization step.
-- **Neutral** — Terraform state was already operator-local
-  (`TERRAFORM_STATE_ROOT`); this just moves it into the per-env dir. The
-  co-located per-env `.sops.yaml` also resolves the cloud-lane
-  `bundle_sops_config_file` issue hardened earlier.
+
+### Rejected alternatives
+
+- Keep per-env artifacts in dmf-env and only fix the key mismatch: rejected, it leaves the removal friction, the identity-in-repo problem and the shared-key dances intact.
+- Store the per-env keypair as files in a `0600` directory, outside the bundle: rejected, it is less aligned with the "secrets sops-encrypted at rest" policy and fragile on WSL2/DrvFS, where `0600` is not preserved.
+- Let the wizard run `tofu apply`: rejected, resource creation and cost must stay a deliberate, separate operator action.
 
 ### Enforcement
 
-- Verification gate (per the refactor plan): `git -C dmf-env status` stays clean
-  through create → apply → bootstrap → teardown.
-- `docs/plans/dmf-env-lifecycle-refactor-plan.md` is the implementation
-  plan; honors ADR-0031 (self-contained gate) + the secrets-discipline conventions.
+- `dmf-env/.github/workflows/ci.yml` runs `tofu validate` on the generic
+  `terraform/hetzner` root and the `dmf-env/tests/remove-env-data-root.sh` and
+  `dmf-env/tests/remove-env-sandbox-noop.sh` tests for the single-command removal.
+- Discipline only: no check rejects a per-env artifact committed to dmf-env. The
+  operator confirms `git -C dmf-env status` stays clean through the env lifecycle.
+- `docs/plans/dmf-env-lifecycle-refactor-plan.md` is the implementation plan.
 
 ## Status
 

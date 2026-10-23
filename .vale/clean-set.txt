@@ -33,3 +33,11 @@ docs/decisions/0027-catalog-instance-vs-definition-separation.md
 docs/decisions/0037-media-workloads-netbox-instance-inventory.md
 docs/decisions/0044-dmf-init-stateless-tmpfs-recovery-model.md
 docs/decisions/0045-media-function-licensing-reservable-resource.md
+docs/decisions/0012-configure-stage-distinct-from-provision.md
+docs/decisions/0014-awx-project-layout.md
+docs/decisions/0018-self-managed-k3s-not-ack.md
+docs/decisions/0023-internal-service-dns-for-cross-app-wiring.md
+docs/decisions/0026-provider-descriptors.md
+docs/decisions/0034-internal-ansible-collection-source.md
+docs/decisions/0035-operator-local-self-contained-envs.md
+docs/decisions/0039-environment-identity-netbox-site-cluster.md
