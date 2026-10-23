@@ -31,8 +31,8 @@ It is not the data plane, which reframes what it must contain.
 ## Decision
 
 `dmf-init` is a **thin control-plane container**. The image bakes **only** the **tool layer**
-(opentofu, ansible, sops, age, rclone, kubectl, jq, openssh-client, git, python3) **+ the
-FastAPI/React app**. It bakes **no repos and no app images**.
+(opentofu, ansible, sops, age, kubectl, jq, openssh-client, git, python3) **+ the
+FastAPI/React app**. It bakes **no repos and no app images**. Backups are browser downloads, so it has no rclone.
 
 1. **Playbooks/scripts are `git clone`d at runtime, at an operator-selected ref**, into the tmpfs
    scratch and are never baked. Source + credentials are supplied **at run time** (now: the private
