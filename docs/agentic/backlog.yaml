@@ -550,7 +550,7 @@
   decision_gate: null
   acceptance:
     - file_exists: docs/reviews/dmf-platform-move-1-learnings.md
-    - file_exists: docs/architectural-commitments-v1.md
+    - file_exists: docs/archive/architectural-commitments-v1.md
     - structure: "six Q-and-A sections matching the six §'What this falsifies' items + §Bonus learnings (per Move 2 learnings doc)"
     - includes_path_a_findings: true   # write-up MUST cover P2/P5 obviation as a learning
     - exit_criterion: "ADR-0004 revisit criteria triggered; project transitions out of pure experiment phase"
