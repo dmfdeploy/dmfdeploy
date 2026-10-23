@@ -12,7 +12,7 @@ date: 2026-05-11
 
 ## Context
 
-The DMF Platform is in *experiment phase* and approaching first public GitHub release.
+The dmfdeploy platform is in *experiment phase* and approaching first public GitHub release.
 The foundation for safe automation already exists — 20 ADRs, pre-commit gitleaks,
 `bin/sync-to-github.sh` push gate, `bin/scrub-public-repos.sh`, STATUS.md auto-refresh,
 10 Claude subagent personas, 3 DMF skills, structured `docs/handoffs/` continuity ritual.

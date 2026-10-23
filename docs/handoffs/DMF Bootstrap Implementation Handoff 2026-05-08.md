@@ -7,7 +7,7 @@
 
 ## Why you are here
 
-The DMF platform bootstrap is being refactored end-to-end:
+The dmfdeploy platform bootstrap is being refactored end-to-end:
 
 1. The Ansible lifecycle is split into **Bootstrap Provision** (install platform-local capabilities in vanilla form), **Bootstrap Configure** (wire apps together into one facility control plane), and **Bootstrap Verify** (real readiness gates).
 2. The **pre-Bao secret pipeline** is being formalized: a SOPS/age-encrypted bundle outside any git tree, exported through a new `dmf-env/bin/bootstrap-secrets.sh` script, seeded into OpenBao between pre-seed and post-seed provision.

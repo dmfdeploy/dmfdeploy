@@ -2,7 +2,7 @@
 # sync-to-github.sh — RETIRED 2026-06-09 (do not use).
 #
 # This was the old Forgejo-canonical "push the live repo's main + v0.1.0" mirror
-# tool. The DMF Platform moved to GitHub-canonical-forward (ADR-0041): GitHub `main`
+# tool. The dmfdeploy platform moved to GitHub-canonical-forward (ADR-0041): GitHub `main`
 # is the single source of truth and steady-state publishing is normal PR-merge to
 # GitHub. The first public import is a CLEAN-HISTORY orphan via bin/export-scan.sh
 # (per-repo, operator-gated) — never a full-history mirror push.

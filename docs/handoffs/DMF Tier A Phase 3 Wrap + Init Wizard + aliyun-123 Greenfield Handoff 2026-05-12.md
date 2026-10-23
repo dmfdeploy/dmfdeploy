@@ -225,7 +225,7 @@ forgejo config`) lands:
 
 - [Tier A Phase 3 Implementation Handoff 2026-05-12](DMF%20Tier%20A%20Phase%203%20Implementation%20Handoff%202026-05-12.md) — Phase 3 canonical record
 - [Tier A Phase Execution Plan 2026-05-11](../archive/plans/DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md) — phase sequence + per-actor briefs
-- [DMF Platform Deploy Quickstart](../runbooks/dmf-deploy-quickstart.md) — 9-step TL;DR (updated this session)
+- [dmfdeploy platform deploy quickstart](../runbooks/dmf-deploy-quickstart.md) — 9-step TL;DR (updated this session)
 - [TODOS](../../TODOS.md) §`init-wizard.sh` follow-ups — v2 work captured
 - `dmf-env/bin/init-wizard.sh` — the wizard itself
 - `dmf-env/bin/b2-buckets.sh` — B2 native-API bucket configure + lifecycle

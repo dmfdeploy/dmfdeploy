@@ -122,7 +122,7 @@ Reconciliation pass + TTL rotation.
 - `019fb50` — `fix(openbao): point break-glass paths at JuiceFS, not $HOME`
 
 **Secbrain docs updated:**
-- `Projects/DMF Platform Plan.md` — 2026-04-24 status snapshot header
+- `Projects/dmfdeploy-platform-plan.md` — 2026-04-24 status snapshot header
   (numbering, private lane, host-root exposure, ntfy bridge)
 - `Projects/DMF Orchestrator and Renumbering Plan 2026-04-22.md` —
   marked DONE
@@ -150,7 +150,7 @@ Reconciliation pass + TTL rotation.
 
 ## 6. Canonical docs to read for context
 
-- `Projects/DMF Platform Plan.md` — architecture (read the 2026-04-24
+- `Projects/dmfdeploy-platform-plan.md` — architecture (read the 2026-04-24
   status snapshot at top)
 - `Projects/DMF Pre-Rebuild Critical Review 2026-04-22.md` — reviewer
   punch list; §1.1, §2.1, §2.3, §4.1, §4.2 are still open items

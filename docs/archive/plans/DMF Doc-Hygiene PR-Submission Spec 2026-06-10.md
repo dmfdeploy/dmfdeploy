@@ -105,7 +105,7 @@ commit body:
 docs: correct GitHub org/repo model and refresh stale docs
 
 - Fix wrong GitHub owner lkirc -> dmfdeploy (README + repo-strategy).
-- Rewrite the "Two-Repo Model" section as "Part of the DMF Platform":
+- Rewrite the "Two-Repo Model" section as "Part of the dmfdeploy platform":
   dmf-env is public generic tooling; per-env state is operator-local (ADR-0035).
 - Fix the Project Structure tree: drop non-existent vertical-control, add
   vertical-resilience, bump the playbook range to 699, add the bootstrap-*

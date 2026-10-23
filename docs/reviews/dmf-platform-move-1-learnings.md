@@ -1,7 +1,7 @@
 ---
 date: 2026-06-04
 ---
-# DMF Platform — Move 1 + Catalog Learnings (NMOS spike)
+# dmfdeploy platform — Move 1 + Catalog Learnings (NMOS spike)
 
 **Date:** 2026-06-04
 **Scope:** `nmos-cpp` as the first function-catalog entry, proving the full

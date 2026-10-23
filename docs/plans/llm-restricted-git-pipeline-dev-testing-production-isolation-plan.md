@@ -62,7 +62,7 @@ The mechanism by which code moves from dev → testing → production:
 
 2. **testing → production**: Immutable artifact promotion. After testing validates, a signed release manifest, tagged image, or reviewed Helm values file is promoted to production. Production never receives raw LLM-generated code — only reviewed, tested artifacts.
 
-### Current DMF platform architecture (what exists today)
+### Current dmfdeploy platform architecture (what exists today)
 
 | Component | Where it lives | Role |
 |-----------|---------------|------|

@@ -19,7 +19,7 @@ executed: 2026-06-11
 
 ## Context
 
-We are approaching the first public GitHub release of the DMF Platform. Four
+We are approaching the first public GitHub release of the dmfdeploy platform. Four
 intertwined operator concerns drive this plan:
 
 1. **ADRs are hard to maintain** — current truth is spread across multiple

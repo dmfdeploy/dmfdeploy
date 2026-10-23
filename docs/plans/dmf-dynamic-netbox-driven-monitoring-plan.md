@@ -54,7 +54,7 @@ via the `nb_inventory` plugin. This plan realizes that relationship for Promethe
 changes — with no playbook re-run.
 
 **Canonical doctrine to (re)read:**
-- `docs/architecture/DMF Platform Plan.md` §7a "Discovery architecture — three lanes"
+- `docs/architecture/dmfdeploy-platform-plan.md` §7a "Discovery architecture — three lanes"
 - `docs/archive/plans/DMF Day-0 Inventory and Monitoring Plan.md` (this plan supersedes its
   §15 *bootstrap-time file_sd* choice with a *live http_sd* adapter — record in ADR)
 - ADRs: **0013** (catalog model), **0032** (scoped NetBox writer), **0037** (NetBox

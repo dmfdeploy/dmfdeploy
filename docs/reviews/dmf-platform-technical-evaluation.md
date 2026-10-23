@@ -1,10 +1,10 @@
 ---
 date: 2026-06-06
 ---
-# DMF Platform — Technical Evaluation (2026-06-06)
+# dmfdeploy platform — Technical Evaluation (2026-06-06)
 
 **Reviewer mode:** Technical / cross-repo, whole-platform
-**Inputs:** canonical architecture (`docs/architecture/DMF Platform Plan.md`,
+**Inputs:** canonical architecture (`docs/architecture/dmfdeploy-platform-plan.md`,
 `DMF EBU Mapping`), strategic frame (`docs/reviews/dmf-platform-strategic-review.md`),
 live state (`STATUS.md` operator notes), backlog (`TODOS.md`), recent handoffs,
 ADR portfolio. Snapshot date: **2026-06-06**.

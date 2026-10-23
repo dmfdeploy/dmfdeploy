@@ -13,7 +13,7 @@ codex (independent cross-check).
 
 ## TL;DR
 
-We are preparing a clean first public release of the DMF Platform repos on
+We are preparing a clean first public release of the dmfdeploy platform repos on
 GitHub. The model and all forks are **decided** (see Locked decisions). Two
 workstreams are **done + committed**; three remain. Each remaining workstream
 should follow the proven loop: **write a self-contained spec → codex cross-checks

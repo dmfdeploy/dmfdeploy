@@ -1,6 +1,6 @@
 # DMF Diagram Design Guide
 
-**Audience:** AI agents creating technical diagrams for the DMF platform
+**Audience:** AI agents creating technical diagrams for the dmfdeploy platform
 **Scope:** Excalidraw `.excalidraw` files under `docs/diagrams/`
 **Standard:** ISO 5807 flowchart symbols + Excalidraw "Architect" mode
 

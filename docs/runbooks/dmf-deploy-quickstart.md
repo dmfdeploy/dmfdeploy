@@ -1,4 +1,4 @@
-# DMF Platform Deploy Quickstart
+# dmfdeploy platform deploy quickstart
 
 **Status:** Operator-facing runbook. Canonical deployment procedure for any
 dmf-env environment (e.g. `hetzner-arm`, `aliyun`).

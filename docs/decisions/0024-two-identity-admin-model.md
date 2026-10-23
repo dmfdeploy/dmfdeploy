@@ -14,7 +14,7 @@ exceptions) is preserved and still referenced by 0028.
 
 ## Context
 
-The DMF Platform's per-app admin identity has been spec'd informally since the
+The dmfdeploy platform's per-app admin identity has been spec'd informally since the
 2026-05-08 Pre-Bao Bootstrap Secrets Design and observed in practice across
 six bootstrapped envs, but the model was never codified. On 2026-05-22 the
 `697-cms-awx-token.yml` playbook failed against the greenfield `<env>`
@@ -26,7 +26,7 @@ Survey results and fix commits: see the [archive record](../archive/decisions/00
 
 ## Decision
 
-Adopt the **two-identity admin model** explicitly across the DMF Platform:
+Adopt the **two-identity admin model** explicitly across the dmfdeploy platform:
 
 1. **Local admin (per app).** A uniform `vault_bootstrap_admin_username` and
    `vault_bootstrap_admin_password` is materialised into each app at first

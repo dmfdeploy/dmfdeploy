@@ -352,7 +352,7 @@ catalog entry and asserts:
 - Per-user identity propagation through AWX
 - Parameterised launches (operator-supplied variables at deploy time)
 - Cross-cluster catalog (federation; ties to dmf-central thesis-killer)
-- Approval workflow for high-impact deploys (the config-change PR-gated lane from DMF Platform Plan §9, only applies to a subset of catalog entries — most are operations-lane)
+- Approval workflow for high-impact deploys (the config-change PR-gated lane from dmfdeploy platform plan §9, only applies to a subset of catalog entries — most are operations-lane)
 
 ---
 
@@ -368,7 +368,7 @@ catalog entry and asserts:
 - ADR-0014 — AWX project layout (execution precondition)
 - ADR-0017 — MXL is an intra-host data plane (drives the v2 schema
   additions for MXL-consuming entries)
-- `docs/architecture/DMF Platform Plan.md` §9 — two-lane model
+- `docs/architecture/dmfdeploy-platform-plan.md` §9 — two-lane model
   (config-change PR-gated, operations runtime)
 - `docs/architecture/DMF EBU Mapping (2026-04-25).md` — vocabulary
 - `docs/reviews/dmf-platform-strategic-review.md` — Move 1

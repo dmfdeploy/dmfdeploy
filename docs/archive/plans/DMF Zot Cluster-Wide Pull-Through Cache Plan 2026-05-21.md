@@ -9,7 +9,7 @@ discussion during a rollout. Awaiting an owner.
 
 ## Context
 
-Today Zot's role in the DMF Platform is **the registry for DMF-built
+Today Zot's role in the dmfdeploy platform is **the registry for DMF-built
 images** (push-mode): `awx-ee`, `dmf-cms`, `nmos-cpp-{registry,node}`.
 Total footprint ~2GB. The test-posture PVC was sized 15Gi
 (`init-wizard.sh` POSTURE map, commit `8959f15`); production 20Gi.

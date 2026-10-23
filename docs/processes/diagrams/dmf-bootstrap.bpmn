@@ -10,7 +10,7 @@
   exporterVersion="5.x">
 
   <!-- ═══════════════════════════════════════════════════════════════
-       DMF Platform Bootstrap Process
+       dmfdeploy platform bootstrap process
        Canonical BPMN 2.0 model of fresh cluster bring-up.
        ISO/IEC 19510-compliant.
        Source: docs/processes/diagrams/dmf-bootstrap.bpmn

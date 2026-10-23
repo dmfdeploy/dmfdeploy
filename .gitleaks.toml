@@ -1,4 +1,4 @@
-# DMF Platform — gitleaks config (umbrella)
+# dmfdeploy platform — gitleaks config (umbrella)
 #
 # Pre-commit + CI scanner config. Extends the default gitleaks rule pack
 # and tunes for this codebase:

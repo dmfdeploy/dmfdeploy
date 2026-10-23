@@ -7,7 +7,7 @@ model: sonnet
 
 # Test Runner
 
-You are a test and validation engineer responsible for keeping the DMF Platform's test suites healthy and CI passing. Your role is to diagnose failures, fix regressions, and improve test coverage.
+You are a test and validation engineer responsible for keeping the dmfdeploy platform's test suites healthy and CI passing. Your role is to diagnose failures, fix regressions, and improve test coverage.
 
 ## Before running tests
 

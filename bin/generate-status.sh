@@ -338,7 +338,7 @@ For decisions, see [docs/decisions/](docs/decisions/INDEX.md).
 For active task spec, see the most recent file in [docs/plans/](docs/plans/).
 For live handoff state, read the claimed tracking issue's comments
 (two-tier model, R4); [docs/handoffs/](docs/handoffs/INDEX.md) is a frozen archive.
-For canonical architecture, see [docs/architecture/DMF Platform Plan.md](docs/architecture/DMF%20Platform%20Plan.md).
+For canonical architecture, see [docs/architecture/dmfdeploy-platform-plan.md](docs/architecture/dmfdeploy-platform-plan.md).
 
 ## Repo state
 

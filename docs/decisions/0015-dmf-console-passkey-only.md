@@ -6,7 +6,7 @@
 
 ## Context
 
-DMF Console is the operator-facing control surface for the DMF platform.
+DMF Console is the operator-facing control surface for the dmfdeploy platform.
 The desired login experience is **passkey-first** (or passkey-only): the
 user should not type a password, and ideally should not even type a
 username if the browser already holds a passkey for the domain.
@@ -51,7 +51,7 @@ Other apps (Forgejo, NetBox, Grafana, LibreNMS, Zot, AWX) kept
 
 Problem statement: see the [archive record](../archive/decisions/0015-dmf-console-passkey-only.md).
 
-**Extended posture:** the DMF platform is **passkey-first across the brand**.
+**Extended posture:** the dmfdeploy platform is **passkey-first across the brand**.
 The Authentik portal and every app's SSO redirect land directly on the passkey
 picker (`dmf-passkey-login`: a WebAuthn-only `AuthenticatorValidateStage` with
 `not_configured_action: deny`, then `UserLoginStage` — no identification stage,

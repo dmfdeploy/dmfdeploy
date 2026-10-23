@@ -37,9 +37,9 @@ forgejo/gitlab: dmf-env    ← private, site-specific inventory + OpenBao metada
 
 NEW:
 ```
-## Part of the DMF Platform
+## Part of the dmfdeploy platform
 
-`dmf-infra` is one of the public component repos of the **DMF Platform**
+`dmf-infra` is one of the public component repos of the **dmfdeploy platform**
 (`github.com/dmfdeploy/`). It contains **only generic, environment-agnostic
 playbooks and roles** — never real IPs, hostnames, or secrets. Its companion
 [`dmf-env`](https://github.com/dmfdeploy/dmf-env) holds the generic environment
@@ -158,7 +158,7 @@ Banner text:
 > **⚠️ HISTORICAL / SUPERSEDED.** Pre-migration planning document kept for
 > provenance. The repository model and release/contribution process described
 > here are **superseded by ADR-0041 (DMF Release and Contribution Model)** and
-> the executed GitHub-canonical publish — the DMF Platform's public repos now
+> the executed GitHub-canonical publish — the dmfdeploy platform's public repos now
 > live under `github.com/dmfdeploy/`. Do not treat the workflow below as current.
 ```
 

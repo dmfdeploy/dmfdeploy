@@ -6,7 +6,7 @@
 
 ## Context
 
-The DMF Platform needs a canonical contribution and release model that all repos follow. The prior model described a Forgejo-canonical, GitHub-push-mirror, sync-to-github.sh-only workflow with a Constitution and five sibling repos — all of which are stale. Four locked decisions (2026-06-09) resolved the outstanding TBDs: GitHub-canonical-forward, DCO (not CLA), retire-to-archive for Forgejo, and Free-tier locked-window flip.
+The dmfdeploy platform needs a canonical contribution and release model that all repos follow. The prior model described a Forgejo-canonical, GitHub-push-mirror, sync-to-github.sh-only workflow with a Constitution and five sibling repos — all of which are stale. Four locked decisions (2026-06-09) resolved the outstanding TBDs: GitHub-canonical-forward, DCO (not CLA), retire-to-archive for Forgejo, and Free-tier locked-window flip.
 
 ## Decision
 

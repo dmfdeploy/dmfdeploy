@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # check-public-commit-authors.sh — verify every commit author/committer on
-# every public DMF Platform repo matches the public-identity allowlist.
+# every public dmfdeploy platform repo matches the public-identity allowlist.
 #
 # Commit metadata (author name, author email, committer name, committer
 # email) is visible on the public GitHub mirror once a push lands. Even

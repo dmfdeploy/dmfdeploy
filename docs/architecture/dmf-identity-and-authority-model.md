@@ -18,7 +18,7 @@ per-app feasibility survey completes*); supersedes/amends ADR-0024 §Alternative
 (sibling plan, closed 2026-05-24; survey data folded into §7).
 
 This document is the canonical reference for *who is authorised to do
-what* on the DMF Platform. Read this for the **model**; read ADR-0028
+what* on the dmfdeploy platform. Read this for the **model**; read ADR-0028
 (when it lands) for the *binding decisions*; read the per-app
 feasibility survey for the *concrete exception list*. Schema and
 contract mutations land here as amendments, not in the ADR.

@@ -14,7 +14,7 @@
 
 ## TL;DR
 
-`dmf-runbooks` is the first DMF Platform git repo to be public-published.
+`dmf-runbooks` is the first dmfdeploy platform git repo to be public-published.
 Three deliverables:
 
 1. **Fix two `dmf-operator-identity` leaks** on the `main` branch of

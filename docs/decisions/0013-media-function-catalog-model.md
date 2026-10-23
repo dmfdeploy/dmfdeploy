@@ -7,7 +7,7 @@
 
 ## Context
 
-The DMF Platform Plan §9 ("two lanes") and the strategic review
+The dmfdeploy platform plan §9 ("two lanes") and the strategic review
 (2026-04-30) frame Layer 4–6 work as needing an operator-driven launch
 mechanism — image bootstrapped into the cluster but actual deployment
 deferred to operator action in dmf-cms, mirroring the
@@ -86,7 +86,7 @@ operator needing to locate the workload. The architecture reference and
   combination the platform encounters. A function whose entry can't
   be expressed cleanly is the hard case ADR-0003 was waiting for.
 - **Positive** — AWX audit trail per Configure/Finalise click closes
-  the operations-lane loop from DMF Platform Plan §9.
+  the operations-lane loop from dmfdeploy platform plan §9.
 - **Negative** — two stores of "what apps exist" (YAML + NetBox tags).
   Acceptable because they answer different questions (available vs.
   active), but drift between them must be detectable. v1 mitigation:

@@ -31,7 +31,7 @@ The core answer is:
 
 ## 2. Existing Doctrine This Plan Extends
 
-This plan extends the current DMF Platform Plan, especially:
+This plan extends the current dmfdeploy platform plan, especially:
 
 - NetBox is authoritative
 - discovery tools write to staging, not active
@@ -40,7 +40,7 @@ This plan extends the current DMF Platform Plan, especially:
 - media discovery has its own lane (`nmos-cpp`)
 
 The relevant current doctrine already exists in
-`DMF Platform Plan.md` under:
+`dmfdeploy-platform-plan.md` under:
 
 - `§7a. Discovery architecture — three lanes`
 - decision log items for NetBox, LibreNMS, and the three-lane discovery model

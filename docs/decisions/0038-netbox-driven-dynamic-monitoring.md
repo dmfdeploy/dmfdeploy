@@ -173,7 +173,7 @@ Rationale for the standalone service, versus the rejected
 - **Version compatibility:** the adapter depends on the stable NetBox REST API, so
   NetBox upgrades do not require coupling to a third-party plugin compatibility
   matrix.
-- **Mapping ownership:** the DMF platform owns the NetBox-to-target mapping and can
+- **Mapping ownership:** the dmfdeploy platform owns the NetBox-to-target mapping and can
   encode the exact taxonomy above without waiting on external plugin behavior.
 
 **7. The older bootstrap-time `file_sd` bridge is superseded.**
