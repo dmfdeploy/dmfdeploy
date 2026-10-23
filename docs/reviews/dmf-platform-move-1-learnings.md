@@ -15,7 +15,7 @@ incidental."* It was overdue: Pieces 1–8 landed by 2026-05-12 and the runtime
 loop was re-verified 2026-05-27/29, but the synthesis was never written until now.
 
 > **This write-up supersedes** the provisional
-> [`docs/architectural-commitments-v1.md`](../architectural-commitments-v1.md)
+> [`docs/architectural-commitments-v1.md`](https://github.com/dmfdeploy/dmfdeploy/blob/b00df7a953f11a4372c66414c7c01d3f5d1b21b8/docs/architectural-commitments-v1.md)
 > (dated 2026-05-05, pre-Path-A). Where that doc named files that the
 > 2026-05-06 **Path A pivot** later obviated (`410-nmos-cpp-provision.yml`,
 > `playbooks/configure-media/`, the `lifecycle-configure.yml` wrapper), the
@@ -315,7 +315,7 @@ forward.
 ## Cross-reference
 
 - Task spec: [`docs/plans/dmf-platform-move-1-task.md`](../plans/dmf-platform-move-1-task.md)
-- Superseded provisional: [`docs/architectural-commitments-v1.md`](../architectural-commitments-v1.md)
+- Superseded provisional: [`docs/architectural-commitments-v1.md`](https://github.com/dmfdeploy/dmfdeploy/blob/b00df7a953f11a4372c66414c7c01d3f5d1b21b8/docs/architectural-commitments-v1.md)
 - Move 2 learnings (sibling): [`docs/reviews/dmf-platform-move-2-learnings.md`](dmf-platform-move-2-learnings.md)
 - Path A pivot: [`docs/handoffs/DMF Move 1 Gate 2 Path A Pivot Handoff 2026-05-06.md`](../handoffs/DMF%20Move%201%20Gate%202%20Path%20A%20Pivot%20Handoff%202026-05-06.md)
 - Sandbox v0.1 gate (runtime proof): [`docs/handoffs/DMF Sandbox v0.1 Gate — Verification + Open Follow-Ups Handoff 2026-05-29.md`](../handoffs/DMF%20Sandbox%20v0.1%20Gate%20—%20Verification%20+%20Open%20Follow-Ups%20Handoff%202026-05-29.md)

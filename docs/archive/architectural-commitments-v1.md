@@ -1,7 +1,7 @@
 # Move 1 + Catalog — Architectural Commitments v1
 
 > **Status:** Superseded by
-> [`docs/reviews/dmf-platform-move-1-learnings.md`](reviews/dmf-platform-move-1-learnings.md)
+> [`docs/reviews/dmf-platform-move-1-learnings.md`](../reviews/dmf-platform-move-1-learnings.md)
 > (2026-06-04). This doc was written **provisionally on 2026-05-05**, before the
 > 2026-05-06 **Path A pivot** (ADR-0014/0016) and before the runtime loop was
 > verified (2026-05-27/29). Several file references below are pre-Path-A and no
@@ -80,11 +80,11 @@ The following end-to-end path was exercised:
 | Parameterised launches (operator-supplied variables at deploy time) | v1 uses role defaults | Operator needs runtime tuning |
 | Multi-instance support (dual NMOS registries for HA) | Single registry sufficient | HA requirement emerges |
 | Migration of Layer 6 baseline apps to catalog-style | Evaluate value vs disruption | Post-commit gate evaluation |
-| Backup/restore policy (RPO/RTO claim) | Experiment-phase stance (ADR-0004); Longhorn replicas + OpenBao Raft are not backup | [Pre-Release Compliance Readiness Plan](plans/DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md) Tier B.5 — required before first managed-service customer |
+| Backup/restore policy (RPO/RTO claim) | Experiment-phase stance (ADR-0004); Longhorn replicas + OpenBao Raft are not backup | [Pre-Release Compliance Readiness Plan](../plans/DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md) Tier B.5 — required before first managed-service customer |
 | Artifact-side supply chain enforcement (cosign sign-on-push, syft SBOM, Trivy gate at Zot) | Source-side coverage strong; Sony nmos-cpp pin-by-SHA is principle-only today | Pre-Release Compliance Readiness Plan Tier A.5 (bootstrap) → Tier B.6 (CI-enforced) |
 | Audit-log retention policy + WORM bucket | k3s audit + S3 archival role exist; bucket is mutable; Loki 7d / Prometheus 6h insufficient for forensic events | Pre-Release Compliance Readiness Plan Tier A.4 |
 | Managed-mode OpenBao unseal model | ADR-0011 auto-unseal is acceptable for experiment-phase lab operations, but incompatible with customer-side Shamir custody in managed mode | Pre-Release Compliance Readiness Plan Tier B.1 — retire, supersede, or scope away ADR-0011 automation quorum before first managed-service customer |
-| Deployment-mode scope decision | Open question in framework plan §"Open Questions" | **Proposed resolution 2026-05-11 by [ADR-0020](decisions/0020-deployment-scope-and-regulatory-posture.md) — three named modes (OSS / managed `dmfdeploy.io` / flypack); binding once ADR-0020 is Accepted** |
+| Deployment-mode scope decision | Open question in framework plan §"Open Questions" | **Proposed resolution 2026-05-11 by [ADR-0020](../decisions/0020-deployment-scope-and-regulatory-posture.md) — three named modes (OSS / managed `dmfdeploy.io` / flypack); binding once ADR-0020 is Accepted** |
 
 ---
 
