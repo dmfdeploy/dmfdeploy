@@ -80,8 +80,9 @@ gh_json() {
 # {"issues":[{number,title,milestone,labels,body,milestoned_at}]}.
 # gh issue list pages through the API up to --limit. Exit 1 if gh fails, 2 if
 # the result reaches the limit (issues past it would go unchecked), 3 if the
-# milestone dates could not be read (the issues still print, with
-# milestoned_at null, so check 1 can run).
+# milestone date of any milestoned issue could not be read (the issues still
+# print, all with milestoned_at null and the unread numbers in "undated", so
+# check 1 can run).
 fetch_umbrella_issues() {
     local raw count issues dates
     raw="$(gh issue list --repo "$UMBRELLA_REPO" --state open --limit "$ISSUE_LIMIT" \
@@ -92,19 +93,24 @@ fetch_umbrella_issues() {
         labels: [.labels[].name], body: (.body // "")}]}' <<<"$raw")"
     if dates="$(fetch_milestoned_at "$issues")"; then
         jq -c --argjson d "$dates" \
-            '.issues |= map(. + {milestoned_at: ($d[.number | tostring] // null)})' <<<"$issues"
+            '.issues |= map(. + {milestoned_at: ($d.dates[.number | tostring] // null)})' <<<"$issues"
     else
-        jq -c '.issues |= map(. + {milestoned_at: null})' <<<"$issues"
+        jq -c --argjson d "$dates" \
+            '.issues |= map(. + {milestoned_at: null}) | .undated = $d.undated' <<<"$issues"
         return 3
     fi
 }
 
-# Print {"<number>":"<createdAt>"}, the latest MilestonedEvent of each
-# milestoned issue in a {"issues":[...]} payload. One GraphQL query per batch
-# of 50 issues, one alias per issue, instead of one REST call per issue.
-# Exit 1 if any query fails.
+# Print {"dates":{"<number>":"<createdAt>"},"undated":[numbers]}, the latest
+# MilestonedEvent of each milestoned issue in a {"issues":[...]} payload. One
+# GraphQL query per batch of 50 issues, one alias per issue, instead of one
+# REST call per issue. A milestoned issue always has a MilestonedEvent, so an
+# issue is undated when its query fails, its alias is null, or it has no
+# createdAt. A response with an "errors" array (GitHub can return partial
+# data with one) is unreadable too: the issues without a date are named, or
+# the whole batch when every issue has one. Exit 1 if any issue is undated.
 fetch_milestoned_at() {
-    local batch n fields query resp dates="{}"
+    local batch n fields query resp out='{"dates":{},"undated":[]}'
     while IFS= read -r batch; do
         [ -n "$batch" ] || continue
         fields=""
@@ -112,14 +118,24 @@ fetch_milestoned_at() {
             fields+="i$n:issue(number:$n){timelineItems(itemTypes:[MILESTONED_EVENT],last:1){nodes{... on MilestonedEvent{createdAt}}}} "
         done
         query="query{repository(owner:\"$ORG\",name:\"${UMBRELLA_REPO#*/}\"){$fields}}"
-        resp="$(gh_json "$(jq -nc --arg q "$query" '{query:$q}')")" || return 1
-        dates="$(jq -c --argjson acc "$dates" '.data.repository
-            | if type == "object" then . else error("no repository") end
-            | $acc + (to_entries | map({key: (.key | ltrimstr("i")),
-                value: .value.timelineItems.nodes[0].createdAt}) | from_entries)' \
-            <<<"$resp" 2>/dev/null)" || return 1
+        resp="$(gh_json "$(jq -nc --arg q "$query" '{query:$q}')")" || resp=""
+        out="$(jq -c --argjson acc "$out" --arg nums "$batch" '
+            ($nums | split(" ") | map(select(. != ""))) as $n
+            | ((.data.repository // {}) | with_entries(
+                .value = (.value.timelineItems.nodes[0].createdAt? // null))) as $got
+            | ($n | map(select(($got["i" + .] | type) != "string"))) as $miss
+            | (((.errors // []) | length) > 0) as $errors
+            | $acc
+            | .dates += ($n | map({key: ., value: $got["i" + .]})
+                | map(select(.value | type == "string")) | from_entries)
+            | .undated += ((if $miss == [] and $errors then $n else $miss end)
+                | map(tonumber))' \
+            <<<"${resp:-null}" 2>/dev/null)" \
+            || out="$(jq -c --arg nums "$batch" \
+                '.undated += ($nums | split(" ") | map(select(. != "") | tonumber))' <<<"$out")"
     done < <(jq -r '.issues[] | select(.milestone != null) | .number' <<<"$1" | xargs -n 50)
-    printf '%s\n' "$dates"
+    printf '%s\n' "$out"
+    [ "$(jq '.undated | length' <<<"$out")" -eq 0 ]
 }
 
 # Check 1's findings for a {"issues":[...]} payload, one line per finding.
@@ -140,7 +156,8 @@ check_umbrella_labels() {
     local rc=0
     UMBRELLA_ISSUES="$(fetch_umbrella_issues)" || rc=$?
     if [ "$rc" -eq 3 ]; then
-        skipped "milestone events not read — Acceptance rule not run"
+        skipped "milestone events not read for $(jq -r '.undated | map("#\(.)") | join(" ")' \
+            <<<"$UMBRELLA_ISSUES") — Acceptance rule not run"
     elif [ "$rc" -eq 2 ]; then
         UMBRELLA_ISSUES=""
         finding "open umbrella issues reach DMF_ISSUE_LIMIT=$ISSUE_LIMIT; raise it, issues past the limit are not checked"
@@ -583,7 +600,7 @@ GH
     # A check that cannot read its input makes the run INCOMPLETE, never OK.
     # The fake gh fails only the calls named in FAKE_GH_FAIL ("issue", "api");
     # the others return empty, valid results.
-    local itmp out
+    local itmp out rc fetched
     itmp="$(mktemp -d)"
     mkdir -p "$itmp/bin" "$itmp/repo/docs/plans" "$itmp/noplans"
     cat >"$itmp/bin/gh" <<'GH'
@@ -620,6 +637,53 @@ GH
         FAKE_GH_NULL=1 UMBRELLA_DIR="$itmp/repo" "$BASH" "$0"
     incomplete "every input read" 0 "backlog-hygiene: OK (0 findings)" \
         UMBRELLA_DIR="$itmp/repo" "$BASH" "$0"
+
+    # A milestone date that cannot be read makes the run INCOMPLETE and names
+    # the issue: (a) an "errors" array beside partial data, (b) an alias with
+    # no MilestonedEvent node. Both issues are milestoned; #10 has no date.
+    # (c) An "errors" array where every issue has a date names the batch.
+    cat >"$itmp/bin/gh" <<'GH'
+#!/usr/bin/env bash
+case "$1" in
+    issue) echo '[{"number":8,"title":"t","milestone":{"title":"v0.2"},"labels":[{"name":"component:cms"},{"name":"workstream:ops"}],"body":"## Acceptance\n- x"},
+                 {"number":10,"title":"t","milestone":{"title":"v0.2"},"labels":[{"name":"component:cms"},{"name":"workstream:ops"}],"body":""}]' ;;
+    api) if ! grep -q MILESTONED_EVENT; then echo '{"data":{"repository":{"issues":{"nodes":[]}}}}'
+         elif [ "$FAKE_DATES" = errors-all-dated ]; then
+             echo '{"data":{"repository":{"i8":{"timelineItems":{"nodes":[{"createdAt":"2099-01-01T00:00:00Z"}]}},"i10":{"timelineItems":{"nodes":[{"createdAt":"2099-01-01T00:00:00Z"}]}}}},"errors":[{"type":"INTERNAL"}]}'
+         elif [ "$FAKE_DATES" = errors ]; then
+             echo '{"data":{"repository":{"i8":{"timelineItems":{"nodes":[{"createdAt":"2099-01-01T00:00:00Z"}]}},"i10":null}},"errors":[{"type":"NOT_FOUND","path":["repository","i10"]}]}'
+         else
+             echo '{"data":{"repository":{"i8":{"timelineItems":{"nodes":[{"createdAt":"2099-01-01T00:00:00Z"}]}},"i10":{"timelineItems":{"nodes":[]}}}}}'
+         fi ;;
+esac
+GH
+    local mode
+    for mode in errors empty; do
+        rc=0
+        fetched="$(PATH="$itmp/bin:$PATH" FAKE_DATES="$mode" fetch_umbrella_issues)" || rc=$?
+        if [ "$rc" -eq 3 ] && [ "$(jq -c '.undated' <<<"$fetched")" = '[10]' ]; then
+            echo "  ok   milestone date ($mode): exit 3, #10 undated"
+        else
+            echo "  FAIL milestone date ($mode): expected exit 3 and [10] undated, got exit $rc"
+            fails=$((fails + 1))
+        fi
+        incomplete "milestone date ($mode)" 1 "backlog-hygiene: INCOMPLETE (1 check(s) could not run)" \
+            FAKE_DATES="$mode" UMBRELLA_DIR="$itmp/repo" "$BASH" "$0"
+        if printf '%s\n' "$out" | grep -q 'SKIPPED (milestone events not read for #10 '; then
+            echo "  ok   milestone date ($mode): the skip names #10"
+        else
+            echo "  FAIL milestone date ($mode): no skip line naming #10"
+            fails=$((fails + 1))
+        fi
+    done
+    rc=0
+    fetched="$(PATH="$itmp/bin:$PATH" FAKE_DATES=errors-all-dated fetch_umbrella_issues)" || rc=$?
+    if [ "$rc" -eq 3 ] && [ "$(jq -c '.undated' <<<"$fetched")" = '[8,10]' ]; then
+        echo "  ok   milestone date (errors, all dated): exit 3, batch undated"
+    else
+        echo "  FAIL milestone date (errors, all dated): expected exit 3 and [8,10] undated, got exit $rc"
+        fails=$((fails + 1))
+    fi
     rm -rf "$itmp"
 
     # Both modes, end to end and offline: a fake gh that always fails skips
@@ -649,7 +713,7 @@ GH
     fi
 
     if [ "$fails" -eq 0 ]; then
-        echo "backlog-hygiene self-test: OK (31/31 expectations)"
+        echo "backlog-hygiene self-test: OK (38/38 expectations)"
         return 0
     fi
     echo "backlog-hygiene self-test: $fails expectation(s) failed"
