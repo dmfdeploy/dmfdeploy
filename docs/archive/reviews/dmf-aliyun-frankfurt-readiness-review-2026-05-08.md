@@ -407,7 +407,8 @@ curl -sS https://auth.aliyun.<lan-host>/.well-known/openid-configuration   # Aut
 
 # 11. Update STATUS.md HUMAN-START + write handoff
 $EDITOR <umbrella-path>/STATUS.md
-$EDITOR <umbrella-path>/DMF\ Aliyun\ Frankfurt\ Rollout\ $(date +%Y-%m-%d).md
+# Historical: this step wrote a note under docs/handoffs/, which was later
+# removed from the tree. Post progress as a comment on the tracking issue.
 ```
 
 ---
