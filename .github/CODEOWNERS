@@ -1,7 +1,7 @@
 # dmfdeploy umbrella — CODEOWNERS
 #
-# Activates on GitHub once branch protection is enabled and reviews are
-# required. No effect locally or on Forgejo.
+# The main-protection ruleset on `main` requires a code-owner review, so a PR
+# that touches a path below needs approval from its owner before it merges.
 #
 # Every file matches a single rule (last match wins). The catch-all line
 # at the top applies to anything not matched by a more specific rule.
@@ -41,5 +41,3 @@
 /ROADMAP.md                    @dmfdeploy/maintainers
 /STATUS.md                     @dmfdeploy/maintainers
 /docs/WORKING-MODEL.md         @dmfdeploy/maintainers
-/docs/decisions/               @dmfdeploy/maintainers
-/.github/                      @dmfdeploy/maintainers
