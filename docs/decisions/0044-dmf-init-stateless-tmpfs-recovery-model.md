@@ -1,6 +1,6 @@
 <!-- ADR doc convention: every ADR carries a top-of-doc **Rule:** line — the binding
 constraint in one imperative sentence — directly under the metadata block. See
-CONTRIBUTING.md → "ADR conventions". -->
+docs/decisions/README.md → "ADR conventions". -->
 # ADR-0044: dmf-init stays stateless — tmpfs-only env state, enforced; durable recovery is the encrypted bundle, not host persistence
 
 **Status:** Accepted (2026-07-02 — implementation landed in dmf-init v0.3.5: fail-closed `assert_data_root_tmpfs` startup guard, forced checkpoint-export gate before long unattended phases, launcher `--tmpfs :exec` noexec guard; #150 and #162 closed)
@@ -119,7 +119,7 @@ startup refusal. This follows the same fail-closed philosophy as the tmpfs check
   `--tmpfs`** — fail-closed enforcement must land **with** the README/runbook
   update making `--tmpfs /tmp/dmf-init-data` mandatory, or the documented
   invocation simply starts failing.
-- This ADR is **Proposed** — ratify via the CONTRIBUTING RFC step (Discussions)
+- This ADR is **Proposed** — ratify via the RFC step in this folder's README (Discussions)
   before flipping to Accepted; codex adversarial gate-review (CHANGES-NEEDED →
   addressed) precedes ratification.
 

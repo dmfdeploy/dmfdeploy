@@ -10,7 +10,7 @@ ADR-0037 (Media Workloads = NetBox instance inventory), ADR-0028 (identity &
 authority chain — authorisation of the reserve/release actions)
 
 > **RFC status:** this ADR should be raised as a Discussions RFC before moving to
-> Accepted (CONTRIBUTING RFC-before-ADR). It is recorded as **Proposed** now so
+> Accepted ([RFC before ADR](README.md#propose-a-decision-with-an-rfc)). It is recorded as **Proposed** now so
 > the v0.2 re-anchor plan has a stable seam to point at.
 
 ## Context

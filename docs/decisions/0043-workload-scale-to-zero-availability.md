@@ -1,6 +1,6 @@
 <!-- ADR doc convention: every ADR carries a top-of-doc **Rule:** line — the binding
 constraint in one imperative sentence — directly under the metadata block. See
-CONTRIBUTING.md → "ADR conventions". -->
+docs/decisions/README.md → "ADR conventions". -->
 # ADR-0043: Workload scale-to-zero is an availability concern, scoped to AWX
 
 **Status:** Accepted
