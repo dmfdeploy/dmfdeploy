@@ -100,7 +100,7 @@ Per [DMF Release and Contribution Model Implementation Plan](../plans/dmf-releas
 ### A.7 — Recovery procedure exercised once
 
 - [ ] Loss-of-Shamir-share recovery procedure documented (extends `dmf-openbao-unseal` skill with the loss-recovery branch)
-- [ ] One dry-run rehearsal recorded in a handoff note
+- [ ] One dry-run rehearsal recorded as a comment on its tracking issue
 - [ ] Break-glass JSON location confirmed, mode 0600, outside git
 
 ### A.8 — Strongly recommended (publishable without, but adds confidence)
@@ -176,7 +176,7 @@ In `docs/runbooks/incident-response.md`:
 - [ ] 1-month NIS2 final report template
 - [ ] Out-of-band communication path (assume primary comms compromised)
 - [ ] Forensics evidence-preservation playbook (WORM bucket access, log export, image snapshot)
-- [ ] One tabletop exercise recorded in a handoff note
+- [ ] One tabletop exercise recorded as a comment on its tracking issue
 
 ### B.5 — Backup / restore evidence
 

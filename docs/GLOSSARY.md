@@ -74,6 +74,6 @@ expected to stand up this environment first, before any cloud provider.
 
 The dmfdeploy repository itself. It is the consolidated knowledge base (`docs/`)
 and cross-repo coordination point for the dmfdeploy platform. It holds architecture
-documents, architecture decision records, plans, reviews, handoffs, and the
+documents, architecture decision records, plans, reviews, and the
 generated status snapshot. The eight component repos are its siblings. They are not its
 children.
