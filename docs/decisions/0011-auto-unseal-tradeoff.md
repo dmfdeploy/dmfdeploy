@@ -29,7 +29,7 @@ restart freezes ESO and every secret-consuming app until a human runs the
 manual unseal script.
 
 To make this tolerable, the openbao Ansible role writes a file
-`<secure-store>/openbao-breakglass/hetzner-lab/openbao-keys-automation.json`
+`<secure-store>/openbao-breakglass/<env>/openbao-keys-automation.json`
 containing **the first 3 unseal shares + root token + ops_admin userpass**, and
 auto-feeds those shares to bao on routine playbook runs.
 
