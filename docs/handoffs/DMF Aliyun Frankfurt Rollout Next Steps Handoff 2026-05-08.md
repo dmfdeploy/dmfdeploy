@@ -196,7 +196,7 @@ Per-env isolation: run `bin/bootstrap-operator-approle.sh dmf-infra openbao-aliy
 Decision: parametrize, not fork. Phase B item. For now, unseal manually via `bao operator unseal` × 3 shares.
 
 ### S6: SSH user keypair auto-generation
-`bin/tf-apply.sh` auto-generates the AWX keypair but NOT the user SSH keypair (`~/.ssh/id_ed25519_k3s_aliyun`). This was created manually during this session. For future env creation, add a check to `tf-apply.sh`.
+`bin/tf-apply.sh` auto-generates the AWX keypair but NOT the user SSH keypair (`<ssh-key>`). This was created manually during this session. For future env creation, add a check to `tf-apply.sh`.
 
 ### Phase B backlog
 1. Parametrize `bin/unseal-openbao.sh` for env argument
@@ -211,10 +211,10 @@ Decision: parametrize, not fork. Phase B item. For now, unseal manually via `bao
 ### Credentials (never commit)
 | Secret | Location |
 |---|---|
-| Alicloud AK/SK | `~/.secure/aliyun/.ay-dmfdeploy` |
+| Alicloud AK/SK | `<provider-credentials-file>` |
 | Cloudflare DNS token | `~/.config/cf/dns.txt` |
 | SOPS age key | `~/.config/sops/age/keys.txt` |
-| Aliyun SSH key | `~/.ssh/id_ed25519_k3s_aliyun{,.pub}` |
+| Aliyun SSH key | `<ssh-key>{,.pub}` |
 | AWX control-node key | `~/.config/dmf/awx-control-node.pub` + `<secure-store>/awx-control-node.privkey` |
 | OpenBao breakglass | `<secure-store>/openbao-breakglass/aliyun-frankfurt/` (after init) |
 
@@ -236,7 +236,7 @@ export DMF_BOOTSTRAP_BUNDLE_DIR=<secure-store>/dmf-bootstrap
 ### Aliyun CLI (for troubleshooting)
 ```bash
 # List instances
-. ~/.secure/aliyun/.ay-dmfdeploy
+. <provider-credentials-file>
 aliyun --profile dmfdeploy --region eu-central-1 ecs DescribeInstances
 ```
 

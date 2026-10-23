@@ -30,10 +30,10 @@ overtaken by in-tree implementation. Treat the repo as source of truth for:
   `*.dmf.example.com` with DNS-01 wildcard issuance. Apex path routing
   is retired. Public `apps.json` advertises host cards only. LibreNMS
   remains available as a module but is excluded from the initial rollout.
-- **OpenBao custody** — 5-location Shamir model live: JuiceFS shares 1+2
-  (`<secure-store>/openbao-breakglass/<env>/`), macOS Keychain
-  share 3 (via `osascript`), USB `OPENBAO_A` shares 4+5, plus a 3-share
-  quorum automation file on JuiceFS. Supersedes the "connected flypack"
+- **OpenBao custody** — 5-location Shamir model live: shares 1+2 on an
+  encrypted volume (`<secure-store>/openbao-breakglass/<env>/`), share 3 in
+  the OS keychain, shares 4+5 on a removable drive, plus a 3-share quorum
+  automation file in the secure store (ADR-0009). Supersedes the "connected flypack"
   draft in §7b.
 - **Flypack profile** — canonical spec is `dmf-infra/k3s-lab-bootstrap/docs/flypack-offline-lane.md`
   (airgapped-primary, ship-once-never-reconnects). Supersedes §254–257,
@@ -235,11 +235,11 @@ If Authentik/OpenBao/Harbor were embedded as inner-cluster-only Ansible roles in
 - The flypack stage is the **first** introduction of a second cluster and activates the federation work listed above
 - Do not build federation plumbing during Stages 0–3
 
-## 7. Layer model (EBU canonical) and homelab translation
+## 7. Layer model (EBU canonical) and dmfdeploy translation
 
 This section adopts the EBU *Dynamic Media Facility Reference Architecture*
 V2.0 layer / vertical / lifecycle vocabulary as the canonical structure for
-the platform. Earlier drafts of this section described a homelab-specific
+the platform. Earlier drafts of this section described a dmfdeploy-specific
 `base/` + `stack/` + `central-services/` + `modules/` layout; that layout
 still exists in-tree as the role-directory shape, but it is now mapped onto
 the EBU model rather than being the model itself.
@@ -272,9 +272,9 @@ as `lifecycle-provision.yml`, `lifecycle-operate.yml`, `lifecycle-finalise.yml`
 wrappers at the repo root, plus inventory/manifest artifacts in `dmf-env/`
 that act as the Design/Plan output.
 
-### 7.1 Homelab profile and manifest terms (still in use)
+### 7.1 dmfdeploy profile and manifest terms (still in use)
 
-EBU has no equivalent for these; they are kept as homelab-specific concepts:
+EBU has no equivalent for these; they are kept as dmfdeploy-specific concepts:
 
 - **Lane** — ingress topology choice (public / private / airgapped). Deployment-shape, orthogonal to EBU model.
 - **Profile** — facility footprint (Flypack / Site / Cloud). Compatible with EBU; refers to scale, not architecture.
@@ -368,7 +368,7 @@ Each DMF cluster runs its **own** OpenBao instance, embedded in-cluster
 and exposed only on the cluster service network
 (`http://openbao.openbao.svc:8200`). There is no shared central runtime
 endpoint — secret coordination across clusters happens through bootstrap
-artefacts (the Resource Profile manifest + breakglass shares on JuiceFS),
+artefacts (the Resource Profile manifest + breakglass shares in the secure store),
 not a runtime network path.
 
 This generalises the flypack-lane pattern (canonical:

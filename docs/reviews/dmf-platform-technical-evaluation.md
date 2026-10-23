@@ -165,7 +165,7 @@ value (flow-level monitoring, 2110-21 timing, PTP topology) is **future work**.
 1. **Two-layer identity model** (operator/human vs per-app local admin, ADR-0024/0028)
    — hardened against a real **break-glass-email-hijack class** found and fixed live;
    seed-bao auto-heals legacy leaks. This is mature security thinking.
-2. **Secrets custody** — OpenBao with 3-of-5 Shamir (JuiceFS + Keychain + USB), ESO
+2. **Secrets custody** — OpenBao with 3-of-5 Shamir (secure store + OS keychain + removable drive), ESO
    projection, scoped AWX tokens minted *as* the service identity (empirical ownership
    rule codified). The 69x "sibling-wipe" write hazard was found and fixed (patch, not
    whole-secret PUT).

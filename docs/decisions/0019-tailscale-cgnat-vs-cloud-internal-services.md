@@ -4,7 +4,7 @@
 **Date:** 2026-05-11
 **Deciders:** @<handle>
 **Related:** ADR-0018 (self-managed k3s), `dmf-env/tasks/aliyun/firewall.yml`,
-`docs/architecture/dmf-local-kubectl-via-tailscale.md`.
+`docs/archive/architecture/dmf-local-kubectl-via-tailscale.md`.
 
 ## Context
 

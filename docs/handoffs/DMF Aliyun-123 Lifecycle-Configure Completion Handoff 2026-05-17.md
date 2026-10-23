@@ -147,7 +147,7 @@ Once the cluster is reachable + unsealed:
 ```bash
 # AWX auth context — note this cluster's admin_user is operator-specific,
 # not the role default 'admin'. Read from CR spec.
-ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<control-node-public-ip> bash <<'REMOTE'
+ssh -i <ssh-key> k3s-admin@<control-node-public-ip> bash <<'REMOTE'
 USER=$(sudo k3s kubectl get awx -n awx -o jsonpath='{.items[0].spec.admin_user}')
 PWD=$(sudo k3s kubectl get secret -n awx awx-admin-password -o jsonpath='{.data.password}' | base64 -d)
 
@@ -161,7 +161,7 @@ curl -sk -u "$USER:$PWD" "https://awx.<lan-host>/api/v2/job_templates/" \
 REMOTE
 
 # dmf-cms-svc NetBox perms (Gap B's killer check)
-ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<control-node-public-ip> bash <<'REMOTE'
+ssh -i <ssh-key> k3s-admin@<control-node-public-ip> bash <<'REMOTE'
 TOKEN=$(sudo k3s kubectl get secret -n dmf-cms dmf-cms-runtime -o json \
   | python3 -c 'import sys,json,base64; print(base64.b64decode(json.load(sys.stdin)["data"]["netboxApiToken"]).decode())')
 echo "=== /api/dcim/sites/ ==="

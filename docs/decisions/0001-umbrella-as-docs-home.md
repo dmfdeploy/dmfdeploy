@@ -6,9 +6,9 @@
 
 ## Context
 
-DMF Platform is split across 5 component repos (`dmf-cms`, `dmf-infra`,
+The dmfdeploy platform is split across 5 component repos (`dmf-cms`, `dmf-infra`,
 `dmf-env`, `dmf-central`, `dmf-media`) and a previously-scattered set of
-~24 design / planning documents stored on a JuiceFS volume at
+~24 design / planning documents stored on a private synced volume at
 `<note-store>/`. Multiple AI agents (Claude, Codex,
 Qwen, Haiku) work in these repos in parallel sessions and need a single place to
 find cross-cutting context.
@@ -44,7 +44,7 @@ Consequences of the amendment:
 - **Positive:** single mental model ("the umbrella has the cross-cutting stuff,
   the component repo has the code"). One place for agents to fetch on session
   start. Component repos still ship independently with their own release cadence.
-- **Positive:** docs that previously lived only on JuiceFS are now version-tracked,
+- **Positive:** docs that previously lived only on that volume are now version-tracked,
   pushable to Forgejo, reviewable in PRs.
 - **Negative:** standalone clones of a component repo (without the umbrella) lose
   cross-repo references in CLAUDE.md / READMEs. Mitigated by textual paths

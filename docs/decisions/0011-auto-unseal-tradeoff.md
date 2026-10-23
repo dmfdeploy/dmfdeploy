@@ -17,8 +17,8 @@ description of the live single-replica posture until the HA-bao-+-raft baseline 
 ## Context
 
 ADR-0009 specifies a 5-share Shamir scheme with a 3-of-5 threshold, distributed
-across 5 locations (JuiceFS share 1+2, macOS Keychain share 3, USB OPENBAO_A
-shares 4+5). The intent: compromise of any one or two locations does not yield
+across 5 locations (shares 1+2 on an encrypted volume, share 3 in the OS
+keychain, shares 4+5 on a removable drive). The intent: compromise of any one or two locations does not yield
 the master.
 
 But OpenBao is currently deployed as a **single-replica StatefulSet**
@@ -51,8 +51,8 @@ The current security posture is honestly stated as:
   (`bin/unseal-openbao.sh`), used when the automation file is missing,
   corrupted, or the operator deliberately wants the 3-source quorum.
 - **Shamir does NOT defend:** routine pod restarts. For routine restarts,
-  bao security reduces to "is the operator's Mac uncompromised?"
-  (FileVault, JuiceFS encryption, the user account's process integrity).
+  bao security reduces to "is the operator's workstation uncompromised?"
+  (disk encryption, volume encryption, the user account's process integrity).
 
 Conditions for revisiting (any one of these triggers a re-evaluation, not
 necessarily a change):

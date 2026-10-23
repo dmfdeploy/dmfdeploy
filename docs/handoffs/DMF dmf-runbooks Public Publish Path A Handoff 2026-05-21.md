@@ -530,7 +530,7 @@ Rather than wait for the next bootstrap-configure run, configure the
 mirror via API directly:
 
 ```bash
-ssh -i ~/.ssh/id_ed25519_k3s_hetzner k3s-admin@<g2r6-foa9-control-ip> \
+ssh -i <ssh-key> k3s-admin@<g2r6-foa9-control-ip> \
   "sudo k3s kubectl -n forgejo exec deploy/forgejo -c forgejo -- \
     curl -s -X POST -u \"\$FORGEJO_USER:\$FORGEJO_PASS\" \
       -H 'Content-Type: application/json' \

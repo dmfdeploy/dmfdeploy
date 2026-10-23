@@ -33,10 +33,10 @@ bootstrap (k3s_token, app admin passwords). The wrapper writes a temp vars
 file and injects it into Ansible via `-e @file`, then cleans up.
 
 **Break-glass material** lives **outside** the runtime path:
-- 5-share Shamir keys distributed across JuiceFS / macOS Keychain / USB
-  (see ADR-0009)
+- 5-share Shamir keys distributed across separate stores held by the
+  maintainer (see ADR-0009)
 - ops_admin userpass in the automation file at
-  `<secure-store>/openbao-breakglass/hetzner-lab/openbao-keys-automation.json`
+  `<secure-store>/openbao-breakglass/<env>/openbao-keys-automation.json`
 
 **No `community.hashi_vault` runtime dependency in Ansible.** The wrapper
 exports vars before `ansible-playbook` starts; tasks reference `vault_*`

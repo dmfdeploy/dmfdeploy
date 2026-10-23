@@ -123,7 +123,7 @@ path. The five fixes above are baked in.
   copies `eso.yml` / `openbao.yml` / `tailscale.yml` / `bootstrap.yml`
   from an existing env.
 - **`tf-apply.sh` doesn't read the wizard's per-env tfvars** —
-  sources from `~/.secure/<provider>/.ay-dmfdeploy` legacy paths.
+  sources from `<provider-credentials-file>` legacy paths.
 - **`.sops.yaml` accumulates stale rules** from failed env-name
   attempts. The wizard's idempotency guard worked for repeat attempts
   with the same env name but not across env-name variants.
@@ -158,7 +158,7 @@ forgejo config`) lands:
   (operator-side SOPS store; never in git).
 - `${DMF_BOOTSTRAP_BUNDLE_DIR}/aliyun-123/object-storage.tfvars` and
   `aliyun.tfvars` (provider creds; operator-side).
-- The original `~/.secure/aliyun/.ay-dmfdeploy` legacy Alicloud creds
+- The original `<provider-credentials-file>` legacy Alicloud creds
   file (operator-side; `tf-apply.sh` reads it directly).
 
 ### 4.3 Step-by-step state (against
