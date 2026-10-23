@@ -1,9 +1,9 @@
 # Open questions
 
 *A curated, honest view of what is deliberately frozen, what is built but
-unproven, and what is known-broken or undecided — as of 2026-06-10. The live
+unproven, and what is known-broken or undecided — as of 2026-10-23. The live
 backlog is [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues); raw
-question logs stay in [docs/questions/](archive/questions/). This page is the map, not
+question logs stay in [docs/archive/questions/](archive/questions/). This page is the map, not
 the record.*
 
 The authority for the frozen list is
@@ -65,14 +65,6 @@ calls this the project's systemic risk.
 
 ## Known races and bugs in the headline workflow
 
-- **Catalog per-entry cross-action lock**
-  ([#24](https://github.com/dmfdeploy/dmfdeploy/issues/24)) — deploy and finalise
-  are different AWX job templates, so the same-action dedup (shipped in dmf-cms
-  0.9.2 for the double-launch TOCTOU) does not serialize them; near-simultaneous
-  opposite actions race into "pods up + tag active + a finalise that tore down
-  nothing." A stranger driving the console can hit this; it is in-scope for v0.1.
-- **dmf-init duplicate orphan envs** on create-form re-submit
-  ([#19](https://github.com/dmfdeploy/dmfdeploy/issues/19)).
 - **Sandbox teardown leaves the node dirty** — no decommission step
   ([#18](https://github.com/dmfdeploy/dmfdeploy/issues/18)).
 
