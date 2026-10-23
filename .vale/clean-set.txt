@@ -48,3 +48,12 @@ docs/INDEX.md
 docs/OPEN-QUESTIONS.md
 docs/WORKING-MODEL.md
 docs/processes/README.md
+# xargs splits on spaces, so quote any path that has one.
+"docs/design/DMF Console Glossary.md"
+docs/design/README.md
+docs/design/dmf-console-alarm-philosophy.md
+docs/design/dmf-console-audit-and-event-log-spec.md
+docs/design/dmf-console-dangerous-action-spec.md
+docs/design/dmf-console-information-architecture.md
+docs/design/dmf-console-lifecycle-rail-visual-system.md
+docs/design/dmf-console-ux-constitution.md
