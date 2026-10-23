@@ -58,7 +58,7 @@ When in doubt, the rule is: **v0.1 builds exactly what single-facility, view-lea
 
 The Constitution is explicit (§1): **three independent axes (Role, Level, Locale) and keeping them separate is what stops the design from sprawling.** This spec does **not** add a fourth.
 
-Widget personalization (show / hide / reorder, §6) is a **per-user preference**, persisted by the **same mechanism as Level and Locale**. It belongs to the Workspace widget system and not to the operator model. It changes *which optional widgets you see and where*, never *which surfaces or actions exist for you* (that is Role) nor *how much detail they show* (that is Level).
+Widget personalization (show / hide / reorder, §6) is a **per-user preference**, persisted by the **same mechanism as Level and Locale**. It belongs to the Workspace widget system and not to the operator model. It changes *which optional widgets you see and where*, never *which surfaces or actions exist for you* (that is Role) or *how much detail they show* (that is Level).
 
 | Axis | Scopes | Mechanism |
 |---|---|---|
