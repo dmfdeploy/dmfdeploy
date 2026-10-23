@@ -91,3 +91,40 @@ runtime substrate concrete: each catalog function deploys as a Helm chart
 from cluster-internal Zot via an AWX EE pod. Lane B's NMOS-cpp
 implementation (this PR, 2026-05-22) lifts the first chart and proves the
 end-to-end path.
+
+## Moved from the ADR on 2026-10-23
+
+### Context (layer descriptions)
+
+Lane B's RBAC pre-creation block in `awx-integration` creates the
+`nmos` namespace + `nmos-cpp-launcher` SA + Role + RoleBinding **at
+bootstrap**, regardless of whether the function is ever instantiated.
+This pattern **conflates** three distinct layers:
+
+1. **Catalog entry** — "NMOS IS-04/05 registry exists in the DMF
+   catalog." Metadata. One YAML file.
+2. **Installation** — "This DMF cluster has enabled NMOS." Declared
+   desired state. Today: implicit (`always`).
+3. **Runtime instance** — "NMOS is actually running, with these pods in
+   this namespace." Actual workloads.
+
+For the first function, conflation is acceptable debt — there is no
+duplication. For the second, the bootstrap-RBAC pattern requires DMF
+maintainer intervention in `awx-integration` per function, which fails
+the moment 3rd-party media functions become a contribution channel.
+
+ADR-0020 B.3 (cluster-per-tenant, Proposed) already establishes that
+multi-tenancy is solved at cluster boundary, not namespace boundary —
+which removes the 3rd-party *isolation* dimension but does not remove
+the 3rd-party *contribution-friction* dimension that this ADR addresses.
+
+### Decision (reconciler responsibilities)
+
+The reconciler is responsible for:
+- Creating the target namespace (with default-deny NetworkPolicy, Pod
+  Security Admission `restricted` or `baseline`, ResourceQuota,
+  LimitRange — the 3rd-party-safety set GPT-5 enumerated).
+- Creating the per-instance ServiceAccount + Role + RoleBinding
+  (replacing the bootstrap-layer block that exists today).
+- Installing the chart at the version declared in the catalog entry.
+- Reconciling drift; cleaning up on CR deletion.

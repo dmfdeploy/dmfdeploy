@@ -39,3 +39,34 @@ This file holds material moved out of [ADR-0037](../../decisions/0037-media-work
 - `docs/design/dmf-console-ux-constitution.md` Art. 3 + Glossary —
   the vocabulary-promotion forcing function.
 - EBU DMF Reference Architecture V2.0 — Figures 1–3, Annex C orchestration grid.
+
+## Moved from the ADR on 2026-10-23
+
+### Context
+
+ADR-0013 set the catalog model (YAML definition + NetBox runtime tag).
+ADR-0025 made the runtime substrate concrete (Helm chart from Zot via an AWX
+EE pod). ADR-0027 added a three-layer separation — **catalog entry /
+installation / runtime instance** — but **deferred** the implementation of the
+middle (installation) layer, proposing a `MediaFunctionInstance` CRD plus a
+custom DMF Catalog Operator, and naming **MXL** as one of the triggers that
+would force the design (promotion criterion 1).
+
+MXL is now that second function. Standing up the intra-host `mxl-hello` Media
+Function on the sandbox forced the concrete question the EBU whitepaper sharpens:
+**where, in EBU terms, does a *deployed* Media Function belong in the operator
+console?** Working through the whitepaper's layered model (Figure 2), lifecycle
+(Figure 1), verticals (Figure 3), and the Annex C orchestration grid produced a
+clear answer:
+
+- The operator's real question is **"what Media Functions are deployed, how many,
+  and where?"** — a fleet/inventory question, scoped to the tenant/site they may
+  see. That is squarely what NetBox (the facility SoT) is built to answer.
+- A **Flow** (Media Exchange edge) is *live, transient* state — it appears,
+  advances a head index, and disappears. The whitepaper places "Monitor Status
+  of Flows" in the **Monitoring** vertical at the **Media Exchange** layer, i.e.
+  observed runtime state, **not** the configuration record.
+- ADR-0027's CRD-plus-operator is more machinery than the experiment phase
+  (ADR-0004) warrants when NetBox already *is* the instance/inventory store and
+  AWX already consumes NetBox as a dynamic inventory (`nb_inventory`,
+  `694-born-inventory`) and already has a drift loop (`operate-catalog-drift.yml`).

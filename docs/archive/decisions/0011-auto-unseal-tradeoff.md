@@ -36,3 +36,19 @@ This file holds material moved out of [ADR-0011](../../decisions/0011-auto-unsea
 - **ADR-0008** — OpenBao + ESO + AppRole shim secrets architecture
 - `dmf-openbao-unseal` skill — the operator-facing manual breakglass path
   (which the Shamir model fully protects)
+
+## Moved from the ADR on 2026-10-23
+
+### Context (first two paragraphs)
+
+ADR-0009 specifies a 5-share Shamir scheme with a 3-of-5 threshold, distributed
+across 5 locations (shares 1+2 on an encrypted volume, share 3 in the OS
+keychain, shares 4+5 on a removable drive). The intent: compromise of any one or two locations does not yield
+the master.
+
+But OpenBao is currently deployed as a **single-replica StatefulSet**
+(`openbao-0`). Every pod restart — Longhorn rebalance, node drain, OS patch,
+Hetzner maintenance — seals the bao. With single-replica bao and a 3-node lab
+cluster, restarts happen multiple times per week. Without auto-unseal, every
+restart freezes ESO and every secret-consuming app until a human runs the
+manual unseal script.

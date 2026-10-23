@@ -25,3 +25,11 @@ docs/decisions/0040-public-tls-tiering-and-dmfdeploy-io-psl.md
 docs/decisions/0041-release-and-contribution-model.md
 docs/decisions/0042-canonical-cross-agent-skills.md
 docs/decisions/0043-workload-scale-to-zero-availability.md
+docs/decisions/0011-auto-unseal-tradeoff.md
+docs/decisions/0013-media-function-catalog-model.md
+docs/decisions/0015-dmf-console-passkey-only.md
+docs/decisions/0019-tailscale-cgnat-vs-cloud-internal-services.md
+docs/decisions/0027-catalog-instance-vs-definition-separation.md
+docs/decisions/0037-media-workloads-netbox-instance-inventory.md
+docs/decisions/0044-dmf-init-stateless-tmpfs-recovery-model.md
+docs/decisions/0045-media-function-licensing-reservable-resource.md

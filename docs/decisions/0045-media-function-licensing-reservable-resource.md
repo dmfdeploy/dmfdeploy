@@ -1,39 +1,22 @@
 # ADR-0045: Media function licensing is a reservable resource behind a provider seam; declared-but-not-enforced until a real provider exists
 
 **Status:** Proposed
-**Date:** 2026-07-07
-**Deciders:** @znerol2, design conversation with Claude (2026-07-07) while
-re-anchoring v0.2 on the EBU facility-orchestration model; adversarially reviewed
-by codex (RESCOPE round, P1.2/P2 folded)
-**Relates to:** ADR-0003 (EBU taxonomy), ADR-0013 (media function catalog model),
-ADR-0037 (Media Workloads = NetBox instance inventory), ADR-0028 (identity &
-authority chain — authorisation of the reserve/release actions)
+**Date:** 2026-07-07.
+**Deciders:** @znerol2, design conversation with Claude (2026-07-07) while re-anchoring v0.2 on the EBU facility-orchestration model; adversarially reviewed by codex (RESCOPE round, P1.2/P2 folded).
+**Relates to:** ADR-0003 (EBU taxonomy), ADR-0013 (media function catalog model), ADR-0037 (Media Workloads = NetBox instance inventory), ADR-0028 (identity & authority chain: authorisation of the reserve/release actions)
+**Rule:** Model licences as a reservable resource behind the `LicenceReservationProvider` interface, never as ad-hoc tags. In v0.2, declare the catalog `licence:` block and build no provider and enforce nothing. NetBox is not the reservation ledger.
 
-> **RFC status:** this ADR should be raised as a Discussions RFC before moving to
-> Accepted ([RFC before ADR](README.md#propose-a-decision-with-an-rfc)). It is recorded as **Proposed** now so
-> the v0.2 re-anchor plan has a stable seam to point at.
+> **RFC status:** this ADR should be raised as a Discussions RFC before moving to Accepted ([RFC before ADR](README.md#propose-a-decision-with-an-rfc)). It is recorded as **Proposed** now so the v0.2 re-anchor plan has a stable seam to point at.
 
 ## Context
 
 Background and evidence: see the [archive record](../archive/decisions/0045-media-function-licensing-reservable-resource.md).
 
-DMF today has **no licensing model at all**: no ADR, no plan, no catalog field, no
-NetBox model, no console surface. The console IA reserves a "Licenses" rail slot
-but nothing designs it. Our current media functions (MXL, nmos-cpp/crosspoint) are
-open/unlicensed, so there has been no concrete driver.
-
-While re-anchoring v0.2 on the lifecycle, the north-star scenario ("two *licensed*
-functions …") forced the question: build a licence subsystem now, or defer it? The
-tempting shortcut — a "mock licence pool" of NetBox tags (`licence:assigned`) — was
-rejected: a tag cannot represent counts, leases, concurrency, idempotency,
-rollback, expiry, or external entitlement mapping, so it would **teach the wrong
-model** and pollute NetBox (which is a facility inventory + instance record, not a
-reservation ledger).
+DMF today has **no licensing model at all**: no ADR, no plan, no catalog field, no NetBox model, no console surface. The console IA reserves a "Licenses" rail slot but nothing designs it. Our current media functions (MXL, nmos-cpp/crosspoint) are open/unlicensed, so there has been no concrete driver. The north-star scenario ("two *licensed* functions …") forced the question: build a licence subsystem now, or defer it?
 
 ## Decision
 
-1. **Licences are modelled as a reservable resource behind a provider interface**,
-   not as ad-hoc tags. Define (interface, not implementation, in v0.2):
+1. **Licences are modelled as a reservable resource behind a provider interface**. Ad-hoc tags are not used. In v0.2, define the interface and no implementation:
 
    ```
    LicenceReservationProvider:
@@ -42,31 +25,14 @@ reservation ledger).
      release(reservation_id)            -> ok                        # idempotent
      usage(licence_class?)              -> {capacity, assigned, leaked}
    ```
-   - **`ctx` (required reserve context):** `idempotency_key` (typically the
-     originating `request_id`), `function_key` (catalog key), `instance_id`
-     (target NetBox instance), `actor` (requesting human, for the C5 record).
-     **Reserve is retry-idempotent on `idempotency_key`:** a duplicate `reserve`
-     with the same key returns the **same** `reservation_id` (does not double-
-     assign), so a retried launch cannot leak seats. `release` is idempotent on
-     `reservation_id`.
-   - A catalog entry **declares** its required licence classes (the `licence:`
-     block — schema in §Decision.2).
-   - Provision/Configure launchers **reserve** and receive a `reservation_id`;
-     Finalise (and any **failed launch**) **release** it idempotently — no leaked
-     reservations. Monitoring reads `usage()` (assigned vs capacity vs leaked).
-   - The reserve/release actions are authorised + audited per ADR-0028 (C5).
+   - **`ctx` (required reserve context):** `idempotency_key` (typically the originating `request_id`), `function_key` (catalog key), `instance_id` (target NetBox instance), `actor` (requesting human, for the C5 record). **Reserve is retry-idempotent on `idempotency_key`:** a duplicate `reserve` with the same key returns the **same** `reservation_id` (does not double-assign), so a retried launch cannot leak seats. `release` is idempotent on `reservation_id`.
+   - A catalog entry **declares** its required licence classes (the `licence:` block, schema in Decision 2).
+   - Provision/Configure launchers **reserve** and receive a `reservation_id`. Finalise (and any **failed launch**) **release** it idempotently, so no reservation leaks. Monitoring reads `usage()` (assigned vs capacity vs leaked).
+   - The reserve/release actions are authorised and audited per ADR-0028 (C5).
 
-   **Seam scope:** this ADR fixes the **interface seam** (the four methods, the
-   `ctx` contract, the idempotency semantics, and NetBox-is-not-the-ledger). It
-   does **not** fully specify provider internals — concurrency model, lease
-   expiry, and whether Plan-stage reservation is separate from Provision-stage
-   assignment are **deliberately open** and gated by a **later provider-slice
-   ADR/spec**, written when the provider is built. Callers depend only on the
-   seam above and are unaffected by those choices.
+   **Seam scope:** this ADR fixes the **interface seam** (the four methods, the `ctx` contract, the idempotency semantics, and NetBox-is-not-the-ledger). It does **not** fully specify provider internals. Concurrency model, lease expiry, and whether Plan-stage reservation is separate from Provision-stage assignment are **deliberately open** and gated by a **later provider-slice ADR/spec**, written when the provider is built. Callers depend only on the seam above and are unaffected by those choices.
 
-2. **v0.2 scope = declared-but-NOT-enforced.** v0.2 reserves the catalog/schema
-   fields so a real provider slots in without rework, but **builds no provider and
-   enforces nothing**. No mock tag-pool. The v0.2 catalog block:
+2. **v0.2 scope = declared-but-NOT-enforced.** v0.2 reserves the catalog/schema fields so a real provider slots in without rework, but **builds no provider and enforces nothing**. No mock tag-pool. The v0.2 catalog block:
 
    ```yaml
    # optional top-level block in a catalog entry; absent/empty = no licence requirement
@@ -75,40 +41,28 @@ reservation ledger).
        - class: <string>      # licence class identifier
          count: <integer ≥ 1> # seats/instances per deployment
    ```
-   In v0.2 this is **parsed, schema-validated, and may be displayed** as declared
-   intent — nothing more (no `check`/`reserve`/`deny`/`release`, no NetBox
-   lease/tag state). "licensed" is kept out of the v0.2 demo headline and tracked
-   as a follow-on claim.
+   In v0.2 this is **parsed, schema-validated, and may be displayed** as declared intent. There is no `check`/`reserve`/`deny`/`release` and no NetBox lease/tag state. "licensed" is kept out of the v0.2 demo headline and tracked as a follow-on claim.
 
-3. **A real provider is a later, deliberately-chosen slice** — implemented only
-   when a genuinely licensed function exists to drive it, or when the operator
-   explicitly wants a resource-reservation spike. When built, it must demonstrate
-   the failure semantics that make it honest: **deny on exhaustion, atomic
-   assign, idempotent release, and rollback on failed launch.**
+3. **A real provider is a later, deliberately chosen slice.** Implement it only when a genuinely licensed function exists to drive it, or when the operator explicitly wants a resource-reservation spike. When built, it must demonstrate the failure semantics that make it honest: **deny on exhaustion, atomic assign, idempotent release, and rollback on failed launch.**
 
-4. **NetBox is not the reservation ledger.** NetBox continues to record *which*
-   function and *how many* instances (ADR-0037). The reservation ledger — leases,
-   counts, expiry — belongs to the provider (its backend chosen when built:
-   in-cluster store, OpenBao-backed, or an external entitlement service). NetBox
-   may reference a `reservation_id`, but does not own the lease state.
+4. **NetBox is not the reservation ledger.** NetBox continues to record *which* function and *how many* instances (ADR-0037). The reservation ledger (leases, counts, expiry) belongs to the provider, with its backend chosen when built: in-cluster store, OpenBao-backed, or an external entitlement service. NetBox may reference a `reservation_id`, but does not own the lease state.
+
+### Rejected alternatives
+
+- **Mock licence pool via NetBox tags (`licence:assigned`).** A tag cannot represent counts, leases, concurrency, idempotency, rollback, expiry, or external entitlement mapping. It would teach the wrong model, pollute NetBox (an inventory/instance store, and not a reservation ledger), and produce a demo that looks like enforcement while proving nothing.
+- **Build a real reservation provider now (in v0.2).** Our current functions are unlicensed, so there is no driver. A correct provider (atomic assign, deny-on-exhaustion, idempotent release, rollback, expiry) would crowd out the v0.2 lifecycle-legibility slice.
+- **Omit licensing entirely / no ADR.** The EBU model makes licences a first-class reservable resource, and leaving it unmodelled is the silent gap this ADR closes.
 
 ## Consequences
 
-- **Positive:** the EBU licence thread becomes a recorded, intentional deferral
-  with a defined seam, not a silent gap; the catalog schema is forward-compatible;
-  we avoid a misleading fake; a real provider (or external entitlement mapping)
-  can be added later without touching callers.
-- **Negative / accepted:** v0.2 cannot truthfully claim licence enforcement; the
-  north-star "licensed" scenario waits on the provider slice; the `licence:` block
-  sits declared-but-inert (documented as such so it is not mistaken for enforced).
-- **Open (for the RFC / provider slice):** licence-class taxonomy; provider
-  backend; concurrency/expiry semantics; whether Plan-stage reservation is
-  separate from Provision-stage assignment; external-entitlement mapping.
-- **Reference input (added 2026-10-07):** the IAMT *Dynamic Software Licensing*
-  best practices v1.0.0 (2026-09-07) speak to all five open items above —
-  entitlement vs lease split, lease lifecycle, canonical API, grace policy.
-  Read the [summary and DMF relevance note](../references/iamt-dsl-v1-0-0-summary-and-relevance.md)
-  before opening the RFC.
+- **Positive:** the EBU licence thread becomes a recorded, intentional deferral with a defined seam. It is not a silent gap. The catalog schema is forward-compatible, we avoid a misleading fake, and a real provider (or external entitlement mapping) can be added later without touching callers.
+- **Negative / accepted:** v0.2 cannot truthfully claim licence enforcement. The north-star "licensed" scenario waits on the provider slice. The `licence:` block sits declared-but-inert (documented as such so it is not mistaken for enforced).
+- **Open (for the RFC / provider slice):** licence-class taxonomy; provider backend; concurrency/expiry semantics; whether Plan-stage reservation is separate from Provision-stage assignment; external-entitlement mapping.
+- **Reference input (added 2026-10-07):** the IAMT *Dynamic Software Licensing* best practices v1.0.0 (2026-09-07) speak to all five open items above: entitlement vs lease split, lease lifecycle, canonical API, grace policy. Read the [summary and DMF relevance note](../references/iamt-dsl-v1-0-0-summary-and-relevance.md) before opening the RFC.
+
+## Enforcement
+
+discipline only: nothing mechanical checks this rule today. No catalog schema, validator, test or workflow references a licence field in `dmf-cms`, `dmf-infra`, `dmf-env`, `dmf-media`, `dmf-runbooks` or `dmf-central` (confirmed by grepping each repo for "licen").
 
 ## Status
 

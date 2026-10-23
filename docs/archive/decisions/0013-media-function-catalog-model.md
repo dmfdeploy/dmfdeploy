@@ -23,3 +23,19 @@ gap: the schema had no k8s namespace field, so drift detection had to
 derive namespace from the entry's `key` — a brittle heuristic that
 produced false positives for `nmos-cpp` (actual namespace `nmos`, not
 `nmos_cpp`).
+
+## Moved from the ADR on 2026-10-23
+
+### Context
+
+The dmfdeploy platform plan §9 ("two lanes") and the strategic review
+(2026-04-30) frame Layer 4–6 work as needing an operator-driven launch
+mechanism — image bootstrapped into the cluster but actual deployment
+deferred to operator action in dmf-cms, mirroring the
+`Download Media Functions` / `Launch Media Functions` split in EBU
+Figure 4 (white paper p.6). Move 2 closed the dmf-cms→AWX→NetBox
+vertical slice but left the dmf-cms `app-contract` as a static YAML
+fixture; the Move 2 learnings (`docs/reviews/dmf-platform-move-2-learnings.md`
+§Q2) flagged the pivot to NetBox-discovered as queued. The catalog
+idea is the natural form of that pivot, with extensions for the upper
+layers' bootstrap-but-don't-deploy semantics.
