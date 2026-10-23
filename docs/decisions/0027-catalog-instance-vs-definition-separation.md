@@ -8,7 +8,7 @@
 **Deciders:** @<handle>, design conversation with GPT-5 (2026-05-22 share), captured by Claude
 **Amended by:** ADR-0037 (Media Workloads: installation/instance layer realised in NetBox + AWX)
 
-**Rule:** Media catalog functions keep three separate layers: catalog entry, installation, and runtime instance. Implementation is deferred until the second catalog function (or the first third-party submission, whichever comes first) makes the per-function bootstrap-layer pattern's friction concrete.
+**Rule:** Media catalog functions keep three separate layers: catalog entry, installation, and runtime instance. [ADR-0037](0037-media-workloads-netbox-instance-inventory.md) decides how the installation and instance layers are implemented.
 
 ## Context
 
