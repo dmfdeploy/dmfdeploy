@@ -16,3 +16,18 @@ This file holds material moved out of [ADR-0047](../../decisions/0047-media-func
   air-gap/self-contained doctrine (ADR-0030/0034) plus the roadmap's
   recommendation park external portals unless a real multi-publisher
   ecosystem materialises.
+
+## Moved from the ADR on 2026-10-23
+
+### Context (moved from the ADR)
+
+The catalog is first-party-only: entries, charts, launchers and AWX seeding are
+smeared across `dmf-media`/`dmf-runbooks`/`dmf-infra`, all fully trusted, with
+no publisher identity, provenance, signatures, or trust gradations anywhere in
+the chain. A launcher playbook is arbitrary code executing in an AWX EE pod
+with Kubernetes and NetBox write authority (ADR-0025/0032) — so third-party
+contribution is structurally impossible today without handing strangers the
+control plane. The real tension: preserve the property that made the catalog
+good (adding a function is a pure-git, digest-pinned operation) while opening
+a contribution path whose trust is graded, enforceable, and honest about what
+is built versus designed.

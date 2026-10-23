@@ -84,3 +84,84 @@ internal health check, or `tcp_connect` (port-open ≠ ready).
 - Work-package impact (monitoring close-out plan, 2026-07-02): netbox-sot seeds
   the field; born-inventory stamps it (`loki → /ready`); dmf-promsd implements
   the normalization + conditional append.
+
+## Moved from the ADR on 2026-10-23
+
+### Context (original)
+
+The platform proved the Prometheus stack principle, but the current target wiring is
+still static. It is effectively a frozen copy of chart-default scrape jobs with only
+in-cluster Kubernetes discovery, a self-scrape, and one dangling probe target. That
+shape is not sufficient for a dynamic media facility where devices, services, and
+media functions appear, disappear, and move continuously.
+
+NetBox is already the operational source of truth for the facility. ADR-0037 settled
+that deployed media-function instances live in NetBox as inventory, not as a custom
+CRD. ADR-0013 already established the catalog pattern as YAML intent plus a NetBox
+runtime record. The missing piece is monitoring: the platform needs one declarative
+contract that lets monitoring attach and detach automatically as the facility
+changes, without a human re-running a playbook.
+
+### Decision 1, original wording
+
+Monitoring is no longer a static scrape-config list. A catalog entry declares what
+should be observed, NetBox stores the live facility record, and Prometheus
+continuously reconciles its targets against both NetBox and Kubernetes state. The
+intended effect is simple: when an object is created, moved, or removed in the
+facility, its monitoring follows automatically.
+
+### Decision 6, rationale for the standalone service
+
+Rationale for the standalone service, versus the rejected
+`netbox-plugin-prometheus-sd` approach:
+
+- **Air-gap and source control:** the adapter can ride the existing image rail and
+  release process without requiring a custom NetBox image or a new Python-package
+  distribution path.
+- **Version compatibility:** the adapter depends on the stable NetBox REST API, so
+  NetBox upgrades do not require coupling to a third-party plugin compatibility
+  matrix.
+- **Mapping ownership:** the dmfdeploy platform owns the NetBox-to-target mapping and can
+  encode the exact taxonomy above without waiting on external plugin behavior.
+
+### Decision 7, original wording
+
+The Day-0 inventory and monitoring plan’s bootstrap-time `file_sd` bridge is now
+superseded by this ADR. Bootstrap may still seed the initial state, but the canonical
+bridge is live `http_sd` from `dmf-promsd`, not a one-time file export.
+
+### Operator decision 2, original cache paragraph
+
+Prometheus polls the adapter on `refresh_interval: 30s`. The adapter serves targets
+from an in-memory cache refreshed on its own approximately `45s` timer so NetBox is
+queried at a fixed low rate regardless of Prometheus replica count, matching the
+`nb_inventory` cache-timeout pattern. That gives a worst-case churn latency of
+roughly `75s` from NetBox change to scraped target visibility. NetBox webhook-driven
+cache invalidation is deferred.
+
+### Consequences (original)
+
+- **Positive**: Monitoring becomes declarative and facility-driven instead of
+  being a frozen scrape list.
+- **Positive**: NetBox remains the single source of truth for what exists and
+  should be observed, while Kubernetes stays responsible for in-cluster pod
+  discovery.
+- **Positive**: The contract is explicit enough for downstream implementation work
+  to proceed without new architecture decisions.
+- **Positive**: The adapter can be versioned, tested, and released independently of
+  NetBox.
+- **Positive**: The `/sd/*` contract stays stable while the adapter’s internal
+  caching strategy evolves, so Prometheus wiring does not need to change as the
+  implementation matures.
+- **Negative**: There is one more component to build and operate.
+- **Negative**: The platform now has a deliberate split between scrape, probe, and
+  SNMP discovery paths, which is more to wire than a single discovery source.
+- **Neutral**: The old bootstrap-time `file_sd` approach remains documented as
+  historical context, but it is no longer canonical.
+
+### Enforcement (original)
+
+The follow-on work packages must implement the contract exactly as written here.
+Any implementation that changes the monitoring contract schema, introduces a second
+contract shape, or reverts the bridge to a bootstrap-only file export should be
+treated as an ADR violation and reviewed against this decision first.

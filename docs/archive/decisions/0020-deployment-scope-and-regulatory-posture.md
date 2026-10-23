@@ -48,3 +48,55 @@ moment dmfdeploy.io processes customer-hub data on a customer's behalf.
 Mode B also creates controller obligations for dmfdeploy.io's own
 account, billing, support, security-log, and vulnerability-intake data.
 None of this attaches to a clone-and-self-host user.
+
+
+## Moved from the ADR on 2026-10-23
+
+### Context (moved from the ADR)
+
+`dmf-infra/docs/security-compliance-framework-plan.md` §"Open Questions"
+left the central scope question unanswered: *"is this a lab / customer-hosted
+reference / managed service?"*. Every ISO 27001 / NIS2 / GDPR control's
+**applicability** hinges on this answer, and the answer determines whether
+several architectural decisions are cheap (now) or expensive (later).
+
+The operating stance has shifted as of 2026-05-11: DMF is intended to ship
+as **three distinct deployment modes**, not one. The compliance and
+architectural implications of each are materially different and cannot be
+collapsed into a single posture without producing one of two failure modes:
+
+- **Over-claim:** treat OSS self-host as if it were attested, misleading
+  downstream operators
+- **Over-build:** apply managed-service controls to the lab and OSS modes,
+  stalling experimentation under audit weight
+
+Regulatory background: see the [archive record](0020-deployment-scope-and-regulatory-posture.md).
+
+### 2026-05-30 correction note (moved from the ADR)
+
+> **2026-05-30 correction (portfolio-review §2.2):** an earlier draft of
+> this paragraph predicted "ADR-0028 managed-service, ADR-0029
+> flypack-offline." Those numbers were assigned to **other** decisions:
+> ADR-0028 is the Identity & Authority Chain, ADR-0029 is the Tiered
+> Unseal Posture. Do not infer Mode B/C ADR numbers from this section;
+> they will be numbered when written.
+
+### Positive and neutral consequences (moved from the ADR)
+
+- **Positive**
+  - Every downstream compliance question now has a "for which mode?"
+    answer instead of a deferred decision.
+  - The "experiment phase" stance (ADR-0004) can continue to apply to
+    Mode A development while Mode B and Mode C accrue their own
+    readiness gates.
+  - The customer-conversation boundary is explicit: managed = attested
+    + supported, self-host = framework-provided + as-is, flypack =
+    Mode B obligations plus portable-media controls.
+- **Neutral**
+  - Adopts the GitLab / Sentry / Coder / Replicated multi-modal model
+    rather than the Elastic / Redis pure-OSS-plus-cloud model. The
+    distinction is enforced via external-service gating (see B.4),
+    chosen to avoid Elastic-style relicensing fights.
+  - Mode A is what is currently being prepared for the github.com push
+    per the 2026-05-07 Public Publish Readiness handoff; this ADR
+    formalizes the implicit posture.

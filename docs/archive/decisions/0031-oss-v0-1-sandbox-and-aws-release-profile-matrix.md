@@ -239,3 +239,36 @@ spirit but are no longer expressed as AWS-only.
 >
 > This ADR was re-accepted on 2026-05-26 after the operator confirmed the
 > WP0 lane matrix, scope trims, and WP1S-first sequence.
+
+## Moved from the ADR on 2026-10-23
+
+### Context (second paragraph and the three questions)
+
+The release question is not whether DMF should eventually support multiple
+providers — it should, per ADR-0026 — and it is not solely "which single
+cloud profile becomes the v0.1 contract." The CEO-mode review surfaced that
+the more useful frame is:
+
+- What is the **release experience** a contributor encounters?
+- Which **provisioning lanes** honor that experience?
+- What does v0.1 **claim** and what does it explicitly not claim yet?
+
+Those three questions, answered together, produce a release-profile matrix
+rather than a single-provider contract.
+
+### Profile 3 purpose bullet
+
+- Purpose: validate architecture under real provider conditions, exercise
+  ADR-0028 / ADR-0024 / ADR-0021 / ADR-0011 / ADR-0015 / ADR-0030
+  end-to-end, surface bugs and architectural smells the generic profiles
+  will not see.
+
+### Consequences (Positive, rationale only)
+
+- **Positive** — v0.1 has a defensible single canonical *experience*, with a
+  low-friction default lane that matches the actual operator-stated persona
+  (trusted friends, GitHub-discovery contributors, possible vlog audience,
+  self-hosted single-node sandbox as near-term goal).
+- **Positive** — ADR-0020 Mode A becomes easier to enforce: both v0.1
+  profiles are demonstrably self-host and demonstrably independent of
+  `dmfdeploy.io` services.
