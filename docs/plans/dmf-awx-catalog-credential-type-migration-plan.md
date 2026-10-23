@@ -230,6 +230,10 @@ Next session:
 6. Land in a single commit `fix(awx-integration): migrate catalog JT
    NetBox tokens to Custom Credential Type` with reference back to
    this plan doc.
-7. Close the open followup in
-   [`DMF Lane B Chart 0.1.1 Landed Handoff 2026-05-23.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Lane%20B%20Chart%200.1.1%20Landed%20Handoff%202026-05-23.md)
-   and the STATUS.md operator-notes structural-note bullet.
+7. Record the closure as a comment on tracking issue
+   [#310](https://github.com/dmfdeploy/dmfdeploy/issues/310), and update any
+   matching structural note in the operator notes (pinned issue
+   [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618)). The follow-up
+   first appeared in the
+   [Lane B chart 0.1.1 handoff of 2026-05-23](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Lane%20B%20Chart%200.1.1%20Landed%20Handoff%202026-05-23.md),
+   which is now a historical record and isn't edited.

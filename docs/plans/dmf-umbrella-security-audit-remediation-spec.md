@@ -11,6 +11,12 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/165
 > scrubbed". Executed slice: Changes 4–7 + 12 landed under #133/#137; the
 > script-hardening remainder (Changes 1–3, 8–11, 13–17) is tracked in #165.
 
+> **Handoff notes removed (2026-10-23).** Changes 4–7 list some files under
+> `docs/handoffs/`. That folder was later removed from the tree
+> (dmfdeploy/dmfdeploy#713), and its links now point at the last commit that
+> had it. Those entries are a record of edits already made. They need no
+> further action.
+
 > **Post-sweep reconciliation (2026-06-24, umbrella #133).** A live `git grep`
 > sweep found this spec's literal lists were **incomplete** (some files were
 > already partially scrubbed in an earlier session; new leaks were never
