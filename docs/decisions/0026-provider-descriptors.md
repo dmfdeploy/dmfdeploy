@@ -62,11 +62,12 @@ Proposed
    descriptor exists; the loader does not. `wizard-spike/src/` has no
    provider-shaped code yet.*
 2. The Python wizard renders
-   `dmf-env/inventories/<env_id>/group_vars/all/tailscale.yml` from the
+   `~/.dmfdeploy/envs/<env_id>/inventory/group_vars/all/tailscale.yml` from the
    descriptor for at least one **live** env (e.g. `<env>`;
    `hetzner-arm` is retired so the original byte-for-byte anchor no
    longer applies; equivalence against any live env's existing
-   hand-rolled `tailscale.yml` is sufficient).
+   hand-rolled `tailscale.yml` is sufficient). *Amended 2026-10-23: the path
+   follows the operator-local layout of ADR-0035.*
 3. A second descriptor (cloudflare or hcloud) lands without schema
    mutation, i.e. v1 schema survives the second integration.
 
