@@ -7,13 +7,17 @@ responsibility first.
 
 ## What & why
 
-<!-- One paragraph: what this changes and the motivation. Link issues with #NNN. -->
+<!-- One paragraph: what this changes and the motivation. Link issues with "Closes dmfdeploy/dmfdeploy#NNN". -->
+
+## How it's tested
+
+<!-- The commands you ran and what they showed, so a reviewer can rerun them. If no test applies, say why. -->
 
 ## Checklist
 
 - [ ] The PR has one `component:*` label and one `workstream:*` label (see [`docs/WORKING-MODEL.md`](docs/WORKING-MODEL.md) section 2).
 - [ ] The description has a fully qualified issue reference: `Refs dmfdeploy/dmfdeploy#N`, or `Closes dmfdeploy/dmfdeploy#N` if this is the last PR for the issue. A bare `#N` points at the wrong repo.
-- [ ] Commits are **signed off** (`git commit -s`; DCO) — DCO check will verify.
+- [ ] Commits are **signed off** (`git commit -s`; DCO). The DCO check verifies them.
 - [ ] Commit messages follow **Conventional Commits** (`feat:`/`fix:`/`docs:`/…).
 - [ ] `VERSION` bumped if this is a release-tagged change (ADR-0005); otherwise N/A.
 - [ ] No secrets / real IPs / DNS / operator identity anywhere in the diff or this PR.

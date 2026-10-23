@@ -7,7 +7,7 @@
 #   hygiene-check.sh title            # reads $GITHUB_EVENT_PATH; STRICT=1 fails
 #   hygiene-check.sh form FILE        # issue form has required component and workstream
 #   hygiene-check.sh owners FILE      # CODEOWNERS paths exist, owners are @login or @org/team
-#   hygiene-check.sh pr FILE          # PR template has the checklist items
+#   hygiene-check.sh pr FILE          # PR template has the test section and checklist items
 #   hygiene-check.sh real             # run form, owners and pr on the real files
 #   hygiene-check.sh fixtures         # assert every bad fixture fails, every good one passes
 #
@@ -68,6 +68,7 @@ case "$kind" in
     for word in 'component:*' 'workstream:*' 'dmfdeploy/dmfdeploy#N' 'signed off' 'check-docs'; do
       grep -qF -- "$word" "$file" || bad+=("checklist item missing: $word")
     done
+    grep -qF -- "## How it's tested" "$file" || bad+=("section missing: ## How it's tested")
     ;;
   real)
     rc=0
