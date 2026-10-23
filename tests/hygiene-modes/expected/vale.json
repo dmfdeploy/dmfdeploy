@@ -12,50 +12,65 @@
           }
         },
         {
+          "id": "scope",
+          "name": "Find the changed Vale paths",
+          "run": "set -euo pipefail\n# The only list of paths that run the Vale steps on a pull request.\npaths=(\n  \"README.md\"\n  \"**/README.md\"\n  \"CONTRIBUTING.md\"\n  \"AGENTS.md\"\n  \"ROADMAP.md\"\n  \"docs/decisions/**\"\n  \"docs/design/**\"\n  \"docs/THESIS.md\"\n  \"docs/JOURNEY.md\"\n  \"docs/WORKING-MODEL.md\"\n  \"docs/OPEN-QUESTIONS.md\"\n  \"docs/GLOSSARY.md\"\n  \"docs/INDEX.md\"\n  \"docs/STYLE.md\"\n  \"docs/templates/**\"\n  \".github/**/*.md\"\n  \"bin/check-voice*.sh\"\n  \"bin/mutate-voice.sh\"\n  \"tests/voice-changed-head.sh\"\n  \"tests/voice-changed-links.sh\"\n  \".vale.ini\"\n  \".vale/**\"\n  \".github/workflows/vale.yml\"\n)\nif [[ \"$GITHUB_EVENT_NAME\" != \"pull_request\" ]]; then\n  echo \"Not a pull request, so every Vale step runs.\"\n  echo \"lint=true\" >>\"$GITHUB_OUTPUT\"\n  exit 0\nfi\n# HEAD is the PR merge commit; its first parent is the base branch.\nchanged=\"$(git diff --name-only HEAD^1 HEAD -- \"${paths[@]/#/:(glob)}\")\"\nif [[ -z \"$changed\" ]]; then\n  echo \"No Vale path changed in this pull request. Skipping the Vale steps.\"\n  echo \"lint=false\" >>\"$GITHUB_OUTPUT\"\nelse\n  echo \"Vale paths changed in this pull request:\"\n  printf '%s\\n' \"$changed\"\n  echo \"lint=true\" >>\"$GITHUB_OUTPUT\"\nfi\n"
+        },
+        {
           "env": {
             "VALE_VERSION": "3.25.1"
           },
+          "if": "steps.scope.outputs.lint == 'true'",
           "name": "Install Vale",
           "run": "set -euo pipefail\nurl=\"https://github.com/vale-cli/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz\"\nsha=\"4bf5c5176b682b1da0830f471584d3494f1c2e27ee3029e1ad6f6661d4962182\"\nmkdir -p \"$RUNNER_TEMP/vale\"\ncurl -fsSL -o \"$RUNNER_TEMP/vale.tgz\" \"$url\"\necho \"$sha  $RUNNER_TEMP/vale.tgz\" | sha256sum -c -\ntar -xz -C \"$RUNNER_TEMP/vale\" -f \"$RUNNER_TEMP/vale.tgz\" vale\necho \"$RUNNER_TEMP/vale\" >> \"$GITHUB_PATH\"\n"
         },
         {
+          "if": "steps.scope.outputs.lint == 'true'",
           "name": "Sync the Google package",
           "run": "vale sync"
         },
         {
+          "if": "steps.scope.outputs.lint == 'true'",
           "name": "Lint working surfaces (warn mode)",
           "run": "vale --no-exit ."
         },
         {
+          "if": "steps.scope.outputs.lint == 'true'",
           "name": "Enforce Vale on the clean set (error level blocks)",
           "run": "set -euo pipefail\ngrep -v -e '^#' -e '^[[:space:]]*$' .vale/clean-set.txt \\\n  | xargs vale --minAlertLevel=error\n"
         },
         {
+          "if": "steps.scope.outputs.lint == 'true'",
           "name": "Check the README scope",
           "run": ".vale/scope-test.sh"
         },
         {
+          "if": "steps.scope.outputs.lint == 'true'",
           "name": "Check the fixtures (strict config)",
           "run": "set -euo pipefail\nfor bad in .vale/fixtures/bad-*.md; do\n  good=\"${bad/bad-/good-}\"\n  if vale --config .vale/strict.ini \"$bad\" >/dev/null; then\n    echo \"::error::$bad passed but must fail\"; exit 1\n  fi\n  vale --config .vale/strict.ini \"$good\" >/dev/null \\\n    || { echo \"::error::$good must pass\"; exit 1; }\ndone\n"
         },
         {
+          "if": "steps.scope.outputs.lint == 'true'",
           "name": "Check the Voice fixtures",
           "run": "bin/check-voice-fixtures.sh"
         },
         {
+          "if": "steps.scope.outputs.lint == 'true'",
           "name": "Mutation-test the Voice rules",
           "run": "bin/mutate-voice.sh"
         },
         {
-          "if": "github.event_name == 'pull_request'",
+          "if": "github.event_name == 'pull_request' && steps.scope.outputs.lint == 'true'",
           "name": "Ratchet the Voice errors in changed files",
           "run": "bin/check-voice-changed.sh HEAD^1 HEAD"
         },
         {
+          "if": "steps.scope.outputs.lint == 'true'",
           "name": "Test that the ratchet reads HEAD, not the checkout",
           "run": "tests/voice-changed-head.sh"
         },
         {
+          "if": "steps.scope.outputs.lint == 'true'",
           "name": "Test that the ratchet counts encoded link targets the same way",
           "run": "tests/voice-changed-links.sh"
         }
@@ -65,33 +80,7 @@
   },
   "name": "vale",
   "on": {
-    "pull_request": {
-      "paths": [
-        "README.md",
-        "**/README.md",
-        "CONTRIBUTING.md",
-        "AGENTS.md",
-        "ROADMAP.md",
-        "docs/decisions/**",
-        "docs/design/**",
-        "docs/THESIS.md",
-        "docs/JOURNEY.md",
-        "docs/WORKING-MODEL.md",
-        "docs/OPEN-QUESTIONS.md",
-        "docs/GLOSSARY.md",
-        "docs/INDEX.md",
-        "docs/STYLE.md",
-        "docs/templates/**",
-        ".github/**/*.md",
-        "bin/check-voice*.sh",
-        "bin/mutate-voice.sh",
-        "tests/voice-changed-head.sh",
-        "tests/voice-changed-links.sh",
-        ".vale.ini",
-        ".vale/**",
-        ".github/workflows/vale.yml"
-      ]
-    },
+    "pull_request": null,
     "workflow_dispatch": null
   },
   "permissions": {
