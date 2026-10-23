@@ -343,7 +343,7 @@ Each commit independently testable.
 - ADR-0013 (catalog model): `docs/decisions/0013-media-function-catalog-model.md`
 - ADR-0014 (AWX project layout): `docs/decisions/0014-awx-project-layout.md`
 - Existing NMOS plan (Phase 1+2 implementation reference; Phase 3 superseded by this task): `docs/archive/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md`
-- DMF Platform Plan §9 (two-lane model): `docs/architecture/DMF Platform Plan.md`
+- dmfdeploy platform plan §9 (two-lane model): `docs/architecture/dmfdeploy-platform-plan.md`
 - EBU mapping (vocabulary): `docs/architecture/DMF EBU Mapping (2026-04-25).md`
 - Move 2 task spec (template for this one): `docs/plans/dmf-platform-move-2-task.md`
 

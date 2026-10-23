@@ -38,7 +38,7 @@ and have HA baked into the standard 3-node bootstrap.
 
 ## Decision
 
-The DMF Platform stays on **self-managed k3s** for every environment regardless
+The dmfdeploy platform stays on **self-managed k3s** for every environment regardless
 of cloud provider. We do **not** adopt managed Kubernetes (ACK, EKS, GKE, AKS,
 or equivalents) for any production or experiment environment.
 

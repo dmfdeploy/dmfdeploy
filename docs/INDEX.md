@@ -25,7 +25,7 @@ readers outside this tree pin by path keep their names (the list is in
 
 | Directory | Kind | One line |
 |---|---|---|
-| [architecture/](architecture/) | **Canonical** | Long-lived design docs — the [Platform Plan](architecture/DMF%20Platform%20Plan.md) and the [EBU vocabulary mapping](architecture/DMF%20EBU%20Mapping%20%282026-04-25%29.md) everything else uses. |
+| [architecture/](architecture/) | **Canonical** | Long-lived design docs — the [Platform Plan](architecture/dmfdeploy-platform-plan.md) and the [EBU vocabulary mapping](architecture/DMF%20EBU%20Mapping%20%282026-04-25%29.md) everything else uses. |
 | [decisions/](decisions/INDEX.md) | **Canonical** | ADRs + [architectural-commitments-v1](decisions/architectural-commitments-v1.md); the [theme clusters](decisions/INDEX.md#theme-clusters--canonical-pointer) name the canonical ADR per topic. |
 | [plans/](plans/INDEX.md) | Record (frontmatter-tracked) | Work plans and task specs; the generated [INDEX](plans/INDEX.md) groups them Active / Draft / Executed / Superseded / Historical. |
 | [reviews/](reviews/) | Record | Point-in-time strategic and technical reviews; current assessment is the [2026-06-06 technical evaluation](reviews/dmf-platform-technical-evaluation.md). |

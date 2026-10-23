@@ -31,7 +31,7 @@ Deploy Sony's `nmos-cpp` registry + mock nodes and `3dmedium/nmos_crosspoint` ro
 
 ## 1. Why this, why now
 
-ADR-0004 (experiment phase) and the DMF Platform Plan §5–§7a identify NMOS IS-04/05 as the media-domain discovery and routing backbone. The `dmf-media/roles/nmos-cpp/` stub has existed since scaffold. This plan implements it, producing:
+ADR-0004 (experiment phase) and the dmfdeploy platform plan §5–§7a identify NMOS IS-04/05 as the media-domain discovery and routing backbone. The `dmf-media/roles/nmos-cpp/` stub has existed since scaffold. This plan implements it, producing:
 
 - A working NMOS Registration & Discovery System (RDS)
 - Mock senders/receisors for testing without real hardware

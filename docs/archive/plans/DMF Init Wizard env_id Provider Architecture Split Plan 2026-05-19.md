@@ -254,7 +254,7 @@ with env_id today; preserve.
    cluster name = `<env>`, custom fields populated.
 4. **Schema doc** — extend
    `dmf-env/inventories/example/group_vars/all/main.yml` and add a
-   short paragraph to `docs/architecture/DMF Platform Plan.md`
+   short paragraph to `docs/architecture/dmfdeploy-platform-plan.md`
    (§8c multi-env) describing the four-field schema.
 5. **Lint** — `shellcheck dmf-env/bin/init-wizard.sh`,
    `ansible-lint dmf-infra/k3s-lab-bootstrap/roles/common/dmf-born-inventory/`.

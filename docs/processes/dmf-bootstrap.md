@@ -1,4 +1,4 @@
-# DMF Platform Bootstrap Process
+# dmfdeploy platform bootstrap process
 
 **Process ID:** `dmf-bootstrap`
 **Version:** 1.0 (2026-05-09)
@@ -10,7 +10,7 @@
 
 ## Diagram
 
-![DMF Platform Bootstrap Process](diagrams/dmf-bootstrap.svg)
+![dmfdeploy platform bootstrap process](diagrams/dmf-bootstrap.svg)
 
 ---
 
@@ -374,5 +374,5 @@ considered normative until this fix is applied.
 ---
 
 *This document was generated on 2026-05-09 as part of establishing the BPMN 2.0 process
-documentation standard for the DMF Platform. See `docs/processes/README.md` for modeling
+documentation standard for the dmfdeploy platform. See `docs/processes/README.md` for modeling
 conventions.*

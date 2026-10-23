@@ -307,7 +307,7 @@ If **any** of those breaks in a way that requires re-shaping NetBox or dmf-cms's
 - ✅ Step 2 from chain-review cleanup (commit `d69935e`) — librenms gating
 - ✅ Step 3 from chain-review cleanup (commit `19911bc`) — real L3 verify
 - ✅ Strategic review committed and pushed
-- ✅ DMF Platform Plan v0.1 committed and pushed
+- ✅ dmfdeploy platform plan v0.1 committed and pushed
 
 All in. Move 2 is unblocked.
 
@@ -331,7 +331,7 @@ Each commit independently tests its own scope and can be reverted independently.
 
 - Strategic review: `~/repos/dmf-platform-strategic-review.md` (Move 2 framing)
 - Chain review: `~/repos/dmf-platform-chain-review-2026-04-30.md` (findings #2, #3, #6 closed by this work)
-- DMF Platform Plan: `~/repos/dmf-infra/k3s-lab-bootstrap/docs/dmf-platform-plan.md` (architectural reference)
+- dmfdeploy platform plan: `~/repos/dmf-infra/k3s-lab-bootstrap/docs/dmf-platform-plan.md` (architectural reference)
 - Cleanup task (already complete): `~/repos/dmf-platform-codex-cleanup-task-2026-04-30.md`
 - Initial Data Gathering: `~/repos/dmf-env/docs/initial-data-gathering.md` (source of app list and OpenBao schema)
 - Deployment Runbook: `~/repos/dmf-env/DEPLOYMENT.md`

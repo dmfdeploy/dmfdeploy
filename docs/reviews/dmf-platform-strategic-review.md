@@ -1,7 +1,7 @@
 ---
 date: 2026-04-30
 ---
-# DMF Platform — Strategic Review (Experiment Phase)
+# dmfdeploy platform — Strategic Review (Experiment Phase)
 
 > **Point-in-time review (2026-04-30).** For the current assessment see [dmf-platform-technical-evaluation.md](dmf-platform-technical-evaluation.md).
 
@@ -38,7 +38,7 @@ Three classes of risk to burn down right now, in order:
 
 ### 3. Plan-visibility risk (cheap to fix, blocks both goals)
 
-- **The DMF Platform Plan is invisible.** For (i) credibility and (iii) OSS, the plan being external is a poison pill. No outsider can read your architecture. No future-you can iterate on it as a tracked artifact. Commit it now, even as draft.
+- **The dmfdeploy platform plan is invisible.** For (i) credibility and (iii) OSS, the plan being external is a poison pill. No outsider can read your architecture. No future-you can iterate on it as a tracked artifact. Commit it now, even as draft.
 
 ---
 
@@ -77,7 +77,7 @@ If you do this slice well, dmf-cms release-1 stops being a list of pages and bec
 
 **Effort:** ~2-3 hours. The most de-risking single thing you can do across the whole project.
 
-### Move 3 — Commit the DMF Platform Plan to a canonical repo
+### Move 3 — Commit the dmfdeploy platform plan to a canonical repo
 
 `dmf-infra/docs/dmf-platform-plan.md` is the natural home (it's the most public repo, and it's where every cross-reference already points). Sanitise of anything site-specific. Even committing as v0.1 draft is enough — you can iterate. The current state where every README points at a phantom path is bad for (i), (iii), and future-you.
 

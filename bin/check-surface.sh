@@ -199,7 +199,6 @@ LANDMARK_NAMES_RE='^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*\.md$'
 # them or reads them by path. Rename each one when those links move.
 PINNED_BY_COMPONENT_LINKS='docs/architecture/DMF EBU Mapping (2026-04-25).md
 docs/architecture/DMF Function Catalog Model.md
-docs/architecture/DMF Platform Plan.md
 docs/architecture/DMF Provider Descriptor Model.md
 docs/design/DMF Console Glossary.md
 docs/plans/AWX NetBox Inventory Sync Fix 2026-05-04.md

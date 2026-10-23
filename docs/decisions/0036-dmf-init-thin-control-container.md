@@ -21,7 +21,7 @@ model). Building that surfaced two problems:
   **corrupted the baked playbooks** (those CIDRs are functional config, not
   secrets). No release tags or clean public repos exist yet, so the
   "clone-at-release-tag" target wasn't reachable either.
-- **App images.** The DMF platform pulls app images (authentik, netbox, awx,
+- **App images.** The dmfdeploy platform pulls app images (authentik, netbox, awx,
   forgejo, zot, grafana, dmf-cms, awx-ee, …) from **GHCR + upstream at bootstrap**
   and mirrors them into the cluster's Zot via `630-zot-seed-platform.yml`. The
   cluster is **not air-gapped**. So app images never need to live in the init

@@ -58,7 +58,7 @@ checked out as a sibling directory of this umbrella under a common parent:
 | [`dmf-init`](https://github.com/dmfdeploy/dmf-init) | Day-0 bootstrap | React + FastAPI container | **Active**: the installer: blank node → full platform |
 | [`dmf-promsd`](https://github.com/dmfdeploy/dmf-promsd) | Monitoring vertical | Python | **Active**: NetBox-driven Prometheus service discovery (ADR-0038) |
 
-Canonical architecture: [`docs/architecture/DMF Platform Plan.md`](docs/architecture/DMF%20Platform%20Plan.md).
+Canonical architecture: [`docs/architecture/dmfdeploy-platform-plan.md`](docs/architecture/dmfdeploy-platform-plan.md).
 Canonical vocabulary (layers/verticals/lifecycle): [`docs/architecture/DMF EBU Mapping (2026-04-25).md`](docs/architecture/DMF%20EBU%20Mapping%20%282026-04-25%29.md).
 
 ## Where it is going

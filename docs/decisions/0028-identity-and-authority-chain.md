@@ -13,7 +13,7 @@ and re-confirmed by the per-app feasibility survey 2026-05-24.
 
 ## Context
 
-The DMF Platform's identity and authority surface needed a canonical,
+The dmfdeploy platform's identity and authority surface needed a canonical,
 binding architecture. Identity material is split across human authority
 (Authentik OIDC/SAML), machine authority (per-app native service
 accounts), custody (OpenBao + physical recovery kit), and audit

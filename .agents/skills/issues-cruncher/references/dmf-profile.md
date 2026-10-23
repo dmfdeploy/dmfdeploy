@@ -1,6 +1,6 @@
 # DMF Profile (this environment's confirmed facts)
 
-The concrete profile instance for the DMF platform. These are **profile facts, not
+The concrete profile instance for the dmfdeploy platform. These are **profile facts, not
 engine facts** — a different org would supply its own. Still subject to the
 evidence/expiry rule in `repo-profile.md`: confirm on first use per session,
 revalidate before PR.

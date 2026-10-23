@@ -163,7 +163,7 @@ ADR-0017). Steps:
 
 ### PR-1 — `dmf-infra` (`<handle>/public-doc-cleanup`)
 - `README.md`: `lkirc`→`dmfdeploy` (L23); rewrite Two-Repo block (L16–25) →
-  "Part of the DMF Platform" (the public repos under `dmfdeploy/`; `dmf-env` is
+  "Part of the dmfdeploy platform" (the public repos under `dmfdeploy/`; `dmf-env` is
   public generic tooling, per-env state operator-local per ADR-0035; drop
   `gitlab`); reword Loki (L189); `cluster.example.net`→`dmf.example.com` (L238);
   fix Project Structure (L196–224): drop `vertical-control/`, add

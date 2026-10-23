@@ -1,6 +1,6 @@
 # DMF Public Publish Readiness Handoff (2026-05-07)
 
-> **🛑 READ THIS BEFORE ANY DMF PLATFORM REPO IS PUSHED TO A PUBLIC GITHUB MIRROR.**
+> **🛑 READ THIS BEFORE ANY DMFDEPLOY PLATFORM REPO IS PUSHED TO A PUBLIC GITHUB MIRROR.**
 >
 > The platform was prepared for first public release on 2026-05-07. This handoff
 > captures the work done, the open review items, and the operational gates that

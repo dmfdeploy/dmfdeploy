@@ -147,7 +147,7 @@ publish prep work.
 
 ## Architectural Interpretation
 
-The DMF platform already uses EBU vocabulary:
+The dmfdeploy platform already uses EBU vocabulary:
 
 - horizontal layers: 1 through 6
 - verticals: security, orchestration, monitoring, control

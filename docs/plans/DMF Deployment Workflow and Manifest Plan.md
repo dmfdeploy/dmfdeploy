@@ -31,7 +31,7 @@ The answer is:
   inventoried" rather than retroactively discovered
 
 This extends, but does not replace, the existing doctrine in
-`DMF Platform Plan.md`:
+`dmfdeploy-platform-plan.md`:
 
 - NetBox is authoritative SoT
 - discovery tools propose into staging, never active by default

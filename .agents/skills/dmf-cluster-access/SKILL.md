@@ -419,7 +419,7 @@ ssh k3s-admin@<control-node-public-ip> \
 
 ## 7. References
 
-- `dmfdeploy/docs/architecture/DMF Platform Plan.md` — system overview, status snapshot at top
+- `dmfdeploy/docs/architecture/dmfdeploy-platform-plan.md` — system overview, status snapshot at top
 - `dmfdeploy/docs/architecture/DMF EBU Mapping (2026-04-25).md` — playbook layer/vertical map
 - The Improvement Run Plan (2026-04-22) in `dmfdeploy/docs/plans/`, for the Shamir unseal sequence
 - `dmfdeploy/docs/plans/DMF Secret Ownership and OpenBao Migration Plan.md` — secret tier classification

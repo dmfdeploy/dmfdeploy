@@ -1,6 +1,6 @@
-# DMF Platform Subagents
+# dmfdeploy platform subagents
 
-This directory contains specialized Claude Code subagents tailored to the DMF Platform's architecture and workflows. Claude Code can **automatically select the right subagent** based on the description fields below, or you can explicitly request a specific agent by name.
+This directory contains specialized Claude Code subagents tailored to the dmfdeploy platform's architecture and workflows. Claude Code can **automatically select the right subagent** based on the description fields below, or you can explicitly request a specific agent by name.
 
 ## Automatic Routing
 

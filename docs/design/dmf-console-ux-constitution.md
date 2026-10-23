@@ -5,7 +5,7 @@ date: 2026-05-25
 
 **Date:** 2026-05-25 · **Last revised:** 2026-05-25 (second pass, after Codex review)
 **Status:** **Advisory north-star**, with a small **hard-gate subset** that is binding now (see §3). Consistent with ADR-0004 (experiment phase): we gate only the trust/safety core and let the rest guide rather than block, hardening as the console matures.
-**Applies to:** `dmf-cms` (the operator console) and any future operator-facing surface of the DMF Platform.
+**Applies to:** `dmf-cms` (the operator console) and any future operator-facing surface of the dmfdeploy platform.
 **Audience:** every agent and human who designs, builds, reviews, or words any part of the console.
 
 ---

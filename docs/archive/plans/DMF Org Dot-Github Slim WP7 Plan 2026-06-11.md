@@ -19,7 +19,7 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/42
 
 ### 1. Org profile README + description
 
-- `profile/README.md`: short org-level landing — what the DMF Platform is,
+- `profile/README.md`: short org-level landing — what the dmfdeploy platform is,
   link to umbrella `docs/WORKING-MODEL.md`, link to Project #1 board.
 - Org description (GitHub org settings): one-liner pointing at the platform
   thesis.

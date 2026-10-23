@@ -7,7 +7,7 @@
 
 ## 1. Purpose
 
-This directory holds normative process definitions for the DMF platform.
+This directory holds normative process definitions for the dmfdeploy platform.
 Each process describes *who does what, when, and under what conditions* —
 independent of the implementation tooling (Ansible, Terraform, kubectl, etc.).
 
@@ -230,7 +230,7 @@ Use this as a template when creating new process diagrams.
 |---|---|
 | `../diagram-design-guide.md` | Excalidraw diagram styling and export conventions |
 | `../decisions/INDEX.md` | Architecture decisions that constrain process design |
-| `../architecture/DMF Platform Plan.md` | Platform context for process scope |
+| `../architecture/dmfdeploy-platform-plan.md` | Platform context for process scope |
 | `../handoffs/` | Session handoffs that may reference process changes |
 
 ---

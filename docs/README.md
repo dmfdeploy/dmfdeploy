@@ -24,7 +24,7 @@ For what comes next, see the [roadmap](../ROADMAP.md). To contribute, see
 | [decisions/](decisions/INDEX.md) | Architecture decision records (ADRs) and the [RFC process](decisions/README.md) that proposes them. |
 | [plans/](plans/INDEX.md) | Design plans for tracked issues, grouped by status in a generated index. |
 | [runbooks/](runbooks/) | Step-by-step operating procedures, such as the [demo journey](runbooks/dmf-demo-journey.md). |
-| [architecture/](architecture/) | Long-lived design documents, such as the [Platform Plan](architecture/DMF%20Platform%20Plan.md). |
+| [architecture/](architecture/) | Long-lived design documents, such as the [Platform Plan](architecture/dmfdeploy-platform-plan.md). |
 | `archive/` | Superseded plans, reviews, and records, kept for history. |
 
 The full map of every folder, with the rules for each kind of document, is in

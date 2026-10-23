@@ -14,7 +14,7 @@
 
 ## TL;DR
 
-The DMF Platform's app-admin identity is **two identities sharing one human**:
+The dmfdeploy platform's app-admin identity is **two identities sharing one human**:
 
 1. **Local admin** — uniform username and password across every app that has a
    local admin surface. Set by the wizard from `OPERATOR_USERNAME`; written

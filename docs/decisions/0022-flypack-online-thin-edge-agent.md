@@ -6,7 +6,7 @@
 
 ## Context
 
-The DMF Platform supports three deployment profiles: `cloud`,
+The dmfdeploy platform supports three deployment profiles: `cloud`,
 `flypack-offline`, and `flypack-online`, formalised in
 [`docs/plans/dmf-init-wizard-expansion-survey.md`](../plans/dmf-init-wizard-expansion-survey.md)
 §"Round 2 clarifications and decisions". The term *flypack* is overloaded

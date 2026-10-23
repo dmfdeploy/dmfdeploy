@@ -24,7 +24,7 @@ reference architecture.
 
 | Question | Look in |
 |---|---|
-| What is this and why? | `docs/THESIS.md`, `docs/GLOSSARY.md`, `docs/architecture/DMF Platform Plan.md` |
+| What is this and why? | `docs/THESIS.md`, `docs/GLOSSARY.md`, `docs/architecture/dmfdeploy-platform-plan.md` |
 | What is frozen or undecided? | `docs/decisions/architectural-commitments-v1.md`, `docs/OPEN-QUESTIONS.md` |
 | What is the active task? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues) |
 

@@ -115,7 +115,7 @@ variance is the title line, the role blurb, and the **Repo-specific rules** bloc
 
 {{REPO_ROLE_BLURB}}
 
-This repo is part of the **DMF Platform**. GitHub is the canonical home and the
+This repo is part of the **dmfdeploy platform**. GitHub is the canonical home and the
 single source of truth: all changes land via **Pull Request** against `main`.
 (The full pre-publish history lives in a LAN-only `{{REPO_NAME}}-archive` Forgejo
 repo, reachable as a read-only `archive` git remote — it is **not** an upstream
@@ -124,7 +124,7 @@ and is never a contribution path.)
 ## Quick start
 
 1. Read the platform overview in the **dmf-platform** umbrella repo
-   (`docs/architecture/DMF Platform Plan.md`) and apply any relevant ADRs from
+   (`docs/architecture/dmfdeploy-platform-plan.md`) and apply any relevant ADRs from
    `docs/decisions/INDEX.md`.
 2. Fork or branch, make your change on a topic branch, open a PR against `main`.
 3. Ensure CI is green and your commits are **signed off** (see DCO below).
@@ -585,15 +585,15 @@ GitHub org/URL namespace = **`dmfdeploy`**; CODEOWNER handle = **`@dmfdeploy/mai
 
 | Local dir | `{{REPO_NAME}}` (GitHub) | `{{REPO_ROLE_BLURB}}` | MUST/MUST-NOT extras |
 |---|---|---|---|
-| `.` (umbrella) | `dmf-platform` | The umbrella workspace for the DMF Platform: consolidated knowledge base (`docs/`), ADRs, plans, handoffs, skills, and cross-repo status. Code lives in the component repos. | — (use the umbrella Quick-start/Versioning variants from §2) |
+| `.` (umbrella) | `dmf-platform` | The umbrella workspace for the dmfdeploy platform: consolidated knowledge base (`docs/`), ADRs, plans, handoffs, skills, and cross-repo status. Code lives in the component repos. | — (use the umbrella Quick-start/Versioning variants from §2) |
 | `dmf-cms` | `dmf-cms` | The DMF operator console (React + FastAPI). | — |
-| `dmf-runbooks` | `dmf-runbooks` | Thin AWX launcher playbooks + NetBox-side catalog roles for the DMF Platform. | MUST: keep launchers thin (logic in roles/charts, ADR-0014/0025); update `NOTICE` if a new upstream-derived role is added. MUST NOT: hardcode AWX inventory IDs / cluster names. |
-| `dmf-central` | `dmf-central` | Central-services scaffolding for the DMF Platform. | — |
-| `dmf-infra` | `dmf-infra` | Generic Ansible playbooks and roles for the DMF Platform. | MUST: keep roles generic — no env-specific values; placeholder syntax for all cluster identifiers. |
+| `dmf-runbooks` | `dmf-runbooks` | Thin AWX launcher playbooks + NetBox-side catalog roles for the dmfdeploy platform. | MUST: keep launchers thin (logic in roles/charts, ADR-0014/0025); update `NOTICE` if a new upstream-derived role is added. MUST NOT: hardcode AWX inventory IDs / cluster names. |
+| `dmf-central` | `dmf-central` | Central-services scaffolding for the dmfdeploy platform. | — |
+| `dmf-infra` | `dmf-infra` | Generic Ansible playbooks and roles for the dmfdeploy platform. | MUST: keep roles generic — no env-specific values; placeholder syntax for all cluster identifiers. |
 | `dmf-media` | `dmf-media` | Media-domain catalog metadata and (future) Layer 5 roles + Helm charts. | — |
 | `dmf-init` | `dmf-init` | The Day-0 stateless init/bootstrap container (React + FastAPI) that wraps the dmf-env wizard + toolchain behind a localhost web UI. | — |
-| `dmf-env` | `dmf-env` | Generic environment tooling for the DMF Platform: `bin/` scripts, `terraform/modules/` + generic per-provider roots, neutral `tasks/`/`templates/`. Per-env state is operator-local and never committed (ADR-0035). | MUST: keep the surface generic — per-env state stays under `~/.dmfdeploy/envs/<env>/`; placeholder syntax everywhere. MUST NOT: commit inventories, tfstate, SOPS bundles, SSH keys, or OpenBao/Shamir material. |
-| `dmf-promsd` | `dmf-promsd` | NetBox-driven Prometheus service-discovery for the DMF Platform (dynamic monitoring targets from the NetBox SoT). | — |
+| `dmf-env` | `dmf-env` | Generic environment tooling for the dmfdeploy platform: `bin/` scripts, `terraform/modules/` + generic per-provider roots, neutral `tasks/`/`templates/`. Per-env state is operator-local and never committed (ADR-0035). | MUST: keep the surface generic — per-env state stays under `~/.dmfdeploy/envs/<env>/`; placeholder syntax everywhere. MUST NOT: commit inventories, tfstate, SOPS bundles, SSH keys, or OpenBao/Shamir material. |
+| `dmf-promsd` | `dmf-promsd` | NetBox-driven Prometheus service-discovery for the dmfdeploy platform (dynamic monitoring targets from the NetBox SoT). | — |
 
 ---
 

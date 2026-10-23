@@ -14,7 +14,7 @@ date: 2026-05-04
 
 Two related goals:
 
-1. **Import all dmfdeploy repos into the in-cluster Forgejo** so Forgejo becomes the canonical git host for the DMF platform (completing the migration outlined in the earlier Forgejo plan).
+1. **Import all dmfdeploy repos into the in-cluster Forgejo** so Forgejo becomes the canonical git host for the dmfdeploy platform (completing the migration outlined in the earlier Forgejo plan).
 
 2. **Wire AWX to run the infra playbooks from Forgejo** so that new facilities can be deployed from the cluster itself, not just from the operator's laptop via `bin/run-playbook.sh`.
 

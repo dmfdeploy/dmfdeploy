@@ -61,8 +61,8 @@ __MACOSX/
 /docs/agentic/in-flight/*.json
 /docs/agentic/in-flight/archive/*.json
 
-# === Secrets-prevention baseline (DMF Platform 2026-05-07) ===
-# Patterns that should never be committed across any DMF Platform repo.
+# === Secrets-prevention baseline (dmfdeploy platform 2026-05-07) ===
+# Patterns that should never be committed across any dmfdeploy platform repo.
 # Repo-specific rules belong above this block; add new shared rules here.
 
 # Kubeconfigs

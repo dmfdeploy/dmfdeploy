@@ -1,4 +1,4 @@
-# DMF Platform Demo Journey
+# dmfdeploy platform demo journey
 
 **Status:** Presenter-facing runbook. The full end-to-end demo of the DMF
 platform on a **standing sandbox env**, from operator login through the

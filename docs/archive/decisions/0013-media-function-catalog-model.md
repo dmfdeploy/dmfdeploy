@@ -9,7 +9,7 @@ This file holds material moved out of [ADR-0013](../../decisions/0013-media-func
   (which aren't "services on a port" in the NetBox sense), and custom
   fields accumulate without a schema home.
 - **YAML-only catalog**. Rejected — runtime state then lives outside
-  NetBox, contradicting the SoT decision (DMF Platform Plan §12, decision
+  NetBox, contradicting the SoT decision (dmfdeploy platform plan §12, decision
   log 2026-04-17).
 - **Pure Helm/ArgoCD model**, no catalog abstraction. Rejected — the
   operator-facing UI needs a richer abstraction than Helm releases

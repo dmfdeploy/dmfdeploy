@@ -11,7 +11,7 @@ Tailscale + socat private-lane approach, and anything else a senior reviewer
 would flag. This doc is the resulting punch list.
 
 **Related docs:**
-- `DMF Platform Plan.md` — canonical architecture (stale wrt the Tailscale pivot)
+- `dmfdeploy-platform-plan.md` — canonical architecture (stale wrt the Tailscale pivot)
 - `DMF Session Handoff 2026-04-20.md` — pre-pivot handoff; phase-1 details superseded
 - `DMF Open Questions 2026-04-20.md` — baseline live-state findings
 - `System/Lessons.md` — known-gotcha log (all 8 lessons verified in-tree except the cert-readiness wait, now fixed in commit `2fb1044`)

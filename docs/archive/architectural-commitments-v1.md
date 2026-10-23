@@ -195,4 +195,4 @@ The following end-to-end path was exercised:
 - Move 2 learnings: `docs/reviews/dmf-platform-move-2-learnings.md`
 - NMOS plan: `docs/archive/plans/DMF NMOS Registry + Crosspoint Demo Plan 2026-05-04.md`
 - EBU mapping: `docs/architecture/DMF EBU Mapping (2026-04-25).md`
-- Platform plan: `docs/architecture/DMF Platform Plan.md`
+- Platform plan: `docs/architecture/dmfdeploy-platform-plan.md`

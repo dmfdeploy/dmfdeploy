@@ -55,7 +55,7 @@ Known state at plan creation:
 
 Architecture and scope:
 
-- `docs/architecture/DMF Platform Plan.md`
+- `docs/architecture/dmfdeploy-platform-plan.md`
   - Defines DMF as an IP media operations platform.
   - Warns that the full operator stack can require about 14-18 GB RAM before
     media workloads when naively run on one node.

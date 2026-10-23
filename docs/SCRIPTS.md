@@ -23,7 +23,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `bin/check-backlog-hygiene.sh` | detect GitHub backlog drift across the DMF org. |
 | `bin/check-docs.sh` | offline documentation gate for the DMF umbrella. Hard-fails on missing/broken frontmatter, dangling superseded_by targets, stale plans index, inconsistent ADR file↔INDEX cross-references, or a broken doc-to-doc relative .md link anywhere under docs/ (issue #84). Prints warnings for issues that don't block (missing tracking_issue, unresolved links, closed tracking issues). |
 | `bin/check-live-env-leak.sh` | refuse content carrying a LIVE environment identifier (umbrella issue #361). |
-| `bin/check-public-commit-authors.sh` | verify every commit author/committer on every public DMF Platform repo matches the public-identity allowlist. |
+| `bin/check-public-commit-authors.sh` | verify every commit author/committer on every public dmfdeploy platform repo matches the public-identity allowlist. |
 | `bin/check-public-repo-hygiene.sh` | bin/check-public-repo-hygiene.sh — per-repo Tier A.2 hygiene gate. |
 | `bin/check-ruleset-drift.sh` | assert the live branch ruleset against a committed expectation (umbrella issue #368). |
 | `bin/check-surface.sh` | check the working surface of the umbrella repo against its size budgets, filename convention and archive-placement rules (hygiene enforcement, dmfdeploy/dmfdeploy#617). |
@@ -101,7 +101,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 |---|---|
 | `dmf-env/bin/b2-buckets.sh` | create and configure Backblaze B2 buckets for a DMF env. |
 | `dmf-env/bin/bootstrap-operator-approle.sh` | workstation-side wrapper. |
-| `dmf-env/bin/bootstrap-secrets.sh` | manage pre-Bao bootstrap secrets for DMF platform. |
+| `dmf-env/bin/bootstrap-secrets.sh` | manage pre-Bao bootstrap secrets for dmfdeploy platform. |
 | `dmf-env/bin/cluster-bootstrap-operator-approle.sh` | cluster-bootstrap-operator-approle.sh |
 | `dmf-env/bin/cluster-rotate-approle-secret-id.sh` | cluster-rotate-approle-secret-id.sh |
 | `dmf-env/bin/export-openbao-vars.sh` | generate a temp vars file for ansible-playbook. |
