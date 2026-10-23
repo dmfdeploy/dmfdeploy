@@ -54,7 +54,7 @@ Read these before changing files:
    `VERSION` files are release sources of truth where present.
 8. [DMF Release and Contribution Model](../architecture/DMF%20Release%20and%20Contribution%20Model.md)
    — public repo posture, release conventions, and GitHub org assumption.
-9. [DMF Public Publish Readiness Handoff 2026-05-07](../handoffs/DMF%20Public%20Publish%20Readiness%20Handoff%202026-05-07.md)
+9. [DMF Public Publish Readiness Handoff 2026-05-07](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Public%20Publish%20Readiness%20Handoff%202026-05-07.md)
    if this work touches public GitHub mirrors or first public pushes.
 
 For component repos, also read local `CLAUDE.md` / `AGENTS.md` before edits.

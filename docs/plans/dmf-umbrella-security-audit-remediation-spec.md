@@ -233,7 +233,7 @@ a silent injection into a loud, immediate failure.
 |------|---------|-------|
 | `docs/archive/reviews/dmf-aliyun-frankfurt-readiness-review-2026-05-08.md` | 180, 189, 255, 327, 438 | `<openbao-role-id-netbox>` |
 | `docs/archive/questions/aliyun-frankfurt-rollout-open-2026-05-08.md` | 11, 22, 26 | `<openbao-role-id-netbox> (partial)` (partial) |
-| `docs/handoffs/DMF Aliyun Frankfurt Audit + Phase A Handoff 2026-05-08.md` | 55 | `<openbao-role-id-netbox> (partial)` (partial) |
+| [`DMF Aliyun Frankfurt Audit + Phase A Handoff 2026-05-08.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Aliyun%20Frankfurt%20Audit%20%2B%20Phase%20A%20Handoff%202026-05-08.md) | 55 | `<openbao-role-id-netbox> (partial)` (partial) |
 | `docs/plans/DMF App Admin Account Drift Audit and Realignment Plan 2026-05-14.md` | 325 | `<openbao-role-id-app-admin>` |
 
 ### Proposed change
@@ -274,10 +274,10 @@ change — coordinate via the `dmf-openbao-unseal` skill.
 
 ### Files and line-level replacements
 
-**`docs/handoffs/DMF Aliyun Pre-Seed to Post-Seed Live Validation Handoff 2026-05-10.md`** (lines 32, 34, 156):
+**[`DMF Aliyun Pre-Seed to Post-Seed Live Validation Handoff 2026-05-10.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Aliyun%20Pre-Seed%20to%20Post-Seed%20Live%20Validation%20Handoff%202026-05-10.md)** (lines 32, 34, 156):
 - `<aliyun-slb-ip>` → `<aliyun-slb-ip>`
 
-**`docs/handoffs/DMF Aliyun SLB Backend Registration Fix Handoff 2026-05-11.md`** (lines 6, 34, 98, 102):
+**[`DMF Aliyun SLB Backend Registration Fix Handoff 2026-05-11.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Aliyun%20SLB%20Backend%20Registration%20Fix%20Handoff%202026-05-11.md)** (lines 6, 34, 98, 102):
 - `<aliyun-slb-ip>` → `<aliyun-slb-ip>`
 
 **`STATUS.md`** (line 2295):
@@ -286,7 +286,7 @@ change — coordinate via the `dmf-openbao-unseal` skill.
 **`docs/decisions/0019-tailscale-cgnat-vs-cloud-internal-services.md`** (line 12):
 - `<aliyun-slb-ip>` → `<aliyun-slb-ip>`
 
-**`docs/handoffs/DMF Aliyun Frankfurt Rollout Next Steps Handoff 2026-05-08.md`** (lines 50–52):
+**[`DMF Aliyun Frankfurt Rollout Next Steps Handoff 2026-05-08.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Aliyun%20Frankfurt%20Rollout%20Next%20Steps%20Handoff%202026-05-08.md)** (lines 50–52):
 - `<aliyun-node-1-ip>` → `<aliyun-node-1-ip>`
 - `<aliyun-node-2-ip>` → `<aliyun-node-2-ip>`
 - `<aliyun-node-3-ip>` → `<aliyun-node-3-ip>`
@@ -294,7 +294,7 @@ change — coordinate via the `dmf-openbao-unseal` skill.
 **`docs/archive/plans/DMF Staged Release Phase 2-3 Plan 2026-04-29.md`** (lines 32, 118, 134, 440, 455, 496, 517):
 - `<hetzner-floating-ip>` → `<hetzner-floating-ip>`
 
-**`docs/handoffs/DMF Layer-1 OpenTofu Phase B Cut-over Handoff 2026-04-27.md`** (lines 75, 375):
+**[`DMF Layer-1 OpenTofu Phase B Cut-over Handoff 2026-04-27.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Layer-1%20OpenTofu%20Phase%20B%20Cut-over%20Handoff%202026-04-27.md)** (lines 75, 375):
 - `<hetzner-floating-ip>` → `<hetzner-floating-ip>`
 
 ---
@@ -343,11 +343,11 @@ change — coordinate via the `dmf-openbao-unseal` skill.
 
 ### Files and line-level replacements
 
-**`docs/handoffs/DMF Aliyun Frankfurt Rollout Next Steps Handoff 2026-05-08.md`** (lines 38–39):
+**[`DMF Aliyun Frankfurt Rollout Next Steps Handoff 2026-05-08.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Aliyun%20Frankfurt%20Rollout%20Next%20Steps%20Handoff%202026-05-08.md)** (lines 38–39):
 - `<aliyun-vpc-id>` → `<aliyun-vpc-id>`
 - `<aliyun-vsw-id>` → `<aliyun-vsw-id>`
 
-**`docs/handoffs/DMF Aliyun SLB Backend Registration Fix Handoff 2026-05-11.md`** (lines 45, 100):
+**[`DMF Aliyun SLB Backend Registration Fix Handoff 2026-05-11.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Aliyun%20SLB%20Backend%20Registration%20Fix%20Handoff%202026-05-11.md)** (lines 45, 100):
 - `<aliyun-instance-id>` → `<aliyun-instance-id>`
 
 ---

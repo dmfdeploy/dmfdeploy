@@ -85,7 +85,7 @@ Before listing gaps, name what's already done. This list is *also* the
 | Network policies (OpenBao default-deny + allowlist) | `roles/base/network-policies` | ISO A.8.22; NIS2 21(2)(j) |
 | Cluster-readiness gate before app deploys | `roles/base/cluster-ready` | ISO A.8.9 (partial — config-mgmt baseline) |
 | Source-side supply chain — gitleaks pre-commit, CODEOWNERS, scrub-public-repos | umbrella `.githooks/`, `bin/scrub-public-repos.sh` | ISO A.5.19, A.8.31; NIS2 21(2)(d) |
-| ADR + handoff discipline | `docs/decisions/`, `docs/handoffs/` | ISO A.5.31, A.5.37 — documented information / operating procedures |
+| ADR + handoff discipline | `docs/decisions/`, [handoff notes](https://github.com/dmfdeploy/dmfdeploy/tree/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs) | ISO A.5.31, A.5.37 — documented information / operating procedures |
 | Conventional Commits + Apache-2.0 + LICENSE/NOTICE (in-flight) | Release & Contribution Plan Phase 0 | ISO A.5.10, A.5.32; A.5.34 |
 
 Important limitation: the Shamir row above is true for the current lab

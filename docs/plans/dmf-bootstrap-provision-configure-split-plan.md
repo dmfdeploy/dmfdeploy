@@ -99,7 +99,7 @@ Before implementation, read these files from the umbrella workspace:
   posture
 - *(amended R4, 2026-07-14: this item originally pointed at the latest
   committed handoff file; read the claimed tracking issue's comments
-  instead — `docs/handoffs/` is a frozen archive)*
+  instead — [`docs/handoffs`](https://github.com/dmfdeploy/dmfdeploy/tree/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs) is a frozen archive)*
 
 Before touching `dmf-infra`, also read:
 

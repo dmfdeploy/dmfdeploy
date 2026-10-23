@@ -156,7 +156,7 @@ Multi-line via heredoc:
 
 ```
 agent-bridge send claude - <<'EOF'
-Read docs/handoffs/<latest>.md and summarise the open questions.
+Read docs/plans/<plan>.md and summarise the open questions.
 Reply in <=5 bullets.
 EOF
 ```

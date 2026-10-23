@@ -35,7 +35,7 @@ gitleaks ×2, github remote exists) and the orphan-rebase posture from
 of pre-publish history. Bypassing them risks publishing internal state.
 
 **Refs**: `bin/sync-to-github.sh`,
-[`docs/handoffs/DMF Public Publish Readiness Handoff 2026-05-07.md`](../handoffs/DMF%20Public%20Publish%20Readiness%20Handoff%202026-05-07.md).
+[`DMF Public Publish Readiness Handoff 2026-05-07.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Public%20Publish%20Readiness%20Handoff%202026-05-07.md).
 
 ---
 
@@ -120,7 +120,7 @@ nudge; false-negative proceeds cost an ADR-worthy decision being made silently.
 ## Rule 6 — Handoff hygiene
 
 If the agent changes shared state (cross-repo decisions, in-flight work
-another agent might trip over), **write a handoff** in `docs/handoffs/`
+another agent might trip over), **post a handoff** on the tracking issue
 before halting or pausing. The umbrella's pre-commit hook auto-refreshes
 `STATUS.md`; the handoff is the narrative companion that won't be regenerated.
 
@@ -128,7 +128,7 @@ before halting or pausing. The umbrella's pre-commit hook auto-refreshes
 loss for the next agent. Handoffs are how cross-session continuity actually
 works in this workspace.
 
-**Refs**: [`docs/handoffs/`](../handoffs/), `bin/generate-status.sh`.
+**Refs**: the [removed handoff notes](https://github.com/dmfdeploy/dmfdeploy/tree/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs), `bin/generate-status.sh`.
 
 ---
 

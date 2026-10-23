@@ -326,7 +326,7 @@ overwrite identically and continue. No cluster teardown required.
 
 Once green, append a one-line entry to
 `docs/agentic/autonomous-decisions.md` (or a short handoff under
-`docs/handoffs/`) recording the structural choice; no new ADR needed
+[handoff notes](https://github.com/dmfdeploy/dmfdeploy/tree/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs)) recording the structural choice; no new ADR needed
 because this is implementation alignment with ADR-0008.
 
 ---
@@ -420,8 +420,8 @@ A fresh `aliyun-123` (or any greenfield env) running post-seed end-to-end:
 
 ### Recent handoffs (most recent first; for session context)
 
-- [DMF Tier A Phase 3 Wrap + Init Wizard + aliyun-123 Greenfield Handoff 2026-05-12](../../handoffs/DMF%20Tier%20A%20Phase%203%20Wrap%20%2B%20Init%20Wizard%20%2B%20aliyun-123%20Greenfield%20Handoff%202026-05-12.md) — Phase 3 vertical-resilience scope including object-storage-credentials role intent
-- [DMF Tier A Phase 3 Implementation Handoff 2026-05-12](../../handoffs/DMF%20Tier%20A%20Phase%203%20Implementation%20Handoff%202026-05-12.md)
+- [DMF Tier A Phase 3 Wrap + Init Wizard + aliyun-123 Greenfield Handoff 2026-05-12](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Tier%20A%20Phase%203%20Wrap%20%2B%20Init%20Wizard%20%2B%20aliyun-123%20Greenfield%20Handoff%202026-05-12.md) — Phase 3 vertical-resilience scope including object-storage-credentials role intent
+- [DMF Tier A Phase 3 Implementation Handoff 2026-05-12](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Tier%20A%20Phase%203%20Implementation%20Handoff%202026-05-12.md)
 
 ### Boot ritual for fresh agent
 
@@ -432,7 +432,7 @@ Read in this order before touching any code:
 3. `docs/decisions/INDEX.md` — ADR list, with attention to ADR-0008, 0009, 0020
 4. *(amended R4, 2026-07-14: this step originally pointed at the latest
    committed handoff file; read the claimed tracking issue's comments
-   instead — `docs/handoffs/` is a frozen archive)*
+   instead — [`docs/handoffs`](https://github.com/dmfdeploy/dmfdeploy/tree/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs) is a frozen archive)*
 5. This plan
 6. For cluster ops: §0 of `.claude/skills/dmf-cluster-access/` skill
 7. For OpenBao: §0 of `.claude/skills/dmf-openbao-unseal/` skill

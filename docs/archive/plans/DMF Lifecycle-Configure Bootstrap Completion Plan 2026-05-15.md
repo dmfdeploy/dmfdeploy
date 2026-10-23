@@ -28,7 +28,7 @@ The aliyun-123 green-run (2026-05-14) completed `bootstrap-configure.yml` with `
 These are infrastructure code gaps. They would hit any fresh cluster provisioned through the `lifecycle-configure` chain. Aliyun-123 is not unique — it simply surfaced them because it was the first cluster where the NMOS path was exercised post-bootstrap.
 
 **Related docs:**
-- [Green-run handoff 2026-05-14](../../handoffs/DMF%20Aliyun-123%20Bootstrap%20Green-Run%20%2B%20ADR-0023%20%2B%20Runner%20Spike%20Handoff%202026-05-14.md)
+- [Green-run handoff 2026-05-14](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Aliyun-123%20Bootstrap%20Green-Run%20%2B%20ADR-0023%20%2B%20Runner%20Spike%20Handoff%202026-05-14.md)
 - [13-walls history](../../reviews/) — prior bootstrap attempts on hetzner-arm
 - [ADR-0012](../../decisions/0012-configure-stage-distinct-from-provision.md) — Configure is a distinct lifecycle stage from Provision
 - [ADR-0013](../../decisions/0013-media-function-catalog-model.md) — media function catalog model
@@ -380,7 +380,7 @@ After full `bootstrap-configure.yml` run on aliyun-123:
 
 ### Session record
 
-[DMF Aliyun-123 Lifecycle-Configure Completion Handoff 2026-05-17](../../handoffs/DMF%20Aliyun-123%20Lifecycle-Configure%20Completion%20Handoff%202026-05-17.md)
+[DMF Aliyun-123 Lifecycle-Configure Completion Handoff 2026-05-17](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Aliyun-123%20Lifecycle-Configure%20Completion%20Handoff%202026-05-17.md)
 — per-commit walk, empirical proof of the `8d20e71` design, procedural
 notes on worker discipline slips during the session.
 

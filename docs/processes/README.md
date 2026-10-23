@@ -231,7 +231,7 @@ Use this as a template when creating new process diagrams.
 | `../diagram-design-guide.md` | Excalidraw diagram styling and export conventions |
 | `../decisions/INDEX.md` | Architecture decisions that constrain process design |
 | `../architecture/dmfdeploy-platform-plan.md` | Platform context for process scope |
-| `../handoffs/` | Session handoffs that may reference process changes |
+| [Handoff notes](https://github.com/dmfdeploy/dmfdeploy/tree/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs) (removed from the tree) | Session handoffs that may reference process changes |
 
 ---
 

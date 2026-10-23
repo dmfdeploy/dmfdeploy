@@ -14,7 +14,7 @@ Unblock the `aliyun` pre-seed bootstrap run and make the bootstrap
 stage boundary match the pre-Bao secrets design.
 
 This plan implements the handoff in
-`docs/handoffs/DMF Bootstrap Pre-Seed Two Blockers Handoff 2026-05-09.md`
+[`DMF Bootstrap Pre-Seed Two Blockers Handoff 2026-05-09.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Bootstrap%20Pre-Seed%20Two%20Blockers%20Handoff%202026-05-09.md)
 and includes the live Aliyun CCM DaemonSet selector failure found during the
 survey.
 

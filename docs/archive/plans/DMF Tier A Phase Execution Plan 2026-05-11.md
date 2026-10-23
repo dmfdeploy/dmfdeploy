@@ -106,7 +106,7 @@ a700db2  docs: second-pass codex review — plan §138 retention + handoff SHAs 
 ```
 
 **Reviewer-checkable record:**
-[`docs/handoffs/DMF Tier A Phase 1 Implementation Handoff 2026-05-11.md`](../../handoffs/DMF%20Tier%20A%20Phase%201%20Implementation%20Handoff%202026-05-11.md).
+[`DMF Tier A Phase 1 Implementation Handoff 2026-05-11.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Tier%20A%20Phase%201%20Implementation%20Handoff%202026-05-11.md).
 
 **Codex reviews passed:** initial + 2 re-review passes + 1 cleanup pass.
 
@@ -129,7 +129,7 @@ out of scope for the phase; operator schedules the run.
 - `576a938` — `docs(plan): mark Phase 2 done in execution plan + record commit chain`
 - 2026-05-12 chain: Phase 2 docs sync to b2-buckets.sh pivot + live-apply state
 
-**Reviewer-checkable record:** [`docs/handoffs/DMF Tier A Phase 2 Implementation Handoff 2026-05-11.md`](../../handoffs/DMF%20Tier%20A%20Phase%202%20Implementation%20Handoff%202026-05-11.md).
+**Reviewer-checkable record:** [`DMF Tier A Phase 2 Implementation Handoff 2026-05-11.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Tier%20A%20Phase%202%20Implementation%20Handoff%202026-05-11.md).
 
 **What landed live:** Six B2 buckets across both envs
 (`dmf-{audit,openbao-snapshots,app-backups}-{hetzner-arm,aliyun}`) in
@@ -1087,7 +1087,7 @@ are visible on `github.com/dmfdeploy/*` at v0.1.0.
 ### Inputs
 
 - Phase 0-2 of the Release & Contribution Model Implementation Plan complete (LICENSE + NOTICE + VERSION + CONTRIBUTING + gitleaks per repo + `bin/check-public-repo-hygiene.sh` + `bin/sync-to-github.sh`). These are in flight per `docs/plans/dmf-release-and-contribution-model-implementation-plan.md`.
-- `docs/handoffs/DMF Public Publish Readiness Handoff 2026-05-07.md` — orphan-rebase to v0.1.0 + push-mirror refspec gate.
+- [`DMF Public Publish Readiness Handoff 2026-05-07.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Public%20Publish%20Readiness%20Handoff%202026-05-07.md) — orphan-rebase to v0.1.0 + push-mirror refspec gate.
 - Identity-leak sweep close-out (per 2026-05-11 handoff).
 
 ### Outputs
@@ -1130,14 +1130,14 @@ These rules apply to every phase. Verify before each commit:
 4. **gitleaks:** pre-commit hook is the canonical gate. Never `--no-verify`. Identity-leaking tokens (operator usernames, secure-store paths) are scrubbed before staging.
 5. **`git add` by explicit path** — never `-A` / `.`. Pre-existing dirty files in the working tree (`.qwen/settings.json`, `.claude/scheduled_tasks.lock`, the prior LLM-restricted git pipeline plan) are not the phase's commits.
 6. **Codex re-review** is mandatory after each phase commit pair. Ping via agent-bridge. Address every finding before moving to the next phase.
-7. **Per-phase handoff** lands on `dmfdeploy` `docs/handoffs/` after Codex clears. The Phase 1 handoff is the template.
+7. **Per-phase handoff** lands in the [`dmfdeploy` handoff notes](https://github.com/dmfdeploy/dmfdeploy/tree/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs) after Codex clears. The Phase 1 handoff is the template.
 
 ## How a fresh agent picks this up
 
 If you are reading this for the first time:
 
 1. Read this entire file once, then re-read the §Phase N that's next-up.
-2. Read the Phase 1 handoff (`docs/handoffs/DMF Tier A Phase 1 Implementation Handoff 2026-05-11.md`) for the template.
+2. Read the Phase 1 handoff ([`DMF Tier A Phase 1 Implementation Handoff 2026-05-11.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Tier%20A%20Phase%201%20Implementation%20Handoff%202026-05-11.md)) for the template.
 3. Read the inputs listed in your phase's §Inputs.
 4. Pick up the right slice from the dispatch matrix — if the actor for a slice is `qwen-left`/`qwen-right`/`subagent`, your job (as the orchestrator) is to send the per-actor brief; if it says `Claude`, you do the work directly.
 5. Verify acceptance criteria before declaring done.

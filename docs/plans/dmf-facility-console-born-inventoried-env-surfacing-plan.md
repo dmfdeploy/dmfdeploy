@@ -47,7 +47,7 @@ ADR-0038 (monitoring — site-derived labels; keep env scoping aligned).
 ## Conventions a fresh agent must follow
 
 - **Boot ritual** (umbrella CLAUDE.md): `git fetch && pull` → `bin/generate-status.sh` → read `STATUS.local.md` →
-  read newest `docs/handoffs/` (the env-surfacing handoff 2026-06-04 is the pointer) →
+  read newest [`docs/handoffs`](https://github.com/dmfdeploy/dmfdeploy/tree/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs) (the env-surfacing handoff 2026-06-04 is the pointer) →
   skim `docs/decisions/INDEX.md` (apply **ADR-0039**). `git status` dmf-cms **before
   touching it — ask the operator if it is dirty** (other agents may be mid-change).
 - **Branch discipline:** land on `main` in dmf-cms; verify `HEAD == main` first

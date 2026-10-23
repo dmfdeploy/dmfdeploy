@@ -68,5 +68,5 @@ items (need an ADR/RFC before code).
 ## Boot ritual + docs
 
 Run the umbrella boot ritual first (CLAUDE.md): `git pull`, `bin/generate-status.sh`,
-read the latest `docs/handoffs/` file, skim `docs/decisions/INDEX.md`. The
+read the tracking issue's comments, skim `docs/decisions/INDEX.md`. The
 working model is canonical in `docs/WORKING-MODEL.md`.

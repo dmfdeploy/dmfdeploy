@@ -9,7 +9,7 @@ executed: 2026-06-10
 execution without explicit per-repo operator go-ahead)
 **Author:** umbrella session (claude, orchestrator)
 **Parent plan:** [`DMF First Public Release Plan 2026-06-09.md`](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20First%20Public%20Release%20Plan%202026-06-09.md) §Workstream A
-**Supersedes the push-mirror model in:** [`DMF Public Publish Readiness Handoff 2026-05-07.md`](../handoffs/DMF%20Public%20Publish%20Readiness%20Handoff%202026-05-07.md)
+**Supersedes the push-mirror model in:** [`DMF Public Publish Readiness Handoff 2026-05-07.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Public%20Publish%20Readiness%20Handoff%202026-05-07.md)
 **Depends on (all DONE):** C (ADR digests), B (dmf-env scrub), D (governance), E1 (PR-gate CI).
 
 > **⚠️ This is the irreversible, outward-facing workstream** — it creates public GitHub
@@ -333,8 +333,7 @@ first"). Operator confirms (§11.2).
   any version/whitelist logic lives only inside `export-scan.sh`).
 - Gates: `bin/scrub-public-repos.sh`, `bin/check-public-commit-authors.sh`,
   `bin/check-public-repo-hygiene.sh`, `bin/dmf-env-public-surface-gate.sh`.
-- Reference (superseded push-mirror parts): `docs/handoffs/DMF Public Publish Readiness
-  Handoff 2026-05-07.md`.
+- Reference (superseded push-mirror parts): [`DMF Public Publish Readiness Handoff 2026-05-07.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Public%20Publish%20Readiness%20Handoff%202026-05-07.md).
 
 ## 11. Decisions — codex-resolved + the 2 remaining OPERATOR calls
 

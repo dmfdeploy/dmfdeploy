@@ -28,7 +28,7 @@ Before implementing any part of this plan:
 1. Read root `CLAUDE.md` and `AGENTS.md`.
 2. Run `git fetch && git pull` in the umbrella repo.
 3. Run `bin/generate-status.sh` and read `STATUS.md`.
-4. Read the most recent file in `docs/handoffs/`.
+4. Read the most recent file in [`docs/handoffs`](https://github.com/dmfdeploy/dmfdeploy/tree/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs).
 5. Read `docs/decisions/INDEX.md`, then at minimum:
    - `0001-umbrella-as-docs-home.md`
    - `0002-two-repo-model.md`

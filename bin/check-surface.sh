@@ -170,7 +170,7 @@ FIXTURE_ADR_CEILINGS='docs/decisions/9999-ceiling-fixture.md 90'
 FIXTURE_FROZEN_PLANS='docs/plans/frozen-fixture-plan.md'
 
 # Trees that are never "live": the archive and the frozen trees.
-EXCLUDED_RE='(^|/)docs/(archive|handoffs|agentic)/'
+EXCLUDED_RE='(^|/)docs/(archive|agentic)/'
 # Conventional upper-case names that the filename rule allows.
 ALLOWED_NAMES_RE='^(README|INDEX)\.md$'
 # Upper-case landmark names (JOURNEY.md, OPEN-QUESTIONS.md) that the filename

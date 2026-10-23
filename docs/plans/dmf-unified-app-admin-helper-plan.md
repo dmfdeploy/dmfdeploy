@@ -575,7 +575,7 @@ netbox-sot / PR 3.5; HIGH-2 dropped PR 6's verifier rewrite half).
   — the secrets-architecture context.
 - [ADR-0021 — OpenBao AppRole reconciler identity](../decisions/0021-openbao-approle-reconciler-identity.md)
   — adjacent identity ADR.
-- [DMF App-Admin Drift Realignment Handoff 2026-05-23](../handoffs/DMF%20App-Admin%20Drift%20Realignment%20Handoff%202026-05-23.md)
+- [DMF App-Admin Drift Realignment Handoff 2026-05-23](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20App-Admin%20Drift%20Realignment%20Handoff%202026-05-23.md)
   — narrow-scope predecessor work; this plan finishes the job.
 - [DMF Convergence Next Steps Queue 2026-05-23](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20Convergence%20Next%20Steps%20Queue%202026-05-23.md)
   — §#1 closed by the handoff above; this plan addresses the

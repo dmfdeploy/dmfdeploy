@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-08
 **Reviewer:** Opus 4.7 (umbrella session)
-**Reviewed:** Tier 1 deliverables of `docs/handoffs/DMF Bootstrap Implementation Handoff 2026-05-08.md`
+**Reviewed:** Tier 1 deliverables of [`DMF Bootstrap Implementation Handoff 2026-05-08.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Bootstrap%20Implementation%20Handoff%202026-05-08.md)
 **Subject of review:** uncommitted changes in `dmf-env`, `dmf-infra`, and umbrella docs as of 2026-05-08 12:50 local
 **Status of work:** Substantially complete, exceeds Tier 1 minimum scope. **Two concrete fixes required before commit; a third is defense-in-depth and may defer.**
 
@@ -35,7 +35,7 @@ The reviewer ran the acceptance gates and read the relevant files end-to-end. Th
   - `roles/stack/operator/awx/defaults/main.yml`
   - `roles/stack/operator/awx-integration/defaults/main.yml`
   - `roles/stack/operator/cms/tasks/main.yml`
-- **`docs/handoffs/DMF Bootstrap Implementation Progress Handoff 2026-05-08.md`** is detailed and accurate. Tier 2 queue is correct. A9 decision tree carried forward.
+- **[`DMF Bootstrap Implementation Progress Handoff 2026-05-08.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Bootstrap%20Implementation%20Progress%20Handoff%202026-05-08.md)** is detailed and accurate. Tier 2 queue is correct. A9 decision tree carried forward.
 
 ## Concerns
 

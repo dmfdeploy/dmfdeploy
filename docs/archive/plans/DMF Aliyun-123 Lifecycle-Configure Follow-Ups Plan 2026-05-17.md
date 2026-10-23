@@ -54,7 +54,7 @@ and execute.
 
 1. Umbrella [`CLAUDE.md`](../../../CLAUDE.md) — boot ritual, repo map, conventions
 2. [`docs/agentic/CONSTITUTION.md`](../../agentic/CONSTITUTION.md) — 14 non-negotiable rules (Rule 1 push gate, Rule 4 skill gates, Rule 5 decision rubric, Rule 7 trust-but-verify, Rule 8 placeholders)
-3. [`docs/handoffs/DMF Aliyun-123 Bootstrap Green-Run + ADR-0023 + Runner Spike Handoff 2026-05-14.md`](../../handoffs/DMF%20Aliyun-123%20Bootstrap%20Green-Run%20%2B%20ADR-0023%20%2B%20Runner%20Spike%20Handoff%202026-05-14.md) — the 11 walls debugged, override list, ADR-0023 amendment, runner-pod spike status
+3. [`DMF Aliyun-123 Bootstrap Green-Run + ADR-0023 + Runner Spike Handoff 2026-05-14.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Aliyun-123%20Bootstrap%20Green-Run%20%2B%20ADR-0023%20%2B%20Runner%20Spike%20Handoff%202026-05-14.md) — the 11 walls debugged, override list, ADR-0023 amendment, runner-pod spike status
 4. [`docs/plans/DMF App Admin Account Drift Audit and Realignment Plan 2026-05-14.md`](../../plans/DMF%20App%20Admin%20Account%20Drift%20Audit%20and%20Realignment%20Plan%202026-05-14.md) — per-app drift shapes + Path 1/2/3 remediation taxonomy
 5. [`docs/decisions/0023-internal-service-dns-for-cross-app-wiring.md`](../../decisions/0023-internal-service-dns-for-cross-app-wiring.md) — caller-location split; scope amendment
 6. [`docs/decisions/0016-awx-control-node-ssh-via-cloud-init-and-openbao.md`](../../decisions/0016-awx-control-node-ssh-via-cloud-init-and-openbao.md) — AWX→control-node SSH execution model (relevant to Item B.2)
@@ -369,7 +369,7 @@ of `STATUS.md` needs an entry summarizing:
 #### D.5 — Handoff doc for today's session
 
 Per Rule 6 + standard practice, write
-`docs/handoffs/DMF Aliyun-123 Lifecycle-Configure Completion Handoff 2026-05-17.md`
+[`DMF Aliyun-123 Lifecycle-Configure Completion Handoff 2026-05-17.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Aliyun-123%20Lifecycle-Configure%20Completion%20Handoff%202026-05-17.md)
 covering: the 4 commits, the live validation, items deferred to this plan.
 Cross-link this plan from the handoff.
 

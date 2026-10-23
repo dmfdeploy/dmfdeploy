@@ -612,7 +612,7 @@ After Phase 7 verifies:
 1. Squash + commit per-repo with the suggested subjects above
    (one commit per repo; do NOT mix repos in one commit).
 2. Write
-   `docs/handoffs/DMF ADR-0025 Lane B Landed Handoff 2026-05-22.md` —
+   a landed handoff note (the committed copy is dated 2026-05-23: [file](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20ADR-0025%20Lane%20B%20Landed%20Handoff%202026-05-23.md)) —
    captures: what shipped, verification outputs (kubectl/helm outputs
    from Phase 6), open items rolled forward (Lane C, retired-cluster
    ref cleanup which is Move 2), and the next-session pickup signal.
@@ -692,8 +692,7 @@ Sub-repos as siblings.
 **Where to look for context:**
 - The convergence parent plan: `docs/plans/DMF Cluster-Internal
   Ansible Execution and Catalog Helm Pivot Plan 2026-05-19.md`
-- The trigger handoff: `docs/handoffs/DMF dmf-runbooks Path A Public
-  Publish Completion Handoff 2026-05-22.md`
+- The trigger handoff: [`DMF dmf-runbooks Path A Public Publish Completion Handoff 2026-05-22.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20dmf-runbooks%20Path%20A%20Public%20Publish%20Completion%20Handoff%202026-05-22.md)
 - The latest accepted ADR pattern: ADR-0024 (landed 2026-05-22).
 
 **End-state success condition (single sentence):**

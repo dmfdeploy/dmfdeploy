@@ -231,5 +231,5 @@ Next session:
    NetBox tokens to Custom Credential Type` with reference back to
    this plan doc.
 7. Close the open followup in
-   `dmfdeploy/docs/handoffs/DMF Lane B Chart 0.1.1 Landed Handoff 2026-05-23.md`
+   [`DMF Lane B Chart 0.1.1 Landed Handoff 2026-05-23.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Lane%20B%20Chart%200.1.1%20Landed%20Handoff%202026-05-23.md)
    and the STATUS.md operator-notes structural-note bullet.

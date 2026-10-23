@@ -461,7 +461,7 @@ zones list is empty.
 The canonical "how to resume" reading order becomes:
 1. `<note-store>/System/Lessons.md` (baseline gotchas)
 2. `docs/sessions/dmf-rebuild-session-notes.md` (state today)
-3. `docs/handoffs/DMF Session Handoff 2026-04-22.md` (pre-rebuild context)
+3. `DMF Session Handoff 2026-04-22.md` (pre-rebuild context; never committed, so no link)
 4. This plan (orchestration future)
 
 When the next rebuild finishes, a fresh session-notes file should be

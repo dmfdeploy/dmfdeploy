@@ -231,7 +231,7 @@ If the Machine credential is not attached, the awx-integration role's `attach cr
 
 - Add an "Implementation note" section to `docs/decisions/0012-configure-stage-distinct-from-provision.md` pointing to ADR-0016 and clarifying that catalog launchers currently use SSH-to-control-node, not in-cluster SA.
 - Update `STATUS.md` operator notes to reflect the pivot.
-- Update `docs/handoffs/` with a 2026-05-06 handoff covering the pivot decision and what was preserved as deferred.
+- Update [`docs/handoffs`](https://github.com/dmfdeploy/dmfdeploy/tree/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs) with a 2026-05-06 handoff covering the pivot decision and what was preserved as deferred.
 - **Do not edit ADR-0012 itself** beyond an addendum — the stage-split decision is unchanged.
 
 ### Phase 5 — Preserve deferred capability
@@ -313,7 +313,7 @@ Inventory of every artifact discovered during the investigation that is dead, br
 | `[STALE-DOC]` | `docs/archive/plans/Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount.md` | Add a header banner: `> **Superseded by [Pivot to Path A for Catalog Launchers 2026-05-06](Move%201%20Gate%202%20-%20Pivot%20to%20Path%20A%20for%20Catalog%20Launchers%202026-05-06.md)**. The SA-mount approach proved infeasible in the project's experiment phase; see new plan for findings.` Do not delete the file — it is the failed plan that this one supersedes and the trail matters. |
 | `[STALE-DOC]` | `docs/decisions/0012-configure-stage-distinct-from-provision.md` | Add an "Implementation note (2026-05-06)" section pointing to ADR-0016 and clarifying that catalog launchers currently use SSH-to-control-node, not in-cluster SA. The stage-split decision itself is unchanged. **In scope for Phase 4.** |
 | `[STALE-DOC]` | `docs/plans/move-1-gate-2-trials-and-tribulations.md` | Add a closing footnote referring to this plan and the pivot decision; the trials/tribulations entry remains historically accurate. |
-| `[STALE-DOC]` | `docs/handoffs/DMF Move 2 Closure + Path A Handoff 2026-05-04.md` and `docs/handoffs/DMF Function Catalog + Move 1 Planning Handoff 2026-05-04.md` | Both pre-date this pivot; safe to leave. The new 2026-05-06 handoff (Phase 4) becomes the authoritative pointer. |
+| `[STALE-DOC]` | [`DMF Move 2 Closure + Path A Handoff 2026-05-04.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Move%202%20Closure%20%2B%20Path%20A%20Handoff%202026-05-04.md) and [`DMF Function Catalog + Move 1 Planning Handoff 2026-05-04.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Function%20Catalog%20%2B%20Move%201%20Planning%20Handoff%202026-05-04.md) | Both pre-date this pivot; safe to leave. The new 2026-05-06 handoff (Phase 4) becomes the authoritative pointer. |
 | `[STALE-DOC]` | `docs/architecture/DMF Function Catalog Model.md` | Audit for any prose that assumes EE-pod in-cluster auth; reword to be neutral about execution model (catalog model survives either path). |
 | `[STALE-DOC]` | `STATUS.md` operator notes section (`<!-- HUMAN-START -->` block) | Rewrite the "In-flight work" entry for Move 1 + Catalog to reflect the pivot. **In scope for Phase 4.** |
 | `[FOLLOW-UP]` | `docs/decisions/INDEX.md` | If the SA-mount path becomes a formally-rejected alternative, add an ADR-0017 (or extend ADR-0012's status) recording the rejection and rationale. Not required for the pivot itself. |
@@ -364,7 +364,7 @@ To avoid breaking the cluster mid-pivot, do cleanup in this order:
 
 6. ADR-0012 has an Implementation note pointing to ADR-0016.
 7. `STATUS.md` operator notes reflect the pivot.
-8. New handoff in `docs/handoffs/` documents the decision.
+8. New handoff in [`docs/handoffs`](https://github.com/dmfdeploy/dmfdeploy/tree/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs) documents the decision.
 9. The superseded plan (`Move 1 Gate 2 Fix - AWX EE Pod Service Account Mount.md`) carries a banner pointing to this plan.
 
 **Cleanup verified:**

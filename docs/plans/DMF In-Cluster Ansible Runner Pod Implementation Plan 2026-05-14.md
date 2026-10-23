@@ -46,7 +46,7 @@ version:
 
 1. `cd "$DMFDEPLOY_UMBRELLA" && git fetch && git pull`
 2. `bin/generate-status.sh` — refresh STATUS.md; read it
-3. Read the most recent file in `docs/handoffs/`
+3. Read the most recent file in [`docs/handoffs`](https://github.com/dmfdeploy/dmfdeploy/tree/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs)
 4. Skim `docs/decisions/INDEX.md` — note ADRs relevant to your task
    (this work specifically: ADR-0010, ADR-0012, ADR-0016, ADR-0023)
 5. `git status` in each sub-repo you'll touch. **Ask the operator before

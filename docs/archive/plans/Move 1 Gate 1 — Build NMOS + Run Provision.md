@@ -135,7 +135,7 @@ docker run --rm registry.dmf.example.com/<operator>/nmos-cpp-node:0.1.0 --help 2
 > are in Zot. Pods reach Running on launch. The canonical script for re-pushing
 > after a rebuild is `dmf-runbooks/roles/nmos-cpp/scripts/push-nmos-images.sh`
 > (uses `get-admin-cred.sh` + isolated `DOCKER_CONFIG`). See the closure handoff
-> [`DMF Item 15 NMOS ConfigMap Schema Fix Closure 2026-05-07.md`](../../handoffs/DMF%20Item%2015%20NMOS%20ConfigMap%20Schema%20Fix%20Closure%202026-05-07.md).
+> [`DMF Item 15 NMOS ConfigMap Schema Fix Closure 2026-05-07.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Item%2015%20NMOS%20ConfigMap%20Schema%20Fix%20Closure%202026-05-07.md).
 
 **IMPORTANT:** Zot requires authentication. Do NOT use `docker login` with global `~/.docker/config.json`. Use the playbook path (recommended) or obtain credentials from OpenBao.
 
@@ -318,4 +318,4 @@ Once Gate 1 passes, the agent executing Piece 5 will:
 - Build rules: `dmf-cms/docs/DEVELOPMENT-AND-BUILD-RULES.md`
 - ADR-0012 (Configure vs Provision): `docs/decisions/0012-configure-stage-distinct-from-provision.md`
 - ADR-0006 (Cluster is truth): `docs/decisions/0006-cluster-is-truth.md`
-- Handoff: `docs/handoffs/DMF Function Catalog + Move 1 Planning Handoff 2026-05-04.md`
+- Handoff: [`DMF Function Catalog + Move 1 Planning Handoff 2026-05-04.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Function%20Catalog%20%2B%20Move%201%20Planning%20Handoff%202026-05-04.md)

@@ -66,7 +66,7 @@ condition: agentic-run.md Step 0.3 — preconditions not met
 detail:    6 open decisions in decisions-open.md, 0 answered. Seed gates
            need at least one operator answer before useful work can start.
            ADR-0020 promotion is the load-bearing one.
-handoff:   docs/handoffs/DMF Agentic Harness First Shift Halt 2026-05-12.md
+handoff:   https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Agentic%20Harness%20First%20Shift%20Halt%202026-05-12.md
 resume:    operator action required (answer ADR-0020 in decisions-open.md)
 
 ═══ shift close @ 2026-05-12T10:59:20Z ═════════════════════════════════════════
@@ -76,7 +76,7 @@ tasks_blocked:        0
 autonomous_decisions: 0
 halt_condition:       Step 0.3 preconditions (not a numbered halt condition;
                       fires before any tick attempts to run)
-handoff:              docs/handoffs/DMF Agentic Harness First Shift Halt 2026-05-12.md
+handoff:              https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Agentic%20Harness%20First%20Shift%20Halt%202026-05-12.md
 
 ═══ shift start @ 2026-05-12T11:11:00Z ═══════════════════════════════════════
 constitution_sha256: 6fa647ada55e5d4bea21382f025f1b19d03e0a989f8ec1d19e2146f411a67693
@@ -204,7 +204,7 @@ detail:    Phase 0 baseline-hygiene complete across all 6 public repos
            Halting here gives operator natural review boundary +
            opportunity to run rel-p1 hooks installer / set up GitHub org
            before the loop expands more backlog.
-handoff:   docs/handoffs/DMF Agentic Shift 3 Phase 0 Milestone Halt 2026-05-12.md
+handoff:   https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Agentic%20Shift%203%20Phase%200%20Milestone%20Halt%202026-05-12.md
 resume:    next /agentic-run (or operator action on rel-p1/rel-p2 first)
 
 ═══ shift close @ 2026-05-12T12:24:11Z ═════════════════════════════════════════
@@ -213,7 +213,7 @@ tasks_done:           6 (rel-p0-{umbrella,dmf-cms,dmf-infra,dmf-central,dmf-medi
 tasks_blocked:        0
 autonomous_decisions: 6 (one hosts.ini .gitignore gap fix per repo)
 halt_condition:       voluntary milestone halt
-handoff:              docs/handoffs/DMF Agentic Shift 3 Phase 0 Milestone Halt 2026-05-12.md
+handoff:              https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Agentic%20Shift%203%20Phase%200%20Milestone%20Halt%202026-05-12.md
 
 ═══ shift start @ 2026-05-12T12:26:08Z ═══════════════════════════════════════
 constitution_sha256: 6fa647ada55e5d4bea21382f025f1b19d03e0a989f8ec1d19e2146f411a67693
@@ -266,7 +266,7 @@ detail:    The Move 1 source plan (docs/plans/dmf-platform-move-1-task.md)
              (a) reshape move1-p2..p9 entries to Path A reality, OR
              (b) treat move1-p2..p6 as already done (audit each), OR
              (c) re-derive Move 1 backlog from a fresh post-Path-A plan.
-handoff:   docs/handoffs/DMF Agentic Shift 4 Move1 Plan-vs-Reality Halt 2026-05-12.md
+handoff:   https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Agentic%20Shift%204%20Move1%20Plan-vs-Reality%20Halt%202026-05-12.md
 resume:    operator action required (decide on backlog reshape strategy)
 
 ═══ shift close @ 2026-05-12T12:33:30Z ═════════════════════════════════════════
@@ -275,7 +275,7 @@ tasks_done:           2 (group-c-expansion, move1-p1-catalog-schema)
 tasks_blocked:        0
 autonomous_decisions: 1 (group-c-expansion framing: one Piece = one entry)
 halt_condition:       voluntary scope-mismatch halt
-handoff:              docs/handoffs/DMF Agentic Shift 4 Move1 Plan-vs-Reality Halt 2026-05-12.md
+handoff:              https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Agentic%20Shift%204%20Move1%20Plan-vs-Reality%20Halt%202026-05-12.md
 
 ═══ shift start @ 2026-05-12T12:36:01Z ═══════════════════════════════════════
 constitution_sha256: 6fa647ada55e5d4bea21382f025f1b19d03e0a989f8ec1d19e2146f411a67693

@@ -9,7 +9,7 @@ date: 2026-05-11
 **Author:** umbrella session investigating identifying-artifact residue
 **Supersedes:** none
 **Related:**
-- `docs/handoffs/DMF Public Publish Readiness Handoff 2026-05-07.md` (parent — defines the publish gates this plan extends)
+- [`DMF Public Publish Readiness Handoff 2026-05-07.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Public%20Publish%20Readiness%20Handoff%202026-05-07.md) (parent — defines the publish gates this plan extends)
 - `docs/architecture/DMF Release and Contribution Model.md` (defensive layer this plan hardens)
 
 ---
@@ -145,7 +145,7 @@ sibling `bin/install-sub-repo-hooks.sh`) so each public sub-repo gets the same
 
 ### Phase 5 — Re-run all gates
 
-Per `docs/handoffs/DMF Public Publish Readiness Handoff 2026-05-07.md` §Gates,
+Per [`DMF Public Publish Readiness Handoff 2026-05-07.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Public%20Publish%20Readiness%20Handoff%202026-05-07.md) §Gates,
 extended with new checks:
 
 ```

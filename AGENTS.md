@@ -11,7 +11,7 @@ reference architecture.
 1. `git pull`, run `bin/generate-status.sh`, then read
    `STATUS.digest.local.md` (open `STATUS.local.md` for one section only).
 2. Read the tracking issue you claim, comments included. Notes from earlier
-   sessions are operator-local, and `docs/handoffs/` is a frozen archive.
+   sessions are operator-local.
 3. Skim [docs/decisions/INDEX.md](docs/decisions/INDEX.md) and apply any ADR
    that fits your task.
 4. Run `git status` in each component repo you will touch, and ask before you

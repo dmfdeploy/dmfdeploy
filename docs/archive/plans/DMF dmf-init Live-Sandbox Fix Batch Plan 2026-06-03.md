@@ -5,7 +5,7 @@ executed: 2026-06-03
 ---
 # DMF dmf-init Live-Sandbox Fix Batch — Work Order (2026-06-03)
 
-**Source of truth:** `docs/handoffs/DMF dmf-init Live-Sandbox Exercise Findings 2026-06-03.md`
+**Source of truth:** [`DMF dmf-init Live-Sandbox Exercise Findings 2026-06-03.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20dmf-init%20Live-Sandbox%20Exercise%20Findings%202026-06-03.md)
 (findings #2/#3/#5/#7/#10). This doc is the *work order* derived from those findings:
 what to change, where, the existing pattern to mirror, the tests to add, and the
 per-item report protocol.

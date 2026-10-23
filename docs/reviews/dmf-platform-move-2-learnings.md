@@ -213,7 +213,7 @@ playbook").
 `cmd: >-` (folded scalar) collapses heredoc body onto one line; Python's
 argparse then errors. Working pattern: `set_fact` with `|-` literal block,
 then `argv:` form invoking `/bin/sh -c "{{ _the_cmd }}"`. Documented in
-`docs/handoffs/DMF Bootstrap User Privileges Handoff 2026-05-03.md` §6.1.
+[`DMF Bootstrap User Privileges Handoff 2026-05-03.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Bootstrap%20User%20Privileges%20Handoff%202026-05-03.md) §6.1.
 
 ### OpenBao mode toggle was failing open
 
@@ -226,7 +226,7 @@ to: derived booleans across required sets should fail loud on partial config.
 
 Implementing Move 2 surfaced that `<operator>` (the bootstrap OIDC user) wasn't an
 Authentik superuser. Plan exists at
-`docs/handoffs/DMF Bootstrap User Privileges Handoff 2026-05-03.md` —
+[`DMF Bootstrap User Privileges Handoff 2026-05-03.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Bootstrap%20User%20Privileges%20Handoff%202026-05-03.md) —
 group-level `is_superuser: true` on the `ops-admin` blueprint group, not
 user-level. Still pending application as of this writing.
 
@@ -318,7 +318,7 @@ commodity k3s, several Move 2 commitments would be premature. Worst case for
 - Strategic review: [`docs/reviews/dmf-platform-strategic-review.md`](dmf-platform-strategic-review.md)
 - Chain review: [`docs/archive/reviews/dmf-platform-chain-review-2026-04-30.md`](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/reviews/dmf-platform-chain-review-2026-04-30.md)
 - Move 2 task spec: [`docs/plans/dmf-platform-move-2-task.md`](../plans/dmf-platform-move-2-task.md)
-- Bootstrap user handoff (related side-quest): [`docs/handoffs/DMF Bootstrap User Privileges Handoff 2026-05-03.md`](../handoffs/DMF%20Bootstrap%20User%20Privileges%20Handoff%202026-05-03.md)
+- Bootstrap user handoff (related side-quest): [`DMF Bootstrap User Privileges Handoff 2026-05-03.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Bootstrap%20User%20Privileges%20Handoff%202026-05-03.md)
 - dmfdeploy platform plan (canonical architecture): [`docs/architecture/dmfdeploy-platform-plan.md`](../architecture/dmfdeploy-platform-plan.md)
 
 ---

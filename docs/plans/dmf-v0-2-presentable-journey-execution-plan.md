@@ -102,7 +102,7 @@ issue + flips frontmatter). Specifics for this track:
    don't collide.
 3. **Spec-first WPs (J1, J4)**: the spec/RFC is itself codex-gated before any
    build starts.
-4. **End of session**: write a handoff in `docs/handoffs/` if the WP is
+4. **End of session**: write a handoff in [`docs/handoffs`](https://github.com/dmfdeploy/dmfdeploy/tree/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs) if the WP is
    in-flight; update the issue with concrete state (what's merged, what's
    next command to run).
 5. **Public-safety**: runbook and RFC content follow the umbrella placeholder

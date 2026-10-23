@@ -280,7 +280,7 @@ with the bootstrap bundle before any Layer 6 application is installed.
 | `dmf-cluster-access` skill | Authoritative cluster access procedure; required before any live kubectl or playbook run |
 | `docs/plans/dmf-bootstrap-provision-configure-split-plan.md` | Implementation plan (rev 5) — lifecycle split, role refactors, acceptance criteria |
 | `docs/plans/dmf-pre-bao-bootstrap-secrets-design.md` | Pre-Bao bundle design — secret classes, encryption, collision policy |
-| `docs/handoffs/DMF Bootstrap Pre-Seed Two Blockers Handoff 2026-05-09.md` | Current known blockers (Authentik/Zot placement, kubectl SSH target) |
+| [`DMF Bootstrap Pre-Seed Two Blockers Handoff 2026-05-09.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Bootstrap%20Pre-Seed%20Two%20Blockers%20Handoff%202026-05-09.md) | Current known blockers (Authentik/Zot placement, kubectl SSH target) |
 | `docs/plans/dmf-bootstrap-pre-seed-blocker-fix-implementation-plan.md` | Fix plan for the two blockers above |
 | `docs/decisions/ADR-0007` | Secrets never in argv / env / tmp / transcripts |
 | `docs/decisions/ADR-0008` | OpenBao + ESO + AppRole architecture |

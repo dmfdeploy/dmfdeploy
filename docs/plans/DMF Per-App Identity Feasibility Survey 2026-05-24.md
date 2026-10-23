@@ -9,7 +9,7 @@ date: 2026-05-24
 **Status:** Complete — ready to fold into [DMF Identity and Authority Model](../architecture/dmf-identity-and-authority-model.md) §7 and to seed ADR-0028.
 **Live env probed:** `<env>` (Hetzner CAX21 ARM64, nbg1), read-only.
 **Pairs with:** [ADR-0024 — Two-Identity Admin Model](../decisions/0024-two-identity-admin-model.md);
-[2026-05-23 App-Admin Drift Realignment Handoff](../handoffs/DMF%20App-Admin%20Drift%20Realignment%20Handoff%202026-05-23.md);
+[2026-05-23 App-Admin Drift Realignment Handoff](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20App-Admin%20Drift%20Realignment%20Handoff%202026-05-23.md);
 `dmf-infra/k3s-lab-bootstrap/playbooks/audit-admin-identities.yml`.
 
 This survey is the promotion gate for §5 D3 of the architecture model

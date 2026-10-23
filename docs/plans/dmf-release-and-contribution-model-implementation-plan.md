@@ -220,8 +220,7 @@ GitHub mirror, with the hygiene gate baked in.
      4. Run `check-public-repo-hygiene.sh <repo>` — abort on fail
      5. Run `scrub-public-repos.sh <repo>` — abort on fail
      6. Run the orphan-rebase to `v0.1.0` per the 2026-05-07 Public Publish
-        Readiness handoff (`docs/handoffs/DMF Public Publish Readiness
-        Handoff 2026-05-07.md`)
+        Readiness handoff ([`DMF Public Publish Readiness Handoff 2026-05-07.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Public%20Publish%20Readiness%20Handoff%202026-05-07.md))
      7. Push to `github` remote with `--refspec` gate (only the prepared
         branch + tag, never `--all`)
 2.3. Stand up the `github.com/dmfdeploy` org. For each of the 6 public

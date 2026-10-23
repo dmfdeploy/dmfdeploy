@@ -331,7 +331,7 @@ the layer playbooks (640, 693).
 The decision and findings live in:
 - [`docs/plans/Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md`](Move%201%20Gate%202%20-%20Pivot%20to%20Path%20A%20for%20Catalog%20Launchers%202026-05-06.md)
   — full plan + cleanup inventory + acceptance criteria
-- [`docs/handoffs/DMF Move 1 Gate 2 Path A Pivot Handoff 2026-05-06.md`](../handoffs/DMF%20Move%201%20Gate%202%20Path%20A%20Pivot%20Handoff%202026-05-06.md)
+- [`DMF Move 1 Gate 2 Path A Pivot Handoff 2026-05-06.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Move%201%20Gate%202%20Path%20A%20Pivot%20Handoff%202026-05-06.md)
   — session record
 - ADR-0012 Implementation note (2026-05-06)
 
