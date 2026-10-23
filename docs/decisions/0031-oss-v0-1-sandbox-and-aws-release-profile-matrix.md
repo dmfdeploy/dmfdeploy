@@ -1,10 +1,10 @@
 # ADR-0031: OSS v0.1 release-profile matrix
 
-**Status:** Accepted (2026-05-26; operator open decisions closed; WP0 successor plan drafted —
+**Status:** Accepted (2026-05-26; operator open decisions closed; WP0 successor plan drafted , 
 [DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25](../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md);
 premise basis: [Contributor Replicability Premise Pass 2026-05-25](../plans/dmf-oss-v0-1-contributor-replicability-premise-pass.md)).
-**Date:** 2026-05-25 (original draft); 2026-05-25 (rewritten as profile matrix)
-**Deciders:** @<handle>, Codex planning sweep, Claude CEO-mode review, Codex sequencing review
+**Date:** 2026-05-25 (original draft); 2026-05-25 (rewritten as profile matrix).
+**Deciders:** @<handle>, Codex planning sweep, Claude CEO-mode review, Codex sequencing review.
 **Specializes:** [ADR-0020](0020-deployment-scope-and-regulatory-posture.md)
 Mode A, [ADR-0018](0018-self-managed-k3s-not-ack.md),
 [ADR-0026](0026-provider-descriptors.md)
@@ -27,18 +27,6 @@ storage, external Headscale, public ntfy.sh, local OpenBao seed/unseal
 material, and operator-laptop state. That sprawl conflicts with ADR-0020 Mode
 A's self-host promise and makes the first public release hard to install,
 explain, or verify for someone who is not the maintainer.
-
-The release question is not whether DMF should eventually support multiple
-providers — it should, per ADR-0026 — and it is not solely "which single
-cloud profile becomes the v0.1 contract." The CEO-mode review surfaced that
-the more useful frame is:
-
-- What is the **release experience** a contributor encounters?
-- Which **provisioning lanes** honor that experience?
-- What does v0.1 **claim** and what does it explicitly not claim yet?
-
-Those three questions, answered together, produce a release-profile matrix
-rather than a single-provider contract.
 
 ## Decision
 
@@ -66,7 +54,7 @@ Steps that vary by profile (DNS, TLS source, object storage, secret-boot
 posture, notification path, overlay mesh) are encoded as profile-specific
 manifest fields; the workflow itself stays uniform.
 
-### Profile 1 — `sandbox-single-node` (v0.1 release gate)
+### Profile 1: `sandbox-single-node` (v0.1 release gate)
 
 The primary v0.1 release profile and the default docs path. This is the
 profile that gates whether v0.1 can be tagged.
@@ -78,7 +66,7 @@ profile that gates whether v0.1 can be tagged.
   maintainer's workstation-held unseal material.
 - DNS/TLS posture: local CA plus explicit host mappings under a reserved
   `.test` sandbox domain (default `dmf.test`). User-owned DNS + ACME
-  DNS-01 is an optional production-shaped escape hatch, not the sandbox
+  DNS-01 is an optional production-shaped escape hatch. It is not the sandbox
   release gate.
 - Bootstrap independence: locally generated bootstrap material, documented
   reset procedure. No private operator inventory required.
@@ -87,12 +75,12 @@ profile that gates whether v0.1 can be tagged.
 - v0.1 **cannot** be tagged unless this profile passes the verification
   matrix from a fresh clone.
 
-### Profile 2 — `aws-arm64-multi-node` (secondary lane, eligible-if-ready)
+### Profile 2: `aws-arm64-multi-node` (secondary lane, eligible-if-ready)
 
 Parallel work. Eligible for inclusion in the v0.1 tag **only if it catches
 up without delaying the sandbox lane**. Not gating.
 
-- ARM64 EC2 (Graviton) baseline per ADR-0018; self-managed k3s, not EKS.
+- ARM64 EC2 (Graviton) baseline per ADR-0018; self-managed k3s. EKS is not used.
 - Route53 for DNS, S3 for object storage, SNS for out-of-band alerts,
   AWS KMS for OpenBao auto-unseal, NLB/SSM as needed.
 - In-cluster Headscale wired to Authentik/OIDC, exposed at
@@ -101,24 +89,20 @@ up without delaying the sandbox lane**. Not gating.
 - This profile may use AWS KMS auto-unseal as its release-default boot
   posture. The sandbox profile is **not** required to do so.
 
-### Profile 3 — `<env>` and successors (live lab / regression reference)
+### Profile 3: `<env>` and successors (live lab / regression reference)
 
 Explicitly preserved as the maintainer's live lab and regression reference.
-**Not** a release profile.
+This profile is **not** a release profile.
 
 - Allowed to depend on operator-specific credentials, the maintainer's unseal
   share stores, Cloudflare, B2, Tailscale, external Headscale, and any other
   maintainer infrastructure.
-- Purpose: validate architecture under real provider conditions, exercise
-  ADR-0028 / ADR-0024 / ADR-0021 / ADR-0011 / ADR-0015 / ADR-0030
-  end-to-end, surface bugs and architectural smells the generic profiles
-  will not see.
 - Findings from the lab feed the generic profiles; the lab itself is never
   packaged as a profile.
 - Removing the "release contract" expectation from this profile is a
   deliberate consequence of this ADR.
 
-### Claim split — what v0.1 says and does not say
+### Claim split: what v0.1 says and does not say
 
 Release-fitness claims:
 
@@ -175,7 +159,7 @@ Does **not** replace or deprecate:
 
 - The current Hetzner-based architecture and live lab.
 - ADR-0028 (Identity and Authority Chain), ADR-0024, ADR-0021, ADR-0011,
-  ADR-0015, or ADR-0030. All remain in force; v0.1 is *additive*, not a
+  ADR-0015, or ADR-0030. All remain in force; v0.1 is *additive*. It is not a
   rewrite.
 - The long-term multi-provider direction (ADR-0026). This ADR makes that
   direction structurally easier by establishing "profiles as lanes under
@@ -195,51 +179,46 @@ Does **not** replace or deprecate:
 
 ## Consequences
 
-- **Positive** — v0.1 has a defensible single canonical *experience*, with a
-  low-friction default lane that matches the actual operator-stated persona
-  (trusted friends, GitHub-discovery contributors, possible vlog audience,
-  self-hosted single-node sandbox as near-term goal).
-- **Positive** — The Hetzner lab (`<env>` and successors) is freed from
+- **Positive**: The Hetzner lab (`<env>` and successors) is freed from
   the contradictory expectation of being both the experimental playground and
   the release contract. The lab keeps moving; v0.1 release scrutiny does not
   apply to it.
-- **Positive** — AWS work continues without being a release gate. If the AWS
+- **Positive**: AWS work continues without being a release gate. If the AWS
   lane catches up by v0.1 tag time, it ships; if not, it lands in v0.2 with
   no ADR-level shame.
-- **Positive** — Claim-split discipline prevents v0.1 from over-promising
+- **Positive**: Claim-split discipline prevents v0.1 from over-promising
   media-realism or production characteristics it does not yet exercise.
-- **Positive** — ADR-0011's auto-unseal trade-off resolves per-profile.
+- **Positive**: ADR-0011's auto-unseal trade-off resolves per-profile.
   Sandbox can keep simpler local-unseal (or adopt the tiered-unseal posture
   once that ADR lands). AWS profile may use KMS.
-- **Positive** — ADR-0026 (Provider Descriptors) gets a concrete first use
+- **Positive**: ADR-0026 (Provider Descriptors) gets a concrete first use
   case: the manifest fields and profile-specific fields become first-class
   deliverables. Full descriptor implementation is not a v0.1 gate.
-- **Positive** — ADR-0020 Mode A becomes easier to enforce: both v0.1
-  profiles are demonstrably self-host and demonstrably independent of
-  `dmfdeploy.io` services.
-- **Negative** — Two install lanes is more documentation and verification
+- **Negative**: Two install lanes is more documentation and verification
   work than one. The "common gates / profile-specific gates" structure is
   harder to keep coherent than a single flat gate list.
-- **Negative** — The AWS lane no longer has the ADR-locked "release-only"
+- **Negative**: The AWS lane no longer has the ADR-locked "release-only"
   status the original draft of this ADR gave it. It may slip without a
-  clear release penalty. Mitigation: WP1A still gets resources, just not
+  clear release penalty. Mitigation: WP1A still gets resources, though not
   release-gating ones.
-- **Negative** — Some content from the original AWS-only draft (SNS as
+- **Negative**: Some content from the original AWS-only draft (SNS as
   universal alert path, KMS as universal unseal posture, Headscale as
   mandatory across all profiles, CMS user-admin as universal gate) is
   downgraded to profile-specific or trimmed.
-- **Neutral** — ADR-0030's runtime-self-contained rule still applies to
+- **Neutral**: ADR-0030's runtime-self-contained rule still applies to
   every profile.
-- **Neutral** — The Authentik identity authority (ADR-0028) is unchanged.
+- **Neutral**: The Authentik identity authority (ADR-0028) is unchanged.
   v0.1 profiles ship a seeded admin and the minimum role guards; the full
   user-administration product surface (signup, invite, approval queue,
   role-assignment UI, lifecycle management) is out of v0.1 scope unless it
-  is already nearly-complete by tag time.
+  is already nearly complete by tag time.
 
-### Enforcement (to be elaborated in WP0)
+### Enforcement
 
-The original Enforcement section was AWS-specific and is preserved in the
-[archive record](../archive/decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md#historical-draft-superseded-by-current-decision--preserved-for-context-not-binding). Generic enforcement under the matrix framing:
+discipline only: no script or CI check reads the release-profile matrix, and the
+release manifest and verification harness do not exist yet. The original
+Enforcement section was AWS-specific and is preserved in the
+[archive record](../archive/decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md#historical-draft-superseded-by-current-decision--preserved-for-context-not-binding). The obligations under the matrix framing:
 
 - `init-wizard.sh` and the future Python wizard must expose
   `sandbox-single-node` as the default install path and
@@ -250,7 +229,7 @@ The original Enforcement section was AWS-specific and is preserved in the
   docs must be clearly labeled as the "production-shaped lane; requires
   AWS account."
 - The v0.1 verification harness (WP5 successor) must produce a per-profile
-  pass/fail matrix, not a single boolean. v0.1 cannot be tagged unless the
+  pass/fail matrix and must not reduce it to a single boolean. v0.1 cannot be tagged unless the
   sandbox profile row passes. The AWS row is informational unless it also
   passes, at which point it joins the release tag.
 - The v0.1 release manifest must record which profiles passed and at what
@@ -262,7 +241,7 @@ The original Enforcement section was AWS-specific and is preserved in the
 
 ## Status
 
-Accepted (2026-05-26; operator open decisions closed; WP0 successor plan drafted —
+Accepted (2026-05-26; operator open decisions closed; WP0 successor plan drafted , 
 [DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25](../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md);
 premise basis: [Contributor Replicability Premise Pass 2026-05-25](../plans/dmf-oss-v0-1-contributor-replicability-premise-pass.md)).
 

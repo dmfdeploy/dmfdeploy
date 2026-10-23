@@ -73,12 +73,12 @@ BUDGET_STATUS=30
 # once the ADR fits the budget. Every other ADR keeps BUDGET_ADR.
 ADR_CEILINGS='
 docs/decisions/0016-awx-control-node-ssh-via-cloud-init-and-openbao.md 83
-docs/decisions/0020-deployment-scope-and-regulatory-posture.md 257
+docs/decisions/0020-deployment-scope-and-regulatory-posture.md 249
 docs/decisions/0021-openbao-approle-reconciler-identity.md 83
-docs/decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md 269
-docs/decisions/0032-catalog-launcher-scoped-netbox-writer.md 267
-docs/decisions/0038-netbox-driven-dynamic-monitoring.md 365
-docs/decisions/0047-media-function-packaging-catalog-sources-trust-model.md 205'
+docs/decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md 248
+docs/decisions/0032-catalog-launcher-scoped-netbox-writer.md 124
+docs/decisions/0038-netbox-driven-dynamic-monitoring.md 266
+docs/decisions/0047-media-function-packaging-catalog-sources-trust-model.md 202'
 
 # Plans whose status is not active or draft but that stay in docs/plans/
 # because readers outside this tree pin their paths (#617). The list is
