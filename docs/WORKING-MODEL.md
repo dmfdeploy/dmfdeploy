@@ -302,8 +302,18 @@ Two sanctioned forms:
 | Branch ruleset: approval + CODEOWNERS + required status checks + rebase-only, stale approvals dismissed on push | all 9 repos | merge is impossible otherwise |
 | `automerge.yml` + `required_status_checks` ruleset | all 9 repos | approval-driven rebase auto-merge + branch auto-delete (`hold` label disarms) |
 | `bin/close-completed-issues.sh` via `issue-close-reconciler.yml` (daily 06:00 UTC + `workflow_dispatch`) | umbrella issues with a merged completing PR | auto-closes from GitHub-parsed closing refs (`closedByPullRequestsReferences`, cross-repo included); manual close is fallback; `--self-test` gated in CI |
-| `bin/check-backlog-hygiene.sh` via `backlog-hygiene.yml` (daily 06:00 UTC + `workflow_dispatch`) | umbrella issues and plans + component intake | runs `--self-test` first; fails the job on findings or an incomplete run, and keeps one open report issue up to date |
+| `bin/check-backlog-hygiene.sh` via `backlog-hygiene.yml` (daily 06:00 UTC + `workflow_dispatch`) | umbrella issues and plans + component intake | runs `--self-test` first; fails the job on findings or an incomplete run, and keeps one open report issue up to date; the Acceptance rule is below the table |
 | Codex adversarial gate (§6: interactive bridge or one-shot `codex exec --sandbox read-only`) | non-trivial changes, pre-PR | operator discipline; prompt/SHA/command/output retained in operator-local review records |
+
+`bin/check-backlog-hygiene.sh` checks each open umbrella issue at milestone
+entry. An issue whose latest milestone event is on or after 2026-10-23
+(`ACCEPTANCE_START` in the script) fails unless its body has a
+`## Acceptance` heading followed by at least one list item before the next
+heading. The rule started on 2026-10-23, when 54 of the 78 milestoned issues
+lacked that section. Issues milestoned before that date are exempt, because
+the rule checks the moment an issue enters a milestone, and those issues
+entered theirs before the rule existed. The rule counts as a finding from the
+start, so the daily job fails on it.
 
 The four `bin/check-surface.sh` subcommands check these rules:
 
