@@ -47,3 +47,47 @@ stage-names entry, and the machine identifiers named above — this amendment
 records the rule those already-consistent artifacts were following
 implicitly, so a future edit cannot "fix" one of them into inconsistency
 with the rest.
+
+## Moved from the ADR on 2026-10-23
+
+### Context (original text)
+
+The EBU DMF Reference Architecture is unambiguous: a **Media Workload** is the
+production-level *assembly*, and Media Functions are *combined to implement* it
+(Annex B, Figure B1). ADR-0037 knowingly modelled the console's "Media Workloads"
+page as a Media *Function* instance inventory and **deferred** the assembly. As
+the MXL demo grows past a single function (`mxl-videotestsrc` + `mxl-videotest-view`),
+the assembly is the unit the operator reasons about — its lifecycle, its future
+switch target, its resource budget — and there is nowhere to hang those. RFC
+[#190](https://github.com/dmfdeploy/dmfdeploy/discussions/190) converged on
+introducing the entity without new NetBox machinery.
+
+### Decision 5, original text
+
+**5. Console IA + API split.** Reserve **"Media Workloads"** for the assembly;
+rename the flat per-function surface to **"Media Functions" / "Function
+Instances."** No in-place reshape of `/api/media-workloads`: add the grouped API
+first, migrate the UI, then deprecate the flat shape. Target end state:
+`/api/media-workloads` = grouped workload-first payload; `/api/media-function-instances`
+= flat instance inventory (interim: keep the flat response briefly or expose
+`/api/media-workloads/grouped` until the frontend/tests move).
+
+### Decision 6, migration of the MXL entries (original text)
+
+- **Migration of the MXL entries** (only the two that remain — see below):
+  - `mxl-videotestsrc` — keep `layer:5`; drop `vertical: media-functions`; add
+    `media_function_type: source`.
+  - `mxl-videotest-view` — keep `layer:5`; drop `vertical: media-functions`; add
+    `media_function_type: view`.
+  - `mxl-hello` — **retired** (removed from the catalog), superseded by the
+    `videotest` workload; this deletes the anomalous `layer:4` +
+    `vertical: media-processing` entry rather than migrating it. Tracked in
+    [#193](https://github.com/dmfdeploy/dmfdeploy/issues/193).
+
+
+### Positive consequences (original text)
+
+- **Positive** — the vocabulary becomes honest; the workload is a real home for
+  the lifecycle, the future switch target, and L3 preflight/rollback; the catalog
+  stops mis-tagging media-processing functions; minimal new infrastructure (one
+  tag, no graph object, no CRD).

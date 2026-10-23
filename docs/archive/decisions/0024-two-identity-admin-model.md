@@ -123,3 +123,125 @@ Consumers (as of 2026-05-24):
     NetBox half deliberately stays on the bespoke OpenBao read because
     it targets `secret/apps/netbox/runtime`, not `/admin`)
   - `roles/stack/operator/forgejo-bootstrap/tasks/main.yml`
+
+## Moved from the ADR on 2026-10-23
+
+### Decision item 4 (email convention), full text
+
+4. **Per-app local-admin email convention (amendment 2026-05-28).** The
+   email stored at `secret/apps/<app>/admin.email` and materialised into
+   each app's break-glass User row MUST follow the synthetic per-app,
+   per-env pattern:
+
+   ```
+   <app>-<dmf_env_id>@<cert_manager_cluster_domain>
+   ```
+
+   Authentik keeps its bootstrap-convention email `akadmin@<base-domain>`
+   (per the sanctioned exception above; akadmin is the Authentik admin
+   identity, not the human's OIDC identity).
+
+   **Why the synthetic pattern is binding (not just the username).** The
+   operator's real email is `authentik_bootstrap_passkey_email` — the
+   day-to-day OIDC identity. App social_auth pipelines key on email for
+   account linking:
+   - NetBox's default `SOCIAL_AUTH_PIPELINE` includes
+     `social_core.pipeline.social_auth.associate_by_email` (see
+     `roles/stack/operator/netbox/templates/values.yml.j2:32`).
+   - Forgejo's OAuth2 `account_linking: auto` (set in the chart values
+     under `gitea.config.oauth2_client.ACCOUNT_LINKING`) merges by email.
+   - AWX's default SAML pipeline matches via `associate_by_email`
+     unless the env overrides `SOCIAL_AUTH_PIPELINE` (D3 implementation
+     `dmf-infra@c426dc0` is the SAML-pipeline analogue).
+
+   When the break-glass User row carries the operator's email, the
+   pipeline silently merges the operator's first OIDC sign-in INTO the
+   break-glass row — username stays `<app>-break-glass` but the profile,
+   social_auth link, and role bindings become the operator's. The
+   break-glass account is now compromised AND the operator is being
+   used routinely (C4 violation in spirit). Live evidence: see the [archive record](0024-two-identity-admin-model.md).
+
+   Adoption mechanics:
+   - **Seed (`dmf-env/bin/bootstrap-secrets.sh seed-bao`)** writes the
+     canonical pattern to `secret/apps/<app>/admin.email` for every
+     non-Authentik app at first seed AND auto-heals legacy values
+     (the operator email, empty string, or `admin@example.com`) on
+     re-seed. The fix landed 2026-05-28.
+   - **Role defaults** (`netbox_superuser_email`, `awx_admin_email`,
+     `forgejo_admin_email`) derive the same pattern from `dmf_env_id +
+     cert_manager_cluster_domain` when `vault_<app>_*_email` is unset.
+     The previous fallback to `vault_bootstrap_admin_email` is removed;
+     reintroducing it requires amending this ADR. The fix landed
+     2026-05-28.
+
+   - Live-state remediation for already-deployed envs: see the [archive record](0024-two-identity-admin-model.md).
+
+### Consequences
+
+- **Positive** — Codifies what was already implicit. New playbooks have a
+  single answer for "what is the admin username/password fallback chain?"
+- **Positive** — Replaces ~28 lines of inline K8s-Secret reading in
+  `awx-integration` with a 12-line `include_role` call; same pattern in
+  `697-cms-awx-token`.
+- **Positive** — Resolves the wrapper-vs-cluster-password drift class for
+  AWX without requiring fresh rollout of envs that may drift in future.
+- **Negative** — Adds one new role and a small amount of indirection. The
+  helper's K8s-Secret scope means it doesn't help NetBox or Forgejo;
+  those apps stay on their OpenBao-read patterns (no regression — they
+  were never broken).
+- **Neutral** — Greenfield envs (`<env>` and future wizard-generated
+  envs) see the same effective behaviour: helper resolves the K8s Secret,
+  which carries the wizard-set values, identical to the prior vault-only
+  chain.
+
+#### Enforcement
+
+Two backend-specific helper roles split on **where the credential lives**,
+not on lifecycle. Each is the canonical implementation for its backend.
+All tasks touching passwords carry `no_log: true`; both helpers satisfy
+ADR-0007 (env-var-via-stdin pattern, no argv exposure).
+
+##### K8s-Secret backend: `common/admin-identity-resolve`
+
+For apps whose local admin credentials live in a Kubernetes Secret
+(currently only AWX, via `<instance>-admin-password`). Reads via
+`kubernetes.core.k8s_info` with `kubeconfig: /etc/rancher/k3s/k3s.yaml`.
+
+Consumer list: see the [archive record](0024-two-identity-admin-model.md).
+
+##### OpenBao backend: `common/app-admin-facts` (two modes)
+
+For apps whose local admin credentials live in OpenBao at
+`secret/apps/<app>/admin`. Pre-condition: caller must have included
+`common/openbao-session` (`mode: operator`) earlier in the same play;
+`app-admin-facts` consumes `_openbao_session_pod` +
+`_openbao_session_client_token` from play scope. Two modes:
+
+- **`materialize`** (default, original behaviour) — read-or-generate-
+  and-write. Used at install time to seed `secret/apps/<app>/admin`.
+
+- **`live-read`** (new 2026-05-24, PR 1b of the Unified Helper Plan) —
+  read-only. Used at runtime/provisioning. **Source-atomic** fallback:
+  each candidate layer must supply BOTH `username` AND `password` or
+  the layer is rejected. Resolution order: OpenBao → paired
+  `app_admin_fallback_candidates` list → scalar
+  `app_admin_fallback_username`/`_password` → empty (`<prefix>_source:
+  no-fallback`). Never writes, never generates, never emits
+  `<prefix>_email`.
+
+##### Code locations that intentionally do NOT use either helper
+
+- NetBox / netbox-sot roles — read `secret/apps/netbox/runtime` for
+  DB / Valkey / superuser-API-token material. Runtime/data secrets,
+  not admin identity; out of scope for both helpers. A future
+  `common/app-runtime-facts` sibling could address the bespoke
+  per-role runtime-read pattern, but that is a separate design
+  problem.
+- `roles/stack/operator/awx/tasks/main.yml` install path — admin
+  password sync via `awx-manage update_password`. Not identity
+  resolution; tangential.
+- `playbooks/verify-oidc-admin-bridge.yml` — reads a single-token K8s
+  Secret (`AUTHENTIK_BOOTSTRAP_TOKEN`), not a username/password pair.
+  Both helpers expect paired credentials; a future
+  `common/k8s-secret-key-resolve` for single-key lookups is deferred
+  until a second use case appears.
