@@ -85,7 +85,7 @@ Component repos carry VERSION files; the umbrella holds docs/ADRs/plans. Per
 **ADR-0005**, `VERSION` is the single source of truth in each component repo —
 any release-tagged change must update it in the same commit. **No VERSION bump → no
 release tag.** Release tags are `v<VERSION>`, created by release automation, never by
-hand. The project publishes git tags, not GitHub releases.
+hand. The project publishes git tags. It has no GitHub releases.
 
 ## Secrets & public-safety posture
 
