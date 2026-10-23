@@ -40,11 +40,11 @@ jobs:
       - name: Install Vale
         continue-on-error: true
         env:
-          VALE_VERSION: "3.24.0"
+          VALE_VERSION: "3.25.1"
         run: |
           set -euo pipefail
-          url="https://github.com/errata-ai/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz"
-          sha="867534ddb678abca7f214bc4706ead0922bd5252ffe8035fc227013f66c8b214"
+          url="https://github.com/vale-cli/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz"
+          sha="4bf5c5176b682b1da0830f471584d3494f1c2e27ee3029e1ad6f6661d4962182"
           mkdir -p "$RUNNER_TEMP/vale"
           curl -fsSL -o "$RUNNER_TEMP/vale.tgz" "$url"
           echo "$sha  $RUNNER_TEMP/vale.tgz" | sha256sum -c -

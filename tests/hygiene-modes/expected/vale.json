@@ -13,10 +13,10 @@
         },
         {
           "env": {
-            "VALE_VERSION": "3.24.0"
+            "VALE_VERSION": "3.25.1"
           },
           "name": "Install Vale",
-          "run": "set -euo pipefail\nurl=\"https://github.com/errata-ai/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz\"\nsha=\"867534ddb678abca7f214bc4706ead0922bd5252ffe8035fc227013f66c8b214\"\nmkdir -p \"$RUNNER_TEMP/vale\"\ncurl -fsSL -o \"$RUNNER_TEMP/vale.tgz\" \"$url\"\necho \"$sha  $RUNNER_TEMP/vale.tgz\" | sha256sum -c -\ntar -xz -C \"$RUNNER_TEMP/vale\" -f \"$RUNNER_TEMP/vale.tgz\" vale\necho \"$RUNNER_TEMP/vale\" >> \"$GITHUB_PATH\"\n"
+          "run": "set -euo pipefail\nurl=\"https://github.com/vale-cli/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz\"\nsha=\"4bf5c5176b682b1da0830f471584d3494f1c2e27ee3029e1ad6f6661d4962182\"\nmkdir -p \"$RUNNER_TEMP/vale\"\ncurl -fsSL -o \"$RUNNER_TEMP/vale.tgz\" \"$url\"\necho \"$sha  $RUNNER_TEMP/vale.tgz\" | sha256sum -c -\ntar -xz -C \"$RUNNER_TEMP/vale\" -f \"$RUNNER_TEMP/vale.tgz\" vale\necho \"$RUNNER_TEMP/vale\" >> \"$GITHUB_PATH\"\n"
         },
         {
           "name": "Sync the Google package",

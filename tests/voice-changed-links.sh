@@ -1,11 +1,18 @@
 #!/usr/bin/env bash
 # voice-changed-links.sh: regression for bin/check-voice-changed.sh (#682).
 #
-# Vale decodes each link target and masks the decoded text in the source.
-# A target with '%20' or '+' decodes to words the source does not hold at
-# that spot, so Vale masks those words wherever they first occur, and an em
-# dash on a later line can go unreported. The script must count both sides
-# as if the targets were plain. Cases in a throwaway repo:
+# Vale before 3.25.1 decoded each link target and masked the decoded text in
+# the source. A target with '%20' or '+' decodes to words the source does not
+# hold at that spot, so Vale masked those words wherever they first occurred,
+# and an em dash on a later line could go unreported (vale-cli/vale#1218).
+# The ratchet worked around that by rewriting the targets; with the fix in
+# Vale, it lints the files as they are. Cases:
+#
+#   vale     The installed Vale reports every em dash in a page with
+#            percent-encoded or '+' targets, the same count as with plain
+#            targets. Fails on Vale 3.24.0.
+#
+# Then, in a throwaway repo:
 #
 #   encoded  BASE has percent-encoded link targets; HEAD has the same prose
 #            with plain targets. Expect exit 0.
@@ -30,6 +37,33 @@ WORK="$(mktemp -d "${TMPDIR:-/tmp}/dmf-voice-links.XXXXXX")"
 trap 'rm -rf "$WORK"' EXIT
 dash="$(printf '\xe2\x80\x94')"
 
+# page <target> [extra line]: a README whose second em dash Vale before
+# 3.25.1 missed when <target> is percent-encoded.
+page() {
+  printf '%s\n' '# Title' '' "See [Shell Plan]($1)." '' \
+    "- The bell moves $dash see the plan." \
+    "- The LED stays $dash see [Shell Plan]($1)." ${2:+"$2"}
+}
+
+# vale: count the Voice.EmDash alerts in each page directly.
+V="$WORK/vale"
+mkdir -p "$V"
+printf '%s\n' "StylesPath = $UMBRELLA_DIR/.vale/styles" 'MinAlertLevel = error' \
+  '[*.md]' 'BasedOnStyles = Voice' >"$V/.vale.ini"
+dashes() { # dashes <target>: the Voice.EmDash alerts Vale reports for page <target>
+  page "$1" >"$V/page.md"
+  (cd "$V" && vale --no-exit --output=line --config .vale.ini page.md) \
+    | grep -c 'Voice.EmDash'
+}
+want="$(dashes 'the-shell-plan.md')"
+[[ "$want" -eq 2 ]] && ok "vale: plain targets give 2 em dash alerts" \
+  || bad "vale: plain targets give $want em dash alerts, want 2"
+for t in 'The%20Shell%20Plan.md' 'The+Shell+Plan.md'; do
+  got="$(dashes "$t")"
+  [[ "$got" -eq "$want" ]] && ok "vale: $t gives the same count" \
+    || bad "vale: $t gives $got em dash alerts, want $want ($(vale --version); needs 3.25.1 or later)"
+done
+
 R="$WORK/repo"
 mkdir -p "$R/bin"
 cp "$UMBRELLA_DIR/.vale.ini" "$R/"
@@ -41,13 +75,6 @@ printf '%s\n' '# Title' '' 'The base page is plain.' >"$R/README.md"
 g add -A && g commit -q -m init
 INIT="$(g rev-parse HEAD)"
 
-# page <target> [extra line]: a README whose second em dash Vale misses
-# when <target> is percent-encoded.
-page() {
-  printf '%s\n' '# Title' '' "See [Shell Plan]($1)." '' \
-    "- The bell moves $dash see the plan." \
-    "- The LED stays $dash see [Shell Plan]($1)." ${2:+"$2"}
-}
 commit() { # commit <branch> <from>: commit README.md from stdin, print the SHA
   g checkout -q -b "$1" "$2"
   cat >"$R/README.md"
