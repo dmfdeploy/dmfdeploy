@@ -15,13 +15,18 @@
 #                        the changed-files ratchet runs, and the whole-tree
 #                        step still warns (--no-exit). That last one is
 #                        pinned too, so flipping it is a deliberate edit here.
+#                        The pull_request trigger has no path filter, so the
+#                        check reports on every PR. The scope step decides
+#                        whether the Vale steps run, and each of them carries
+#                        exactly the pinned "if:" on its output.
 #   title-check.yml      the title job sets STRICT to "1".
 #   backlog-hygiene.yml  the self-test runs first, the check has no --warn,
 #                        and a later step fails the job on findings.
 #
 # Each guarded step must run exactly its expected command, with no "if:" that
-# can switch it off (the Vale ratchet's and the backlog gate's conditions are
-# pinned to their current text), and the owning jobs have no "if:". The
+# can switch it off (the Vale steps' scope condition, the Vale ratchet's and
+# the backlog gate's conditions are pinned to their current text), and the
+# owning jobs have no "if:". The
 # surface and title workflows keep their pull_request trigger. The hook's
 # surface guards are pinned line by line, with no exit or return before the
 # call. The backlog gate condition and has_findings derivation are pinned.
@@ -254,9 +259,58 @@ TITLE_STEPS = [
     {"name": "Check the title", "env": {"STRICT": "1"}, "run": ".github/scripts/hygiene-check.sh title"},
 ]
 
+# The vale job always runs. Its scope step lists the paths that matter and
+# sets "lint"; every later step runs only when lint is "true".
+VALE_IF = "steps.scope.outputs.lint == 'true'"
+RATCHET_IF = "github.event_name == 'pull_request' && " + VALE_IF
+VALE_SCOPE_RUN = (
+    "set -euo pipefail\n"
+    "# The only list of paths that run the Vale steps on a pull request.\n"
+    "paths=(\n"
+    "  \"README.md\"\n"
+    "  \"**/README.md\"\n"
+    "  \"CONTRIBUTING.md\"\n"
+    "  \"AGENTS.md\"\n"
+    "  \"ROADMAP.md\"\n"
+    "  \"docs/decisions/**\"\n"
+    "  \"docs/design/**\"\n"
+    "  \"docs/THESIS.md\"\n"
+    "  \"docs/JOURNEY.md\"\n"
+    "  \"docs/WORKING-MODEL.md\"\n"
+    "  \"docs/OPEN-QUESTIONS.md\"\n"
+    "  \"docs/GLOSSARY.md\"\n"
+    "  \"docs/INDEX.md\"\n"
+    "  \"docs/STYLE.md\"\n"
+    "  \"docs/templates/**\"\n"
+    "  \".github/**/*.md\"\n"
+    "  \"bin/check-voice*.sh\"\n"
+    "  \"bin/mutate-voice.sh\"\n"
+    "  \"tests/voice-changed-head.sh\"\n"
+    "  \"tests/voice-changed-links.sh\"\n"
+    "  \".vale.ini\"\n"
+    "  \".vale/**\"\n"
+    "  \".github/workflows/vale.yml\"\n"
+    ")\n"
+    "if [[ \"$GITHUB_EVENT_NAME\" != \"pull_request\" ]]; then\n"
+    "  echo \"Not a pull request, so every Vale step runs.\"\n"
+    "  echo \"lint=true\" >>\"$GITHUB_OUTPUT\"\n"
+    "  exit 0\n"
+    "fi\n"
+    "# HEAD is the PR merge commit; its first parent is the base branch.\n"
+    "changed=\"$(git diff --name-only HEAD^1 HEAD -- \"${paths[@]/#/:(glob)}\")\"\n"
+    "if [[ -z \"$changed\" ]]; then\n"
+    "  echo \"No Vale path changed in this pull request. Skipping the Vale steps.\"\n"
+    "  echo \"lint=false\" >>\"$GITHUB_OUTPUT\"\n"
+    "else\n"
+    "  echo \"Vale paths changed in this pull request:\"\n"
+    "  printf '%s\\n' \"$changed\"\n"
+    "  echo \"lint=true\" >>\"$GITHUB_OUTPUT\"\n"
+    "fi\n")
+
 VALE_STEPS = [
     {"name": "Checkout", "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683", "with": {"persist-credentials": False, "fetch-depth": 2}},
-    {"name": "Install Vale", "env": {"VALE_VERSION": "3.25.1"}, "run": (
+    {"name": "Find the changed Vale paths", "id": "scope", "run": VALE_SCOPE_RUN},
+    {"name": "Install Vale", "if": VALE_IF, "env": {"VALE_VERSION": "3.25.1"}, "run": (
         "set -euo pipefail\n"
         "url=\"https://github.com/vale-cli/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz\"\n"
         "sha=\"4bf5c5176b682b1da0830f471584d3494f1c2e27ee3029e1ad6f6661d4962182\"\n"
@@ -265,14 +319,14 @@ VALE_STEPS = [
         "echo \"$sha  $RUNNER_TEMP/vale.tgz\" | sha256sum -c -\n"
         "tar -xz -C \"$RUNNER_TEMP/vale\" -f \"$RUNNER_TEMP/vale.tgz\" vale\n"
         "echo \"$RUNNER_TEMP/vale\" >> \"$GITHUB_PATH\"\n")},
-    {"name": "Sync the Google package", "run": "vale sync"},
-    {"name": "Lint working surfaces (warn mode)", "run": "vale --no-exit ."},
-    {"name": "Enforce Vale on the clean set (error level blocks)", "run": (
+    {"name": "Sync the Google package", "if": VALE_IF, "run": "vale sync"},
+    {"name": "Lint working surfaces (warn mode)", "if": VALE_IF, "run": "vale --no-exit ."},
+    {"name": "Enforce Vale on the clean set (error level blocks)", "if": VALE_IF, "run": (
         "set -euo pipefail\n"
         "grep -v -e '^#' -e '^[[:space:]]*$' .vale/clean-set.txt \\\n"
         "  | xargs vale --minAlertLevel=error\n")},
-    {"name": "Check the README scope", "run": ".vale/scope-test.sh"},
-    {"name": "Check the fixtures (strict config)", "run": (
+    {"name": "Check the README scope", "if": VALE_IF, "run": ".vale/scope-test.sh"},
+    {"name": "Check the fixtures (strict config)", "if": VALE_IF, "run": (
         "set -euo pipefail\n"
         "for bad in .vale/fixtures/bad-*.md; do\n"
         "  good=\"${bad/bad-/good-}\"\n"
@@ -282,11 +336,11 @@ VALE_STEPS = [
         "  vale --config .vale/strict.ini \"$good\" >/dev/null \\\n"
         "    || { echo \"::error::$good must pass\"; exit 1; }\n"
         "done\n")},
-    {"name": "Check the Voice fixtures", "run": "bin/check-voice-fixtures.sh"},
-    {"name": "Mutation-test the Voice rules", "run": "bin/mutate-voice.sh"},
-    {"name": "Ratchet the Voice errors in changed files", "if": "github.event_name == 'pull_request'", "run": "bin/check-voice-changed.sh HEAD^1 HEAD"},
-    {"name": "Test that the ratchet reads HEAD, not the checkout", "run": "tests/voice-changed-head.sh"},
-    {"name": "Test that the ratchet counts encoded link targets the same way", "run": "tests/voice-changed-links.sh"},
+    {"name": "Check the Voice fixtures", "if": VALE_IF, "run": "bin/check-voice-fixtures.sh"},
+    {"name": "Mutation-test the Voice rules", "if": VALE_IF, "run": "bin/mutate-voice.sh"},
+    {"name": "Ratchet the Voice errors in changed files", "if": RATCHET_IF, "run": "bin/check-voice-changed.sh HEAD^1 HEAD"},
+    {"name": "Test that the ratchet reads HEAD, not the checkout", "if": VALE_IF, "run": "tests/voice-changed-head.sh"},
+    {"name": "Test that the ratchet counts encoded link targets the same way", "if": VALE_IF, "run": "tests/voice-changed-links.sh"},
 ]
 
 HYGIENE_STEPS = [
@@ -514,7 +568,12 @@ no_if(rel, "the vale job", (doc.get("jobs") or {}).get("vale") or {})
 pin_job(rel, doc, "vale", {"runs-on": "ubuntu-24.04", "timeout-minutes": 10},
         ["name", "on", "permissions", "jobs"])
 pin_all_steps(rel, "vale", steps, VALE_STEPS)
-RATCHET_IF = "github.event_name == 'pull_request'"
+pr = on_of(doc).get("pull_request", "absent")
+check(pr is None or (isinstance(pr, dict) and not ({"paths", "paths-ignore"} & set(pr))),
+      f"{rel}: the pull_request trigger has no path filter",
+      f"pull_request is {pr!r}. A path filter means a PR that changes no "
+      "listed file never gets the vale check, and a required check that never "
+      "reports blocks the merge. Filter inside the job (the scope step)")
 VALE_EXACT = {
     "bin/check-voice-changed.sh": "bin/check-voice-changed.sh HEAD^1 HEAD",
     "bin/check-voice-fixtures.sh": "bin/check-voice-fixtures.sh",
@@ -535,14 +594,16 @@ VALE_EXACT = {
     "vale --no-exit .": "vale --no-exit .",
 }
 for _name, _step in (
+    ("Find the changed Vale paths",
+     {"id": "scope", "run": VALE_SCOPE_RUN}),
     ("Lint working surfaces (warn mode)",
-     {"run": "vale --no-exit ."}),
+     {"if": VALE_IF, "run": "vale --no-exit ."}),
     ("Enforce Vale on the clean set (error level blocks)",
-     {"run": VALE_EXACT[".vale/clean-set.txt"] + "\n"}),
+     {"if": VALE_IF, "run": VALE_EXACT[".vale/clean-set.txt"] + "\n"}),
     ("Check the fixtures (strict config)",
-     {"run": VALE_EXACT["--config .vale/strict.ini"] + "\n"}),
+     {"if": VALE_IF, "run": VALE_EXACT["--config .vale/strict.ini"] + "\n"}),
     ("Check the Voice fixtures",
-     {"run": "bin/check-voice-fixtures.sh"}),
+     {"if": VALE_IF, "run": "bin/check-voice-fixtures.sh"}),
     ("Ratchet the Voice errors in changed files",
      {"if": RATCHET_IF, "run": "bin/check-voice-changed.sh HEAD^1 HEAD"}),
 ):
@@ -556,7 +617,7 @@ for key, want in VALE_EXACT.items():
         if key == "bin/check-voice-changed.sh":
             exact_if(rel, "the ratchet step", s, RATCHET_IF)
         else:
-            no_if(rel, f"the {key!r} step", s)
+            exact_if(rel, f"the {key!r} step", s, VALE_IF)
 clean = [r for r in runs if ".vale/clean-set.txt" in r]
 check(len(clean) == 1, f"{rel}: one step reads .vale/clean-set.txt",
       f"found {len(clean)}")
