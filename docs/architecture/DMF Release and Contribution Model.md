@@ -15,7 +15,7 @@ that bound every contribution.
 
 | Repo | Public? | Role |
 |---|---|---|
-| `dmfdeploy` (umbrella) | Public | Docs, ADRs, plans, handoffs, skills, status |
+| `dmfdeploy` (umbrella) | Public | Docs, ADRs, plans, skills, status |
 | `dmf-cms` | Public | Operator console (React + FastAPI) |
 | `dmf-runbooks` | Public | AWX launcher playbooks + catalog NetBox-side roles (Path A for 693-class infra plays; EE-as-runtime + Helm chart for `media-*` JTs per [ADR-0025](../decisions/0025-ansible-in-cluster-pods-and-catalog-helm.md), 2026-05-19) |
 | `dmf-infra` | Public | Generic Ansible playbooks/roles |
@@ -84,8 +84,8 @@ gets a one-line pointer with a date.
   branches discouraged — rebase frequently against `main`.
 - **Required status checks** before merge: `lint`, `test`, `secrets-scan`,
   `commit-message-lint` (Conventional Commits). Linear history required.
-- **Cross-repo work**: umbrella plan or handoff lands first; then per-repo PRs
-  reference it by path.
+- **Cross-repo work**: the umbrella plan or tracking issue comes first; then
+  per-repo PRs reference it.
 - **Subrepo dirty state requires user approval to modify** (already in
   CLAUDE.md boot ritual; reinforced here).
 - **External contributor flow — RESOLVED.** GitHub-first PRs with DCO.

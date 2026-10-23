@@ -160,8 +160,8 @@ purpose. The working model that survived contact with reality:
 - **Never trust a DONE report.** Worker output is grep-verified against the tree,
   every time. This rule exists because it was earned.
 - **Knowledge must survive sessions.** Agents have no memory between sessions, so
-  the project runs on a boot ritual: regenerate STATUS, read the latest handoff,
-  apply the ADRs. The discipline that makes agents effective (short-lived
+  the project runs on a boot ritual: regenerate STATUS, read the latest comments
+  on the tracking issue, apply the ADRs. The discipline that makes agents effective (short-lived
   context, durable written decisions) turns out to be exactly the discipline
   that makes a project legible to strangers. You are reading its output.
 - **Process machinery gets mothballed when it loses to simpler tools.** I built a
@@ -171,7 +171,8 @@ purpose. The working model that survived contact with reality:
   was retired within a month because GitHub Issues plus direct dispatch did the
   same job with less ceremony. The artifacts stay in the tree as provenance.
 
-The repository's conventions (handoffs as append-only lab notebook, ADRs with
+The repository's conventions (progress notes as an append-only lab notebook, now
+kept as tracking-issue comments, ADRs with
 reciprocal supersession links, generated indexes, commit-blocking hygiene gates)
 all come from this. They are the interface between me, the agents, and now you.
 
