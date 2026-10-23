@@ -1,6 +1,6 @@
 # Glossary
 
-These are the project's own coined terms — the ones an outsider can't google.
+These are the project's own coined terms, the ones an outsider can't google.
 Industry vocabulary (NMOS, SMPTE ST 2110, PTP, …) is intentionally out of
 scope; if you don't know those, the [EBU DMF Reference Architecture](https://tech.ebu.ch/)
 is the entry point.
@@ -9,7 +9,7 @@ is the entry point.
 
 An [age](https://age-encryption.org/) asymmetric keypair used to encrypt and
 decrypt passphrase-wrapped backups. The age private key rides *inside* the
-backup; the backup itself is encrypted by the operator's passphrase — so the
+backup; the backup itself is encrypted by the operator's passphrase. The
 passphrase is the single human-held secret and the key material travels with
 the data it protects.
 
@@ -17,7 +17,7 @@ the data it protects.
 
 A YAML file of **operator inputs only** consumed by
 `init-wizard.sh --non-interactive`. It carries identity, node address, SSH-key
-references, and posture — but never generated secrets (passwords, tokens,
+references, and posture. It never carries generated secrets (passwords, tokens,
 env_id, per-env keypairs stay wizard-internal and random). The answers-file is
 the shared contract between the CLI wizard and the dmf-init web UI, and a copy
 is bundled into each passphrase-wrapped backup so a restore can replay the
@@ -25,11 +25,11 @@ original inputs.
 
 ### appliance
 
-The dmf-init container — a run-once, disposable container that puts a
+The dmf-init container is a run-once, disposable container that puts a
 localhost-only web UI on the dmf-env bootstrap toolchain, drives a blank node
 to a verified cluster, and offers a passphrase-wrapped backup download at each
 lifecycle checkpoint. You delete it when you're done; the downloaded backups
-and your passphrase are all that remain. It commissions a cluster — it does not
+and your passphrase are all that remain. It commissions a cluster. It does not
 build or emit a deployable image.
 
 ### checkpoint
@@ -50,10 +50,10 @@ umbrella. See also [umbrella (repo)](#umbrella-repo).
 
 ### env
 
-A deployment instance — everything needed to bootstrap and operate one cluster.
+A deployment instance: everything needed to bootstrap and operate one cluster.
 Per-env state (inventory, manifest, encrypted secrets bundle, SSH keypair,
 OpenTofu state) lives entirely **operator-local** under
-`~/.dmfdeploy/envs/<env>/`; nothing per-env is ever committed to a repo.
+`~/.dmfdeploy/envs/<env>/`. Nothing per-env is ever committed to a repo.
 Tearing an env down is `rm -rf ~/.dmfdeploy/envs/<env>`.
 
 ### hetzner (provider)
@@ -65,15 +65,15 @@ than a local VM.
 
 ### sandbox (provider)
 
-The single-node provider profile for local experimentation — a Lima VM on
+The single-node provider profile for local experimentation: a Lima VM on
 macOS, multipass/KVM on Linux, WSL2 on Windows, or any cheap VPS reachable
-over SSH. Sandbox is the v0.1 release gate — the environment a newcomer is
-expected to stand up first, before any cloud provider.
+over SSH. Sandbox is the v0.1 release gate. A newcomer is
+expected to stand up this environment first, before any cloud provider.
 
 ### umbrella (repo)
 
-The dmfdeploy repository itself — the consolidated knowledge base (`docs/`)
+The dmfdeploy repository itself. It is the consolidated knowledge base (`docs/`)
 and cross-repo coordination point for the dmfdeploy platform. It holds architecture
 documents, architecture decision records, plans, reviews, handoffs, and the
-generated status snapshot. The eight component repos are its siblings, not its
+generated status snapshot. The eight component repos are its siblings. They are not its
 children.
