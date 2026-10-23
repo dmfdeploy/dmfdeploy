@@ -1,6 +1,6 @@
 # DMF EBU Reference-Architecture Mapping (2026-04-25)
 
-Single-page lookup that aligns the homelab DMF rollout with the EBU
+Single-page lookup that aligns the dmfdeploy rollout with the EBU
 *Dynamic Media Facility Reference Architecture* White Paper V2.0
 (EBU TC, 2026-04-15). All other DMF docs defer to this one for
 vocabulary, layer/vertical/lifecycle naming, and old↔new playbook
@@ -45,11 +45,11 @@ Design → Plan → Provision → Configure → Operate → Finalise & Review
 
 | Repo | EBU scope owned |
 |---|---|
-| `~/repos/dmf-infra/k3s-lab-bootstrap/` | Layers 2 (Host Platform), 3 (Container Platform), 6 (Application & UI) + verticals (Security, Monitoring, Orchestration, Control) |
-| `~/repos/dmf-env/` | Inventories + Resource Profile manifests (EBU "Design" lifecycle output) at `manifests/<env>.yaml`. First manifest: `manifests/hetzner-arm.yaml` (2026-04-26). Inventory under `inventories/<env>/` is currently maintained by hand alongside the manifest; codegen TBD per Open Questions §EBU-3. No playbooks/roles. |
-| `~/repos/dmf-central/` | vertical-security artifacts deployed to a federated central Cluster (Authentik, OpenBao, Harbor/Zot) |
-| `~/repos/dmf-media/` | Layers 4 (Media Exchange), 5 (Media Functions) — catalog metadata, Helm charts, and a compiled MXL image now live; numbered 4xx/5xx playbook skeleton and roles still stub |
-| `~/repos/dmf-cms/` | Layer 6 artifact (operator UI) — consumed by `dmf-infra/playbooks/650-dmf-cms.yml` |
+| `dmf-infra/k3s-lab-bootstrap/` | Layers 2 (Host Platform), 3 (Container Platform), 6 (Application & UI) + verticals (Security, Monitoring, Orchestration, Control) |
+| `dmf-env/` | Inventories + Resource Profile manifests (EBU "Design" lifecycle output) at `manifests/<env>.yaml`. First manifest: `manifests/hetzner-arm.yaml` (2026-04-26). Inventory under `inventories/<env>/` is currently maintained by hand alongside the manifest; codegen TBD per Open Questions §EBU-3. No playbooks/roles. |
+| `dmf-central/` | vertical-security artifacts deployed to a federated central Cluster (Authentik, OpenBao, Harbor/Zot) |
+| `dmf-media/` | Layers 4 (Media Exchange), 5 (Media Functions) — catalog metadata, Helm charts, and a compiled MXL image now live; numbered 4xx/5xx playbook skeleton and roles still stub |
+| `dmf-cms/` | Layer 6 artifact (operator UI) — consumed by `dmf-infra/playbooks/650-dmf-cms.yml` |
 
 > **Updated 2026-07-31.** dmf-media's Layer 4/5 scope is no longer a reserved
 > skeleton across the board: catalog metadata, Helm charts, and a compiled
@@ -64,10 +64,10 @@ Design → Plan → Provision → Configure → Operate → Finalise & Review
 
 ## Vocabulary canon
 
-Active homelab docs adopt EBU terms verbatim. Old terms retained only as
-historical artifacts in the operator note store archive.
+Active dmfdeploy docs adopt EBU terms verbatim. Old terms retained only as
+historical artifacts in the archive.
 
-| EBU term (canonical) | Old homelab term | Notes |
+| EBU term (canonical) | Old dmfdeploy term | Notes |
 |---|---|---|
 | Layer (1–6) | Phase (0–9) | "Phase" survives only as informal rollout-order ordinal in chat |
 | Vertical (Orchestration, Control, Monitoring, Security) | (was conflated into Phase 4/5) | Cross-cutting; not a numbered layer |
@@ -216,7 +216,7 @@ Existing `playbooks/30-media-base.yml` retired in favour of the per-layer split.
 ## Open items deferred to later work
 
 - **Flow Domains** (EBU §Media Exchange) — modeling in NetBox + manifest schema.
-- **Multi-cluster Container Orchestration** (EBU "subject to further study") — homelab has central + sites; revisit when ArgoCD lands.
+- **Multi-cluster Container Orchestration** (EBU "subject to further study") — dmfdeploy has central + sites; revisit when ArgoCD lands.
 - **Resource Profile schema** — concrete field list for the manifest; tracked in Open Questions doc.
 - **MXL SDK integration into the numbered 4xx playbooks** — github.com/dmf-mxl/mxl.
   `400-mxl-prereq.yml` and `410-libfabric.yml` are still stubs. SDK *compilation*

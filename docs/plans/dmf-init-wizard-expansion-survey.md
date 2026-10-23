@@ -70,7 +70,7 @@ Stops there. Prints 10 manual followup commands.
 |---|---|---|
 | Validate bundle | `bin/bootstrap-secrets.sh doctor <env>` | Idempotent, fast. |
 | B2 bucket create | `bin/b2-buckets.sh ensure <env>` | Idempotent. |
-| OpenTofu run | `bin/tf-apply.sh <env> {init,plan,apply}` | Reads tokens from operator-local config files (`~/.config/hcloud/cli.toml`, `~/.secure/aliyun/.ay-dmfdeploy`, `~/.config/cf/dns.txt`). Logs to `/tmp/dmf-tofu-logs/`. State-locking disabled for JuiceFS backend. |
+| OpenTofu run | `bin/tf-apply.sh <env> {init,plan,apply}` | Reads tokens from operator-local config files (`~/.config/hcloud/cli.toml`, `<provider-credentials-file>`, `~/.config/cf/dns.txt`). Logs to `/tmp/dmf-tofu-logs/`. State-locking disabled for JuiceFS backend. |
 | Render inventory from TF | `bin/tf-render-inventory.sh` | Idempotent re-render of `hosts.ini`. |
 | Pre-seed playbook | `run-playbook.sh <env> bootstrap-provision-pre-seed.yml` | Layer 2/3 + OpenBao install + ESO. |
 | OpenBao operator init | **Manual SSH today** — `bao operator init` on control node, capture 5 Shamir shares. | The most sensitive moment; never automated. |

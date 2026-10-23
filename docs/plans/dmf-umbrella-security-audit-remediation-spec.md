@@ -317,7 +317,7 @@ change — coordinate via the `dmf-openbao-unseal` skill.
 
 ### Files and line-level replacements
 
-**`docs/architecture/dmf-local-kubectl-via-tailscale.md`** (lines 12, 28, 37, 38, 39, 59, 70, 82, 89, 136, 142, 151, 158):
+**`docs/archive/architecture/dmf-local-kubectl-via-tailscale.md`** (lines 12, 28, 37, 38, 39, 59, 70, 82, 89, 136, 142, 151, 158):
 - `<tailscale-api-node>` → `<tailscale-api-node>` (11 occurrences)
 - `<tailscale-worker-2>` → `<tailscale-worker-2>` (1 occurrence)
 - `<tailscale-worker-1>` → `<tailscale-worker-1>` (1 occurrence)

@@ -306,8 +306,8 @@ architectural gap:
 - **`expand_local_path` tilde quoting bug.** The function used
   `${1#~/}` to strip a `~/` prefix; bash performs tilde expansion on the
   pattern itself, so the substitution silently no-ops and the
-  `~/.ssh/id_ed25519_k3s_aliyun` key from the inventory expanded to
-  `<home>/~/.ssh/id_ed25519_k3s_aliyun`. SSH then fell through to the
+  `~/.ssh/<ssh-key>` key from the inventory expanded to
+  `<home>/~/.ssh/<ssh-key>`. SSH then fell through to the
   default identity, which the Aliyun nodes don't authorise → the script's
   pod-finding `kubectl` returned non-zero with a misleading "no OpenBao
   pod found" error. Fix: quote the tilde — `${1#"~/"}`.

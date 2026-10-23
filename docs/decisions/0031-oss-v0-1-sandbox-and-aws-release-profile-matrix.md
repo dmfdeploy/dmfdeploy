@@ -75,7 +75,7 @@ profile that gates whether v0.1 can be tagged.
   assumption.
 - **No required dependence** on Cloudflare, Backblaze B2, Hetzner-specific
   credentials, Tailscale, external Headscale, public `ntfy.sh`, or the
-  maintainer's Mac / JuiceFS / Keychain unseal material.
+  maintainer's workstation-held unseal material.
 - DNS/TLS posture: local CA plus explicit host mappings under a reserved
   `.test` sandbox domain (default `dmf.test`). User-owned DNS + ACME
   DNS-01 is an optional production-shaped escape hatch, not the sandbox
@@ -106,8 +106,8 @@ up without delaying the sandbox lane**. Not gating.
 Explicitly preserved as the maintainer's live lab and regression reference.
 **Not** a release profile.
 
-- Allowed to depend on operator-specific credentials, JuiceFS, Keychain
-  shares, Cloudflare, B2, Tailscale, external Headscale, and any other
+- Allowed to depend on operator-specific credentials, the maintainer's unseal
+  share stores, Cloudflare, B2, Tailscale, external Headscale, and any other
   maintainer infrastructure.
 - Purpose: validate architecture under real provider conditions, exercise
   ADR-0028 / ADR-0024 / ADR-0021 / ADR-0011 / ADR-0015 / ADR-0030

@@ -306,7 +306,7 @@ Before starting, the operator should have:
   - `~/.config/hcloud/cli.toml`, `~/.config/cf/dns.txt`,
     `~/.config/ts/authkey.txt`, `~/.config/ntfy/alertmanager-url.txt`,
     `~/.config/healthchecks/watchdog-url.txt`
-  - `~/.ssh/id_ed25519_k3s_hetzner{,.pub}`
+  - `<ssh-key>{,.pub}`
   - `<secure-store>/openbao-breakglass/hetzner-lab/` exists
     (JuiceFS-backed — shares 1, 2 will be written here)
 

@@ -116,7 +116,7 @@ with the bootstrap bundle before any Layer 6 application is installed.
 
 5. Operator SSHs to the control node and runs `bao operator init`.
    - 5 Shamir shares distributed across 5 locations per ADR-0009.
-   - Automation file written to operator's secure JuiceFS mount for routine unseal.
+   - Automation file written to the operator's secure store for routine unseal.
 6. Operator runs `dmf-env/bin/unseal-openbao.sh` (using shares 1 + 2 + 3).
    - OpenBao is now initialised, unsealed, and policy-ready.
 
@@ -216,8 +216,8 @@ with the bootstrap bundle before any Layer 6 application is installed.
 | Cloudflare DNS API token | Operator-local `~/.config/cf/dns.txt` | Imported by `bootstrap-secrets.sh init` |
 | Tailscale / Headscale auth key | Operator-local `~/.config/ts/authkey.txt` | Imported by `bootstrap-secrets.sh init` |
 | Alertmanager / Healthchecks notification URLs | Operator input or local files | Imported by `bootstrap-secrets.sh init` |
-| age private key | Operator macOS Keychain | Required for bundle decryption |
-| OpenBao Shamir shares (1+2+3) | JuiceFS + macOS Keychain | Required for Phase 3 unseal |
+| age private key | Operator's OS keychain | Required for bundle decryption |
+| OpenBao Shamir shares (1+2+3) | Secure store + OS keychain | Required for Phase 3 unseal |
 | AWX control-node SSH private key | Dedicated operator-bootstrap source | Seeded separately to `secret/apps/awx/control_node_ssh` per ADR-0016 |
 | dmf-env inventory for target environment | `dmf-env/inventories/<env>/` | Must exist before Phase 1 |
 

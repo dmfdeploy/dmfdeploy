@@ -19,8 +19,8 @@ disaster-recovery custody layer for all tiers); [ADR-0020](0020-deployment-scope
 OpenBao starts **sealed** after any restart. Today the lab runs a single-replica
 StatefulSet, so routine pod churn (Longhorn rebalance, node drain, OS patch) seals
 it multiple times per week, and the only unseal paths
-(`dmf-env/bin/unseal-openbao.sh`, the openbao role) require the **operator's Mac +
-JuiceFS + Keychain + Tailscale reachability**. The cluster cannot self-heal from a
+(`dmf-env/bin/unseal-openbao.sh`, the openbao role) require the **operator's workstation +
+encrypted volume + OS keychain + Tailscale reachability**. The cluster cannot self-heal from a
 reboot, and for air-gapped deployments the current mechanism cannot run at all.
 
 ADR-0009 declares 3-of-5 Shamir defense; ADR-0011 records that the *routine* path

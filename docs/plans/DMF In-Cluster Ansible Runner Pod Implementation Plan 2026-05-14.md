@@ -593,7 +593,7 @@ bin/run-playbook.sh aliyun-123 \
 # Expect:
 #   ok=N changed=M unreachable=0 failed=0
 # Then verify:
-ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<control-node-ip> \
+ssh -i <ssh-key> k3s-admin@<control-node-ip> \
   "sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n dmf-bootstrap get sa,clusterrolebinding | grep ansible-runner"
 ```
 
@@ -654,7 +654,7 @@ If you target a new app, **run the in-pod probe first** before changing
 the default. Pattern:
 
 ```bash
-ssh -i ~/.ssh/id_ed25519_k3s_<env> k3s-admin@<ip> \
+ssh -i <ssh-key> k3s-admin@<ip> \
   "sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n <ns> \
     exec deploy/<deploy> -- sh -c 'curl -sS -o /dev/null -w %{http_code} \
     --max-time 3 http://<svc>.<ns>.svc.cluster.local:<port>/<path>'"

@@ -84,7 +84,7 @@ For `aliyun-123` specifically:
 
 - **SSH bastion:** `k3s-admin@<aliyun-control-node-public-ip>` (look up
   concrete IP in `dmf-env/inventories/aliyun-123/hosts.ini`)
-- **SSH key:** `~/.ssh/id_ed25519_k3s_aliyun` (env-defined by
+- **SSH key:** `<ssh-key>` (env-defined by
   `ansible_ssh_private_key_file` in
   `dmf-env/inventories/aliyun-123/group_vars/all/main.yml` — that's why
   ansible works without an entry in `~/.ssh/config`)
@@ -96,7 +96,7 @@ For `aliyun-123` specifically:
 Standard one-shot pattern:
 
 ```bash
-ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<aliyun-control-node-public-ip> \
+ssh -i <ssh-key> k3s-admin@<aliyun-control-node-public-ip> \
   "sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n <ns> <verb> <args>"
 ```
 
@@ -156,14 +156,14 @@ grep authentik_bootstrap_admin_username \
   /Users/<operator>/repos/dmfdeploy/dmf-infra/k3s-lab-bootstrap/roles/stack/operator/authentik/defaults/main.yml
 
 # (b) live admin group members — Authentik uses group membership, not is_superuser field
-ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<aliyun-control-node-public-ip> \
+ssh -i <ssh-key> k3s-admin@<aliyun-control-node-public-ip> \
   "sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n authentik \
     exec deploy/authentik-server -- ak shell -c \
     \"from authentik.core.models import Group; g=Group.objects.filter(name='authentik Admins').first(); \
      [print(u.username, 'active='+str(u.is_active)) for u in (g.users.all() if g else [])]\""
 
 # (c) auth probe (from inside pod, password via stdin)
-ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<aliyun-control-node-public-ip> <<'EOF'
+ssh -i <ssh-key> k3s-admin@<aliyun-control-node-public-ip> <<'EOF'
 PW=$(sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n openbao exec openbao-0 -- \
        bao kv get -field=password secret/apps/authentik/admin)
 sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n authentik \
@@ -191,7 +191,7 @@ grep -E "awx_admin_user|awx_integration_admin_user" \
   /Users/<operator>/repos/dmfdeploy/dmf-infra/k3s-lab-bootstrap/roles/stack/operator/awx*/defaults/main.yml
 
 # (b) live superusers — Django shell against AWX User model
-ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<aliyun-control-node-public-ip> \
+ssh -i <ssh-key> k3s-admin@<aliyun-control-node-public-ip> \
   "sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n awx \
     exec deploy/awx-web -- awx-manage shell_plus -c \
     \"from django.contrib.auth import get_user_model; U=get_user_model(); \
@@ -199,7 +199,7 @@ ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<aliyun-control-node-public-ip> \
       for u in U.objects.filter(is_superuser=True)]\""
 
 # (c) auth probe (Secret-backed)
-ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<aliyun-control-node-public-ip> <<'EOF'
+ssh -i <ssh-key> k3s-admin@<aliyun-control-node-public-ip> <<'EOF'
 PW=$(sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n awx \
        get secret awx-admin-password -o jsonpath='{.data.password}' | base64 -d)
 sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n awx \
@@ -231,12 +231,12 @@ grep -E "forgejo_admin_username" \
   /Users/<operator>/repos/dmfdeploy/dmf-infra/k3s-lab-bootstrap/roles/stack/operator/forgejo*/defaults/main.yml
 
 # (b) live admin users — gitea CLI inside the forgejo pod
-ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<aliyun-control-node-public-ip> \
+ssh -i <ssh-key> k3s-admin@<aliyun-control-node-public-ip> \
   "sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n forgejo \
     exec deploy/forgejo -- /usr/local/bin/gitea admin user list --admin --config /data/gitea/conf/app.ini"
 
 # (c) auth probe
-ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<aliyun-control-node-public-ip> <<'EOF'
+ssh -i <ssh-key> k3s-admin@<aliyun-control-node-public-ip> <<'EOF'
 PW=$(sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n forgejo \
        get secret forgejo-admin -o jsonpath='{.data.password}' | base64 -d)
 # Pipe password via stdin to avoid argv exposure
@@ -268,7 +268,7 @@ grep -E "netbox_superuser_username|netbox_sot_admin_username" \
   /Users/<operator>/repos/dmfdeploy/dmf-infra/k3s-lab-bootstrap/roles/stack/operator/netbox*/defaults/main.yml
 
 # (b) live superusers
-ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<aliyun-control-node-public-ip> \
+ssh -i <ssh-key> k3s-admin@<aliyun-control-node-public-ip> \
   "sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n netbox \
     exec deploy/netbox -- python /opt/netbox/netbox/manage.py shell -c \
     'from users.models import User; \
@@ -277,7 +277,7 @@ ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<aliyun-control-node-public-ip> \
 
 # (c) auth probe — NetBox uses Token auth primarily, but Basic works for
 # /api/users/users/me/. Adjust if the role's auth chain uses tokens instead.
-ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<aliyun-control-node-public-ip> <<'EOF'
+ssh -i <ssh-key> k3s-admin@<aliyun-control-node-public-ip> <<'EOF'
 # NetBox admin password normally bootstrapped via `manage.py changepassword`;
 # the Secret pattern varies. Check what the role actually reads.
 PW=$(sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n netbox \
@@ -312,12 +312,12 @@ grep -E "zot_admin_user" \
   /Users/<operator>/repos/dmfdeploy/dmf-infra/k3s-lab-bootstrap/roles/stack/operator/zot/defaults/main.yml
 
 # (b) live username — read from htpasswd Secret (just the username field)
-ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<aliyun-control-node-public-ip> \
+ssh -i <ssh-key> k3s-admin@<aliyun-control-node-public-ip> \
   "sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n zot \
     get secret zot-htpasswd -o jsonpath='{.data.htpasswd}' | base64 -d | cut -d: -f1"
 
 # (c) auth probe against /v2/_catalog — from node to ClusterIP (zot has no shell)
-ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<aliyun-control-node-public-ip> <<'EOF'
+ssh -i <ssh-key> k3s-admin@<aliyun-control-node-public-ip> <<'EOF'
 # Read password from OpenBao via AppRole (external-secrets credentials)
 SECRET_ID=$(sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n external-secrets \
   get secret openbao-approle -o jsonpath='{.data.id}' | base64 -d)
@@ -361,7 +361,7 @@ grep librenms_admin_username \
   /Users/<operator>/repos/dmfdeploy/dmf-infra/k3s-lab-bootstrap/roles/modules/infra-monitoring/librenms/defaults/main.yml
 
 # (b) live users — not applicable (not deployed)
-ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<aliyun-control-node-public-ip> \
+ssh -i <ssh-key> k3s-admin@<aliyun-control-node-public-ip> \
   "sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n monitoring get pods -l app.kubernetes.io/name=librenms"
 # → No resources found
 ```
@@ -421,7 +421,7 @@ Per-app commands (extend as new apps are audited):
 For AWX (confirmed — already executed 2026-05-14):
 
 ```bash
-ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<aliyun-control-node-public-ip> <<'EOF'
+ssh -i <ssh-key> k3s-admin@<aliyun-control-node-public-ip> <<'EOF'
 PW=$(sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n awx \
        get secret awx-admin-password -o jsonpath='{.data.password}' | base64 -d)
 printf '%s' "$PW" | sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n awx \
@@ -440,7 +440,7 @@ For Zot (confirmed password drift — 401):
 
 ```bash
 # Option A: delete the stale htpasswd Secret and re-run the zot role
-ssh -i ~/.ssh/id_ed25519_k3s_aliyun k3s-admin@<aliyun-control-node-public-ip> \
+ssh -i <ssh-key> k3s-admin@<aliyun-control-node-public-ip> \
   "sudo kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n zot delete secret zot-htpasswd"
 # Then re-run bootstrap-configure or just the zot playbook:
 bin/run-playbook.sh aliyun-123 \
