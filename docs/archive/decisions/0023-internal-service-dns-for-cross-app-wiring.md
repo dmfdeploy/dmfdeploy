@@ -98,3 +98,57 @@ isn't yet warm:
   `docs/plans/dmf-internal-service-dns-migration-survey.md`
   — produces a per-file diff inventory of remaining public-URL
   cross-app defaults to migrate.
+
+## Moved from the ADR on 2026-10-23
+
+### Context paragraph (original wording)
+
+The cross-app wiring in question (CMS → NetBox, CMS → Forgejo, NetBox
+→ Forgejo via datasource sync, etc.) is **app-to-app, both endpoints inside
+the cluster**. There is no architectural reason to route this traffic
+through the external boundary. Doing so creates artificial ordering
+constraints (external surface must be built before bootstrap completes)
+and accumulates per-env URL configuration that cluster-internal DNS makes
+unnecessary.
+
+### Positive consequences (original wording)
+
+**Positive**
+- Env-independent defaults — no per-env `-e cms_*_api_url=...` overrides
+- Bootstrap-time robust: works before cert-manager, ingress, MetalLB
+  are warm
+- Smaller public surface for app↔app traffic
+- Faster — no external network hop, no TLS handshake
+- New envs spin up without coordinating DNS for cross-app paths
+
+### Original Enforcement section
+
+### Enforcement
+
+- ADR principle. Reviews on `dmf-infra` playbook/role changes flag any
+  new HTTP default referencing `dmf.example.com` or a `*_host` external
+  variable for cross-app wiring.
+- Future-state: a lint check in `bin/scrub-public-repos.sh` or pre-commit
+  that flags `https?://.*\.dmf\.example\.com.*` defaults inside playbook
+  `url:` lines (only when the playbook is doing cross-app wiring, not
+  user-facing). Discipline-only until then.
+- Touchpoint in roles/playbook reviews: when a new cross-app HTTP
+  default is added, the reviewer asks "is this user-facing or app-to-app?"
+  and points at this ADR for the app-to-app answer.
+
+### Neutral consequences (original wording)
+
+**Neutral**
+- Each role still exposes the `*_api_url` override knob; existing
+  env-side overrides continue to work unchanged
+- Existing internal-URL usages (e.g. `forgejo-http...` in netbox-sot)
+  retroactively become "ADR-compliant" rather than special cases
+
+### Scope paragraph (original wording)
+
+The bootstrap-configure chain today straddles the line: provisioning runs
+from the control node (currently public-URL), but the values it *writes*
+into k8s Secrets are consumed at runtime by in-cluster pods (internal-URL
+preferred). When in doubt, the test is: **who actually opens the TCP
+connection?** That caller's location decides which URL the default
+should use.

@@ -72,26 +72,18 @@ BUDGET_STATUS=30
 # lower the ceiling in the change that trims the ADR, and remove the entry
 # once the ADR fits the budget. Every other ADR keeps BUDGET_ADR.
 ADR_CEILINGS='
-docs/decisions/0012-configure-stage-distinct-from-provision.md 102
-docs/decisions/0014-awx-project-layout.md 81
 docs/decisions/0016-awx-control-node-ssh-via-cloud-init-and-openbao.md 156
 docs/decisions/0017-mxl-intra-host-data-plane.md 191
-docs/decisions/0018-self-managed-k3s-not-ack.md 107
 docs/decisions/0020-deployment-scope-and-regulatory-posture.md 257
 docs/decisions/0021-openbao-approle-reconciler-identity.md 85
 docs/decisions/0022-flypack-online-thin-edge-agent.md 180
-docs/decisions/0023-internal-service-dns-for-cross-app-wiring.md 105
 docs/decisions/0024-two-identity-admin-model.md 191
 docs/decisions/0025-ansible-in-cluster-pods-and-catalog-helm.md 145
-docs/decisions/0026-provider-descriptors.md 100
 docs/decisions/0028-identity-and-authority-chain.md 180
 docs/decisions/0029-tiered-unseal-posture.md 136
 docs/decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md 269
 docs/decisions/0032-catalog-launcher-scoped-netbox-writer.md 267
-docs/decisions/0034-internal-ansible-collection-source.md 108
-docs/decisions/0035-operator-local-self-contained-envs.md 92
 docs/decisions/0038-netbox-driven-dynamic-monitoring.md 365
-docs/decisions/0039-environment-identity-netbox-site-cluster.md 92
 docs/decisions/0046-first-class-media-workload-entity.md 174
 docs/decisions/0047-media-function-packaging-catalog-sources-trust-model.md 205'
 

@@ -34,3 +34,56 @@ This file holds material moved out of [ADR-0026](../../decisions/0026-provider-d
 - [`docs/plans/dmf-init-wizard-expansion-survey.md`](../../plans/dmf-init-wizard-expansion-survey.md) —
   Survey Steps 6 + 7 + the `PRESET_DEFAULTS`-to-dmf-infra follow-up are
   absorbed by this ADR's promotion criteria.
+
+## Moved from the ADR on 2026-10-23
+
+## Context
+
+Per-provider bootstrap knowledge accretes across five touchpoints: operator
+prompt (`init-wizard.sh`), SOPS bundle key (`bootstrap-secrets.sh`), OpenBao
+path (`seed-bao`), Ansible export var (`vault_*` in `export-vars`), and per-env
+`group_vars/all/<provider>.yml` file. Roles then assert on the inventory vars.
+
+The 5th touchpoint is hand-rolled — `hetzner-arm` has
+`tailscale.yml` / `openbao.yml` / `eso.yml` / `bootstrap.yml`; wizard-generated
+envs have none of them. The recent `<env>` rollout proved the failure
+mode: the Tailscale authkey was collected, bundled, and exported, but no
+per-env binding was rendered, so pre-seed died on the `base/tailscale`
+assertion.
+
+The Python wizard rewrite at `wizard-spike/` (53 tests, per the
+[Init Wizard Expansion Survey](../../plans/dmf-init-wizard-expansion-survey.md))
+models PROFILE shape (`Profile`, `Tier`, `PRESET_DEFAULTS`, discriminated-union
+`ManifestBody`) but explicitly defers PROVIDER shape (Survey Steps 6 + 7).
+There is no canonical provider abstraction shared by the bash wizard, the
+Python wizard, and (later) dmf-cms's add-a-provider UI.
+
+### Promotion criteria (Proposed → Accepted)
+
+1. `dmf-infra/k3s-lab-bootstrap/providers/tailscale.yaml` (landed
+   2026-05-20) is consumed by a pydantic loader in `wizard-spike/src/`
+   that round-trips the descriptor in tests. *Status 2026-05-23: the
+   descriptor exists; the loader does not. `wizard-spike/src/` has no
+   provider-shaped code yet.*
+2. The Python wizard renders
+   `dmf-env/inventories/<env_id>/group_vars/all/tailscale.yml` from the
+   descriptor for at least one **live** env (e.g. `<env>` —
+   `hetzner-arm` is retired so the original byte-for-byte anchor no
+   longer applies; equivalence against any live env's existing
+   hand-rolled `tailscale.yml` is sufficient).
+3. A second descriptor (cloudflare or hcloud) lands without schema
+   mutation — i.e. v1 schema survives the second integration.
+
+### Decision and Consequences detail (original wording)
+
+- `secrets[]`: declared by logical reference only, never by literal value
+  (ADR-0007). Each carries `bundle_path` (pre-OpenBao), `vault_path` +
+  `vault_field` (post-OpenBao), `export_var` (the `vault_*` name the wrapper
+  injects), `inventory_var` (the role-side input name), and `indirection`
+  (the Jinja expression in the per-env `group_vars` file).
+- **Neutral** — Provider Descriptors and `PRESET_DEFAULTS` (Survey Step 1
+  follow-up) are sibling consolidations, not the same artifact.
+  `PRESET_DEFAULTS` keys on `(Profile, Tier)` and outputs deployment-shape
+  defaults; descriptors key on `provider_id` and output integration-shape
+  contracts. Both will eventually load via the same pydantic layer in the
+  Python wizard.
