@@ -11,7 +11,7 @@ executed: 2026-05-23
 > live admin identity audit
 > (`dmf-infra/k3s-lab-bootstrap/playbooks/audit-admin-identities.yml`)
 > confirms no drift across 5 apps. See
-> [`docs/handoffs/DMF App-Admin Drift Realignment Handoff 2026-05-23.md`](../handoffs/DMF%20App-Admin%20Drift%20Realignment%20Handoff%202026-05-23.md)
+> [`DMF App-Admin Drift Realignment Handoff 2026-05-23.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20App-Admin%20Drift%20Realignment%20Handoff%202026-05-23.md)
 > for the closure narrative.
 >
 > **§5 (Path 1/2/3 remediation framework) remains an active reference**

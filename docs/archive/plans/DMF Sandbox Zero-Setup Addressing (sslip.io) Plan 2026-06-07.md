@@ -115,8 +115,7 @@ No ADR change — ADR-0028 D8 is preserved.
 
 ## WP0 — Onboarding (every agent, first)
 - **Boot ritual:** `cd "$DMFDEPLOY_UMBRELLA" && git fetch && git pull`; `bin/generate-status.sh
-  --no-fetch`; read `STATUS.md`, this plan, and `docs/handoffs/DMF First Container-Driven VPS
-  Deploy + Passkey UX Handoff 2026-06-07.md`; skim `docs/decisions/INDEX.md` (ADR-0028 D8,
+  --no-fetch`; read `STATUS.md`, this plan, and [`DMF First Container-Driven VPS Deploy + Passkey UX Handoff 2026-06-07.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20First%20Container-Driven%20VPS%20Deploy%20%2B%20Passkey%20UX%20Handoff%202026-06-07.md); skim `docs/decisions/INDEX.md` (ADR-0028 D8,
   ADR-0031 sandbox profile).
 - **Repos/branch:** changes touch `dmf-env`, `dmf-infra`, `dmf-init` (sibling repos).
   🔒 **HARD CONSTRAINT (operator, 2026-06-07): ALL work lands on `main`. No feature branches.**

@@ -66,7 +66,7 @@ function moved, not vanished); the rest landed and were file-verified by
 | 8 | Drift detector | `operate-catalog-drift.yml` reads `provision.namespace` as source of truth | ✅ done |
 | 9 | **Write-up** | **this document** | ✅ done |
 
-The Path A pivot (`docs/handoffs/DMF Move 1 Gate 2 Path A Pivot Handoff 2026-05-06.md`)
+The Path A pivot ([`DMF Move 1 Gate 2 Path A Pivot Handoff 2026-05-06.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Move%201%20Gate%202%20Path%20A%20Pivot%20Handoff%202026-05-06.md))
 is the single biggest deviation from the task spec and is treated as a finding,
 not a failure — see Q3 and §Bonus learnings.
 
@@ -317,8 +317,8 @@ forward.
 - Task spec: [`docs/plans/dmf-platform-move-1-task.md`](../plans/dmf-platform-move-1-task.md)
 - Superseded provisional: [`docs/architectural-commitments-v1.md`](https://github.com/dmfdeploy/dmfdeploy/blob/b00df7a953f11a4372c66414c7c01d3f5d1b21b8/docs/architectural-commitments-v1.md)
 - Move 2 learnings (sibling): [`docs/reviews/dmf-platform-move-2-learnings.md`](dmf-platform-move-2-learnings.md)
-- Path A pivot: [`docs/handoffs/DMF Move 1 Gate 2 Path A Pivot Handoff 2026-05-06.md`](../handoffs/DMF%20Move%201%20Gate%202%20Path%20A%20Pivot%20Handoff%202026-05-06.md)
-- Sandbox v0.1 gate (runtime proof): [`docs/handoffs/DMF Sandbox v0.1 Gate — Verification + Open Follow-Ups Handoff 2026-05-29.md`](../handoffs/DMF%20Sandbox%20v0.1%20Gate%20—%20Verification%20+%20Open%20Follow-Ups%20Handoff%202026-05-29.md)
+- Path A pivot: [`DMF Move 1 Gate 2 Path A Pivot Handoff 2026-05-06.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Move%201%20Gate%202%20Path%20A%20Pivot%20Handoff%202026-05-06.md)
+- Sandbox v0.1 gate (runtime proof): [`DMF Sandbox v0.1 Gate — Verification + Open Follow-Ups Handoff 2026-05-29.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Sandbox%20v0.1%20Gate%20%E2%80%94%20Verification%20%2B%20Open%20Follow-Ups%20Handoff%202026-05-29.md)
 - ADRs: 0004 (experiment stance), 0012 (Configure split), 0013 (catalog model), 0014 (AWX layout), 0016/0025 (Path A / in-cluster Helm), 0032 (scoped writer), 0034 (internal collections), 0038 (monitoring), 0039 (env identity)
 - Strategic review: [`docs/reviews/dmf-platform-strategic-review.md`](dmf-platform-strategic-review.md)
 

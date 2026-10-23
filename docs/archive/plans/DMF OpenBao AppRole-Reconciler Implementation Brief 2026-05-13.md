@@ -8,7 +8,7 @@ executed: 2026-05-13
 > **SUPERSEDED 2026-05-23** — implementation landed `dmf-infra@209601d`
 > on 2026-05-13 (same day this brief was written) and was verified live on
 > `<env>` on 2026-05-23. See
-> [`docs/handoffs/DMF OpenBao AppRole-Reconciler Live Verification Handoff 2026-05-23.md`](../../handoffs/DMF%20OpenBao%20AppRole-Reconciler%20Live%20Verification%20Handoff%202026-05-23.md)
+> [`DMF OpenBao AppRole-Reconciler Live Verification Handoff 2026-05-23.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20OpenBao%20AppRole-Reconciler%20Live%20Verification%20Handoff%202026-05-23.md)
 > for the verification matrix.
 >
 > **§6 (Existing Cluster Recovery Requirement) remains an active reference**
@@ -624,6 +624,6 @@ Do not print real token values or secret values.
 - [OpenBao bootstrap security model](https://github.com/dmfdeploy/dmf-infra/blob/main/docs/openbao-bootstrap-security-model.md)
 - [Parent AppRole reconciler plan](DMF%20OpenBao%20AppRole-Write%20Reconciler%20Plan%202026-05-13.md)
 - [Policy-writer session separation plan](DMF%20OpenBao%20Policy-Writer%20Session%20Separation%20Plan%202026-05-13.md)
-- [Tier A Phase 3 implementation handoff](../../handoffs/DMF%20Tier%20A%20Phase%203%20Implementation%20Handoff%202026-05-12.md)
+- [Tier A Phase 3 implementation handoff](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Tier%20A%20Phase%203%20Implementation%20Handoff%202026-05-12.md)
 - OpenBao policy syntax: <https://openbao.org/docs/next/concepts/policies/>
 - OpenBao AppRole API: <https://openbao.org/api-docs/auth/approle/>

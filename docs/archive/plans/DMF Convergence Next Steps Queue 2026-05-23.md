@@ -28,7 +28,7 @@ envs; 698 refactored to read Forgejo username from
 `secret/apps/forgejo/admin → .username` (dead `cms_netbox_admin_user`
 removed). `awx_control_node_ssh_privkey_path` deferred as a separate
 followup (workstation-path drift, not credential). See
-[`docs/handoffs/DMF App-Admin Drift Realignment Handoff 2026-05-23.md`](../../handoffs/DMF%20App-Admin%20Drift%20Realignment%20Handoff%202026-05-23.md).
+[`DMF App-Admin Drift Realignment Handoff 2026-05-23.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20App-Admin%20Drift%20Realignment%20Handoff%202026-05-23.md).
 
 <details>
 <summary>Original §#1 scope (kept for reference)</summary>
@@ -203,8 +203,8 @@ heaviest.
 
 **Entry points:**
 - `bin/scrub-public-repos.sh` — umbrella scrub gate.
-- `docs/handoffs/DMF dmf-runbooks Path A Public Publish Completion Handoff 2026-05-22.md` — the published-as-template procedure.
-- `docs/handoffs/DMF dmf-runbooks Public History Remediation Handoff 2026-05-23.md` — what to look out for (per-repo `.gitleaks.toml` operator-identity patterns, public guard-file leaks).
+- [`DMF dmf-runbooks Path A Public Publish Completion Handoff 2026-05-22.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20dmf-runbooks%20Path%20A%20Public%20Publish%20Completion%20Handoff%202026-05-22.md) — the published-as-template procedure.
+- [`DMF dmf-runbooks Public History Remediation Handoff 2026-05-23.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20dmf-runbooks%20Public%20History%20Remediation%20Handoff%202026-05-23.md) — what to look out for (per-repo `.gitleaks.toml` operator-identity patterns, public guard-file leaks).
 - `docs/plans/dmf-release-and-contribution-model-implementation-plan.md` — the master Release Phase plan.
 
 **Acceptance criteria.**

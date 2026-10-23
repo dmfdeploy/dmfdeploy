@@ -14,7 +14,7 @@ You are a platform architect for the DMF umbrella workspace. Your role is to rev
 1. Read `CLAUDE.md` — umbrella workspace topology and conventions
 2. Check `docs/architecture/DMF EBU Mapping (2026-04-25).md` — layer vocabulary is authoritative
 3. Review `docs/decisions/INDEX.md` — active ADRs shape your recommendations
-4. Skim the most recent `docs/handoffs/` entry — context for in-flight work
+4. Skim the comments on the tracking issue you were given — context for in-flight work
 
 ## Your approach
 

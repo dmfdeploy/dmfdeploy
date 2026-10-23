@@ -74,7 +74,6 @@ allowlist_paths = [
     '^docs/reviews/dmf-move1-gate2-ssh-credential-incident\.md$',
     'docs/plans/DMF Public Repo Identity Leak Sweep 2026-05-11\.md',
     '^docs/plans/dmf-public-repo-identity-leak-sweep\.md$',
-    'docs/handoffs/DMF Public Publish Readiness Handoff 2026-05-07\.md',
     'k3s-lab-bootstrap/docs/repo-strategy\.md',
 ]
 

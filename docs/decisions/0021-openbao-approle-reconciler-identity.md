@@ -75,7 +75,7 @@ the acceptance criteria in the AppRole reconciler plan.
 logins succeed (ops-admin / policy-reconciler / approle-reconciler); five
 AC-5 negative probes all return `deny`; two ClusterSecretStores Ready; six
 ExternalSecrets Ready across six target namespaces. See
-[`docs/handoffs/DMF OpenBao AppRole-Reconciler Live Verification Handoff 2026-05-23.md`](../handoffs/DMF%20OpenBao%20AppRole-Reconciler%20Live%20Verification%20Handoff%202026-05-23.md).
+[`DMF OpenBao AppRole-Reconciler Live Verification Handoff 2026-05-23.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20OpenBao%20AppRole-Reconciler%20Live%20Verification%20Handoff%202026-05-23.md).
 Run on any new env as part of post-seed verification.
 
 ## Status

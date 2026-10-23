@@ -50,7 +50,7 @@ BackupTarget.
 
 **Related active docs:**
 - `STATUS.local.md` (umbrella root, gitignored) — live cross-repo state, refreshed by `bin/generate-status.sh`; operator notes live in the pinned issue [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618)
-- `docs/handoffs/` — most recent file is the canonical "what just happened / what's next"
+- Tracking-issue progress comments — the canonical "what just happened / what's next" (the old [handoff notes](https://github.com/dmfdeploy/dmfdeploy/tree/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs) were removed from the tree)
 - `docs/plans/dmf-platform-move-1-task.md` — current active task spec
 - `docs/decisions/INDEX.md` — ADRs (especially 0012/0013/0014/0016 for the catalog model)
 - `dmf-infra/k3s-lab-bootstrap/docs/flypack-offline-lane.md` — **canonical spec for the flypack profile**

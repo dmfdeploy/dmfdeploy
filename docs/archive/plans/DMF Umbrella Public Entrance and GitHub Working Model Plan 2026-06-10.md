@@ -71,7 +71,7 @@ Apply WP1's table: insert YAML frontmatter (schema above) as the first bytes of 
 
 ### WP3 — Directory READMEs + mothball hardening (mechanical) — no dependencies
 
-- `docs/handoffs/README.md` — "append-only lab notebook; newest wins; never required reading to contribute." Handoffs stay frontmatter-exempt.
+- [`README.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/README.md) — "append-only lab notebook; newest wins; never required reading to contribute." Handoffs stay frontmatter-exempt.
 - `docs/archive/sessions/README.md` — same framing.
 - `docs/agentic/README.md` + `bin/agentic/README.md` — "mothballed 2026-06-04; preserved for provenance; superseded by the GitHub issues workflow."
 - **Mutating `bin/agentic/` scripts fail closed:** issue-open/promote/backlog-editing scripts get an early-exit guard (`echo "mothballed 2026-06-04 — set DMF_AGENTIC_OVERRIDE=1 to run" >&2; exit 1` immediately after the shebang/set lines, unless `DMF_AGENTIC_OVERRIDE=1`) and are marked historical in the generated `docs/SCRIPTS.md` catalog. Read-only scripts (preflight/agent-status read) may stay unguarded.
@@ -164,7 +164,7 @@ Honest curated list: frozen items (federation, HA, Argo hybrid, in-place upgrade
 
 ### WP17 — Export, gates, metadata scan, publish (operator-gate; blocked by all of the above)
 
-> Read `docs/handoffs/DMF Public Publish Readiness Handoff 2026-05-07.md` first (boot-ritual banner).
+> Read [`DMF Public Publish Readiness Handoff 2026-05-07.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Public%20Publish%20Readiness%20Handoff%202026-05-07.md) first (boot-ritual banner).
 
 - Extend `bin/export-scan.sh` to accept the umbrella (currently hard-refuses `.` as "deferred B2"): orphan single-commit export to `/tmp/dmf-export`, clean public identity, all gates green, never pushes. Confirm the exported STATUS.md HUMAN section is placeholder-clean.
 - `bin/scrub-public-repos.sh --tree . --strict` → all blocking categories fixed; `bin/check-public-repo-hygiene.sh` artifacts present.

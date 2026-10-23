@@ -49,7 +49,7 @@ header and a `NOTICE` entry. We don't relicense; we attribute.
 | Architecture references | `dmfdeploy/docs/architecture/` |
 | Architecture Decision Records | `dmfdeploy/docs/decisions/` (numbered, indexed) |
 | Plans (dated, scoped work) | `dmfdeploy/docs/plans/` (must carry supersession header when overtaken) |
-| Handoffs (session intent) | `dmfdeploy/docs/handoffs/` (most recent is canonical) |
+| Handoffs (session intent) | The tracking issue's progress comments (the old `handoffs` folder was [removed from the tree](https://github.com/dmfdeploy/dmfdeploy/tree/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs)) |
 | Reviews / audits / sessions | `dmfdeploy/docs/{reviews,audits,sessions}/` |
 | Skills (operational procedure) | `dmfdeploy/.claude/skills/<name>/SKILL.md` |
 | Cross-repo state | `dmfdeploy/STATUS.local.md` (generated, gitignored) + the pinned operator-notes issue [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618); committed `STATUS.md` is a pointer |

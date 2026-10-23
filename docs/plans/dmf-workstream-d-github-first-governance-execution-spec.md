@@ -9,7 +9,7 @@ executed: 2026-06-09
 **Date:** 2026-06-09 · **Status:** Draft for codex cross-check → qwen lift
 **Author:** umbrella session (claude, orchestrator)
 **Parent plan:** [`DMF First Public Release Plan 2026-06-09.md`](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20First%20Public%20Release%20Plan%202026-06-09.md) §Workstream D
-**Resume handoff:** `docs/handoffs/DMF First Public Release — C+B Done, A-D-E Next — Handoff 2026-06-09.md`
+**Resume handoff:** [`DMF First Public Release — C+B Done, A-D-E Next — Handoff 2026-06-09.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20First%20Public%20Release%20%E2%80%94%20C%2BB%20Done%2C%20A-D-E%20Next%20%E2%80%94%20Handoff%202026-06-09.md)
 
 > **This spec is self-contained.** A lifting agent (qwen-left) should be able to
 > execute it end-to-end without reading other docs, using only the templates and

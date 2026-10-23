@@ -7,7 +7,7 @@ executed: 2026-05-13
 
 > **SUPERSEDED 2026-05-23** — implementation landed `dmf-infra@209601d`
 > on 2026-05-13 and was verified live on `<env>` on 2026-05-23. See
-> [`docs/handoffs/DMF OpenBao AppRole-Reconciler Live Verification Handoff 2026-05-23.md`](../../handoffs/DMF%20OpenBao%20AppRole-Reconciler%20Live%20Verification%20Handoff%202026-05-23.md)
+> [`DMF OpenBao AppRole-Reconciler Live Verification Handoff 2026-05-23.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20OpenBao%20AppRole-Reconciler%20Live%20Verification%20Handoff%202026-05-23.md)
 > for the verification matrix and closure notes. This plan is retained as
 > the historical record of the design exploration that led to ADR-0021.
 
@@ -285,7 +285,7 @@ Same as parent plan, plus:
 1. `dmfdeploy/STATUS.md` — cross-repo state
 2. `dmfdeploy/CLAUDE.md` — boot ritual
 3. `docs/decisions/INDEX.md` — ADR-0008/0009/0020
-4. Most recent file under `docs/handoffs/` (will likely be this plan's session)
+4. Most recent file under [`docs/handoffs`](https://github.com/dmfdeploy/dmfdeploy/tree/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs) (will likely be this plan's session)
 5. [Parent plan](DMF%20OpenBao%20Policy-Writer%20Session%20Separation%20Plan%202026-05-13.md)
 6. **This plan**
 7. §0 of `.claude/skills/dmf-cluster-access` and `.claude/skills/dmf-openbao-unseal`

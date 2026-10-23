@@ -90,7 +90,7 @@ failing run, recorded as an evidence gap.
 the console.
 
 Even more valuable than the confirmation was the
-[**Path A pivot**](handoffs/DMF%20Move%201%20Gate%202%20Path%20A%20Pivot%20Handoff%202026-05-06.md)
+[**Path A pivot**](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Move%201%20Gate%202%20Path%20A%20Pivot%20Handoff%202026-05-06.md)
 (2026-05-06, named for the execution-transport option that won). The task spec
 assumed lifecycle stages would live in wrapper playbooks. Reality put them in
 the *role*, invoked by a thin AWX launcher with a stage variable. Two planned deliverables were obviated mid-move, and the lesson

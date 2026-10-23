@@ -338,4 +338,4 @@ Once Gate 2 passes, the agent executing Piece 7 will:
 - ADR-0012 (Configure vs Provision): `docs/decisions/0012-configure-stage-distinct-from-provision.md`
 - ADR-0013 (Media function catalog model): `docs/decisions/0013-media-function-catalog-model.md`
 - ADR-0014 (AWX project layout): `docs/decisions/0014-awx-project-layout.md`
-- Handoff: `docs/handoffs/DMF Function Catalog + Move 1 Planning Handoff 2026-05-04.md`
+- Handoff: [`DMF Function Catalog + Move 1 Planning Handoff 2026-05-04.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Function%20Catalog%20%2B%20Move%201%20Planning%20Handoff%202026-05-04.md)

@@ -15,7 +15,7 @@ date: 2026-05-11
 The dmfdeploy platform is in *experiment phase* and approaching first public GitHub release.
 The foundation for safe automation already exists — 20 ADRs, pre-commit gitleaks,
 `bin/sync-to-github.sh` push gate, `bin/scrub-public-repos.sh`, STATUS.md auto-refresh,
-10 Claude subagent personas, 3 DMF skills, structured `docs/handoffs/` continuity ritual.
+10 Claude subagent personas, 3 DMF skills, structured [`docs/handoffs`](https://github.com/dmfdeploy/dmfdeploy/tree/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs) continuity ritual.
 What is missing is a **regimented loop** that lets agents grind through the remaining
 ~5–7 days of release-prep + Move 1 work without an operator at the keyboard, while
 provably not drifting, leaking secrets, or making decisions that should reach a human.
@@ -546,7 +546,7 @@ references this file at the start of every tick.
    decision | rationale ≤140ch | commit-or-path). Defaults from existing plan docs
    (D1–D4) are pre-populated but require operator confirmation.
 6. **Handoff hygiene**: If the agent changes shared state, it writes a handoff in
-   `docs/handoffs/` before halting. STATUS.md auto-refreshes via pre-commit.
+   [`docs/handoffs`](https://github.com/dmfdeploy/dmfdeploy/tree/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs) before halting. STATUS.md auto-refreshes via pre-commit.
 7. **Trust-but-verify on Qwen output**: Orchestrator reads the actual diff before
    marking a delegated task complete. Never trust the worker's "done" message alone.
 8. **No public-IP/identity exposure**: Use `<placeholder-name>` syntax + `dmf.example.com`
@@ -662,7 +662,7 @@ then run `bin/sync-to-github.sh` for each of the 6 public repos when ready.
 - `docs/plans/dmf-release-and-contribution-model-implementation-plan.md` — source of Group B (Phases 0–2)
 - `docs/plans/DMF Pre-Release Compliance Readiness Plan 2026-05-11.md` — source of Group D (Tier A.1–A.9)
 - `docs/plans/llm-restricted-git-pipeline-dev-testing-production-isolation-plan.md` — adjacent push-discipline design
-- `docs/handoffs/DMF Public Publish Readiness Handoff 2026-05-07.md` — the orphan-rebase + refspec gate this plan must not violate
+- [`DMF Public Publish Readiness Handoff 2026-05-07.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Public%20Publish%20Readiness%20Handoff%202026-05-07.md) — the orphan-rebase + refspec gate this plan must not violate
 - `docs/decisions/INDEX.md` — ADR-0005, ADR-0011, ADR-0018, ADR-0020 are load-bearing
 - `bin/sync-to-github.sh` — the operator-only push gate this plan strengthens but never bypasses
 - `bin/scrub-public-repos.sh`, `bin/generate-status.sh`, `.githooks/pre-commit` — existing automation reused as-is

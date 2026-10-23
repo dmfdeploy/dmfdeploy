@@ -8,8 +8,7 @@ executed: 2026-06-10
 **Date:** 2026-06-09 · **Status:** for qwen lift after codex review
 **Author:** umbrella session (claude, orchestrator)
 **Context:** The 7 clean-import public repos were flipped, CI went red, and we're doing a
-delete+reimport recovery (see `docs/handoffs/DMF First Public Release — CI Recovery +
-Reimport 2026-06-09.md`). Most CI fixes are already committed; **codex ran every repo's CI
+delete+reimport recovery (see [`DMF First Public Release — CI Recovery + Reimport 2026-06-09.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20First%20Public%20Release%20%E2%80%94%20CI%20Recovery%20%2B%20Reimport%202026-06-09.md)). Most CI fixes are already committed; **codex ran every repo's CI
 locally and found 3 remaining blockers** that must be fixed + verified before reimport. This
 spec is ONLY those 3.
 

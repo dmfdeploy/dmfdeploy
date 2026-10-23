@@ -21,7 +21,7 @@ Then read, in order:
 
 1. `STATUS.md` — workspace state across all 6 component repos.
 2. `CLAUDE.md` — boot ritual + workspace map.
-3. `docs/handoffs/DMF Bootstrap Implementation Progress Handoff 2026-05-08.md` — what landed in the Tier 1 bootstrap split (the refactor referenced in this review).
+3. [`DMF Bootstrap Implementation Progress Handoff 2026-05-08.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Bootstrap%20Implementation%20Progress%20Handoff%202026-05-08.md) — what landed in the Tier 1 bootstrap split (the refactor referenced in this review).
 4. `docs/decisions/INDEX.md` — relevant ADRs:
    - **0007** secrets-never-in-argv
    - **0008** openbao-secrets-architecture
@@ -407,7 +407,7 @@ curl -sS https://auth.aliyun.<lan-host>/.well-known/openid-configuration   # Aut
 
 # 11. Update STATUS.md HUMAN-START + write handoff
 $EDITOR <umbrella-path>/STATUS.md
-$EDITOR <umbrella-path>/docs/handoffs/DMF\ Aliyun\ Frankfurt\ Rollout\ $(date +%Y-%m-%d).md
+$EDITOR <umbrella-path>/DMF\ Aliyun\ Frankfurt\ Rollout\ $(date +%Y-%m-%d).md
 ```
 
 ---

@@ -57,7 +57,7 @@ Follow-Ups Plan §B.1 anticipating exactly this codification.
   — design source ("One shared bootstrap admin identity").
 - `docs/plans/DMF App Admin Account Drift Audit and Realignment Plan 2026-05-14.md`
   — drift catalog from the retired-cluster era.
-- `docs/handoffs/DMF Two-Identity Admin Model Implementation Handoff 2026-05-22.md`
+- [`DMF Two-Identity Admin Model Implementation Handoff 2026-05-22.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Two-Identity%20Admin%20Model%20Implementation%20Handoff%202026-05-22.md)
   — implementation handoff (the helper's scope ended up narrower than
   the handoff anticipated because NetBox + Forgejo turned out to be
   OpenBao-backed, not K8s-Secret-backed).

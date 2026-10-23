@@ -200,4 +200,4 @@ requiring P7 + P8 to be observable for the write-up.
 - Path A pivot ADRs: [ADR-0014, ADR-0016](../decisions/)
 - ADR-0012 (configure-stage-distinct-from-provision): [`docs/decisions/0012-configure-stage-distinct-from-provision.md`](../decisions/0012-configure-stage-distinct-from-provision.md)
 - ADR-0013 (media-function-catalog-model): [`docs/decisions/0013-media-function-catalog-model.md`](../decisions/0013-media-function-catalog-model.md)
-- Audit trigger handoff: [`docs/handoffs/DMF Agentic Shift 4 Move1 Plan-vs-Reality Halt 2026-05-12.md`](../handoffs/DMF%20Agentic%20Shift%204%20Move1%20Plan-vs-Reality%20Halt%202026-05-12.md)
+- Audit trigger handoff: [`DMF Agentic Shift 4 Move1 Plan-vs-Reality Halt 2026-05-12.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20Agentic%20Shift%204%20Move1%20Plan-vs-Reality%20Halt%202026-05-12.md)

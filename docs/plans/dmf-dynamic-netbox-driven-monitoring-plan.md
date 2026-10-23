@@ -110,7 +110,7 @@ Rationale vs the `netbox-plugin-prometheus-sd` alternative (rejected):
 ## Conventions a fresh agent must follow
 
 - **Boot ritual** (CLAUDE.md): `git fetch && pull` umbrella → `bin/generate-status.sh`
-  → read `STATUS.local.md` → read newest `docs/handoffs/` → skim `docs/decisions/INDEX.md` → `git status` each
+  → read `STATUS.local.md` → read newest [`docs/handoffs`](https://github.com/dmfdeploy/dmfdeploy/tree/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs) → skim `docs/decisions/INDEX.md` → `git status` each
   sub-repo before touching; **ask before modifying a dirty sub-repo**. Land work on
   `main` (no feature branches — `feedback_converge_on_main_no_feat_branches`); verify
   HEAD==main first (`feedback_verify_main_branch_before_work`).
