@@ -1,6 +1,6 @@
 # ADR-0031: OSS v0.1 release-profile matrix
 
-**Status:** Accepted (2026-05-26; operator open decisions closed; WP0 successor plan drafted , 
+**Status:** Accepted (2026-05-26; operator open decisions closed; WP0 successor plan drafted:
 [DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25](../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md);
 premise basis: [Contributor Replicability Premise Pass 2026-05-25](../plans/dmf-oss-v0-1-contributor-replicability-premise-pass.md)).
 **Date:** 2026-05-25 (original draft); 2026-05-25 (rewritten as profile matrix).
@@ -241,7 +241,7 @@ Enforcement section was AWS-specific and is preserved in the
 
 ## Status
 
-Accepted (2026-05-26; operator open decisions closed; WP0 successor plan drafted , 
+Accepted (2026-05-26; operator open decisions closed; WP0 successor plan drafted:
 [DMF OSS v0.1 WP0 Release Contract and Profile Matrix 2026-05-25](../plans/dmf-oss-v0-1-wp0-release-contract-and-profile-matrix.md);
 premise basis: [Contributor Replicability Premise Pass 2026-05-25](../plans/dmf-oss-v0-1-contributor-replicability-premise-pass.md)).
 
