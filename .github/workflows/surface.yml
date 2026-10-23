@@ -2,7 +2,9 @@ name: surface
 
 # Surface checks (#617): size budgets, filenames, archive placement and the
 # status log. The fixture run must pass, and each subcommand runs in strict
-# mode as its own step, so a finding fails the job and names its check.
+# mode as its own step, so a finding fails the job and names its check. The
+# ADR Enforcement rule (#661) runs in warn mode: it prints its findings and
+# passes until the ADRs are clean through #702, then flips to --strict.
 on:
   pull_request:
     branches: [main]
@@ -34,3 +36,5 @@ jobs:
         run: bin/check-surface.sh --strict placement
       - name: Status log
         run: bin/check-surface.sh --strict statuslog
+      - name: ADR enforcement (warn mode)
+        run: bin/check-surface.sh enforcement

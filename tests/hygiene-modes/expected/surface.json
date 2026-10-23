@@ -32,6 +32,10 @@
         {
           "name": "Status log",
           "run": "bin/check-surface.sh --strict statuslog"
+        },
+        {
+          "name": "ADR enforcement (warn mode)",
+          "run": "bin/check-surface.sh enforcement"
         }
       ],
       "timeout-minutes": 5

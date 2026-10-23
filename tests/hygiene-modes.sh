@@ -8,7 +8,9 @@
 #
 #   surface.yml          the fixture step runs first, then size, filenames,
 #                        placement and statuslog each run with --strict in
-#                        their own step.
+#                        their own step. The enforcement step still warns
+#                        (no --strict). That is pinned too, so flipping it is
+#                        a deliberate edit here.
 #   pre-commit hook      check-surface runs with --strict on the staged
 #                        content, and a failure refuses the commit.
 #   vale.yml             the clean-set step fails on errors (no --no-exit),
@@ -252,6 +254,7 @@ SURFACE_STEPS = [
     {"name": "Filenames", "run": "bin/check-surface.sh --strict filenames"},
     {"name": "Archive placement", "run": "bin/check-surface.sh --strict placement"},
     {"name": "Status log", "run": "bin/check-surface.sh --strict statuslog"},
+    {"name": "ADR enforcement (warn mode)", "run": "bin/check-surface.sh enforcement"},
 ]
 
 TITLE_STEPS = [
@@ -464,6 +467,16 @@ for sub in ("size", "filenames", "placement", "statuslog"):
               f"bin/check-surface.sh --strict {sub}")
     no_if(rel, f"the {sub} step", steps[hits[0]])
     first_check = hits[0] if first_check is None else min(first_check, hits[0])
+# The ADR Enforcement rule warns until the ADRs are clean (#661, #702), so
+# its step runs without --strict. Flipping it is an edit here.
+hits = [i for i, r in enumerate(runs)
+        if "bin/check-surface.sh" in r and "enforcement" in tokens(r)]
+check(len(hits) == 1, f"{rel}: enforcement runs in its own step",
+      f"found {len(hits)} steps")
+for i in hits:
+    exact_run(rel, "the enforcement step", steps[i],
+              "bin/check-surface.sh enforcement")
+    no_if(rel, "the enforcement step", steps[i])
 if fixture_idx and first_check is not None:
     check(fixture_idx[0] < first_check,
           f"{rel}: the fixture step runs before the checks",
