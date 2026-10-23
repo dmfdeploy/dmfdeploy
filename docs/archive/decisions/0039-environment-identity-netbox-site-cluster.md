@@ -66,4 +66,3 @@ Two further forces matter:
 - **Existing consumers already scope by Site/Cluster.** AWX's `nb_inventory` groups by
   `group_by: [sites, device_roles]` (`awx-integration`), and the ADR-0038 PromSD adapter
   derives target labels from `site`. Site/Cluster is the established scoping grain.
-
