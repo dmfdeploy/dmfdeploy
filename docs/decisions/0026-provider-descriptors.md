@@ -22,8 +22,11 @@ declaring:
   `flypack-online`, per ADR-0022
 - `inputs[]`: operator-typed values; each maps to an `inventory_var`
 - `secrets[]`: declared by logical reference only, never by literal value
-  (ADR-0007), with the paths, export var and indirection in the schema doc
-- `group_vars_file`: the per-env binding file path and a template body that the descriptor-renderer materializes into `dmf-env/inventories/<env_id>/...`
+  (ADR-0007). Each carries `bundle_path` (pre-OpenBao), `vault_path` +
+  `vault_field` (post-OpenBao), `export_var` (the `vault_*` name the wrapper
+  injects), `inventory_var` (the role-side input name), and `indirection`
+  (the Jinja expression in the per-env `group_vars` file).
+- `group_vars_file`: the per-env binding file path and a template body that the descriptor-renderer materializes into the env's operator-local inventory, `~/.dmfdeploy/envs/<env_id>/inventory/group_vars/all/...` (ADR-0035)
 - `roles_consuming[]`: the Ansible role paths that assert on the declared inventory vars
 - `secret_rotation` (optional): `{ owner, cadence }` for audit clarity per ADR-0009 / ADR-0021
 
