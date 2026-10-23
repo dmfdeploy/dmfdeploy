@@ -4,7 +4,9 @@
 # Read-only detector: every OPEN issue in the umbrella repo must carry a
 # milestone or the platform-debt label (unscheduled work, see
 # docs/WORKING-MODEL.md §2), at least one component:* label, and at least one
-# workstream:* label. Issues labelled hygiene-exempt are skipped. The script
+# workstream:* label. An issue that entered its milestone on or after
+# ACCEPTANCE_START must have a "## Acceptance" heading with a list item.
+# Issues labelled hygiene-exempt are skipped. The script
 # also flags active AND draft plan docs whose tracking issue is CLOSED, and
 # surfaces untriaged component-repo issues older than the staleness
 # threshold. (umbrella issue #32)
@@ -74,17 +76,50 @@ gh_json() {
 }
 
 # ── Check 1: Umbrella issue labeling / milestone ──────────────────────────
-# Read every open umbrella issue as {"issues":[{number,title,milestone,labels}]}.
+# Read every open umbrella issue as
+# {"issues":[{number,title,milestone,labels,body,milestoned_at}]}.
 # gh issue list pages through the API up to --limit. Exit 1 if gh fails, 2 if
-# the result reaches the limit (issues past it would go unchecked).
+# the result reaches the limit (issues past it would go unchecked), 3 if the
+# milestone dates could not be read (the issues still print, with
+# milestoned_at null, so check 1 can run).
 fetch_umbrella_issues() {
-    local raw count
+    local raw count issues dates
     raw="$(gh issue list --repo "$UMBRELLA_REPO" --state open --limit "$ISSUE_LIMIT" \
-        --json number,title,milestone,labels 2>/dev/null)" || return 1
+        --json number,title,milestone,labels,body 2>/dev/null)" || return 1
     count="$(jq -r 'length' <<<"$raw" 2>/dev/null)" || return 1
     [ "$count" -ge "$ISSUE_LIMIT" ] && return 2
-    jq -c '{issues: [.[] | {number, title, milestone: (.milestone.title // null),
-        labels: [.labels[].name]}]}' <<<"$raw"
+    issues="$(jq -c '{issues: [.[] | {number, title, milestone: (.milestone.title // null),
+        labels: [.labels[].name], body: (.body // "")}]}' <<<"$raw")"
+    if dates="$(fetch_milestoned_at "$issues")"; then
+        jq -c --argjson d "$dates" \
+            '.issues |= map(. + {milestoned_at: ($d[.number | tostring] // null)})' <<<"$issues"
+    else
+        jq -c '.issues |= map(. + {milestoned_at: null})' <<<"$issues"
+        return 3
+    fi
+}
+
+# Print {"<number>":"<createdAt>"}, the latest MilestonedEvent of each
+# milestoned issue in a {"issues":[...]} payload. One GraphQL query per batch
+# of 50 issues, one alias per issue, instead of one REST call per issue.
+# Exit 1 if any query fails.
+fetch_milestoned_at() {
+    local batch n fields query resp dates="{}"
+    while IFS= read -r batch; do
+        [ -n "$batch" ] || continue
+        fields=""
+        for n in $(printf '%s' "$batch"); do
+            fields+="i$n:issue(number:$n){timelineItems(itemTypes:[MILESTONED_EVENT],last:1){nodes{... on MilestonedEvent{createdAt}}}} "
+        done
+        query="query{repository(owner:\"$ORG\",name:\"${UMBRELLA_REPO#*/}\"){$fields}}"
+        resp="$(gh_json "$(jq -nc --arg q "$query" '{query:$q}')")" || return 1
+        dates="$(jq -c --argjson acc "$dates" '.data.repository
+            | if type == "object" then . else error("no repository") end
+            | $acc + (to_entries | map({key: (.key | ltrimstr("i")),
+                value: .value.timelineItems.nodes[0].createdAt}) | from_entries)' \
+            <<<"$resp" 2>/dev/null)" || return 1
+    done < <(jq -r '.issues[] | select(.milestone != null) | .number' <<<"$1" | xargs -n 50)
+    printf '%s\n' "$dates"
 }
 
 # Check 1's findings for a {"issues":[...]} payload, one line per finding.
@@ -104,7 +139,9 @@ check_umbrella_labels() {
 
     local rc=0
     UMBRELLA_ISSUES="$(fetch_umbrella_issues)" || rc=$?
-    if [ "$rc" -eq 2 ]; then
+    if [ "$rc" -eq 3 ]; then
+        skipped "milestone events not read — Acceptance rule not run"
+    elif [ "$rc" -eq 2 ]; then
         UMBRELLA_ISSUES=""
         finding "open umbrella issues reach DMF_ISSUE_LIMIT=$ISSUE_LIMIT; raise it, issues past the limit are not checked"
         return
@@ -298,6 +335,33 @@ rule_issue_unscheduled() {
         | "#\(.number) \"\(.title)\": no milestone and no platform-debt label"'
 }
 
+# Rule 5: open issue that entered its milestone on or after ACCEPTANCE_START
+# without a "## Acceptance" heading followed by a list item before the next
+# heading. The start date is the day the rule was written: 54 of the 78
+# milestoned issues then lacked the section, and the rule checks an issue at
+# milestone entry, so issues milestoned before it are not checked (#661).
+# Payload: {"start":"YYYY-MM-DD","issues":[{"number","title","milestone",
+#   "milestoned_at":null|"ISO time","body","labels":[names]}]}
+ACCEPTANCE_START="2026-10-23"
+# shellcheck disable=SC2329  # called indirectly through apply_rule
+rule_issue_acceptance() {
+    jq -r '
+        def has_acceptance:
+            reduce ((. // "") | gsub("\r"; "") | split("\n"))[] as $line
+                ({in: false, ok: false};
+                 if $line | test("^#{1,6}[ \t]") then
+                     .in = ($line | test("^##[ \t]+Acceptance[ \t]*$"))
+                 elif .in and ($line | test("^[ \t]*([-*+]|[0-9]+[.)])[ \t]+[^ \t]")) then
+                     .ok = true
+                 else . end)
+            | .ok;
+        (.start + "T00:00:00Z") as $start
+        | .issues[]? | select((.labels | index("hygiene-exempt")) == null)
+        | select(.milestone != null and .milestoned_at != null and .milestoned_at >= $start)
+        | select(.body | has_acceptance | not)
+        | "#\(.number) \"\(.title)\": milestoned \(.milestoned_at[:10]) without a ## Acceptance list"'
+}
+
 # Drop items a check already reported. Pure: JSON in, JSON out.
 # drop_reported_issues <payload> <newline-separated issue numbers>
 drop_reported_issues() {
@@ -321,7 +385,7 @@ apply_rule() {
 }
 
 check_freshness() {
-    echo "── check 5: freshness (closed tracker, stale draft, label pair, scheduling)"
+    echo "── check 5: freshness (closed tracker, stale draft, label pair, scheduling, acceptance)"
 
     local plan_dir="$UMBRELLA_DIR/docs/plans"
     if [ -d "$plan_dir" ]; then
@@ -363,6 +427,8 @@ check_freshness() {
     # check 1 already reported are dropped and each finding prints once.
     apply_rule rule_issue_label_pair "$(drop_reported_issues "$UMBRELLA_ISSUES" "$REPORTED_ISSUES")"
     apply_rule rule_issue_unscheduled "$(drop_reported_issues "$UMBRELLA_ISSUES" "$REPORTED_UNSCHEDULED")"
+    apply_rule rule_issue_acceptance \
+        "$(jq -c --arg s "$ACCEPTANCE_START" '{start: $s} + .' <<<"$UMBRELLA_ISSUES")"
 }
 
 # ── Self-test: four bad payloads (one finding each), four repaired twins (0) ─
@@ -400,6 +466,20 @@ self_test() {
     expect "rule4 unscheduled (bad)"      1 rule_issue_unscheduled "$r4_bad"
     expect "rule4 unscheduled (good)"     0 rule_issue_unscheduled "$r4_good"
 
+    # Rule 5: the bad payload entered its milestone after the start with no
+    # Acceptance section, and with an Acceptance heading that has no item
+    # before the next heading. The good twin has an item; an issue
+    # milestoned before the start is not checked.
+    local r5_bad r5_good
+    r5_bad='{"start":"2026-10-23","issues":[
+        {"number":6,"title":"t","milestone":"v0.2","milestoned_at":"2026-10-24T09:00:00Z","labels":[],"body":"## Outcome\n- done"},
+        {"number":7,"title":"t","milestone":"v0.2","milestoned_at":"2026-10-23T00:00:00Z","labels":[],"body":"## Acceptance\nprose only\n## Notes\n- not an item of Acceptance"}]}'
+    r5_good='{"start":"2026-10-23","issues":[
+        {"number":6,"title":"t","milestone":"v0.2","milestoned_at":"2026-10-24T09:00:00Z","labels":[],"body":"## Outcome\r\n\r\n## Acceptance\r\n\r\n- [ ] the check passes\r\n"},
+        {"number":7,"title":"t","milestone":"v0.2","milestoned_at":"2026-10-22T23:59:59Z","labels":[],"body":""}]}'
+    expect "rule5 acceptance (bad)"       2 rule_issue_acceptance "$r5_bad"
+    expect "rule5 acceptance (good)"      0 rule_issue_acceptance "$r5_good"
+
     # No duplicates: an item that matches both an existing check and a new rule
     # prints once. The existing check reports it (REPORTED_*), so the new rule
     # sees nothing; an unreported twin still reaches the rule.
@@ -430,11 +510,12 @@ self_test() {
     # Pagination: a fake gh serves 150 open issues and honours --limit (gh's
     # own default is 30). Only the 101st lacks a milestone, so a read capped
     # at 100 misses it. When the result reaches the limit, the read fails.
-    local ptmp fetched
+    local ptmp fetched rc
     ptmp="$(mktemp -d)"
     mkdir -p "$ptmp/bin"
     cat >"$ptmp/bin/gh" <<'GH'
 #!/usr/bin/env bash
+[ "$1" = api ] && { echo '{"data":{"repository":{}}}'; exit 0; }
 limit=30
 while [ $# -gt 0 ]; do [ "$1" = --limit ] && limit="$2"; shift; done
 jq -c --argjson n "$limit" '.[:$n]' "$FAKE_ISSUES"
@@ -468,12 +549,36 @@ GH
         echo "  FAIL unscheduled issue end to end: expected 1 finding, got $e2e_n"
         fails=$((fails + 1))
     fi
+
+    # Milestone dates: the read joins each issue's latest MilestonedEvent
+    # from the GraphQL query, so the rule sees an issue milestoned after the
+    # start. When that query fails, the read exits 3 and keeps the issues.
+    cat >"$ptmp/bin/gh" <<'GH'
+#!/usr/bin/env bash
+case "$1" in
+    issue) echo '[{"number":8,"title":"t","milestone":{"title":"v0.2"},"labels":[],"body":"no section"},
+                 {"number":9,"title":"t","milestone":null,"labels":[],"body":""}]' ;;
+    api) [ -n "${FAKE_GH_FAIL:-}" ] && exit 1
+         echo '{"data":{"repository":{"i8":{"timelineItems":{"nodes":[{"createdAt":"2099-01-01T00:00:00Z"}]}}}}}' ;;
+esac
+GH
+    fetched="$(PATH="$ptmp/bin:$PATH" fetch_umbrella_issues)"
+    expect "rule5 reads the milestone date" 1 rule_issue_acceptance \
+        "$(jq -c --arg s "$ACCEPTANCE_START" '{start: $s} + .' <<<"$fetched")"
+    rc=0
+    fetched="$(PATH="$ptmp/bin:$PATH" FAKE_GH_FAIL=1 fetch_umbrella_issues)" || rc=$?
+    if [ "$rc" -eq 3 ] && [ "$(jq '.issues | length' <<<"$fetched")" -eq 2 ]; then
+        echo "  ok   milestone date query fails: exit 3, issues kept"
+    else
+        echo "  FAIL milestone date query fails: expected exit 3 and 2 issues, got exit $rc"
+        fails=$((fails + 1))
+    fi
     rm -rf "$ptmp"
 
     # A check that cannot read its input makes the run INCOMPLETE, never OK.
     # The fake gh fails only the calls named in FAKE_GH_FAIL ("issue", "api");
     # the others return empty, valid results.
-    local itmp out rc
+    local itmp out
     itmp="$(mktemp -d)"
     mkdir -p "$itmp/bin" "$itmp/repo/docs/plans" "$itmp/noplans"
     cat >"$itmp/bin/gh" <<'GH'
@@ -539,7 +644,7 @@ GH
     fi
 
     if [ "$fails" -eq 0 ]; then
-        echo "backlog-hygiene self-test: OK (27/27 expectations)"
+        echo "backlog-hygiene self-test: OK (31/31 expectations)"
         return 0
     fi
     echo "backlog-hygiene self-test: $fails expectation(s) failed"

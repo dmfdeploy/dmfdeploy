@@ -53,5 +53,5 @@ body:
     id: acceptance
     attributes:
       label: How to check it
-      description: The command or observation that proves the outcome.
+      description: The command or observation that proves the outcome. Before the issue goes into a milestone, its body needs a `## Acceptance` heading followed by at least one list item, or the daily backlog check reports it (docs/WORKING-MODEL.md section 7).
     validations: { required: true }
