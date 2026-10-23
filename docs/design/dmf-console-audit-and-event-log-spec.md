@@ -114,7 +114,7 @@ own rulings.
     runs.** The sandbox profile deployed here overrides both to `168h` (7 days):
     `dmf-env/bin/init-wizard.sh:1822-1823` renders `loki_retention: 168h` and
     `loki_security_retention: 168h` into the per-env inventory. This is
-    the profile's committed, deployed *intent*. It is no plan target that someone might
+    the profile's committed, deployed *intent*. It is not a plan target that someone might
     revert to. Rendered inventory proves intent and does not prove what Loki is actually
     running or enforcing. The [Durable Action History
     Plan](../plans/dmf-console-durable-action-history-plan.md)'s
@@ -123,7 +123,7 @@ own rulings.
     surface derives the window from the running value and never from this
     paragraph.
   - **D7's 6-month hot retention is UNMET for `dmf_cms.audit` today. This is a gap
-    and the doc does not assume it solved.** The shipped security-relevant selectors
+    and the doc does not assume it is solved.** The shipped security-relevant selectors
     are `{job="k3s-audit"}`, `{job="authentik-audit"}`, and
     `{job=~".+-security"}` (`dmf-infra`
     `k3s-lab-bootstrap/roles/stack/operator/loki/templates/values.yml.j2`).
@@ -156,7 +156,7 @@ own rulings.
        value alone does not prove that.
     3. Re-run the same query **more than 30 days later**. The audit line
        must still be present. This proves Loki actually retained it via the
-       `4380h` security stream and the `720h` general default did not apply.
+       `4380h` security stream, and that the `720h` general default did not apply.
     4. **Negative control, same nonce:** query the control line's own
        (general/default) `job` value for that nonce. It must return
        **nothing** past 30 days. Without this control, an audit line that
@@ -185,7 +185,7 @@ own rulings.
     running). State the window as a **ceiling with an as-of sense**
     ("searches up to `X` ago"). Never state it as a
     claim that a complete `X`-day history is present. Retention is a
-    ceiling and gives no coverage guarantee. A policy change is not retroactive, a young
+    ceiling and gives no coverage guarantee. A policy change is not retroactive; a young
     environment has less than the ceiling, a filled volume has less, and the
     compactor's delete delay makes the cutoff eventual and inexact. Keep
     these states distinct and never collapse them into one:
