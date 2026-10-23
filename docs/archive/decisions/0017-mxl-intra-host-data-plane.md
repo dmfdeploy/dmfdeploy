@@ -266,4 +266,3 @@ pod-group lands across hosts.
   aarch64, this ADR is revisited — likely cuts constraint (3) for
   cluster-internal traffic. Track upstream releases at
   `github.com/dmf-mxl/mxl/releases`.
-
