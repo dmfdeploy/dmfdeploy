@@ -73,3 +73,35 @@ Empirically verified on AWX (`<env>`,
     2026-05-29): the DMF Console's catalog launches were running as
     `awx-break-glass` because its token, though named `dmf-cms-svc-token`,
     was created by the admin.
+
+
+## Moved from the ADR on 2026-10-23
+
+These passages were moved verbatim from the ADR to keep it within its line budget.
+
+## Context
+
+The dmfdeploy platform's identity and authority surface needed a canonical,
+binding architecture. Identity material is split across human authority
+(Authentik OIDC/SAML), machine authority (per-app native service
+accounts), custody (OpenBao + physical recovery kit), and audit
+(per-app native logs → streaming WORM). The model existed only as
+informal convention and scattered references in ADR-0015 (DMF Console
+passkey-only), ADR-0024 (two-identity admin model), and the
+security-compliance framework plan. A single binding statement was
+needed to: (a) codify the operator's slogan as testable architecture;
+(b) close the bootstrap-vs-steady-state ambiguity; (c) settle whether
+attribution is dmf-cms-attested or cryptographically bound for the
+experiment phase; (d) enumerate sanctioned exceptions to "no
+locally-created accounts except break-glass."
+
+- **Positive** — The slogan is now testable, binding architecture. The
+  four security planes (human / machine / custody / audit) and the
+  exception list are explicit. Per-app additions to the platform have a
+  pre-existing template (D3 survey deliverable schema) for the
+  identity-and-authority addition.
+
+- **Helper plan v3** — the eight-PR sequence at
+  [`docs/plans/dmf-unified-app-admin-helper-plan.md`](../../plans/dmf-unified-app-admin-helper-plan.md)
+  is implementation under ADR-0028 D1. The plan was previously framed
+  against the ADR-0024 deferral; that framing is now superseded.

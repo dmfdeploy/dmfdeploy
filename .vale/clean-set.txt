@@ -57,3 +57,11 @@ docs/design/dmf-console-dangerous-action-spec.md
 docs/design/dmf-console-information-architecture.md
 docs/design/dmf-console-lifecycle-rail-visual-system.md
 docs/design/dmf-console-ux-constitution.md
+docs/decisions/0016-awx-control-node-ssh-via-cloud-init-and-openbao.md
+docs/decisions/0017-mxl-intra-host-data-plane.md
+docs/decisions/0022-flypack-online-thin-edge-agent.md
+docs/decisions/0024-two-identity-admin-model.md
+docs/decisions/0025-ansible-in-cluster-pods-and-catalog-helm.md
+docs/decisions/0028-identity-and-authority-chain.md
+docs/decisions/0029-tiered-unseal-posture.md
+docs/decisions/0046-first-class-media-workload-entity.md

@@ -59,3 +59,38 @@ band-aid for the next cluster.
 
 These tasks now live in the base `k3s` role and the Zot role defaults, so
 future envs inherit the working image-pull path.
+
+
+## Moved from the ADR on 2026-10-23
+
+These passages were moved verbatim from the ADR to keep it within its line budget.
+
+The deeper issue is that catalog functions are Kubernetes workloads. They do
+not need a node-local SSH hop. The right execution substrate is already
+inside the cluster: an AWX Execution Environment pod with Kubernetes modules,
+namespace-scoped RBAC, and access to cluster-internal services. This also
+aligns catalog functions with ADR-0013's catalog model and ADR-0023's rule
+that cross-app HTTP wiring uses cluster-internal service DNS from in-cluster
+callers.
+
+Catalog functions deploy as Helm charts. Function images and chart artifacts
+are published outside the cluster, then Stage 4b seeds them into the
+cluster-local Zot registry before AWX catalog jobs consume them. `nmos-cpp`
+is the reference implementation: chart in `dmf-media/charts/nmos-cpp/`,
+launcher playbooks and NetBox lifecycle tasks in `dmf-runbooks`, and
+environment defaults in the `awx-integration` role.
+
+- **Positive** — Removes the per-cloud `ansible_host` band-aid class from
+  media launchers. A media catalog job no longer cares which private subnet
+  or control-node address a cluster uses.
+- **Positive** — Turns catalog functions into releasable chart + image
+  artifacts. Runtime deployment becomes a Helm release, while NetBox remains
+  the lifecycle/status source of truth.
+- **Positive** — Consolidates on one EE image for AWX catalog launchers and
+  the future runner-pod lane.
+- **Positive** — Makes AWX Container Group RBAC explicit. The initial plan
+  missed cross-namespace pod creation and `pods/attach`; both are now binding
+  requirements, not tribal knowledge.
+- **Positive** — Captures the containerd DNS finding. Cluster-internal image
+  pull URLs are viable only with pinned Zot ClusterIP, node `/etc/hosts`, and
+  containerd plain-HTTP override.
