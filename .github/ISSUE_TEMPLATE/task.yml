@@ -52,6 +52,7 @@ body:
   - type: textarea
     id: acceptance
     attributes:
-      label: How to check it
-      description: The command or observation that proves the outcome. Before the issue goes into a milestone, its body needs a `## Acceptance` heading followed by at least one list item, or the daily backlog check reports it (docs/WORKING-MODEL.md section 7).
+      label: Acceptance
+      description: The commands or observations that prove the outcome. Write one checkable item per line, starting with `- `. An issue in a milestone needs at least one item (docs/WORKING-MODEL.md section 7).
+      value: "- "
     validations: { required: true }
