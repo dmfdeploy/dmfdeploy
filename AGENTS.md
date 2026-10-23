@@ -30,9 +30,9 @@ reference architecture.
 
 ## Rules that are easy to miss
 
-- Before you push any dmfdeploy repo to a public GitHub mirror, read
-  `docs/handoffs/DMF Public Publish Readiness Handoff 2026-05-07.md`. Its
-  orphan rebase and push-mirror refspec gate keep pre-publish history private.
+- GitHub `main` is the source of truth, and changes publish by PR merge
+  ([ADR-0041](docs/decisions/0041-release-and-contribution-model.md)). A repo's
+  first public import is a clean-history export from `bin/export-scan.sh`. Never push full history to a public mirror.
 - `dmf-env` is public. Env material never enters a repository; it lives in the operator-local store (ADR-0035).
   Before you publish, run `bin/dmf-env-public-surface-gate.sh` from the umbrella root. It fails on unlisted paths, banned files, and identity leaks.
 - Write in the [project voice](docs/STYLE.md). Run `bin/check-voice.sh` on every draft; errors block.
@@ -42,7 +42,7 @@ reference architecture.
 - Author skills only in `.agents/skills/`. The `.claude/skills/` and
   `.qwen/skills/` views are generated. New skills enter through `_inbox/`.
 - On a feature branch, run `bin/mxl-sync-check.sh` before you build.
-- Never use the local homelab cluster. Use the env id recorded in
+- Never use a local or default kubectl cluster. Use the env id recorded in
   `STATUS.local.md`, and run `kubectl config current-context` before any
   cluster command.
 - Before you retrieve secrets, run cluster operations or release dmf-cms,

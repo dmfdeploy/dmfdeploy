@@ -73,7 +73,7 @@ expected to stand up first, before any cloud provider.
 ### umbrella (repo)
 
 The dmfdeploy repository itself — the consolidated knowledge base (`docs/`)
-and cross-repo coordination point for the DMF Platform. It holds architecture
+and cross-repo coordination point for the dmfdeploy platform. It holds architecture
 documents, architecture decision records, plans, reviews, handoffs, and the
 generated status snapshot. The eight component repos are its siblings, not its
 children.

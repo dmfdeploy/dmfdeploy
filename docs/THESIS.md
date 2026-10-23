@@ -29,7 +29,7 @@ Deploying a media function (an NMOS registry or a Media eXchange Layer (MXL)
 fabric) is the easy 10%.
 The hard 90% is everything around it: who may operate it, where its secrets
 live, what the facility's source of truth says is running, how it gets deployed
-repeatably, and how you know it's healthy. DMF packages that 90% as a
+repeatably, and how you know it's healthy. dmfdeploy packages that 90% as a
 bootable whole. One installer container takes a **blank Debian node** to a
 running facility: k3s, Authentik (passkey-first identity), OpenBao (secrets),
 NetBox (source of truth), AWX (commissioning engine), Prometheus/Grafana
