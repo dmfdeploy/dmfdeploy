@@ -3,7 +3,9 @@
 # size budgets, filename convention and archive-placement rules (hygiene
 # enforcement, dmfdeploy/dmfdeploy#617).
 #
-# Subcommands: size, filenames, placement, statuslog, all (default).
+# Subcommands: size, filenames, placement, statuslog, enforcement, all
+# (default). "all" runs every subcommand except enforcement, which runs only
+# when named while it is in warn mode (dmfdeploy/dmfdeploy#661).
 #   size       README.md, AGENTS.md and each ADR stay under a line budget. An
 #              ADR in ADR_CEILINGS may not grow past its recorded ceiling.
 #   statuslog  STATUS.md stays under its line budget (no long status log).
@@ -20,6 +22,15 @@
 #              into this repository's docs/archive/ that names a branch or tag
 #              instead of a 40-character commit SHA: only a pinned permalink
 #              passes.
+#   enforcement
+#              Each ADR has an Enforcement section (## or ###) that names a
+#              file that exists in this repository, or a path whose first
+#              segment is a component repository named in COMPONENT_REPOS in
+#              bin/generate-status.sh, or says "discipline only:" followed by
+#              a reason. A path counts when it's in backticks or is a link
+#              target. A component path counts by its text, because this
+#              repository can't see the component's files. The template
+#              (0000) is skipped.
 #
 # Usage:
 #   bin/check-surface.sh [--warn|--strict] [SUBCOMMAND] [--root DIR] [--file PATH ...]
@@ -237,7 +248,7 @@ while [ $# -gt 0 ]; do
         --strict) MODE="strict" ;;
         --root) ROOT="${2:?--root needs a directory}"; shift ;;
         --file) FILES+=("${2:?--file needs a path}"); shift ;;
-        size|statuslog|filenames|placement|all) SUB="$1" ;;
+        size|statuslog|filenames|placement|enforcement|all) SUB="$1" ;;
         -h|--help)
             sed -n '/^# check-surface/,/^$/p' "$0" | sed 's/^# \{0,1\}//'
             exit 0
@@ -261,7 +272,9 @@ finding() {
     printf 'check-surface: %s\n' "$*"
 }
 
-wants() { [ "$SUB" = all ] || [ "$SUB" = "$1" ]; }
+# "all" leaves out enforcement until that rule enforces (#661), so the
+# --strict runs of "all", such as the pre-commit hook's, don't fail on it.
+wants() { [ "$SUB" = "$1" ] || { [ "$SUB" = all ] && [ "$1" != enforcement ]; }; }
 
 is_excluded() { printf '%s\n' "$1" | grep -qE "$EXCLUDED_RE"; }
 
@@ -481,10 +494,122 @@ check_list_entries() {
     return 0
 }
 
+# Component repository names, read from the umbrella's COMPONENT_REPOS list
+# in bin/generate-status.sh. Loaded only when the enforcement rule runs.
+COMPONENT_NAMES=""
+load_component_names() {
+    local reg
+    reg="$(cd "$(dirname "$0")/.." && pwd -P)/bin/generate-status.sh"
+    COMPONENT_NAMES="$(sed -n 's/^COMPONENT_REPOS=(\(.*\))[[:space:]]*$/\1/p' "$reg" 2>/dev/null \
+        | tr -s ' ' '\n' | grep -v '^$' || true)"
+    if [ -z "$COMPONENT_NAMES" ]; then
+        echo "check-surface: can't read COMPONENT_REPOS from $reg" >&2
+        exit 2
+    fi
+}
+
+# The body of a file's Enforcement section (## or ### Enforcement), up to the
+# next heading of the same or a higher level. Headings inside a fenced code
+# block don't count. Exits 3 when the file has no such section.
+enforcement_section() {
+    awk '
+        /^(```|~~~)/ { fence = !fence }
+        !fence && /^#+[ \t]/ {
+            lvl = match($0, /[^#]/) - 1
+            if (on && lvl <= slvl) on = 0
+            if ((lvl == 2 || lvl == 3) && $0 ~ /^#+[ \t]+Enforcement([ \t:]|$)/) {
+                on = 1; slvl = lvl; found = 1; next
+            }
+        }
+        on { print }
+        END { if (!found) exit 3 }
+    ' "$1"
+}
+
+# Path candidates in a section body: every backtick span, each word of a span
+# with spaces in it, and every link target. Surrounding punctuation, a #anchor and a :line suffix are
+# dropped. A URL is not a path. Only words that look like a path are kept: a
+# word with a slash, or a name with an extension such as .gitignore.
+enforcement_paths() {
+    local flat spans
+    flat="$(printf '%s\n' "$1" | tr '\n' ' ')"
+    # shellcheck disable=SC2016  # the backticks are Markdown, not a command
+    spans="$(printf '%s\n' "$flat" | grep -oE '`[^`]+`' | tr -d '`' || true)"
+    {
+        printf '%s\n' "$spans"
+        printf '%s\n' "$spans" | grep '[[:space:]]' | tr -s ' \t' '\n' || true
+        printf '%s\n' "$flat" | grep -oE '\]\([^)]+\)' | sed -E 's/^\]\(//; s/\)$//'
+    } | sed -E 's/^[("'"'"'<]+//; s/[).,;:"'"'"'>]+$//; s/#.*$//; s/:[0-9]+(-[0-9]+)?$//' \
+      | grep -vE '^[a-zA-Z][a-zA-Z0-9+.-]*:' \
+      | grep -E '/|^[A-Za-z0-9_.-]*\.[A-Za-z0-9]+$' || true
+}
+
+# path_in_repo ADR P: P is a file in the scanned tree, read from the root or
+# from the ADR's directory, and stays inside the root. A directory such as
+# docs/plans/ doesn't count: it names no check. A leading dmfdeploy/, the name
+# of this repository, is dropped.
+path_in_repo() {
+    local base p real rp="${2#dmfdeploy/}"
+    case "$rp" in /*|~*) return 1 ;; esac
+    for base in "$ROOT" "$(dirname "$1")"; do
+        p="$base/$rp"
+        [ -f "$p" ] || continue
+        real="$(cd "$(dirname "$p")" && pwd -P)/$(basename "$p")"
+        case "$real" in "$ROOT"/?*) return 0 ;; esac
+    done
+    return 1
+}
+
+# A path whose first segment names a component repository, with more after it.
+path_in_component() {
+    case "$1" in */?*) ;; *) return 1 ;; esac
+    printf '%s\n' "$COMPONENT_NAMES" | grep -qxF -e "${1%%/*}"
+}
+
+check_file_enforcement() {
+    local path="$1" base lower rel body rc=0 p missing=""
+    wants enforcement || return 0
+    base="$(basename "$path")"
+    rel="$(rel_path "$path")"
+    if ! is_fixture "$path"; then
+        printf '%s\n' "$rel" | grep -qE '^docs/decisions/[0-9]{4}-[^/]*\.md$' || return 0
+    fi
+    lower="$(printf '%s' "$base" | tr '[:upper:]' '[:lower:]')"
+    case "$lower" in
+        0000-*) return 0 ;;
+        adr-*|[0-9][0-9][0-9][0-9]-*) ;;
+        *) return 0 ;;
+    esac
+    [ -n "$COMPONENT_NAMES" ] || load_component_names
+    body="$(enforcement_section "$path")" || rc=$?
+    if [ "$rc" -eq 3 ]; then
+        finding "ADR has no Enforcement section: $path"
+        return 0
+    fi
+    if printf '%s\n' "$body" | tr '\n' ' ' \
+        | grep -qiE 'discipline only:[[:space:]*_`]*[[:alnum:]]'; then
+        return 0
+    fi
+    while IFS= read -r p; do
+        [ -n "$p" ] || continue
+        if path_in_repo "$path" "$p" || path_in_component "$p"; then
+            return 0
+        fi
+        missing="${missing:+$missing, }$p"
+    done < <(enforcement_paths "$body")
+    if [ -n "$missing" ]; then
+        finding "ADR Enforcement names only paths that aren't files here or in a component repo ($missing), and no 'discipline only:' reason: $path"
+    else
+        finding "ADR Enforcement names no path and no 'discipline only:' reason: $path"
+    fi
+    return 0
+}
+
 check_one() {
     check_file_size "$1"
     check_file_name "$1"
     check_file_placement "$1"
+    check_file_enforcement "$1"
 }
 
 if [ ${#FILES[@]} -gt 0 ]; then
@@ -502,7 +627,7 @@ else
     # ADRs.
     if [ -d docs/decisions ]; then
         for f in docs/decisions/[0-9][0-9][0-9][0-9]-*.md; do
-            [ -f "$f" ] && check_file_size "$f"
+            [ -f "$f" ] && check_file_size "$f" && check_file_enforcement "$f"
         done
     fi
     # Every file under docs/ (names), plus plans and links (markdown).

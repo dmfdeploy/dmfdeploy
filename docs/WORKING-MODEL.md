@@ -294,7 +294,7 @@ Two sanctioned forms:
 | SessionStart hook → `bin/working-model-digest.sh` | Claude Code, per repo (trust-gated) | injects digest at session start |
 | PR-gate issue-linkage job (`guard.yml`) | all 9 repos | fails unqualified/missing reference |
 | `bin/check-docs.sh` | umbrella pre-commit; CI `check-docs` job (a required check) | fails bad frontmatter, an active plan with no `tracking_issue`, a dangling `superseded_by` target, a stale plans index, ADR index drift, and broken doc-to-doc links |
-| `bin/check-surface.sh` via `surface.yml` and the pre-commit hook | umbrella | CI runs the fixture tests, then each subcommand with `--strict` as its own step; the hook runs `--strict` on the staged content of the files in the commit; fails on any finding (a required check) |
+| `bin/check-surface.sh` via `surface.yml` and the pre-commit hook | umbrella | CI runs the fixture tests, then each subcommand with `--strict` as its own step, except `enforcement`, which warns; the hook runs `--strict` on the staged content of the files in the commit; fails on any finding (a required check) |
 | Vale via `vale.yml` | umbrella prose that `.vale.ini` lints; reports on every pull request, and lints only when the PR changes a path that its scope step lists | three layers: the whole tree warns; the files in `.vale/clean-set.txt` fail on an error-level alert; `bin/check-voice-changed.sh` fails when a changed file gains an error-level Voice alert (a required check) |
 | `title-check.yml` | umbrella issues and pull requests | `title` job (`STRICT: "1"`) fails a title that starts with `[auto]`; `static` job runs `.github/scripts/hygiene-check.sh` on the issue forms, CODEOWNERS, and the PR template, then on its fixtures; the PR template must keep its checklist items and its `## How it's tested` section (both jobs are required checks) |
 | `pr-body-lint.yml` | umbrella pull requests | advisory: lints the title and body with `bin/check-voice.sh` (conversational mode) and posts one comment; never fails |
@@ -317,7 +317,7 @@ the rule checks the moment an issue enters a milestone, and those issues
 entered theirs before the rule existed. The rule counts as a finding from the
 start, so the daily job fails on it.
 
-The four `bin/check-surface.sh` subcommands check these rules:
+The five `bin/check-surface.sh` subcommands check these rules:
 
 - **`size`**: `README.md` stays within 100 lines, and `AGENTS.md` within 60
   lines outside the working-model block. Every ADR stays within 80 lines. The
@@ -331,6 +331,17 @@ The four `bin/check-surface.sh` subcommands check these rules:
   and the `ARCHIVE_LINK_EXEMPT` list (§5).
 - **`statuslog`**: `STATUS.md` stays within 30 lines, so it can't grow back
   into a status log.
+- **`enforcement`**: every ADR has an `## Enforcement` or `### Enforcement`
+  section that names a file in this repository, or a path that starts with a
+  component repository name from `COMPONENT_REPOS` in
+  `bin/generate-status.sh`, or says `discipline only:` followed by a reason.
+  A path counts when it's in backticks or is a link target. A component path
+  counts by its text, because a check in this repository can't see the
+  component's files. This rule warns. In CI it prints its findings and
+  passes, and `all` leaves it out, so the pre-commit hook doesn't run it. It starts
+  failing on findings once the ADRs are clean, which happens one ADR at a
+  time along with the trim in
+  [#702](https://github.com/dmfdeploy/dmfdeploy/issues/702).
 
 The required status checks on umbrella `main` are the ones listed in
 `.github/expected-ruleset.json`: `actionlint`, `check-docs`, `commitlint`,
