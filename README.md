@@ -13,12 +13,12 @@ component repos.
 
 <!-- Goal statement (short, mid and long term): dmfdeploy/dmfdeploy#675 -->
 
-**Proven so far** (first-party, on the author's environments): NMOS IS-04/05
-deploys and runs on commodity ARM k3s, driven end to end through the
-platform's catalog chain: console, AWX, Helm, and NetBox lifecycle state
-([learnings, 2026-06-04](docs/reviews/dmf-platform-move-1-learnings.md)).
+**Proven so far** (first-party, on the author's environments): the NMOS IS-04 and IS-05
+services deploy and run on commodity ARM k3s, driven end to end through the platform's catalog
+chain: console, AWX, Helm, and NetBox lifecycle state ([learnings, 2026-06-04](docs/reviews/dmf-platform-move-1-learnings.md)).
 Whether an outsider can repeat that cold is the test of the current
 [`v0.1-polish` milestone](https://github.com/dmfdeploy/dmfdeploy/milestone/1).
+A workload switched by NMOS IS-05 from the console is [`v0.2`](https://github.com/dmfdeploy/dmfdeploy/milestone/2) work.
 An 81-second recording of one workload being provisioned, with a plain account
 of what it shows, is on the [organization page](https://github.com/dmfdeploy).
 

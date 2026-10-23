@@ -1,6 +1,6 @@
 # Architecture Decision Records (ADRs)
 
-Cross-cutting decisions that apply across the DMF Platform. ADRs are the
+Cross-cutting decisions that apply across the dmfdeploy platform. ADRs are the
 **architectural** form of project rules; skills (`.claude/skills/`) are the
 **operational** form. ADRs change rarely; skills change with the workflow.
 

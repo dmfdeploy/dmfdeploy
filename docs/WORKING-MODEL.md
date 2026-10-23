@@ -121,7 +121,7 @@ the frontmatter must be flipped; frontmatter wins for design content.
   or open/link the canonical umbrella issue and continue there. Don't grow a
   second backlog.
 
-## 3. Project board (org Project #1 "DMF Platform")
+## 3. Project board (org Project #1)
 
 - The board is a **human curation surface** — people add the issues that carry
   significance (something everyone's been asking to add or resolve) and track
