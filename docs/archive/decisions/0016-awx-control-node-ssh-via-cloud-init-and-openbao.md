@@ -200,4 +200,3 @@ the convergence plan
 - **No automated check** that the AWX EE actually uses SSH (vs. accidentally
   reverting to `connection: local`). Discipline + launcher-playbook review at
   PR time.
-
