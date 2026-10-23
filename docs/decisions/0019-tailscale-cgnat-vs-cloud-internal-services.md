@@ -22,9 +22,11 @@ Per environment that runs on a cloud whose internal service IPs fall within `100
 systemd unit (bound to `tailscaled.service`) that inserts a narrowly scoped `RETURN` rule into Tailscale's
 `ts-input` chain *above* the CGNAT drop, covering only that cloud's documented internal service CIDR.
 
-For aliyun this is `100.100.0.0/16`. The unit is implemented by `dmf-env/tasks/aliyun/firewall.yml` (runs on every
-k3s node via `harden_cloud_firewall_tasks` in the generic `roles/base/harden`). It re-arms on every `tailscaled`
-start or restart and on reboot via `PartOf=tailscaled.service` and `WantedBy=tailscaled.service`.
+For aliyun this is `100.100.0.0/16`. The unit was implemented by `dmf-env/tasks/aliyun/firewall.yml` (run on every
+k3s node via `harden_cloud_firewall_tasks` in the generic `roles/base/harden`), and it re-armed on every `tailscaled`
+start or restart and on reboot via `PartOf=tailscaled.service` and `WantedBy=tailscaled.service`. dmf-env no longer
+carries that file, so this safeguard is not implemented today. An Aliyun environment that runs Tailscale needs the
+unit restored before Tailscale starts on its nodes.
 
 The scope stays tight (one /16) so that legitimate CGNAT-source spoofing protection remains in force for every other Tailscale
 peer.
@@ -62,8 +64,8 @@ following changes:
 
 discipline only: no check, test or workflow in this repository or the component repositories asserts the allow
 rule (a search for `ts-input` and `tailscale-aliyun-internal-allow` finds no match outside the dmf-infra
-`ingress-private` comment). The `dmf-env/tasks/aliyun/firewall.yml` helper named above is not in the dmf-env
-checkout (it holds only `tasks/hetzner`), so a reviewer must check any new cloud's range by hand.
+`ingress-private` comment). The Aliyun unit is not implemented today (see the Decision), so a reviewer checks any
+environment that runs Tailscale on a cloud with an internal CGNAT range, and any new cloud's range, by hand.
 
 ## Status
 
