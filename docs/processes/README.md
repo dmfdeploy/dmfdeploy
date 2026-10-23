@@ -1,14 +1,14 @@
 # DMF Process Documentation Standard
 
 **Canonical notation:** BPMN 2.0 (ISO/IEC 19510)
-**Status:** Draft — first process docs being authored 2026-05-09
+**Status:** Draft. First process docs being authored 2026-05-09
 
 ---
 
 ## 1. Purpose
 
 This directory holds normative process definitions for the dmfdeploy platform.
-Each process describes *who does what, when, and under what conditions* —
+Each process describes *who does what, when, and under what conditions*.
 independent of the implementation tooling (Ansible, Terraform, kubectl, etc.).
 
 BPMN 2.0 is the canonical notation because it is an ISO standard (ISO/IEC 19510),
@@ -29,9 +29,9 @@ docs/processes/
 ```
 
 **File naming convention:**
-- Use kebab-case for process names: `dmf-bootstrap-flow.bpmn`, not `DMF Bootstrap Flow.bpmn`
+- Use kebab-case for process names: `dmf-bootstrap-flow.bpmn`. Do not use names like `DMF Bootstrap Flow.bpmn`
 - The `.bpmn` file is the **source of truth**. SVG/PNG are derived.
-- Never edit SVG directly — always regenerate from `.bpmn`.
+- Never edit SVG directly. Always regenerate it from `.bpmn`.
 
 ---
 
@@ -44,10 +44,10 @@ docs/processes/
 | Pools and lanes | Use for organizational or system responsibility boundaries |
 | Start events | Every process must have at least one start event |
 | End events | Every process must have at least one end event |
-| Sequence flows | Use **only within a single pool** — never across pools |
+| Sequence flows | Use **only within a single pool**. Never use them across pools |
 | Message flows | Use for cross-pool communication |
 | Named tasks | Every task must have a verb-object name |
-| Gateway labels | Gateways must be named as questions (e.g., "Seed complete?") |
+| Gateway labels | Gateways must be named as questions (for example, "Seed complete?") |
 | Gateway merge | Every split gateway must have a corresponding merge gateway |
 | Exception paths | Must terminate or return to a defined point |
 | Subprocesses | Split large diagrams into subprocesses rather than one oversized model |
@@ -56,18 +56,18 @@ docs/processes/
 
 | BPMN element | Use when |
 |---|---|
-| **User Task** | A human operator performs the action (e.g., "Approve change request") |
-| **Service Task** | An automated system performs the action (e.g., "Deploy k3s cluster") |
-| **Manual Task** | Work done outside managed systems (e.g., "Insert USB key") |
-| **Script Task** | Inline code execution (rare in DMF — prefer service tasks) |
+| **User Task** | A human operator performs the action (for example, "Approve change request") |
+| **Service Task** | An automated system performs the action (for example, "Deploy k3s cluster") |
+| **Manual Task** | Work done outside managed systems (for example, "Insert USB key") |
+| **Script Task** | Inline code execution (rare in DMF; prefer service tasks) |
 | **Receive Task** | Waiting for an external message/event |
 | **Send Task** | Sending a message to another pool/system |
 
 ### 3.3 Naming conventions
 
-- **Tasks:** Verb-object phrasing — `"Deploy k3s cluster"`, not `"Deployment"` or `"k3s"`
-- **Gateways:** Questions — `"Bootstrap admin seeded?"`, not `"Admin check"`
-- **Events:** Descriptive — `"OpenBao unsealed"`, not `"Event"`
+- **Tasks:** Verb-object phrasing, such as `"Deploy k3s cluster"`. Do not use `"Deployment"` or `"k3s"`
+- **Gateways:** Questions, such as `"Bootstrap admin seeded?"`. Do not use `"Admin check"`
+- **Events:** Descriptive, such as `"OpenBao unsealed"`. Do not use `"Event"`
 - **Avoid vague labels:** Never use `"Handle issue"`, `"Process data"`, or `"Do task"`
 
 ### 3.4 Visual quality
@@ -98,14 +98,14 @@ docs/processes/
 
 Every `.bpmn` file must pass these checks:
 
-1. **Valid BPMN 2.0 XML** — parseable by `bpmn-moddle` or Camunda Modeler
+1. **Valid BPMN 2.0 XML**: parseable by `bpmn-moddle` or Camunda Modeler
 2. **At least one start event**
 3. **At least one end event**
 4. **All tasks named** (no empty label fields)
-5. **Valid sequence flows** — no orphaned nodes, no dead-end branches (unless intentionally terminal)
-6. **No cross-pool sequence flows** — only message flows cross pools
-7. **Clear gateway labels** — every exclusive/parallel gateway has a name
-8. **Every split has a merge** — unless the process intentionally terminates on different paths
+5. **Valid sequence flows**: no orphaned nodes, no dead-end branches (unless intentionally terminal)
+6. **No cross-pool sequence flows**: only message flows cross pools
+7. **Clear gateway labels**: every exclusive/parallel gateway has a name
+8. **Every split has a merge**, unless the process intentionally terminates on different paths
 
 ### Validation tooling
 
@@ -124,16 +124,16 @@ Currently no automated validation script exists. Manual validation steps:
 
 Process Markdown pages should:
 
-1. **Embed rendered SVGs** — not screenshots or raw BPMN XML
-2. **Link to the canonical `.bpmn` source** — e.g.:
+1. **Embed rendered SVGs.** Do not embed screenshots or raw BPMN XML
+2. **Link to the canonical `.bpmn` source**, for example:
 
    > Canonical source: `diagrams/dmf-bootstrap-flow.bpmn`. Rendered diagram is derived from the BPMN source.
 
-3. **Explain the process** in prose — the diagram supplements the text, it doesn't replace it.
+3. **Explain the process** in prose. The diagram supplements the text and does not replace it.
 
 ### Rendering pipeline
 
-Generate the SVG via the repo wrapper — never call `bpmn-to-image` directly:
+Generate the SVG via the repo wrapper. Never call `bpmn-to-image` directly:
 
 ```bash
 bin/render-bpmn.sh docs/processes/diagrams/<process-name>.bpmn
@@ -153,8 +153,8 @@ output but two visual issues persist:
 
 1. **Text overflow on labels.** bpmn-js measures text in **Arial 12px** at
    layout time and sizes shapes accordingly. The stylesheet then swaps to
-   Inter, which is wider per glyph at the same point size — labels can
-   exceed shape boundaries. This is a metric mismatch, not a styling bug.
+   Inter, which is wider per glyph at the same point size, so labels can
+   exceed shape boundaries. The cause is a metric mismatch. It is not a styling bug.
 2. **Visual cohesion is bounded by the BPMN visual language.** Diamond
    gateways, rounded-rect tasks, circular events, and dashed message flows
    are spec-mandated; the diagram cannot be made to feel like a hand-drawn
@@ -239,4 +239,4 @@ Use this as a template when creating new process diagrams.
 
 | Date | Change |
 |---|---|
-| 2026-05-09 | Initial draft — BPMN 2.0 standard established |
+| 2026-05-09 | Initial draft. BPMN 2.0 standard established |

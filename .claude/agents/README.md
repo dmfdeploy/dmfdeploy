@@ -38,26 +38,26 @@ You can request a specific agent by name:
 
 ## Agent Design Philosophy
 
-- **Opus for high-risk reasoning** — architecture, security, media network analysis
-- **Sonnet for normal engineering** — most frontend, backend, and infrastructure work
-- **Haiku for cheap tasks** — formatting, typos, simple syntax fixes
-- **Conservative tool access** — read-only agents don't have Bash; only critical agents get full access
-- **Domain expertise in descriptions** — keywords guide automatic routing without blocking fallback
+- **Opus for high-risk reasoning**: architecture, security, and media network analysis
+- **Sonnet for normal engineering**: most frontend, backend, and infrastructure work
+- **Haiku for cheap tasks**: formatting, typos, and simple syntax fixes
+- **Conservative tool access**: read-only agents don't have Bash, and only critical agents get full access
+- **Domain expertise in descriptions**: keywords guide automatic routing without blocking fallback
 
 ## Improving Routing
 
 If Claude Code routes a task to the wrong agent:
 
-1. Check the winning agent's description — is it too broad?
-2. Check the losing agent's description — is it too narrow?
+1. Check the winning agent's description. Is it too broad?
+2. Check the losing agent's description. Is it too narrow?
 3. Edit the `description` field in the agent's frontmatter to better distinguish it
 4. Example: "When..." and "Also for..." clauses narrow the scope
 
 A good description:
-- ✅ **Specific keywords** — "NMOS IS-04", "St2110", "multicast"
-- ✅ **Explicit boundaries** — "Also for media-domain...", "Not for generic networking"
-- ✅ **No overlap** — each agent's domain is distinct
-- ❌ **Vague** — "when working on anything infrastructure-related"
+- ✅ **Specific keywords**: `NMOS IS-04`, `St2110`, `multicast`
+- ✅ **Explicit boundaries**: `Also for media-domain...`, `Not for generic networking`
+- ✅ **No overlap**: each agent's domain is distinct
+- ❌ **Vague**: "when working on anything infrastructure-related"
 
 ## Creating New Agents
 
@@ -73,7 +73,7 @@ Before adding an agent:
 
 Agents are living documents. If you find:
 
-- **Routing issues** — update the description field
-- **Scope creep** — split the agent or clarify boundaries
-- **Unused agents** — consider removing them
-- **Tool permission creaks** — expand tool access conservatively
+- **Routing issues**: update the description field
+- **Scope creep**: split the agent or clarify boundaries
+- **Unused agents**: consider removing them
+- **Tool permission creaks**: expand tool access conservatively

@@ -41,3 +41,10 @@ docs/decisions/0026-provider-descriptors.md
 docs/decisions/0034-internal-ansible-collection-source.md
 docs/decisions/0035-operator-local-self-contained-envs.md
 docs/decisions/0039-environment-identity-netbox-site-cluster.md
+.claude/agents/README.md
+CONTRIBUTING.md
+docs/GLOSSARY.md
+docs/INDEX.md
+docs/OPEN-QUESTIONS.md
+docs/WORKING-MODEL.md
+docs/processes/README.md

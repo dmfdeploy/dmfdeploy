@@ -1,10 +1,10 @@
-# DMF Working Model — GitHub + documentation rules (canonical)
+# DMF Working Model for GitHub and documentation rules (canonical)
 
 This is the **single canonical statement** of how work is tracked, decided,
 and documented across all DMF repos. Agent files (`CLAUDE.md` / `AGENTS.md` /
 `QWEN.md`) in every repo carry a generated pointer block; the Claude Code
 SessionStart hook injects the digest below at session start. If anything else
-contradicts this file, this file wins — fix the other artifact.
+contradicts this file, this file wins. Fix the other artifact.
 
 Enforced by: `bin/check-working-model-sync.sh` (block copies can't drift),
 `bin/check-docs.sh` (plan frontmatter), the PR-gate CI (issue linkage), the
@@ -17,14 +17,14 @@ set up this enforcement is
 **DMF working model digest** (canonical: umbrella `docs/WORKING-MODEL.md`):
 
 1. **Work starts at an issue** in the canonical backlog
-   <https://github.com/dmfdeploy/dmfdeploy/issues> — claim one or open one
+   <https://github.com/dmfdeploy/dmfdeploy/issues>. Claim one or open one
    (`component:*` + `workstream:*` labels always, plus a milestone if
-   scheduled or `platform-debt` if not — see §2; org Project #1 is optional
-   human curation, not required — see §3). Non-trivial work also gets a plan
+   scheduled or `platform-debt` if not; see §2. Org Project #1 is optional
+   human curation and is not required; see §3). Non-trivial work also gets a plan
    doc in umbrella `docs/plans/` with `tracking_issue` frontmatter.
 2. **The completing PR auto-closes its issue; flipping the plan's frontmatter
    stays a manual step in that PR.** From a *component* repo, reference umbrella
-   issues **fully qualified** — `Closes dmfdeploy/dmfdeploy#N` — a bare `#N`
+   issues **fully qualified**: `Closes dmfdeploy/dmfdeploy#N`. A bare `#N`
    points at that repo's own issue and silently misses. The daily issue-close
    reconciler closes from that qualified ref (cross-repo included); manual close
    is a fallback (§6).
@@ -34,11 +34,11 @@ set up this enforcement is
    Discussions RFC first), STATUS.md as a pointer file (operator notes live in the pinned issue
    [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618)), and
    STATUS.local.md for the generated live repo snapshot.
-4. **Three milestones, and a milestone is not a bucket.** `v0.1-polish` — the
+4. **Three milestones, and a milestone is not a bucket.** `v0.1-polish`: the
    console tells the truth (an outsider finishes cold, nothing tells them
-   something untrue). `v0.2` — a team shares one console (a multi-function
+   something untrue). `v0.2`: a team shares one console (a multi-function
    workload switched by NMOS IS-05, where a deploy never blocks the facility).
-   `v0.3` — design and plan in the console. An issue is in a milestone only
+   `v0.3`: design and plan in the console. An issue is in a milestone only
    if the outcome fails without it; **other work gets `platform-debt` and
    none**. Milestone membership never authorises work on a frozen v0.1
    non-goal (§`OPEN-QUESTIONS.md`).
@@ -48,7 +48,7 @@ set up this enforcement is
 
 | Question | Canonical home |
 |---|---|
-| Is anyone working on X? Is it scheduled? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues) — a milestone means scheduled (§2); [org Project #1](https://github.com/orgs/dmfdeploy/projects/1) is optional human curation, not authoritative (§3) |
+| Is anyone working on X? Is it scheduled? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues): a milestone means scheduled (§2); [org Project #1](https://github.com/orgs/dmfdeploy/projects/1) is optional human curation and is not authoritative (§3) |
 | What's the design/decision state of a plan? | The plan doc's frontmatter in umbrella `docs/plans/` |
 | What architectural rules bind me? | ADRs in umbrella `docs/decisions/` ([INDEX](decisions/INDEX.md)) |
 | What's happening across repos right now? | `STATUS.local.md` (generated locally via `bin/generate-status.sh`; gitignored). Committed [STATUS.md](../STATUS.md) is a pointer file; operator notes live in the pinned issue [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618). |
@@ -59,7 +59,7 @@ the frontmatter must be flipped; frontmatter wins for design content.
 
 ## 2. Issues
 
-- **The umbrella repo (`dmfdeploy/dmfdeploy`) hosts the canonical backlog** —
+- **The umbrella repo (`dmfdeploy/dmfdeploy`) hosts the canonical backlog**,
   including work whose code lives in a component repo (that's what the
   `component:*` label is for). TODOS.md was retired into Issues 2026-06-10.
 - Every scheduled issue carries: a **milestone**, one **`component:*`** label
@@ -69,19 +69,19 @@ the frontmatter must be flipped; frontmatter wins for design content.
   `hardening`, `entrance`). Labels are the single source of truth for
   component/workstream classification; board membership is **not** a filing
   requirement (see §3).
-- **Milestones — three, each defined by an outcome.** This list is canonical;
-  agent files point here rather than restating it, and ROADMAP.md carries a
+- **Milestones: three, each defined by an outcome.** This list is canonical;
+  agent files point here and do not restate it, and ROADMAP.md carries a
   one-sentence public summary per milestone that links here.
-  - **`v0.1-polish`** — the console tells the truth. An outsider completes
+  - **`v0.1-polish`**: the console tells the truth. An outsider completes
     the documented journey cold, nothing on the way tells them something
     untrue, and the public repos are safe to read and clone. Defects on that
     path, security and authorization fixes, and public-safety work.
-  - **`v0.2`** — a team shares one console. A usable workload of several media
+  - **`v0.2`**: a team shares one console. A usable workload of several media
     functions, switched by NMOS IS-05, operated by a small team in one
     console, where a deploy never blocks the facility. Sourced from the IS-05
     limit episode 001 declared on camera; the team scope and the
     non-blocking deploy were added by operator decision on 2026-10-20.
-  - **`v0.3`** — design and plan in the console. A team designs a workload
+  - **`v0.3`**: design and plan in the console. A team designs a workload
     and a facility and plans them before provisioning. Sourced from the
     Design and Plan placeholders episode 001 declared on camera; the
     facility scope and self-enrolment were added by operator decision on
@@ -95,24 +95,24 @@ the frontmatter must be flipped; frontmatter wins for design content.
   otherwise `platform-debt` and no milestone. **An issue is in a milestone
   only if the outcome fails without it.** "Nice for v0.2" is `platform-debt`.
 
-  **Milestone membership never authorises work on a frozen v0.1 non-goal** —
-  those keep their own re-open triggers in
+  **Milestone membership never authorises work on a frozen v0.1 non-goal.**
+  Those keep their own re-open triggers in
   [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) and need a dated amendment to
   [architectural-commitments-v1](decisions/architectural-commitments-v1.md)
   first.
 
   **The `freeze-1` label** (added 2026-08-28) marks an issue that touches one of
-  those frozen non-goals, so the set is enumerable — `label:freeze-1` — instead
-  of living only in prose a filer never opens. Two things it is **not**:
+  those frozen non-goals, so the set is enumerable (`label:freeze-1`) instead
+  of living only in prose a filer never opens. Two limits apply:
 
-  - **Not an authority.** `OPEN-QUESTIONS.md` and `architectural-commitments-v1`
+  - **It carries no authority.** `OPEN-QUESTIONS.md` and `architectural-commitments-v1`
     remain canonical. The label says *read them before acting*. A label comes off
     with a click; un-freezing still needs a dated amendment.
-  - **Not self-maintaining.** Nothing applies it to newly filed issues, so
-    absence of the label is not evidence an issue is unfrozen. It is a signpost,
-    not a gate.
+  - **It does not maintain itself.** Nothing applies it to newly filed issues, so
+    absence of the label is not evidence an issue is unfrozen. It is a signpost.
+    It is not a gate.
 
-  A `freeze-1` issue carries **no milestone** — a frozen item cannot be
+  A `freeze-1` issue carries **no milestone**. A frozen item cannot be
   scheduled, so `platform-debt` and none, per the filing rule above.
 
   New milestones need an operator decision, recorded with a date.
@@ -123,7 +123,7 @@ the frontmatter must be flipped; frontmatter wins for design content.
 
 ## 3. Project board (org Project #1)
 
-- The board is a **human curation surface** — people add the issues that carry
+- The board is a **human curation surface**. People add the issues that carry
   significance (something everyone's been asking to add or resolve) and track
   them through **Status** (Todo / In Progress / Done). It is **not** an
   automation target: there is no requirement that every issue land on the board,
@@ -132,9 +132,9 @@ the frontmatter must be flipped; frontmatter wins for design content.
 - The `Component` / `Workstream` single-select fields merely mirror the
   `component:*` / `workstream:*` labels and are an optional convenience. Because
   the labels are canonical and the board is human-curated, any field↔label drift
-  is cosmetic — these custom fields may be dropped in favour of the board's
+  is cosmetic. These custom fields may be dropped in favour of the board's
   native **Labels** field if they stop earning their keep (operator's call).
-- Tooling gotcha: `gh project` subcommands may 401 — use raw `gh api graphql`
+- Tooling gotcha: `gh project` subcommands may 401. Use raw `gh api graphql`
   (project node id `PVT_kwDOENb9uM4BaPY-`).
 
 ## 4. Discussions
@@ -169,7 +169,7 @@ the frontmatter must be flipped; frontmatter wins for design content.
   own extract under `docs/archive/decisions/`, and the `ARCHIVE_LINK_EXEMPT`
   list in `bin/check-surface.sh` names the few other links that stay.
 - The PR that completes a plan **auto-closes the issue** (the reconciler honors
-  its qualified `Closes` reference — see §6) **and must flip the plan frontmatter
+  its qualified `Closes` reference; see §6) **and must flip the plan frontmatter
   in the same change**. The close is automated; the frontmatter flip is the
   manual half and is never done for you.
 - Live docs under `docs/` use kebab-case filenames with no spaces and no date.
@@ -187,86 +187,88 @@ the frontmatter must be flipped; frontmatter wins for design content.
 
 - GitHub PRs against `main` only; Conventional Commits; DCO sign-off;
   rebase-merge; CODEOWNERS review; CI green (`guard.yml` + `ci.yml` + DCO).
-- **Reference the tracking issue in the PR body** — qualified
-  (`Closes dmfdeploy/dmfdeploy#N`) from component repos, `Closes #N` in the
+- **Reference the tracking issue in the PR body.** Use the qualified form
+  (`Closes dmfdeploy/dmfdeploy#N`) from component repos and `Closes #N` in the
   umbrella. Trivial changes may carry the `no-issue` label instead.
 - **Cross-repo batches:** one umbrella issue for the batch; every per-repo PR
   references it qualified.
-- **Issue close is automated — including cross-repo.** GitHub's native
-  auto-close never fires here (cross-repo closing references never fire, and our
-  bot-actor rebase auto-merge suppresses even same-repo keyword closes), so the
-  `bin/close-completed-issues.sh` reconciler — run by the `issue-close-reconciler`
-  workflow daily at 06:00 UTC (plus on-demand `workflow_dispatch`) — closes
-  umbrella issues from exactly the closing references GitHub itself parsed
-  (`closedByPullRequestsReferences`, cross-repo included). So **automated close
-  is the norm; manual close is a fallback** — for when you need it closed before
-  the next daily run, the reconciler missed it, or the reference wasn't qualified
-  (so GitHub never parsed it as a closing ref). The reconciler never touches plan
+- **Issue close is automated, including cross-repo.** GitHub's native
+  auto-close never fires here. Cross-repo closing references never fire, and our
+  bot-actor rebase auto-merge suppresses even same-repo keyword closes. So the
+  `bin/close-completed-issues.sh` reconciler closes umbrella issues from exactly
+  the closing references GitHub itself parsed
+  (`closedByPullRequestsReferences`, cross-repo included). The
+  `issue-close-reconciler` workflow runs it daily at 06:00 UTC, plus on-demand
+  `workflow_dispatch`. **Automated close is the norm; manual close is a
+  fallback.** Use the fallback when you need the issue closed before the next
+  daily run, the reconciler missed it, or the reference wasn't qualified (so
+  GitHub never parsed it as a closing ref). The reconciler never touches plan
   frontmatter: **flipping the frontmatter stays a manual duty in the completing
   PR.**
 - **Approval = landing.** Every PR is armed with GitHub-native **rebase
   auto-merge** at open (`automerge.yml`); it merges the moment CODEOWNERS
   approval + all required status checks are satisfied, and the branch is
-  auto-deleted. There is no post-approval hold window — use *Comment* /
+  auto-deleted. There is no post-approval hold window. Use *Comment* /
   *Request changes* for non-landing feedback, or add the **`hold`** label to
   disarm auto-merge. Required-check lists live in each repo's branch ruleset;
   when CI job names change, update the ruleset in the same change.
-- **What `hold` does, exactly — and what it deliberately does not.** `hold` is
+- **What `hold` does, exactly, and what it deliberately does not.** `hold` is
   the submitter's way to stop a PR merging *automatically* when it should be
   looked at first. Review still proceeds; if approved, the PR would otherwise
   become auto-merge eligible, which is not always wanted. `automerge.yml`
   implements this and runs `gh pr merge --disable-auto` whenever the label is
   present.
-  The workflow reads the PR's labels when it runs, not when the event fired.
+  The workflow reads the PR's labels at the time it runs. It does not use the
+  labels from when the event fired.
   Add `hold` before approval: once an approved PR is green, it merges at once.
   Removing `hold` re-arms auto-merge.
   **A deliberate merge by a maintainer stays open by design.** The label does
-  not, and must not, block the merge button — that path is the point of getting
+  not, and must not, block the merge button. That path is the point of getting
   a review without auto-landing. Do **not** "harden" `hold` into a required
   check that blocks merging: that breaks the flow it exists to enable, and it
   would be fixing the half that already works.
   Umbrella #354 merged on 2026-08-03 with `hold` still applied, before the
-  cross review the label was gating had run. The mechanism did not fail —
+  cross review the label was gating had run. The mechanism did not fail:
   `auto_merge` was `null`, so auto-merge was never armed and the label had done
-  its job. It was merged by hand. **That makes it a sequencing judgment, not a
-  missing guard**, and no mechanism substitutes for the judgment: before
+  its job. It was merged by hand. **That makes it a sequencing judgment. No guard is
+  missing.** No mechanism substitutes for the judgment: before
   merging a held PR, confirm the thing it was gating has actually happened.
   If you want an automated gate for the review itself, the honest shape is a
-  required status check bound to the head SHA (a push voids it) — not a label.
+  required status check bound to the head SHA (a push voids it). A label cannot serve as that gate.
 
 ### Adversarial review gates (codex)
 
 Every non-trivial change is adversarially reviewed by an independent agent
-(codex) **before its PR opens** (PRs are final at open — auto-merge is armed).
+(codex) **before its PR opens** (PRs are final at open: auto-merge is armed).
 Two sanctioned forms:
 
 - **Interactive bridge** (agent-bridge tmux pane): for design and
-  implementation reviews that take multiple rounds — findings get fixed and
+  implementation reviews that take multiple rounds. Findings get fixed and
   re-verified in delta rounds, and the reviewer may need approvals for its
   own scratch reproductions. Reset the reviewer's session between rounds.
 - **One-shot `codex exec --sandbox read-only`** (R6,
   [#229](https://github.com/dmfdeploy/dmfdeploy/issues/229)): for **routine**
-  gates — bounded, single-verdict reviews (a docs change, a mechanical sweep,
+  gates: bounded, single-verdict reviews (a docs change, a mechanical sweep,
   a small fix against a clear acceptance condition). Requirements, all
   mandatory:
   1. the sandbox is **read-only** (the reviewer proves, never mutates);
   2. the prompt names an explicit acceptance condition and requires a final
-     standalone `CODEX GATE: PASS` / `CODEX GATE: FAIL <reason>` line — and
-     every acceptance item must be **verifiable under the read-only sandbox**
-     (diff inspection, grep, read-only git); checks that need to *execute*
-     tooling belong to CI, and the prompt cites their status instead of
-     asking the reviewer to run them (learned on this rule's own first use);
+     standalone `CODEX GATE: PASS` / `CODEX GATE: FAIL <reason>` line. Every
+     acceptance item must be **verifiable under the read-only sandbox** (diff
+     inspection, grep, read-only git). Checks that need to *execute* tooling
+     belong to CI, so the prompt cites their status and does not ask the
+     reviewer to run them (learned on this rule's own first use);
   3. **reproducible capture**: capture the exact prompt, the repo SHA under
      review (`git rev-parse HEAD`), the full command line, and the complete
      output, together and operator-local.
 
-  **What may leave the operator's machine.** Public artifacts — issues, PRs,
-  commit messages, ADRs, plan docs, this file — carry **outcomes and findings
+  **What may leave the operator's machine.** Public artifacts (issues, PRs,
+  commit messages, ADRs, plan docs, this file) carry **outcomes and findings
   only**. "The gate returned FAIL with four findings" is a fact about the work
-  and is fine. The full public-surface rule — including the one further
-  sentence a public artifact may carry about records — is stated once, in the
+  and is fine. The full public-surface rule, including the one further
+  sentence a public artifact may carry about records, is stated once, in the
   `agent-conversation-recording` skill (§ Pointer direction). This document
-  defers to it rather than restating it: two statements of one rule drift,
+  defers to it and does not restate it: two statements of one rule drift,
   and drift in this rule is how a violation ships.
 
   Two rules follow, both learned the hard way:
@@ -274,9 +276,9 @@ Two sanctioned forms:
     edit revisions and shows them to anyone who can read the artifact, so
     editing does not unpublish. A PR body and a commit message are public
     artifacts under this rule exactly like the diff is.
-  - **Check the property that was named, not the one that is easy to run.** A
+  - **Check the property that was named. Do not check the one that is easy to run.** A
     word-boundary grep for hosts, paths and identifiers answers a *literal*
-    question; the pointer-direction rule asks a *semantic* one — what a reader
+    question; the pointer-direction rule asks a *semantic* one: what a reader
     can infer from the prose. Passing the first and declaring the second clean
     is how umbrella #354 shipped and had to be reverted.
 
@@ -358,71 +360,72 @@ voice sweep that would let more files join the Vale clean set is tracked in
 
 ## 8. New-repo bootstrap checklist
 
-The enforcement net — commit/push hooks (`bin/install-hooks.sh`), branch
+The enforcement net is **per-repo** and **not inherited** from the org
+`.github` defaults. It covers commit/push hooks (`bin/install-hooks.sh`), branch
 rulesets, required status checks, `bin/scrub-public-repos.sh` (gitleaks +
 secret scrub), `bin/check-working-model-sync.sh` (block sync),
-`bin/check-docs.sh` (frontmatter), CI gates — is **per-repo** and **not
-inherited** from the org `.github` defaults. A new repo starts outside the
+`bin/check-docs.sh` (frontmatter), and CI gates. A new repo starts outside the
 model, so spinning one up means running this checklist. The `.github` defaults
 (fallback CODE_OF_CONDUCT, SUPPORT, GOVERNANCE, profile README) only soften
 the gap; they do not enforce.
 
-1. **Agent files** — add `CLAUDE.md`, `AGENTS.md`, `QWEN.md` with the
+1. **Agent files**: add `CLAUDE.md`, `AGENTS.md`, `QWEN.md` with the
    working-model block from `docs/templates/working-model-block.md` (umbrella).
    Register the repo in `bin/check-working-model-sync.sh`'s sibling scan so the
    block stays synced across copies.
-2. **CODEOWNERS** — `* @dmfdeploy/maintainers` (per-repo overrides for
+2. **CODEOWNERS**: `* @dmfdeploy/maintainers` (per-repo overrides for
    repo-specific paths).
-3. **LICENSE** — Apache-2.0.
-4. **SECURITY.md** — private vulnerability reporting via GitHub Advisories
+3. **LICENSE**: Apache-2.0.
+4. **SECURITY.md**: private vulnerability reporting via GitHub Advisories
    (Security → Report a vulnerability); see umbrella `SECURITY.md` for the
    template.
-5. **Pre-commit hooks** — run `bin/install-hooks.sh` to wire `.githooks/`;
+5. **Pre-commit hooks**: run `bin/install-hooks.sh` to wire `.githooks/`;
    the hook suite includes gitleaks + `bin/scrub-public-repos.sh` guards.
    Add `bin/check-working-model-sync.sh --strict` to the repo's `ci.yml`
    (WP4 batch) and the umbrella `check-docs.sh` to the umbrella pre-commit.
-   **The umbrella checkout in that job must carry `ref: working-model-vN`** —
-   see §8a. A checkout with no `ref:` is the flag-day bug, not a shortcut.
-6. **Branch ruleset** — require PR + 1 approval + linear history; set
-   required status checks to the CI jobs this repo actually runs (e.g. `dco`,
+   **The umbrella checkout in that job must carry `ref: working-model-vN`**.
+   See §8a. A checkout with no `ref:` is the flag-day bug. Do not use it as a
+   shortcut.
+6. **Branch ruleset**: require PR + 1 approval + linear history; set
+   required status checks to the CI jobs this repo actually runs (for example, `dco`,
    `guard` incl. `issue-link`, per-stack `ci` incl. `working-model`). If the
    repo has no CI, leave required checks empty so auto-merge isn't blocked.
-7. **Auto-merge + branch auto-delete** — enable
+7. **Auto-merge + branch auto-delete**: enable
    `allow_auto_merge` + `delete_branch_on_merge` in repo settings; arm
    `automerge.yml` (WP8 pattern: `pull_request_target`, `hold` label disarms).
-8. **Labels** — adopt `component:*` / `workstream:*` label usage, plus the §2
+8. **Labels**: adopt `component:*` / `workstream:*` label usage, plus the §2
    filing rule (milestone only if scheduled; otherwise `platform-debt`). Labels
    are the canonical surface. Adding the repo's significant issues to org
-   Project #1 is **optional human curation, not a bootstrap requirement** (§3).
-9. **Default branch** — `main`; disallow force-pushes; require signed commits
+   Project #1 is **optional human curation**. It is **not a bootstrap requirement** (§3).
+9. **Default branch**: `main`; disallow force-pushes; require signed commits
    (DCO enforced by CI).
 
 ## 8a. Changing the working-model block
 
 The block is duplicated **byte-identically into 30 files across 9 repos**,
-because it is the forcing mechanism for agents that do not run hooks — codex and
+because it is the forcing mechanism for agents that do not run hooks. Codex and
 qwen read `AGENTS.md`/`QWEN.md` and never see the runtime digest. That
 duplication is deliberate, and it has one sharp edge worth stating plainly.
 
-**Sibling CI validates against a pinned umbrella tag, not against `main`.** Each
+**Sibling CI validates against a pinned umbrella tag. It does not validate against `main`.** Each
 component repo's `working-model` job checks out `dmfdeploy/dmfdeploy` at
 `ref: working-model-vN`. Before that pin existed, the checkout carried no `ref:`
-and therefore resolved the umbrella's **default branch at CI time** — so the
+and therefore resolved the umbrella's **default branch at CI time**. So the
 moment a template correction landed on umbrella `main`, the `working-model` job
 failed on the next PR in all 8 component repos plus `.github`. A two-line
-clarification cost a 9-repo flag day, which is why the block was left
-contradicting the canonical filing rule for weeks rather than corrected.
+clarification cost a 9-repo flag day, which is why the block
+was left contradicting the canonical filing rule for weeks and was not corrected.
 
 **To change the block:**
 
-1. Edit `docs/templates/working-model-block.md` — the template, never a copy.
+1. Edit `docs/templates/working-model-block.md` (the template). Never edit a copy.
 2. `bin/check-working-model-sync.sh --umbrella-only --apply`, and land that on
    umbrella `main`. **No sibling breaks**: they are pinned to the previous tag.
 3. Cut the next tag on that commit: `git tag working-model-v<N+1> && git push
    origin working-model-v<N+1>`. Tags are numeric-sorted, so `v10` follows `v9`.
    The `working-model-v*` namespace is exempted from `tags-nonrelease-block` and
-   protected by `tags-release-protect`, so these pins are immutable once pushed —
-   a bad pin is replaced by cutting the next number, never by moving a tag.
+   protected by `tags-release-protect`, so these pins are immutable once pushed.
+   A bad pin is replaced by cutting the next number, never by moving a tag.
 4. Per sibling, in **one** PR: `bin/check-working-model-sync.sh --repo <path>
    --apply` to regenerate its three copies, **and** bump `ref:` in its `ci.yml`
    to the new tag. Both in the same change, or its CI checks new copies against
@@ -430,20 +433,20 @@ contradicting the canonical filing rule for weeks rather than corrected.
 
 **Ordering, when the template correction is itself under review.** Steps 1–2
 assume the umbrella lands first, which leaves every sibling briefly carrying the
-old block. If that window is unacceptable — a reviewer holding the umbrella PR
-until the copies agree, say — the order can be inverted, because **a tag keeps
+old block. If that window is unacceptable (a reviewer holding the umbrella PR
+until the copies agree, say), the order can be inverted, because **a tag keeps
 its commit reachable even when it is not an ancestor of `main`**:
 
 - tag the umbrella PR's head, so sibling CI can fetch the corrected template
   before anything merges;
-- land the sibling PRs first, each pinning that tag — they check new copies
+- land the sibling PRs first, each pinning that tag; they check new copies
   against the new template and go green;
 - land the umbrella PR last, at which point all 30 copies agree.
 
 This is how `working-model-v1` was cut (2026-08-27). The caveat is that
 rebase-merge replays the PR head onto `main` under a different SHA, so the tag
-is **not** an ancestor of `main`. That is harmless — siblings validate against
-the tag's *template content*, not its ancestry — but **verify after merge that
+is **not** an ancestor of `main`. That is harmless, because siblings validate against
+the tag's *template content* and never against its ancestry. Still, **verify after merge that
 the tag's template and `main`'s are byte-identical**, since a conflict resolution
 during the replay could silently diverge them:
 
@@ -452,7 +455,7 @@ diff <(git show working-model-v<N>:docs/templates/working-model-block.md) \
      <(git show origin/main:docs/templates/working-model-block.md)
 ```
 
-**The cost of the pin is that a lagging sibling is now silent rather than loud.**
-`bin/check-working-model-sync.sh --report-pins` is what makes it visible — run it
+**The cost of the pin is that a lagging sibling is now silent instead of loud.**
+`bin/check-working-model-sync.sh --report-pins` is what makes it visible. Run it
 from the umbrella clone (not a worktree; sibling lookup resolves from the
 umbrella's parent directory, and the report warns loudly if it resolved nothing).
