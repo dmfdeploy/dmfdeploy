@@ -3,7 +3,7 @@
 **Status:** Accepted
 **Date:** 2026-04-25 (vocabulary aligned with EBU White Paper V2.0)
 **Deciders:** @<handle>
-**Rule:** Every playbook, role, and doc uses the EBU DMF V2.0 taxonomy — 6 layers, 4 verticals, 6 lifecycle stages — and playbook numbers encode layer + lifecycle.
+**Rule:** Every playbook, role, and doc uses the EBU DMF V2.0 taxonomy (6 layers, 4 verticals, 6 lifecycle stages), and playbook numbers encode layer + lifecycle.
 
 ## Context
 
@@ -33,21 +33,20 @@ Canonical map: `dmfdeploy/docs/architecture/DMF EBU Mapping (2026-04-25).md`.
 - **Positive:** new playbooks have an obvious home. The numbering scheme is
   self-explanatory once you know the EBU map. External readers (employers,
   OSS users) can locate themselves.
-- **Positive:** taxonomy is a forcing function — when a playbook genuinely spans
-  two layers/verticals, that's a signal that one of *them* needs splitting, not
-  that the taxonomy is wrong (mostly).
+- **Positive:** taxonomy is a forcing function. When a playbook genuinely spans
+  two layers/verticals, one of *them* needs splitting. The taxonomy is still
+  right (mostly).
 - **Negative:** the taxonomy is itself one of the three thesis-killer risks
   (per ADR-0004 / strategic review). It survives every existing playbook
-  because they were written with it in mind. The first genuinely-spanning
-  workload will test it.
+  because they were written with it in mind. The first workload that genuinely
+  spans layers will test it.
 - **Negative:** playbook renames break old references; one-time pain.
 
 ### Enforcement
 
-`dmfdeploy/docs/architecture/DMF EBU Mapping (2026-04-25).md` is the canonical
-map. The renumbering plan (`docs/plans/DMF Orchestrator and Renumbering Plan
-2026-04-22.md`) is DONE. New playbooks must fit the map; if they don't, treat
-that as a smell and either split the playbook or update the ADR.
+Discipline only: no check validates playbook numbers against the canonical map,
+`docs/architecture/DMF EBU Mapping (2026-04-25).md`. The renumbering plan
+(`docs/plans/DMF Orchestrator and Renumbering Plan 2026-04-22.md`) is DONE. New playbooks must fit the map; if they don't, treat that as a smell and either split the playbook or update the ADR.
 
 ## Status
 

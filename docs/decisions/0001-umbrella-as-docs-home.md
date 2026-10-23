@@ -1,13 +1,13 @@
 # ADR-0001: Umbrella as docs home; component repos remain independent gits
 
-**Status:** Accepted (amended 2026-06-11 — sibling layout)
+**Status:** Accepted (amended 2026-06-11: sibling layout)
 **Date:** 2026-05-03
 **Deciders:** @<handle>
 
 ## Context
 
 The dmfdeploy platform is split across 5 component repos (`dmf-cms`, `dmf-infra`,
-`dmf-env`, `dmf-central`, `dmf-media`) and a previously-scattered set of
+`dmf-env`, `dmf-central`, `dmf-media`) and a previously scattered set of
 ~24 design / planning documents stored on a private synced volume at
 `<note-store>/`. Multiple AI agents (Claude, Codex,
 Qwen, Haiku) work in these repos in parallel sessions and need a single place to
@@ -18,8 +18,8 @@ find cross-cutting context.
 `<umbrella-path>/` is the **umbrella git repo**. It tracks
 docs (`docs/`), architecture decisions (`docs/decisions/`), umbrella-level
 plans, and Claude Code skills (`.claude/skills/`). The 5 component repos sit
-inside it as `.gitignore`d sibling directories — each retains its own `.git`
-and remote, ships independently, and is **not** a git submodule.
+inside it as `.gitignore`d sibling directories. Each retains its own `.git`
+and remote and ships independently. None is a git submodule.
 
 ### Amendment (2026-06-11): components are siblings
 
@@ -55,14 +55,14 @@ Consequences of the amendment:
 
 ### Enforcement
 
-`.gitignore` excludes the 5 component dirs at the umbrella root. Component repo
+`.gitignore` excludes the component dirs at the umbrella root. Component repo
 CLAUDE.md / README files reference `dmfdeploy/docs/<subdir>/...` as textual
 pointers; rewrite enforced by past commits (see component repo `docs: rewrite
 <note-store> refs to dmfdeploy/docs/` commits). Boot ritual in umbrella
-CLAUDE.md tells agents to `git fetch && git pull` the umbrella first.
+AGENTS.md tells agents to `git pull` the umbrella first.
 
 ## Status
 
-Accepted (amended 2026-06-11 — sibling layout)
+Accepted (amended 2026-06-11: sibling layout)
 
 Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0001-umbrella-as-docs-home.md).

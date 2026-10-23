@@ -36,16 +36,16 @@ A companion `bin/monitor-playbook.sh <log>` streams filtered output
 
 - **Positive:** every playbook run has a known starting context, a log file,
   and a deadline. Stuck runs auto-terminate.
-- **Positive:** secrets resolution is centralized — playbook authors don't
-  worry about OpenBao auth, just reference `vault_<key>` after `-e @file` is
+- **Positive:** secrets resolution is centralized, so playbook authors don't
+  worry about OpenBao auth. They reference `vault_<key>` after `-e @file` is
   injected.
 - **Positive:** monitoring pattern is reusable across runs (run in terminal A,
   monitor in terminal B).
 - **Negative:** wrapper is a load-bearing piece of infrastructure. When it
   breaks (heredoc quoting, BSD vs GNU mktemp, cleanup trap on signal),
   every run breaks.
-- **Negative:** `/tmp/openbao-vars-*` files are sensitive while they exist —
-  see ADR-0007 §5 for sweep procedure. Trap cleanup handles the happy path
+- **Negative:** `/tmp/openbao-vars-*` files are sensitive while they exist.
+  See ADR-0007 §5 for sweep procedure. Trap cleanup handles the happy path
   but not Ctrl-C in some edge cases.
 
 ### Enforcement
@@ -53,8 +53,8 @@ A companion `bin/monitor-playbook.sh <log>` streams filtered output
 `dmf-infra/CLAUDE.md` and `dmf-env/CLAUDE.md` both reference the
 wrapper as the entry point. `dmf-cluster-access` skill §4.1 states the
 "golden rule." The wrapper itself prints usage if mis-invoked. No automated
-rejection of bare `ansible-playbook` calls — discipline + skill references
-only.
+rejection of bare `ansible-playbook` calls is wired. The rule rests on discipline
+and skill references only.
 
 ## Status
 

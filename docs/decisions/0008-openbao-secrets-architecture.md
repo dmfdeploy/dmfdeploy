@@ -10,11 +10,11 @@
 The platform needs a secrets backend that handles three classes of secret with
 different lifetimes and access patterns:
 
-1. **Bootstrap-time secrets** — provider tokens (Hetzner, Cloudflare, Tailscale),
+1. **Bootstrap-time secrets**: provider tokens (Hetzner, Cloudflare, Tailscale),
    k3s join token, initial admin passwords. Needed before the cluster exists.
-2. **Runtime secrets** — app admin passwords, API tokens, OIDC client secrets.
+2. **Runtime secrets**: app admin passwords, API tokens, OIDC client secrets.
    Needed inside the cluster, by Pods.
-3. **Break-glass material** — OpenBao Shamir shares, ops_admin userpass.
+3. **Break-glass material**: OpenBao Shamir shares, ops_admin userpass.
    Needed only when normal flows fail.
 
 Each class has different leakage tolerance and recovery semantics.
@@ -49,23 +49,23 @@ secret-resolution path small and testable.
   storage location, leak-blast-radius, and recovery procedure.
 - **Positive:** ESO is industry-standard; pods don't see OpenBao directly,
   only k8s Secrets that ESO syncs.
-- **Positive:** operator side stays simple — one wrapper script per task type
+- **Positive:** operator side stays simple, with one wrapper script per task type
   (`run-playbook.sh`, `tf-apply.sh`).
 - **Negative:** three distinct flows for secret retrieval (ESO at runtime,
   wrapper-shim at provision, break-glass file for emergencies). Operators
   must know which is right for which task.
-- **Negative:** the AppRole bootstrap is a chicken-and-egg — the very first
-  cluster bring-up needs a seeded ops_admin to write the AppRole; resolved
-  by initial OpenBao init writing both Shamir shares and ops_admin to the
-  break-glass automation file.
+- **Negative:** the AppRole bootstrap is a chicken-and-egg. The very first
+  cluster bring-up needs a seeded ops_admin to write the AppRole. Initial OpenBao init resolves this by writing
+  both Shamir shares and ops_admin to the break-glass automation file.
 
 ### Enforcement
 
-`DMF Secret Ownership and OpenBao Migration Plan.md` (`docs/plans/`) is the
-canonical mapping. Each secret has a documented tier. The wrapper
-(`bin/run-playbook.sh`) and the openbao role tasks/main.yml are the reference
-implementations. `dmf-cluster-access` skill §5.1 covers operator-side reads;
-`dmf-openbao-unseal` skill covers the break-glass path.
+`dmf-infra/k3s-lab-bootstrap/playbooks/verify-openbao-identity-model.yml` asserts the OpenBao identity model
+and that the ESO chain reconciles. Nothing mechanical checks the secret tiers or the ban on a
+`community.hashi_vault` runtime dependency; those rest on discipline. `DMF Secret Ownership and OpenBao Migration Plan.md`
+(`docs/plans/`) is the canonical mapping, and each secret has a documented tier. The wrapper (`dmf-env/bin/run-playbook.sh`)
+and `dmf-infra/k3s-lab-bootstrap/roles/stack/operator/openbao/tasks/main.yml` are the reference implementations.
+`dmf-cluster-access` skill §5.1 covers operator-side reads; `dmf-openbao-unseal` skill covers the break-glass path.
 
 ## Status
 
