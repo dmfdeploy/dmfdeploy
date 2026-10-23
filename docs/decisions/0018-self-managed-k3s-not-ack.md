@@ -4,7 +4,7 @@
 **Date:** 2026-05-08
 **Deciders:** @<handle>
 
-**Rule:** Every environment runs self-managed k3s regardless of cloud provider. Managed Kubernetes is not adopted; ACK Managed Basic stays a documented fallback with a high bar.
+**Rule:** Environments run self-managed k3s on every cloud provider. The one exception is ACK Managed Basic, a documented fallback allowed only when self-managed maintenance is the only friction preventing thesis-killer work.
 
 ## Context
 
@@ -57,8 +57,9 @@ thesis-killer work. A general preference for less ops does not meet it.
 
 ### Enforcement
 
-- New environments added in `dmf-env/inventories/<env>/` and
-  `dmf-env/terraform/<env>/` MUST provision bare VMs and install k3s via the
+- New environments, which live operator-local under `~/.dmfdeploy/envs/<env>/`
+  (ADR-0035) and use the shared `dmf-env/terraform/` roots, MUST provision bare
+  VMs and install k3s via the
   shared `dmf-infra/k3s-lab-bootstrap/playbooks/300-k3s.yml`. Provider-specific
   CCM/CSI/ingress glue lives in `dmf-env/tasks/<provider>/`. PRs that introduce
   provider-managed K8s as the cluster shape are reverted unless they cite this
