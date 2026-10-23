@@ -34,7 +34,11 @@
     "issue-link",
     "shellcheck",
     "skills-sync",
-    "trivy"
+    "static",
+    "surface",
+    "title",
+    "trivy",
+    "vale"
   ],
   "rule_types": [
     "deletion",
