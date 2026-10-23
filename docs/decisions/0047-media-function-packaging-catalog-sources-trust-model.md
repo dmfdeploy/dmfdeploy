@@ -1,6 +1,6 @@
 <!-- ADR doc convention: every ADR carries a top-of-doc **Rule:** line — the binding
 constraint in one imperative sentence — directly under the metadata block. See
-CONTRIBUTING.md → "ADR conventions". -->
+docs/decisions/README.md → "ADR conventions". -->
 # ADR-0047: Media Function packaging, catalog sources and trust model
 
 **Status:** Accepted
