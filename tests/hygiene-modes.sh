@@ -256,10 +256,10 @@ TITLE_STEPS = [
 
 VALE_STEPS = [
     {"name": "Checkout", "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683", "with": {"persist-credentials": False, "fetch-depth": 2}},
-    {"name": "Install Vale", "env": {"VALE_VERSION": "3.24.0"}, "run": (
+    {"name": "Install Vale", "env": {"VALE_VERSION": "3.25.1"}, "run": (
         "set -euo pipefail\n"
-        "url=\"https://github.com/errata-ai/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz\"\n"
-        "sha=\"867534ddb678abca7f214bc4706ead0922bd5252ffe8035fc227013f66c8b214\"\n"
+        "url=\"https://github.com/vale-cli/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz\"\n"
+        "sha=\"4bf5c5176b682b1da0830f471584d3494f1c2e27ee3029e1ad6f6661d4962182\"\n"
         "mkdir -p \"$RUNNER_TEMP/vale\"\n"
         "curl -fsSL -o \"$RUNNER_TEMP/vale.tgz\" \"$url\"\n"
         "echo \"$sha  $RUNNER_TEMP/vale.tgz\" | sha256sum -c -\n"
