@@ -60,3 +60,10 @@ body:
     attributes:
       label: Steps to reproduce
     validations: { required: true }
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance
+      description: How to check that this is done. Write one checkable item per line, starting with `- `. An issue in a milestone needs at least one item (docs/WORKING-MODEL.md section 7).
+      value: "- "
+    validations: { required: false }

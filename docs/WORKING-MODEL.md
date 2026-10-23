@@ -308,8 +308,10 @@ Two sanctioned forms:
 `bin/check-backlog-hygiene.sh` checks each open umbrella issue at milestone
 entry. An issue whose latest milestone event is on or after 2026-10-23
 (`ACCEPTANCE_START` in the script) fails unless its body has a
-`## Acceptance` heading followed by at least one list item before the next
-heading. The rule started on 2026-10-23, when 54 of the 78 milestoned issues
+`## Acceptance` or `### Acceptance` heading followed by at least one list
+item before the next heading. The Task, Bug report, and Feature request forms
+have an Acceptance field that renders as `### Acceptance`, so an author who
+writes one item per line starting with `- ` passes. The rule started on 2026-10-23, when 54 of the 78 milestoned issues
 lacked that section. Issues milestoned before that date are exempt, because
 the rule checks the moment an issue enters a milestone, and those issues
 entered theirs before the rule existed. The rule counts as a finding from the

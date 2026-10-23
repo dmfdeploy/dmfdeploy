@@ -5,7 +5,7 @@
 # milestone or the platform-debt label (unscheduled work, see
 # docs/WORKING-MODEL.md §2), at least one component:* label, and at least one
 # workstream:* label. An issue that entered its milestone on or after
-# ACCEPTANCE_START must have a "## Acceptance" heading with a list item.
+# ACCEPTANCE_START must have an Acceptance heading with a list item.
 # Issues labelled hygiene-exempt are skipped. The script
 # also flags active AND draft plan docs whose tracking issue is CLOSED, and
 # surfaces untriaged component-repo issues older than the staleness
@@ -336,8 +336,9 @@ rule_issue_unscheduled() {
 }
 
 # Rule 5: open issue that entered its milestone on or after ACCEPTANCE_START
-# without a "## Acceptance" heading followed by a list item before the next
-# heading. The start date is the day the rule was written: 54 of the 78
+# without a "## Acceptance" or "### Acceptance" heading followed by a list
+# item before the next heading. The issue forms render their Acceptance field
+# as "### Acceptance". The start date is the day the rule was written: 54 of the 78
 # milestoned issues then lacked the section, and the rule checks an issue at
 # milestone entry, so issues milestoned before it are not checked (#661).
 # Payload: {"start":"YYYY-MM-DD","issues":[{"number","title","milestone",
@@ -350,7 +351,7 @@ rule_issue_acceptance() {
             reduce ((. // "") | gsub("\r"; "") | split("\n"))[] as $line
                 ({in: false, ok: false};
                  if $line | test("^#{1,6}[ \t]") then
-                     .in = ($line | test("^##[ \t]+Acceptance[ \t]*$"))
+                     .in = ($line | test("^#{2,3}[ \t]+Acceptance[ \t]*$"))
                  elif .in and ($line | test("^[ \t]*([-*+]|[0-9]+[.)])[ \t]+[^ \t]")) then
                      .ok = true
                  else . end)
@@ -359,7 +360,7 @@ rule_issue_acceptance() {
         | .issues[]? | select((.labels | index("hygiene-exempt")) == null)
         | select(.milestone != null and .milestoned_at != null and .milestoned_at >= $start)
         | select(.body | has_acceptance | not)
-        | "#\(.number) \"\(.title)\": milestoned \(.milestoned_at[:10]) without a ## Acceptance list"'
+        | "#\(.number) \"\(.title)\": milestoned \(.milestoned_at[:10]) without an Acceptance list"'
 }
 
 # Drop items a check already reported. Pure: JSON in, JSON out.
@@ -467,17 +468,21 @@ self_test() {
     expect "rule4 unscheduled (good)"     0 rule_issue_unscheduled "$r4_good"
 
     # Rule 5: the bad payload entered its milestone after the start with no
-    # Acceptance section, and with an Acceptance heading that has no item
-    # before the next heading. The good twin has an item; an issue
-    # milestoned before the start is not checked.
+    # Acceptance section, with a "##" and a "###" Acceptance heading that has
+    # no item before the next heading, and with "## Acceptance test". The good
+    # twin has items under both heading levels; an issue milestoned before
+    # the start is not checked.
     local r5_bad r5_good
     r5_bad='{"start":"2026-10-23","issues":[
         {"number":6,"title":"t","milestone":"v0.2","milestoned_at":"2026-10-24T09:00:00Z","labels":[],"body":"## Outcome\n- done"},
-        {"number":7,"title":"t","milestone":"v0.2","milestoned_at":"2026-10-23T00:00:00Z","labels":[],"body":"## Acceptance\nprose only\n## Notes\n- not an item of Acceptance"}]}'
+        {"number":7,"title":"t","milestone":"v0.2","milestoned_at":"2026-10-23T00:00:00Z","labels":[],"body":"## Acceptance\nprose only\n## Notes\n- not an item of Acceptance"},
+        {"number":8,"title":"t","milestone":"v0.2","milestoned_at":"2026-10-24T09:00:00Z","labels":[],"body":"### Acceptance\n\n- \n\n### Notes\n\n_No response_"},
+        {"number":9,"title":"t","milestone":"v0.2","milestoned_at":"2026-10-24T09:00:00Z","labels":[],"body":"## Acceptance test\n- an item under another heading"}]}'
     r5_good='{"start":"2026-10-23","issues":[
         {"number":6,"title":"t","milestone":"v0.2","milestoned_at":"2026-10-24T09:00:00Z","labels":[],"body":"## Outcome\r\n\r\n## Acceptance\r\n\r\n- [ ] the check passes\r\n"},
-        {"number":7,"title":"t","milestone":"v0.2","milestoned_at":"2026-10-22T23:59:59Z","labels":[],"body":""}]}'
-    expect "rule5 acceptance (bad)"       2 rule_issue_acceptance "$r5_bad"
+        {"number":7,"title":"t","milestone":"v0.2","milestoned_at":"2026-10-22T23:59:59Z","labels":[],"body":""},
+        {"number":8,"title":"t","milestone":"v0.2","milestoned_at":"2026-10-24T09:00:00Z","labels":[],"body":"### Outcome\n\nx\n\n### Acceptance   \n\n- the check passes"}]}'
+    expect "rule5 acceptance (bad)"       4 rule_issue_acceptance "$r5_bad"
     expect "rule5 acceptance (good)"      0 rule_issue_acceptance "$r5_good"
 
     # No duplicates: an item that matches both an existing check and a new rule
