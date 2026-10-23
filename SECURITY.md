@@ -8,9 +8,8 @@ Report privately via GitHub's **[Report a vulnerability](https://github.com/dmfd
 (Security → Advisories → Report a vulnerability) on the `dmfdeploy` umbrella repository.
 This opens a private advisory visible only to maintainers.
 
-If you cannot use the GitHub flow, contact the maintainer listed in `CODEOWNERS`
-through their GitHub profile and request a private channel — never include the
-vulnerability details in a public message.
+The private advisory is the only reporting route. Never put vulnerability
+details in a public message, issue, PR or discussion.
 
 ## What to include
 
@@ -24,11 +23,11 @@ vulnerability details in a public message.
 
 - We acknowledge reports within **5 business days**.
 - We work with you on a coordinated-disclosure timeline and credit you (if you wish)
-  in the advisory and release notes.
-- Fixes ship as a normal `vX.Y.Z` release; the advisory is published once a fix is
+  in the advisory.
+- Fixes ship in a normal `vX.Y.Z` tag; the advisory is published once a fix is
   available.
 
 ## Supported versions
 
-This project is pre-1.0 (experiment phase). Only the latest `vX.Y.Z` release on
-`main` is supported; please reproduce against the current tip before reporting.
+This project is pre-1.0 (experiment phase). Only the latest `vX.Y.Z` tag on
+`main` is supported. Reproduce against the current tip before you report.
