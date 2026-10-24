@@ -203,10 +203,10 @@ The positive and neutral consequences are in the [archive record](../archive/dec
 Discipline only: no script, test or workflow checks any of the three modes.
 On 2026-10-23, a grep of the umbrella and every component repo's `bin`,
 `scripts`, `.github` and `.githooks` paths for `dmfdeploy.io` found no match.
-`bin/check-public-repo-hygiene.sh` and `bin/scrub-public-repos.sh` gate
-publishing, and the 2026-05-23 amendment makes passing them policy for
-public-publish work, but they do not detect an outbound dependency on
-dmfdeploy.io.
+`bin/sync-to-github.sh` gates publishing on `bin/scrub-public-repos.sh`, the
+author check and gitleaks; `bin/check-public-repo-hygiene.sh` runs only from
+`bin/export-scan.sh`. The 2026-05-23 amendment makes passing both scripts
+policy, but neither detects an outbound dependency on dmfdeploy.io.
 
 - **Mode A "no outbound to dmfdeploy.io" constraint:** the intended check is
   an extension of `bin/check-public-repo-hygiene.sh` (per the Release &
