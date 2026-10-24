@@ -5,7 +5,9 @@
 #
 # Subcommands: size, filenames, placement, statuslog, enforcement, all
 # (default). "all" runs every subcommand except enforcement, which runs only
-# when named while it is in warn mode (dmfdeploy/dmfdeploy#661).
+# when named. Enforcement checks that the files an ADR names exist in the
+# whole tree, so it can't run on the pre-commit hook's staged-only copy. CI
+# runs it as its own --strict step (dmfdeploy/dmfdeploy#661, #702).
 #   size       README.md, AGENTS.md and each ADR stay under a line budget. An
 #              ADR in ADR_CEILINGS may not grow past its recorded ceiling.
 #   statuslog  STATUS.md stays under its line budget (no long status log).
@@ -249,8 +251,9 @@ finding() {
     printf 'check-surface: %s\n' "$*"
 }
 
-# "all" leaves out enforcement until that rule enforces (#661), so the
-# --strict runs of "all", such as the pre-commit hook's, don't fail on it.
+# "all" leaves out enforcement on purpose: the pre-commit hook runs "all" on
+# the staged files only, where the paths an ADR names are mostly absent. CI
+# runs "--strict enforcement" on the whole tree instead (#661, #702).
 wants() { [ "$SUB" = "$1" ] || { [ "$SUB" = all ] && [ "$1" != enforcement ]; }; }
 
 is_excluded() { printf '%s\n' "$1" | grep -qE "$EXCLUDED_RE"; }
