@@ -20,4 +20,4 @@ responsibility first.
 - [ ] CI is green (gitleaks, scrub, lint, commitlint where applicable).
 - [ ] Docs/ADRs updated if behavior or decisions changed.
 - [ ] Docs gate: `bin/check-docs.sh` passes, and a plan doc's frontmatter is updated in this PR if the PR completes it.
-- [ ] Checked the governing ADR(s) for the area I changed (see [`docs/decisions/INDEX.md`](docs/decisions/INDEX.md) → ★ Start here).
+- [ ] Checked the governing ADRs for the area I changed (see [`docs/decisions/INDEX.md`](docs/decisions/INDEX.md) → ★ Start here).

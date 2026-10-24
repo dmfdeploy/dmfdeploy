@@ -1,3 +1,8 @@
+<!-- The block below is copied verbatim into every component repo, and a wording
+change needs a new working-model tag in each one. Until the next tag, only the
+dash rules are turned off for it. -->
+<!-- vale Google.EmDash = NO -->
+<!-- vale Voice.EmDash = NO -->
 <!-- WORKING-MODEL-BLOCK-START — generated from umbrella docs/templates/working-model-block.md; do not edit copies, edit the template and run bin/check-working-model-sync.sh -->
 ## Working model (mandatory)
 
@@ -20,3 +25,5 @@ in the umbrella repo. The three rules that matter mid-task:
    Discussions first); STATUS.md = pointer file (operator notes live in pinned issue dmfdeploy/dmfdeploy#618);
    STATUS.local.md = live repo snapshot.
 <!-- WORKING-MODEL-BLOCK-END -->
+<!-- vale Voice.EmDash = YES -->
+<!-- vale Google.EmDash = YES -->
