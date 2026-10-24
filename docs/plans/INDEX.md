@@ -14,8 +14,9 @@ shelved, kept for provenance.
 - [dmf-internal-ansible-collection-source-plan](dmf-internal-ansible-collection-source-plan.md) — 2026-05-29
 - [dmf-awx-catalog-credential-type-migration-plan](dmf-awx-catalog-credential-type-migration-plan.md) — 2026-05-23
 
-## Draft (4)
+## Draft (5)
 
+- [platform-debt-work-order](platform-debt-work-order.md) — 2026-10-24
 - [dmf-closed-loop-assurance-pattern-plan](dmf-closed-loop-assurance-pattern-plan.md) — 2026-10-21
 - [dmf-facility-console-born-inventoried-env-surfacing-plan](dmf-facility-console-born-inventoried-env-surfacing-plan.md) — 2026-10-21
 - [dmf-media-workload-design-canvas-plan](dmf-media-workload-design-canvas-plan.md) — 2026-10-20
