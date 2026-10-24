@@ -7,16 +7,13 @@
 # pre-commit hook and asserts that each check runs in its intended mode:
 #
 #   surface.yml          the fixture step runs first, then size, filenames,
-#                        placement and statuslog each run with --strict in
-#                        their own step. The enforcement step still warns
-#                        (no --strict). That is pinned too, so flipping it is
-#                        a deliberate edit here.
+#                        placement, statuslog and enforcement each run with
+#                        --strict in their own step.
 #   pre-commit hook      check-surface runs with --strict on the staged
 #                        content, and a failure refuses the commit.
-#   vale.yml             the clean-set step fails on errors (no --no-exit),
-#                        the changed-files ratchet runs, and the whole-tree
-#                        step still warns (--no-exit). That last one is
-#                        pinned too, so flipping it is a deliberate edit here.
+#   vale.yml             the whole-tree step and the clean-set step fail on
+#                        errors (no --no-exit), and the changed-files
+#                        ratchet runs.
 #                        The pull_request trigger has no path filter, so the
 #                        check reports on every PR. The scope step decides
 #                        whether the Vale steps run, and each of them carries
@@ -254,7 +251,7 @@ SURFACE_STEPS = [
     {"name": "Filenames", "run": "bin/check-surface.sh --strict filenames"},
     {"name": "Archive placement", "run": "bin/check-surface.sh --strict placement"},
     {"name": "Status log", "run": "bin/check-surface.sh --strict statuslog"},
-    {"name": "ADR enforcement (warn mode)", "run": "bin/check-surface.sh enforcement"},
+    {"name": "ADR enforcement", "run": "bin/check-surface.sh --strict enforcement"},
 ]
 
 TITLE_STEPS = [
@@ -323,7 +320,7 @@ VALE_STEPS = [
         "tar -xz -C \"$RUNNER_TEMP/vale\" -f \"$RUNNER_TEMP/vale.tgz\" vale\n"
         "echo \"$RUNNER_TEMP/vale\" >> \"$GITHUB_PATH\"\n")},
     {"name": "Sync the Google package", "if": VALE_IF, "run": "vale sync"},
-    {"name": "Lint working surfaces (warn mode)", "if": VALE_IF, "run": "vale --no-exit ."},
+    {"name": "Lint working surfaces (error level blocks)", "if": VALE_IF, "run": "vale ."},
     {"name": "Enforce Vale on the clean set (error level blocks)", "if": VALE_IF, "run": (
         "set -euo pipefail\n"
         "grep -v -e '^#' -e '^[[:space:]]*$' .vale/clean-set.txt \\\n"
@@ -467,15 +464,15 @@ for sub in ("size", "filenames", "placement", "statuslog"):
               f"bin/check-surface.sh --strict {sub}")
     no_if(rel, f"the {sub} step", steps[hits[0]])
     first_check = hits[0] if first_check is None else min(first_check, hits[0])
-# The ADR Enforcement rule warns until the ADRs are clean (#661, #702), so
-# its step runs without --strict. Flipping it is an edit here.
+# The ADR Enforcement rule enforces now that every ADR names a real check or
+# a discipline-only reason (#661, #702).
 hits = [i for i, r in enumerate(runs)
         if "bin/check-surface.sh" in r and "enforcement" in tokens(r)]
 check(len(hits) == 1, f"{rel}: enforcement runs in its own step",
       f"found {len(hits)} steps")
 for i in hits:
     exact_run(rel, "the enforcement step", steps[i],
-              "bin/check-surface.sh enforcement")
+              "bin/check-surface.sh --strict enforcement")
     no_if(rel, "the enforcement step", steps[i])
 if fixture_idx and first_check is not None:
     check(fixture_idx[0] < first_check,
@@ -604,13 +601,13 @@ VALE_EXACT = {
         "  vale --config .vale/strict.ini \"$good\" >/dev/null \\\n"
         "    || { echo \"::error::$good must pass\"; exit 1; }\n"
         "done"),
-    "vale --no-exit .": "vale --no-exit .",
+    "vale .": "vale .",
 }
 for _name, _step in (
     ("Find the changed Vale paths",
      {"id": "scope", "run": VALE_SCOPE_RUN}),
-    ("Lint working surfaces (warn mode)",
-     {"if": VALE_IF, "run": "vale --no-exit ."}),
+    ("Lint working surfaces (error level blocks)",
+     {"if": VALE_IF, "run": "vale ."}),
     ("Enforce Vale on the clean set (error level blocks)",
      {"if": VALE_IF, "run": VALE_EXACT[".vale/clean-set.txt"] + "\n"}),
     ("Check the fixtures (strict config)",
@@ -644,9 +641,9 @@ whole = [r for r in runs
 check(len(whole) == 1, f"{rel}: one step lints the whole tree",
       f"found {len(whole)} steps running 'vale ... .'")
 for r in whole:
-    check("--no-exit" in tokens(r),
-          f"{rel}: the whole-tree step still warns (--no-exit)",
-          "--no-exit is gone; if the sweep is done, update this test on purpose")
+    check("--no-exit" not in tokens(r),
+          f"{rel}: the whole-tree step fails on errors",
+          "it passes --no-exit")
 check(any("bin/check-voice-changed.sh" in r for r in runs),
       f"{rel}: the changed-files ratchet runs",
       "no step calls bin/check-voice-changed.sh")

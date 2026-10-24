@@ -31,8 +31,8 @@
         },
         {
           "if": "steps.scope.outputs.lint == 'true'",
-          "name": "Lint working surfaces (warn mode)",
-          "run": "vale --no-exit ."
+          "name": "Lint working surfaces (error level blocks)",
+          "run": "vale ."
         },
         {
           "if": "steps.scope.outputs.lint == 'true'",

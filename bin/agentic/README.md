@@ -13,8 +13,8 @@ DMF_AGENTIC_OVERRIDE=1 bin/agentic/issue-open.sh ...
 ```
 
 Read-only scripts (`agent-status.sh`, `issue-list.sh`, `preflight.sh`) remain
-usable without the override — they only gather and display information.
+usable without the override. They only gather and display information.
 
-The `forgejo.env` file is an environment configuration file, not a script.
+The `forgejo.env` file is an environment configuration file. It is not a script.
 The `templates/` directory contains git hook templates that were installed
 by `install-agentic-hooks.sh`.

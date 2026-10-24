@@ -1,12 +1,12 @@
 name: vale
 
 # Three layers:
-#   1. Whole tree: warns. "vale --no-exit ." reports findings and the job
-#      passes. The voice sweep that clears them is issue
-#      dmfdeploy/dmfdeploy#688.
-#   2. Clean set: enforces. The files listed in .vale/clean-set.txt already
-#      have no error-level alerts, so any new error in them fails the job.
-#      The list grows as #688 sweeps files.
+#   1. Whole tree: enforces. "vale ." fails the job on any error-level
+#      alert in a linted file. The voice sweep in issue
+#      dmfdeploy/dmfdeploy#688 cleared the tree first.
+#   2. Clean set: enforces. The files listed in .vale/clean-set.txt have no
+#      error-level alerts, so any new error in them fails the job. It names
+#      the swept files explicitly, so a scope change can't drop them.
 #   3. Changed files: ratchets. On a pull request, no linted Markdown file
 #      the PR touches may gain an error-level Voice alert (Contrast, EmDash).
 #      It compares counts at the base and the head. See
@@ -104,13 +104,13 @@ jobs:
         if: steps.scope.outputs.lint == 'true'
         run: vale sync
 
-      - name: Lint working surfaces (warn mode)
+      - name: Lint working surfaces (error level blocks)
         if: steps.scope.outputs.lint == 'true'
-        run: vale --no-exit .
+        run: vale .
 
       - name: Enforce Vale on the clean set (error level blocks)
         if: steps.scope.outputs.lint == 'true'
-        # The list lives in .vale/clean-set.txt and grows as #688 sweeps files.
+        # The list lives in .vale/clean-set.txt.
         run: |
           set -euo pipefail
           grep -v -e '^#' -e '^[[:space:]]*$' .vale/clean-set.txt \

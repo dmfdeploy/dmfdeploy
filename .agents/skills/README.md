@@ -1,4 +1,4 @@
-# DMF canonical skills store — conventions + decay rubric
+# DMF canonical skills store: conventions and decay rubric
 
 This directory is the **one agent-neutral skill store** (ADR-0042). The
 `.claude/skills/` and `.qwen/skills/` trees are generated, gitignored views
@@ -7,8 +7,8 @@ auto-minted skills enter through `_inbox/` → `--promote` → PR.
 
 Skills are **public-trajectory content**: no tokens, no private IPs, no
 operator identity, no operator-home paths (enforced by `bin/sync-skills.sh
---check` in pre-commit + CI). Environment slugs rotate — reference
-`STATUS.local.md`, never a concrete env id.
+--check` in pre-commit + CI). Environment slugs rotate. Reference
+`STATUS.local.md`, and never a concrete env id.
 
 ## Metadata rubric (R3, issue #225)
 
@@ -18,8 +18,8 @@ Every `SKILL.md` carries these frontmatter keys, validated by
 | Key | Values | Meaning |
 |---|---|---|
 | `type` | `durable-pattern` \| `incident-residue` \| `operational-procedure` | What kind of knowledge this is (drives review cadence) |
-| `scope` | free text (e.g. `agent-workflow`, `github`, `live-env`, `dmf-cms`) | Where it applies |
-| `owner` | `operator` | Accountable role (never a personal identity — public trajectory) |
+| `scope` | free text (for example `agent-workflow`, `github`, `live-env`, `dmf-cms`) | Where it applies |
+| `owner` | `operator` | Accountable role (never a personal identity; the trajectory is public) |
 | `review_by` | `YYYY-MM-DD` | Next mandatory re-validation date |
 | `source_ref` | URL (optional) | Issue/PR/transcript the skill came from; required for NEW skills, legacy auto-extractions may lack it |
 | `merged_from` | list (optional) | Names of retired skills folded into this one |
@@ -30,14 +30,14 @@ does not happen in practice, so `review_by` is the enforceable decay field.
 
 **Review cadence by type:**
 
-- `durable-pattern` — 6 months. Encodes a reusable technique or protocol.
-- `incident-residue` — 3 months. Born from one incident; the shortest leash,
+- `durable-pattern`: 6 months. Encodes a reusable technique or protocol.
+- `incident-residue`: 3 months. Born from one incident; the shortest leash,
   because it is either promoted to durable (the hazard recurred), folded into
   a durable skill, or retired.
-- `operational-procedure` — 6 months, and IMMEDIATELY when the system it
+- `operational-procedure`: 6 months, and IMMEDIATELY when the system it
   drives changes shape (release path, cluster access, unseal quorum).
 
-An overdue `review_by` is a **warning**, not a commit blocker (a date
+An overdue `review_by` is a **warning**. It never blocks a commit (a date
 rollover must not brick unrelated commits); the reviewer either re-validates
 (bump the date, fix drift) or retires.
 
