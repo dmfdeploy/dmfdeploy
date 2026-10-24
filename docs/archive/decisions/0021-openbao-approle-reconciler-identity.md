@@ -13,3 +13,14 @@ This file holds material moved out of [ADR-0021](../../decisions/0021-openbao-ap
   AppRoles and escalate into broad app-data access.
 - **Reintroduce root for post-seed.** Rejected because ADR-0009 and the OpenBao
   bootstrap model deliberately treat root as first-bootstrap-only material.
+
+## Moved from the ADR on 2026-10-23
+
+**Verified live on `<env>` 2026-05-23** via
+`dmf-infra/k3s-lab-bootstrap/playbooks/verify-openbao-identity-model.yml`
+(read-shaped assertion playbook). The verifier confirms: three identity
+logins succeed (ops-admin / policy-reconciler / approle-reconciler); five
+AC-5 negative probes all return `deny`; two ClusterSecretStores Ready; six
+ExternalSecrets Ready across six target namespaces. See
+[`DMF OpenBao AppRole-Reconciler Live Verification Handoff 2026-05-23.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20OpenBao%20AppRole-Reconciler%20Live%20Verification%20Handoff%202026-05-23.md).
+Run on any new env as part of post-seed verification.

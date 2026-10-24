@@ -65,3 +65,4 @@ docs/decisions/0025-ansible-in-cluster-pods-and-catalog-helm.md
 docs/decisions/0028-identity-and-authority-chain.md
 docs/decisions/0029-tiered-unseal-posture.md
 docs/decisions/0046-first-class-media-workload-entity.md
+docs/decisions/0021-openbao-approle-reconciler-identity.md
