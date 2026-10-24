@@ -29,19 +29,19 @@ inherit `ops-admin` app-secret powers. Any future expansion beyond
 
 ## Consequences
 
-- **Positive** — Preserves NIST 800-53 AC-5 separation of duties: ACL policy
+- **Positive:** Preserves NIST 800-53 AC-5 separation of duties. ACL policy
   reconciliation, AppRole reconciliation, and app-secret administration remain
   separate technical duties.
-- **Positive** — Gives a cleaner ISO 27001 / managed-service story: a leaked
+- **Positive:** Gives a cleaner ISO 27001 / managed-service story: a leaked
   bootstrap credential has a narrower and easier-to-explain blast radius than a
   combined "bootstrap-reconciler" identity.
-- **Positive** — Keeps `ops-admin` as an operator/app-secret identity and
+- **Positive:** Keeps `ops-admin` as an operator/app-secret identity and
   `policy-reconciler` as policy-as-code only.
-- **Negative** — Adds one more bootstrap identity, one more password in the
+- **Negative:** Adds one more bootstrap identity, one more password in the
   break-glass JSON, and one more rotation/test path.
-- **Negative** — `base/object-storage-credentials` needs an additional OpenBao
+- **Negative:** `base/object-storage-credentials` needs an additional OpenBao
   session and more explicit token routing.
-- **Neutral** — The current `common/openbao-session` mode pattern remains the
+- **Neutral:** The current `common/openbao-session` mode pattern remains the
   mechanism; it gains a third mode rather than being replaced.
 
 ### Enforcement
@@ -69,14 +69,12 @@ Live verification must include probes that `ops-admin` still receives `deny` or
 Until a CI policy audit exists, enforcement is via code review, live probes, and
 the acceptance criteria in the AppRole reconciler plan.
 
-**Verified live on `<env>` 2026-05-23** via
-`dmf-infra/k3s-lab-bootstrap/playbooks/verify-openbao-identity-model.yml`
-(read-shaped assertion playbook). The verifier confirms: three identity
-logins succeed (ops-admin / policy-reconciler / approle-reconciler); five
-AC-5 negative probes all return `deny`; two ClusterSecretStores Ready; six
-ExternalSecrets Ready across six target namespaces. See
-[`DMF OpenBao AppRole-Reconciler Live Verification Handoff 2026-05-23.md`](https://github.com/dmfdeploy/dmfdeploy/blob/22f351cd1cf4b16a391a013861015666b065e55c/docs/handoffs/DMF%20OpenBao%20AppRole-Reconciler%20Live%20Verification%20Handoff%202026-05-23.md).
-Run on any new env as part of post-seed verification.
+The verifier `dmf-infra/k3s-lab-bootstrap/playbooks/verify-openbao-identity-model.yml`
+(a read-shaped assertion playbook) confirms: three identity logins succeed
+(ops-admin / policy-reconciler / approle-reconciler); five AC-5 negative probes
+all return `deny`; two ClusterSecretStores Ready; six ExternalSecrets Ready
+across six target namespaces. Run it on any new env as part of post-seed
+verification.
 
 ## Status
 

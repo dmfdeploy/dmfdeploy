@@ -74,7 +74,7 @@ BUDGET_STATUS=30
 ADR_CEILINGS='
 docs/decisions/0016-awx-control-node-ssh-via-cloud-init-and-openbao.md 83
 docs/decisions/0020-deployment-scope-and-regulatory-posture.md 257
-docs/decisions/0021-openbao-approle-reconciler-identity.md 85
+docs/decisions/0021-openbao-approle-reconciler-identity.md 83
 docs/decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md 269
 docs/decisions/0032-catalog-launcher-scoped-netbox-writer.md 267
 docs/decisions/0038-netbox-driven-dynamic-monitoring.md 365
