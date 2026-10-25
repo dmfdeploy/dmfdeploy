@@ -36,7 +36,7 @@ jobs:
         # filter against false-close regressions (refs #47).
         run: bash bin/close-completed-issues.sh --self-test
       - name: negated closing-keyword matcher self-test (#548)
-        # Fixtures for the matcher shared by guard.yml's issue-link gate and
+        # Fixtures for the matcher shared by the issue-link gate and
         # the reconciler: the #531 wording, qualified refs, code exemptions.
         run: python3 bin/lib/closing_refs.py --self-test
       - name: public-safety worktree regression (R1 §7)

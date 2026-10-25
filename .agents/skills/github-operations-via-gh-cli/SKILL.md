@@ -135,27 +135,39 @@ body. `dmfdeploy/dmf-env#20` also fails — it is not the umbrella backlog.
 Trivial change with no issue? Add the `no-issue` label, which the job honours
 before it ever reads the body.
 
-### Editing the PR body does not re-fire the guard
+### Editing the PR body re-runs the check in the umbrella only
 
-`guard.yml` declares `pull_request: branches: [main]` with **no `types:`**, so it
-gets the GitHub defaults — `opened`, `synchronize`, `reopened`. **`edited` is not
-among them**, so `gh pr edit --body` alone never re-runs the check: the failing
-verdict from the original event stands, and the PR looks permanently broken.
+In the umbrella, `issue-link` runs from `.github/workflows/issue-link.yml`. It
+triggers on `pull_request_target` with `edited`, `labeled`, and `unlabeled`
+besides the default types, and it reads the current body and labels from the
+API. So `gh pr edit --body`, or adding the `no-issue` label, re-runs the check
+on the PR as it is now, and no push or close and reopen is needed. A re-run of
+the job reads the live body too.
 
-Two ways to re-fire, both default types:
+Until a follow-up PR removes it, `guard.yml` in the umbrella still carries the
+old `issue-link` job too. That job doesn't re-run on an edit. If it failed
+before the edit and the PR stays blocked after the trusted check turns green,
+push a commit to re-run both.
 
-- **close + reopen** — fires `reopened`.
-- **push any commit** — fires `synchronize`, and the fresh event payload carries
+Component repos still run the check from `guard.yml` under `pull_request`
+with **no `types:`**, which gets the GitHub defaults: `opened`,
+`synchronize`, and `reopened`. **`edited` isn't among them**, and the job reads
+the body from the event payload. There, `gh pr edit --body` alone never re-runs
+the check, and a re-run replays the old body. Two ways to re-fire, both
+default types:
+
+- **Close and reopen**: fires `reopened`.
+- **Push any commit**: fires `synchronize`, and the new event payload carries
   the *current* body, so a body fix and a content fix land in one run.
 
-Prefer the push when the PR needs a content change anyway; it avoids both a
-close/reopen cycle and an empty commit. Verified on umbrella #360 (2026-08-04):
-the body was edited to add the missing reference, then a content commit pushed —
-the `synchronize` run read the updated body and `issue-link` passed.
+Prefer the push when the PR needs a content change anyway. Verified on umbrella
+#360 (2026-08-04), before the umbrella moved to the trusted workflow: the body
+was edited to add the missing reference, then a content commit pushed. The
+`synchronize` run read the updated body and `issue-link` passed.
 
-The same trigger list explains why a **label** change does not re-evaluate these
-jobs either: `labeled`/`unlabeled` are not defaults, so adding `no-issue` to a
-already-failed PR needs the same re-fire.
+Labels behave the same way in a component repo: `labeled` and `unlabeled`
+aren't default types, so adding `no-issue` to a failed PR needs the same
+re-fire.
 
 ## Reply format
 

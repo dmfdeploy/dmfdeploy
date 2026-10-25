@@ -1,0 +1,95 @@
+name: issue-link
+
+# Working-model gate (issue #32): every PR references its tracking issue in
+# the canonical backlog (this repo), and no closing keyword in the body is
+# paired with a negation (#548). Bare #N is fine here, because the backlog
+# lives in this repo. Trivial change: add the no-issue label, which skips the
+# reference check but not the negation check.
+#
+# Trust (#758): pull_request_target runs this file and the checkout from the
+# BASE branch, so a PR cannot change the gate or the matcher that judges it.
+# The job never checks out the PR head and runs no PR code. The body and the
+# labels come from the API at run time, not from the event payload, so the
+# check judges the PR as it is now: an edit re-runs it on the live body, and a
+# re-run never replays a stale one. The body is untrusted data: it reaches the
+# matcher only through a file, and no step expands it into a command.
+#
+# The job name is the required status check `issue-link` in the main ruleset.
+# Keep it.
+#
+# Transition: guard.yml still carries the old issue-link job, because this
+# file only runs once it is on main. Remove that job in a follow-up PR after
+# this one merges.
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, edited, reopened, synchronize, labeled, unlabeled]
+
+permissions: {}
+
+# The newest event for a PR wins. A superseded run ends as cancelled, which
+# never satisfies a required check, and the newer run reports in its place.
+concurrency:
+  group: issue-link-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  issue-link:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout the base branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Read the live PR body and labels
+        # Fails closed: a failed read, or a reply without a string-or-null body
+        # and an array of named labels, stops the job before any check passes.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          gh api "repos/${REPO}/pulls/${PR_NUMBER}" >"$RUNNER_TEMP/pr.json"
+          jq -e '(.body | type == "string" or type == "null")
+            and (.labels | type == "array")
+            and all(.labels[]; (.name | type) == "string")' \
+            "$RUNNER_TEMP/pr.json" >/dev/null
+          jq -j '.body // ""' "$RUNNER_TEMP/pr.json" >"$RUNNER_TEMP/pr-body.md"
+          jq -r '[.labels[].name] | join(" ")' "$RUNNER_TEMP/pr.json" >"$RUNNER_TEMP/pr-labels.txt"
+
+      - name: PR body pairs no closing keyword with a negation (#548)
+        # GitHub ignores negation: "does not close #N" links #N as closed by
+        # this PR, and the issue-close reconciler then closes it. Runs even
+        # with the no-issue label. Code blocks and code spans are exempt.
+        env:
+          DEFAULT_REPO: ${{ github.repository }}
+        run: |
+          set -eu
+          if ! python3 bin/lib/closing_refs.py check --file "$RUNNER_TEMP/pr-body.md" \
+              --default-repo "${DEFAULT_REPO}"; then
+            echo "FAIL: reword each phrase above; the safe rewrite keeps the issue open." >&2
+            exit 1
+          fi
+          echo "OK: no negated closing keyword"
+
+      - name: PR references a canonical-backlog issue
+        run: |
+          set -eu
+          case " $(cat "$RUNNER_TEMP/pr-labels.txt") " in *" no-issue "*)
+            echo "OK: no-issue label set"; exit 0 ;;
+          esac
+          if grep -qiE '(close[sd]?|fix(e[sd])?|resolve[sd]?|refs?)[[:space:]:]+((dmfdeploy/dmfdeploy)?#[0-9]+|https://github\.com/dmfdeploy/dmfdeploy/issues/[0-9]+)' \
+              "$RUNNER_TEMP/pr-body.md"; then
+            echo "OK: issue reference found"
+            exit 0
+          fi
+          echo "FAIL: PR body must reference its tracking issue (e.g. 'Refs #32')." >&2
+          echo "See docs/WORKING-MODEL.md. Trivial change? Add the 'no-issue' label." >&2
+          exit 1
