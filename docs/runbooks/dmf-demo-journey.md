@@ -136,7 +136,9 @@ page text was captured on a timer while each job ran. A workload,
 4. §4 again on `walk-oct25`, then Activity → History (§6b).
 
 AWX was already awake from the switch and teardown minutes earlier, so §3's
-times from this walk are **warm figures**; a cold start takes longer.
+times from this walk are **warm figures**; a cold start takes longer. This
+file gives every time in rounded minutes; the second-by-second timestamps
+stay in the walk's own captures.
 
 - **Watched for the first time by any pass.** The fresh login ceremony (§1,
   [#535](https://github.com/dmfdeploy/dmfdeploy/issues/535)); the invalid
@@ -146,9 +148,10 @@ times from this walk are **warm figures**; a cold start takes longer.
 - **Corrected from what it saw.** §1's persona role depends on the env (this
   walk's was admin). §3's badge passes through `planned` first, its instance
   count climbs live, and **▶ Deploy** shows while the job still runs. §4's
-  sources can read `reconciling` for minutes after Provision. §5 took about
-  228 s, never showed the outcome line earlier editions quoted, and showed
-  "Workload not found" part-way through. §6a has a locked window part-way
+  sources can read `reconciling` for minutes after Provision. §5 took
+  nearly four minutes, about twice as long as on 2026-09-02, never showed
+  the outcome line earlier editions quoted, and showed "Workload not found"
+  part-way through. §6a has a locked window part-way
   through Teardown, and §6b's Review line doesn't record what ran. Each beat
   names the issue that replaces the behaviour, where one does.
 - **Not observed, and §9 says so.** An automatic-rollback row (no switch
@@ -283,7 +286,7 @@ around.
 ## 0. Presenter pre-flight
 
 Do these **before** the audience is watching (or before the reader sits
-down). Roughly 5 minutes.
+down). Roughly five minutes.
 
 **Placeholders.** This runbook uses `<env>` for the environment slug and
 `<env-base-domain>` for the env's base domain — the console is at
@@ -468,15 +471,16 @@ pitfalls that runbook covers in full.
 > now has a range from **four** live samples across three rounds (0.24.0,
 > 0.33.0 and 0.39.0), widened rather than replaced: **Provision** (§3) —
 > confirm-click to the exit control turning into a live "View live" link —
-> ran **30–90 s** (full convergence to a fully running workload took ~230 s
-> in the third sample; the 2026-10-25 sample settled about 3.5 minutes after
-> `provisioned`); **Switch** (§5) ran **110–230 s**;
-> **Teardown** (§6a) ran **90–170 s**; **Delete permanently** (§6a) stayed
-> inside **30–60 s**. Narrate the wait rather than standing in silence — for
+> took **under a minute to about a minute and a half**. Full convergence to
+> a fully running workload took about four minutes in the third sample, and
+> about five on 2026-10-25, even with AWX already awake. **Switch** (§5)
+> took **two to four minutes**, **Teardown** (§6a) took **one and a half to
+> three minutes**, and **Delete permanently** (§6a) took **about a minute**. Narrate the wait rather than standing in silence — for
 > Provision, "the platform is scaled to zero at rest; this click is
 > spinning the automation plane up on demand" — so the pause reads as a
 > *feature*, not a hang. These are still small samples — treat every range
-> as approximate, not a promise.
+> as approximate, not a promise. Each beat in §3, §5 and §6a says when a
+> wait has gone on long enough to check Activity.
 
 ---
 
@@ -645,7 +649,7 @@ facility-wide record.
 > Console's Settings → *Create new device invitation* (self-service); full
 > procedure in [`passkey-enrollment.md`](passkey-enrollment.md).
 
-If you want to show enrollment itself (optional, adds ~2 min): user menu
+If you want to show enrollment itself (optional, adds about two minutes): user menu
 → **Settings** → **Passkey Enrollment** → **Create new device invitation** →
 a single-use URL + QR renders. **Any signed-in persona can do this** — an
 earlier edition said the endpoint was admin-gated and that an engineer would
@@ -824,7 +828,8 @@ current, not the 0.24.0 wording.**
    still says **"Provisioning"**, and the panel below it now carries its own
    sub-heading, verbatim, **"Provisioning under way"**, plus a **live
    elapsed-time counter** (ticks in seconds, then minutes:seconds — confirmed
-   watched live, 1s through past 1m20s) and a new guidance line, verbatim:
+   watched live, from the first second to past a minute) and a new
+   guidance line, verbatim:
    *"Typically takes a few minutes."* A further new line ties this screen to
    §1's Workspace dashboard, verbatim: *"It shows up on Workspace while it
    runs, and in Media Workloads once it's recorded."* Below that, **"Deploy
@@ -849,7 +854,7 @@ current, not the 0.24.0 wording.**
    *(Source-derived — the freeze blocked running a real Provision, so this
    was read from the console's source, not watched. The 2026-10-25 walk's
    page-text captures read `View live` followed by
-   `— The launch job is in progress.` from 10 s to 52 s. Those captures
+   `— The launch job is in progress.` for the whole first minute. Those captures
    include screen-reader-only text, so they confirm the sentence exists but
    not whether it's painted; see §9.1.)*
 
@@ -866,30 +871,38 @@ current, not the 0.24.0 wording.**
    not only once the job ends — so it can show up here while the job is
    still running, and an empty inventory in the meantime is expected rather
    than a missing workload."* **Timing re-measured 2026-09-02: the screen
-   swap itself landed at ~85–90 s** this round — at or past the top of the
-   0.24.0 walk's quoted 30–60 s range, not clearly inside it; treat the
-   range as **30–90 s**. The 2026-10-25 sample, below, is warm and doesn't
-   move it. **Full convergence (all
+   swap itself landed after about a minute and a half** this round. That is
+   at or past the top of the 0.24.0 walk's quoted range of half a minute to
+   a minute, so treat the range as **under a minute to about a minute and a
+   half**. The 2026-10-25 sample, below, is warm and
+   doesn't move it. **Full convergence (all
    three pieces reading `active`/`running` on the Live view, §4) took
-   materially longer — ~230 s (about 4 minutes) this round** — the new
+   materially longer — about four minutes this round** — the new
    "Typically takes a few minutes" copy fits that number, not the
    screen-swap number; the two were never the same thing, but this is the
    first time this file gives a figure for full convergence specifically.
 
    **The 2026-10-25 sample (0.39.0) is a warm one.** AWX was already awake
    from jobs run minutes earlier, so it skipped most of the wake wait. The
-   screen swap landed between 52 s and 62 s. The guided-flow header's badge
-   then read `planned` at 62 s and 72 s, and `provisioned` at about 83 s.
-   Full convergence took longer again: the two sources read `reconciling`
-   on the live view for about 3.5 minutes after the badge read `provisioned`
-   (§4). Don't quote 83 s as the time a cold Provision takes.
+   screen swap landed after about a minute. The guided-flow header's badge
+   then read `planned` for the next quarter of a minute or so, and
+   `provisioned` at about a minute and a half. Full convergence took longer
+   again: the two sources read `reconciling` on the live view for about
+   another three and a half minutes (§4), so the whole Provision took about
+   five minutes. Don't quote the minute and a half as the time a cold
+   Provision takes.
+
+   **When to worry.** The Provisioning screen usually hands off within a
+   minute and a half. If it still reads "Provisioning" after three minutes,
+   or the three tiles aren't all `active`/`running` after eight, check
+   Activity on Workspace (§1) for a failed or unknown deploy row.
 
    **In the gap between the screen swap and full convergence, the real
    workload's own Provision step can offer "Clear for deployment" for the
    not-yet-active sources** — visually identical to §6a's post-Teardown
    landing, but this is a workload on its first-ever deploy that was never
    torn down. Confirmed transient and benign on the 2026-09-02 walk
-   (re-polled every 15s; it resolved on its own once the job actually
+   (re-polled every 15 seconds; it resolved on its own once the job actually
    finished) — narrate it as "still converging" if you see it, not as a
    problem. **Since v0.36.0 you will not see it unless you go looking:**
    the whole block now sits inside a collapsed **"Desired state (expert)"**
@@ -899,8 +912,9 @@ current, not the 0.24.0 wording.**
    2026-09-19 pass.)*
 
    **Something else is in view in that gap, though: ▶ Deploy.** On
-   2026-10-25 the step body showed the inline **▶ Deploy** button at 62 s
-   and 72 s, outside the collapsed disclosure, above
+   2026-10-25 the step body showed the inline **▶ Deploy** button for the
+   first quarter of a minute or so after the handoff, outside the collapsed
+   disclosure, above
    `MEDIA FUNCTION INSTANCES — 0 OF 3 PROVISIONED`, with the badge at
    `planned`. The launch job was still running then. Don't click it, and
    don't narrate it as an invitation to deploy: the job you started is
@@ -1005,9 +1019,9 @@ is still wondering whether one click really launched three things, this line
 is the answer: point at it rather than explaining it. *(The counts and the
 heading were read live on 2026-09-19 on a settled workload.)* **The count
 also climbs live while the job runs, watched 2026-10-25:** it read
-`0 OF 3` at 62 s, then `1 OF 3` at 83 s, with `mxl-videotest-view` marked
-`cleared to run` and both sources still `planned`. At 83 s the step also
-read, verbatim, `Provision isn't currently offering to deploy this template — see the rail state above.`
+`0 OF 3` at the handoff, then `1 OF 3` about a quarter of a minute later,
+with `mxl-videotest-view` marked `cleared to run` and both sources still
+`planned`. At that point the step also read, verbatim, `Provision isn't currently offering to deploy this template — see the rail state above.`
 That walk didn't return to the step once the sources settled, so it didn't
 see "Already deployed." on 0.39.0.
 
@@ -1053,7 +1067,7 @@ steps, not from here."* That's the whole thesis of this page in one
 sentence: watch here, act on the guided flow. *(Same text again 2026-10-25.)*
 
 **Before the sources settle, the page looks different, watched 2026-10-25.**
-For about 3.5 minutes after a Provision's badge read `provisioned` (§3), both
+For about three and a half minutes after a Provision's badge read `provisioned` (§3), both
 source tiles read `reconciling` / `active` / `unknown` while the viewer tile
 already read `active` / `running`. Meanwhile the intro line above was
 replaced by, verbatim,
@@ -1171,7 +1185,7 @@ for the American spelling is watching for a word that never appears. The
 2026-10-25 walk watched it live while Teardown ran and again while Delete
 permanently ran. That walk also saw two things the list above doesn't say:
 after a Provision the badge read **"planned"** first and reached
-**"provisioned"** only at about 83 s (§3), and a fifth value,
+**"provisioned"** only after about a minute and a half (§3), and a fifth value,
 **"configuring"**, which shows while a switch runs (§5).
 
 **Whether an equivalent badge appears on this page — the bare-slug live
@@ -1278,9 +1292,12 @@ only `source-b (checkers-8)`, a target alone left **Confirm switch**
 disabled, and a target plus a reason enabled it.)*
 
 **Expected result — after confirming, confirmed live three times.** 0.24.0's
-walk measured **150–180 s**; the 2026-09-02 sample completed in **~114 s**;
-the 2026-10-25 sample (0.39.0) took **~228 s**, slower than either. Widen to
-**~110–230 s** rather than trust any single number.
+walk took **two and a half to three minutes**; the 2026-09-02 sample took
+**about two minutes**; the 2026-10-25 sample (0.39.0) took **nearly four
+minutes**, about twice as long as 2026-09-02. Expect **two to four
+minutes** rather than trust any single number. **When to worry:** if
+**Configure** hasn't shown the new source after five minutes, check
+Activity on Workspace (§1) for the switch row.
 
 **There is no outcome line any more.** Earlier editions said the Configure
 step reads, verbatim, **"Active source: source-b"** on success. On
@@ -1294,22 +1311,22 @@ already describes (**"source-a (smpte)"** / **"source-b (checkers-8)"**) — a
 bare value, not a composed sentence.
 
 **What the page shows while the switch runs, watched 2026-10-25.** It is not
-a quiet tile. Times are seconds after **Confirm switch**:
+a quiet tile. It goes through four phases after **Confirm switch**:
 
-- **0 to about 71 s.** The badge reads `configuring`, the button reads
-  `Switching…`, and the exit control is inert, with
+- **First, for about a minute.** The badge reads `configuring`, the button
+  reads `Switching…`, and the exit control is inert, with
   `— Unavailable until the job finishes.` beside `View live` in the page
-  text. From about 61 s the step also shows
+  text. Toward the end of that minute the step also shows
   `Live source is unknown or stale — refresh to retry before switching.`
-- **About 81 s to 146 s.** The whole page reads **"Workload not found"**,
-  with the companion line 'No workload named "ui-review" is in your scope
-  right now.' This lasted about 70 s. The workload wasn't gone: the page
-  came back on its own. The cause is tracked in
+- **Next, for about another minute.** The whole page reads **"Workload not
+  found"**, with the companion line 'No workload named "ui-review" is in
+  your scope right now.' The workload wasn't gone: the page came back on
+  its own. The cause is tracked in
   [dmfdeploy/dmfdeploy#562](https://github.com/dmfdeploy/dmfdeploy/issues/562).
-- **About 157 s to 218 s.** The badge is back to `configured`, but the
-  source isn't settled yet. The value alternated between `—` with the
-  stale-source line above, and the old `source-a`.
-- **About 228 s.** The value reads `source-b`.
+- **Then, for about another minute.** The badge is back to `configured`,
+  but the source isn't settled yet. The value alternated between `—` with
+  the stale-source line above, and the old `source-a`.
+- **At the end, nearly four minutes in.** The value reads `source-b`.
 
 The walk didn't reload at any point, and the page recovered by itself. If
 you see "Workload not found" mid-switch, say the switch is still running
@@ -1396,7 +1413,8 @@ sentence is painted stays open; see §9.1.)*
 While the job runs, the Teardown section shows its own progress, watched
 2026-10-25: `Tearing down`, an elapsed counter, the line
 `Typically takes two to three minutes.`, an operation id with a step label
-(`Waking automation` at 11 s, `Running` by 52 s), and, by 52 s, the line
+(`Waking automation` in the first few seconds, `Running` within the first
+minute), and, within the first minute, the line
 `3 of 3 services running, as of the last check.` The Review section reads
 `A teardown is in progress.`
 
@@ -1406,18 +1424,21 @@ everywhere else on the page. Earlier editions of this runbook recorded it as
 "finalizing" and explained the inconsistency at length; that was a
 transcription error here, not an inconsistency in the console, and it
 explains why the 2026-09-02 Teardown polled for the string and never matched
-it. *(Watched live 2026-10-25, from 11 s to 52 s of the Teardown. The
+it. *(Watched live 2026-10-25, for the first minute of the Teardown. The
 spelling itself is settled: the console's source pins it and warns against
 changing it.)*
-**Duration: 90–120 s (0.24.0 sample), 167 s (2026-09-02 sample), ~156 s
-(2026-10-25 sample) — keep the range at ~90–170 s**, not a promise either
-way.
+**Duration: one and a half to two minutes (0.24.0 sample), nearly three
+minutes (2026-09-02 sample), two and a half minutes (2026-10-25 sample).
+Expect one and a half to three minutes**, not a promise either way. **When
+to worry:** if the Teardown section hasn't read "Not currently deployed."
+after four minutes, check Activity on Workspace (§1) for the teardown row.
 
-**Expect a locked step part-way through, watched 2026-10-25.** From about
-63 s to 146 s, after the badge dropped to `planned`, the whole Finalise &
+**Expect a locked step part-way through, watched 2026-10-25.** After about
+the first minute, once the badge dropped to `planned`, the whole Finalise &
 Review step read `Locked` and, verbatim,
 `Nothing is running for this workload yet, so there is nothing to tear down. This step opens once Provision has deployed it.`
-That lasted about 90 s. At about 156 s the step reopened, with
+That lasted about a minute and a half. At about two and a half minutes the
+step reopened, with
 **"Not currently deployed."** on the Teardown section and **Delete
 permanently** offered. Wait it out; the Teardown hasn't failed. This gating
 is a demo construct that v0.3 replaces
@@ -1559,14 +1580,17 @@ freeze forbade. Watched in part 2026-10-25: the panel read
 collapsed **System details** disclosure, with the badge at `finalising` and
 the Review section reading `A delete is in progress.` The walk didn't open
 the disclosure, so the format inside it is still source-derived.)*
-**Duration: 30–60 s (0.24.0), ~62 s (2026-09-02), ~51 s (2026-10-25) — right
-at the edge of the same range, leave it as-is.**
+**Duration: half a minute to a minute (0.24.0), about a minute (2026-09-02
+and 2026-10-25). Expect about a minute.** **When to worry:** if the panel
+still reads "Deleting … permanently" after two minutes, check Activity →
+Jobs for the finalise-purge job, since the delete has no row in the audit
+record (§6b).
 
 After completion, the page reads, verbatim, **"Workload not found"** at the
 same `/setup` URL, with a companion line — quoted here with single quotes
 since the string itself contains double quotes — reading: 'No workload
 named "`<slug>`" is in your scope right now.' Confirmed again 2026-09-02,
-byte-identical, and again 2026-10-25 at about 51 s. A dead end: the collection view no longer lists the
+byte-identical, and again 2026-10-25 after about a minute. A dead end: the collection view no longer lists the
 workload, and the cluster is confirmed at zero pods, services, and Helm
 releases (this round's own AWX job list showed the finalise-purge job
 `801 — media-finalise-purge` completing Succeeded). This landing is also
@@ -1642,7 +1666,7 @@ actually want to scroll further back than Workspace shows.
 - **Source-switch rows carry a verdict too, but by a different route — and
   this is the distinction to get right.** Nothing watches a switch after the
   fact. The console holds the switch request open until the switch job
-  itself finishes (which is why §5's **Confirm switch** takes ~110–230 s)
+  itself finishes (which is why §5's **Confirm switch** takes two to four minutes)
   and writes the row **once, already resolved**: *succeeded* if the switch
   reached its active state, *failed* if it did not. So a switch row is never
   in flight and never revises itself the way a deploy row does. It **can**
@@ -1821,29 +1845,34 @@ being briefed on it.
 
 | Symptom you might see | What it is | Reference |
 |---|---|---|
-| ~~The guided-flow page briefly shows an amber banner, *"`<Step>` isn't open yet: `<reason>`"*, on a step that is actually open~~ **Retired — do not expect this.** | Listed as a live symptom through the 2026-09-02 walk, but #416 closed 2026-08-20, *before* that walk, and the code path that rendered it was removed in a later rail redesign. A 2026-09-19 probe drove ~35 rail-step navigations over ~90 s with a 400 ms watcher on the page's one live region and saw it zero times. That is one browser on one settled workload, so it is not proof the banner can never appear — but it is reason enough to stop briefing a presenter to expect it. Nothing in the runbook recorded whether the 2026-09-02 sighting was a regression or a row carried forward unchecked. | [dmfdeploy/dmfdeploy#416](https://github.com/dmfdeploy/dmfdeploy/issues/416) (closed) |
+| ~~The guided-flow page briefly shows an amber banner, *"`<Step>` isn't open yet: `<reason>`"*, on a step that is actually open~~ **Retired — do not expect this.** | Listed as a live symptom through the 2026-09-02 walk, but #416 closed 2026-08-20, *before* that walk, and the code path that rendered it was removed in a later rail redesign. A 2026-09-19 probe drove ~35 rail-step navigations over about a minute and a half with a 400 ms watcher on the page's one live region and saw it zero times. That is one browser on one settled workload, so it is not proof the banner can never appear — but it is reason enough to stop briefing a presenter to expect it. Nothing in the runbook recorded whether the 2026-09-02 sighting was a regression or a row carried forward unchecked. | [dmfdeploy/dmfdeploy#416](https://github.com/dmfdeploy/dmfdeploy/issues/416) (closed) |
 | After Teardown or Delete permanently completes, you may land somewhere you didn't ask for — Teardown was observed once (2026-08-19) bouncing unprompted to the Provision step's desired-state panel; **this round's Teardown (2026-09-02) landed cleanly on Finalise & Review instead, no bounce** — so it's confirmed NOT to happen every time, not fixed. Delete permanently reliably strands you on a "Workload not found" page for the workload you just removed (confirmed again this round) | A completed lifecycle action should hand you back to the workload's home or the collection view, not to an unrelated next step or a dead URL. Disorienting, not dangerous — nothing runs automatically from either landing without another explicit confirm. | [dmfdeploy/dmfdeploy#418](https://github.com/dmfdeploy/dmfdeploy/issues/418) |
 | On the Design step, **after a Teardown**, the two topology-spawned sources' function keys show *"This function key isn't in the current catalog — it may have been removed since this workload was deployed."* | Was reported fixed (0.24.0 edition). Confirmed back, live, **post-Teardown**, 2026-09-02. **The state matters:** on a freshly provisioned workload the warning is absent — the 2026-09-19 pass looked and saw nothing — so don't read its absence before a Teardown as the bug being fixed. That pass could not re-run a Teardown to reproduce it. Cosmetic either way — the sources still deploy and run correctly regardless of what Design says about their catalog membership. | [dmfdeploy/dmfdeploy#532](https://github.com/dmfdeploy/dmfdeploy/issues/532) |
 | Provisioned instances show up **grouped as "Unassigned"** in the grid | The launcher hasn't stamped a `workload:<slug>` tag onto every member, so the grouping logic has nothing to group them by. Cosmetic/legibility only. | [dmfdeploy/dmfdeploy#239](https://github.com/dmfdeploy/dmfdeploy/issues/239) |
 | The Plan step's resource total is marked **"Partial"**, with a note that some templates don't declare a demand | By design, not a fault: not every catalog template records a resource figure, and the console sums only what it knows rather than guessing the rest. The number is a floor, not the workload's real footprint. If someone asks "is that the real cost?", the honest answer is no — not yet, for every function. | live-observed 2026-09-19; no issue filed |
 | Mid-Provision, the Design and Provision steps may show less progress detail than the finished workload does | Partly fixed. A settled workload now shows real counts ("N elements designed", "N of M provisioned" — confirmed live 2026-09-19). On 2026-10-25 the Provision count was also watched climbing during a real Provision, `0 OF 3` then `1 OF 3` (§3). The issue stays open, so treat that as one observation. | [dmfdeploy/dmfdeploy#559](https://github.com/dmfdeploy/dmfdeploy/issues/559) (open) |
 | Part-way through a Switch, the page reads **"Workload not found"** for about a minute, then shows a stale or blank source before the new one | Watched 2026-10-25 (§5). The workload is still there and the page recovers without a reload. The switch mechanism itself is replaced in v0.2 ([#633](https://github.com/dmfdeploy/dmfdeploy/issues/633)). | [dmfdeploy/dmfdeploy#562](https://github.com/dmfdeploy/dmfdeploy/issues/562) |
-| Part-way through a Teardown, Finalise & Review reads **"Locked"** and says nothing is running yet | Watched 2026-10-25 for about 90 s (§6a). The step reopens with "Not currently deployed." once the Teardown settles. A demo construct that v0.3 replaces. | [dmfdeploy/dmfdeploy#557](https://github.com/dmfdeploy/dmfdeploy/issues/557) |
+| Part-way through a Teardown, Finalise & Review reads **"Locked"** and says nothing is running yet | Watched 2026-10-25 for about a minute and a half (§6a). The step reopens with "Not currently deployed." once the Teardown settles. A demo construct that v0.3 replaces. | [dmfdeploy/dmfdeploy#557](https://github.com/dmfdeploy/dmfdeploy/issues/557) |
 | You type `/activity` and land on **Jobs**, not the audit record | There is no bare `/activity` page — it redirects, and **where to depends on your role**. With an engineer account it goes to Jobs; a viewer is sent to History instead. Either way, go straight to `/activity/history` for the record, the address §6b uses. There is no Activity entry in the sidebar either. | live-observed 2026-09-19 (engineer session); no issue filed |
 | A row reads **"Loki unreachable"** when the store is reachable but faulty | The lane reports any store fault with the same message it uses for a missing store, so the wording can overstate what is actually wrong. Cosmetic for a demo — the record itself is unaffected — but don't diagnose the cluster from that string. | [dmfdeploy/dmfdeploy#561](https://github.com/dmfdeploy/dmfdeploy/issues/561) (open) |
 | Someone asks "what if the node dies?" (spot reclaim) | Not hypothetical — it happened to this env while the previous edition of this file was being written. The standing env's addressing is derived from the node's public IP, so a reclaimed/replaced node means a new address. **There is no cluster-state backup to restore from** — the standing archive covers operator-local material only. **Recovery is re-bootstrap plus re-pointing the IP-derived address**, not a resume-in-place and not a restore. | env recovery notes (operator-local) |
 
 > **PRESENTER NOTE — if a beat stalls.** The beats with real latency, ranges
-> widened with each round's sample (four samples now): **Provision** (§3,
-> ~30–90 s to the screen swap; full convergence to all three tiles running
-> took ~230 s on 2026-09-02), **Switch** (§5, ~110–230 s), and **Teardown**
-> (§6a, ~90–170 s). Delete permanently stayed inside its previous 30–60 s
-> range. None of this is a promise, because four samples is still not many,
-> but nothing here should send you off-script. **The
-> 2026-10-25 walk added a fourth sample to each:** a warm Provision reached
-> `provisioned` at about 83 s, with the sources settling about 3.5 minutes
-> later; Switch took about 228 s, so expect up to ~230 s; Teardown took
-> about 156 s, and Delete permanently about 51 s.
+> widened with each round's sample (four samples now). **Provision** (§3)
+> takes under a minute to about a minute and a half to the screen swap;
+> full convergence to all three tiles running took about four minutes on
+> 2026-09-02 and about five on 2026-10-25. **Switch** (§5) takes two to four
+> minutes, **Teardown** (§6a) one and a half to three minutes, and **Delete
+> permanently** (§6a) about a minute. None of this is a promise,
+> because four samples is still not many, but nothing here should send you
+> off-script. **The 2026-10-25 walk added a fourth sample to each:** a warm
+> Provision reached `provisioned` in about a minute and a half, with the
+> sources settling about three and a half minutes later. Switch took nearly
+> four minutes, about twice as long as 2026-09-02. Teardown took about two
+> and a half minutes, and Delete permanently about a minute. **When to
+> check Activity:** Provision still on its Provisioning screen after three
+> minutes, Switch not finished after five, Teardown after four, Delete
+> permanently after two.
 
 ---
 
@@ -2128,18 +2157,18 @@ Each item names what was seen; the beat above has the full text.
   passing through `planned` and the instance count climbing live (§3).
 - §4 — **The unresolved-status notice.** The live view showed
   `This workload's status isn't clear enough right now to recommend a next step.`
-  for about 3.5 minutes after Provision, while the sources read
+  for about three and a half minutes after Provision, while the sources read
   `reconciling` (§4).
 - §4/§5/§6a — **The badge values.** `provisioned`, `configured`, `planned`
   and `finalising` were all watched, plus a fifth value, `configuring`,
   during a switch.
 - §5 — **A Switch on 0.39.0, end to end.** It reached `source-b` in about
-  228 s; the "Active source:" outcome line earlier editions quoted never
-  appeared, and the page read "Workload not found" for about 70 s part-way
-  through (§5).
+  nearly four minutes; the "Active source:" outcome line earlier editions
+  quoted never appeared, and the page read "Workload not found" for about a
+  minute part-way through (§5).
 - §6a — **Teardown and its in-flight badge.** `finalising` showed while the
-  job ran, then a locked step for about 90 s, then "Not currently
-  deployed." at about 156 s.
+  job ran, then a locked step for about a minute and a half, then "Not
+  currently deployed." at about two and a half minutes.
 - §6a — **Delete permanently's correct-slug-alone gate and its op-id
   location.** The slug alone left the button disabled, and slug plus reason
   enabled it. During the delete the status `Running` sat beside a collapsed
