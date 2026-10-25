@@ -144,6 +144,25 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+      - name: PR body pairs no closing keyword with a negation (#548)
+        # GitHub ignores negation: "does not close #N" links #N as closed by
+        # this PR, and the issue-close reconciler then closes it. Runs even
+        # with the no-issue label. Code blocks and code spans are exempt.
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          DEFAULT_REPO: ${{ github.repository }}
+        run: |
+          set -eu
+          printf '%s' "${PR_BODY}" >"$RUNNER_TEMP/pr-body.md"
+          if ! python3 bin/lib/closing_refs.py check --file "$RUNNER_TEMP/pr-body.md" \
+              --default-repo "${DEFAULT_REPO}"; then
+            echo "FAIL: reword each phrase above; the safe rewrite keeps the issue open." >&2
+            exit 1
+          fi
+          echo "OK: no negated closing keyword"
       - name: PR references a canonical-backlog issue
         env:
           PR_BODY: ${{ github.event.pull_request.body }}

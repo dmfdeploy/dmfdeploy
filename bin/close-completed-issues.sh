@@ -9,7 +9,11 @@
 # bot-actor rebase auto-merge suppresses even same-repo keyword closes), so
 # this reconciler closes exactly what GitHub itself parsed as a closing
 # reference — i.e. what native auto-close *would* have closed had it fired.
-# No PR-body text is parsed here; GitHub is the parser.
+# GitHub is the parser, with one exception (#548): GitHub ignores negation,
+# so "does not close #N" is a closing link too. Before closing, the
+# reconciler re-reads the linking PR body with bin/lib/closing_refs.py (the
+# matcher the guard.yml issue-link gate uses) and refuses when the body
+# negates its reference to the issue, or when the body cannot be read.
 #
 # Usage:
 #   bin/close-completed-issues.sh             # dry-run (default — safe)
@@ -47,6 +51,7 @@ UMBRELLA_NAME="dmfdeploy"
 UMBRELLA_REPO="${ORG}/${UMBRELLA_NAME}"
 
 MODE="dry-run"
+CLOSING_REFS="$(cd "$(dirname "$0")" && pwd)/lib/closing_refs.py"
 
 # One query answers everything: every OPEN umbrella issue, the PRs GitHub
 # linked to it as closing references (includeClosedPrs:true is required —
@@ -132,6 +137,23 @@ find_candidates() {
     printf '%s' "$pages" \
         | jq -s '[.[].data.repository.issues.nodes[]]' \
         | select_candidates
+}
+
+# negated_closing_ref BODY_FILE ISSUE_NUM PR_REPO
+#   Asks the shared matcher whether the PR body negates its closing reference
+#   to umbrella #ISSUE_NUM. PR_REPO resolves a bare #N; pass "" when unknown
+#   (a bare #N then counts — fail closed).
+#   rc 0: negated (refuse)   rc 1: not negated   rc 2: matcher failed (refuse)
+negated_closing_ref() {
+    local body_file="$1" issue_num="$2" pr_repo="$3" rc=0
+    local args=(check --file "$body_file" --issue "${UMBRELLA_REPO}#${issue_num}")
+    [ -n "$pr_repo" ] && args+=(--default-repo "$pr_repo")
+    python3 "$CLOSING_REFS" "${args[@]}" >/dev/null 2>&1 || rc=$?
+    case "$rc" in
+        0) return 1 ;;
+        1) return 0 ;;
+        *) return 2 ;;
+    esac
 }
 
 # ── Self-test ─────────────────────────────────────────────────────────────
@@ -268,6 +290,47 @@ run_self_test() {
         ""
 
     echo ""
+    echo "── negated-reference guard self-test (#548)"
+
+    # assert_negated LABEL BODY ISSUE_NUM PR_REPO EXPECTED_RC
+    assert_negated() {
+        local label="$1" body="$2" num="$3" repo="$4" expected="$5" rc=0 f
+        f="$(mktemp)"
+        printf '%s\n' "$body" >"$f"
+        negated_closing_ref "$f" "$num" "$repo" || rc=$?
+        rm -f "$f"
+        if [ "$rc" = "$expected" ]; then
+            echo "  PASS  $label"
+            pass=$((pass + 1))
+        else
+            echo "  FAIL  $label: expected rc $expected, got $rc"
+            fail=$((fail + 1))
+        fi
+    }
+
+    local fence='```'
+    assert_negated "#531 wording in an umbrella PR → refuse" \
+        "**This PR does not close #496**, deliberately." 496 "$UMBRELLA_REPO" 0
+    assert_negated "qualified negated ref from a component PR → refuse" \
+        "This does not fix dmfdeploy/dmfdeploy#12." 12 dmfdeploy/dmf-cms 0
+    assert_negated "genuine Closes → close" \
+        "Closes dmfdeploy/dmfdeploy#12" 12 dmfdeploy/dmf-cms 1
+    assert_negated "#531 wording inside a fenced block → close" \
+        "$(printf '%s\n%s\n%s' "$fence" "**This PR does not close #496**, deliberately." "$fence")" \
+        496 "$UMBRELLA_REPO" 1
+    assert_negated "negation names a different issue → close" \
+        "Closes #20. It does not close #21." 20 "$UMBRELLA_REPO" 1
+    assert_negated "bare negated ref in a component PR is its own repo's issue → close" \
+        "This does not close #496." 496 dmfdeploy/dmf-cms 1
+    assert_negated "bare negated ref, PR repo unknown → refuse (fail closed)" \
+        "This does not close #496." 496 "" 0
+    local saved="$CLOSING_REFS"
+    CLOSING_REFS="/nonexistent/closing_refs.py"
+    assert_negated "matcher missing → refuse (fail closed)" \
+        "Closes #20" 20 "$UMBRELLA_REPO" 2
+    CLOSING_REFS="$saved"
+
+    echo ""
     echo "self-test: ${pass} passed, ${fail} failed"
     return "$fail"
 }
@@ -301,6 +364,17 @@ candidates="$(find_candidates)"
 
 total=0
 skipped_reopen=0
+refused=0
+body_file="$(mktemp)"
+trap 'rm -f "$body_file"' EXIT
+
+# refuse ISSUE_NUM REASON — log a refusal loudly (an Actions warning in CI).
+refuse() {
+    echo "  ✗ REFUSE umbrella #$1: $2" >&2
+    [ -n "${GITHUB_ACTIONS:-}" ] && echo "::warning::not closing umbrella #$1: $2"
+    refused=$((refused + 1))
+}
+
 if [ -n "$candidates" ]; then
     while IFS=$'\t' read -r issue_num decision pr_url pr_merged_at reopened_at; do
         [ -z "$issue_num" ] && continue
@@ -308,6 +382,26 @@ if [ -n "$candidates" ]; then
         if [ "$decision" = "skip-reopened" ]; then
             echo "  · SKIP umbrella #$issue_num (reopened at ${reopened_at}, after PR merged at ${pr_merged_at})"
             skipped_reopen=$((skipped_reopen + 1))
+            continue
+        fi
+
+        # #548: re-read the linking PR body; refuse when it negates the
+        # reference (GitHub links "does not close #N" as a closing ref).
+        pr_repo=""
+        if [[ "$pr_url" =~ ^https://github\.com/([^/]+/[^/]+)/pull/[0-9]+$ ]]; then
+            pr_repo="${BASH_REMATCH[1]}"
+        fi
+        if ! gh pr view "$pr_url" --json body --jq .body >"$body_file"; then
+            refuse "$issue_num" "could not re-read the body of ${pr_url} (fail closed)"
+            continue
+        fi
+        guard_rc=0
+        negated_closing_ref "$body_file" "$issue_num" "$pr_repo" || guard_rc=$?
+        if [ "$guard_rc" -eq 0 ]; then
+            refuse "$issue_num" "${pr_url} negates its closing reference (\"does not close\" still links); reword the PR body"
+            continue
+        elif [ "$guard_rc" -eq 2 ]; then
+            refuse "$issue_num" "the negated-reference matcher failed on ${pr_url} (fail closed)"
             continue
         fi
 
@@ -333,4 +427,7 @@ else
 fi
 if [ "$skipped_reopen" -gt 0 ]; then
     echo "close-completed-issues: ${skipped_reopen} issue(s) skipped (reopened after PR merged)"
+fi
+if [ "$refused" -gt 0 ]; then
+    echo "close-completed-issues: ${refused} issue(s) refused (negated or unreadable PR body)"
 fi
