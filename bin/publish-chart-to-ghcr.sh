@@ -97,18 +97,19 @@ if [[ -z "${GHCR_TOKEN:-}" ]]; then
   exit 1
 fi
 
-TMPDIR="$(mktemp -d)"
+_CHART_TMPDIR="$(mktemp -d)"
 cleanup() {
-  rm -rf "${TMPDIR}"
+  rm -rf "${_CHART_TMPDIR}"
   unset HELM_REGISTRY_CONFIG
+  unset _CHART_TMPDIR
 }
 trap cleanup EXIT INT TERM
 
-export HELM_REGISTRY_CONFIG="${TMPDIR}/registry.json"
+export HELM_REGISTRY_CONFIG="${_CHART_TMPDIR}/registry.json"
 
 echo "=== Helm package: ${CHART_DIR} ==="
-helm package "${CHART_DIR}" --destination "${TMPDIR}"
-PACKAGE_PATH="${TMPDIR}/${CHART_NAME}-${CHART_VERSION}.tgz"
+helm package "${CHART_DIR}" --destination "${_CHART_TMPDIR}"
+PACKAGE_PATH="${_CHART_TMPDIR}/${CHART_NAME}-${CHART_VERSION}.tgz"
 if [[ ! -f "${PACKAGE_PATH}" ]]; then
   echo "ERROR: expected package ${PACKAGE_PATH} was not created." >&2
   exit 1

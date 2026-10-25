@@ -12,13 +12,10 @@
 # script is therefore neutered to a hard stop. The original logic is preserved below
 # the exit for reference only and never executes.
 
-if [ "${ALLOW_RETIRED_SYNC_TO_GITHUB:-}" != "I_KNOW_THIS_IS_RETIRED" ]; then
-    echo "sync-to-github.sh is RETIRED (2026-06-09)." >&2
-    echo "  GitHub-canonical-forward: steady state = PR-merge to GitHub main." >&2
-    echo "  First import = bin/export-scan.sh (per-repo, operator-gated, clean orphan)." >&2
-    echo "  This tool would push LIVE FULL HISTORY and is intentionally disabled." >&2
-    exit 1
-fi
+# RETIRED 2026-06-09. No override — use bin/export-scan.sh instead.
+echo "sync-to-github.sh is RETIRED (2026-06-09) and PERMANENTLY DISABLED." >&2
+echo "  Use bin/export-scan.sh for clean-history public imports." >&2
+exit 1
 
 # ---------------------------------------------------------------------------
 # Original (retired) implementation below — kept for reference, never reached.
