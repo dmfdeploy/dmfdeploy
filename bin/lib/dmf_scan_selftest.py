@@ -26,6 +26,8 @@ MISSING = "/nonexistent/dmf-pattern-manifest.private.toml"
 # Assembled at runtime — the committed source never holds a matching literal.
 PUBLIC_CANARY = "DMF-CANARY-" + "0123456789" + "AB"
 PRIVATE_MARK = "FIXTURE-PRIVATE-" + "31" + "4159"
+# A shape the default gitleaks pack catches (AWS access key id).
+DEFAULT_PACK_CANARY = "AKIA" + "XJ4KQ7ZPD3WM2RTB"
 
 PRIVATE_FIXTURE_MANIFEST = """\
 # Synthetic PRIVATE-tier fixture manifest (self-test only — not operator data).
@@ -95,14 +97,28 @@ kind = "custom"
 tags = ["fixture"]
 """ % PRIVATE_MARK
 
-# #650 review: an emit=false entry the default gitleaks pack covers, with no
-# pcre engine. Applied where the gitleaks pass extends the default pack;
-# NOT APPLIED where no gitleaks pass runs or the config drops the pack.
+# #650 review: emit=false entries with no pcre engine that claim the default
+# gitleaks pack. The first carries a canary the pack catches; the second a
+# canary no default rule catches, so the claim is false.
 PRIVATE_USEDEFAULT_MANIFEST = """\
 [[pattern]]
 id = "fixture-private-usedefault"
 category = "secret"
-description = "fixture private marker covered by the default pack (synthetic)"
+description = "fixture private key id covered by the default pack (synthetic)"
+regex = 'AKIA[A-Z2-7]{16}'
+engines = ["ere"]
+case_sensitive = true
+positive_canaries = ["%s"]
+[pattern.gitleaks]
+emit = false
+covered_by = "useDefault"
+""" % DEFAULT_PACK_CANARY
+
+PRIVATE_USEDEFAULT_FALSE_MANIFEST = """\
+[[pattern]]
+id = "fixture-private-usedefault-false"
+category = "secret"
+description = "fixture private marker the default pack does not catch (synthetic)"
 regex = 'FIXTURE-PRIVATE-[0-9]{6}'
 engines = ["ere"]
 case_sensitive = true
@@ -111,6 +127,19 @@ positive_canaries = ["%s"]
 emit = false
 covered_by = "useDefault"
 """ % PRIVATE_MARK
+
+PRIVATE_USEDEFAULT_NOCANARY_MANIFEST = """\
+[[pattern]]
+id = "fixture-private-usedefault-nocanary"
+category = "secret"
+description = "fixture useDefault entry with no canary (synthetic)"
+regex = 'AKIA[A-Z2-7]{16}'
+engines = ["ere"]
+case_sensitive = true
+[pattern.gitleaks]
+emit = false
+covered_by = "useDefault"
+"""
 
 # Old-world private include fixture for the parity P2-2 regression.
 PRIVATE_FIXTURE_INCLUDE = """\
@@ -382,6 +411,33 @@ def run_self_test(skip_gitleaks=False):
             check(r.returncode == 0 and "NOT APPLIED" not in r.stdout,
                   "#650: useDefault entry applied where gitleaks extends the "
                   "default pack")
+            # #650 review round 3: the claim is checked against the entry's own
+            # canaries. A shape no default rule catches is NOT APPLIED (class 3)
+            # and its id stays redacted; so is an entry with no canary.
+            falseclaim = os.path.join(work, "private-usedefault-false.toml")
+            with open(falseclaim, "w", encoding="utf-8") as fh:
+                fh.write(PRIVATE_USEDEFAULT_FALSE_MANIFEST)
+            for surface in (["tree", clean, "--context", "export-scan"],
+                            ["staged", "--repo", staged, "--context", "pre-commit"]):
+                r = _run(surface, private_manifest=falseclaim)
+                out = r.stdout + r.stderr
+                check(r.returncode == 3 and "CONFIG_ERROR" in r.stderr
+                      and "NOT APPLIED" in r.stdout
+                      and "private/secret id-hash=" in out,
+                      f"#650: useDefault entry the default pack does not catch → "
+                      f"NOT APPLIED, class 3 ({surface[0]})")
+                check("fixture-private-usedefault" not in out
+                      and "FIXTURE-PRIVATE" not in out,
+                      f"#650: the unverified useDefault entry stays redacted "
+                      f"({surface[0]})")
+            nocanary = os.path.join(work, "private-usedefault-nocanary.toml")
+            with open(nocanary, "w", encoding="utf-8") as fh:
+                fh.write(PRIVATE_USEDEFAULT_NOCANARY_MANIFEST)
+            r = _run(["tree", clean, "--context", "export-scan"],
+                     private_manifest=nocanary)
+            check(r.returncode == 3 and "NOT APPLIED" in r.stdout,
+                  "#650: useDefault entry with no canary cannot be verified → "
+                  "NOT APPLIED")
             nopack = os.path.join(work, "nopack")
             _make_repo(nopack)
             with open(os.path.join(nopack, ".gitleaks.toml"), "w",

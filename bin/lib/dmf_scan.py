@@ -37,8 +37,10 @@ as a library/debug CLI, never as the authoritative local gate itself.
 import argparse
 import hashlib
 import io
+import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tarfile
@@ -337,7 +339,70 @@ def _default_pack_enabled(gitleaks_config_text):
     return cfg.get("extend", {}).get("useDefault") is True
 
 
-def _not_applied(manifest, private, gitleaks_config_text=None):
+_COVERAGE_CACHE = {}
+
+
+def _is_default_candidate(entry):
+    """A regex entry with no pcre engine that claims the default pack."""
+    return ("regex" in entry and "pcre" not in entry.get("engines", [])
+            and entry.get("gitleaks", {}).get("covered_by") == "useDefault")
+
+
+def _default_pack_coverage(public, private, config_path):
+    """Entries whose canaries the gitleaks config this surface runs really
+    catches. Returns a set of (is_private, id).
+
+    covered_by="useDefault" is a claim in the manifest, and the manifest
+    validator accepts any regex under it. So the claim is checked, not
+    trusted: write each candidate's positive canaries to one file per entry in
+    a temp dir outside any repo, run gitleaks once with the merged config the
+    surface uses, and count an entry only if gitleaks reports its file. An
+    entry with no canaries cannot be checked, so it is never counted.
+    Nothing is printed: private canaries stay out of every output (§4.2).
+    Cached per process, so each surface pays for one run."""
+    cands = [(False, e) for e in public.get("pattern", []) if _is_default_candidate(e)]
+    if private:
+        cands += [(True, e) for e in private.get("pattern", []) if _is_default_candidate(e)]
+    cands = [(p, e) for p, e in cands if e.get("positive_canaries")]
+    if not cands:
+        return set()
+    with open(config_path, "r", encoding="utf-8") as fh:
+        cfg_text = fh.read()
+    key = (cfg_text, tuple((p, e["id"], tuple(e["positive_canaries"])) for p, e in cands),
+           private is not None)
+    if key in _COVERAGE_CACHE:
+        return _COVERAGE_CACHE[key]
+    merged = write_merged_config(config_path, private)
+    work = tempfile.mkdtemp(prefix="dmf-scan-coverage-")
+    try:
+        names = {}
+        for i, (is_priv, entry) in enumerate(cands):
+            name = f"canary-{i}.txt"
+            names[name] = (is_priv, entry["id"])
+            with open(os.path.join(work, name), "w", encoding="utf-8") as fh:
+                for c in entry["positive_canaries"]:
+                    # Keyword-neutral line, as the generator's own proof uses.
+                    fh.write(f'x = "{canary_value(c)}"\n')
+        report = os.path.join(work, "report.json")
+        _run_gitleaks(["detect", "--no-git", "--source", work, "--config", merged,
+                       "--no-banner", "--redact", "--exit-code", "1",
+                       "--report-format", "json", "--report-path", report],
+                      private=private is not None)
+        found = set()
+        if os.path.isfile(report):
+            with open(report, "r", encoding="utf-8") as fh:
+                for finding in json.load(fh) or []:
+                    hit = names.get(os.path.basename(finding.get("File", "")))
+                    if hit:
+                        found.add(hit)
+    finally:
+        os.unlink(merged)
+        shutil.rmtree(work, ignore_errors=True)
+    _COVERAGE_CACHE[key] = found
+    return found
+
+
+def _not_applied(manifest, private, gitleaks_config_text=None, coverage=None):
     """Entries with a regex that this surface runs NEITHER through the grep
     pass (no pcre engine) NOR through its gitleaks pass. Fail-closed (#650):
     a skipped pattern is reported and refused, never silently dropped — the
@@ -348,12 +413,13 @@ def _not_applied(manifest, private, gitleaks_config_text=None):
     counts only if the base config the tree actually uses carries its rule.
 
     An emit=false entry with covered_by="useDefault" counts as applied only
-    when that config extends the default pack. The code cannot tell which
-    default rule catches a shape (the manifest names none; the generator
-    self-test proves it with canaries), so it verifies the pack is on, not
-    the rule. covered_by="git-grep" means the grep pass is the coverage, so
-    it needs pcre like any other entry."""
+    when its id is in `coverage`, the set _default_pack_coverage built by
+    scanning the entry's own canaries with this surface's config. Turning the
+    pack on is not enough: the manifest names no rule, so only a canary hit
+    shows that some rule catches the shape. covered_by="git-grep" means the
+    grep pass is the coverage, so it needs pcre like any other entry."""
     pack_on = _default_pack_enabled(gitleaks_config_text)
+    coverage = coverage or set()
     out = []
     for entry in manifest.get("pattern", []):
         if "regex" not in entry or "pcre" in entry.get("engines", []):
@@ -361,7 +427,8 @@ def _not_applied(manifest, private, gitleaks_config_text=None):
         if gitleaks_config_text is not None and entry.get("gitleaks", {}).get("emit"):
             if private or f'id = "{entry["id"]}"' in gitleaks_config_text:
                 continue
-        if pack_on and entry.get("gitleaks", {}).get("covered_by") == "useDefault":
+        if (pack_on and entry.get("gitleaks", {}).get("covered_by") == "useDefault"
+                and (private, entry["id"]) in coverage):
             continue
         out.append((entry, private))
     return out
@@ -513,9 +580,11 @@ def scan_tree(tree, context_name, public_only, no_allowlist=False, strict=False,
     gl_text = None
     if context_name in GITLEAKS_TREE_CONTEXTS:
         gl_text = _read_config_text(_tree_config(tree))
-    skipped = _not_applied(public, False, gl_text)
+    cov = (_default_pack_coverage(public, private, _tree_config(tree))
+           if _default_pack_enabled(gl_text) else set())
+    skipped = _not_applied(public, False, gl_text, cov)
     if private:
-        skipped += _not_applied(private, True, gl_text)
+        skipped += _not_applied(private, True, gl_text, cov)
     allowlist = _scan_allowlist(public, private)
     blocking, lines = grep_pass(tree, entries, allowlist, no_allowlist, strict,
                                 show_private_hits=show_private_hits)
@@ -567,9 +636,11 @@ def scan_staged(context_name, public_only, repo=".", no_allowlist=False, strict=
     if private:
         entries += _grep_entries(private, private=True)
     gl_text = _read_config_text(_tree_config(repo))
-    skipped = _not_applied(public, False, gl_text)
+    cov = (_default_pack_coverage(public, private, _tree_config(repo))
+           if _default_pack_enabled(gl_text) else set())
+    skipped = _not_applied(public, False, gl_text, cov)
     if private:
-        skipped += _not_applied(private, True, gl_text)
+        skipped += _not_applied(private, True, gl_text, cov)
     if not staged:
         # Configuration check first (#650): an empty staged set must not pass
         # a run whose manifest this surface cannot apply.
