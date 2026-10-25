@@ -15,8 +15,9 @@ Spec: the Public-Safety Pattern Manifest Plan (2026-07-13) in docs/plans/
 Failure classes (§5.5) — every exit is one of:
   0  OK
   1  LEAK_FOUND    a pattern matched scanned content
-  3  CONFIG_ERROR  missing/invalid manifest or tool, bad context, or a
-                   --public-only opt-out in a disallowed context
+  3  CONFIG_ERROR  missing/invalid manifest or tool, bad context, a
+                   --public-only opt-out in a disallowed context, or a
+                   manifest pattern the tree/staged scan cannot apply (#650)
   4  DRIFT_ERROR   generated view != on-disk view (check mode)
 
 Invoked via bin/dmf-scan; import-safe for tooling (the §9.1 parity checker
@@ -314,12 +315,53 @@ def write_merged_config(base_config_path, private_manifest):
 
 def _grep_entries(manifest, private):
     """Entries this manifest contributes to the grep pass: everything with a
-    regex declared for the grep engine (pcre). Tag each with its tier."""
+    regex declared for the grep engine (pcre). Tag each with its tier. The
+    rest are checked by _not_applied, never dropped silently (#650)."""
     out = []
     for entry in manifest.get("pattern", []):
         if "regex" in entry and "pcre" in entry.get("engines", []):
             out.append((entry, private))
     return out
+
+
+def _not_applied(manifest, private, gitleaks_config_text=None):
+    """Entries with a regex that this surface runs NEITHER through the grep
+    pass (no pcre engine) NOR through its gitleaks pass. Fail-closed (#650):
+    a skipped pattern is reported and refused, never silently dropped — the
+    scan cannot otherwise tell "not applied" from "applied, no match".
+
+    gitleaks_config_text is None when the surface runs no gitleaks pass. A
+    private emit=true entry rides the ephemeral merged config; a public one
+    counts only if the base config the tree actually uses carries its rule."""
+    out = []
+    for entry in manifest.get("pattern", []):
+        if "regex" not in entry or "pcre" in entry.get("engines", []):
+            continue
+        if gitleaks_config_text is not None and entry.get("gitleaks", {}).get("emit"):
+            if private or f'id = "{entry["id"]}"' in gitleaks_config_text:
+                continue
+        out.append((entry, private))
+    return out
+
+
+def report_not_applied(not_applied):
+    """Print the visible "not applied" heading. Private entries show category
+    + id-hash only, never the id or regex (§4.2)."""
+    if not not_applied:
+        return []
+    names = []
+    print("  NOT APPLIED — manifest pattern(s) this scan cannot run (class 3):")
+    for entry, private in not_applied:
+        engines = ", ".join(entry.get("engines", [])) or "none"
+        if private:
+            id_hash = hashlib.sha256(entry["id"].encode("utf-8")).hexdigest()[:12]
+            name = f"private/{entry['category']} id-hash={id_hash}"
+        else:
+            name = entry["id"]
+        names.append(name)
+        print(f"    NOT APPLIED: [{name}] engines: {engines} — needs \"pcre\" "
+              "(or a gitleaks rule this surface runs)")
+    return names
 
 
 def _scan_allowlist(*manifests):
@@ -445,6 +487,12 @@ def scan_tree(tree, context_name, public_only, no_allowlist=False, strict=False,
     entries = _grep_entries(public, private=False)
     if private:
         entries += _grep_entries(private, private=True)
+    gl_text = None
+    if context_name in GITLEAKS_TREE_CONTEXTS:
+        gl_text = _read_config_text(_tree_config(tree))
+    skipped = _not_applied(public, False, gl_text)
+    if private:
+        skipped += _not_applied(private, True, gl_text)
     allowlist = _scan_allowlist(public, private)
     blocking, lines = grep_pass(tree, entries, allowlist, no_allowlist, strict,
                                 show_private_hits=show_private_hits)
@@ -461,6 +509,11 @@ def scan_tree(tree, context_name, public_only, no_allowlist=False, strict=False,
                 leaked = True
         finally:
             os.unlink(merged)
+    names = report_not_applied(skipped)
+    if names:
+        _fail(CONFIG_ERROR, f"{len(names)} manifest pattern(s) not applied in {tree}"
+                            f"{' (and blocking matches found)' if leaked else ''}: "
+                            f"{', '.join(names)}")
     if leaked:
         _fail(LEAK_FOUND, f"tree scan found blocking matches in {tree}")
     print(f"OK: tree scan clean ({tree})")
@@ -470,6 +523,13 @@ def scan_tree(tree, context_name, public_only, no_allowlist=False, strict=False,
 def _tree_config(tree):
     own = os.path.join(tree, ".gitleaks.toml")
     return own if os.path.isfile(own) else PUBLIC_GITLEAKS_CONFIG
+
+
+def _read_config_text(path):
+    if not os.path.isfile(path):
+        _fail(CONFIG_ERROR, f"gitleaks config not found: {path}")
+    with open(path, "r", encoding="utf-8") as fh:
+        return fh.read()
 
 
 def scan_staged(context_name, public_only, repo=".", no_allowlist=False, strict=False,
@@ -486,6 +546,10 @@ def scan_staged(context_name, public_only, repo=".", no_allowlist=False, strict=
     entries = _grep_entries(public, private=False)
     if private:
         entries += _grep_entries(private, private=True)
+    gl_text = _read_config_text(_tree_config(repo))
+    skipped = _not_applied(public, False, gl_text)
+    if private:
+        skipped += _not_applied(private, True, gl_text)
     allowlist = _scan_allowlist(public, private)
     blocking, lines = grep_pass(repo, entries, allowlist, no_allowlist, strict,
                                 cached=True, pathspecs=staged,
@@ -502,6 +566,11 @@ def scan_staged(context_name, public_only, repo=".", no_allowlist=False, strict=
             leaked = True
     finally:
         os.unlink(merged)
+    names = report_not_applied(skipped)
+    if names:
+        _fail(CONFIG_ERROR, f"{len(names)} manifest pattern(s) not applied to staged "
+                            f"changes{' (and blocking matches found)' if leaked else ''}: "
+                            f"{', '.join(names)}")
     if leaked:
         _fail(LEAK_FOUND, "staged changes contain blocking matches")
     print("OK: staged changes clean")

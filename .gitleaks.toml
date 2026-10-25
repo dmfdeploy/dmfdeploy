@@ -122,6 +122,7 @@ paths = [
     '''^bin/export-scan\.sh$''',
     '''^docs/plans/DMF Umbrella Security Audit Remediation Spec''',
     '''^docs/plans/dmf-umbrella-security-audit-remediation-spec\.md$''',
+    '''^docs/references/media-function-telemetry-declaration-survey\.md$''',
 ]
 
 # Acceptance-fixture sentinel (R1 spec §8, §11 decision 3): a bespoke shape the

@@ -61,6 +61,40 @@ kind = "custom"
 tags = ["fixture"]
 """ % PRIVATE_MARK
 
+# #650: a pattern the grep pass cannot run (no "pcre" engine) and that no
+# gitleaks rule carries. Before the fix the scan skipped it silently and
+# reported the planted value's tree clean.
+PRIVATE_NOPCRE_MANIFEST = """\
+[[pattern]]
+id = "fixture-private-nopcre"
+category = "topology"
+description = "fixture private marker with no pcre engine (synthetic)"
+regex = 'FIXTURE-PRIVATE-[0-9]{6}'
+engines = ["ere"]
+case_sensitive = true
+positive_canaries = ["%s"]
+[pattern.gitleaks]
+emit = false
+covered_by = "git-grep"
+"""  % PRIVATE_MARK
+
+# The same shape emitted to gitleaks as re2-only: applied by a gitleaks
+# context (merged config), still refused where no gitleaks pass runs.
+PRIVATE_RE2ONLY_MANIFEST = """\
+[[pattern]]
+id = "fixture-private-re2only"
+category = "topology"
+description = "fixture private marker, re2 engine only (synthetic)"
+regex = 'FIXTURE-PRIVATE-[0-9]{6}'
+engines = ["re2"]
+case_sensitive = true
+positive_canaries = ["%s"]
+[pattern.gitleaks]
+emit = true
+kind = "custom"
+tags = ["fixture"]
+""" % PRIVATE_MARK
+
 # Old-world private include fixture for the parity P2-2 regression.
 PRIVATE_FIXTURE_INCLUDE = """\
 DMF_PRIVATE_IDENTITY_PATTERNS=()
@@ -166,6 +200,25 @@ def run_self_test(skip_gitleaks=False):
         r = _run(["tree", clean, "--context", "scrub"], private_manifest=priv)
         check(r.returncode == 0, "clean tree with private tier loaded → OK")
 
+        # ── #650: a pattern the scan cannot apply fails closed, named ──
+        nopcre = os.path.join(work, "private-nopcre.toml")
+        with open(nopcre, "w", encoding="utf-8") as fh:
+            fh.write(PRIVATE_NOPCRE_MANIFEST)
+        r = _run(["tree", privleak, "--context", "scrub"], private_manifest=nopcre)
+        out = r.stdout + r.stderr
+        check(r.returncode == 3 and "CONFIG_ERROR" in r.stderr,
+              "#650: pattern with no pcre engine → CONFIG_ERROR, not a silent pass")
+        check("NOT APPLIED" in r.stdout and "private/topology id-hash=" in out,
+              "#650: the unapplied pattern is listed under NOT APPLIED")
+        check("fixture-private-nopcre" not in out and "FIXTURE-PRIVATE" not in out,
+              "#650: an unapplied private pattern is named by id-hash only")
+        re2only = os.path.join(work, "private-re2only.toml")
+        with open(re2only, "w", encoding="utf-8") as fh:
+            fh.write(PRIVATE_RE2ONLY_MANIFEST)
+        r = _run(["tree", clean, "--context", "scrub"], private_manifest=re2only)
+        check(r.returncode == 3 and "NOT APPLIED" in r.stdout,
+              "#650: re2-only pattern in a grep-only context → NOT APPLIED")
+
         # ── worktree (row 7, library level) ──
         wt = os.path.join(work, "wt")
         _git("worktree", "add", "-q", "--detach", wt, "main", cwd=privleak)
@@ -260,6 +313,13 @@ def run_self_test(skip_gitleaks=False):
                   "P1-1: RE2-invalid private rule → CONFIG_ERROR (redacted validation)")
             check("(?=" not in out and "FIXTURE-PRIVATE" not in out,
                   "P1-1: the invalid private regex body never reaches output")
+
+            # #650: the same re2-only rule rides the merged gitleaks config in
+            # a gitleaks context, so it counts as applied there.
+            r = _run(["tree", clean, "--context", "export-scan"],
+                     private_manifest=re2only)
+            check(r.returncode == 0 and "NOT APPLIED" not in r.stdout,
+                  "#650: re2-only emitted rule is applied by the gitleaks pass")
 
     leftovers = _merged_leftovers() - before_tmp
     check(not leftovers, "no ephemeral merged configs left behind (§5.1)")
