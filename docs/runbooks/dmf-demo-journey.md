@@ -309,7 +309,7 @@ DMF_ENV="$(dirname "$DMFDEPLOY_UMBRELLA")/dmf-env"      # sibling checkout
 | Console app healthy | open `https://console.<env-base-domain>/` in a browser | login screen renders, no 5xx |
 | Console build matches this runbook | `curl -s https://console.<env-base-domain>/api/version` | `{"version":"0.39.0"}` — this runbook's edition. No login needed |
 | Operator passkeys enrolled | `cd "$DMF_ENV" && bin/get-passkey-enrollment-url.sh <env>` | `confirmed passkeys: 2/2 (ADR-0028 D8, live)` |
-| Demo persona has the right role | (see below) | persona holds the **engineer** role — this journey's demo persona is created with exactly that, not admin |
+| Demo persona has the right role | (see below) | persona holds at least the **engineer** role; engineer or admin both pass every gate. The role depends on the env (engineer on the 2026-09-02 walk, admin on the 2026-10-25 walk) |
 | AWX is asleep at rest | (informational) | expected — the first Provision click wakes it; see §3 |
 | **Media namespace clean of this template (mandatory — see below)** | confirm no instance of **MXL Test-Pattern Viewer** is already deployed on this facility | Media Workloads reads, verbatim, *"No media workloads yet — they'll appear here once you create one."* — confirmed live 2026-09-02 (v0.33.0); this replaced the previous edition's quoted "No Media Function instances in your scope." string entirely, part of the same console-wide copy sweep §2 describes |
 
@@ -448,9 +448,10 @@ against each endpoint's own guard, not assumed to be uniform:
   WP-B, Risk 3). A `media-engineers` viewer genuinely can Switch and
   genuinely can Clear for deployment.
 
-The **engineer** role clears every gate above on its own — **this
-journey's demo persona is created with the engineer role specifically**;
-log in as that. Group membership alone is not enough for the whole
+The **engineer** role clears every gate above on its own, so the demo
+persona needs **at least engineer**. Which role it holds depends on the env:
+the 2026-09-02 walk's persona was an engineer and the 2026-10-25 walk's was an
+admin, and both passed every gate. Group membership alone is not enough for the whole
 journey (Provision, Teardown, and Delete permanently would all refuse
 it), and **admin is never required anywhere in this journey, main path or
 optional** — including the optional passkey-enrollment demo in §1, which an
@@ -464,11 +465,12 @@ try to enrol a first passkey live; the ceremony has authenticator-choice
 pitfalls that runbook covers in full.
 
 > **PRESENTER NOTE — pacing (non-blocking).** Every beat with real latency
-> now has a range from **three** live samples across two rounds (0.24.0 and
-> 0.33.0), widened 2026-09-02 rather than replaced: **Provision** (§3) —
+> now has a range from **four** live samples across three rounds (0.24.0,
+> 0.33.0 and 0.39.0), widened rather than replaced: **Provision** (§3) —
 > confirm-click to the exit control turning into a live "View live" link —
 > ran **30–90 s** (full convergence to a fully running workload took ~230 s
-> in the third sample, a new figure); **Switch** (§5) ran **110–180 s**;
+> in the third sample; the 2026-10-25 sample settled about 3.5 minutes after
+> `provisioned`); **Switch** (§5) ran **110–230 s**;
 > **Teardown** (§6a) ran **90–170 s**; **Delete permanently** (§6a) stayed
 > inside **30–60 s**. Narrate the wait rather than standing in silence — for
 > Provision, "the platform is scaled to zero at rest; this click is
@@ -866,7 +868,8 @@ current, not the 0.24.0 wording.**
    than a missing workload."* **Timing re-measured 2026-09-02: the screen
    swap itself landed at ~85–90 s** this round — at or past the top of the
    0.24.0 walk's quoted 30–60 s range, not clearly inside it; treat the
-   range as **30–90 s** pending a fourth sample. **Full convergence (all
+   range as **30–90 s**. The 2026-10-25 sample, below, is warm and doesn't
+   move it. **Full convergence (all
    three pieces reading `active`/`running` on the Live view, §4) took
    materially longer — ~230 s (about 4 minutes) this round** — the new
    "Typically takes a few minutes" copy fits that number, not the
@@ -1831,12 +1834,12 @@ being briefed on it.
 | Someone asks "what if the node dies?" (spot reclaim) | Not hypothetical — it happened to this env while the previous edition of this file was being written. The standing env's addressing is derived from the node's public IP, so a reclaimed/replaced node means a new address. **There is no cluster-state backup to restore from** — the standing archive covers operator-local material only. **Recovery is re-bootstrap plus re-pointing the IP-derived address**, not a resume-in-place and not a restore. | env recovery notes (operator-local) |
 
 > **PRESENTER NOTE — if a beat stalls.** The beats with real latency, ranges
-> widened 2026-09-02 with a third sample each: **Provision** (§3, ~30–90 s
-> to the screen swap; full convergence to all three tiles running took ~230
-> s this round, a new figure this edition adds), **Switch** (§5, ~110–180
-> s), and **Teardown** (§6a, ~90–170 s). Delete permanently stayed inside
-> its previous 30–60 s range. None of this is a promise — three samples is
-> still not many — but nothing here should send you off-script. **The
+> widened with each round's sample (four samples now): **Provision** (§3,
+> ~30–90 s to the screen swap; full convergence to all three tiles running
+> took ~230 s on 2026-09-02), **Switch** (§5, ~110–230 s), and **Teardown**
+> (§6a, ~90–170 s). Delete permanently stayed inside its previous 30–60 s
+> range. None of this is a promise, because four samples is still not many,
+> but nothing here should send you off-script. **The
 > 2026-10-25 walk added a fourth sample to each:** a warm Provision reached
 > `provisioned` at about 83 s, with the sources settling about 3.5 minutes
 > later; Switch took about 228 s, so expect up to ~230 s; Teardown took
