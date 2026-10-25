@@ -16,10 +16,6 @@ name: issue-link
 #
 # The job name is the required status check `issue-link` in the main ruleset.
 # Keep it.
-#
-# Transition: guard.yml still carries the old issue-link job, because this
-# file only runs once it is on main. Remove that job in a follow-up PR after
-# this one merges.
 
 on:
   pull_request_target:

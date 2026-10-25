@@ -12,7 +12,7 @@
 # GitHub is the parser, with one exception (#548): GitHub ignores negation,
 # so "does not close #N" is a closing link too. Before closing, the
 # reconciler re-reads the linking PR body with bin/lib/closing_refs.py (the
-# matcher the guard.yml issue-link gate uses) and refuses when the body
+# matcher the issue-link.yml gate uses) and refuses when the body
 # negates its reference to the issue, or when the body cannot be read.
 #
 # Usage:

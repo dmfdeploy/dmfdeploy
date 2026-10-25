@@ -144,11 +144,6 @@ API. So `gh pr edit --body`, or adding the `no-issue` label, re-runs the check
 on the PR as it is now, and no push or close and reopen is needed. A re-run of
 the job reads the live body too.
 
-Until a follow-up PR removes it, `guard.yml` in the umbrella still carries the
-old `issue-link` job too. That job doesn't re-run on an edit. If it failed
-before the edit and the PR stays blocked after the trusted check turns green,
-push a commit to re-run both.
-
 Component repos still run the check from `guard.yml` under `pull_request`
 with **no `types:`**, which gets the GitHub defaults: `opened`,
 `synchronize`, and `reopened`. **`edited` isn't among them**, and the job reads

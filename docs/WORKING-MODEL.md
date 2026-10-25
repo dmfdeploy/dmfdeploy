@@ -294,7 +294,7 @@ Two sanctioned forms:
 | `bin/check-working-model-sync.sh` | umbrella CI/pre-commit; component CI `--strict` against a **pinned** umbrella tag (`ref: working-model-vN`) | fails on block drift |
 | `bin/check-working-model-sync.sh --report-pins` | umbrella, on demand | reports how far behind each sibling's pin is (never fails a build) |
 | SessionStart hook → `bin/working-model-digest.sh` | Claude Code, per repo (trust-gated) | injects digest at session start |
-| PR-gate issue-linkage job (`guard.yml`) | all 9 repos | fails unqualified/missing reference |
+| PR-gate issue-linkage job (`guard.yml`) | component repos (the umbrella uses `issue-link.yml`) | fails unqualified/missing reference |
 | `issue-link.yml` | umbrella pull requests | the trusted `issue-link` check: runs from `main` under `pull_request_target`, reads the current PR body and labels from the API, and re-runs when the body or labels change; fails a missing reference or a negated closing keyword (a required check) |
 | `bin/check-docs.sh` | umbrella pre-commit; CI `check-docs` job (a required check) | fails bad frontmatter, an active plan with no `tracking_issue`, a dangling `superseded_by` target, a stale plans index, ADR index drift, and broken doc-to-doc links |
 | `bin/check-surface.sh` via `surface.yml` and the pre-commit hook | umbrella | CI runs the fixture tests, then each subcommand with `--strict` as its own step, except `enforcement`, which warns; the hook runs `--strict` on the staged content of the files in the commit; fails on any finding (a required check) |

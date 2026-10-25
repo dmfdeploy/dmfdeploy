@@ -4,7 +4,7 @@
 GitHub's closing-keyword parser ignores negation: "This PR does not close
 #496" creates a real closing link, and bin/close-completed-issues.sh closes
 what GitHub linked. This module is the ONE matcher for that hazard, shared by
-the guard.yml issue-link gate (rejects the PR body) and the reconciler
+the issue-link.yml gate (rejects the PR body) and the reconciler
 (refuses to close when the linking PR body negates the reference).
 
 What counts:
