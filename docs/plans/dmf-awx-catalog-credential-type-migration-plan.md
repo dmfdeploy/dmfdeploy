@@ -1,12 +1,13 @@
 ---
-status: active
+status: executed
 date: 2026-05-23
+executed: 2026-10-25
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/310
 ---
 # DMF AWX Catalog Credential Type Migration Plan
 
 **Date:** 2026-05-23
-**Status:** Proposed (deferred — staged followup to Lane B Chart 0.1.1 closure)
+**Status:** Executed on 2026-10-25 in [dmfdeploy/dmf-infra#103](https://github.com/dmfdeploy/dmf-infra/pull/103). Secrets from OpenBao at run time remain in [#731](https://github.com/dmfdeploy/dmfdeploy/issues/731).
 **Owner:** next session on `awx-integration` role
 **Related:** ADR-0014, ADR-0024, ADR-0025
 
