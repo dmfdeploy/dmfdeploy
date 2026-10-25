@@ -25,6 +25,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `bin/check-live-env-leak.sh` | refuse content carrying a LIVE environment identifier (umbrella issue #361). |
 | `bin/check-public-commit-authors.sh` | verify every commit author/committer on every public dmfdeploy platform repo matches the public-identity allowlist. |
 | `bin/check-public-repo-hygiene.sh` | bin/check-public-repo-hygiene.sh — per-repo Tier A.2 hygiene gate. |
+| `bin/check-review-comments.sh` | fail when a comment records review history. |
 | `bin/check-ruleset-drift.sh` | assert the live branch ruleset against a committed expectation (umbrella issue #368). |
 | `bin/check-surface.sh` | check the working surface of the umbrella repo against its size budgets, filename convention and archive-placement rules (hygiene enforcement, dmfdeploy/dmfdeploy#617). |
 | `bin/check-voice-changed.sh` | Ratchet the error-level Voice alerts in the Markdown files a change touches. |

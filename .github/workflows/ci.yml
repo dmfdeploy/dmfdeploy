@@ -125,6 +125,17 @@ jobs:
         # switchover (evidence on the tracking issue); the private rows run
         # operator-locally via tests/acceptance-matrix.sh --private.
         run: bash tests/acceptance-matrix.sh
+  review-comments:
+    # Comments state why, not which review prompted them
+    # (dmfdeploy/dmfdeploy#768). Allowlist: .review-comment-allow.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+      - name: No review history in comments
+        run: bin/check-review-comments.sh
   check-docs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10

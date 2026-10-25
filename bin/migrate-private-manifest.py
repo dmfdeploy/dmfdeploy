@@ -304,7 +304,7 @@ def render_manifest(entries):
             out.append('kind = "custom"')
             allow = rule.get("allowlists") or []
             if len(allow) > 1:
-                # Fail closed rather than silently truncate (codex P3): the
+                # Fail closed rather than silently truncate: the
                 # manifest schema carries ONE allowlist block per entry.
                 raise ScanError(CONFIG_ERROR,
                                 f"legacy rule '{rule.get('id')}' has "

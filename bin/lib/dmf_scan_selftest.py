@@ -46,7 +46,7 @@ kind = "custom"
 tags = ["fixture"]
 """ % PRIVATE_MARK
 
-# Python-`re`-valid but RE2-INVALID (lookahead) — the codex P1-1 reproduction:
+# Python-`re`-valid but RE2-INVALID (lookahead) — the reproduction for the panic leak:
 # gitleaks' panic on this regex must never be relayed verbatim.
 PRIVATE_BADREGEX_MANIFEST = """\
 [[pattern]]
@@ -297,7 +297,7 @@ def run_self_test(skip_gitleaks=False):
         finally:
             _git("worktree", "remove", "--force", wt, cwd=privleak)
 
-        # ── codex P1-2 regression: private value in a tracked FILENAME ──
+        # ── regression: private value in a tracked FILENAME ──
         nameleak = os.path.join(work, "nameleak")
         os.makedirs(nameleak)
         _git("init", "-q", "-b", "main", cwd=nameleak)
@@ -321,7 +321,7 @@ def run_self_test(skip_gitleaks=False):
         check(r.returncode == 3 and "CONFIG_ERROR" in r.stderr,
               "--show-private-hits refuses under CI")
 
-        # ── codex P2-2 regression: private parity needs the legacy source ──
+        # ── regression: private parity needs the legacy source ──
         inc = os.path.join(work, "fixture-include.sh")
         with open(inc, "w", encoding="utf-8") as fh:
             fh.write(PRIVATE_FIXTURE_INCLUDE)
@@ -368,7 +368,7 @@ def run_self_test(skip_gitleaks=False):
             check(r.returncode == 1 and "LEAK_FOUND" in r.stderr,
                   "public sentinel in commit range → LEAK_FOUND (pre-push surface)")
 
-            # ── codex P1-1 regression: RE2-invalid private regex must fail
+            # ── regression: RE2-invalid private regex must fail
             #    CONFIG_ERROR with the regex REDACTED (gitleaks panics quote
             #    config content verbatim; that output must never be relayed).
             badpriv = os.path.join(work, "private-badregex.toml")
@@ -411,7 +411,7 @@ def run_self_test(skip_gitleaks=False):
             check(r.returncode == 0 and "NOT APPLIED" not in r.stdout,
                   "#650: useDefault entry applied where gitleaks extends the "
                   "default pack")
-            # #650 review round 3: the claim is checked against the entry's own
+            # #650: the claim is checked against the entry's own
             # canaries. A shape no default rule catches is NOT APPLIED (class 3)
             # and its id stays redacted; so is an entry with no canary.
             falseclaim = os.path.join(work, "private-usedefault-false.toml")
