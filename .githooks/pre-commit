@@ -2,7 +2,7 @@
 # .githooks/pre-commit — local pre-commit gates for the umbrella.
 #
 # Runs staged secret scans and CHECK-ONLY, path-scoped doc gates before
-# allowing the commit. Never mutates or stages anything (R7): on drift it
+# allowing the commit. Never mutates or stages anything: on drift it
 # refuses and points at bin/fix-docs.sh.
 #
 # Activate once per clone:
@@ -112,18 +112,18 @@ fi
     exit 0
 }
 
-# ── R7: the doc gates below are CHECK-ONLY and PATH-SCOPED. The hook never
+# ── The doc gates below are CHECK-ONLY and PATH-SCOPED. The hook never
 # mutates or stages anything (the old auto-refresh once ate sibling-repo
 # sections of SCRIPTS.md when run from a worktree); on drift it refuses and
 # points at bin/fix-docs.sh. Each gate fires only when the staged paths can
 # actually affect it, so code-only commits skip the doc machinery entirely.
 # --no-renames: a rename must surface BOTH paths (as D+A) — with rename
 # detection on, --name-only reports only the destination, so moving a file
-# OUT of a watched path never fired its gate (codex R7 P1-1).
+# OUT of a watched path never fired its gate.
 STAGED_PATHS="$(git diff --cached --name-only --no-renames --diff-filter=ACMRTD)"
 touches() { printf '%s\n' "$STAGED_PATHS" | grep -qE "$1"; }
 # Editing the hook itself re-arms every doc gate for this commit
-# (codex R7 P1-2: gate implementations are part of each gate's trigger).
+# (a gate's implementation is part of its trigger).
 HOOK_CHANGED=0
 touches '^\.githooks/pre-commit$' && HOOK_CHANGED=1
 gate_on() { [ "$HOOK_CHANGED" = 1 ] || touches "$1"; }

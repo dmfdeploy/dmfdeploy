@@ -185,7 +185,7 @@ check_file() {
     if [ ! -f "$file" ]; then
         # --strict: a missing agent file is a real hole — that agent's harness
         # auto-loads exactly this file, so the forcing mechanism silently
-        # vanishes (claude-bottom finding, 2026-06-11). Every repo carries all
+        # vanishes. Every repo carries all
         # three of CLAUDE.md + AGENTS.md + QWEN.md.
         if [ "$STRICT" -eq 1 ]; then
             echo "  ✗ $file: agent context file MISSING (CLAUDE.md + AGENTS.md + QWEN.md are all required)" >&2

@@ -1,0 +1,15 @@
+# Allowlist for bin/check-review-comments.sh. One entry per line:
+#   <path>:<fixed substring of the line>  # <reason>
+# Entries go away as the lines they cover change; add one only for a mention
+# that is not review history.
+bin/working-model-digest.sh:codex/qwen don't run hooks  # names the agents this hook cannot reach; not review history
+.agents/skills/agent-bridge/bin/agent-bridge:(e.g. codex workspace-write)  # names the agent whose sandbox the code works around; not review history
+.agents/skills/agent-bridge/bin/agent-bridge:detect_agent <pane> -> claude|codex  # lists the agent names the tool detects; not review history
+.agents/skills/agent-bridge/bin/agent-bridge:    codex|codex-*)                    echo codex;  return ;;  # process-name match that identifies the codex agent; not review history
+.agents/skills/agent-bridge/bin/agent-bridge:(`agent-bridge send codex`,  # example of a command line the detector must not misread; not review history
+.agents/skills/agent-bridge/bin/agent-bridge:`cat codex-notes.md`  # example of a command line the detector must not misread; not review history
+.agents/skills/agent-bridge/bin/agent-bridge:          codex|codex-*)  echo codex;  return ;;  # process-name match that identifies the codex agent; not review history
+.agents/skills/agent-bridge/bin/agent-bridge:*codex*)  echo codex;  # pane-title match that identifies the codex agent; not review history
+bin/agentic/agent-status.sh:The observing agent (typically Codex, supervising)  # describes which agent role reads the status file; not review history
+bin/sync-skills.sh:Codex/Gemini/Cursor  # says which agents read .agents/skills natively and need no generated view; not review history
+bin/sync-skills.sh:Leave Claude's internal .system/ dir alone.  # names the agent whose directory the prune loop must skip; not review history

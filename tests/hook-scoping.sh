@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# hook-scoping.sh — regressions for the R7 path-scoped pre-commit gates
-# (codex R7 round-1 P1s, both reproduced before the fix):
+# hook-scoping.sh — regressions for the path-scoped pre-commit gates
+# (both cases reproduced before the fix):
 #
 #   P1-1  a RENAME's source path must fire its gate (--name-only with rename
 #         detection reports only the destination, so `git mv bin/x.sh x.sh`
@@ -84,7 +84,7 @@ else
 fi
 # Unstage FIRST, then restore the worktree: a bare `checkout -- <file>`
 # restores from the INDEX, which still holds the broken version — the
-# leftover staged file then contaminates the next case (codex R7 delta).
+# leftover staged file then contaminates the next case.
 git -C "$FX" reset -q -- bin/check-docs.sh
 git -C "$FX" checkout -q -- bin/check-docs.sh
 

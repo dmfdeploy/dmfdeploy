@@ -500,14 +500,14 @@
     - file_exists: dmf-cms/charts/dmf-cms/templates/configmap-catalog.yaml
     - file_modified: dmf-infra/k3s-lab-bootstrap/roles/stack/operator/cms/tasks/main.yml  # gather catalog YAML from mirrored sources, render to ConfigMap before helm upgrade
     - mount_path: /etc/dmf-cms/catalog/
-  status: done              # 2026-05-12 shift 7 tick 15 (qwen-left interrupted +
-                            # claude fix-up). qwen produced 8 file changes before
-                            # API ECONNRESET; claude fixed two bugs:
+  status: done              # 2026-05-12 shift 7 tick 15. An API ECONNRESET
+                            # interrupted the run after 8 file changes; two bugs
+                            # were fixed afterwards:
                             # (1) `patterns: "*.yaml", "*.yml"` invalid YAML →
                             #     proper YAML list
                             # (2) community.general.json_query with Jinja-filter
                             #     pseudo-JMESPath → include_tasks read-catalog-file.yml
-                            #     loop using qwen's own fallback file
+                            #     loop using the task's own fallback file
                             # helm lint passes; tasks/main.yml parses; cms_catalog_enabled
                             # auto-derives from gathered entries length.
 

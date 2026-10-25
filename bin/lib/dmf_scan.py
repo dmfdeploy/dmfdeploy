@@ -508,7 +508,7 @@ def grep_pass(tree, entries, allowlist, no_allowlist, strict, cached=False,
         if not informational:
             blocking += len(kept)
         if private:
-            # §4.2 + codex P1-2: never print private regex bodies,
+            # §4.2: never print private regex bodies,
             # descriptions, matched text — or LOCATIONS. A tracked filename
             # can itself contain the private value, so raw paths leak. The
             # default is category + count only; --show-private-hits is a
@@ -542,7 +542,7 @@ def _run_gitleaks(args, cwd=None, private=False):
     # gitleaks exits 1 on findings; anything else is a tool error → fail loud.
     if r.returncode != 1:
         if private:
-            # codex P1-1: gitleaks tool/parse errors quote config content
+            # gitleaks tool/parse errors quote config content
             # verbatim (e.g. a regexp panic prints the literal regex) and
             # --redact does NOT cover them. With private rules in the merged
             # config, NEVER relay raw tool output — the redacted per-rule

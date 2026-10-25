@@ -6,7 +6,7 @@
 # halt, or expect specific dirty state.
 #
 # The script provides FACTS, not POLICY. Policy lives in the orchestrator
-# (Claude's tick logic): is the constitution hash drift expected? are the
+# (the orchestrator's tick logic): is the constitution hash drift expected? are the
 # listed dirty repos the ones the current task said it would touch? etc.
 #
 # Output: a key=value block on stdout (one fact per line) plus a summary

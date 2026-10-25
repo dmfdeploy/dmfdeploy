@@ -218,7 +218,7 @@ def gitleaks_local_rules(path, allow_missing):
     if "# >>> DMF-GENERATED RULES" in text:
         # Post-migration the file IS a generated view of the manifest, so the
         # gitleaks side of this run proves nothing about the ORIGINAL
-        # hand-authored rules (codex P2). Say so loudly.
+        # hand-authored rules. Say so loudly.
         print("  NOTE: the legacy gitleaks file is a GENERATED view — this "
               "run is not original-source evidence; point --legacy-gitleaks "
               "at a pre-migration backup for migration proof")

@@ -210,7 +210,7 @@ check() {
                 echo "  ✗ $name: missing rubric 'scope:'" >&2; fail=$((fail + 1))
             fi
             # owner must be the ROLE 'operator' — a personal identity here
-            # would leak into public trajectory (codex R3 P2: README claims
+            # would leak into public trajectory (the README claims
             # all rubric keys are validated, so validate owner too).
             if ! printf '%s\n' "$fm_block" | grep -q '^owner:[[:space:]]*operator[[:space:]]*$'; then
                 echo "  ✗ $name: rubric 'owner:' missing or not the role 'operator'" >&2; fail=$((fail + 1))
