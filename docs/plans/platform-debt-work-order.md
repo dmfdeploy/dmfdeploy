@@ -8,7 +8,7 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/727
 
 ## Goal
 
-Pay down the debt that survives the roadmap, and stop spending effort on layers the roadmap replaces. Every open `platform-debt` issue is either in the work order below, with a priority and an effort, or on the kept list. That includes the 17 durable issues filed from the triage and the one filed after it. The tracking issue #727 isn't debt, so it carries no `platform-debt` label.
+Pay down the debt that survives the roadmap, and stop spending effort on layers the roadmap replaces. Every open `platform-debt` issue is either in the work order below, with a priority and an effort, or on the kept list. That includes the 17 durable issues filed from the triage, the four filed after it, and the 22 issues the v0.1-polish triage moved into `platform-debt` on 2026-10-25. The tracking issue #727 isn't debt, so it carries no `platform-debt` label.
 
 ## How debt is separated
 
@@ -37,7 +37,8 @@ A superseded issue closes only after any durable acceptance criterion it carries
 | Done, stale or not planned | 6 | Close with the evidence |
 | Duplicate | 1 | Close in favor of the issue named |
 | **Triaged** | **103** | |
-| Filed since: durable cores and #746 | 18 | Ordered in the work order below |
+| Filed since: durable cores, #746, #748, #750 and #758 | 21 | Ordered in the work order below |
+| Moved from v0.1-polish on 2026-10-25 | 22 | Ordered in the work order below, at the priority the triage comment gives |
 
 ## Work order
 
@@ -53,8 +54,12 @@ Secrets that expire or leak, and gates that pass when they shouldn't. Each one m
 | [#396](https://github.com/dmfdeploy/dmfdeploy/issues/396) | Alert before AppRole SecretID expiry; schedule pre-expiry rotation | M | Monitored SecretID lifetime signal (platform monitoring), scheduled rotation inside the TTL, coverage of every TTL'd AppRole, documented steady state. Prefer a Prometheus-side alert (dmf-promsd) so it survives the AWX/Temporal move; schedule through whichever backend runs the plays. |
 | [#717](https://github.com/dmfdeploy/dmfdeploy/issues/717) | Make the OpenBao unseal wrapper verify TLS by default | M | Remove the -k fallback in dmf-env/bin/unseal-openbao.sh; verify via in-pod bao or a covered address with the openbao-tls CA; fail with a clear message; keep shares on stdin only; add a failure-path test; repoint dmf-infra quick start. |
 | [#15](https://github.com/dmfdeploy/dmfdeploy/issues/15) | Bootstrap-user privilege residue: Forgejo OAuth auto-create + cross-app admin audit | M | Audit that no bootstrap admin access remains across apps; close in-cluster Forgejo OAuth auto-account creation |
+| [#748](https://github.com/dmfdeploy/dmfdeploy/issues/748) | Run the catalog launcher from a namespace that functions can't install into | M | No ServiceAccount that a function pod could select holds launcher rights. The launcher job, its ServiceAccount and its credentials run from a protected namespace with only the rights each function namespace needs; a kubectl auth can-i test shows pods in nmos and mxl can't read launcher Secrets or create Roles. The v0.2 IS-05 actuator identity follows the same rule. |
+| [#310](https://github.com/dmfdeploy/dmfdeploy/issues/310) | NetBox catalog token stored in plaintext in AWX job-template extra_vars; move to a Credential and add a guard against recurrence | S | Move the token out of job-template extra_vars now, as an operational AWX fix, and add a guard that fails when a template stores a secret. The backend-agnostic outcome is #731: no job or template definition stores a catalog secret in plaintext. |
 | [#650](https://github.com/dmfdeploy/dmfdeploy/issues/650) | scrub-public-repos skips re2-only manifest patterns, so cloud resource ids pass the scan | S | The scrub must apply every manifest pattern, or report skipped patterns. Mark dmf-cloud-resource-id and dmf-dev-changeme with pcre, or run the re2 patterns; make skipped patterns visible in the output. |
 | [#548](https://github.com/dmfdeploy/dmfdeploy/issues/548) | PR body saying 'does not close #N' creates a real closing link; the reconciler closes the issue | S | Issue-link CI gate rejects a negated closing keyword in the PR body. Secondary defence in bin/close-completed-issues.sh: re-read the PR body before closing. |
+| [#568](https://github.com/dmfdeploy/dmfdeploy/issues/568) | [dmf-cms] release tip v0.38.0 landed without required CI and guard checks | M | Before a release is published, the exact commit the tag points at has every required check, in addition to the pre-merge commit. |
+| [#758](https://github.com/dmfdeploy/dmfdeploy/issues/758) | guard.yml: the issue-link check runs PR code and reads a cached PR body | S | The required check runs from the base branch's workflow and scripts, reads the current PR body through the API, and re-runs when the body is edited. A recorded run shows that fixing a body turns the check green without a push. |
 
 ### Phase 2: truth and contracts left of the seam
 
@@ -72,6 +77,8 @@ The backend-agnostic layer the roadmap says value must land in: the console refu
 | [#730](https://github.com/dmfdeploy/dmfdeploy/issues/730) | Classify job outcomes only from a structured outcome event | S | Split from #693. The console never decides an outcome by searching free-form job output. |
 | [#731](https://github.com/dmfdeploy/dmfdeploy/issues/731) | Deliver catalog secrets to launchers from OpenBao at runtime, never as stored plaintext | L | Split from #182, #666, #123. No job or template definition stores a catalog secret in plaintext. |
 | [#733](https://github.com/dmfdeploy/dmfdeploy/issues/733) | Read the active source from cluster truth with an allowlisted payload | M | Split from #322. The active-source read comes from coordinator state. |
+| [#487](https://github.com/dmfdeploy/dmfdeploy/issues/487) | clear-for-deployment is 503 on every deployed env; DMF_CONSOLE_NETBOX_WRITER_TOKEN is required by the console and set by no chart or role | M | A separate, scoped NetBox writer identity (ADR-0032) reaches the console from the runtime secret through the chart and the role. Clear for deployment returns 2xx and the NetBox tag flips, checked in NetBox. #755 owns the v0.1 part. |
+| [#541](https://github.com/dmfdeploy/dmfdeploy/issues/541) | dmf-cms: GET /api/operations/{id} returns full operation detail to any authenticated user; the scoped-disclosure guard is never applied | M | The operation-status endpoint applies the scoped-disclosure guard for every action type, and answers 404 outside the caller's scope. It needs the tenant definition from the ADR-0028 amendment RFC first. |
 
 ### Phase 3: release and gate correctness
 
@@ -82,16 +89,22 @@ Make what ships verifiable and make the checks deterministic.
 | [#6](https://github.com/dmfdeploy/dmfdeploy/issues/6) | Release automation (E2): tag-driven publish workflows | M | Tag-driven image publish in component repos; survives the backend move and both UI milestones |
 | [#14](https://github.com/dmfdeploy/dmfdeploy/issues/14) | Cosign image signing for dmf-cms releases | M | Image signing and verification in the release pipeline (build-image.sh / publish-to-ghcr.sh) survives any orchestration or UI change. |
 | [#667](https://github.com/dmfdeploy/dmfdeploy/issues/667) | dmf-cms: refuse to publish an image whose revision isn't the tagged commit | S | publish-to-ghcr.sh checks the image revision label against v<VERSION>^{commit} and the working tree, and exits non-zero without pushing. |
+| [#479](https://github.com/dmfdeploy/dmfdeploy/issues/479) | [dmf-cms] react-router remains in HIGH advisory range | S | react-router and react-router-dom at 7.18.2 or later, regression-tested, so the release dependency-health gate passes. |
+| [#288](https://github.com/dmfdeploy/dmfdeploy/issues/288) | cms_catalog_source_dir reads the workstation dmf-media working tree; the #119/#135 class, third instance | S | The 650 catalog gather reads the local clone's origin/main ref (git show or git archive) instead of its working tree, as the #119 fix does for image tags. |
+| [#443](https://github.com/dmfdeploy/dmfdeploy/issues/443) | AWX Organization still carries the public Ansible Galaxy credential; ADR-0034 layer 1 unenforced, failed a live launch | S | The AWX Organization's Galaxy credentials point at the internal collection source or are empty, so a project update never reaches public Galaxy (ADR-0034 layer 1). It's a configuration change, so it counts as an operational AWX fix. |
 | [#387](https://github.com/dmfdeploy/dmfdeploy/issues/387) | dmf-cms: test_login_and_overview_shell_render asserts unsatisfiable 'App Catalog' text against a real build | S | Split the test: the built shell is covered by test_base_path; 'App Catalog' belongs in a fallback-shell-only test. |
 | [#356](https://github.com/dmfdeploy/dmfdeploy/issues/356) | check-docs is nondeterministic: false 'ADR not mentioned in INDEX' | S | Remove the echo\|grep -q pipelines (SIGPIPE + pipefail) in bin/check-docs.sh:177 and :372 and the small-payload sites; close with root cause or 'hazard removed'. |
 | [#460](https://github.com/dmfdeploy/dmfdeploy/issues/460) | generate-scripts-catalog.sh silently truncates SCRIPTS.md when run from a git worktree | S | Fail closed when a component repo does not resolve. Name each missing repo on stderr. Optionally resolve through git-common-dir. |
 | [#426](https://github.com/dmfdeploy/dmfdeploy/issues/426) | issue-close reconciler: a reverted PR's Closes ref still closes its issue | M | The reconciler must not close an issue for a merge that was later reverted, or must make that visible. |
 | [#546](https://github.com/dmfdeploy/dmfdeploy/issues/546) | audit-log-retention-policy.md is cited as the authoritative retention contract but has never existed | S | Write docs/processes/audit-log-retention-policy.md (content already specified in the readiness plan, A.4), or restate the 12-month contract inline at every citation. |
 | [#165](https://github.com/dmfdeploy/dmfdeploy/issues/165) | Umbrella security-audit remediation, script-hardening remainder | M | Script injection fixes, token-in-argv removal, dependabot for github-actions, .gitignore secrets patterns, mktemp traps, pins and dependency bounds. |
+| [#94](https://github.com/dmfdeploy/dmfdeploy/issues/94) | dmf-infra: no_log audit; Authorization-header tokens + admin-cred renders beyond the OAuth consumers | M | Every task that sends a token in an Authorization header, or renders an admin credential, sets no_log: true across the remaining bootstrap and admin roles. |
 | [#171](https://github.com/dmfdeploy/dmfdeploy/issues/171) | dmf-init: Manage restore does not rewrite absolute data-root paths in group_vars | S | Restore into a different DMF_DATA_ROOT rewrites (or avoids) all absolute data-root paths: openbao_key_path, eso_openbao_breakglass_file, awx_control_node_ssh_privkey_path. Preferred fix is a data-root variable in the inventory instead of absolute paths. |
+| [#234](https://github.com/dmfdeploy/dmfdeploy/issues/234) | dmf-env sandbox lane encrypts with the shared workstation age key; dmf-init packages of wizard-built envs embed a multi-env master key | M | A dmf-init package never embeds the shared workstation age key. The wizard mints a per-env age key from the start, or packaging re-keys the bundle to a per-env recipient automatically. |
 | [#409](https://github.com/dmfdeploy/dmfdeploy/issues/409) | Read-only platform survey: evidence-led cleanup and gate-correctness program | M | Gate correctness: hook-scoping.sh benign-case failure, check-docs.sh ADR index and broken links, dmf-cms Forgejo CI placeholder, dmf-init backup-contract doc drift, NetBox chart tarball provenance. Doc fixes for stale READMEs and the launch_rescue reference. |
 | [#736](https://github.com/dmfdeploy/dmfdeploy/issues/736) | Give dmf-init a pinned, checksum-verified install path | S | Split from #158. The documented install command points at a tagged release. |
 | [#737](https://github.com/dmfdeploy/dmfdeploy/issues/737) | Close the robustness gaps left from the demo-journey arcs | M | Split from #347. The reserved-variable scanner handles the short set_fact form and loop_var. |
+| [#357](https://github.com/dmfdeploy/dmfdeploy/issues/357) | docs: sweep stale operator-local pointers from public issues, PR bodies, and committed history | M | No current-revision operator-local pointer anywhere public, checked by an org-wide search. Affected comments and bodies are deleted and reposted; merged PR bodies are edited and the residual recorded. Schedule it explicitly, as the operator asked on 2026-08-03. |
 
 ### Phase 4: the single node stays healthy
 
@@ -100,18 +113,21 @@ Production-shaped components tuned for the small node, so the demo runs on the r
 | Issue | Title | Effort | Durable outcome |
 |---|---|---|---|
 | [#282](https://github.com/dmfdeploy/dmfdeploy/issues/282) | loki-gateway rolling update deadlocks on single-node envs (hard pod anti-affinity) | S | Soft anti-affinity, or a Recreate strategy, for the Loki gateway in the single-node profile. |
+| [#289](https://github.com/dmfdeploy/dmfdeploy/issues/289) | Loki unbounded growth fills the single-node disk → disk-pressure evicts the console (env outage) | M | Retention is on main. Loki also gets a volume that enforces its size, or a footprint sized so a runaway log store can't fill the node, and the capacity model guards ephemeral disk, so observability can never evict the console. |
 | [#314](https://github.com/dmfdeploy/dmfdeploy/issues/314) | Chronic CFS throttling on platform containers at tiny average usage | S | Raise CPU limits on netbox-postgresql (150m is the standout), valkey and prometheus-server after measuring burst profiles. Requests stay as calibrated. |
 | [#281](https://github.com/dmfdeploy/dmfdeploy/issues/281) | Standalone vertical-play runs silently drop sandbox-profile right-sizing facts | M | Roles must resolve or fail loudly on profile right-sizing facts, so a standalone play cannot silently un-size a node. |
 | [#142](https://github.com/dmfdeploy/dmfdeploy/issues/142) | Investigate: base/harden fail2ban banned the Ansible controller mid-bootstrap | S | Invariant: the platform must never fail2ban-ban its own control plane. Add harden_fail2ban_ignoreip from inventory and exempt the controller before fail2ban starts. |
 | [#336](https://github.com/dmfdeploy/dmfdeploy/issues/336) | Capture MXL flow real-time delivery in Prometheus (fps vs target, head-index lag) | M | Per-flow delivered grain rate vs target, head-index lag and drift, FlowNotRealtime and FlowLatencyDrifting alerts, discovered via dmf-promsd per ADR-0038. |
 | [#340](https://github.com/dmfdeploy/dmfdeploy/issues/340) | Record the full VPS environment in NetBox | M | Node VM records with vcpus/memory/disk/platform, IP objects with primary_ip, provider/region, k8s role, populated at provision time by the dmf-infra registration play. |
-| [#469](https://github.com/dmfdeploy/dmfdeploy/issues/469) | dmf-cms: Facility page doesn't show its env — no Environment card, k3s nodes never queried | M | Facility page leads with an Environment card from NetBox Site/Cluster dmf_env_* fields and lists nodes (virtual machines) plus the LB, read-side only, no new tags. |
+| [#469](https://github.com/dmfdeploy/dmfdeploy/issues/469) | dmf-cms: Facility page doesn't show its env; no Environment card, k3s nodes never queried | M | Facility page leads with an Environment card from NetBox Site/Cluster dmf_env_* fields and lists nodes (virtual machines) plus the LB, read-side only, no new tags. |
 | [#614](https://github.com/dmfdeploy/dmfdeploy/issues/614) | dmf-cms: fix the axe and jsx-a11y findings the UI invariant harness records as known failures | M | Bell accessible name, icon-link name, link-in-text-block, muted-text contrast, ReasonConfirm label htmlFor. Re-evaluate the InstanceLiveModal jsx-a11y warnings after #610 reworks the modal. |
 | [#735](https://github.com/dmfdeploy/dmfdeploy/issues/735) | Bring-your-own node: enroll the generated SSH key before the connectivity check | M | Split from #141. A fresh bring-your-own node accepts the generated key before the first connectivity check. |
+| [#309](https://github.com/dmfdeploy/dmfdeploy/issues/309) | Teardown fails while the topology is running: finalise job's NetBox inventory dependency dies with a corrupted EE worker stream on a saturated node | M | Control-plane jobs keep enough CPU on a saturated node (execution-environment requests or a priority class), so teardown succeeds while media runs. Operational fix only: no investment in the AWX worker stream itself. |
+| [#492](https://github.com/dmfdeploy/dmfdeploy/issues/492) | AWX: a dependent dmf-runbooks project update can die on an hourly event-partition collision after a cold wake, failing the media job that depends on it | S | Operational fix only: a dependent project update that dies on the cold-wake partition collision is retried, or reported to the operator as a transient failure to retry. The AWX-internal cause isn't fixed in dmfdeploy code. |
 
 ### Phase 5: later (P3)
 
-Foundation debt with no urgency. Pick these up when they block something or fit beside related work.
+Foundation debt with no urgency. Pick these up when they block something or fit beside related work. Like the other AWX rows, #327 takes operational fixes only: releasing the facility lock when a job dies mid-play is the part that outlasts AWX.
 
 | Issue | Title | Effort |
 |---|---|---|
@@ -125,12 +141,21 @@ Foundation debt with no urgency. Pick these up when they block something or fit 
 | [#129](https://github.com/dmfdeploy/dmfdeploy/issues/129) | dmf-media: retire nmos-crosspoint wss sed-patch once upstream #15 is in the ref | S |
 | [#159](https://github.com/dmfdeploy/dmfdeploy/issues/159) | dmf-init native desktop (menubar/tray) launcher wrapper, tier 2 | L |
 | [#199](https://github.com/dmfdeploy/dmfdeploy/issues/199) | Slice 2.2b: flip /api/media-workloads to grouped, add /api/media-function-instances | S |
+| [#221](https://github.com/dmfdeploy/dmfdeploy/issues/221) | Public-safety follow-ups from the R1 switchover gate: repo-aware allowlists + contributor pre-commit workflow | M |
 | [#244](https://github.com/dmfdeploy/dmfdeploy/issues/244) | Console disclosure Level axis: implement default<->expert (Constitution 1) | M |
 | [#245](https://github.com/dmfdeploy/dmfdeploy/issues/245) | Marketplace and resource-placement RFC track: grounded roadmap + RFC sequence | L |
+| [#319](https://github.com/dmfdeploy/dmfdeploy/issues/319) | Console inventory banner reports NetBox "unreachable" during AWX cold-boot node saturation; starved SoT read presented as outage | M |
+| [#327](https://github.com/dmfdeploy/dmfdeploy/issues/327) | Receptor worker-stream death escalated: killed 3 jobs in one evening incl. a switch play MID-EXECUTION (leaked facility lock, quiesced media path) | M |
+| [#448](https://github.com/dmfdeploy/dmfdeploy/issues/448) | [dmf-cms] Notification alerts disclosure lacks accessible state and Escape dismissal | S |
 | [#451](https://github.com/dmfdeploy/dmfdeploy/issues/451) | dmf-cms: Monitoring tables render empty alert names | S |
+| [#521](https://github.com/dmfdeploy/dmfdeploy/issues/521) | dmf-cms: in-flight announcements are hand-wired per call site; three paths missed it, and omission is undetectable | M |
 | [#523](https://github.com/dmfdeploy/dmfdeploy/issues/523) | dmf-cms: action buttons become a neutral light/dark pair; secondary hover direction | S |
 | [#524](https://github.com/dmfdeploy/dmfdeploy/issues/524) | dmf-cms: no light mode and no theme mechanics (system-follow plus user toggle) | L |
+| [#526](https://github.com/dmfdeploy/dmfdeploy/issues/526) | dmf-cms: the sidebar nav clips instead of scrolling at short viewports, and clipped links stay focusable | S |
 | [#529](https://github.com/dmfdeploy/dmfdeploy/issues/529) | dmf-cms: sidebar's complementary landmark wraps only the nav | S |
+| [#536](https://github.com/dmfdeploy/dmfdeploy/issues/536) | docs/runbooks: the demo journey has no verification provenance; each edition restates inherited claims as current | M |
+| [#544](https://github.com/dmfdeploy/dmfdeploy/issues/544) | automerge.yml merges past CHANGES_REQUESTED when the base is not a protected branch | S |
+| [#584](https://github.com/dmfdeploy/dmfdeploy/issues/584) | [dmf-cms] avatar disclosure trigger exposes initials instead of an account-menu action | S |
 | [#586](https://github.com/dmfdeploy/dmfdeploy/issues/586) | dmf-cms: active-source view polls ordinary instances for topology forever | S |
 | [#596](https://github.com/dmfdeploy/dmfdeploy/issues/596) | [dmf-cms] Arc 4 plan still states the shipped frontend CI gate is missing | S |
 | [#654](https://github.com/dmfdeploy/dmfdeploy/issues/654) | MXL: alignment assessment of mxl-k8s control plane and two upstream contributions | S |
@@ -151,6 +176,7 @@ Foundation debt with no urgency. Pick these up when they block something or fit 
 | [#744](https://github.com/dmfdeploy/dmfdeploy/issues/744) | NetBox media modelling plugin for signal classes, directionality and crosspoints | L |
 | [#745](https://github.com/dmfdeploy/dmfdeploy/issues/745) | Build MXL for every architecture and record the pin by digest | M |
 | [#746](https://github.com/dmfdeploy/dmfdeploy/issues/746) | Keep the media function descriptor compatible with AMWA IN-003 as it evolves | M |
+| [#750](https://github.com/dmfdeploy/dmfdeploy/issues/750) | Feasibility: run the ddcam gateway on the ARM64 sandbox through MXL | M |
 
 ## Durable cores filed from mixed issues
 
@@ -200,7 +226,7 @@ These stay open. No named deliverable replaces them. A fourth, [#200](https://gi
 
 | Issue | Title | Replaced by or evidence | Before closing |
 |---|---|---|---|
-| [#48](https://github.com/dmfdeploy/dmfdeploy/issues/48) | Create-env exactly-once: idempotency key for sequential re-submit | #29 dmf-init to dmf-cms convergence (v0.3) | - |
+| [#48](https://github.com/dmfdeploy/dmfdeploy/issues/48) | Create-env exactly once: idempotency key for sequential re-submit | #29 dmf-init to dmf-cms convergence (v0.3) | - |
 | [#146](https://github.com/dmfdeploy/dmfdeploy/issues/146) | dmf-init: auto-detect node network interface (optional override) + ARM64 note | #29 dmf-init to dmf-cms convergence (wizard UI); the hard NAT bind failure from the repro comment is already fixed by #163 | - |
 | [#484](https://github.com/dmfdeploy/dmfdeploy/issues/484) | dmf-cms mobile layout: bottom nav and vertical lifecycle rail | #493/#557 (lifecycle stages become peer views, no gated sequence); the vertical rail is the gated rail layout those issues remove | - |
 | [#507](https://github.com/dmfdeploy/dmfdeploy/issues/507) | dmf-cms: rail icons ship as 1.5px lucide strokes, decision specified filled silhouettes | #493/#557 lifecycle stages become peer views, no gated sequence | - |
@@ -220,7 +246,7 @@ These stay open. No named deliverable replaces them. A fourth, [#200](https://gi
 
 | Issue | Title | Replaced by or evidence | Before closing |
 |---|---|---|---|
-| [#193](https://github.com/dmfdeploy/dmfdeploy/issues/193) | Retire mxl-hello — superseded by the videotest workload | Comments: dmf-media#15, dmf-runbooks#14, dmf-infra#44, dmf-cms#28 merged 2026-07-08; catalog entry removed in Slice 2.1 (dmf-media#14). `git grep mxl-hello` in dmf-media returns nothing. Live teardown targeted env <env>, | Before closing: record the live teardown result in #193, or record that it is waived because the environment was destroyed. |
+| [#193](https://github.com/dmfdeploy/dmfdeploy/issues/193) | Retire mxl-hello; superseded by the videotest workload | Comments: dmf-media#15, dmf-runbooks#14, dmf-infra#44, dmf-cms#28 merged 2026-07-08; catalog entry removed in Slice 2.1 (dmf-media#14). `git grep mxl-hello` in dmf-media returns nothing. Live teardown targeted env <env>, | Before closing: record the live teardown result in #193, or record that it is waived because the environment was destroyed. |
 | [#385](https://github.com/dmfdeploy/dmfdeploy/issues/385) | dmf-cms live survey: navy band, dead boot palette, page identity, focus ring, degraded empty state | gh pr view 79 dmf-cms is MERGED. Commits 2844cf6 (fill viewport, retire boot palette) and 98f7c8d (real favicon, page-identity tests). frontend/src/__tests__/pageIdentitySweep.test.tsx. MediaWorkloads/index.tsx:236 canno | - |
 | [#477](https://github.com/dmfdeploy/dmfdeploy/issues/477) | check-backlog-hygiene.sh silently checks only the first 100 open issues | Commit 8af0291 'ci(hygiene): ... read every issue'. bin/check-backlog-hygiene.sh lines 45 (ISSUE_LIMIT 2000), 88-91, 163 (finding when limit reached), 249 (first:100 with orderBy DESC). | - |
 | [#506](https://github.com/dmfdeploy/dmfdeploy/issues/506) | dmf-cms: rail icon set on screen is not the agreed set | dmf-cms commit d28641c 'feat(rail): swap in the recovered exact stage icon set, filled not stroked'. frontend/src/lib/stageIcons.tsx is now inline SVG, and its header quotes the recovered decision verbatim and says it su | - |
