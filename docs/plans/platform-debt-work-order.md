@@ -1,6 +1,6 @@
 ---
-status: draft
-date: 2026-10-24
+status: active
+date: 2026-10-25
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/727
 ---
 
@@ -133,29 +133,29 @@ Foundation debt with no urgency. Pick these up when they block something or fit 
 | [#725](https://github.com/dmfdeploy/dmfdeploy/issues/725) | Split ADR-0020 so it holds only the Accepted Mode A decision | S |
 | [#726](https://github.com/dmfdeploy/dmfdeploy/issues/726) | Fold the amendments in ADR-0032 and ADR-0038 into their current Decision | M |
 
-## Durable cores to file from mixed issues
+## Durable cores filed from mixed issues
 
-Each row becomes one new `platform-debt` issue. The listed originals close with a link to it.
+Each row is a new `platform-debt` issue. The listed originals are closed with a link to it.
 
-| From | New durable issue |
-|---|---|
-| [#496](https://github.com/dmfdeploy/dmfdeploy/issues/496), [#480](https://github.com/dmfdeploy/dmfdeploy/issues/480) | Emit a terminal-outcome audit record and keep the audit stream in a retained Loki stream (ADR-0028 D7) |
-| [#693](https://github.com/dmfdeploy/dmfdeploy/issues/693) | Classify outcomes only from a structured outcome event, never by searching job output |
-| [#182](https://github.com/dmfdeploy/dmfdeploy/issues/182), [#666](https://github.com/dmfdeploy/dmfdeploy/issues/666), [#123](https://github.com/dmfdeploy/dmfdeploy/issues/123) | Deliver secrets to launchers from OpenBao at runtime, never as stored plaintext; test that no rendered job config contains one |
-| [#196](https://github.com/dmfdeploy/dmfdeploy/issues/196) | Contract test: any stage that writes NetBox keeps its workload:* tags, written against the stage contract so it outlives the demo task files |
-| [#322](https://github.com/dmfdeploy/dmfdeploy/issues/322) | Runtime source truth comes from cluster truth with an allowlisted payload and honest provenance |
-| [#271](https://github.com/dmfdeploy/dmfdeploy/issues/271) | Capacity-budget report contract and its retry message, so a deploy never blocks the facility |
-| [#141](https://github.com/dmfdeploy/dmfdeploy/issues/141) | Bring-your-own node: enroll the generated key before the connectivity check, without tripping fail2ban |
-| [#158](https://github.com/dmfdeploy/dmfdeploy/issues/158) | Pinned, checksum-verified installer path instead of curl \| bash off main |
-| [#347](https://github.com/dmfdeploy/dmfdeploy/issues/347) | Robustness items from the demo-journey arcs: reserved-variable scanner, list-shaped defaults, fallback-state rendering |
-| [#559](https://github.com/dmfdeploy/dmfdeploy/issues/559) | Audit event contract for configuration changes: parameter, old value, new value |
-| [#232](https://github.com/dmfdeploy/dmfdeploy/issues/232) | Workload review record (audit extract, job-log pointers, config snapshot) as a backend capability |
-| [#608](https://github.com/dmfdeploy/dmfdeploy/issues/608), [#286](https://github.com/dmfdeploy/dmfdeploy/issues/286), [#520](https://github.com/dmfdeploy/dmfdeploy/issues/520), [#527](https://github.com/dmfdeploy/dmfdeploy/issues/527) | Durable UI substrate: surface, border, status, radius and type tokens; the Tile hover contrast; a console-wide button affordance |
-| [#348](https://github.com/dmfdeploy/dmfdeploy/issues/348) | Versioned data-testid selector contract with a contract test |
-| [#187](https://github.com/dmfdeploy/dmfdeploy/issues/187) | Alarm priority model research doc that feeds the Alarm Philosophy spec |
-| [#345](https://github.com/dmfdeploy/dmfdeploy/issues/345) | Align ADR-0046 and the EBU mapping doc: five orchestration stages plus Operate in the Control vertical |
-| [#563](https://github.com/dmfdeploy/dmfdeploy/issues/563) | NetBox media modelling plugin (signal classes, directionality, crosspoints), re-filed on that premise |
-| [#646](https://github.com/dmfdeploy/dmfdeploy/issues/646) | Multi-arch MXL build with the pin recorded by digest and a loud failure on a moved anchor |
+| From | Durable issue | Filed as |
+|---|---|---|
+| [#496](https://github.com/dmfdeploy/dmfdeploy/issues/496), [#480](https://github.com/dmfdeploy/dmfdeploy/issues/480) | Emit a terminal-outcome audit record and keep the audit stream in a retained Loki stream (ADR-0028 D7) | [#729](https://github.com/dmfdeploy/dmfdeploy/issues/729) |
+| [#693](https://github.com/dmfdeploy/dmfdeploy/issues/693) | Classify outcomes only from a structured outcome event, never by searching job output | [#730](https://github.com/dmfdeploy/dmfdeploy/issues/730) |
+| [#182](https://github.com/dmfdeploy/dmfdeploy/issues/182), [#666](https://github.com/dmfdeploy/dmfdeploy/issues/666), [#123](https://github.com/dmfdeploy/dmfdeploy/issues/123) | Deliver secrets to launchers from OpenBao at runtime, never as stored plaintext; test that no rendered job config contains one | [#731](https://github.com/dmfdeploy/dmfdeploy/issues/731) |
+| [#196](https://github.com/dmfdeploy/dmfdeploy/issues/196) | Contract test: any stage that writes NetBox keeps its workload:* tags, written against the stage contract so it outlives the demo task files | [#732](https://github.com/dmfdeploy/dmfdeploy/issues/732) |
+| [#322](https://github.com/dmfdeploy/dmfdeploy/issues/322) | Runtime source truth comes from cluster truth with an allowlisted payload and honest provenance | [#733](https://github.com/dmfdeploy/dmfdeploy/issues/733) |
+| [#271](https://github.com/dmfdeploy/dmfdeploy/issues/271) | Capacity-budget report contract and its retry message, so a deploy never blocks the facility | [#734](https://github.com/dmfdeploy/dmfdeploy/issues/734) |
+| [#141](https://github.com/dmfdeploy/dmfdeploy/issues/141) | Bring-your-own node: enroll the generated key before the connectivity check, without tripping fail2ban | [#735](https://github.com/dmfdeploy/dmfdeploy/issues/735) |
+| [#158](https://github.com/dmfdeploy/dmfdeploy/issues/158) | Pinned, checksum-verified installer path instead of curl \| bash off main | [#736](https://github.com/dmfdeploy/dmfdeploy/issues/736) |
+| [#347](https://github.com/dmfdeploy/dmfdeploy/issues/347) | Robustness items from the demo-journey arcs: reserved-variable scanner, list-shaped defaults, fallback-state rendering | [#737](https://github.com/dmfdeploy/dmfdeploy/issues/737) |
+| [#559](https://github.com/dmfdeploy/dmfdeploy/issues/559) | Audit event contract for configuration changes: parameter, old value, new value | [#738](https://github.com/dmfdeploy/dmfdeploy/issues/738) |
+| [#232](https://github.com/dmfdeploy/dmfdeploy/issues/232) | Workload review record (audit extract, job-log pointers, config snapshot) as a backend capability | [#739](https://github.com/dmfdeploy/dmfdeploy/issues/739) |
+| [#608](https://github.com/dmfdeploy/dmfdeploy/issues/608), [#286](https://github.com/dmfdeploy/dmfdeploy/issues/286), [#520](https://github.com/dmfdeploy/dmfdeploy/issues/520), [#527](https://github.com/dmfdeploy/dmfdeploy/issues/527) | Durable UI substrate: surface, border, status, radius and type tokens; the Tile hover contrast; a console-wide button affordance | [#740](https://github.com/dmfdeploy/dmfdeploy/issues/740) |
+| [#348](https://github.com/dmfdeploy/dmfdeploy/issues/348) | Versioned data-testid selector contract with a contract test | [#741](https://github.com/dmfdeploy/dmfdeploy/issues/741) |
+| [#187](https://github.com/dmfdeploy/dmfdeploy/issues/187) | Alarm priority model research doc that feeds the Alarm Philosophy spec | [#742](https://github.com/dmfdeploy/dmfdeploy/issues/742) |
+| [#345](https://github.com/dmfdeploy/dmfdeploy/issues/345) | Align ADR-0046 and the EBU mapping doc: five orchestration stages plus Operate in the Control vertical | [#743](https://github.com/dmfdeploy/dmfdeploy/issues/743) |
+| [#563](https://github.com/dmfdeploy/dmfdeploy/issues/563) | NetBox media modelling plugin (signal classes, directionality, crosspoints), re-filed on that premise | [#744](https://github.com/dmfdeploy/dmfdeploy/issues/744) |
+| [#646](https://github.com/dmfdeploy/dmfdeploy/issues/646) | Multi-arch MXL build with the pin recorded by digest and a loud failure on a moved anchor | [#745](https://github.com/dmfdeploy/dmfdeploy/issues/745) |
 
 ## Kept on purpose
 
@@ -166,9 +166,9 @@ These stay open. No named deliverable replaces them.
 | [#8](https://github.com/dmfdeploy/dmfdeploy/issues/8) | Authentik cross-cluster federation with passkey enrollment (FROZEN thesis-killer) | Frozen non-goal with a documented re-open trigger (architectural-commitments-v1, OPEN-QUESTIONS). Keep open with freeze-1 and no milestone. |
 | [#9](https://github.com/dmfdeploy/dmfdeploy/issues/9) | EBU V2.0 taxonomy hard case: two-function fabric (paused) | Open thesis question: does the EBU taxonomy hold for a two-function shared-data-plane case? #634 validates descriptors and does not answer it. Keep frozen. |
 | [#28](https://github.com/dmfdeploy/dmfdeploy/issues/28) | Shared UI framework between dmf-cms and dmf-init | Waits on the #29 decision about the Day-0 UI boundary; #29 is pre-ADR and keeps a standalone seeder. Keep open until #29 decides. |
-| [#200](https://github.com/dmfdeploy/dmfdeploy/issues/200) | v0.2 presentable-journey execution track | Owns the integrated v0.2 acceptance: an outsider runs the written v0.2 demo end to end on a fresh environment, including the live switch. No component issue owns that. Candidate for the v0.2 milestone. |
+| [#200](https://github.com/dmfdeploy/dmfdeploy/issues/200) | v0.2 presentable-journey execution track | Owns the integrated v0.2 acceptance: an outsider runs the v0.2 journey end to end on a fresh environment. Rewritten as that test and moved into the v0.2 milestone on 2026-10-25. |
 
-## To close
+## Closed
 
 ### Superseded by v0.2
 
@@ -206,7 +206,7 @@ These stay open. No named deliverable replaces them.
 | [#385](https://github.com/dmfdeploy/dmfdeploy/issues/385) | dmf-cms live survey: navy band, dead boot palette, page identity, focus ring, degraded empty state | gh pr view 79 dmf-cms is MERGED. Commits 2844cf6 (fill viewport, retire boot palette) and 98f7c8d (real favicon, page-identity tests). frontend/src/__tests__/pageIdentitySweep.test.tsx. MediaWorkloads/index.tsx:236 canno | - |
 | [#477](https://github.com/dmfdeploy/dmfdeploy/issues/477) | check-backlog-hygiene.sh silently checks only the first 100 open issues | Commit 8af0291 'ci(hygiene): ... read every issue'. bin/check-backlog-hygiene.sh lines 45 (ISSUE_LIMIT 2000), 88-91, 163 (finding when limit reached), 249 (first:100 with orderBy DESC). | - |
 | [#506](https://github.com/dmfdeploy/dmfdeploy/issues/506) | dmf-cms: rail icon set on screen is not the agreed set | dmf-cms commit d28641c 'feat(rail): swap in the recovered exact stage icon set, filled not stroked'. frontend/src/lib/stageIcons.tsx is now inline SVG, and its header quotes the recovered decision verbatim and says it su | - |
-| [#583](https://github.com/dmfdeploy/dmfdeploy/issues/583) | [dmf-cms] AGENTS.md release context still describes the pre-v0.10 console | grep -n -i 'release 0\\|Release Context' dmf-cms/AGENTS.md returned no matches. git log shows later commits to AGENTS.md (3206029 pin working-model block, 0264c98, f0dae52). The issue was scanned at source SHA 321dd63, w | - |
+| [#583](https://github.com/dmfdeploy/dmfdeploy/issues/583) | [dmf-cms] AGENTS.md release context still describes the pre-v0.10 console | dmf-cms AGENTS.md on main was rewritten. It now has four short sections (title, Build and test, Rules that are easy to miss, Working model), and the old section 6 with its Release 0/1/2 matrix is gone (checked by reading | - |
 | [#592](https://github.com/dmfdeploy/dmfdeploy/issues/592) | WORKING-MODEL.md allows bare 'Closes #N'; the issue-link guard rejects it | origin/main .github/workflows/guard.yml line 156: regex '((dmfdeploy/dmfdeploy)?#[0-9]+\|https://...)' with the comment 'Bare #N is fine here'. WORKING-MODEL.md line 191 says 'Closes #N in the umbrella'. | - |
 
 ### Duplicate
@@ -217,4 +217,4 @@ These stay open. No named deliverable replaces them.
 
 ## Method
 
-Eight read-only classifiers each read 12 or 13 issues in full, with comments, against the rules above, and cited evidence for every done or superseded call. The orchestrator spot-checked the done evidence against the repos. An adversarial review then challenged every close call. It moved four issues to the kept list and added the conditions in the "Before closing" column. Nothing in the backlog changes until the maintainer agrees to this plan.
+Eight read-only classifiers each read 12 or 13 issues in full, with comments, against the rules above, and cited evidence for every done or superseded call. The orchestrator spot-checked the done evidence against the repos. An adversarial review then challenged every close call. It moved four issues to the kept list and added the conditions in the "Before closing" column. The maintainer agreed on 2026-10-25, and the backlog changes are applied: the durable cores are filed, the listed issues are closed with their pointers, and #200 is now the v0.2 end-to-end acceptance test.
