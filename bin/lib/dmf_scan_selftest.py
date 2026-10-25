@@ -95,6 +95,23 @@ kind = "custom"
 tags = ["fixture"]
 """ % PRIVATE_MARK
 
+# #650 review: an emit=false entry the default gitleaks pack covers, with no
+# pcre engine. Applied where the gitleaks pass extends the default pack;
+# NOT APPLIED where no gitleaks pass runs or the config drops the pack.
+PRIVATE_USEDEFAULT_MANIFEST = """\
+[[pattern]]
+id = "fixture-private-usedefault"
+category = "secret"
+description = "fixture private marker covered by the default pack (synthetic)"
+regex = 'FIXTURE-PRIVATE-[0-9]{6}'
+engines = ["ere"]
+case_sensitive = true
+positive_canaries = ["%s"]
+[pattern.gitleaks]
+emit = false
+covered_by = "useDefault"
+""" % PRIVATE_MARK
+
 # Old-world private include fixture for the parity P2-2 regression.
 PRIVATE_FIXTURE_INCLUDE = """\
 DMF_PRIVATE_IDENTITY_PATTERNS=()
@@ -219,6 +236,28 @@ def run_self_test(skip_gitleaks=False):
         check(r.returncode == 3 and "NOT APPLIED" in r.stdout,
               "#650: re2-only pattern in a grep-only context → NOT APPLIED")
 
+        # ── #650 review: empty staged set still checks the configuration ──
+        emptystaged = os.path.join(work, "emptystaged")
+        _make_repo(emptystaged)
+        r = _run(["staged", "--repo", emptystaged, "--context", "pre-commit"],
+                 private_manifest=nopcre)
+        check(r.returncode == 3 and "CONFIG_ERROR" in r.stderr
+              and "NOT APPLIED" in r.stdout,
+              "#650: nothing staged + unapplicable pattern → CONFIG_ERROR, not OK")
+        r = _run(["staged", "--repo", emptystaged, "--context", "pre-commit"],
+                 private_manifest=priv)
+        check(r.returncode == 0 and "nothing staged" in r.stdout,
+              "#650: nothing staged + every pattern applicable → OK")
+
+        # ── #650 review: default-pack coverage depends on the surface ──
+        usedefault = os.path.join(work, "private-usedefault.toml")
+        with open(usedefault, "w", encoding="utf-8") as fh:
+            fh.write(PRIVATE_USEDEFAULT_MANIFEST)
+        r = _run(["tree", clean, "--context", "scrub"], private_manifest=usedefault)
+        check(r.returncode == 3 and "NOT APPLIED" in r.stdout,
+              "#650: useDefault entry without pcre, surface with no gitleaks pass "
+              "→ NOT APPLIED")
+
         # ── worktree (row 7, library level) ──
         wt = os.path.join(work, "wt")
         _git("worktree", "add", "-q", "--detach", wt, "main", cwd=privleak)
@@ -320,6 +359,42 @@ def run_self_test(skip_gitleaks=False):
                      private_manifest=re2only)
             check(r.returncode == 0 and "NOT APPLIED" not in r.stdout,
                   "#650: re2-only emitted rule is applied by the gitleaks pass")
+
+            with open(os.path.join(staged, "benign.txt"), "w", encoding="utf-8") as fh:
+                fh.write("benign staged content\n")
+            _git("add", "benign.txt", cwd=staged)
+            _git("-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid",
+                 "commit", "-q", "-m", "benign", cwd=staged)
+            with open(os.path.join(staged, "more.txt"), "w", encoding="utf-8") as fh:
+                fh.write("more benign staged content\n")
+            _git("add", "more.txt", cwd=staged)
+            r = _run(["staged", "--repo", staged, "--context", "pre-commit"],
+                     private_manifest=usedefault)
+            check(r.returncode == 0 and "NOT APPLIED" not in r.stdout,
+                  "#650: useDefault entry without pcre, staged surface (default "
+                  "pack) → applied")
+
+            # #650 review: the same useDefault entry is applied by a gitleaks
+            # pass that extends the default pack, and NOT APPLIED when the
+            # tree's own config drops the pack.
+            r = _run(["tree", clean, "--context", "export-scan"],
+                     private_manifest=usedefault)
+            check(r.returncode == 0 and "NOT APPLIED" not in r.stdout,
+                  "#650: useDefault entry applied where gitleaks extends the "
+                  "default pack")
+            nopack = os.path.join(work, "nopack")
+            _make_repo(nopack)
+            with open(os.path.join(nopack, ".gitleaks.toml"), "w",
+                      encoding="utf-8") as fh:
+                fh.write('title = "fixture config without the default pack"\n')
+            _git("add", "-A", cwd=nopack)
+            _git("-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid",
+                 "commit", "-q", "-m", "config", cwd=nopack)
+            r = _run(["tree", nopack, "--context", "export-scan"],
+                     private_manifest=usedefault)
+            check(r.returncode == 3 and "NOT APPLIED" in r.stdout,
+                  "#650: useDefault entry NOT APPLIED where the gitleaks config "
+                  "drops the default pack")
 
     leftovers = _merged_leftovers() - before_tmp
     check(not leftovers, "no ephemeral merged configs left behind (§5.1)")

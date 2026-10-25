@@ -324,6 +324,19 @@ def _grep_entries(manifest, private):
     return out
 
 
+def _default_pack_enabled(gitleaks_config_text):
+    """True when the gitleaks config this surface runs extends the default
+    rule pack ([extend] useDefault = true). Read from the config text itself,
+    so a tree whose own .gitleaks.toml drops the pack loses the coverage."""
+    if gitleaks_config_text is None:
+        return False
+    try:
+        cfg = tomllib.loads(gitleaks_config_text)
+    except tomllib.TOMLDecodeError:
+        return False
+    return cfg.get("extend", {}).get("useDefault") is True
+
+
 def _not_applied(manifest, private, gitleaks_config_text=None):
     """Entries with a regex that this surface runs NEITHER through the grep
     pass (no pcre engine) NOR through its gitleaks pass. Fail-closed (#650):
@@ -332,7 +345,15 @@ def _not_applied(manifest, private, gitleaks_config_text=None):
 
     gitleaks_config_text is None when the surface runs no gitleaks pass. A
     private emit=true entry rides the ephemeral merged config; a public one
-    counts only if the base config the tree actually uses carries its rule."""
+    counts only if the base config the tree actually uses carries its rule.
+
+    An emit=false entry with covered_by="useDefault" counts as applied only
+    when that config extends the default pack. The code cannot tell which
+    default rule catches a shape (the manifest names none; the generator
+    self-test proves it with canaries), so it verifies the pack is on, not
+    the rule. covered_by="git-grep" means the grep pass is the coverage, so
+    it needs pcre like any other entry."""
+    pack_on = _default_pack_enabled(gitleaks_config_text)
     out = []
     for entry in manifest.get("pattern", []):
         if "regex" not in entry or "pcre" in entry.get("engines", []):
@@ -340,6 +361,8 @@ def _not_applied(manifest, private, gitleaks_config_text=None):
         if gitleaks_config_text is not None and entry.get("gitleaks", {}).get("emit"):
             if private or f'id = "{entry["id"]}"' in gitleaks_config_text:
                 continue
+        if pack_on and entry.get("gitleaks", {}).get("covered_by") == "useDefault":
+            continue
         out.append((entry, private))
     return out
 
@@ -540,9 +563,6 @@ def scan_staged(context_name, public_only, repo=".", no_allowlist=False, strict=
     if r.returncode != 0:
         _fail(CONFIG_ERROR, f"not a git repo: {repo}")
     staged = [p for p in r.stdout.split("\0") if p]
-    if not staged:
-        print("OK: nothing staged")
-        return OK
     entries = _grep_entries(public, private=False)
     if private:
         entries += _grep_entries(private, private=True)
@@ -550,6 +570,15 @@ def scan_staged(context_name, public_only, repo=".", no_allowlist=False, strict=
     skipped = _not_applied(public, False, gl_text)
     if private:
         skipped += _not_applied(private, True, gl_text)
+    if not staged:
+        # Configuration check first (#650): an empty staged set must not pass
+        # a run whose manifest this surface cannot apply.
+        names = report_not_applied(skipped)
+        if names:
+            _fail(CONFIG_ERROR, f"{len(names)} manifest pattern(s) not applied to "
+                                f"staged changes: {', '.join(names)}")
+        print("OK: nothing staged")
+        return OK
     allowlist = _scan_allowlist(public, private)
     blocking, lines = grep_pass(repo, entries, allowlist, no_allowlist, strict,
                                 cached=True, pathspecs=staged,
