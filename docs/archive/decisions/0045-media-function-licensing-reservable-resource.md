@@ -147,14 +147,14 @@ This section records why the ADR moved from a reservation seam to the IAMT *Dyna
 
 | Old seam | New position | IAMT basis |
 |---|---|---|
-| `check(class, count)` | Advisory entitlement query at Plan | §05.05 WF-01 step 3, §11.02, API-8 |
+| `check(class, count)` | Plan holds nothing; an entitlement query is an RFC question | §10.02, Annex B (no query call) |
 | `reserve(class, count, ctx)` at Provision | The function's licence agent calls Issue; the launcher supplies inputs | §07.04, §07.07, §10.02 |
 | Plan-stage reservation (left open) | No Plan-stage hold | §10.02 checks quota only at Issue |
-| `ctx.idempotency_key` | `workId`, derived from the launch `request_id` and the instance id | §07.01, §10.01 |
+| `ctx.idempotency_key` | An opaque `workId` the platform supplies; its contract is an RFC question | §07.01, §10.01, INT-4 |
 | `ctx.instance_id` as binding | Workload identity binds; the instance id only correlates | IDB-1, IDB-2, §11.06 |
-| `release(reservation_id)` | Close with `DELETE`: `decommissioned` at teardown, a failure reason on rollback | §10.05, Annex D |
-| `usage()` with "leaked" | Read-only usage records; "unreleased lease" replaces "leaked" | §10.06, Annex D, WF-13 |
-| `licence: {required: [{class, count}]}` | `licence: {app, modality, term, dimensions}` | §04.03, §10.02, §11.02 |
+| `release(reservation_id)` | Revoke (`DELETE`, lease becomes REVOKED): `decommissioned` at teardown; whether teardown needs TERMINATED is an RFC question | §10.05, Annex D |
+| `usage()` with "leaked" | Read-only usage records; a project reconciliation rule, "unreleased lease", replaces "leaked" | §10.06, Annex D (expiry) |
+| `licence: {required: [{class, count}]}` | `licence: {app, modality, term, dimensions}`, with `modality` a project class | §04.03 concepts, §10.02, §11.02 |
 | `LicenceReservationProvider` | `LicenceControlPlaneAdapter` | §08.01 automation adapter |
 
 ### The three roles
@@ -171,15 +171,19 @@ The adopted option has the licence agent call Issue from inside the workload. Th
 
 ### Why Plan holds nothing
 
-IAMT checks quota at Issue and has no hold call in Annex B. A hold kept by the platform can't bind the control plane, so another consumer could still take the slot. The console would show a guarantee it can't keep, which is the misleading-fake problem the first version of this ADR rejected. Plan therefore asks whether the entitlement covers the request and says so, with `unknown` when the control plane can't answer.
+IAMT checks quota at Issue and has no hold call in Annex B. A hold kept by the platform can't bind the control plane, so another consumer could still take the slot. The console would show a guarantee it can't keep, which is the misleading-fake problem the first version of this ADR rejected. The first IAMT draft also had Plan run an entitlement query that answered covered, uncovered or unknown. Annex B has no such call, so the review moved it to the RFC, and Plan shows coverage as unknown until the RFC settles it.
 
 ### Revoke and terminate
 
-Annex D lists TERMINATED as a state and *Terminate* as a transition distinct from Revoke. Annex B and §10.05 offer one closing call, `DELETE /v1/leases/{leaseId}`, with a reason. §10.05 lists `decommissioned` for a workload that has ended, and WF-13 returns event capacity through the same call. The ADR keeps the distinction as intent and carries it in the reason. Whether a `decommissioned` close lands in TERMINATED or REVOKED is a question for IAMT.
+The first IAMT draft called teardown "Annex D's Terminate intent" sent as `DELETE` with reason `decommissioned`. The review showed that this conflates two states. §10.05 names that call Revoke and sets the lease to `revoked`; Annex D lists REVOKED and TERMINATED as separate states and gives TERMINATED no baseline call. The ADR now states what IAMT gives (Revoke, REVOKED) and asks in the RFC whether a controlled teardown needs TERMINATED through a backend extension.
+
+### Corrections after review (2026-10-25)
+
+A codex review of the first IAMT draft found claims the IAMT text doesn't support. The ADR now leaves seven contracts to the RFC. They are the `workId` construction, an entitlement query, lease lookup by `workId`, the authority the platform closes leases with, the readiness predicate, the grace display contract, and the exact modality enum with its #245 alignment. On readiness, Annex D lets Issue enter ISSUED or ACTIVE, so "running only at ACTIVE or RENEWED" overstated it. Two more claims were withdrawn. A present-tense Profile B claim became a target for a later slice, because a declared-only release can't show the behavior §08.02 asks for. The "unreleased lease" lost its WF-13 and §13.03 citations, because neither section defines it; it's a project reconciliation rule.
 
 ### Grace from the platform's side
 
-Grace runs while the control plane is unreachable (§12.06). A platform that learns lease state only from the control plane sees nothing during the period the operator most needs to see. The lease snapshot (`expiresAt` and the policy, Annex C) lets the console compute the countdown locally, and the agent may report its own state.
+Grace runs while the control plane is unreachable (§12.06). A platform that learns lease state only from the control plane sees nothing during the period the operator most needs to see. The lease snapshot (`expiresAt` and the policy, Annex C) and the agent are the candidate sources; which one emits each alarm, and how the console handles stale data, are RFC questions.
 
 ### Alternatives considered in the revision
 

@@ -2,11 +2,11 @@
 
 **Status:** Proposed
 **Date:** 2026-07-07. Revised 2026-10-25 onto the IAMT Dynamic Software Licensing model ([dmfdeploy/dmfdeploy#761](https://github.com/dmfdeploy/dmfdeploy/issues/761)).
-**Deciders:** @znerol2, design conversation with Claude (2026-07-07) while re-anchoring v0.2 on the EBU facility-orchestration model; adversarially reviewed by codex (RESCOPE round, P1.2/P2 folded). The 2026-10-25 revision is a draft for the RFC.
+**Deciders:** @znerol2, design conversation with Claude (2026-07-07) while re-anchoring v0.2 on the EBU facility-orchestration model; adversarially reviewed by codex (RESCOPE round, P1.2/P2 folded). The 2026-10-25 revision is a draft for the RFC, corrected after a codex review.
 **Relates to:** ADR-0003 (EBU taxonomy), ADR-0013 (media function catalog model), ADR-0028 (identity and authority chain: C5 actor record, and the workload identity this ADR depends on), ADR-0037 (Media Workloads are NetBox instance inventory), ADR-0047 (packages: the chart carries the licence agent). Issues: [#634](https://github.com/dmfdeploy/dmfdeploy/issues/634) (descriptor schema), [#751](https://github.com/dmfdeploy/dmfdeploy/issues/751) (`software_licence`), [#245](https://github.com/dmfdeploy/dmfdeploy/issues/245) (capability classes).
-**Rule:** Treat a media function licence as an IAMT lease that an external control plane owns: declare the entitlement in the descriptor's `licence:` block, let the `LicenceControlPlaneAdapter` correlate and close leases, keep lease state out of NetBox, and in v0.2 build nothing beyond the declaration.
+**Rule:** Treat a media function licence as an IAMT lease that an external control plane owns: declare the entitlement in the descriptor's `licence:` block, keep lease state out of NetBox, and close leases only through a `LicenceControlPlaneAdapter` that a later slice builds, so v0.2 builds nothing beyond the declaration.
 
-> **RFC status:** this revision goes to a Discussions RFC before it can move to Accepted ([RFC before ADR](README.md#propose-a-decision-with-an-rfc)).
+> **RFC status:** this revision goes to a Discussions RFC before it can move to Accepted ([RFC before ADR](README.md#propose-a-decision-with-an-rfc)). This ADR decides only what the IAMT text settles. The rest are RFC questions, and they block the adapter slice (decision 9).
 
 ## Context
 
@@ -16,58 +16,47 @@ The dmfdeploy platform has no licensing model yet. Today's functions need no ent
 
 1. **Role: orchestration client.** The control plane belongs to the vendor or the customer and is the ledger for entitlements, leases, policy and usage (§07.02, §07.07). The platform plays the IAMT system-integrator and workspace-operator part: it triggers lease acquisition at provisioning, which §10.02 allows, and takes part in teardown (INT-2, §09.09). Hosting a control plane is outside this ADR. Observing alone is too little, because agents don't revoke their own leases (§10.05) and teardown has to return the licence.
 
-2. **Issue and identity.** The function's licence agent calls Issue, from inside the workload, with the workload's own identity evidence: on this platform, a projected Kubernetes service-account token (§07.04, §10.02, §11.06). The lease binds to that identity (IDB-1, IDB-2), and renewal re-checks it (IDB-3), so the launcher never presents evidence on the workload's behalf. The package's chart ships the agent (ADR-0047). The launcher hands the agent its Issue inputs: `app`, `tenantId`, `workId`, `licenseModality` and the requested `dimensions`. This depends on the identity work: the control plane must trust the cluster's token issuer, and the platform grants the vendor no standing access (IDB-6). ADR-0028 may be stale on identity direction, so this ADR uses only its C5 actor record.
+2. **Issue and identity.** The function's licence agent calls Issue from inside the workload, with the workload's own identity evidence (§07.04, §07.07, §10.02, §11.06). The lease binds to that identity (IDB-1, IDB-2), and renewal re-checks it (IDB-3). The launcher never holds or presents identity evidence. The package's chart ships the agent (ADR-0047). The launcher gives the agent the Issue inputs it owns: an opaque `workId` and the descriptor's entitlement fields. How it delivers them is an RFC question. This depends on the identity work: the control plane must trust the cluster's token issuer, and the platform grants the vendor no standing access (IDB-6). ADR-0028 may be stale on identity direction, so this ADR uses only its C5 actor record.
 
-3. **Correlation.** `workId` replaces `ctx.idempotency_key` in the same role: idempotency, audit and correlation, and never a binding (§07.01, §10.01, INT-4). The launcher derives it from the launch request's `request_id` and the NetBox instance id. That value stays the same for retries and restarts of one instance, differs for two functions in one request, and changes on a new launch. The NetBox instance id moves from binding to correlation. Each adapter call is authorised and audited per ADR-0028 C5. That record (actor, role, request id, reason) stays the platform's, linked to the lease through `workId`, because IAMT audits lease events and not the human who asked (§10.05).
+3. **Correlation.** The platform supplies `workId`, an opaque string that correlates one function instance's run for idempotency and audit and never binds anything (§07.01, §10.01, INT-4). Its exact construction, encoding, owner, persistence, and rules for retry, restart and tenant namespacing are an RFC question. Each adapter call is authorised and audited per ADR-0028 C5. That record (actor, role, request id, reason) stays the platform's, linked to the lease through `workId`, because IAMT audits lease events and not the human who asked (§10.05).
 
 4. **Lifecycle mapping.**
-   - **Plan.** "Ensure licence availability" is an advisory entitlement query that returns `covered`, `uncovered` or `unknown` (§05.05 WF-01 step 3, §11.02). Plan holds nothing. IAMT checks quota only at Issue (§10.02), so a platform-side hold couldn't stop another consumer from taking the slot. A Plan-stage hold doesn't exist.
-   - **Provision.** The agent issues; the launch counts as running only when the lease for its `workId` reads ACTIVE or RENEWED (Annex D). A quota or entitlement error (§10.08) fails the launch with the problem detail.
-   - **Finalise.** Teardown closes the lease with Annex D's *Terminate* intent. Annex B has one closing call, `DELETE /v1/leases/{leaseId}`, so the adapter sends it with reason `decommissioned` (§10.05).
-   - **Failed launch.** Rollback *revokes* any lease the attempt got, through the same call with a reason that marks the failure. No lease means nothing to do.
-   - The adapter treats "already revoked, terminated or expired" as success, so closing stays idempotent.
+   - **Plan holds nothing.** IAMT checks quota only at Issue (§10.02) and has no hold call (Annex B), so a platform-side hold couldn't stop another consumer from taking the slot. Annex B also has no entitlement query; whether Plan gets one is an RFC question, and until then Plan shows entitlement coverage as unknown.
+   - **Provision.** Issue enters ISSUED or ACTIVE (Annex D). What counts as "ready" (a lease state, token receipt or local validation) is an RFC question. A quota or entitlement error at Issue (§10.08) fails the launch with the problem detail.
+   - **Finalise and failed launch.** IAMT's one closing call is Revoke: `DELETE /v1/leases/{leaseId}` with a required reason, and the lease becomes REVOKED (§10.05). Teardown sends reason `decommissioned`. Rollback revokes any lease the failed attempt got, and with no lease there's nothing to close. Annex D keeps TERMINATED as a separate state for a controlled end of use, but no baseline call reaches it. Whether teardown needs TERMINATED through a backend extension is an RFC question.
+   - **Closing per input state.** A lease that is already REVOKED, EXPIRED or TERMINATED counts as closed, so a repeated close succeeds. A lease that is ISSUED, ACTIVE or RENEWED gets the Revoke call. A lease that is REISSUING, or a close the control plane refuses for lack of authority, is a failure the operator sees.
 
-5. **The adapter seam**, interface only, with no implementation in v0.2:
+5. **The adapter seam** is a later slice. This ADR fixes its duties and leaves the call contracts to the RFC. It supplies the agent's Issue inputs, reads lease state, revokes with a reason, and reads usage records, which agents submit (§07.07). How it finds a lease (by `workId` through a backend extension, or by a `leaseId` the agent reports) and the authority it closes leases with are RFC questions. The authority must be a control-plane principal allowed to revoke (§10.05).
 
-   ```
-   LicenceControlPlaneAdapter:
-     query_entitlement(app, modality, dimensions) -> covered | uncovered | unknown   # read only (API-8)
-     issue_inputs(function, ctx)                  -> {app, tenantId, workId, licenseModality, dimensions}
-     inspect(work_id)                             -> [{leaseId, status, expiresAt, policy}]   # Annex D states
-     close(lease_id, reason)                      -> status   # DELETE with decommissioned, or the failure reason
-     usage(app?, window)                          -> usage records   # read only; agents submit (§07.07)
-   ```
-
-6. **The descriptor's `licence:` block** declares the entitlement's shape, and the bare word `licence` names it (#751). `software_licence` stays the SPDX field. Absent means the function needs no entitlement.
+6. **The descriptor's `licence:` block** states entitlement intent. It's optional, and absent means the function needs no entitlement. `software_licence` is a separate, required field that holds SPDX metadata for the software itself (#751).
 
    ```yaml
-   licence:
-     app: <string>                   # the publisher's IAMT application id
-     modality: time | process | outcome | credit-pool   # IAMT §04.03 class
-     term: <string>                  # optional; sent as licenseModality, such as hourly
-     dimensions:                     # one instance's request at Issue (§10.02)
+   licence:                          # optional; no other keys
+     app: <string>                   # required: the publisher's IAMT application id
+     modality: <project class>       # required: see below
+     term: <string>                  # optional: sent as IAMT licenseModality, such as hourly
+     dimensions:                     # required, at least one; names unique
        - name: <UPPER_SNAKE>         # publisher-documented (MTR-1), such as CHANNELS
-         quantity: <integer ≥ 1>
+         quantity: <integer ≥ 1>     # one instance's request at Issue (§10.02)
    ```
-   Grace policy, lease type and limits belong to the entitlement in the control plane (OFG-3, §11.02), so the descriptor holds none of them.
+   `modality` is a project classification built on the §04.03 modality concepts (time-based, process-based, outcome-based, credit or unit pool). It's distinct from §10.02's `licenseModality` values such as `hourly`, which `term` carries. The exact enum, and how dimension names and units line up with the capability classes on #245, are RFC questions. Grace policy, lease type and limits belong to the entitlement in the control plane (OFG-3, §11.02), so the descriptor holds none of them.
 
-7. **Monitoring.** The console raises an alarm at each grace countdown threshold (OFG-7, §11.03 `alertThresholds`) and another when grace runs out, naming the action: DRAIN, DEGRADE or STOP (OFG-6). Grace runs when the control plane is unreachable, so the countdown comes from the last lease snapshot (`expiresAt` plus `offlineGraceSeconds`) or from the agent, and not only from the control plane. "Leaked" leaves the vocabulary: an abandoned lease expires on its own (Annex D). The console instead shows an **unreleased lease**, one still active whose `workId` matches no live instance (§05.05 WF-13, §13.03), and the operator closes it.
+7. **Monitoring.** Grace countdown and grace exhaustion, with the action taken (DRAIN, DEGRADE or STOP), reach the operator as console alarms (OFG-6, OFG-7). IAMT evaluates grace in the workspace plane (§07.04) and fans alerts out from the control plane (§07.02). Grace runs while the control plane is unreachable, so the console can't rely on the control plane alone. Which component emits each alarm, which signed fields it uses, the time source and the behavior on stale telemetry are RFC questions. "Leaked" leaves the vocabulary, because an abandoned lease expires on its own (Annex D). In its place, the project adds its own reconciliation rule, the **unreleased lease**: one still active whose `workId` matches no live instance. Its source of truth and race window are RFC questions.
 
-8. **Conformance and backends.** The platform claims the IAMT *interface* target, as an automation adapter (§08.01), at Profile B (Cloud Native, §08.04). The Annex A rows it claims are Automation, API behavior and Auditability. Reissue and failover (IDB-4, LPR-7) and usage submission fall outside the claim, as §08.02 asks a claim to state. Any backend is measured against Annex B endpoints, Annex C claims, Annex D states, OFG-2 policy fields and the §10.08 error model; a backend that binds to anything but workload identity fails.
+8. **Conformance.** v0.2 claims no IAMT conformance. A later adapter slice targets interface conformance as an automation adapter (§08.01) at Profile B (§08.04), with reissue, failover and usage submission out of scope, as §08.02 asks a claim to state. Any backend is measured against Annex B endpoints, Annex C claims, Annex D states, OFG-2 policy fields and the §10.08 error model.
 
-9. **v0.2 is declared-only.** The descriptor may carry the `licence:` block, schema-checked, and the console may show it as declared intent. That is the whole v0.2 scope: no adapter, no control-plane call, no launch gate and no lease state anywhere. v0.2 text says "licence declared"; the claim "licensed" waits for the adapter slice. That slice starts when a function that needs an entitlement exists, or when the operator asks for a spike. It must show a quota error failing a launch, one lease per `workId` across retries, no active lease after a failed launch, teardown closing the lease, and the grace alarms.
+9. **v0.2 is declared-only, and the adapter slice is blocked.** The descriptor may carry the `licence:` block, schema-checked, and the console may show it as declared intent. That is the whole v0.2 scope: no adapter, no control-plane call, no launch gate and no lease state anywhere. v0.2 text says "licence declared"; the claim "licensed" waits for the adapter slice. That slice starts only when a function that needs an entitlement exists, or the operator asks for a spike. It also waits until the RFC answers these questions: the `workId` contract; entitlement query and lease lookup; the closing authority; whether teardown needs TERMINATED; the readiness predicate; the grace display contract; the unreleased-lease rule; the modality enum and the #245 alignment. The slice must then show a quota error failing a launch, one lease per `workId` across retries, no active lease after a failed launch, teardown revoking the lease, and the grace alarms.
 
 10. **NetBox records inventory, and the control plane records leases.** NetBox keeps which function runs and how many instances (ADR-0037), and may hold `workId` or `leaseId` as a reference. Lease state, counts, expiry and grace live only in the control plane. A NetBox tag such as `licence:assigned` would claim state NetBox can't hold, so the platform writes none.
 
 ## Consequences
 
 - **Positive:** outside publishers build against a published industry model and not a private seam. Lease mechanics, signing and grace stay with the control plane, so the platform builds no ledger.
-- **Negative:** the adapter slice depends on workload identity the control plane trusts, and on an inspection call by `workId` that Annex B's baseline lacks. v0.2 can't claim licensed functions.
-- **Open:** the RFC carries the questions this draft couldn't close.
+- **Negative:** the adapter slice waits on the RFC questions in decision 9 and on workload identity the control plane trusts. v0.2 can't claim licensed functions.
 
 ## Enforcement
 
-discipline only: nothing mechanical checks this rule yet. The descriptor schema `dmf-media/schemas/dmf-function.schema.json` has no `licence:` block. When it adopts one, a good and a bad fixture under `dmf-media/tests/conformance/fixtures/`, listed in `dmf-media/tests/conformance/cases.yaml`, become this rule's check, and this section names them.
+No mechanical enforcement exists yet. discipline only: no schema carries the `licence:` block today. [#634](https://github.com/dmfdeploy/dmfdeploy/issues/634) owns the `licence:` contract in `dmf-media/schemas/dmf-function.schema.json`. The change that adds the block must also add these cases to `dmf-media/tests/conformance/cases.yaml`, with fixtures under `dmf-media/tests/conformance/fixtures/`: good `licence-dimensions-valid` and `licence-absent-valid`; bad `licence-bare-count-rejected` (the old `{class, count}` shape), `licence-duplicate-dimension-rejected`, `licence-zero-quantity-rejected` and `licence-unknown-key-rejected`. It must also update the existing bad case `old-licence-name` (SPDX keys under `licence:`) to expect the entitlement-shape error. Once those cases exist, this section names them as the check.
 
 ## Status
 
