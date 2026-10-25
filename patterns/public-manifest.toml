@@ -94,7 +94,7 @@ id = "dmf-dev-changeme"
 category = "secret"
 description = "Known dev:changeme cred (LAN Forgejo dev credentials)"
 regex = 'dev:changeme'
-engines = ["re2"]
+engines = ["re2", "pcre"]
 case_sensitive = true
 positive_canaries = ["dev:changeme"]
 negative_canaries = ["dev:otherpass"]
@@ -125,6 +125,9 @@ allowlist_paths = [
     '^docs/plans/DMF Workstream A .*Spec 2026-06-09\.md$',
     '^docs/plans/dmf-workstream-a-[^/]*spec\.md$',
 ]
+[pattern.parity]
+status = "addition"
+reason = "joined the git-grep pass in #650 (was re2-only, so the scrub never ran it)"
 
 # ── dmf-macos-metadata: macOS metadata leaking into the tracked tree ──
 # engines includes "pcre" since the scrub fold-in: the same shape was
@@ -159,7 +162,7 @@ id = "dmf-cloud-resource-id"
 category = "topology"
 description = "Aliyun/Hetzner cloud resource ID in tracked tree"
 regex = '\b(vpc|vsw|i|lb|rsp|eni|eip|sg|nat)-[a-z0-9]{12,}\b'
-engines = ["re2"]
+engines = ["re2", "pcre"]
 case_sensitive = true
 positive_canaries = ["vpc-abc123def456g"]
 negative_canaries = ["vpc-short", "VPC-abc123def456g"]
@@ -184,7 +187,12 @@ allowlist_paths = [
     '^bin/export-scan\.sh$',
     '^docs/plans/DMF Umbrella Security Audit Remediation Spec',
     '^docs/plans/dmf-umbrella-security-audit-remediation-spec\.md$',
+    # Quotes a published spec's example workId ("deploy-i-0abc…").
+    '^docs/references/media-function-telemetry-declaration-survey\.md$',
 ]
+[pattern.parity]
+status = "addition"
+reason = "joined the git-grep pass in #650 (was re2-only, so the scrub never ran it)"
 
 # ════════════════════════════════════════════════════════════════════════
 # Folded 1:1 from bin/scrub-public-repos.sh SECRET_PATTERNS (§4.3 follow-on

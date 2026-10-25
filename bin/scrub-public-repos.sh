@@ -74,6 +74,11 @@ SCAN_ARGS=(--context scrub)
 
 worst=0
 bump() { [ "$1" -gt "$worst" ] && worst="$1"; return 0; }
+# Manifest patterns a scan could not apply (#650) — repeated in the summary
+# so "clean" never hides a pattern that did not run.
+not_applied=()
+scan_out="$(mktemp)"
+trap 'rm -f "$scan_out"' EXIT
 
 for repo in "${PUBLIC_REPOS[@]}"; do
     rpath="$(repo_path "$repo")"
@@ -91,9 +96,12 @@ for repo in "${PUBLIC_REPOS[@]}"; do
         continue
     fi
     echo "── $rname"
-    "$UMBRELLA_DIR/bin/dmf-scan" tree "$rpath" "${SCAN_ARGS[@]}" | sed 's/^/  /'
+    "$UMBRELLA_DIR/bin/dmf-scan" tree "$rpath" "${SCAN_ARGS[@]}" | tee "$scan_out" | sed 's/^/  /'
     rc="${PIPESTATUS[0]}"
     [ "$rc" -ne 0 ] && bump "$rc"
+    while IFS= read -r line; do
+        not_applied+=("$rname: ${line#*NOT APPLIED: }")
+    done < <(grep 'NOT APPLIED: ' "$scan_out")
 done
 
 # Soft check: surface ignored-but-tracked artifacts (e.g. .DS_Store, *.tfstate
@@ -119,6 +127,10 @@ done
 echo
 
 echo "── summary"
+if [ "${#not_applied[@]}" -gt 0 ]; then
+    echo "  NOT APPLIED — manifest pattern(s) this scrub did not run:" >&2
+    printf '    %s\n' "${not_applied[@]}" >&2
+fi
 case "$worst" in
     0) echo "  OK — clean for public publish"; exit 0 ;;
     1) echo "  FAIL — leaks found; address before publish" >&2; exit 1 ;;
