@@ -8,7 +8,7 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/727
 
 ## Goal
 
-Pay down the debt that survives the roadmap, and stop spending effort on layers the roadmap replaces. When this plan is done, every open `platform-debt` issue is foundation debt with a priority and an effort, or a deliberately kept item, and the work order below says which to do next.
+Pay down the debt that survives the roadmap, and stop spending effort on layers the roadmap replaces. Every open `platform-debt` issue is either in the work order below, with a priority and an effort, or on the kept list. That includes the 17 durable issues filed from the triage and the one filed after it. The tracking issue #727 isn't debt, so it carries no `platform-debt` label.
 
 ## How debt is separated
 
@@ -36,7 +36,8 @@ A superseded issue closes only after any durable acceptance criterion it carries
 | Superseded by the backend move | 4 | Close; reopen only if an operational failure recurs before the move |
 | Done, stale or not planned | 6 | Close with the evidence |
 | Duplicate | 1 | Close in favor of the issue named |
-| **Total** | **103** | |
+| **Triaged** | **103** | |
+| Filed since: durable cores and #746 | 18 | Ordered in the work order below |
 
 ## Work order
 
@@ -67,6 +68,10 @@ The backend-agnostic layer the roadmap says value must land in: the console refu
 | [#495](https://github.com/dmfdeploy/dmfdeploy/issues/495) | Divergence as the are-we-OK primitive: NetBox intent vs Prometheus observation | L | KSM metricLabelsAllowlist plus a Service/controller-level orphan query joined on app.kubernetes.io/instance and scoped by namespace, with AWX EE pods and L3 ConfigMaps excluded |
 | [#497](https://github.com/dmfdeploy/dmfdeploy/issues/497) | dmf-cms: message bus cannot detect its own silence; expose bus liveness to Prometheus | M | Tier 1: add /metrics, a ServiceMonitor or scrape target, and a heartbeat counter that ticks on a timer, which also gives up{job="dmf-cms"}. Tier 2: end-to-end liveness of the audit stream through to Loki, separate from event counts. Idle silence must not be an alert. |
 | [#652](https://github.com/dmfdeploy/dmfdeploy/issues/652) | dmf-cms: remaining pollers and health probes return upstream error bodies or 500 when AWX sleeps | S | No upstream body or str(exc) reaches a client response. A stable reason vocabulary (awx-not-running, awx-unreachable) is used on poll and probe failure, with sentinel-body tests. |
+| [#729](https://github.com/dmfdeploy/dmfdeploy/issues/729) | Record a terminal outcome for every console action and keep the audit stream retained | L | Split from #496, #480. Every dispatched action gets a terminal-outcome audit record that names its result. |
+| [#730](https://github.com/dmfdeploy/dmfdeploy/issues/730) | Classify job outcomes only from a structured outcome event | S | Split from #693. The console never decides an outcome by searching free-form job output. |
+| [#731](https://github.com/dmfdeploy/dmfdeploy/issues/731) | Deliver catalog secrets to launchers from OpenBao at runtime, never as stored plaintext | L | Split from #182, #666, #123. No job or template definition stores a catalog secret in plaintext. |
+| [#733](https://github.com/dmfdeploy/dmfdeploy/issues/733) | Read the active source from cluster truth with an allowlisted payload | M | Split from #322. The active-source read comes from coordinator state. |
 
 ### Phase 3: release and gate correctness
 
@@ -85,6 +90,8 @@ Make what ships verifiable and make the checks deterministic.
 | [#165](https://github.com/dmfdeploy/dmfdeploy/issues/165) | Umbrella security-audit remediation, script-hardening remainder | M | Script injection fixes, token-in-argv removal, dependabot for github-actions, .gitignore secrets patterns, mktemp traps, pins and dependency bounds. |
 | [#171](https://github.com/dmfdeploy/dmfdeploy/issues/171) | dmf-init: Manage restore does not rewrite absolute data-root paths in group_vars | S | Restore into a different DMF_DATA_ROOT rewrites (or avoids) all absolute data-root paths: openbao_key_path, eso_openbao_breakglass_file, awx_control_node_ssh_privkey_path. Preferred fix is a data-root variable in the inventory instead of absolute paths. |
 | [#409](https://github.com/dmfdeploy/dmfdeploy/issues/409) | Read-only platform survey: evidence-led cleanup and gate-correctness program | M | Gate correctness: hook-scoping.sh benign-case failure, check-docs.sh ADR index and broken links, dmf-cms Forgejo CI placeholder, dmf-init backup-contract doc drift, NetBox chart tarball provenance. Doc fixes for stale READMEs and the launch_rescue reference. |
+| [#736](https://github.com/dmfdeploy/dmfdeploy/issues/736) | Give dmf-init a pinned, checksum-verified install path | S | Split from #158. The documented install command points at a tagged release. |
+| [#737](https://github.com/dmfdeploy/dmfdeploy/issues/737) | Close the robustness gaps left from the demo-journey arcs | M | Split from #347. The reserved-variable scanner handles the short set_fact form and loop_var. |
 
 ### Phase 4: the single node stays healthy
 
@@ -100,6 +107,7 @@ Production-shaped components tuned for the small node, so the demo runs on the r
 | [#340](https://github.com/dmfdeploy/dmfdeploy/issues/340) | Record the full VPS environment in NetBox | M | Node VM records with vcpus/memory/disk/platform, IP objects with primary_ip, provider/region, k8s role, populated at provision time by the dmf-infra registration play. |
 | [#469](https://github.com/dmfdeploy/dmfdeploy/issues/469) | dmf-cms: Facility page doesn't show its env — no Environment card, k3s nodes never queried | M | Facility page leads with an Environment card from NetBox Site/Cluster dmf_env_* fields and lists nodes (virtual machines) plus the LB, read-side only, no new tags. |
 | [#614](https://github.com/dmfdeploy/dmfdeploy/issues/614) | dmf-cms: fix the axe and jsx-a11y findings the UI invariant harness records as known failures | M | Bell accessible name, icon-link name, link-in-text-block, muted-text contrast, ReasonConfirm label htmlFor. Re-evaluate the InstanceLiveModal jsx-a11y warnings after #610 reworks the modal. |
+| [#735](https://github.com/dmfdeploy/dmfdeploy/issues/735) | Bring-your-own node: enroll the generated SSH key before the connectivity check | M | Split from #141. A fresh bring-your-own node accepts the generated key before the first connectivity check. |
 
 ### Phase 5: later (P3)
 
@@ -132,6 +140,17 @@ Foundation debt with no urgency. Pick these up when they block something or fit 
 | [#705](https://github.com/dmfdeploy/dmfdeploy/issues/705) | Try Dependabot for the pinned GitHub Actions | M |
 | [#725](https://github.com/dmfdeploy/dmfdeploy/issues/725) | Split ADR-0020 so it holds only the Accepted Mode A decision | S |
 | [#726](https://github.com/dmfdeploy/dmfdeploy/issues/726) | Fold the amendments in ADR-0032 and ADR-0038 into their current Decision | M |
+| [#732](https://github.com/dmfdeploy/dmfdeploy/issues/732) | Contract test: every stage that writes NetBox keeps the workload tags | M |
+| [#734](https://github.com/dmfdeploy/dmfdeploy/issues/734) | Make the capacity-budget refusal a clear, actionable report | S |
+| [#738](https://github.com/dmfdeploy/dmfdeploy/issues/738) | Audit configuration changes with the parameter, the old value and the new value | M |
+| [#739](https://github.com/dmfdeploy/dmfdeploy/issues/739) | Assemble a workload review record as a backend capability | M |
+| [#740](https://github.com/dmfdeploy/dmfdeploy/issues/740) | Durable UI substrate: surface, border, status, radius and type tokens | M |
+| [#741](https://github.com/dmfdeploy/dmfdeploy/issues/741) | Versioned data-testid selector contract with a contract test | M |
+| [#742](https://github.com/dmfdeploy/dmfdeploy/issues/742) | Research the alarm priority model behind the Alarm Philosophy spec | M |
+| [#743](https://github.com/dmfdeploy/dmfdeploy/issues/743) | Align ADR-0046 and the EBU mapping doc on stages and verticals | S |
+| [#744](https://github.com/dmfdeploy/dmfdeploy/issues/744) | NetBox media modelling plugin for signal classes, directionality and crosspoints | L |
+| [#745](https://github.com/dmfdeploy/dmfdeploy/issues/745) | Build MXL for every architecture and record the pin by digest | M |
+| [#746](https://github.com/dmfdeploy/dmfdeploy/issues/746) | Keep the media function descriptor compatible with AMWA IN-003 as it evolves | M |
 
 ## Durable cores filed from mixed issues
 
@@ -159,14 +178,13 @@ Each row is a new `platform-debt` issue. The listed originals are closed with a 
 
 ## Kept on purpose
 
-These stay open. No named deliverable replaces them.
+These stay open. No named deliverable replaces them. A fourth, [#200](https://github.com/dmfdeploy/dmfdeploy/issues/200), became the v0.2 end-to-end acceptance test and moved into the v0.2 milestone, so it left this backlog.
 
 | Issue | Title | Why it stays |
 |---|---|---|
 | [#8](https://github.com/dmfdeploy/dmfdeploy/issues/8) | Authentik cross-cluster federation with passkey enrollment (FROZEN thesis-killer) | Frozen non-goal with a documented re-open trigger (architectural-commitments-v1, OPEN-QUESTIONS). Keep open with freeze-1 and no milestone. |
 | [#9](https://github.com/dmfdeploy/dmfdeploy/issues/9) | EBU V2.0 taxonomy hard case: two-function fabric (paused) | Open thesis question: does the EBU taxonomy hold for a two-function shared-data-plane case? #634 validates descriptors and does not answer it. Keep frozen. |
 | [#28](https://github.com/dmfdeploy/dmfdeploy/issues/28) | Shared UI framework between dmf-cms and dmf-init | Waits on the #29 decision about the Day-0 UI boundary; #29 is pre-ADR and keeps a standalone seeder. Keep open until #29 decides. |
-| [#200](https://github.com/dmfdeploy/dmfdeploy/issues/200) | v0.2 presentable-journey execution track | Owns the integrated v0.2 acceptance: an outsider runs the v0.2 journey end to end on a fresh environment. Rewritten as that test and moved into the v0.2 milestone on 2026-10-25. |
 
 ## Closed
 
