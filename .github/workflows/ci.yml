@@ -136,6 +136,8 @@ jobs:
           persist-credentials: false
       - name: No review history in comments
         run: bin/check-review-comments.sh
+      - name: Allowlist parser self-test
+        run: bin/check-review-comments.sh --self-test
   check-docs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
