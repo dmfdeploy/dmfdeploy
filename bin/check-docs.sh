@@ -174,7 +174,7 @@ if [ -f "$INDEX_PATH" ]; then
     for adr_file in docs/decisions/00*.md; do
         [ -f "$adr_file" ] || continue
         adr_base="$(basename "$adr_file")"
-        if ! echo "$index_content" | grep -qF "$adr_base"; then
+        if ! grep -qF "$adr_base" <<<"$index_content"; then
             ADR_BAD+=("${adr_file}: not mentioned in ${INDEX_PATH}")
         fi
     done
@@ -312,7 +312,7 @@ while IFS=$'\t' read -r level filepath status _date _exec _sb; do
         # Re-read frontmatter to check for tracking_issue
         head_content="$(head -20 "$filepath" 2>/dev/null)" || continue
         fm_block="$(echo "$head_content" | sed -n '2,/^---$/p' | sed '$d')" || true
-        if ! echo "$fm_block" | grep -q '^tracking_issue:'; then
+        if ! grep -q '^tracking_issue:' <<<"$fm_block"; then
             echo "    ✗ ${filepath}: active but no tracking_issue (open an issue and add the URL to the frontmatter)" >&2
             FAILED=$((FAILED + 1))
         fi
