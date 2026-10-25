@@ -16,7 +16,11 @@
 set -euo pipefail
 
 UMBRELLA_DIR="${UMBRELLA_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
-PARENT_DIR="$(dirname "$UMBRELLA_DIR")"
+# The first `git worktree list` entry is the main checkout, so a linked
+# worktree still finds the component repos next to it, not next to itself.
+MAIN_DIR="$(git -C "$UMBRELLA_DIR" worktree list --porcelain 2>/dev/null |
+    sed -n '1s/^worktree //p' || true)"
+PARENT_DIR="$(dirname "${MAIN_DIR:-$UMBRELLA_DIR}")"
 OUT="$UMBRELLA_DIR/docs/SCRIPTS.md"
 COMPONENT_REPOS=(dmf-cms dmf-central dmf-infra dmf-env dmf-media dmf-init)
 
