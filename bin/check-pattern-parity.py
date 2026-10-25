@@ -202,7 +202,7 @@ def private_atoms(include):
 
 
 def gitleaks_local_rules(path, allow_missing):
-    """Fail-closed (codex P2-2): the old private gitleaks rule set is one of
+    """Fail closed: the old private gitleaks rule set is one of
     the required §9.1 sources — a silently-missing file would let the private
     migration pass without proving `.gitleaks.local.toml` coverage. Skipping
     it must be an explicit, reviewed choice (--no-legacy-gitleaks)."""

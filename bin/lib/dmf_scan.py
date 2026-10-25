@@ -27,7 +27,7 @@ NOTE (rollout §9): no production caller is switched to this library yet —
 that is the follow-on dispatch, gated on the §9.1 parity report and the
 operator's private-manifest bootstrap. Until then the old gates keep running.
 
-CONTEXT IS CALLER-DECLARED, NOT PROVEN (codex P2-1): anyone invoking this CLI
+CONTEXT IS CALLER-DECLARED, NOT PROVEN: anyone invoking this CLI
 by hand can declare an opt-out-capable context (`ci-public`, `fork`, …) and
 run public-only. That is by design for the library layer — the §5.4 guarantee
 is that the PRODUCTION WRAPPERS hardcode their own context and never pass
@@ -253,7 +253,7 @@ def _render_private_rules(private_manifest):
 
 
 def _validate_private_rules(private_manifest):
-    """REDACTED RE2 validation of private rules (codex P1-1): Python `re` is
+    """REDACTED RE2 validation of private rules: Python `re` is
     not RE2, so a private regex can compile here yet make gitleaks panic —
     and the panic message quotes the literal regex. Probe each config against
     an empty tree BEFORE any real scan and report failures by category +
