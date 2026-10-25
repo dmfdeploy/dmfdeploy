@@ -5,11 +5,16 @@
 # Extracts the step's `run:` script and runs it with a fake `gh` on PATH.
 #
 #   A  payload has no hold, live labels have hold  -> disarms, never arms
-#   B  live no hold, not draft                     -> arms
+#   B  live no hold, not draft, no changes requested -> arms
+#   B2 live changes requested                      -> does not arm, exits non-zero
 #   C  live draft                                  -> skips
 #   D  API read fails                              -> does not arm, exits non-zero
 #   E  isDraft null or missing, labels not an array -> neither arms nor disarms,
 #      exits non-zero (a malformed reply fails closed)
+#
+# The step makes two gh pr view calls (labels/isDraft, then reviews). The stub
+# returns FAKE_VIEW_JSON for both, so the JSON must satisfy both queries. Cases
+# A and C exit before the reviews call; only B and B2 reach it.
 #
 # AUTOMERGE_YML overrides the workflow file (to run against an older copy).
 set -uo pipefail
@@ -55,9 +60,13 @@ run_case '{"isDraft":false,"labels":[{"name":"hold"},{"name":"component:ci"}]}'
 if [ "$RC" = 0 ] && [[ "$LOG" == *"--disable-auto"* ]] && [[ "$LOG" != *"--auto --rebase"* ]]; then
   ok "A: live hold disarms and does not arm"; else bad "A: live hold (rc=$RC log=[$LOG])"; fi
 
-run_case '{"isDraft":false,"labels":[{"name":"component:ci"}]}'
+run_case '{"isDraft":false,"labels":[{"name":"component:ci"}],"reviews":[]}'
 if [ "$RC" = 0 ] && [[ "$LOG" == *"--auto --rebase"* ]]; then
-  ok "B: no hold, not draft arms"; else bad "B: arm (rc=$RC log=[$LOG])"; fi
+  ok "B: no hold, not draft, no changes requested arms"; else bad "B: arm (rc=$RC log=[$LOG])"; fi
+
+run_case '{"isDraft":false,"labels":[],"reviews":[{"state":"CHANGES_REQUESTED","author":{"login":"reviewer1"},"submittedAt":"2026-01-01T00:00:00Z"}]}'
+if [ "$RC" != 0 ] && [[ "$LOG" != *"--auto --rebase"* ]]; then
+  ok "B2: changes requested does not arm"; else bad "B2: changes requested (rc=$RC log=[$LOG])"; fi
 
 run_case '{"isDraft":true,"labels":[]}'
 if [ "$RC" = 0 ] && [ -z "$LOG" ]; then
