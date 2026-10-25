@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""closing_refs.py — find negated closing keywords in a PR body (#548).
+"""closing_refs.py — find negated closing keywords and reopening keywords in a
+PR body (#548, #426).
 
 GitHub's closing-keyword parser ignores negation: "This PR does not close
 #496" creates a real closing link, and bin/close-completed-issues.sh closes
@@ -21,6 +22,11 @@ code does not trip the gate. Blockquote lines (> ...) DO count: GitHub parses
 references there, and #531's first rewording, which quoted the phrase in a
 blockquote, recreated the closing link.
 
+A revert PR declares that it undoes a fix with "Reopens <issue>" (reopen,
+reopens, reopened), symmetric with Closes. The reconciler refuses to close an
+issue that a later merged PR reopens this way. Code spans are ignored as
+above; negation is not parsed, because a false match only leaves an issue open.
+
 Usage:
   closing_refs.py check [--file PATH] [--default-repo OWNER/REPO]
                         [--issue OWNER/REPO#N]
@@ -29,19 +35,28 @@ Usage:
       --issue reports only references that can resolve to that issue (a bare
       #N with no --default-repo counts — fail closed).
       Exit: 0 none found, 1 found, 2 usage or read error.
+  closing_refs.py reopens [--file PATH] [--default-repo OWNER/REPO]
+                          [--issue OWNER/REPO#N]
+      Same arguments and exit codes, for "Reopens <issue>" references.
   closing_refs.py --self-test
 """
 import re
 import sys
 
 KEYWORD = r"(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)"
+REOPEN_KEYWORD = r"reopen(?:s|ed)?"
 NAME = r"[A-Za-z0-9_.-]+"
 REF = (rf"(?:https://github\.com/(?P<u_owner>{NAME})/(?P<u_repo>{NAME})/issues/(?P<u_num>\d+)"
        rf"|(?:(?P<owner>{NAME})/(?P<repo>{NAME}))?#(?P<num>\d+))")
 # Emphasis markers may sit between keyword and reference ("close **#496**").
-CLOSING_RE = re.compile(
-    rf"(?<![\w-])(?P<kw>{KEYWORD})\b[*_]*(?:[ \t]*:[ \t]*|[ \t]+)[*_]*(?P<ref>{REF})(?![\w])",
-    re.IGNORECASE)
+def _keyword_re(keyword):
+    return re.compile(
+        rf"(?<![\w-])(?P<kw>{keyword})\b[*_]*(?:[ \t]*:[ \t]*|[ \t]+)[*_]*(?P<ref>{REF})(?![\w])",
+        re.IGNORECASE)
+
+
+CLOSING_RE = _keyword_re(KEYWORD)
+REOPENING_RE = _keyword_re(REOPEN_KEYWORD)
 
 # A clause ends at sentence or clause punctuation, a dash, or a line break.
 CLAUSE_BREAK_RE = re.compile(r"[.!?;,:\n—–]|\s-\s")
@@ -125,6 +140,13 @@ class Finding:
         return f"leaves {self.target(default_repo)} open, deliberately."
 
 
+def _finding(m, prefix, phrase):
+    owner = m.group("u_owner") or m.group("owner")
+    repo = m.group("u_repo") or m.group("repo")
+    num = m.group("u_num") or m.group("num")
+    return Finding(prefix.count("\n") + 1, phrase, owner, repo, int(num))
+
+
 def find_negated(text):
     clean = strip_code(text)
     findings = []
@@ -134,12 +156,14 @@ def find_negated(text):
             continue
         clause = CLAUSE_BREAK_RE.split(prefix)[-1]
         phrase = " ".join((clause + clean[m.start():m.end()]).split())
-        phrase = phrase.strip("*_ ")
-        owner = m.group("u_owner") or m.group("owner")
-        repo = m.group("u_repo") or m.group("repo")
-        num = m.group("u_num") or m.group("num")
-        findings.append(Finding(prefix.count("\n") + 1, phrase, owner, repo, int(num)))
+        findings.append(_finding(m, prefix, phrase.strip("*_ ")))
     return findings
+
+
+def find_reopens(text):
+    clean = strip_code(text)
+    return [_finding(m, clean[:m.start()], " ".join(m.group(0).split()))
+            for m in REOPENING_RE.finditer(clean)]
 
 
 def matches_issue(finding, issue_repo, issue_num, default_repo=None):
@@ -151,7 +175,9 @@ def matches_issue(finding, issue_repo, issue_num, default_repo=None):
     return repo is None or repo.lower() == issue_repo.lower()
 
 
-def _cmd_check(args):
+def _read_args(args):
+    """Parse the shared arguments. Returns (text, default_repo, issue), or an
+    exit code (2) after printing the problem."""
     path, default_repo, issue = None, None, None
     it = iter(args)
     for arg in it:
@@ -184,9 +210,32 @@ def _cmd_check(args):
     except OSError as exc:
         print(f"closing_refs: cannot read the body: {exc}", file=sys.stderr)
         return 2
-    findings = find_negated(text)
+    return text, default_repo, issue
+
+
+def _select(findings, issue, default_repo):
     if issue:
-        findings = [f for f in findings if matches_issue(f, issue[0], issue[1], default_repo)]
+        return [f for f in findings if matches_issue(f, issue[0], issue[1], default_repo)]
+    return findings
+
+
+def _cmd_reopens(args):
+    parsed = _read_args(args)
+    if isinstance(parsed, int):
+        return parsed
+    text, default_repo, issue = parsed
+    findings = _select(find_reopens(text), issue, default_repo)
+    for f in findings:
+        print(f"line {f.line}: reopens {f.target(default_repo)}")
+    return 1 if findings else 0
+
+
+def _cmd_check(args):
+    parsed = _read_args(args)
+    if isinstance(parsed, int):
+        return parsed
+    text, default_repo, issue = parsed
+    findings = _select(find_negated(text), issue, default_repo)
     for f in findings:
         print(f"line {f.line}: negated closing keyword: \"{f.phrase}\"")
         print(f"  GitHub ignores the negation and links {f.target(default_repo)} "
@@ -228,8 +277,31 @@ FIXTURES = [
 ]
 
 
+# (body, expected count of reopening refs)
+REOPEN_FIXTURES = [
+    ("qualified", "Reopens dmfdeploy/dmfdeploy#418", 1),
+    ("lowercase, bare", "reopens #418", 1),
+    ("reopened, colon", "Reopened: dmfdeploy/dmfdeploy#418", 1),
+    ("URL form", "Reopen https://github.com/dmfdeploy/dmfdeploy/issues/418", 1),
+    ("bold ref", "Reopens **#418**", 1),
+    ("fenced block", f"{FENCE}\nReopens #418\n{FENCE}\n", 0),
+    ("inline code span", "Write `Reopens #418` in the body.", 0),
+    ("closing keyword is not reopening", "Closes #418", 0),
+    ("no reference", "This reopens the question.", 0),
+    ("two refs", "Reopens #1 and reopens #2", 2),
+]
+
+
 def run_self_test():
     passed = failed = 0
+    for label, body, want in REOPEN_FIXTURES:
+        got = len(find_reopens(body))
+        if got == want:
+            passed += 1
+            print(f"  PASS  reopens: {label}")
+        else:
+            failed += 1
+            print(f"  FAIL  reopens: {label}: expected {want} ref(s), got {got}")
     for label, body, want in FIXTURES:
         got = len(find_negated(body))
         if got == want:
@@ -269,6 +341,8 @@ def main(argv):
         return run_self_test()
     if argv[:1] == ["check"]:
         return _cmd_check(argv[1:])
+    if argv[:1] == ["reopens"]:
+        return _cmd_reopens(argv[1:])
     print(__doc__, file=sys.stderr)
     return 2
 

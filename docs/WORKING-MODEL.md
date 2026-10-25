@@ -202,7 +202,9 @@ the frontmatter must be flipped; frontmatter wins for design content.
   `workflow_dispatch`. **Automated close is the norm; manual close is a
   fallback.** Use the fallback when you need the issue closed before the next
   daily run, the reconciler missed it, or the reference wasn't qualified (so
-  GitHub never parsed it as a closing ref). The reconciler never touches plan
+  GitHub never parsed it as a closing ref). A PR that reverts a fix says
+  `Reopens dmfdeploy/dmfdeploy#N`, and the reconciler skips that issue even
+  though the reverted PR closed it. The reconciler never touches plan
   frontmatter: **flipping the frontmatter stays a manual duty in the completing
   PR.**
 - **Approval = landing.** Every PR is armed with GitHub-native **rebase
