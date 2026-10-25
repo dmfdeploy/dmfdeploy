@@ -15,6 +15,12 @@
 # matcher the issue-link.yml gate uses) and refuses when the body
 # negates its reference to the issue, or when the body cannot be read.
 #
+# A merged revert PR undoes the fix, but nothing in the closing reference says
+# so (#426). Revert PRs declare it with "Reopens dmfdeploy/dmfdeploy#N",
+# symmetric with Closes: before closing, the reconciler refuses when a PR
+# merged after the closing PR names the issue that way. A later PR that
+# closes the issue again is itself the newest closing PR, so it wins.
+#
 # Usage:
 #   bin/close-completed-issues.sh             # dry-run (default — safe)
 #   bin/close-completed-issues.sh --dry-run   # dry-run (explicit)
@@ -113,6 +119,18 @@ CANDIDATE_FILTER='
   | [($n | tostring), $decision, $pr.url, $pr.mergedAt, $reopened]
   | @tsv'
 
+# Later-merged org PRs that mention an issue, as URLs, over the issue's REST
+# timeline pages (stdin). A revert PR naming the issue with "Reopens" is
+# among them; the body is read afterwards. Only org repos count: a foreign
+# repo must not be able to hold an issue open.
+REVERT_CANDIDATES_FILTER='
+  .[]
+  | select(.event == "cross-referenced")
+  | .source.issue.pull_request // empty
+  | select(.merged_at != null and .merged_at > $merged)
+  | .html_url
+  | select(startswith("https://github.com/" + $org + "/"))'
+
 # ── Candidate computation ──────────────────────────────────────────────────
 select_candidates() {
     jq -r --arg org "$ORG" "$CANDIDATE_FILTER"
@@ -154,6 +172,37 @@ negated_closing_ref() {
         1) return 0 ;;
         *) return 2 ;;
     esac
+}
+
+revert_candidates() {
+    jq -r --arg org "$ORG" --arg merged "$1" "$REVERT_CANDIDATES_FILTER"
+}
+
+# reopening_pr ISSUE_NUM MERGED_AT
+#   Prints the URL of a PR merged after MERGED_AT whose body says "Reopens"
+#   for umbrella #ISSUE_NUM.
+#   rc 0: found   rc 1: none   rc 2: could not tell (refuse)
+reopening_pr() {
+    local issue_num="$1" merged_at="$2" timeline urls url repo rc
+    timeline="$(gh api --paginate "repos/${UMBRELLA_REPO}/issues/${issue_num}/timeline")" || return 2
+    [ -n "$timeline" ] || return 2
+    urls="$(printf '%s' "$timeline" | revert_candidates "$merged_at")" || return 2
+    while IFS= read -r url; do
+        [ -n "$url" ] || continue
+        repo="${url#https://github.com/}"
+        repo="${repo%/pull/*}"
+        gh pr view "$url" --json body --jq .body >"$body_file" || return 2
+        rc=0
+        python3 "$CLOSING_REFS" reopens --file "$body_file" \
+            --issue "${UMBRELLA_REPO}#${issue_num}" --default-repo "$repo" \
+            >/dev/null 2>&1 || rc=$?
+        case "$rc" in
+            0) ;;
+            1) printf '%s' "$url"; return 0 ;;
+            *) return 2 ;;
+        esac
+    done <<<"$urls"
+    return 1
 }
 
 # ── Self-test ─────────────────────────────────────────────────────────────
@@ -331,6 +380,72 @@ run_self_test() {
     CLOSING_REFS="$saved"
 
     echo ""
+    echo "── revert-detection self-test (#426)"
+
+    # assert_reverts LABEL TIMELINE_JSON EXPECTED_URLS
+    assert_reverts() {
+        local label="$1" timeline="$2" expected="$3" actual
+        actual="$(printf '%s' "$timeline" | revert_candidates 2026-06-01T10:00:00Z)"
+        if [ "$actual" = "$expected" ]; then
+            echo "  PASS  $label"
+            pass=$((pass + 1))
+        else
+            echo "  FAIL  $label: expected '${expected}', got '${actual}'"
+            fail=$((fail + 1))
+        fi
+    }
+    # xref URL MERGED_AT — a cross-referenced event whose source is a PR
+    xref() {
+        local merged="null"
+        [ "$2" != "null" ] && merged="\"$2\""
+        printf '{"event":"cross-referenced","source":{"issue":{"pull_request":{"html_url":"%s","merged_at":%s}}}}' "$1" "$merged"
+    }
+
+    assert_reverts "PR merged after the fix → candidate" \
+        "[$(xref https://github.com/dmfdeploy/dmf-cms/pull/106 2026-06-01T18:00:00Z)]" \
+        "https://github.com/dmfdeploy/dmf-cms/pull/106"
+    assert_reverts "PR merged before the fix → ignored" \
+        "[$(xref https://github.com/dmfdeploy/dmf-cms/pull/90 2026-05-30T18:00:00Z)]" ""
+    assert_reverts "unmerged PR → ignored" \
+        "[$(xref https://github.com/dmfdeploy/dmf-cms/pull/105 null)]" ""
+    assert_reverts "foreign-owner PR → ignored" \
+        "[$(xref https://github.com/evil/dmf-cms/pull/1 2026-06-02T10:00:00Z)]" ""
+    assert_reverts "cross-referencing issue, not a PR → ignored" \
+        '[{"event":"cross-referenced","source":{"issue":{"html_url":"u://um/420"}}}]' ""
+    assert_reverts "other timeline events → ignored" \
+        '[{"event":"labeled"},{"event":"closed"}]' ""
+    assert_reverts "two pages of events (paginated stream) → both read" \
+        "[$(xref https://github.com/dmfdeploy/dmf-cms/pull/106 2026-06-01T18:00:00Z)] [$(xref https://github.com/dmfdeploy/dmfdeploy/pull/430 2026-06-03T18:00:00Z)]" \
+        $'https://github.com/dmfdeploy/dmf-cms/pull/106\nhttps://github.com/dmfdeploy/dmfdeploy/pull/430'
+
+    # assert_reopens LABEL BODY ISSUE_NUM PR_REPO EXPECTED_RC (1 = reopens)
+    assert_reopens() {
+        local label="$1" body="$2" num="$3" repo="$4" expected="$5" rc=0 f
+        f="$(mktemp)"
+        printf '%s\n' "$body" >"$f"
+        python3 "$CLOSING_REFS" reopens --file "$f" --issue "${UMBRELLA_REPO}#${num}" \
+            --default-repo "$repo" >/dev/null 2>&1 || rc=$?
+        rm -f "$f"
+        if [ "$rc" = "$expected" ]; then
+            echo "  PASS  $label"
+            pass=$((pass + 1))
+        else
+            echo "  FAIL  $label: expected rc $expected, got $rc"
+            fail=$((fail + 1))
+        fi
+    }
+    assert_reopens "revert PR naming the issue → reopens" \
+        "Reverts dmf-cms#104. Reopens dmfdeploy/dmfdeploy#418" 418 dmfdeploy/dmf-cms 1
+    assert_reopens "Reopens another issue → none" \
+        "Reopens dmfdeploy/dmfdeploy#419" 418 dmfdeploy/dmf-cms 0
+    assert_reopens "bare #N in a component PR is its own repo's issue → none" \
+        "Reopens #418" 418 dmfdeploy/dmf-cms 0
+    assert_reopens "bare #N in an umbrella PR → reopens" \
+        "Reopens #418" 418 "$UMBRELLA_REPO" 1
+    assert_reopens "Reopens inside a code span → none" \
+        'Write `Reopens dmfdeploy/dmfdeploy#418` to undo.' 418 dmfdeploy/dmf-cms 0
+
+    echo ""
     echo "self-test: ${pass} passed, ${fail} failed"
     return "$fail"
 }
@@ -364,6 +479,7 @@ candidates="$(find_candidates)"
 
 total=0
 skipped_reopen=0
+skipped_reverted=0
 refused=0
 body_file="$(mktemp)"
 trap 'rm -f "$body_file"' EXIT
@@ -405,6 +521,18 @@ if [ -n "$candidates" ]; then
             continue
         fi
 
+        # #426: a later merged PR that says "Reopens" this issue undid the fix.
+        revert_rc=0
+        reopened_by="$(reopening_pr "$issue_num" "$pr_merged_at")" || revert_rc=$?
+        if [ "$revert_rc" -eq 0 ]; then
+            echo "  · SKIP umbrella #$issue_num (${pr_url} merged at ${pr_merged_at} was undone by ${reopened_by}, which reopens it)"
+            skipped_reverted=$((skipped_reverted + 1))
+            continue
+        elif [ "$revert_rc" -eq 2 ]; then
+            refuse "$issue_num" "could not check whether ${pr_url} was reverted (fail closed)"
+            continue
+        fi
+
         if [ "$MODE" = "apply" ]; then
             # The close targets the umbrella repo explicitly (-R).
             gh issue close "$issue_num" \
@@ -428,6 +556,9 @@ fi
 if [ "$skipped_reopen" -gt 0 ]; then
     echo "close-completed-issues: ${skipped_reopen} issue(s) skipped (reopened after PR merged)"
 fi
+if [ "$skipped_reverted" -gt 0 ]; then
+    echo "close-completed-issues: ${skipped_reverted} issue(s) skipped (closing PR undone by a PR that reopens it)"
+fi
 if [ "$refused" -gt 0 ]; then
-    echo "close-completed-issues: ${refused} issue(s) refused (negated or unreadable PR body)"
+    echo "close-completed-issues: ${refused} issue(s) refused (negated or unreadable PR body, or revert check failed)"
 fi
