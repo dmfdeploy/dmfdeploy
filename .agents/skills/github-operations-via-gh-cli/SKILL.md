@@ -1,6 +1,6 @@
 ---
 name: github-operations-via-gh-cli
-description: Protocol for GitHub repo scaffolding, issue creation, and project board operations via the gh CLI — handling 401s, GraphQL quoting, and API limitations
+description: Protocol for GitHub repo scaffolding, issue creation, and project board operations via the gh CLI: handling 401 errors, GraphQL quoting, and API limitations
 source: auto-skill
 extracted_at: '2026-06-10T17:15:00.000Z'
 type: durable-pattern
@@ -22,12 +22,12 @@ When scaffolding GitHub repos, creating issues, and managing project boards via 
 
 ## Auth and 401 handling
 
-**Intermittent 401s are common** even when `gh auth status` reports healthy. They often resolve on retry.
+**Intermittent 401 errors are common** even when `gh auth status` reports healthy. They often resolve on retry.
 
-- When running multiple `gh` operations in a loop, **add retry logic** with exponential backoff (2s, 4s) on 401 responses.
-- Some operations consistently 401 (e.g., `gh label create` batched with `&&`) while individual calls succeed. **Run operations individually**, not chained with `&&`.
+- When running multiple `gh` operations in a loop, **add retry logic** with exponential backoff (2 seconds, 4 seconds) on 401 responses.
+- Some operations consistently 401 (for example, `gh label create` batched with `&&`) while individual calls succeed. **Run operations individually.**
 - `gh repo edit`, `gh repo create`, `gh issue create` (REST) generally work fine.
-- GraphQL operations (`gh api graphql`) may intermittently 401 — always retry.
+- GraphQL operations (`gh api graphql`) may intermittently 401; always retry.
 
 ## GraphQL operations
 
@@ -41,9 +41,9 @@ When scaffolding GitHub repos, creating issues, and managing project boards via 
 echo 'mutation { addProjectV2ItemById(input: { projectId: "PVT_...", contentId: "I_..." }) { item { id } } }' | gh api graphql -F query=@-
 ```
 
-**Do NOT use `-f query='...'`** with complex mutations — shell quoting breaks on nested braces.
-**Do NOT use `--query`** — that flag doesn't exist on `gh api graphql`.
-**Do NOT use `@/path/to/file.gql`** with `-f` — that expects a different format and produces "Expected NAME" parse errors.
+**Do NOT use `-f query='...'`** with complex mutations. Shell quoting breaks on nested braces.
+**Do NOT use `--query`.** That flag doesn't exist on `gh api graphql`.
+**Do NOT use `@/path/to/file.gql`** with `-f`. That expects a different format and produces "Expected NAME" parse errors.
 
 ### Python automation pattern
 
@@ -54,8 +54,8 @@ import subprocess, json
 
 def graphql(query_str):
     result = subprocess.run(
-        'gh api graphql -F query=@-',
-        input=query_str, shell=True, capture_output=True, text=True
+        ["gh", "api", "graphql", "-F", "query=@-"],
+        input=query_str, capture_output=True, text=True
     )
     if result.returncode != 0:
         return None
@@ -64,11 +64,11 @@ def graphql(query_str):
 
 ### Common GraphQL field availability
 
-- `addProjectV2ItemById` — ✅ exists
-- `updateProjectV2ItemFieldValue` — ✅ exists (for single-select fields)
-- `deleteProjectV2Item` — ✅ exists
-- `pinDiscussion` — ❌ does NOT exist in the standard GraphQL schema (operator must pin via web UI)
-- `createDiscussion` — ✅ exists (requires repositoryId, not repo slug)
+- `addProjectV2ItemById`: ✅ exists
+- `updateProjectV2ItemFieldValue`: ✅ exists (for single-select fields)
+- `deleteProjectV2Item`: ✅ exists
+- `pinDiscussion`: ❌ does not exist in the standard GraphQL schema (operator must pin via web UI)
+- `createDiscussion`: ✅ exists (requires repositoryId; repo slug is not accepted)
 
 ### Getting repository ID
 
@@ -84,7 +84,7 @@ Or hardcode from a previous query: `R_kgDOS2oHOQ` for `dmfdeploy/dmfdeploy`.
 
 ### Milestone flag
 
-**`--milestone` takes the milestone TITLE string, not the number.**
+**`--milestone` requires the milestone TITLE string.**
 
 ```bash
 gh issue create -R dmfdeploy/dmfdeploy --title "..." --milestone "v0.1-polish"  # ✅ works
@@ -97,7 +97,7 @@ Use `--body-file <path>` for multi-line bodies. This avoids shell escaping issue
 
 ### Label flag
 
-**Use `--label` (singular flag with comma-separated values), not `--labels`:**
+**Use `--label` (singular flag with comma-separated values):**
 
 ```bash
 gh issue create -R dmfdeploy/dmfdeploy --title "..." --label "component:dmf-init,workstream:release"
@@ -105,14 +105,14 @@ gh issue create -R dmfdeploy/dmfdeploy --title "..." --label "component:dmf-init
 
 ## Project field mapping
 
-Project-v2 single-select fields require the **option ID**, not the display name. These are opaque strings like `f43d9dd7`. There is no safe API to add new single-select options — the operator must add them in the Project UI.
+Project-v2 single-select fields require the **option ID** (an opaque string like `f43d9dd7`). There is no safe API to add new single-select options; the operator must add them in the Project UI.
 
 When setting a field, only set it if the corresponding option exists. For labels that have no board option, **leave the field unset** and report which issues were skipped.
 
 ## Discussion limitations
 
-- **Discussion categories CANNOT be created via API** — neither REST nor GraphQL has a mutation for this. Operator must add custom categories (like "RFC (pre-ADR)") via web UI: Settings → Discussions → Categories.
-- **Discussion pinning** — `pinDiscussion` mutation does not exist in the standard GraphQL schema. Operator must pin via web UI.
+- **Discussion categories cannot be created via API.** Neither REST nor GraphQL has a mutation for this. Operator must add custom categories (like "RFC (pre-ADR)") via web UI: Settings → Discussions → Categories.
+- **Discussion pinning:** `pinDiscussion` mutation does not exist in the standard GraphQL schema. Operator must pin via web UI.
 - Default categories are seeded automatically: Announcements, General, Ideas, Polls, Q&A, Show and tell.
 
 ## PR creation and CI guard pitfalls
@@ -124,13 +124,13 @@ reference, and the two regexes differ:
 
 | Repo | Accepted | Bare `#N` |
 |---|---|---|
-| umbrella (`dmfdeploy/dmfdeploy`) | `(dmfdeploy/dmfdeploy)?#N` — slug optional | passes |
-| every component repo | `dmfdeploy/dmfdeploy#N` — slug required | **fails** |
+| umbrella (`dmfdeploy/dmfdeploy`) | `(dmfdeploy/dmfdeploy)?#N` (slug optional) | passes |
+| every component repo | `dmfdeploy/dmfdeploy#N` (slug required) | **fails** |
 
-So from a component repo `Closes #20` fails the gate *and* silently targets that
-repo's own issue #20 rather than the umbrella backlog. Always write
+So from a component repo `Closes #20` fails the gate and silently targets that
+repo's own issue #20. Always write
 `Closes dmfdeploy/dmfdeploy#N` / `Refs dmfdeploy/dmfdeploy#N` in a component PR
-body. `dmfdeploy/dmf-env#20` also fails — it is not the umbrella backlog.
+body. `dmfdeploy/dmf-env#20` also fails: it is not the umbrella backlog.
 
 Trivial change with no issue? Add the `no-issue` label, which the job honours
 before it ever reads the body.

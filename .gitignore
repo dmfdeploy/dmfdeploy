@@ -75,6 +75,10 @@ kube.config
 *.tfstate.*
 .terraform/
 
+# Terraform variable files (may contain secrets)
+*.tfvars
+*.tfvars.json
+
 # Ansible inventory (auto-generated)
 hosts.ini
 
@@ -83,6 +87,10 @@ hosts.ini
 *.key
 *.p12
 *.pfx
+
+# SSH private keys
+id_*
+!id_*.pub.example
 
 # OpenBao / Vault tokens + key shares
 openbao-keys*.json
