@@ -8,7 +8,7 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/727
 
 ## Goal
 
-Pay down the debt that survives the roadmap, and stop spending effort on layers the roadmap replaces. Every open `platform-debt` issue is either in the work order below, with a priority and an effort, or on the kept list. That includes the 17 durable issues filed from the triage, the four filed after it, and the 22 issues the v0.1-polish triage moved into `platform-debt` on 2026-10-25. The tracking issue #727 isn't debt, so it carries no `platform-debt` label.
+Pay down the debt that survives the roadmap, and stop spending effort on layers the roadmap replaces. Every open `platform-debt` issue is either in the work order below, with a priority and an effort, or on the kept list. That includes the 17 durable issues filed from the triage, the five filed after it, and the 19 issues still open of the 22 that the v0.1-polish triage moved into `platform-debt` on 2026-10-25. The tracking issue #727 isn't debt, so it carries no `platform-debt` label.
 
 ## How debt is separated
 
@@ -33,12 +33,12 @@ A superseded issue closes only after any durable acceptance criterion it carries
 | Kept on purpose | 4 | Stay open: frozen questions and trackers that no deliverable replaces |
 | Superseded by v0.2 | 3 | Close after carrying any durable acceptance criterion into the deliverable |
 | Superseded by v0.3 | 6 | Close after carrying any durable acceptance criterion into the deliverable |
-| Superseded by the backend move | 4 | Close; reopen only if an operational failure recurs before the move |
+| Superseded by the backend move | 7 | Close; reopen only if an operational failure recurs before the move |
 | Done, stale or not planned | 6 | Close with the evidence |
 | Duplicate | 1 | Close in favor of the issue named |
-| **Triaged** | **103** | |
-| Filed since: durable cores, #746, #748, #750 and #758 | 21 | Ordered in the work order below |
-| Moved from v0.1-polish on 2026-10-25 | 22 | Ordered in the work order below, at the priority the triage comment gives |
+| **Classified** | **106** | The 103 triaged issues, plus three moved from v0.1-polish and closed as superseded |
+| Filed since: durable cores, #746, #748, #750, #758 and #760 | 22 | Ordered in the work order below |
+| Moved from v0.1-polish on 2026-10-25, still open | 19 | Ordered in the work order below, at the priority the triage comment gives |
 
 ## Work order
 
@@ -122,12 +122,10 @@ Production-shaped components tuned for the small node, so the demo runs on the r
 | [#469](https://github.com/dmfdeploy/dmfdeploy/issues/469) | dmf-cms: Facility page doesn't show its env; no Environment card, k3s nodes never queried | M | Facility page leads with an Environment card from NetBox Site/Cluster dmf_env_* fields and lists nodes (virtual machines) plus the LB, read-side only, no new tags. |
 | [#614](https://github.com/dmfdeploy/dmfdeploy/issues/614) | dmf-cms: fix the axe and jsx-a11y findings the UI invariant harness records as known failures | M | Bell accessible name, icon-link name, link-in-text-block, muted-text contrast, ReasonConfirm label htmlFor. Re-evaluate the InstanceLiveModal jsx-a11y warnings after #610 reworks the modal. |
 | [#735](https://github.com/dmfdeploy/dmfdeploy/issues/735) | Bring-your-own node: enroll the generated SSH key before the connectivity check | M | Split from #141. A fresh bring-your-own node accepts the generated key before the first connectivity check. |
-| [#309](https://github.com/dmfdeploy/dmfdeploy/issues/309) | Teardown fails while the topology is running: finalise job's NetBox inventory dependency dies with a corrupted EE worker stream on a saturated node | M | Control-plane jobs keep enough CPU on a saturated node (execution-environment requests or a priority class), so teardown succeeds while media runs. Operational fix only: no investment in the AWX worker stream itself. |
-| [#492](https://github.com/dmfdeploy/dmfdeploy/issues/492) | AWX: a dependent dmf-runbooks project update can die on an hourly event-partition collision after a cold wake, failing the media job that depends on it | S | Operational fix only: a dependent project update that dies on the cold-wake partition collision is retried, or reported to the operator as a transient failure to retry. The AWX-internal cause isn't fixed in dmfdeploy code. |
 
 ### Phase 5: later (P3)
 
-Foundation debt with no urgency. Pick these up when they block something or fit beside related work. Like the other AWX rows, #327 takes operational fixes only: releasing the facility lock when a job dies mid-play is the part that outlasts AWX.
+Foundation debt with no urgency. Pick these up when they block something or fit beside related work. The durable outcome of #760 is an evaluation that tests a candidate backend against the recorded failures, decided by an ADR after an RFC.
 
 | Issue | Title | Effort |
 |---|---|---|
@@ -145,7 +143,6 @@ Foundation debt with no urgency. Pick these up when they block something or fit 
 | [#244](https://github.com/dmfdeploy/dmfdeploy/issues/244) | Console disclosure Level axis: implement default<->expert (Constitution 1) | M |
 | [#245](https://github.com/dmfdeploy/dmfdeploy/issues/245) | Marketplace and resource-placement RFC track: grounded roadmap + RFC sequence | L |
 | [#319](https://github.com/dmfdeploy/dmfdeploy/issues/319) | Console inventory banner reports NetBox "unreachable" during AWX cold-boot node saturation; starved SoT read presented as outage | M |
-| [#327](https://github.com/dmfdeploy/dmfdeploy/issues/327) | Receptor worker-stream death escalated: killed 3 jobs in one evening incl. a switch play MID-EXECUTION (leaked facility lock, quiesced media path) | M |
 | [#448](https://github.com/dmfdeploy/dmfdeploy/issues/448) | [dmf-cms] Notification alerts disclosure lacks accessible state and Escape dismissal | S |
 | [#451](https://github.com/dmfdeploy/dmfdeploy/issues/451) | dmf-cms: Monitoring tables render empty alert names | S |
 | [#521](https://github.com/dmfdeploy/dmfdeploy/issues/521) | dmf-cms: in-flight announcements are hand-wired per call site; three paths missed it, and omission is undetectable | M |
@@ -177,6 +174,7 @@ Foundation debt with no urgency. Pick these up when they block something or fit 
 | [#745](https://github.com/dmfdeploy/dmfdeploy/issues/745) | Build MXL for every architecture and record the pin by digest | M |
 | [#746](https://github.com/dmfdeploy/dmfdeploy/issues/746) | Keep the media function descriptor compatible with AMWA IN-003 as it evolves | M |
 | [#750](https://github.com/dmfdeploy/dmfdeploy/issues/750) | Feasibility: run the ddcam gateway on the ARM64 sandbox through MXL | M |
+| [#760](https://github.com/dmfdeploy/dmfdeploy/issues/760) | Evaluate a replacement for AWX against the failures seen so far | M |
 
 ## Durable cores filed from mixed issues
 
@@ -235,12 +233,17 @@ These stay open. No named deliverable replaces them. A fourth, [#200](https://gi
 
 ### Superseded by the backend move
 
+#309, #327 and #492 moved here from v0.1-polish on 2026-10-25 and closed the same day. AWX sleeps only in the sandbox demo lane, so their failures don't reach a normal deployment.
+
 | Issue | Title | Replaced by or evidence | Before closing |
 |---|---|---|---|
 | [#136](https://github.com/dmfdeploy/dmfdeploy/issues/136) | AWX constrained-node: tune JOB_EVENT_WORKERS to shrink awake footprint | Backend move away from AWX (Temporal direction); AWX is 'ops fixes only, never investments' | - |
 | [#303](https://github.com/dmfdeploy/dmfdeploy/issues/303) | AWX CR: set termination_grace_period_seconds (preStop drain hook) | Backend move away from AWX; AWX operator CR settings are sunk-cost internals | - |
 | [#304](https://github.com/dmfdeploy/dmfdeploy/issues/304) | AWX autoscale: REST-only plays (693) need an explicit renewable Lease hold | Orchestration backend move away from AWX (Temporal direction); the awx-integration role (693/697/699) | - |
 | [#330](https://github.com/dmfdeploy/dmfdeploy/issues/330) | dmf-infra follow-ups from the receptor-mitigation deployment (RWO PVC default, retry-var, 640 wait budget) | Backend move away from AWX (AWX is ops-fixes-only; awx role, receptor EE and the 640 play are sunk cost) | - |
+| [#309](https://github.com/dmfdeploy/dmfdeploy/issues/309) | Teardown fails while the topology is running: finalise job's NetBox inventory dependency dies with a corrupted EE worker stream on a saturated node | AWX internal; normal deployments keep AWX awake. The lessons are acceptance criteria in #760, the evaluation of a replacement backend | - |
+| [#327](https://github.com/dmfdeploy/dmfdeploy/issues/327) | Receptor worker-stream death escalated: killed 3 jobs in one evening incl. a switch play MID-EXECUTION (leaked facility lock, quiesced media path) | AWX internal; normal deployments keep AWX awake. The lessons are acceptance criteria in #760, the evaluation of a replacement backend | - |
+| [#492](https://github.com/dmfdeploy/dmfdeploy/issues/492) | AWX: a dependent dmf-runbooks project update can die on an hourly event-partition collision after a cold wake, failing the media job that depends on it | AWX internal; normal deployments keep AWX awake. The lessons are acceptance criteria in #760, the evaluation of a replacement backend | - |
 
 ### Done, stale or not planned
 
