@@ -189,7 +189,7 @@ def slug(text, taken):
 
 def _infer_category(rule):
     """Category for a gitleaks-only legacy rule, from id AND description
-    (codex P2: id-substring alone misfiled an identity rule as topology).
+    (the id alone can misfile an identity rule as topology).
     Category affects reporting/parity counts, never whether the regex runs;
     conflicting or absent signals are flagged (redacted) and default topology."""
     text = (rule.get("id", "") + " " + rule.get("description", "")).lower()
