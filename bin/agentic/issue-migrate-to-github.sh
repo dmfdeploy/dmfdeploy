@@ -101,6 +101,9 @@ forgejo_validate_config || exit 2
 TOKEN="$(cat "$FORGEJO_TOKEN_PATH")"
 MIGRATE_QUEUE=()
 PRIVATE_QUEUE=()
+body_tmp=""
+_cleanup_migrate() { [ -n "$body_tmp" ] && rm -f "$body_tmp"; }
+trap _cleanup_migrate EXIT
 
 for repo in "${FORGEJO_PUBLIC_REPOS[@]}"; do
     api="https://${FORGEJO_HOST}/api/v1/repos/${FORGEJO_OWNER}/${repo}/issues?labels=agent-opened&state=open&type=issues"

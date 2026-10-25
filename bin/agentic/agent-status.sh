@@ -111,7 +111,7 @@ cmd_write() {
     local patch
     patch="$(jq -nc "${jq_args[@]}" "$jq_filter")"
 
-    local tmp="${file}.tmp.$$"
+    local tmp; tmp="$(mktemp "${file}.tmp.XXXXXX")"
     if [ -f "$file" ]; then
         jq -s '.[0] * .[1]' "$file" <(echo "$patch") > "$tmp"
     else

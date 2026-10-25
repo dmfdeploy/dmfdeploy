@@ -31,7 +31,7 @@ fi
 
 # bpmn-to-image emits a footer with title + bpmn.io logo; --no-footer drops it.
 echo "→ rendering $input → $output"
-npx --yes bpmn-to-image --no-footer "$input:$output"
+npx --yes bpmn-to-image@0.10.0 --no-footer "$input:$output"
 
 # Inject the stylesheet immediately after the opening <svg …> tag using a
 # Python helper for safe handling of multi-line CSS and special characters.
