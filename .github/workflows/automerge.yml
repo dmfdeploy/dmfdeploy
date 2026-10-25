@@ -44,5 +44,20 @@ jobs:
             echo "draft PR — skipping"
             exit 0
           fi
+          # Only main's ruleset enforces review state. A PR restacked onto a
+          # topic branch has no such gate, so refuse to arm while a reviewer's
+          # latest approve/request-changes decision is "changes requested".
+          # Comments neither block nor clear. A failed read exits non-zero.
+          reviews=$(gh pr view "${PR_URL}" --json reviews)
+          blockers=$(jq -er '[.reviews[]
+              | select(.state | IN("APPROVED", "CHANGES_REQUESTED", "DISMISSED"))]
+            | group_by(.author.login // "ghost")
+            | map(sort_by(.submittedAt) | last
+                | select(.state == "CHANGES_REQUESTED") | .author.login // "ghost")
+            | join(", ")' <<<"${reviews}")
+          if [ -n "${blockers}" ]; then
+            echo "::error::changes requested by ${blockers} — auto-merge not armed"
+            exit 1
+          fi
           gh pr merge --auto --rebase "${PR_URL}"
           echo "auto-merge (rebase) armed — merges when approval + required checks are satisfied"
