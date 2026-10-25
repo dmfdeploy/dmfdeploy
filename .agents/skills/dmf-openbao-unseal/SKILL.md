@@ -57,8 +57,10 @@ bin/unseal-openbao.sh <env-name> --status
 ```
 
 Replace `<env-name>` with the env you want to unseal. The script requires it as
-the first argument and lists the known envs if you leave it out. The current
-live env id is in the umbrella's `STATUS.local.md`.
+the first argument and lists the known envs if you leave it out. To see which
+env is live, run `bin/generate-status.sh` in the umbrella, then read the env
+table in `STATUS.digest.local.md` (or `STATUS.local.md`). Both files are
+generated and local.
 
 Confirms:
 - Cluster + openbao pod reachable from your Mac via SSH
