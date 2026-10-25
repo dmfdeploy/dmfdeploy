@@ -8,12 +8,11 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (4)
+## Active (3)
 
 - [platform-debt-work-order](platform-debt-work-order.md) — 2026-10-25
 - [dmf-umbrella-security-audit-remediation-spec](dmf-umbrella-security-audit-remediation-spec.md) — 2026-06-15
 - [dmf-internal-ansible-collection-source-plan](dmf-internal-ansible-collection-source-plan.md) — 2026-05-29
-- [dmf-awx-catalog-credential-type-migration-plan](dmf-awx-catalog-credential-type-migration-plan.md) — 2026-05-23
 
 ## Draft (4)
 
@@ -22,7 +21,7 @@ shelved, kept for provenance.
 - [dmf-media-workload-design-canvas-plan](dmf-media-workload-design-canvas-plan.md) — 2026-10-20
 - [dmf-console-shell-round-2-rail-band-and-message-bus](dmf-console-shell-round-2-rail-band-and-message-bus.md) — 2026-08-31
 
-## Executed (41)
+## Executed (42)
 
 - [dmf-console-durable-action-history-plan](dmf-console-durable-action-history-plan.md) — 2026-09-02 (executed 2026-10-21)
 - [dmf-console-shell-round-plan](dmf-console-shell-round-plan.md) — 2026-08-30 (executed 2026-10-21)
@@ -47,6 +46,7 @@ shelved, kept for provenance.
 - [dmf-zot-machine-identity-service-account-plan](dmf-zot-machine-identity-service-account-plan.md) — 2026-05-27 (executed 2026-06-10)
 - [dmf-oss-v0-1-contributor-replicability-premise-pass](dmf-oss-v0-1-contributor-replicability-premise-pass.md) — 2026-05-25
 - [DMF Per-App Identity Feasibility Survey 2026-05-24](DMF%20Per-App%20Identity%20Feasibility%20Survey%202026-05-24.md) — 2026-05-24
+- [dmf-awx-catalog-credential-type-migration-plan](dmf-awx-catalog-credential-type-migration-plan.md) — 2026-05-23 (executed 2026-10-25)
 - [dmf-unified-app-admin-helper-plan](dmf-unified-app-admin-helper-plan.md) — 2026-05-23
 - [dmf-adr-0025-lane-b-implementation-plan](dmf-adr-0025-lane-b-implementation-plan.md) — 2026-05-22 (executed 2026-05-23)
 - [DMF Cluster-Internal Ansible Execution and Catalog Helm Pivot Plan 2026-05-19](DMF%20Cluster-Internal%20Ansible%20Execution%20and%20Catalog%20Helm%20Pivot%20Plan%202026-05-19.md) — 2026-05-19 (executed 2026-06-11)
