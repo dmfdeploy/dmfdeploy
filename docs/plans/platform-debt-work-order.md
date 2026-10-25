@@ -146,7 +146,7 @@ Each row becomes one new `platform-debt` issue. The listed originals close with 
 | [#322](https://github.com/dmfdeploy/dmfdeploy/issues/322) | Runtime source truth comes from cluster truth with an allowlisted payload and honest provenance |
 | [#271](https://github.com/dmfdeploy/dmfdeploy/issues/271) | Capacity-budget report contract and its retry message, so a deploy never blocks the facility |
 | [#141](https://github.com/dmfdeploy/dmfdeploy/issues/141) | Bring-your-own node: enroll the generated key before the connectivity check, without tripping fail2ban |
-| [#158](https://github.com/dmfdeploy/dmfdeploy/issues/158) | Pinned, checksum-verified installer path instead of curl | bash off main |
+| [#158](https://github.com/dmfdeploy/dmfdeploy/issues/158) | Pinned, checksum-verified installer path instead of curl \| bash off main |
 | [#347](https://github.com/dmfdeploy/dmfdeploy/issues/347) | Robustness items from the demo-journey arcs: reserved-variable scanner, list-shaped defaults, fallback-state rendering |
 | [#559](https://github.com/dmfdeploy/dmfdeploy/issues/559) | Audit event contract for configuration changes: parameter, old value, new value |
 | [#232](https://github.com/dmfdeploy/dmfdeploy/issues/232) | Workload review record (audit extract, job-log pointers, config snapshot) as a backend capability |
@@ -202,7 +202,7 @@ These stay open. No named deliverable replaces them.
 
 | Issue | Title | Replaced by or evidence | Before closing |
 |---|---|---|---|
-| [#193](https://github.com/dmfdeploy/dmfdeploy/issues/193) | Retire mxl-hello — superseded by the videotest workload | Comments: dmf-media#15, dmf-runbooks#14, dmf-infra#44, dmf-cms#28 merged 2026-07-08; catalog entry removed in Slice 2.1 (dmf-media#14). `git grep mxl-hello` in dmf-media returns nothing. Live teardown targeted env aoka-9 | Before closing: record the live teardown result in #193, or record that it is waived because the environment was destroyed. |
+| [#193](https://github.com/dmfdeploy/dmfdeploy/issues/193) | Retire mxl-hello — superseded by the videotest workload | Comments: dmf-media#15, dmf-runbooks#14, dmf-infra#44, dmf-cms#28 merged 2026-07-08; catalog entry removed in Slice 2.1 (dmf-media#14). `git grep mxl-hello` in dmf-media returns nothing. Live teardown targeted env <env>, | Before closing: record the live teardown result in #193, or record that it is waived because the environment was destroyed. |
 | [#385](https://github.com/dmfdeploy/dmfdeploy/issues/385) | dmf-cms live survey: navy band, dead boot palette, page identity, focus ring, degraded empty state | gh pr view 79 dmf-cms is MERGED. Commits 2844cf6 (fill viewport, retire boot palette) and 98f7c8d (real favicon, page-identity tests). frontend/src/__tests__/pageIdentitySweep.test.tsx. MediaWorkloads/index.tsx:236 canno | - |
 | [#477](https://github.com/dmfdeploy/dmfdeploy/issues/477) | check-backlog-hygiene.sh silently checks only the first 100 open issues | Commit 8af0291 'ci(hygiene): ... read every issue'. bin/check-backlog-hygiene.sh lines 45 (ISSUE_LIMIT 2000), 88-91, 163 (finding when limit reached), 249 (first:100 with orderBy DESC). | - |
 | [#506](https://github.com/dmfdeploy/dmfdeploy/issues/506) | dmf-cms: rail icon set on screen is not the agreed set | dmf-cms commit d28641c 'feat(rail): swap in the recovered exact stage icon set, filled not stroked'. frontend/src/lib/stageIcons.tsx is now inline SVG, and its header quotes the recovered decision verbatim and says it su | - |
