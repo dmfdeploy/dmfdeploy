@@ -24,8 +24,9 @@ material — because that's exactly what it does.
 Hard rules:
 
 1. **Use the script. Never type share values into a terminal.** The script pipes
-   shares from their canonical sources directly into `bao operator unseal` via
-   stdin. No share value lands in argv, env, `/tmp`, shell history, or stdout.
+   shares from their canonical sources through stdin into `bao write sys/unseal -`
+   inside the OpenBao pod. No share value lands in argv, env, `/tmp`, shell
+   history, or stdout.
 
 2. **Never invoke this through an AI agent if you can avoid it.** Run it in your
    own terminal. The script is designed so its stdout contains only seal status
@@ -52,8 +53,12 @@ Hard rules:
 
 ```bash
 cd ~/repos/dmfdeploy/dmf-env
-bin/unseal-openbao.sh --status
+bin/unseal-openbao.sh <env-name> --status
 ```
+
+Replace `<env-name>` with the env you want to unseal. The script requires it as
+the first argument and lists the known envs if you leave it out. The current
+live env id is in the umbrella's `STATUS.local.md`.
 
 Confirms:
 - Cluster + openbao pod reachable from your Mac via SSH
@@ -61,23 +66,32 @@ Confirms:
 - Shamir threshold (`t`) and total share count (`n`)
 - Current unseal progress (number of shares already fed in this attempt)
 
+The script runs `bao` inside the OpenBao pod, over `ssh -T` and `sudo -n kubectl
+exec -i`. `bao` always verifies the certificate the pod serves. No setting turns
+verification off, and the script clears `BAO_SKIP_VERIFY` and `VAULT_SKIP_VERIFY`
+for each call. If you set `OPENBAO_API_ADDR` or `OPENBAO_CACERT`, the script
+refuses to run and tells you to unset it. Don't reach OpenBao with `curl`, `-k`,
+or the pod IP instead; that path is gone.
+
 If status reports `sealed: false`, you don't need to do anything.
 
 ## 3. Execute
 
 ```bash
 cd ~/repos/dmfdeploy/dmf-env
-bin/unseal-openbao.sh
+bin/unseal-openbao.sh <env-name>
 ```
 
 What it does, in order:
 
-1. **Pre-flight** — checks ssh/kubectl/jq/security commands exist, cluster
-   reachable, pod reachable, all 3 share sources present.
+1. **Pre-flight**: checks the `ssh`, `jq`, and `security` commands exist on
+   your Mac, the cluster and pod are reachable, and all 3 share sources are
+   present.
 2. **Confirms** the operation interactively (skip with `--yes` only if scripting
-   from another wrapper).
-3. **Feeds share 1** — `jq -r '.key' share-1.json` piped via SSH+kubectl-exec
-   stdin to `bao operator unseal`.
+   from another wrapper; without `--yes`, the script needs a terminal).
+3. **Feeds share 1**: `jq -r '.key' share-1.json` sent on stdin,
+   through `ssh -T` and `sudo -n kubectl exec -i`, to
+   `bao write -format=json sys/unseal -` inside the pod.
 4. **Feeds share 2** — same pattern from `share-2.json`.
 5. **Feeds share 3** — `security find-generic-password -w` from Keychain piped
    via the same path. Keychain may prompt to unlock.
@@ -106,11 +120,13 @@ cluster.
 | Exit code | Meaning | What to do |
 |:-:|---|---|
 | 0 | Unsealed (or already was) | Done |
+| 1 | Bad argument or config, such as a missing `<env-name>`, an unresolved SSH target, or a refused `OPENBAO_API_ADDR` or `OPENBAO_CACERT` | Read the message; fix the argument or unset the variable |
 | 2 | Already unsealed | Confirm with `--status`; usually nothing to do |
 | 3 | A share source is missing | Mount JuiceFS / unlock Keychain / verify the share files exist |
 | 4 | Cluster or pod unreachable | Check the cluster is up and openbao-0 is scheduled |
-| 5 | A share fed but bao reported an error | The script prints bao's response to stderr — read it; could be a corrupted share or wrong field name |
+| 5 | A share fed but bao reported an error | The script prints the first lines of bao's error text to stderr. Read it; could be a corrupted share or wrong field name |
 | 6 | Still sealed after 3 shares | The shares may not be from the same key material as the running OpenBao; re-init may be required (see §6) |
+| 7 | TLS verification failed | Check that the `openbao-tls` certificate is ready and current, that `BAO_CACERT` in the pod names the certificate the pod serves, that the certificate covers the `BAO_ADDR` host, and whether the pod restarted after the last certificate rotation. The script never skips verification, so the fix is always in the certificate |
 
 If the script fails partway through, OpenBao tracks unseal progress server-side
 (`progress=1` after share 1, `progress=2` after share 2, etc.). Re-running picks
@@ -142,6 +158,6 @@ This skill **does not** cover:
 
 ---
 
-**When in doubt:** run `bin/unseal-openbao.sh --status` first. It's free, touches
+**When in doubt:** run `bin/unseal-openbao.sh <env-name> --status` first. It's free, touches
 nothing, and tells you whether you actually need this skill. If you're contemplating
 typing a share value somewhere, stop — that's the moment the leak happens.
