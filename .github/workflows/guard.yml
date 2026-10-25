@@ -140,6 +140,8 @@ jobs:
     # Working-model gate (issue #32): every PR must reference its tracking
     # issue in the canonical backlog (this repo). Bare #N is fine here — the
     # backlog lives in this repo. Trivial changes: add the no-issue label.
+    # Transitional (#758): issue-link.yml runs the trusted copy of this check
+    # once it is on main. Remove this job in a follow-up PR after that.
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
