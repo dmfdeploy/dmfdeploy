@@ -144,10 +144,6 @@ EOF
     # Umbrella first
     emit_section "umbrella — \`dmfdeploy/bin/\`" "$UMBRELLA_DIR/bin"
 
-    # Mothballed agentic harness scripts (provenance; mutating ones fail
-    # closed unless DMF_AGENTIC_OVERRIDE=1 — see bin/agentic/README.md)
-    emit_section "umbrella — \`dmfdeploy/bin/agentic/\` (mothballed 2026-06-04)" "$UMBRELLA_DIR/bin/agentic"
-
     # Component repos: check bin/ then scripts/
     for repo in "${COMPONENT_REPOS[@]}"; do
         for sub in bin scripts; do

@@ -224,7 +224,10 @@ check_file() {
 
 check_repo_dir() {
     local dir="$1"
-    for f in "${AGENT_FILES[@]}"; do
+    shift
+    local files=("$@")
+    [ "${#files[@]}" -gt 0 ] || files=("${AGENT_FILES[@]}")
+    for f in "${files[@]}"; do
         check_file "$dir/$f"
     done
 }
@@ -234,7 +237,8 @@ if [ -n "$SINGLE_REPO" ]; then
 else
     # Umbrella: the block is mandatory regardless of --strict.
     saved_strict=$STRICT; STRICT=1
-    check_repo_dir "$UMBRELLA_DIR"
+    # The umbrella carries no QWEN.md; the component repos still do.
+    check_repo_dir "$UMBRELLA_DIR" CLAUDE.md AGENTS.md
     STRICT=$saved_strict
     # Components (sibling canonical, nested legacy); absent checkouts are skipped —
     # each component repo gates its own copies in its CI.

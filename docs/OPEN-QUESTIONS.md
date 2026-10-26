@@ -21,7 +21,7 @@ FREEZE table. Frozen ≠ abandoned: each entry names its re-open trigger.
 | **In-place upgrade** (`main~N → main` skew convergence) | Rebuild-only is the committed lifecycle model (commitment 6). | A real upgrade-without-rebuild requirement |
 | **dmf-media catalog-v2 roles** (ebu-list, flow-exporters, ptp-monitor, netbox-media-plugin) | Deeper media-domain value, but new surface area before the core is legible. | Post-v0.1 |
 | **dmf-init feature work** | The installer is good enough; only v0.1-install-path bugs are in scope. | v0.1 shipped |
-| **Drift-prevention meta-harness** (beyond the thin doc/hygiene gates) | Friction wall for a solo operator; the mothballed [agentic harness](agentic/README.md) is the cautionary tale. | A collaborator joins |
+| **Drift-prevention meta-harness** (beyond the thin doc/hygiene gates) | Friction wall for a solo operator; the retired agentic harness is the cautionary tale. | A collaborator joins |
 
 ## Paused (thesis-killer #3)
 

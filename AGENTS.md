@@ -52,8 +52,7 @@ reference architecture.
 - Before a decision that rests on layer or vertical assumptions, read the canonical doc in `docs/architecture/`.
 - Before you stop, record changes to shared state (cross-repo decisions,
   in-flight work) in the pinned Operator notes issue.
-- The agentic harness under `docs/agentic/` is mothballed. Its `backlog.yaml`,
-  `decisions-open.md` and `issues.yaml` are not live queues; issues are the backlog.
+- The agentic harness is retired. Issues are the backlog; don't recreate a local queue.
 
 <!-- vale off -->
 <!-- WORKING-MODEL-BLOCK-START — generated from umbrella docs/templates/working-model-block.md; do not edit copies, edit the template and run bin/check-working-model-sync.sh -->

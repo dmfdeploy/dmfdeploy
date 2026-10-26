@@ -6,7 +6,7 @@
 # (umbrella issue #32). Reads the digest AT RUNTIME from the canonical source —
 # the WM-DIGEST section of the umbrella's docs/WORKING-MODEL.md — never from an
 # embedded copy. codex/qwen don't run hooks; their forcing mechanism is the
-# working-model block in AGENTS.md/QWEN.md.
+# working-model block in AGENTS.md (and QWEN.md in component repos).
 #
 # Umbrella checkout lookup order: $DMFDEPLOY_UMBRELLA → the repo this script
 # lives in (umbrella case) → sibling ../dmfdeploy. Degrades gracefully: if no
