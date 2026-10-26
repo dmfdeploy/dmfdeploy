@@ -69,6 +69,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 
 | Script | Description |
 |---|---|
+| `dmf-cms/bin/check-review-comments.sh` | fail when a comment records review history. |
 | `dmf-cms/bin/install-hooks.sh` | point this clone's git at .githooks/. |
 | `dmf-cms/bin/working-model-digest.sh` | print the DMF working-model digest for session context. |
 
@@ -86,6 +87,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 
 | Script | Description |
 |---|---|
+| `dmf-central/bin/check-review-comments.sh` | fail when a comment records review history. |
 | `dmf-central/bin/install-hooks.sh` | point this clone's git at .githooks/. |
 | `dmf-central/bin/working-model-digest.sh` | print the DMF working-model digest for session context. |
 
@@ -93,6 +95,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 
 | Script | Description |
 |---|---|
+| `dmf-infra/bin/check-review-comments.sh` | fail when a comment records review history. |
 | `dmf-infra/bin/install-hooks.sh` | point this clone's git at .githooks/. |
 | `dmf-infra/bin/working-model-digest.sh` | print the DMF working-model digest for session context. |
 
@@ -103,8 +106,10 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `dmf-env/bin/b2-buckets.sh` | create and configure Backblaze B2 buckets for a DMF env. |
 | `dmf-env/bin/bootstrap-operator-approle.sh` | workstation-side wrapper. |
 | `dmf-env/bin/bootstrap-secrets.sh` | manage pre-Bao bootstrap secrets for dmfdeploy platform. |
+| `dmf-env/bin/check-review-comments.sh` | fail when a comment records review history. |
 | `dmf-env/bin/cluster-bootstrap-operator-approle.sh` | cluster-bootstrap-operator-approle.sh |
 | `dmf-env/bin/cluster-rotate-approle-secret-id.sh` | cluster-rotate-approle-secret-id.sh |
+| `dmf-env/bin/enroll-ssh-key.sh` | enroll the env's SSH key on a bring-your-own sandbox node and gate on key-only login before the first playbook run. |
 | `dmf-env/bin/export-openbao-vars.sh` | generate a temp vars file for ansible-playbook. |
 | `dmf-env/bin/get-admin-cred.sh` | retrieve an app's admin credential from OpenBao via the operator userpass path (Phase 5 of the Authentik baseline plan). |
 | `dmf-env/bin/get-passkey-enrollment-url.sh` | retrieve the DMF passkey enrollment URL and the operator's confirmed-passkey count. |
@@ -128,9 +133,9 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 
 | Script | Description |
 |---|---|
+| `dmf-media/bin/check-review-comments.sh` | fail when a comment records review history. |
 | `dmf-media/bin/install-hooks.sh` | point this clone's git at .githooks/. |
 | `dmf-media/bin/publish-chart-to-ghcr.sh` | publish a dmf-media chart to GHCR. |
-| `dmf-media/bin/publish-nmos-crosspoint.sh` | build + (optionally) publish the nmos-crosspoint image. Thin wrapper: builds the ARM64 image at a pinned upstream ref via Colima, then delegates the GHCR push to the umbrella's bin/publish-image-to-ghcr.sh (single source of truth for auth: token-via-stdin, isolated DOCKER_CONFIG). |
 | `dmf-media/bin/working-model-digest.sh` | print the DMF working-model digest for session context. |
 
 ## dmf-init — `dmf-init/bin/`
