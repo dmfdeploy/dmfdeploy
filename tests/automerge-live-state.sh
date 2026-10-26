@@ -18,6 +18,8 @@
 #   R3 held, retargeted back to the default branch -> hold kept, disarms, no arm
 #   R4 retargeted to a topic branch, label write fails -> still disarms, exits
 #      non-zero
+#   R4a retargeted to a topic branch, disarming fails -> remains armed, exits
+#       non-zero
 #   R5 no hold, retargeted back to the default branch -> arms (the normal rule)
 #   R6 base reads the default branch before arming and a topic branch after
 #      (retargeted mid-run)                        -> arms, then adds hold, disarms
@@ -63,7 +65,7 @@ case "$1 $2" in
     : > "$FAKE_VIEWED" ;;
   "pr merge") echo "$*" >> "$FAKE_LOG"
     case " $* " in
-      *" --disable-auto "*) echo 0 > "$FAKE_ARMED" ;;
+      *" --disable-auto "*) [ -n "${FAKE_DISABLE_FAIL:-}" ] && exit 1; echo 0 > "$FAKE_ARMED" ;;
       *" --auto "*) echo 1 > "$FAKE_ARMED" ;;
     esac ;;
   "api -X") echo "$*" >> "$FAKE_LOG"; [ -z "${FAKE_LABEL_FAIL:-}" ] ;;
@@ -76,8 +78,9 @@ chmod +x "$WORK/bin/gh"
 # "no hold, not draft" every time: only the live read may change the outcome.
 # START_ARMED=1 starts the case armed. DEFAULT is the payload's default branch.
 # ACTION and BASE_MOVED stand in for the event action and whether the payload
-# records a base change; LABEL_FAIL=1 makes the label write fail. VIEW_AFTER
-# is the reply to every read after the first; VIEW_FAIL_AFTER=1 fails them.
+# records a base change; LABEL_FAIL=1 makes the label write fail and
+# DISABLE_FAIL=1 makes disarming fail. VIEW_AFTER is the reply to every read
+# after the first; VIEW_FAIL_AFTER=1 fails them.
 # The step runs under the runner's default bash flags (-eo pipefail), so a
 # failing pipeline behaves here as it does in Actions.
 run_case() {
@@ -85,7 +88,8 @@ run_case() {
   FAKE_LOG="$WORK/log" FAKE_ARMED="$WORK/armed" FAKE_VIEW_JSON="$1" \
   FAKE_VIEWED="$WORK/viewed" FAKE_VIEW_AFTER="${VIEW_AFTER:-}" \
   FAKE_VIEW_FAIL_AFTER="${VIEW_FAIL_AFTER:-}" \
-  FAKE_VIEW_FAIL="${2:+x}" FAKE_LABEL_FAIL="${LABEL_FAIL:-}" PATH="$WORK/bin:$PATH" \
+  FAKE_VIEW_FAIL="${2:+x}" FAKE_LABEL_FAIL="${LABEL_FAIL:-}" \
+  FAKE_DISABLE_FAIL="${DISABLE_FAIL:-}" PATH="$WORK/bin:$PATH" \
   PR_URL="https://example.test/pr/1" DEFAULT_BRANCH="${DEFAULT-main}" \
   REPO="example/repo" PR_NUMBER="1" EVENT_ACTION="${ACTION:-labeled}" \
   BASE_CHANGED="${BASE_MOVED:-false}" \
@@ -143,6 +147,11 @@ START_ARMED=1 LABEL_FAIL=1 ACTION=edited BASE_MOVED=true run_case '{"isDraft":fa
 if [ "$RC" != 0 ] && [ "$ARMED" = 0 ] && [[ "$LOG" != *"--auto --rebase"* ]]; then
   ok "R4: failed label write on retarget still disarms and exits non-zero"
 else bad "R4: label write fails (rc=$RC armed=$ARMED log=[$LOG])"; fi
+
+START_ARMED=1 DISABLE_FAIL=1 ACTION=edited BASE_MOVED=true run_case '{"isDraft":false,"labels":[],"baseRefName":"topic/x"}'
+if [ "$RC" != 0 ] && [ "$ARMED" = 1 ] && [[ "$LOG" == *"--disable-auto"* ]] && [[ "$LOG" != *"--auto --rebase"* ]]; then
+  ok "R4a: failed disarm leaves the PR armed and exits non-zero"
+else bad "R4a: disarm fails (rc=$RC armed=$ARMED log=[$LOG])"; fi
 
 ACTION=edited BASE_MOVED=true run_case '{"isDraft":false,"labels":[],"baseRefName":"main"}'
 if [ "$RC" = 0 ] && [ "$ARMED" = 1 ] && [[ "$LOG" != *"api"* ]]; then
