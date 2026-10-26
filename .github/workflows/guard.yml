@@ -1,13 +1,11 @@
 name: guard
 on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
+  pull_request_target:
+    types: [opened, reopened, ready_for_review, labeled, unlabeled]
 permissions:
   contents: read
 concurrency:
-  group: guard-${{ github.workflow }}-${{ github.ref }}
+  group: guard-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
   gitleaks:
@@ -65,7 +63,7 @@ jobs:
               /tmp/gitleaks detect --source . --log-opts="${RANGE}" --config /tmp/gitleaks.toml --redact --no-banner --exit-code 1 ;;
           esac
       - name: Sanity-lint the PR's proposed .gitleaks.toml (non-blocking on content)
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request_target'
         run: /tmp/gitleaks detect --no-git --source /dev/null --config .gitleaks.toml >/dev/null 2>&1 || echo "::warning::PR .gitleaks.toml changed — review the allowlist diff (CODEOWNERS-gated)"
 
   commitlint:
@@ -74,7 +72,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request_target'
     steps:
       - name: Conventional Commits check (inline, PR commits API)
         env:
