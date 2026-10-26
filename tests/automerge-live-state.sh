@@ -9,9 +9,9 @@
 #   A  payload has no hold, live labels have hold  -> disarms, never arms
 #   A2 hold on a PR into a topic branch            -> disarms, never arms
 #   B  live no hold, not draft, base is default    -> arms
-#   B2 base is a topic branch                      -> does not arm, exits 0
-#   B3 base is a topic branch, already armed       -> stays armed (only hold
-#      disarms)
+#   B2 base is a topic branch                      -> adds hold, disarms
+#   B3 base is a topic branch, already armed       -> adds hold, disarms
+#      (migration of an armed PR)
 #   B4 default branch unknown (empty payload field) -> does not arm
 #   R1 armed, retargeted to a topic branch (edited) -> adds hold, disarms
 #   R2 edited, title or body only                 -> no gh call at all
@@ -108,12 +108,12 @@ if [ "$RC" = 0 ] && [ "$ARMED" = 1 ] && [[ "$LOG" == *"--auto --rebase"* ]]; the
   ok "B: no hold, not draft, default base arms"; else bad "B: arm (rc=$RC log=[$LOG])"; fi
 
 run_case '{"isDraft":false,"labels":[],"baseRefName":"topic/x"}'
-if [ "$RC" = 0 ] && [ "$ARMED" = 0 ] && [ -z "$LOG" ]; then
-  ok "B2: topic base does not arm"; else bad "B2: topic base (rc=$RC armed=$ARMED log=[$LOG])"; fi
+if [ "$RC" = 0 ] && [ "$ARMED" = 0 ] && [[ "$LOG" == *"repos/example/repo/issues/1/labels"* ]] && [[ "$LOG" == *"--disable-auto"* ]] && [[ "$LOG" != *"--auto --rebase"* ]]; then
+  ok "B2: topic base adds hold and disarms"; else bad "B2: topic base (rc=$RC armed=$ARMED log=[$LOG])"; fi
 
 START_ARMED=1 run_case '{"isDraft":false,"labels":[],"baseRefName":"topic/x"}'
-if [ "$RC" = 0 ] && [ "$ARMED" = 1 ] && [ -z "$LOG" ]; then
-  ok "B3: armed topic-base PR is left as it is"; else bad "B3: armed topic base (rc=$RC armed=$ARMED log=[$LOG])"; fi
+if [ "$RC" = 0 ] && [ "$ARMED" = 0 ] && [[ "$LOG" == *"repos/example/repo/issues/1/labels"* ]] && [[ "$LOG" == *"--disable-auto"* ]] && [[ "$LOG" != *"--auto --rebase"* ]]; then
+  ok "B3: armed topic-base PR is disarmed via the hold path"; else bad "B3: armed topic base (rc=$RC armed=$ARMED log=[$LOG])"; fi
 
 DEFAULT="" run_case '{"isDraft":false,"labels":[],"baseRefName":"main"}'
 if [ "$RC" = 0 ] && [ "$ARMED" = 0 ] && [ -z "$LOG" ]; then
