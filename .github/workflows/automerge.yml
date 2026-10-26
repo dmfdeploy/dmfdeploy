@@ -1,7 +1,7 @@
 name: automerge
 on:
   pull_request_target:
-    types: [opened, reopened, ready_for_review, labeled, unlabeled]
+    types: [opened, reopened, ready_for_review, labeled, unlabeled, edited]
 permissions:
   contents: write
   pull-requests: write
@@ -24,8 +24,18 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_URL: ${{ github.event.pull_request.html_url }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          EVENT_ACTION: ${{ github.event.action }}
+          BASE_CHANGED: ${{ github.event.changes.base != null }}
         run: |
           set -eu
+          # `edited` is here only to catch a base change. A title or body edit
+          # leaves the PR as it was.
+          if [ "${EVENT_ACTION}" = "edited" ] && [ "${BASE_CHANGED}" != "true" ]; then
+            echo "edit did not change the base — nothing to do"
+            exit 0
+          fi
           # Decide from the PR's labels and draft state as they are now, not
           # from the event payload, which is a snapshot: `gh pr create --label`
           # fires `opened` without the label, and a late `opened` run would
@@ -40,9 +50,27 @@ jobs:
           labels=$(jq -r '[.labels[].name] | join(" ")' <<<"${pr}")
           draft=$(jq -r '.isDraft' <<<"${pr}")
           base=$(jq -r '.baseRefName' <<<"${pr}")
+          # A PR armed while it targeted the default branch stays armed when
+          # someone retargets it, and no ruleset gates the new base. So a
+          # retarget off the default branch applies hold, and this run takes
+          # the hold path itself: a label added with this job's token starts no
+          # new workflow run. Retargeting back never removes hold; a person does.
+          # If the label write fails, still disarm, then fail the run so the
+          # missing label shows.
+          label_rc=0
+          if [ "${EVENT_ACTION}" = "edited" ] \
+             && { [ -z "${DEFAULT_BRANCH}" ] || [ "${base}" != "${DEFAULT_BRANCH}" ]; }; then
+            gh api -X POST "repos/${REPO}/issues/${PR_NUMBER}/labels" \
+              -f "labels[]=hold" >/dev/null || label_rc=$?
+            labels="${labels} hold"
+          fi
           case " ${labels} " in *" hold "*)
             gh pr merge --disable-auto "${PR_URL}" || true
             echo "hold label present — auto-merge disarmed"
+            if [ "${label_rc}" != 0 ]; then
+              echo "::error::retargeted to '${base}' — could not add the hold label"
+              exit 1
+            fi
             exit 0 ;;
           esac
           if [ "${draft}" = "true" ]; then
