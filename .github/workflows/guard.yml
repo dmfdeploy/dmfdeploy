@@ -1,5 +1,9 @@
 name: guard
 on:
+  # Transitional coverage: main still requires these check contexts while this
+  # trusted pull_request_target workflow is waiting to be merged.
+  pull_request:
+    branches: [main]
   pull_request_target:
     types: [opened, reopened, synchronize, ready_for_review, labeled, unlabeled]
   push:
