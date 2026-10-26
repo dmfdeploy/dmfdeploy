@@ -3,9 +3,10 @@
 #
 # The canonical copy of the agent-context working-model block lives at
 # docs/templates/working-model-block.md (between the WORKING-MODEL-BLOCK
-# markers). Every CLAUDE.md / AGENTS.md / QWEN.md across the 9 repos carries a
-# byte-identical copy. This script extracts each copy and diffs it against the
-# template, so 27 hand-pasted copies cannot drift (umbrella issue #32).
+# markers). Every CLAUDE.md and AGENTS.md, plus each component-repo QWEN.md,
+# carries a byte-identical copy. This script extracts each copy and diffs it
+# against the template, so the hand-pasted copies cannot drift (umbrella issue
+# #32).
 #
 # Usage:
 #   bin/check-working-model-sync.sh                  # umbrella strict; siblings checked if present
