@@ -98,12 +98,20 @@ if [[ -z "${GHCR_TOKEN:-}" ]]; then
 fi
 
 _CHART_TMPDIR="$(mktemp -d)"
+# The EXIT trap also fires after a handled signal, so cleanup must be safe to
+# run twice: guard the variable and clear the traps before removing anything.
 cleanup() {
-  rm -rf "${_CHART_TMPDIR}"
+  trap - EXIT INT TERM
+  if [[ -n "${_CHART_TMPDIR:-}" ]]; then
+    rm -rf "${_CHART_TMPDIR}"
+  fi
   unset HELM_REGISTRY_CONFIG
   unset _CHART_TMPDIR
 }
-trap cleanup EXIT INT TERM
+# A handled signal must stop the script, not resume it after cleanup.
+trap cleanup EXIT
+trap 'cleanup; exit 130' INT
+trap 'cleanup; exit 143' TERM
 
 export HELM_REGISTRY_CONFIG="${_CHART_TMPDIR}/registry.json"
 
