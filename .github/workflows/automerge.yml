@@ -58,21 +58,25 @@ jobs:
           # If the label write fails, still disarm, then fail the run so the
           # missing label shows.
           label_rc=0
-          if [ "${EVENT_ACTION}" = "edited" ] \
-             && { [ -z "${DEFAULT_BRANCH}" ] || [ "${base}" != "${DEFAULT_BRANCH}" ]; }; then
+          add_hold() {
             gh api -X POST "repos/${REPO}/issues/${PR_NUMBER}/labels" \
               -f "labels[]=hold" >/dev/null || label_rc=$?
-            labels="${labels} hold"
-          fi
-          case " ${labels} " in *" hold "*)
+          }
+          hold_path() {
             gh pr merge --disable-auto "${PR_URL}" || true
             echo "hold label present — auto-merge disarmed"
             if [ "${label_rc}" != 0 ]; then
               echo "::error::retargeted to '${base}' — could not add the hold label"
               exit 1
             fi
-            exit 0 ;;
-          esac
+            exit 0
+          }
+          if [ "${EVENT_ACTION}" = "edited" ] \
+             && { [ -z "${DEFAULT_BRANCH}" ] || [ "${base}" != "${DEFAULT_BRANCH}" ]; }; then
+            add_hold
+            labels="${labels} hold"
+          fi
+          case " ${labels} " in *" hold "*) hold_path ;; esac
           if [ "${draft}" = "true" ]; then
             echo "draft PR — skipping"
             exit 0
@@ -87,4 +91,15 @@ jobs:
             exit 0
           fi
           gh pr merge --auto --rebase "${PR_URL}"
+          # A retarget between the read above and the arm can leave this PR
+          # armed on an unprotected base, and the edited run that would hold it
+          # may be waiting behind this one. Re-read the base; if it moved, hold.
+          # A failed re-read counts as a moved base, so it holds too; the
+          # runner's pipefail would otherwise end the job before the hold.
+          base=$(gh pr view "${PR_URL}" --json baseRefName | jq -r '.baseRefName // ""') || base=
+          if [ "${base}" != "${DEFAULT_BRANCH}" ]; then
+            echo "base is now '${base}', not '${DEFAULT_BRANCH}' — applying hold"
+            add_hold
+            hold_path
+          fi
           echo "auto-merge (rebase) armed — merges when approval + required checks are satisfied"

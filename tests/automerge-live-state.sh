@@ -19,6 +19,9 @@
 #   R4 retargeted to a topic branch, label write fails -> still disarms, exits
 #      non-zero
 #   R5 no hold, retargeted back to the default branch -> arms (the normal rule)
+#   R6 base reads the default branch before arming and a topic branch after
+#      (retargeted mid-run)                        -> arms, then adds hold, disarms
+#   R7 the read after arming fails                 -> adds hold, disarms
 #   C  live draft                                  -> skips
 #   D  API read fails                              -> does not arm, exits non-zero
 #   E  isDraft null or missing, labels not an array, base branch missing, empty
@@ -48,7 +51,16 @@ awk '/^        run: \|$/ {on=1; next} on { if (/^          /) {sub(/^          /
 cat > "$WORK/bin/gh" <<'F'
 #!/usr/bin/env bash
 case "$1 $2" in
-  "pr view") [ -n "${FAKE_VIEW_FAIL:-}" ] && exit 1; printf '%s\n' "$FAKE_VIEW_JSON" ;;
+  "pr view") [ -n "${FAKE_VIEW_FAIL:-}" ] && exit 1
+    # Reads after the first fail when $FAKE_VIEW_FAIL_AFTER is set, and get
+    # $FAKE_VIEW_AFTER when that is set.
+    [ -n "${FAKE_VIEW_FAIL_AFTER:-}" ] && [ -e "$FAKE_VIEWED" ] && exit 1
+    if [ -n "${FAKE_VIEW_AFTER:-}" ] && [ -e "$FAKE_VIEWED" ]; then
+      printf '%s\n' "$FAKE_VIEW_AFTER"
+    else
+      printf '%s\n' "$FAKE_VIEW_JSON"
+    fi
+    : > "$FAKE_VIEWED" ;;
   "pr merge") echo "$*" >> "$FAKE_LOG"
     case " $* " in
       *" --disable-auto "*) echo 0 > "$FAKE_ARMED" ;;
@@ -64,15 +76,20 @@ chmod +x "$WORK/bin/gh"
 # "no hold, not draft" every time: only the live read may change the outcome.
 # START_ARMED=1 starts the case armed. DEFAULT is the payload's default branch.
 # ACTION and BASE_MOVED stand in for the event action and whether the payload
-# records a base change; LABEL_FAIL=1 makes the label write fail.
+# records a base change; LABEL_FAIL=1 makes the label write fail. VIEW_AFTER
+# is the reply to every read after the first; VIEW_FAIL_AFTER=1 fails them.
+# The step runs under the runner's default bash flags (-eo pipefail), so a
+# failing pipeline behaves here as it does in Actions.
 run_case() {
-  : > "$WORK/log"; echo "${START_ARMED:-0}" > "$WORK/armed"
+  : > "$WORK/log"; echo "${START_ARMED:-0}" > "$WORK/armed"; rm -f "$WORK/viewed"
   FAKE_LOG="$WORK/log" FAKE_ARMED="$WORK/armed" FAKE_VIEW_JSON="$1" \
+  FAKE_VIEWED="$WORK/viewed" FAKE_VIEW_AFTER="${VIEW_AFTER:-}" \
+  FAKE_VIEW_FAIL_AFTER="${VIEW_FAIL_AFTER:-}" \
   FAKE_VIEW_FAIL="${2:+x}" FAKE_LABEL_FAIL="${LABEL_FAIL:-}" PATH="$WORK/bin:$PATH" \
   PR_URL="https://example.test/pr/1" DEFAULT_BRANCH="${DEFAULT-main}" \
   REPO="example/repo" PR_NUMBER="1" EVENT_ACTION="${ACTION:-labeled}" \
   BASE_CHANGED="${BASE_MOVED:-false}" \
-  PR_LABELS="" PR_DRAFT="false" bash "$WORK/step.sh" > "$WORK/out" 2>&1
+  PR_LABELS="" PR_DRAFT="false" bash --noprofile --norc -eo pipefail "$WORK/step.sh" > "$WORK/out" 2>&1
   RC=$?; LOG="$(cat "$WORK/log")"; ARMED="$(cat "$WORK/armed")"
 }
 
@@ -131,6 +148,17 @@ ACTION=edited BASE_MOVED=true run_case '{"isDraft":false,"labels":[],"baseRefNam
 if [ "$RC" = 0 ] && [ "$ARMED" = 1 ] && [[ "$LOG" != *"api"* ]]; then
   ok "R5: unheld PR retargeted back to the default branch arms"
 else bad "R5: retarget back without hold (rc=$RC armed=$ARMED log=[$LOG])"; fi
+
+VIEW_AFTER='{"isDraft":false,"labels":[],"baseRefName":"topic/x"}' \
+  run_case '{"isDraft":false,"labels":[],"baseRefName":"main"}'
+if [ "$RC" = 0 ] && [ "$ARMED" = 0 ] && [[ "$LOG" == *"--auto --rebase"*"$LABEL_ADD"*"--disable-auto"* ]]; then
+  ok "R6: retargeted while arming gets hold and is disarmed"
+else bad "R6: retarget mid-run (rc=$RC armed=$ARMED log=[$LOG])"; fi
+
+VIEW_FAIL_AFTER=1 run_case '{"isDraft":false,"labels":[],"baseRefName":"main"}'
+if [ "$RC" = 0 ] && [ "$ARMED" = 0 ] && [[ "$LOG" == *"--auto --rebase"*"$LABEL_ADD"*"--disable-auto"* ]]; then
+  ok "R7: a failed read after arming gets hold and is disarmed"
+else bad "R7: re-read fails (rc=$RC armed=$ARMED log=[$LOG])"; fi
 
 run_case '{"isDraft":true,"labels":[],"baseRefName":"main"}'
 if [ "$RC" = 0 ] && [ -z "$LOG" ]; then
