@@ -8,16 +8,21 @@ permissions:
 jobs:
   dco:
     runs-on: ubuntu-24.04
-    # dependabot[bot] cannot sign off commits; its commits are reviewed as a
-    # group (the workflow change that enables it) before Dependabot PRs merge.
-    if: github.actor != 'dependabot[bot]'
     steps:
       - name: Verify Signed-off-by on every commit
         env:
           GH_TOKEN: ${{ github.token }}
           COMMITS_URL: ${{ github.event.pull_request.commits_url }}
+          ACTOR: ${{ github.actor }}
         run: |
           set -eu
+          # dependabot[bot] cannot sign off commits, so its PRs are exempt. The
+          # job still ends in success: a skipped job is not a passed check, and
+          # a merge queue that requires every check to succeed would stall.
+          if [ "$ACTOR" = "dependabot[bot]" ]; then
+            echo "Dependabot commits are exempt from the sign-off check."
+            exit 0
+          fi
           missing=0
           # Page through the PR commits and check each message for the trailer.
           page=1
