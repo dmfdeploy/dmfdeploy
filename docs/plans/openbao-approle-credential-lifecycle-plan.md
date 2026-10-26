@@ -128,17 +128,20 @@ runs with a Kubernetes Lease and follows this order:
 3. Atomically update every declared authoritative consumer destination. Do not
    make a local break-glass file the sole or current runtime copy.
 4. Restart or reconcile the consumer only where its target contract requires
-   it, then wait for its readiness and an authenticated healthy state.
+   it, then wait for its readiness and transaction-specific acceptance at every
+   declared destination. The acceptance check reads the transaction id/version
+   stamped with the replacement; a generic healthy consumer is insufficient.
 5. Mark the metadata record `active` with a successful timestamp, then destroy
    the previous accessor. A failed consumer check leaves the previous accessor
    valid and reports failure; it never destroys the only known-good credential.
 
 The transaction is idempotent and records a state that lets the next scheduled
 run reconcile an interrupted delivery. For a pending transaction, the next run
-checks the declared consumer before minting anything: it promotes the recorded
-replacement if the consumer is healthy, otherwise destroys that recorded
-replacement, keeps the prior accessor, marks the attempt failed, and retries
-only on the next due run. It must not issue an unbounded series of new
+checks the transaction id/version at every declared destination before minting
+anything: it promotes the recorded replacement only when every consumer
+acknowledges that version. Otherwise it destroys that recorded replacement,
+keeps the prior accessor, marks the attempt failed, and retries only on the
+next due run. It must not issue an unbounded series of new
 SecretIDs. The legacy ESO-only playbook and the workstation helper are
 either made thin callers of this contract or retired with a documented
 break-glass-only recovery path; they must not remain competing rotation paths.
