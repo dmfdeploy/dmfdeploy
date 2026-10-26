@@ -69,6 +69,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 
 | Script | Description |
 |---|---|
+| `dmf-cms/bin/check-review-comments.sh` | fail when a comment records review history. |
 | `dmf-cms/bin/install-hooks.sh` | point this clone's git at .githooks/. |
 | `dmf-cms/bin/working-model-digest.sh` | print the DMF working-model digest for session context. |
 
@@ -105,8 +106,10 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `dmf-env/bin/b2-buckets.sh` | create and configure Backblaze B2 buckets for a DMF env. |
 | `dmf-env/bin/bootstrap-operator-approle.sh` | workstation-side wrapper. |
 | `dmf-env/bin/bootstrap-secrets.sh` | manage pre-Bao bootstrap secrets for dmfdeploy platform. |
+| `dmf-env/bin/check-review-comments.sh` | fail when a comment records review history. |
 | `dmf-env/bin/cluster-bootstrap-operator-approle.sh` | cluster-bootstrap-operator-approle.sh |
 | `dmf-env/bin/cluster-rotate-approle-secret-id.sh` | cluster-rotate-approle-secret-id.sh |
+| `dmf-env/bin/enroll-ssh-key.sh` | enroll the env's SSH key on a bring-your-own sandbox node and gate on key-only login before the first playbook run. |
 | `dmf-env/bin/export-openbao-vars.sh` | generate a temp vars file for ansible-playbook. |
 | `dmf-env/bin/get-admin-cred.sh` | retrieve an app's admin credential from OpenBao via the operator userpass path (Phase 5 of the Authentik baseline plan). |
 | `dmf-env/bin/get-passkey-enrollment-url.sh` | retrieve the DMF passkey enrollment URL and the operator's confirmed-passkey count. |
