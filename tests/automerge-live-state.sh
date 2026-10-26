@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # automerge-live-state.sh — regressions for automerge.yml deciding from the
 # PR's live labels, draft state and base branch, not the event payload
-# (umbrella #439), and arming only PRs into the default branch (umbrella #544).
+# (umbrella #439), arming only PRs into the default branch, and applying hold
+# when a PR is retargeted off it (umbrella #544).
 #
 # Extracts the step's `run:` script and runs it with a fake `gh` on PATH.
 #
@@ -12,6 +13,12 @@
 #   B3 base is a topic branch, already armed       -> stays armed (only hold
 #      disarms)
 #   B4 default branch unknown (empty payload field) -> does not arm
+#   R1 armed, retargeted to a topic branch (edited) -> adds hold, disarms
+#   R2 edited, title or body only                 -> no gh call at all
+#   R3 held, retargeted back to the default branch -> hold kept, disarms, no arm
+#   R4 retargeted to a topic branch, label write fails -> still disarms, exits
+#      non-zero
+#   R5 no hold, retargeted back to the default branch -> arms (the normal rule)
 #   C  live draft                                  -> skips
 #   D  API read fails                              -> does not arm, exits non-zero
 #   E  isDraft null or missing, labels not an array, base branch missing, empty
@@ -47,6 +54,7 @@ case "$1 $2" in
       *" --disable-auto "*) echo 0 > "$FAKE_ARMED" ;;
       *" --auto "*) echo 1 > "$FAKE_ARMED" ;;
     esac ;;
+  "api -X") echo "$*" >> "$FAKE_LOG"; [ -z "${FAKE_LABEL_FAIL:-}" ] ;;
   *) echo "unexpected: $*" >> "$FAKE_LOG"; exit 1 ;;
 esac
 F
@@ -55,11 +63,15 @@ chmod +x "$WORK/bin/gh"
 # run_case <live-json> [fail]; sets RC, LOG and ARMED. The payload env says
 # "no hold, not draft" every time: only the live read may change the outcome.
 # START_ARMED=1 starts the case armed. DEFAULT is the payload's default branch.
+# ACTION and BASE_MOVED stand in for the event action and whether the payload
+# records a base change; LABEL_FAIL=1 makes the label write fail.
 run_case() {
   : > "$WORK/log"; echo "${START_ARMED:-0}" > "$WORK/armed"
   FAKE_LOG="$WORK/log" FAKE_ARMED="$WORK/armed" FAKE_VIEW_JSON="$1" \
-  FAKE_VIEW_FAIL="${2:+x}" PATH="$WORK/bin:$PATH" \
+  FAKE_VIEW_FAIL="${2:+x}" FAKE_LABEL_FAIL="${LABEL_FAIL:-}" PATH="$WORK/bin:$PATH" \
   PR_URL="https://example.test/pr/1" DEFAULT_BRANCH="${DEFAULT-main}" \
+  REPO="example/repo" PR_NUMBER="1" EVENT_ACTION="${ACTION:-labeled}" \
+  BASE_CHANGED="${BASE_MOVED:-false}" \
   PR_LABELS="" PR_DRAFT="false" bash "$WORK/step.sh" > "$WORK/out" 2>&1
   RC=$?; LOG="$(cat "$WORK/log")"; ARMED="$(cat "$WORK/armed")"
 }
@@ -89,6 +101,36 @@ if [ "$RC" = 0 ] && [ "$ARMED" = 1 ] && [ -z "$LOG" ]; then
 DEFAULT="" run_case '{"isDraft":false,"labels":[],"baseRefName":"main"}'
 if [ "$RC" = 0 ] && [ "$ARMED" = 0 ] && [ -z "$LOG" ]; then
   ok "B4: unknown default branch does not arm"; else bad "B4: no default (rc=$RC log=[$LOG])"; fi
+
+LABEL_ADD="api -X POST repos/example/repo/issues/1/labels -f labels[]=hold"
+
+START_ARMED=1 ACTION=edited BASE_MOVED=true run_case '{"isDraft":false,"labels":[],"baseRefName":"topic/x"}'
+if [ "$RC" = 0 ] && [ "$ARMED" = 0 ] && [[ "$LOG" == *"$LABEL_ADD"* ]] && [[ "$LOG" == *"--disable-auto"* ]] \
+   && [[ "$LOG" != *"--auto --rebase"* ]]; then
+  ok "R1: armed PR retargeted to a topic branch gets hold and is disarmed"
+else bad "R1: retarget to topic (rc=$RC armed=$ARMED log=[$LOG])"; fi
+
+for json in '{"isDraft":false,"labels":[],"baseRefName":"topic/x"}' '{"isDraft":false,"labels":[],"baseRefName":"main"}'; do
+  START_ARMED=1 ACTION=edited BASE_MOVED=false run_case "$json"
+  if [ "$RC" = 0 ] && [ "$ARMED" = 1 ] && [ -z "$LOG" ]; then
+    ok "R2: title-only edit changes nothing ($json)"; else bad "R2: title edit $json (rc=$RC armed=$ARMED log=[$LOG])"; fi
+done
+
+START_ARMED=1 ACTION=edited BASE_MOVED=true run_case '{"isDraft":false,"labels":[{"name":"hold"}],"baseRefName":"main"}'
+if [ "$RC" = 0 ] && [ "$ARMED" = 0 ] && [[ "$LOG" == *"--disable-auto"* ]] && [[ "$LOG" != *"api"* ]] \
+   && [[ "$LOG" != *"--auto --rebase"* ]]; then
+  ok "R3: retarget back to the default branch keeps hold and does not arm"
+else bad "R3: retarget back with hold (rc=$RC armed=$ARMED log=[$LOG])"; fi
+
+START_ARMED=1 LABEL_FAIL=1 ACTION=edited BASE_MOVED=true run_case '{"isDraft":false,"labels":[],"baseRefName":"topic/x"}'
+if [ "$RC" != 0 ] && [ "$ARMED" = 0 ] && [[ "$LOG" != *"--auto --rebase"* ]]; then
+  ok "R4: failed label write on retarget still disarms and exits non-zero"
+else bad "R4: label write fails (rc=$RC armed=$ARMED log=[$LOG])"; fi
+
+ACTION=edited BASE_MOVED=true run_case '{"isDraft":false,"labels":[],"baseRefName":"main"}'
+if [ "$RC" = 0 ] && [ "$ARMED" = 1 ] && [[ "$LOG" != *"api"* ]]; then
+  ok "R5: unheld PR retargeted back to the default branch arms"
+else bad "R5: retarget back without hold (rc=$RC armed=$ARMED log=[$LOG])"; fi
 
 run_case '{"isDraft":true,"labels":[],"baseRefName":"main"}'
 if [ "$RC" = 0 ] && [ -z "$LOG" ]; then
