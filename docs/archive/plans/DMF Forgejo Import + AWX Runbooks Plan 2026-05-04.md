@@ -438,7 +438,7 @@ ask these before starting execution.
 
 - [DMF Forgejo Repo Hosting and Migration Plan.md](./DMF%20Forgejo%20Repo%20Hosting%20and%20Migration%20Plan.md) — original Forgejo migration plan
 - [CLAUDE.md](../../../CLAUDE.md) — umbrella boot ritual, secrets discipline
-- [QWEN.md](../../../QWEN.md) — Qwen-specific working rules
+- `QWEN.md` — historical Qwen-specific working rules
 - [ADR-0006](../../decisions/INDEX.md) — cluster is the truth, not local kubectl
 - [ADR-0007](../../decisions/INDEX.md) — secrets never in argv/env/tmp/AI transcripts
 - [dmf-cluster-access skill](../../../.claude/skills/dmf-cluster-access/SKILL.md) — cluster operations
