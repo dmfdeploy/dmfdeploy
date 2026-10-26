@@ -164,6 +164,42 @@ def exact_run(rel, what, step, expected):
           f"run is {got!r}, expected {expected!r}")
 
 
+def uses_problem(got, want):
+    """Why a 'uses' value differs from its pin, or None if the change is fine.
+
+    Dependabot bumps the pinned SHA of an action. For 'uses', the check keeps
+    what matters: the same action, pinned to a full commit SHA. Local
+    ('./') and 'docker://' references stay an exact comparison.
+    """
+    if got == want:
+        return None
+    if (not isinstance(got, str) or not isinstance(want, str)
+            or want.startswith(("./", "docker://"))):
+        return "uses changed"
+    g_action, _, g_ref = got.partition("@")
+    w_action = want.partition("@")[0]
+    if g_action != w_action:
+        return f"uses: action changed ({g_action!r}, expected {w_action!r})"
+    if not re.fullmatch(r"[0-9a-f]{40}", g_ref):
+        return f"uses: ref {g_ref!r} is not a full 40-character commit SHA"
+    return None
+
+
+def changed_values(got, want):
+    """Keys whose value differs, plus a note on which part of 'uses' failed."""
+    changed, notes = [], []
+    for k in want:
+        if k not in got or got[k] == want[k]:
+            continue
+        if k == "uses":
+            problem = uses_problem(got[k], want[k])
+            if problem is None:
+                continue
+            notes.append(problem)
+        changed.append(k)
+    return changed, notes
+
+
 def pin_step(rel, steps, name, expected):
     """A guarded step equals its expected mapping: no extra key, no changed value."""
     hit = [s for s in steps if s.get("name") == name]
@@ -174,10 +210,12 @@ def pin_step(rel, steps, name, expected):
     got = hit[0]
     extra = sorted(set(got) - set(expected))
     missing = sorted(set(expected) - set(got))
-    changed = sorted(k for k in expected if k in got and got[k] != expected[k])
+    changed, notes = changed_values(got, expected)
+    changed = sorted(changed)
     check(not (extra or missing or changed),
           f"{rel}: step {name!r} matches its pinned mapping",
-          f"extra keys {extra}, missing keys {missing}, changed values {changed}. "
+          f"extra keys {extra}, missing keys {missing}, changed values {changed} "
+          f"{notes}. "
           "This test guards against an accidental or unreviewed change to how a "
           "hygiene check runs. If the change is deliberate, update "
           "tests/hygiene-modes.sh in the same PR")
@@ -200,11 +238,12 @@ def pin_all_steps(rel, job, steps, expected):
         label = got.get("name") or got.get("uses") or "(unnamed)"
         extra = sorted(set(got) - set(want))
         missing = sorted(set(want) - set(got))
-        changed = sorted(k for k in want if k in got and got[k] != want[k])
+        changed, notes = changed_values(got, want)
+        changed = sorted(changed)
         check(not (extra or missing or changed),
               f"{rel}: {job} step {i} ({label}) matches its pinned mapping",
               f"extra keys {extra}, missing keys {missing}, changed values "
-              f"{changed}. {hint}")
+              f"{changed} {notes}. {hint}")
 
 
 def pin_job(rel, doc, job, expected, top_keys):
@@ -819,6 +858,8 @@ def diff_paths(exp, act, path=""):
             a = act[i] if i < len(act) else MISSING
             yield from diff_paths(e, a, f"{path}[{i}]")
     elif exp != act or type(exp) is not type(act):
+        if path.endswith(".uses") and uses_problem(act, exp) is None:
+            return
         yield path, exp, act
 
 
