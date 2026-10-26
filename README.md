@@ -25,10 +25,10 @@ of what it shows, is on the [organization page](https://github.com/dmfdeploy).
 ## Purpose
 
 dmfdeploy stays an independent, open prototype of a Dynamic Media Facility.
-It earns trust by proving its claims with conformance checks against
-published specifications and by sharing what it learns upstream as evidence.
-It does not call itself a reference; only a standards body can name one.
-Any change of direction goes through a
+It earns trust by checking its claims against published specifications with
+conformance tests, and by sharing what it learns upstream as evidence. It aims
+to be an independent implementation that others can compare against those
+specifications. Any change of direction goes through a
 [Discussions RFC](docs/decisions/README.md) first.
 
 ## Start here
