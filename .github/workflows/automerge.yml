@@ -50,15 +50,17 @@ jobs:
           labels=$(jq -r '[.labels[].name] | join(" ")' <<<"${pr}")
           draft=$(jq -r '.isDraft' <<<"${pr}")
           base=$(jq -r '.baseRefName' <<<"${pr}")
-          # A PR armed while it targeted the default branch stays armed when
-          # someone retargets it, and no ruleset gates the new base. So a
-          # retarget off the default branch applies hold, and this run takes
-          # the hold path itself: a label added with this job's token starts no
-          # new workflow run. Retargeting back never removes hold; a person does.
-          # If the label write fails, still disarm, then fail the run so the
-          # missing label shows.
+          # Only the default branch carries the ruleset that requires an
+          # approving review and blocks merges while changes are requested.
+          # Any other live base is ungated, so every non-default live base
+          # takes the hold path: it adds `hold` and disarms. This also
+          # migrates a PR armed by an earlier run while its base was still
+          # the default branch — once retargeted, it is disarmed here rather
+          # than left armed on an unprotected base. If the label write fails,
+          # still disarm, then fail the run so the missing label shows.
           label_rc=0
           add_hold() {
+            case " ${labels} " in *" hold "*) return 0 ;; esac
             gh api -X POST "repos/${REPO}/issues/${PR_NUMBER}/labels" \
               -f "labels[]=hold" >/dev/null || label_rc=$?
           }
@@ -66,17 +68,16 @@ jobs:
             gh pr merge --disable-auto "${PR_URL}" || true
             echo "hold label present — auto-merge disarmed"
             if [ "${label_rc}" != 0 ]; then
-              echo "::error::retargeted to '${base}' — could not add the hold label"
+              echo "::error::could not add the hold label on '${base}'"
               exit 1
             fi
             exit 0
           }
-          if [ "${EVENT_ACTION}" = "edited" ] \
-             && { [ -z "${DEFAULT_BRANCH}" ] || [ "${base}" != "${DEFAULT_BRANCH}" ]; }; then
+          if [ -n "${DEFAULT_BRANCH}" ] && [ "${base}" != "${DEFAULT_BRANCH}" ]; then
             add_hold
-            labels="${labels} hold"
+            hold_path
           fi
-          case " ${labels} " in *" hold "*) hold_path ;; esac
+          case " ${labels} " in *" hold "*) add_hold; hold_path ;; esac
           if [ "${draft}" = "true" ]; then
             echo "draft PR — skipping"
             exit 0
@@ -84,10 +85,9 @@ jobs:
           # Only the default branch has a ruleset that requires an approving
           # review and blocks on changes requested. Armed auto-merge into any
           # other branch would merge with no review at all, so those PRs are
-          # merged by hand. Not arming is all this does: an already-armed PR
-          # stays armed, because only the hold path disarms.
-          if [ -z "${DEFAULT_BRANCH}" ] || [ "${base}" != "${DEFAULT_BRANCH}" ]; then
-            echo "base '${base}' is not the default branch '${DEFAULT_BRANCH}' — not arming; merge by hand"
+          # merged by hand.
+          if [ -z "${DEFAULT_BRANCH}" ]; then
+            echo "default branch unknown — not arming; merge by hand"
             exit 0
           fi
           gh pr merge --auto --rebase "${PR_URL}"
