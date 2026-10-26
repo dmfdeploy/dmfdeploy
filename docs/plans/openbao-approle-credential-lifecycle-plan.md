@@ -122,18 +122,24 @@ runs with a Kubernetes Lease and follows this order:
 1. Read the target's metadata and current consumer state without logging a
    credential. Refuse unknown, incomplete, or expired-without-recovery-state
    targets.
-2. Mint one replacement SecretID and retain its accessor in process memory.
+2. Mint one replacement SecretID and immediately persist a non-secret
+   `issued-pending-delivery` metadata record with its accessor, the prior
+   accessor, and a transaction id.
 3. Atomically update every declared authoritative consumer destination. Do not
    make a local break-glass file the sole or current runtime copy.
 4. Restart or reconcile the consumer only where its target contract requires
    it, then wait for its readiness and an authenticated healthy state.
-5. Persist the replacement metadata and a successful timestamp, then destroy
+5. Mark the metadata record `active` with a successful timestamp, then destroy
    the previous accessor. A failed consumer check leaves the previous accessor
    valid and reports failure; it never destroys the only known-good credential.
 
 The transaction is idempotent and records a state that lets the next scheduled
-run reconcile an interrupted delivery. It must not issue an unbounded series
-of new SecretIDs. The legacy ESO-only playbook and the workstation helper are
+run reconcile an interrupted delivery. For a pending transaction, the next run
+checks the declared consumer before minting anything: it promotes the recorded
+replacement if the consumer is healthy, otherwise destroys that recorded
+replacement, keeps the prior accessor, marks the attempt failed, and retries
+only on the next due run. It must not issue an unbounded series of new
+SecretIDs. The legacy ESO-only playbook and the workstation helper are
 either made thin callers of this contract or retired with a documented
 break-glass-only recovery path; they must not remain competing rotation paths.
 
@@ -202,12 +208,14 @@ break-glass-only recovery path; they must not remain competing rotation paths.
    30-day roles and yearly object-storage roles appear in the runbook and rule
    tests. The alert annotation names the target and runbook, never a secret.
 
-8. **Schedule the playbook.** The scheduler contract is one daily, non-
-   overlapping invocation of the registry sweep. It rotates a target at the
+8. **Schedule the playbook.** The initial adapter is an AWX scheduled Job
+   Template backed by a dedicated rotation Container Group and its scoped
+   Kubernetes service account. It invokes the registry sweep once daily with
+   AWX concurrency set to one; the playbook Lease remains the second,
+   backend-independent no-overlap guard. It rotates a target at the
    two-thirds threshold, giving the 30-day roles at least ten days of retry
-   window. The current backend supplies only the schedule adapter; the playbook
-   interface, registry, metrics, and rules have no AWX-specific dependency.
-   If the execution backend changes, the replacement adapter must invoke the
+   window. The playbook interface, registry, metrics, and rules have no
+   AWX-specific dependency. If the execution backend changes, the replacement adapter must invoke the
    same playbook with the same service account and retain the daily/no-overlap
    guarantee. The scheduler also records a run heartbeat so an absent scheduler
    is visible before a credential becomes due.
