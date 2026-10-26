@@ -1,10 +1,10 @@
 # DMF Working Model for GitHub and documentation rules (canonical)
 
 This is the **single canonical statement** of how work is tracked, decided,
-and documented across all DMF repos. Agent files (`CLAUDE.md` / `AGENTS.md` /
-`QWEN.md`) in every repo carry a generated pointer block; the Claude Code
-SessionStart hook injects the digest below at session start. If anything else
-contradicts this file, this file wins. Fix the other artifact.
+and documented across all DMF repos. `CLAUDE.md` and `AGENTS.md` in every repo,
+plus `QWEN.md` in component repos, carry a generated pointer block; the Claude
+Code SessionStart hook injects the digest below at session start. If anything
+else contradicts this file, this file wins. Fix the other artifact.
 
 Enforced by: `bin/check-working-model-sync.sh` (block copies can't drift),
 `bin/check-docs.sh` (plan frontmatter), the PR-gate CI (issue linkage), the
