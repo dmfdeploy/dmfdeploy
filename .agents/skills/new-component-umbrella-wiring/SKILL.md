@@ -22,7 +22,7 @@ Apply this checklist before committing the scaffold.
 | File | Array variable | What it controls |
 |---|---|---|
 | `.gitignore` | (pattern) | Excludes the new dir from the umbrella git tree |
-| `CLAUDE.md` / `QWEN.md` | prose | "N component repos" count + component table entry |
+| `AGENTS.md` | prose | "N component repos" count |
 | `bin/generate-status.sh` | `COMPONENT_REPOS` | STATUS.local.md generation (gitignored snapshot) |
 | `bin/generate-scripts-catalog.sh` | `COMPONENT_REPOS` | SCRIPTS.md generation |
 | `bin/scrub-public-repos.sh` | `PUBLIC_REPOS_DEFAULT` | Pre-publish secret/topology scan |
@@ -38,7 +38,7 @@ Apply this checklist before committing the scaffold.
 - **Private repos** (like `dmf-env`) are deliberately excluded from all
   `PUBLIC_REPOS` arrays and from `sync-to-github.sh`. They still go in
   `COMPONENT_REPOS` (generate-status, generate-scripts-catalog) and in
-  `.gitignore` + CLAUDE.md/QWEN.md.
+  `.gitignore` + `AGENTS.md`.
 - If unsure, classify as **private** until the scaffold is proven clean.
 
 ## For `sync-to-github.sh` specifically
@@ -78,5 +78,5 @@ bin/sync-to-github.sh dmf-<newrepo> --dry-run
   `PUBLIC_REPOS` = public-facing gates.
 - **Forgetting the `sync-to-github.sh` case arm** — the array alone isn't
   enough; `github_repo_name()` must resolve it.
-- **Count strings** — CLAUDE.md/QWEN.md say "N component repos"; update the
-  number to match.
+- **Count strings** — AGENTS.md says "N component repos"; update the number
+  to match.
