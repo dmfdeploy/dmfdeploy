@@ -1,20 +1,22 @@
 #!/usr/bin/env bash
 # automerge-live-state.sh — regressions for automerge.yml deciding from the
-# PR's live labels and draft state, not the event payload (umbrella #439).
+# PR's live labels, draft state and base branch, not the event payload
+# (umbrella #439), and arming only PRs into the default branch (umbrella #544).
 #
 # Extracts the step's `run:` script and runs it with a fake `gh` on PATH.
 #
 #   A  payload has no hold, live labels have hold  -> disarms, never arms
-#   B  live no hold, not draft, no changes requested -> arms
-#   B2 live changes requested                      -> does not arm, exits non-zero
+#   A2 hold on a PR into a topic branch            -> disarms, never arms
+#   B  live no hold, not draft, base is default    -> arms
+#   B2 base is a topic branch                      -> does not arm, exits 0
+#   B3 base is a topic branch, already armed       -> stays armed (only hold
+#      disarms)
+#   B4 default branch unknown (empty payload field) -> does not arm
 #   C  live draft                                  -> skips
 #   D  API read fails                              -> does not arm, exits non-zero
-#   E  isDraft null or missing, labels not an array -> neither arms nor disarms,
-#      exits non-zero (a malformed reply fails closed)
-#
-# The step makes two gh pr view calls (labels/isDraft, then reviews). The stub
-# returns FAKE_VIEW_JSON for both, so the JSON must satisfy both queries. Cases
-# A and C exit before the reviews call; only B and B2 reach it.
+#   E  isDraft null or missing, labels not an array, base branch missing, empty
+#      or not a string -> neither arms nor disarms, exits non-zero (a malformed
+#      reply fails closed)
 #
 # AUTOMERGE_YML overrides the workflow file (to run against an older copy).
 set -uo pipefail
@@ -34,41 +36,61 @@ awk '/^        run: \|$/ {on=1; next} on { if (/^          /) {sub(/^          /
   "$YML" > "$WORK/step.sh"
 [ -s "$WORK/step.sh" ] || { echo "could not extract run script from $YML" >&2; exit 2; }
 
+# The stub keeps auto-merge state in $FAKE_ARMED: "--auto" arms it and
+# "--disable-auto" clears it, so a case can start armed and check the end state.
 cat > "$WORK/bin/gh" <<'F'
 #!/usr/bin/env bash
 case "$1 $2" in
   "pr view") [ -n "${FAKE_VIEW_FAIL:-}" ] && exit 1; printf '%s\n' "$FAKE_VIEW_JSON" ;;
-  "pr merge") echo "$*" >> "$FAKE_LOG" ;;
-  *) exit 1 ;;
+  "pr merge") echo "$*" >> "$FAKE_LOG"
+    case " $* " in
+      *" --disable-auto "*) echo 0 > "$FAKE_ARMED" ;;
+      *" --auto "*) echo 1 > "$FAKE_ARMED" ;;
+    esac ;;
+  *) echo "unexpected: $*" >> "$FAKE_LOG"; exit 1 ;;
 esac
 F
 chmod +x "$WORK/bin/gh"
 
-# run_case <live-json> <fail:0|1>; sets RC and LOG. The payload env says
+# run_case <live-json> [fail]; sets RC, LOG and ARMED. The payload env says
 # "no hold, not draft" every time: only the live read may change the outcome.
+# START_ARMED=1 starts the case armed. DEFAULT is the payload's default branch.
 run_case() {
-  : > "$WORK/log"
-  FAKE_LOG="$WORK/log" FAKE_VIEW_JSON="$1" FAKE_VIEW_FAIL="${2:+x}" \
-  PATH="$WORK/bin:$PATH" PR_URL="https://example.test/pr/1" \
+  : > "$WORK/log"; echo "${START_ARMED:-0}" > "$WORK/armed"
+  FAKE_LOG="$WORK/log" FAKE_ARMED="$WORK/armed" FAKE_VIEW_JSON="$1" \
+  FAKE_VIEW_FAIL="${2:+x}" PATH="$WORK/bin:$PATH" \
+  PR_URL="https://example.test/pr/1" DEFAULT_BRANCH="${DEFAULT-main}" \
   PR_LABELS="" PR_DRAFT="false" bash "$WORK/step.sh" > "$WORK/out" 2>&1
-  RC=$?; LOG="$(cat "$WORK/log")"
+  RC=$?; LOG="$(cat "$WORK/log")"; ARMED="$(cat "$WORK/armed")"
 }
 
 echo "automerge live-state cases ($YML)"
 
-run_case '{"isDraft":false,"labels":[{"name":"hold"},{"name":"component:ci"}]}'
-if [ "$RC" = 0 ] && [[ "$LOG" == *"--disable-auto"* ]] && [[ "$LOG" != *"--auto --rebase"* ]]; then
-  ok "A: live hold disarms and does not arm"; else bad "A: live hold (rc=$RC log=[$LOG])"; fi
+START_ARMED=1 run_case '{"isDraft":false,"labels":[{"name":"hold"},{"name":"component:ci"}],"baseRefName":"main"}'
+if [ "$RC" = 0 ] && [ "$ARMED" = 0 ] && [[ "$LOG" == *"--disable-auto"* ]] && [[ "$LOG" != *"--auto --rebase"* ]]; then
+  ok "A: live hold disarms and does not arm"; else bad "A: live hold (rc=$RC armed=$ARMED log=[$LOG])"; fi
 
-run_case '{"isDraft":false,"labels":[{"name":"component:ci"}],"reviews":[]}'
-if [ "$RC" = 0 ] && [[ "$LOG" == *"--auto --rebase"* ]]; then
-  ok "B: no hold, not draft, no changes requested arms"; else bad "B: arm (rc=$RC log=[$LOG])"; fi
+START_ARMED=1 run_case '{"isDraft":false,"labels":[{"name":"hold"}],"baseRefName":"topic/x"}'
+if [ "$RC" = 0 ] && [ "$ARMED" = 0 ] && [[ "$LOG" == *"--disable-auto"* ]] && [[ "$LOG" != *"--auto --rebase"* ]]; then
+  ok "A2: hold disarms a PR into a topic branch"; else bad "A2: topic hold (rc=$RC armed=$ARMED log=[$LOG])"; fi
 
-run_case '{"isDraft":false,"labels":[],"reviews":[{"state":"CHANGES_REQUESTED","author":{"login":"reviewer1"},"submittedAt":"2026-01-01T00:00:00Z"}]}'
-if [ "$RC" != 0 ] && [[ "$LOG" != *"--auto --rebase"* ]]; then
-  ok "B2: changes requested does not arm"; else bad "B2: changes requested (rc=$RC log=[$LOG])"; fi
+run_case '{"isDraft":false,"labels":[{"name":"component:ci"}],"baseRefName":"main"}'
+if [ "$RC" = 0 ] && [ "$ARMED" = 1 ] && [[ "$LOG" == *"--auto --rebase"* ]]; then
+  ok "B: no hold, not draft, default base arms"; else bad "B: arm (rc=$RC log=[$LOG])"; fi
 
-run_case '{"isDraft":true,"labels":[]}'
+run_case '{"isDraft":false,"labels":[],"baseRefName":"topic/x"}'
+if [ "$RC" = 0 ] && [ "$ARMED" = 0 ] && [ -z "$LOG" ]; then
+  ok "B2: topic base does not arm"; else bad "B2: topic base (rc=$RC armed=$ARMED log=[$LOG])"; fi
+
+START_ARMED=1 run_case '{"isDraft":false,"labels":[],"baseRefName":"topic/x"}'
+if [ "$RC" = 0 ] && [ "$ARMED" = 1 ] && [ -z "$LOG" ]; then
+  ok "B3: armed topic-base PR is left as it is"; else bad "B3: armed topic base (rc=$RC armed=$ARMED log=[$LOG])"; fi
+
+DEFAULT="" run_case '{"isDraft":false,"labels":[],"baseRefName":"main"}'
+if [ "$RC" = 0 ] && [ "$ARMED" = 0 ] && [ -z "$LOG" ]; then
+  ok "B4: unknown default branch does not arm"; else bad "B4: no default (rc=$RC log=[$LOG])"; fi
+
+run_case '{"isDraft":true,"labels":[],"baseRefName":"main"}'
 if [ "$RC" = 0 ] && [ -z "$LOG" ]; then
   ok "C: live draft skips"; else bad "C: draft (rc=$RC log=[$LOG])"; fi
 
@@ -76,8 +98,11 @@ run_case '' 1
 if [ "$RC" != 0 ] && [[ "$LOG" != *"--auto --rebase"* ]]; then
   ok "D: failed API read does not arm"; else bad "D: read failure (rc=$RC log=[$LOG])"; fi
 
-for bad_json in '{"isDraft":null,"labels":[]}' '{"labels":[]}' \
-                '{"isDraft":false,"labels":"hold"}' '{"isDraft":false,"labels":[{"name":1}]}'; do
+for bad_json in '{"isDraft":null,"labels":[],"baseRefName":"main"}' '{"labels":[],"baseRefName":"main"}' \
+                '{"isDraft":false,"labels":"hold","baseRefName":"main"}' \
+                '{"isDraft":false,"labels":[{"name":1}],"baseRefName":"main"}' \
+                '{"isDraft":false,"labels":[]}' '{"isDraft":false,"labels":[],"baseRefName":""}' \
+                '{"isDraft":false,"labels":[],"baseRefName":null}' '{"isDraft":false,"labels":[],"baseRefName":1}'; do
   run_case "$bad_json"
   if [ "$RC" != 0 ] && [ -z "$LOG" ]; then
     ok "E: malformed reply $bad_json fails closed"; else bad "E: $bad_json (rc=$RC log=[$LOG])"; fi

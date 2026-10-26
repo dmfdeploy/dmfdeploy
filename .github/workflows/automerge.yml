@@ -15,6 +15,7 @@ jobs:
     # rebase auto-merge: the actual merge happens when (and only when) the
     # branch ruleset is satisfied — CODEOWNERS approval + every required
     # status check green. Working-model mechanism: dmfdeploy/dmfdeploy#34.
+    # That ruleset covers only the default branch, so only PRs into it arm.
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -22,6 +23,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_URL: ${{ github.event.pull_request.html_url }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
           set -eu
           # Decide from the PR's labels and draft state as they are now, not
@@ -29,12 +31,15 @@ jobs:
           # fires `opened` without the label, and a late `opened` run would
           # arm a held PR (#439). If the read fails, exit non-zero without
           # touching auto-merge, so a failed read never arms. The same holds
-          # for a reply that is not a boolean isDraft and named labels.
-          pr=$(gh pr view "${PR_URL}" --json labels,isDraft)
+          # for a reply that is not a boolean isDraft, named labels and a
+          # non-empty base branch name.
+          pr=$(gh pr view "${PR_URL}" --json labels,isDraft,baseRefName)
           jq -e '(.isDraft | type == "boolean") and (.labels | type == "array")
-            and all(.labels[]; (.name | type) == "string")' <<<"${pr}" >/dev/null
+            and all(.labels[]; (.name | type) == "string")
+            and (.baseRefName | type == "string" and length > 0)' <<<"${pr}" >/dev/null
           labels=$(jq -r '[.labels[].name] | join(" ")' <<<"${pr}")
           draft=$(jq -r '.isDraft' <<<"${pr}")
+          base=$(jq -r '.baseRefName' <<<"${pr}")
           case " ${labels} " in *" hold "*)
             gh pr merge --disable-auto "${PR_URL}" || true
             echo "hold label present — auto-merge disarmed"
@@ -44,20 +49,14 @@ jobs:
             echo "draft PR — skipping"
             exit 0
           fi
-          # Only main's ruleset enforces review state. A PR restacked onto a
-          # topic branch has no such gate, so refuse to arm while a reviewer's
-          # latest approve/request-changes decision is "changes requested".
-          # Comments neither block nor clear. A failed read exits non-zero.
-          reviews=$(gh pr view "${PR_URL}" --json reviews)
-          blockers=$(jq -er '[.reviews[]
-              | select(.state | IN("APPROVED", "CHANGES_REQUESTED", "DISMISSED"))]
-            | group_by(.author.login // "ghost")
-            | map(sort_by(.submittedAt) | last
-                | select(.state == "CHANGES_REQUESTED") | .author.login // "ghost")
-            | join(", ")' <<<"${reviews}")
-          if [ -n "${blockers}" ]; then
-            echo "::error::changes requested by ${blockers} — auto-merge not armed"
-            exit 1
+          # Only the default branch has a ruleset that requires an approving
+          # review and blocks on changes requested. Armed auto-merge into any
+          # other branch would merge with no review at all, so those PRs are
+          # merged by hand. Not arming is all this does: an already-armed PR
+          # stays armed, because only the hold path disarms.
+          if [ -z "${DEFAULT_BRANCH}" ] || [ "${base}" != "${DEFAULT_BRANCH}" ]; then
+            echo "base '${base}' is not the default branch '${DEFAULT_BRANCH}' — not arming; merge by hand"
+            exit 0
           fi
           gh pr merge --auto --rebase "${PR_URL}"
           echo "auto-merge (rebase) armed — merges when approval + required checks are satisfied"
