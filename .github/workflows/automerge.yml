@@ -65,7 +65,10 @@ jobs:
               -f "labels[]=hold" >/dev/null || label_rc=$?
           }
           hold_path() {
-            gh pr merge --disable-auto "${PR_URL}" || true
+            if ! gh pr merge --disable-auto "${PR_URL}"; then
+              echo "::error::could not disable auto-merge on '${base}'"
+              exit 1
+            fi
             echo "hold label present — auto-merge disarmed"
             if [ "${label_rc}" != 0 ]; then
               echo "::error::could not add the hold label on '${base}'"
