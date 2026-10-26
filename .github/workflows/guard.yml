@@ -1,137 +1,89 @@
 name: guard
 on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
+  pull_request_target:
+    types: [opened, reopened, ready_for_review, labeled, unlabeled]
 permissions:
   contents: read
+  pull-requests: write
 concurrency:
-  group: guard-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: guard-${{ github.event.pull_request.number }}
 jobs:
   gitleaks:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2 — full history for the PR commit range
-        with:
-          fetch-depth: 0
-          persist-credentials: false
       - name: Resolve config from BASE (never trust the PR-controlled .gitleaks.toml)
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          EVENT_ACTION: ${{ github.event.action }}
+          BASE_CHANGED: ${{ github.event.changes.base != null }}
         run: |
           set -eu
-          if [ -n "${BASE_SHA:-}" ]; then
-            # pull_request: scan with the base branch's config, not the PR's
-            git show "${BASE_SHA}:.gitleaks.toml" > /tmp/gitleaks.toml
-          else
-            # push to main: the checked-out file IS the trusted config
-            cp .gitleaks.toml /tmp/gitleaks.toml
+          # `edited` is here only to catch a base change. A title or body edit
+          # leaves the PR as it was.
+          if [ "${EVENT_ACTION}" = "edited" ] && [ "${BASE_CHANGED}" != "true" ]; then
+            echo "edit did not change the base — nothing to do"
+            exit 0
           fi
-      - name: gitleaks (pinned binary + sha256)
-        env:
-          GL_VERSION: "8.21.2"
-          GL_SHA256: "5bc41815076e6ed6ef8fbecc9d9b75bcae31f39029ceb55da08086315316e3ba"
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PUSH_BEFORE: ${{ github.event.before }}
-          PUSH_AFTER: ${{ github.event.after }}
-        run: |
-          set -eu
-          curl -fsSLo /tmp/gl.tgz "https://github.com/gitleaks/gitleaks/releases/download/v${GL_VERSION}/gitleaks_${GL_VERSION}_linux_x64.tar.gz"
-          echo "${GL_SHA256}  /tmp/gl.tgz" | sha256sum -c -
-          tar -xzf /tmp/gl.tgz -C /tmp gitleaks
-          # 1) Tree scan: the final working tree as it would land on main.
-          /tmp/gitleaks detect --source . --no-git --config /tmp/gitleaks.toml --redact --no-banner --exit-code 1
-          # 2) History scan (issue #74): every commit this PR/push introduces, so a
-          #    secret added then deleted in an intermediate commit can't slip past
-          #    the tree scan and survive in the rebase-merged history. Mirrors the
-          #    --log-opts gate already in bin/export-scan.sh. Config stays the
-          #    BASE-resolved /tmp/gitleaks.toml (never the PR-controlled file).
-          if [ -n "${BASE_SHA:-}" ] && [ -n "${HEAD_SHA:-}" ]; then
-            RANGE="${BASE_SHA}..${HEAD_SHA}"      # pull_request
-          else
-            RANGE="${PUSH_BEFORE:-}..${PUSH_AFTER:-}"  # push to main
+          # Decide from the PR's labels and draft state as they are now, not
+          # from the event payload, which is a snapshot: `gh pr create --label`
+          # fires `opened` without the label, and a late `opened` run would
+          # arm a held PR (#439). If the read fails, exit non-zero without
+          # touching auto-merge, so a failed read never arms. The same holds
+          # for a reply that is not a boolean isDraft and named labels and a
+          # non-empty base branch name.
+          pr=$(gh pr view "${PR_URL}" --json labels,isDraft,baseRefName)
+          jq -e '(.isDraft | type == "boolean") and (.labels | type == "array")
+            and all(.labels[]; (.name | type) == \"string\")
+            and (.baseRefName | type == \"string\" and length > 0)' <<<"${pr}" >/dev/null
+          labels=$(jq -r '[.labels[].name] | join(" ")' <<<"${pr}")
+          draft=$(jq -r '.isDraft' <<<"${pr}")
+          base=$(jq -r '.baseRefName' <<<"${pr}")
+          label_rc=0
+          add_hold() {
+            gh api -X POST "repos/${REPO}/issues/${PR_NUMBER}/labels" \
+              -f "labels[]=hold" >/dev/null || label_rc=$?
+          }
+          hold_path() {
+            gh pr merge --disable-auto \"${PR_URL}\" || true
+            echo \"hold label present — auto-merge disarmed\"
+            if [ \"${label_rc}\" != 0 ]; then
+              echo \"::error::retargeted to '${base}' — could not add the hold label\"
+              exit 1
+            fi
+            exit 0
+          }
+          if [ -z "${DEFAULT_BRANCH}" ] || [ \"${base}\" != \"${DEFAULT_BRANCH}\" ]; then
+            add_hold
+            hold_path
           fi
-          ZERO="0000000000000000000000000000000000000000"
-          case "${RANGE}" in
-            "${ZERO}".*|*."${ZERO}"|..*|*..)
-              # Branch creation / unknown base (no usable range) — tree scan above
-              # is the gate for this run.
-              echo "::notice::gitleaks history scan skipped — no usable commit range (${RANGE})" ;;
-            *)
-              /tmp/gitleaks detect --source . --log-opts="${RANGE}" --config /tmp/gitleaks.toml --redact --no-banner --exit-code 1 ;;
-          esac
-      - name: Sanity-lint the PR's proposed .gitleaks.toml (non-blocking on content)
-        if: github.event_name == 'pull_request'
-        run: /tmp/gitleaks detect --no-git --source /dev/null --config .gitleaks.toml >/dev/null 2>&1 || echo "::warning::PR .gitleaks.toml changed — review the allowlist diff (CODEOWNERS-gated)"
-
-  commitlint:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    permissions:
-      contents: read
-      pull-requests: read
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: Conventional Commits check (inline, PR commits API)
-        env:
-          GH_TOKEN: ${{ github.token }}
-          COMMITS_URL: ${{ github.event.pull_request.commits_url }}
-        run: |
-          set -eu
-          bad=0
-          re='^(feat|fix|docs|chore|refactor|test|build|ci|perf|revert|style)(\([a-z0-9._-]+\))?!?: .+'
-          page=1
-          while :; do
-            batch="$(gh api "${COMMITS_URL}?per_page=100&page=${page}" --jq '.[] | @base64')"
-            [ -z "$batch" ] && break
-            for row in $batch; do
-              subj="$(printf '%s' "$row" | base64 -d | python3 -c 'import sys,json;print(json.load(sys.stdin)["commit"]["message"].splitlines()[0])')"
-              case "$subj" in "Merge "*) continue;; esac
-              if ! printf '%s' "$subj" | grep -qE "$re"; then
-                echo "::error::non-conventional commit subject: $subj"
-                bad=1
-              fi
-            done
-            page=$((page+1))
-          done
-          [ "$bad" -eq 0 ] || exit 1
-
-  trivy:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
-        with:
-          persist-credentials: false
-      - name: trivy fs — vuln only (pinned binary + sha256)
-        env:
-          TRIVY_VERSION: "0.71.0"
-          TRIVY_SHA256: "30a3d22b23f88c233f1658f562fb477cae3b3e8b4761109d515b7698daf85814"
-        run: |
-          set -eu
-          curl -fsSLo /tmp/trivy.tgz "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
-          echo "${TRIVY_SHA256}  /tmp/trivy.tgz" | sha256sum -c -
-          tar -xzf /tmp/trivy.tgz -C /tmp trivy
-          /tmp/trivy fs --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --no-progress .
-
-  actionlint:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
-        with:
-          persist-credentials: false
-      - name: actionlint (pinned binary + sha256)
-        env:
-          AL_VERSION: "1.7.7"
-          AL_SHA256: "023070a287cd8cccd71515fedc843f1985bf96c436b7effaecce67290e7e0757"
-        run: |
-          set -eu
-          curl -fsSLo /tmp/al.tgz "https://github.com/rhysd/actionlint/releases/download/v${AL_VERSION}/actionlint_${AL_VERSION}_linux_amd64.tar.gz"
-          echo "${AL_SHA256}  /tmp/al.tgz" | sha256sum -c -
-          tar -xzf /tmp/al.tgz -C /tmp actionlint
-          /tmp/actionlint -color
+          if [ \"${draft}\" = \"true\" ]; then
+            echo \"draft PR — skipping\"
+            exit 0
+          fi
+          # Only the default branch has a ruleset that requires an approving
+          # review and blocks on changes requested. Armed auto-merge into any
+          # other branch would merge with no review at all, so those PRs are
+          # merged by hand. Not arming is all this does: an already-armed PR
+          # stays armed, because only the hold path disarms.
+          if [ -z \"${DEFAULT_BRANCH}\" ] || [ \"${base}\" != \"${DEFAULT_BRANCH}\" ]; then
+            echo \"base '${base}' is not the default branch '${DEFAULT_BRANCH}' — not arming; merge by hand\"
+            exit 0
+          fi
+          gh pr merge --auto --rebase \"${PR_URL}\"
+          # A retarget between the read above and the arm can leave this PR
+          # armed on an unprotected base, and the edited run that would hold it
+          # may be waiting behind it. Re-read the base; if it moved, hold.
+          # A failed re-read counts as a moved base, so it holds too; the
+          # runner's pipefail would otherwise end the job before the hold.
+          base=$(gh pr view \"${PR_URL}\" --json baseRefName | jq -r '.baseRefName // \"\"') || base=
+          if [ \"${base}\" != \"${DEFAULT_BRANCH}\" ]; then
+            echo \"base is now '${base}', not '${DEFAULT_BRANCH}' — applying hold\"
+            add_hold
+            hold_path
+          fi
+          echo \"auto-merge (rebase) armed — merges when approval + required checks are satisfied\"
