@@ -73,25 +73,25 @@ Three steps, all must pass:
 
 ### 1. Syntax check
 ```bash
-bash -n bin/agentic/<script>.sh
+bash -n bin/<legacy-dir>/<script>.sh
 ```
 Must exit 0 for every touched script.
 
 ### 2. Shellcheck
 ```bash
-uvx --from shellcheck-py shellcheck bin/agentic/<script>.sh ...
+uvx --from shellcheck-py shellcheck bin/<legacy-dir>/<script>.sh ...
 ```
 Must be clean. Pre-existing warnings in lines you didn't touch are acceptable — report them separately.
 
 ### 3. Runtime guard test
 ```bash
-bin/agentic/<guarded-script>.sh
+bin/<legacy-dir>/<guarded-script>.sh
 # Expected: exit 1, stderr contains "mothballed YYYY-MM-DD"
 ```
 
 With override (only if safe to interrupt immediately — otherwise skip):
 ```bash
-DMF_AGENTIC_OVERRIDE=1 bin/agentic/<guarded-script>.sh
+DMF_AGENTIC_OVERRIDE=1 bin/<legacy-dir>/<guarded-script>.sh
 ```
 
 ## Reply format

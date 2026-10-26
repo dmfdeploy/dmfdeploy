@@ -29,7 +29,7 @@ set up this enforcement is
    reconciler closes from that qualified ref (cross-repo included); manual close
    is a fallback (§6).
 3. **Never invent a local backlog** (TODO files, ad-hoc trackers, stale
-   `docs/agentic/` queues). Issues are canonical for *liveness*, plan
+   harness queues). Issues are canonical for *liveness*, plan
    frontmatter for *design state*, ADRs for *decisions* (propose via a
    Discussions RFC first), STATUS.md as a pointer file (operator notes live in the pinned issue
    [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618)), and

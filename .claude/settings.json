@@ -28,9 +28,6 @@
   },
   "permissions": {
     "allow": [
-      "Bash(bin/agentic/preflight.sh*)",
-      "Bash(bin/agentic/postflight.sh*)",
-      "Bash(bin/agentic/install-agentic-hooks.sh --dry-run*)",
       "Bash(bin/check-public-repo-hygiene.sh*)",
       "Bash(bin/scrub-public-repos.sh*)",
       "Bash(bin/check-public-commit-authors.sh*)",

@@ -28,9 +28,7 @@ Apply this checklist before committing the scaffold.
 | `bin/scrub-public-repos.sh` | `PUBLIC_REPOS_DEFAULT` | Pre-publish secret/topology scan |
 | `bin/check-public-commit-authors.sh` | `PUBLIC_REPOS_DEFAULT` | Author identity gate |
 | `bin/check-public-repo-hygiene.sh` | `PUBLIC_REPOS` | Hygiene checks |
-| `bin/agentic/install-agentic-hooks.sh` | `PUBLIC_REPOS` | Pre-commit hook installation |
 | `bin/sync-to-github.sh` | `PUBLIC_REPOS` + `github_repo_name()` case | GitHub mirror publish gate |
-| `bin/agentic/forgejo.env` | `FORGEJO_PUBLIC_REPOS` | Agentic issue scripts |
 
 ## Decision: public or private?
 
@@ -53,11 +51,6 @@ Two changes are required (this is where misses are most common):
    `dmf-platform`).
 
 Also update the `echo "allowed: ..."` line in the whitelist error message.
-
-## For `bin/agentic/forgejo.env` specifically
-
-Append the new repo name to `FORGEJO_PUBLIC_REPOS`. This array must match
-the whitelist in `sync-to-github.sh` (minus the `.` umbrella entry).
 
 ## Verification
 
@@ -87,4 +80,3 @@ bin/sync-to-github.sh dmf-<newrepo> --dry-run
   enough; `github_repo_name()` must resolve it.
 - **Count strings** — CLAUDE.md/QWEN.md say "N component repos"; update the
   number to match.
-- **forgejo.env** — easy to forget because it lives under `bin/agentic/`.

@@ -24,7 +24,7 @@ on that [below](#working-with-agents-the-method)).
 
 The project predates this repository. Through early 2026 it lived as a working
 Hetzner ARM lab plus a private operator note store, rebuilt and re-verified
-piece by piece. The [rebuild session notes of 2026-04-22](sessions/dmf-rebuild-session-notes.md)
+piece by piece. The rebuild session notes of 2026-04-22 (`docs/archive/sessions/dmf-rebuild-session-notes.md`)
 are the oldest document in the tree and capture that phase's texture: thirty-odd
 numbered playbooks run in order against a fresh cluster, each failure fixed and
 recorded. On 2026-04-25 the playbook taxonomy was aligned to the EBU DMF V2.0
@@ -166,10 +166,9 @@ purpose. The working model that survived contact with reality:
   that makes a project legible to strangers. You are reading its output.
 - **Process machinery gets mothballed when it loses to simpler tools.** I built a
   full agentic harness: backlog queue, decision queues, tick loop, guards
-  ([plan](plans/DMF%20Agentic%20Harness%20Plan%202026-05-11.md), preserved under
-  [docs/agentic/](agentic/README.md)). It worked, it ran real shifts, and it
+  ([plan](plans/DMF%20Agentic%20Harness%20Plan%202026-05-11.md)). It worked, it ran real shifts, and it
   was retired within a month because GitHub Issues plus direct dispatch did the
-  same job with less ceremony. The artifacts stay in the tree as provenance.
+  same job with less ceremony. The plan stays as the record; git history keeps the rest.
 
 The repository's conventions (progress notes as an append-only lab notebook, now
 kept as tracking-issue comments, ADRs with

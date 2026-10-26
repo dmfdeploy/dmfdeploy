@@ -206,9 +206,9 @@ docs/plans/Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md'
 PINNED_BY_UMBRELLA_ALLOWLISTS='docs/architecture/DMF Release and Contribution Model.md'
 
 # These files keep their names because an in-repo reader pins the path.
-# The agentic scripts under bin/agentic/ read the harness plan; it moves when
-# those readers migrate. bin/render-bpmn.sh reads the BPMN stylesheet, and
-# docs/processes/ stays in place.
+# Plans and the journey page link to the harness plan by path.
+# bin/render-bpmn.sh reads the BPMN stylesheet, and docs/processes/ stays in
+# place.
 PINNED_BY_IN_REPO_READERS='docs/plans/DMF Agentic Harness Plan 2026-05-11.md
 docs/processes/diagrams/_styles.css'
 

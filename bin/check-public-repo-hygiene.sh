@@ -30,7 +30,7 @@
 # Refs:
 #   docs/processes/pre-release-compliance-checklist.md  (Tier A.2 specifically)
 #   the Release and Contribution Model Implementation Plan (2026-05-11) in docs/plans/ (Phase 0)
-#   docs/agentic/CONSTITUTION.md (Rule 10 VERSION SSOT, Rule 8 placeholder syntax)
+#   docs/archive/agentic/CONSTITUTION.md (Rule 10 VERSION SSOT, Rule 8 placeholder syntax)
 
 set -uo pipefail
 

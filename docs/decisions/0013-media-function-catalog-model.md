@@ -32,7 +32,7 @@ v1 scope: one instance per catalog entry, single cluster, no parameterised launc
 
 Problem statement and evidence: see the [archive record](../archive/decisions/0013-media-function-catalog-model.md).
 
-Decision [`catalog-namespace-source-of-truth`](../agentic/decisions-open.md) selected **Option A**: add `provision.namespace` (required) to the schema. The field is the single source of truth for where the workload's Helm release deploys, consumed by drift detection and any future operator needing to locate the workload. The architecture reference and `dmf-media/catalog/README.md` schema table were updated; `dmf-media/catalog/nmos-cpp.yaml` now declares `provision.namespace: nmos`.
+Decision `catalog-namespace-source-of-truth` (retired decision queue) selected **Option A**: add `provision.namespace` (required) to the schema. The field is the single source of truth for where the workload's Helm release deploys, consumed by drift detection and any future operator needing to locate the workload. The architecture reference and `dmf-media/catalog/README.md` schema table were updated; `dmf-media/catalog/nmos-cpp.yaml` now declares `provision.namespace: nmos`.
 
 ## Consequences
 
