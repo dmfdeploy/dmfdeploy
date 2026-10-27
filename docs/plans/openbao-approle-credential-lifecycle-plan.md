@@ -238,23 +238,36 @@ break-glass-only recovery path; they must not remain competing rotation paths.
 
 8. **Schedule and launch the playbook.** The initial adapter is a Kubernetes
    CronJob controller that remains available while AWX is scaled to zero and
-   runs once daily. It first calls
-   the supported AWX autoscale helper's `/ensure-awake` endpoint and waits for
-   the AWX API to become ready, then launches the registry-sweep Job Template
-   through the AWX API. A scoped trigger service account may call only that
-   helper and launch/read that one template; the AWX execution uses the
-   dedicated rotation Container Group and its scoped Kubernetes service
-   account. The CronJob verifies the launched job reaches successful completion
-   and records its heartbeat only after that result. Failure to wake, launch,
-   or complete is recorded as a failed run and alerted; the independent
-   monitoring stack also alerts on a stale/missing heartbeat. Verify this
-   behavior with AWX initially scaled to zero: the trigger must wake it, observe
-   API readiness, launch the template, and report the final job result. Disable
-   any AWX-native schedule so it cannot race the external trigger. The playbook
-   Lease remains the backend-independent no-overlap guard. Rotation occurs at
-   the two-thirds threshold, giving the 30-day roles at least ten days of retry
-   window. The playbook interface, registry, metrics, and rules have no
-   AWX-specific dependency; any future adapter must preserve the daily
+   runs once daily. The existing AWX autoscale helper exposes an authenticated
+   `/ensure-awake` endpoint; this endpoint establishes only its bounded startup
+   and grace-period wake window. It is not a job-lifetime hold. Extend the
+   helper with an authenticated job-hold endpoint backed by a separate,
+   named coordination Lease that the idle reaper checks before sleeping AWX.
+   The endpoint accepts a non-secret run id and acquire, renew, or release
+   action. Each hold has a configured maximum duration and an expiry. Only the
+   caller holding that run id may renew or release it; an expired hold is
+   ignored, so a crashed trigger cannot keep AWX awake indefinitely. Give the
+   helper access only to this named Lease in addition to its existing wake
+   Lease.
+
+   The CronJob first calls `/ensure-awake` and waits for the AWX API to become
+   ready, then acquires the job hold before launching the registry-sweep Job
+   Template through the AWX API. A scoped trigger service account may call only
+   the helper and launch/read that one template. While the AWX job is active,
+   the controller renews the hold before its expiry, using a duration no longer
+   than the helper's configured maximum. It stops launching or monitoring if
+   renewal fails. The AWX execution uses the dedicated rotation Container
+   Group and its scoped Kubernetes service account. The controller releases
+   the hold in cleanup after success, launch failure, job failure, or
+   cancellation; if cleanup cannot run, the hold expires. It records its
+   heartbeat only after successful job completion. Failure to wake, acquire or
+   renew the hold, launch, or complete is recorded as a failed run and alerted;
+   the independent monitoring stack also alerts on a stale/missing heartbeat.
+   Disable any AWX-native schedule so it cannot race the external trigger. The
+   playbook Lease remains the backend-independent no-overlap guard. Rotation
+   occurs at the two-thirds threshold, giving the 30-day roles at least ten
+   days of retry window. The playbook interface, registry, metrics, and rules
+   have no AWX-specific dependency; any future adapter must preserve the daily
    invocation and no-overlap guarantees.
 
 9. **Prove steady state.** After a controlled non-production rotation, collect
@@ -277,6 +290,11 @@ Implementation is complete only when all of the following pass:
   ordering, no-overlap locking, retry after interruption, and root-token
   field rejection. Run syntax checks, `ansible-lint`, and `yamllint` from
   `dmf-infra/k3s-lab-bootstrap/`.
+- AWX autoscale-helper tests prove that a no-op rotation job lasting longer
+  than the normal wake grace period keeps AWX awake through completion. Cover
+  hold acquisition, renewal, release after success and each failure path, and
+  expiry when the controller exits before cleanup. The reaper must honor a
+  live hold and may sleep AWX after release or expiry once it is otherwise idle.
 - `dmf-promsd` tests use a fake metadata endpoint and prove it neither logs nor
   exposes sensitive fields. Its existing test suite remains green.
 - A read-only live pre-flight confirms the selected control-node context and
