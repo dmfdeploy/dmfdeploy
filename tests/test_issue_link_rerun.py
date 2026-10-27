@@ -59,6 +59,7 @@ class FakeApi:
     def __init__(self, runs=None, pr=None):
         self.pr = copy.deepcopy(pr or pull_request())
         self.runs = {item["id"]: copy.deepcopy(item) for item in (runs or [])}
+        self.source = source_run()
         self.posts = []
         self.get_pr_count = 0
         self.pr_hook = None
@@ -83,6 +84,8 @@ class FakeApi:
                     "workflow_runs": [copy.deepcopy(item) for item in self.runs.values()]}
         if path.startswith(f"repos/{REPO}/actions/runs/"):
             run_id = int(path.rsplit("/", 1)[1])
+            if run_id == self.source["id"]:
+                return copy.deepcopy(self.source)
             return copy.deepcopy(self.runs[run_id])
         if path == f"repos/{REPO}/collaborators/editor/permission":
             return {"user": {"login": "editor"}, "permission": "write"}
@@ -104,6 +107,25 @@ class FakeApi:
 
 
 class RerunTests(unittest.TestCase):
+    def test_sparse_workflow_run_pr_association_uses_authoritative_run_api(self):
+        api = FakeApi([run(10)])
+        source = source_run()
+        # The live coordinator failed on GitHub's workflow_run association,
+        # which omitted base.repo.full_name. The Actions run API has the full
+        # repository association and is the authoritative expansion.
+        del source["pull_requests"][0]["base"]["repo"]["full_name"]
+        result = rerun.rerun_stale_suites(event(source), api)
+        self.assertEqual(result["rerun_ids"], [10])
+        self.assertEqual(api.posts, [f"repos/{REPO}/actions/runs/10/rerun"])
+
+    def test_workflow_run_event_must_match_authoritative_run(self):
+        api = FakeApi([run(10)])
+        source = source_run()
+        source["head_sha"] = OTHER_SHA
+        with self.assertRaisesRegex(rerun.UnsafeRun, "head SHA does not match"):
+            rerun.rerun_stale_suites(event(source), api)
+        self.assertEqual(api.posts, [])
+
     def test_body_fix_without_push_retries_all_matching_failures_including_old_retry(self):
         api = FakeApi([
             run(10), run(11, attempt=3), run(12, status="in_progress", conclusion=None),
