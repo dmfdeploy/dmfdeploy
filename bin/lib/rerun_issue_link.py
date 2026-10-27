@@ -198,6 +198,42 @@ def _validate_source(source: Any, event_action: Any) -> tuple[dict[str, Any], in
     return source, source_id, head_sha
 
 
+def _authoritative_source_run(
+    api: Any, repo: str, event_source: dict[str, Any],
+) -> tuple[dict[str, Any], int, str]:
+    """Expand the workflow_run event with the authoritative Actions-run record.
+
+    GitHub's workflow_run webhook can omit repository identity fields from its
+    embedded pull_requests association. The Actions run API returns the full
+    association; keep the event's run identity and outcome bound to that record.
+    """
+    _event, event_id, event_sha = _validate_source(event_source, "completed")
+    source = _mapping(api.get(f"repos/{repo}/actions/runs/{event_id}"),
+                      "authoritative source workflow run")
+    source_id = source.get("id")
+    if isinstance(source_id, bool) or source_id != event_id:
+        raise UnsafeRun("authoritative source run ID does not match event")
+    for key in ("workflow_id", "event", "status", "conclusion", "run_attempt", "name"):
+        if source.get(key) != event_source.get(key):
+            raise UnsafeRun(f"authoritative source run {key} does not match event")
+    if "path" in event_source and source.get("path") != event_source.get("path"):
+        raise UnsafeRun("authoritative source workflow path does not match event")
+    if source.get("path") != WORKFLOW_PATH:
+        raise UnsafeRun("authoritative source workflow path does not match")
+    if _sha(source.get("head_sha"), "authoritative source head SHA") != event_sha:
+        raise UnsafeRun("authoritative source head SHA does not match event")
+    event_actor = _mapping(event_source.get("actor"), "workflow event actor").get("login")
+    source_actor = _mapping(source.get("actor"), "authoritative source actor").get("login")
+    if not isinstance(event_actor, str) or not event_actor or source_actor != event_actor:
+        raise UnsafeRun("authoritative source actor does not match event")
+    event_pr = _single_pull_request(event_source, "source run")
+    source_pr = _single_pull_request(source, "authoritative source run")
+    if _pr_number(event_pr.get("number"), "source PR number") != _pr_number(
+            source_pr.get("number"), "authoritative source PR number"):
+        raise UnsafeRun("authoritative source PR number does not match event")
+    return source, event_id, event_sha
+
+
 def _live_pr(api: Any, repo: str, number: int) -> dict[str, Any]:
     pr = _mapping(api.get(f"repos/{repo}/pulls/{number}"), "live pull request")
     if _pr_number(pr.get("number"), "live pull request number") != number:
@@ -370,8 +406,11 @@ def rerun_stale_suites(
     if repository != DEFAULT_REPOSITORY:
         raise UnsafeRun("repository is not the canonical umbrella")
     event = _mapping(event, "workflow_run webhook")
-    source, source_id, source_sha = _validate_source(
-        event.get("workflow_run"), event.get("action"))
+    event_source = _mapping(event.get("workflow_run"), "source workflow run")
+    if event.get("action") != "completed":
+        raise UnsafeRun("workflow_run event is not completed")
+    source, source_id, source_sha = _authoritative_source_run(
+        api, repository, event_source)
     workflow_id = _validate_workflow(api, repository, source)
     (live, number, head_sha, base_sha, base_ref, head_ref,
      head_repo_name, _author) = _validate_live_source(
