@@ -64,6 +64,9 @@ class FakeApi:
         self.pr_hook = None
         self.workflow_path = ".github/workflows/issue-link.yml"
         self.fail_ids = set()
+        self.jump_ids = set()
+        self.stuck_ids = set()
+        self.total_count_override = None
 
     def get(self, path):
         if path == f"repos/{REPO}/actions/workflows/issue-link.yml":
@@ -74,7 +77,10 @@ class FakeApi:
                 self.pr_hook(self, self.get_pr_count)
             return copy.deepcopy(self.pr)
         if path.startswith(f"repos/{REPO}/actions/workflows/395989901/runs?"):
-            return {"workflow_runs": [copy.deepcopy(item) for item in self.runs.values()]}
+            total = (len(self.runs) if self.total_count_override is None
+                     else self.total_count_override)
+            return {"total_count": total,
+                    "workflow_runs": [copy.deepcopy(item) for item in self.runs.values()]}
         if path.startswith(f"repos/{REPO}/actions/runs/"):
             run_id = int(path.rsplit("/", 1)[1])
             return copy.deepcopy(self.runs[run_id])
@@ -87,9 +93,13 @@ class FakeApi:
     def post(self, path):
         self.posts.append(path)
         run_id = int(path.split("/")[-2])
-        self.runs[run_id]["run_attempt"] += 1
-        self.runs[run_id]["status"] = "completed"
-        self.runs[run_id]["conclusion"] = "failure" if run_id in self.fail_ids else "success"
+        self.runs[run_id]["run_attempt"] += 2 if run_id in self.jump_ids else 1
+        if run_id in self.stuck_ids:
+            self.runs[run_id]["status"] = "in_progress"
+            self.runs[run_id]["conclusion"] = None
+        else:
+            self.runs[run_id]["status"] = "completed"
+            self.runs[run_id]["conclusion"] = "failure" if run_id in self.fail_ids else "success"
         return {}
 
 
@@ -168,6 +178,39 @@ class RerunTests(unittest.TestCase):
             rerun.rerun_stale_suites(event(), api)
         self.assertEqual(len(api.posts), 1)
         self.assertIn("/10/rerun", api.posts[0])
+
+    def test_candidate_overflow_fails_before_any_rerun(self):
+        api = FakeApi([run(10), run(11), run(12), run(13), run(14)])
+        with self.assertRaisesRegex(rerun.UnsafeRun, "too many stale"):
+            rerun.rerun_stale_suites(event(), api)
+        self.assertEqual(api.posts, [])
+
+    def test_workflow_history_limit_fails_before_any_rerun(self):
+        api = FakeApi([run(10)])
+        api.total_count_override = 1000
+        with self.assertRaisesRegex(rerun.UnsafeRun, "history reached"):
+            rerun.rerun_stale_suites(event(), api)
+        self.assertEqual(api.posts, [])
+
+    def test_unexpected_attempt_jump_stops_after_one_post(self):
+        api = FakeApi([run(10), run(11)])
+        api.jump_ids.add(10)
+        with self.assertRaisesRegex(rerun.UnsafeRun, "another rerun"):
+            rerun.rerun_stale_suites(event(), api)
+        self.assertEqual(len(api.posts), 1)
+
+    def test_poll_timeout_stops_before_remaining_candidates(self):
+        api = FakeApi([run(10), run(11)])
+        api.stuck_ids.add(10)
+        now = [0.0]
+        def clock():
+            return now[0]
+        def sleeper(seconds):
+            now[0] += seconds
+        with self.assertRaisesRegex(rerun.ApiFailure, "did not complete"):
+            rerun.rerun_stale_suites(
+                event(), api, timeout_per_run=3, clock=clock, sleeper=sleeper)
+        self.assertEqual(len(api.posts), 1)
 
     def test_malformed_run_association_fails_closed(self):
         bad = run(10)
