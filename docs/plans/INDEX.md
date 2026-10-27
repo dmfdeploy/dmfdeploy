@@ -8,11 +8,11 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (5)
+## Active (6)
 
 - [forgejo-authentik-contributor-policy-plan](forgejo-authentik-contributor-policy-plan.md) — 2026-10-27
-- [openbao-approle-credential-lifecycle-plan](openbao-approle-credential-lifecycle-plan.md) — 2026-10-26
 - [issue-link-trusted-rerun-plan](issue-link-trusted-rerun-plan.md) — 2026-10-27
+- [openbao-approle-credential-lifecycle-plan](openbao-approle-credential-lifecycle-plan.md) — 2026-10-26
 - [platform-debt-work-order](platform-debt-work-order.md) — 2026-10-25
 - [dmf-umbrella-security-audit-remediation-spec](dmf-umbrella-security-audit-remediation-spec.md) — 2026-06-15
 - [dmf-internal-ansible-collection-source-plan](dmf-internal-ansible-collection-source-plan.md) — 2026-05-29
