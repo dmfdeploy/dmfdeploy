@@ -21,7 +21,9 @@ WORKFLOW_FILE = "issue-link.yml"
 DEFAULT_REPOSITORY = "dmfdeploy/dmfdeploy"
 DEFAULT_BRANCH = "main"
 PAGE_SIZE = 100
-MAX_RUN_PAGES = 20
+MAX_RUN_PAGES = 10
+MAX_TOTAL_RUNS = 1000
+MAX_CANDIDATES = 4
 MAX_WAIT_SECONDS = 300
 POLL_INTERVAL_SECONDS = 2
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
@@ -275,6 +277,10 @@ def _list_runs(api: Any, repo: str, workflow_id: int, head_sha: str) -> list[dic
         result = _mapping(api.get(
             f"repos/{repo}/actions/workflows/{workflow_id}/runs?{query}"),
             "workflow run list")
+        total_count = result.get("total_count")
+        if (isinstance(total_count, bool) or not isinstance(total_count, int)
+                or total_count < 0 or total_count >= MAX_TOTAL_RUNS):
+            raise UnsafeRun("workflow run history reached the safe result limit")
         batch = result.get("workflow_runs")
         if not isinstance(batch, list) or any(not isinstance(item, dict) for item in batch):
             raise UnsafeRun("workflow run list is malformed")
@@ -382,6 +388,8 @@ def rerun_stale_suites(
             head_ref=head_ref, repo_pair=repo_pair)
     ]
     matching.sort(key=lambda item: (str(item.get("created_at", "")), item["id"]))
+    if len(matching) > MAX_CANDIDATES:
+        raise UnsafeRun("too many stale issue-link suites for one coordinator run")
 
     rerun_ids: list[int] = []
     for candidate in matching:

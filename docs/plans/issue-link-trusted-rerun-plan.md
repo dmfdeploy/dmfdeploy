@@ -72,12 +72,20 @@ coordinator job.
 - Mocked API tests cover a body fix without a push and a body changed back
   before rerun. They cover fork PRs and base or live-head changes during
   selection.
-- Tests cover multiple stale failed suites, current or active runs, and a
-  failed prior rerun later retried by a new edit. They cover runs with a wrong
-  workflow ID/path, event, PR number, head SHA, or actor, plus missing or
-  ambiguous API fields.
+- Tests cover multiple stale failed suites (up to the fixed four-suite
+  coordinator cap), current or active runs, and a failed prior rerun later
+  retried by a new edit. They cover runs with a wrong workflow ID/path, event,
+  PR number, head SHA, or actor, plus missing or ambiguous API fields.
 - Prove rejected cases make no rerun request. Prove accepted calls target only
   exact existing eligible failed runs.
+- The coordinator waits at most five minutes for each of at most four stale
+  suites and has a 30-minute job timeout. If more than four eligible failures
+  match, or workflow history reaches the API's 1,000-result cap, it refuses
+  before any rerun request and reports a sanitized bounded-work error. The
+  operator must then handle that exceptional backlog explicitly; a later
+  event does not silently process an unbounded queue.
+- Tests prove candidate overflow and capped workflow history make no rerun
+  request. Tests also cover polling timeout and an unexpected attempt jump.
 - Workflow tests verify the event and permissions boundaries, trusted base
   workflow behavior, live body fetch, and no PR checkout/execution.
 - Run the issue-link matcher tests, the rerun helper's hermetic tests,
