@@ -54,8 +54,11 @@ where the resulting collaboration trail is recorded.
    and test a supported, backed-up migration for every Forgejo identity field
    used by the deployed version, then inventory existing identities and stop
    on any missing or ambiguous mapping. Do not recover by matching email or
-   creating a second account. Retain Forgejo's `USERNAME: userid` setting and
-   disable automatic account linking.
+   creating a second account. Disable automatic account linking. The future
+   user-facing Forgejo username claim must be selected and verified
+   independently from `sub`; `USERNAME: userid` selects the username claim and
+   is not the subject-binding control. Choose the target claim only after
+   checking the Authentik mapping and existing Forgejo login names.
 3. Disable Forgejo local registration and generic OpenID signup while retaining
    OAuth auto-registration for the Authentik source. Add a render/static test
    showing only the Authentik source can create an approved user's account.
@@ -86,6 +89,9 @@ where the resulting collaboration trail is recorded.
 - Before the UUID target can be enabled, a tested and backed-up migration must
   preserve each Forgejo account across every subject-key field used by the
   deployed version. The migration must stop on missing or ambiguous mappings.
+  It must also test the selected human-readable Forgejo username claim
+  separately from the UUID subject. The target claim remains undecided until
+  the Authentik profile mapping and existing login names have been checked.
 - Tests cover allowed contributor, allowed administrator, and denied ordinary
   Authentik user paths without using a live identity or cluster.
 - The Forgejo portion of the audit reports the exact expected Forgejo admin
