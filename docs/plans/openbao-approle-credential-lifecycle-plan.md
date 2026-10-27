@@ -110,10 +110,12 @@ Kubernetes-authenticated issuer identity bound to a dedicated ServiceAccount in
 the `openbao` namespace. The invoking runner obtains a short-lived TokenRequest
 JWT for that ServiceAccount, authenticates to OpenBao, and mints a fresh
 SecretID for the read-only NetBox runtime lookup. The issuer policy is limited
-to creating, looking up, and destroying SecretIDs for
+to assigning, looking up, and destroying SecretIDs for
 `born-inventory-netbox-reader`; it cannot read NetBox data, change the AppRole,
 or mint credentials for another role. Each SecretID create request sets a
-one-use limit and a one-hour maximum TTL. The ID is used only for that
+one-use limit and a one-hour maximum TTL. OpenBao policy `required_parameters`
+and `allowed_parameters` enforce that only `secret_id`, `ttl=1h`, and
+`num_uses=1` are accepted on this path. The ID is used only for that
 invocation, and its accessor is revoked in an `always` cleanup path after the
 lookup or on a handled failure. A crash leaves at most a one-use credential
 that expires within one hour; recovery starts with a new run and does not
@@ -148,8 +150,9 @@ is distinct from `ops-admin`, the root token, and the existing
 Its OpenBao policy is rendered from the registry and may only:
 
 - read role configuration needed to validate a listed target;
-- mint a replacement SecretID and inspect or destroy an accessor for that
-  exact role;
+- assign a caller-supplied custom SecretID at the exact role's
+  `custom-secret-id` endpoint with registry-bounded `ttl` and `num_uses`, look
+  it up by the same candidate, and destroy only its accessor;
 - read and update that target's rotation metadata and an explicitly declared
   OpenBao consumer binding, where applicable; and
 - create, read, and delete the single transaction-scoped staging secret for
@@ -178,18 +181,28 @@ with a Kubernetes Lease and follows this order:
 1. Read the target's metadata and current consumer state without logging a
    credential. Refuse unknown, incomplete, or expired-without-recovery-state
    targets.
-2. Mint one replacement SecretID, then immediately persist it in a dedicated,
-   access-controlled OpenBao staging secret for that target and transaction.
-   Persist a separate non-secret `issued-pending-delivery` metadata record with
-   the replacement accessor, prior accessor, transaction id, and staging path.
-   The staging secret is the durable, protected recovery copy needed to resume
-   after process loss. It is readable only by the rotation identity, is never
-   logged or returned by metrics, and is deleted only after the transaction
-   reaches `active` or a safe undelivered abort.
-3. Update every declared authoritative consumer destination from that same
+2. Generate a high-entropy candidate SecretID with a cryptographically secure
+   random source. Before asking OpenBao to accept it, persist the candidate in
+   a dedicated, access-controlled staging secret for the target and transaction,
+   plus a non-secret `pending-create` intent containing the transaction id and
+   staging path. The staging secret is the durable, protected recovery copy
+   needed to resume after process loss. It is readable only by the rotation
+   identity, never logged or returned by metrics, and deleted only after the
+   transaction reaches `active` or a safe undelivered abort.
+3. Look up the candidate through the exact AppRole `secret-id/lookup` endpoint.
+   If it exists, recover its accessor and verify its TTL/use limit. If it does
+   not exist, assign that same candidate through `custom-secret-id` with the
+   target's one-use and TTL bounds. If the create response is lost, look up the
+   same candidate before retrying; if a concurrent create reports that the
+   candidate is already registered, look it up and resume. Never generate a
+   second candidate while the transaction is pending. Persist the resulting
+   accessor and transition metadata to `issued-pending-delivery` before any
+   consumer write. Do not grant access to the random `secret-id` generation
+   endpoint or to list SecretID accessors.
+4. Update every declared authoritative consumer destination from that same
    staged SecretID, stamping the transaction id/version with the credential.
    Do not make a local break-glass file the sole or current runtime copy.
-4. Persist delivery progress and classify the transaction as
+5. Persist delivery progress and classify the transaction as
    `issued-pending-delivery` (no destination has its transaction marker) or
    `delivered-pending-readiness` (one or more destinations have the marker).
    Once any destination has received the replacement, never destroy it as an
@@ -198,7 +211,7 @@ with a Kubernetes Lease and follows this order:
    target contract requires it. Wait for consumer readiness and
    transaction-specific acceptance at every destination; a stamped
    transaction id/version without passing readiness is insufficient.
-5. Mark metadata `active` with a successful timestamp only after every
+6. Mark metadata `active` with a successful timestamp only after every
    destination acknowledges the transaction and its consumer passes readiness.
    Then destroy the previous accessor and delete the staging secret. A failed
    readiness check leaves the transaction `delivered-pending-readiness`; later
@@ -207,16 +220,15 @@ with a Kubernetes Lease and follows this order:
    either accessor while delivery/readiness is unresolved.
 
 The transaction is idempotent and records enough protected state for the next
-scheduled run to recover without another mint. Before requesting an OpenBao
-SecretID, persist a transaction intent and the protected candidate value
-required by the supported custom-SecretID API; a lost create response must be
-recoverable by looking up that same candidate and transaction. This avoids an
-additional random ID. Validate this protocol against the deployed OpenBao
-version and fixture-driven API behavior before relying on it. The persisted
-transaction id identifies a minted replacement across scheduler attempts.
-Duplicate triggers and retries after a lost response inspect the target's
-existing transaction and resume it with the same staged SecretID; they never mint an
-additional SecretID while that transaction is pending. Requests and results
+scheduled run to resume with the same candidate. The candidate is protected in
+staging before OpenBao creates it. A lost create response is resolved by
+looking up that candidate; a duplicate-create response uses the same lookup.
+Validate this protocol against the deployed OpenBao version and fixture-driven
+API behavior before relying on it. The persisted transaction id identifies a
+replacement across scheduler attempts. Duplicate triggers and retries after a
+lost response inspect the target's existing transaction and resume with its
+staged candidate; they never generate a second candidate while that transaction
+is pending. Requests and results
 carry only target names, run/transaction ids, C5 fields, and sanitized status
 or reason codes. SecretIDs, tokens, accessors, staging payloads, and application
 credentials never enter runner history, logs, or returned results. For
