@@ -50,6 +50,20 @@ legitimate edit. It rechecks the live PR head and each candidate immediately
 before rerunning. Any missing, ambiguous, stale, or untrusted data fails
 closed without making a rerun request.
 
+Actions workflow-run associations are compact identity projections: their
+base and head repository objects carry positive numeric IDs but may omit
+`full_name`. Compare those IDs, refs, SHAs, and PR number with the canonical
+full pull-request response fetched from the fixed umbrella endpoint. Require
+the run's top-level repository name and ID to match that canonical base; a
+fork head may have a different positive repository ID. Optional association
+names must agree when present. If a failed candidate records an earlier base
+commit than the live PR, rerun it only after the compare API proves that the
+candidate base is an ancestor of the pinned live base. Validate all such
+comparisons before the first rerun request, and pin the base identity again
+before each request. This permits a trusted old suite to re-evaluate today's
+body after main advances without treating a divergent or retargeted PR as the
+same check.
+
 Each rerun operates on an existing run ID, preserving that run's check suite,
 and re-evaluates the live body and labels. The coordinator confirms the live
 body still passes the same matcher before it issues a rerun. Thus a body that
@@ -78,6 +92,13 @@ coordinator job.
   PR number, head SHA, or actor, plus missing or ambiguous API fields.
 - Prove rejected cases make no rerun request. Prove accepted calls target only
   exact existing eligible failed runs.
+- The review-only current-API exercise at
+  `tests/manual/issue_link_rerun_readonly_api.py` uses `gh api` for GET
+  requests only and blocks every rerun request. Its event wrapper is synthetic
+  because the runner-local webhook was unavailable; the run and PR identities
+  come from current REST responses. Committed fixtures preserve the observed
+  identity fields but use a neutral PR-author login; the live harness checks
+  the current API actor and author directly.
 - The coordinator waits at most five minutes for each of at most four stale
   suites and has a 30-minute job timeout. If more than four eligible failures
   match, or workflow history reaches the API's 1,000-result cap, it refuses

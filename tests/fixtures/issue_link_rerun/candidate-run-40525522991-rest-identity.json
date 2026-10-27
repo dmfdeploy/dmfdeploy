@@ -1,0 +1,44 @@
+{
+  "actor": {
+    "login": "pr-author"
+  },
+  "conclusion": "failure",
+  "event": "pull_request_target",
+  "head_branch": "test/issue-link-body-only-758",
+  "head_sha": "a7f3452c0682805150f84be480605f83485f292c",
+  "id": 40525522991,
+  "name": "issue-link",
+  "path": ".github/workflows/issue-link.yml",
+  "pull_requests": [
+    {
+      "base": {
+        "ref": "main",
+        "repo": {
+          "id": 1265239865,
+          "name": "dmfdeploy",
+          "url": "https://api.github.com/repos/dmfdeploy/dmfdeploy"
+        },
+        "sha": "08522d032842f60d976a02d1ed4a6c7bfde52f4d"
+      },
+      "head": {
+        "ref": "test/issue-link-body-only-758",
+        "repo": {
+          "id": 1265239865,
+          "name": "dmfdeploy",
+          "url": "https://api.github.com/repos/dmfdeploy/dmfdeploy"
+        },
+        "sha": "a7f3452c0682805150f84be480605f83485f292c"
+      },
+      "id": 5036017201,
+      "number": 799,
+      "url": "https://api.github.com/repos/dmfdeploy/dmfdeploy/pulls/799"
+    }
+  ],
+  "repository": {
+    "full_name": "dmfdeploy/dmfdeploy",
+    "id": 1265239865
+  },
+  "run_attempt": 1,
+  "status": "completed",
+  "workflow_id": 395989901
+}
