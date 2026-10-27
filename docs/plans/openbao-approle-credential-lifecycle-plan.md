@@ -205,9 +205,9 @@ receipt copy is introduced. A restore from checkpoint 2 replays post-seed and
 must obtain a fresh passkey-authenticated receipt before configure; any prior
 receipt that was not consumed is allowed to expire and is never replayed from
 the recovery bundle. Within one container lifetime the opaque request id may
-travel only in the in-memory pause/resume payload and the configure process
-arguments; it is not emitted to logs or included in the exported recovery
-bundle.
+travel only in the in-memory pause/resume payload and as
+`DMF_SETUP_REQUEST_ID` in the configure process environment; it is not emitted
+to logs or included in the exported recovery bundle.
 
 Each target has a non-secret OpenBao metadata record under a dedicated
 `platform/approle-rotation/` prefix. It records the role name, target version,
