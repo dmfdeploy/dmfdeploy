@@ -101,7 +101,9 @@ Its OpenBao policy is rendered from the registry and may only:
 - mint a replacement SecretID and inspect or destroy an accessor for that
   exact role;
 - read and update that target's rotation metadata and an explicitly declared
-  OpenBao consumer binding, where applicable.
+  OpenBao consumer binding, where applicable; and
+- create, read, and delete the single transaction-scoped staging secret for
+  that target, with no list access to other staging records.
 
 It has no `sys/*`, policy-writing, auth-method administration, arbitrary
 AppRole, application-secret, or unrelated KV access. Its Kubernetes service
@@ -122,27 +124,48 @@ runs with a Kubernetes Lease and follows this order:
 1. Read the target's metadata and current consumer state without logging a
    credential. Refuse unknown, incomplete, or expired-without-recovery-state
    targets.
-2. Mint one replacement SecretID and immediately persist a non-secret
-   `issued-pending-delivery` metadata record with its accessor, the prior
-   accessor, and a transaction id.
-3. Atomically update every declared authoritative consumer destination. Do not
-   make a local break-glass file the sole or current runtime copy.
-4. Restart or reconcile the consumer only where its target contract requires
-   it, then wait for its readiness and transaction-specific acceptance at every
-   declared destination. The acceptance check reads the transaction id/version
-   stamped with the replacement; a generic healthy consumer is insufficient.
-5. Mark the metadata record `active` with a successful timestamp, then destroy
-   the previous accessor. A failed consumer check leaves the previous accessor
-   valid and reports failure; it never destroys the only known-good credential.
+2. Mint one replacement SecretID, then immediately persist it in a dedicated,
+   access-controlled OpenBao staging secret for that target and transaction.
+   Persist a separate non-secret `issued-pending-delivery` metadata record with
+   the replacement accessor, prior accessor, transaction id, and staging path.
+   The staging secret is the durable, protected recovery copy needed to resume
+   after process loss. It is readable only by the rotation identity, is never
+   logged or returned by metrics, and is deleted only after the transaction
+   reaches `active` or a safe undelivered abort.
+3. Update every declared authoritative consumer destination from that same
+   staged SecretID, stamping the transaction id/version with the credential.
+   Do not make a local break-glass file the sole or current runtime copy.
+4. Persist delivery progress and classify the transaction as
+   `issued-pending-delivery` (no destination has its transaction marker) or
+   `delivered-pending-readiness` (one or more destinations have the marker).
+   Once any destination has received the replacement, never destroy it as an
+   automated recovery action. Retry delivery to remaining destinations from
+   the staged copy, then restart or reconcile the consumer only where its
+   target contract requires it. Wait for consumer readiness and
+   transaction-specific acceptance at every destination; a stamped
+   transaction id/version without passing readiness is insufficient.
+5. Mark metadata `active` with a successful timestamp only after every
+   destination acknowledges the transaction and its consumer passes readiness.
+   Then destroy the previous accessor and delete the staging secret. A failed
+   readiness check leaves the transaction `delivered-pending-readiness`; later
+   runs retry readiness with the same replacement and alert on the failure.
+   They do not mint another SecretID, promote the replacement, or destroy
+   either accessor while delivery/readiness is unresolved.
 
-The transaction is idempotent and records a state that lets the next scheduled
-run reconcile an interrupted delivery. For a pending transaction, the next run
-checks the transaction id/version at every declared destination before minting
-anything: it promotes the recorded replacement only when every consumer
-acknowledges that version. Otherwise it destroys that recorded replacement,
-keeps the prior accessor, marks the attempt failed, and retries only on the
-next due run. It must not issue an unbounded series of new
-SecretIDs. The legacy ESO-only playbook and the workstation helper are
+The transaction is idempotent and records enough protected state for the next
+scheduled run to recover without another mint. For
+`issued-pending-delivery`, the next run inspects every destination: if none has
+the transaction marker, it may resume delivery from the staged SecretID; if
+any has it, it transitions to `delivered-pending-readiness` and retains the
+replacement. Only a safe-abort check proving no destination received the
+transaction may destroy that replacement and its staged copy, while retaining
+the prior accessor and recording failure. For `delivered-pending-readiness`,
+the next run retries delivery to missing destinations and required
+readiness/acceptance checks using the same staged SecretID. It promotes only
+after all checks pass. If readiness remains down, the transaction remains
+pending and alerts; it never creates an unbounded series of SecretIDs or
+strands an updated consumer by revoking its credential. The legacy ESO-only
+playbook and the workstation helper are
 either made thin callers of this contract or retired with a documented
 break-glass-only recovery path; they must not remain competing rotation paths.
 
@@ -167,9 +190,11 @@ break-glass-only recovery path; they must not remain competing rotation paths.
 3. **Implement the registry-driven transaction.** Replace the ESO-only
    procedure with the transaction above, retaining its useful consumer
    readiness behavior. The playbook must run safely once per target and as a
-   complete sweep. Test normal delivery, a duplicate invocation, a failed
-   consumer readiness check, an interrupted run, and a target with no prior
-   accessor. Tests assert that the old accessor is destroyed only after a
+   complete sweep. Test normal delivery, a duplicate invocation, interruption
+   before delivery, partial delivery, delivered-but-unready recovery, and a
+   target with no prior accessor. Tests assert that an undelivered replacement
+   is safely recoverable from staging, a delivered replacement is retained
+   through readiness failure, and the old accessor is destroyed only after a
    successful replacement.
 
 4. **Converge bootstrap root-token handling.** Audit the OpenBao init output,
@@ -211,17 +236,26 @@ break-glass-only recovery path; they must not remain competing rotation paths.
    30-day roles and yearly object-storage roles appear in the runbook and rule
    tests. The alert annotation names the target and runbook, never a secret.
 
-8. **Schedule the playbook.** The initial adapter is an AWX scheduled Job
-   Template backed by a dedicated rotation Container Group and its scoped
-   Kubernetes service account. It invokes the registry sweep once daily with
-   AWX concurrency set to one; the playbook Lease remains the second,
-   backend-independent no-overlap guard. It rotates a target at the
-   two-thirds threshold, giving the 30-day roles at least ten days of retry
+8. **Schedule and launch the playbook.** The initial adapter is a Kubernetes
+   CronJob controller that remains available while AWX is scaled to zero and
+   runs once daily. It first calls
+   the supported AWX autoscale helper's `/ensure-awake` endpoint and waits for
+   the AWX API to become ready, then launches the registry-sweep Job Template
+   through the AWX API. A scoped trigger service account may call only that
+   helper and launch/read that one template; the AWX execution uses the
+   dedicated rotation Container Group and its scoped Kubernetes service
+   account. The CronJob verifies the launched job reaches successful completion
+   and records its heartbeat only after that result. Failure to wake, launch,
+   or complete is recorded as a failed run and alerted; the independent
+   monitoring stack also alerts on a stale/missing heartbeat. Verify this
+   behavior with AWX initially scaled to zero: the trigger must wake it, observe
+   API readiness, launch the template, and report the final job result. Disable
+   any AWX-native schedule so it cannot race the external trigger. The playbook
+   Lease remains the backend-independent no-overlap guard. Rotation occurs at
+   the two-thirds threshold, giving the 30-day roles at least ten days of retry
    window. The playbook interface, registry, metrics, and rules have no
-   AWX-specific dependency. If the execution backend changes, the replacement adapter must invoke the
-   same playbook with the same service account and retain the daily/no-overlap
-   guarantee. The scheduler also records a run heartbeat so an absent scheduler
-   is visible before a credential becomes due.
+   AWX-specific dependency; any future adapter must preserve the daily
+   invocation and no-overlap guarantees.
 
 9. **Prove steady state.** After a controlled non-production rotation, collect
    redacted evidence that every registry target has a future expiry, a recent
