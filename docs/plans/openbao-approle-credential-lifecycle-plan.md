@@ -86,9 +86,11 @@ destination or removed before its finite TTL can remain in scope.
 Each target has a non-secret OpenBao metadata record under a dedicated
 `platform/approle-rotation/` prefix. It records the role name, target version,
 SecretID accessor, issued-at time, expiry time, TTL, last successful rotation,
-and last failure time/reason code. It never records the SecretID, a token, or
-an application secret. The accessor is treated as sensitive operational
-metadata and never appears in metrics or normal task output.
+last failure time/reason code, and the non-secret C5 attribution quartet for
+the latest run: actor, role, request id, and reason. It never records the
+SecretID, a token, or an application secret. The accessor is treated as
+sensitive operational metadata and never appears in metrics or normal task
+output. Metrics do not use attribution fields as labels.
 
 ### Least-privilege identities
 
@@ -118,10 +120,12 @@ short-lived OpenBao login tokens and TLS verification enabled.
 
 ### Safe rotation transaction
 
-The one reusable rotation playbook accepts a registry target and a non-secret
-run id. A scheduler reuses the same run id when it retries or recovers the same
-logical invocation. The playbook also serializes runs with a Kubernetes Lease
-and follows this order:
+The one reusable rotation playbook accepts a registry target, a non-secret run
+id, and C5 attribution metadata: actor, role, request id, and reason. The
+request id is the run id and remains stable when a scheduler retries or
+recovers that logical invocation. The playbook rejects missing or untrusted
+context before its first OpenBao or Kubernetes write. It also serializes runs
+with a Kubernetes Lease and follows this order:
 
 1. Read the target's metadata and current consumer state without logging a
    credential. Refuse unknown, incomplete, or expired-without-recovery-state
@@ -159,11 +163,10 @@ scheduled run to recover without another mint. The persisted transaction id
 identifies a minted replacement across scheduler attempts. Duplicate triggers
 and retries after a lost response inspect the target's existing
 transaction and resume it with the same staged SecretID; they never mint an
-additional SecretID while that transaction is pending. Scheduler and workflow
-requests and results carry only target names, run/transaction ids, and
-sanitized status or reason codes. SecretIDs, tokens, accessors, staging
-payloads, and application credentials never enter scheduler or workflow
-history, logs, or returned results. For
+additional SecretID while that transaction is pending. Requests and results
+carry only target names, run/transaction ids, C5 fields, and sanitized status
+or reason codes. SecretIDs, tokens, accessors, staging payloads, and application
+credentials never enter runner history, logs, or returned results. For
 `issued-pending-delivery`, the next run inspects every destination: if none has
 the transaction marker, it may resume delivery from the staged SecretID; if
 any has it, it transitions to `delivered-pending-readiness` and retains the
@@ -250,12 +253,40 @@ break-glass-only recovery path; they must not remain competing rotation paths.
    directly executing the reusable rotation playbook in the approved,
    digest-pinned Ansible execution image. This credential-maintenance runner
    does not call the AWX API or autoscale helper, so it runs while AWX is
-   scaled to zero. Assign a stable non-secret run id to each logical scheduled
-   invocation and reuse it after retries or recovery. Place the CronJob in a
-   protected runtime namespace with a dedicated service account. Its
-   Kubernetes permissions are limited to the named consumer Secrets and the
-   coordination Lease; its OpenBao identity follows the least-privilege policy
-   above. It does not use CMS identities, labels, or helper ingress.
+   scaled to zero. The scheduled actor is the authenticated Kubernetes
+   service-account identity; its role is the fixed
+   `approle-rotation-scheduler` role. Its reason is the fixed,
+   non-secret `scheduled-pre-expiry-rotation` value. The CronJob supplies a
+   stable non-secret request id/run id for each logical invocation and reuses
+   it after retries or recovery; caller-supplied variables cannot override the
+   actor, role, or reason. Place the CronJob in a protected runtime namespace
+   with a dedicated service account. Its Kubernetes permissions are limited to
+   the named consumer Secrets and the coordination Lease; its OpenBao identity
+   follows the least-privilege policy above.
+
+   A manual run is accepted only through an authenticated `dmf-cms` operator
+   action. It writes the immutable
+   [ADR-0028](../decisions/0028-identity-and-authority-chain.md) request
+   record, derives the human actor from the authenticated Authentik subject
+   and the authorized role from the session's authorization context, requires a
+   non-secret reason, generates the request id, and creates the same fixed Job.
+   Only the CronJob controller and this restricted dispatcher may create
+   runner Jobs in the protected namespace. The dispatcher does not accept
+   caller-supplied actor or role fields. Direct Job creation and arbitrary
+   extra-vars are not a manual dispatch path. If the trusted origin or C5
+   context is absent, the runner fails closed before writing to OpenBao or
+   Kubernetes. Manual and scheduled runs use the same dedicated runner
+   identity.
+
+   The runner carries the C5 quartet in its durable non-secret run receipt and
+   Job/Pod annotations. Kubernetes Secret mutations carry the request id and
+   attribution annotations so Kubernetes audit events correlate with the run.
+   OpenBao audit context carries the request id where the supported audit path
+   accepts it. Otherwise, the run receipt records the target, authenticated
+   OpenBao identity, operation time, and outcome for correlation with native
+   OpenBao audit events; the plan does not assume unsupported per-request audit
+   fields. The runner identity does not use CMS identities, labels, or helper
+   ingress.
 
    The playbook Lease remains the semantic no-overlap guard across scheduled,
    duplicate, and manual invocations. The runner records a success heartbeat
@@ -295,10 +326,16 @@ Implementation is complete only when all of the following pass:
   field rejection. Run syntax checks, `ansible-lint`, and `yamllint` from
   `dmf-infra/k3s-lab-bootstrap/`.
 - Runner tests prove the rotation executes with AWX scaled to zero and makes no
-  AWX API or autoscale-helper calls. Cover concurrent and manual invocations
-  through the shared Lease, duplicate and lost-response retries through the
-  same transaction, and prove that only a successful run records a success
-  heartbeat.
+  AWX API or autoscale-helper calls. Cover scheduled machine attribution and
+  the authenticated dmf-cms manual path against its immutable request record;
+  verify the quartet reaches the run receipt, Kubernetes annotations, consumer
+  mutation audit, and supported OpenBao audit correlation. Missing or
+  caller-forged context must fail before writes. Cover concurrent invocations
+  through the shared Lease, duplicate and
+  lost-response retries through the same request id and transaction, and prove
+  that only a successful run records a success heartbeat. Assert that no
+  SecretID, token, accessor, or staging value appears in attribution metadata,
+  logs, metrics, or results.
 - `dmf-promsd` tests use a fake metadata endpoint and prove it neither logs nor
   exposes sensitive fields. Its existing test suite remains green.
 - A read-only live pre-flight confirms the selected control-node context and
@@ -325,7 +362,8 @@ Implementation is complete only when all of the following pass:
 ## Completion and handoff
 
 Implement in reviewable cross-repo slices (`dmf-infra`, `dmf-promsd`, and only
-where necessary `dmf-env`), each referencing the umbrella issues in qualified
-form. The final umbrella documentation PR records the redacted evidence,
+where necessary `dmf-env` and `dmf-cms` for the authenticated manual-dispatch
+path), each referencing the umbrella issues in qualified form. The final
+umbrella documentation PR records the redacted evidence,
 updates this plan's status, and uses `Closes dmfdeploy/dmfdeploy#11` and
 `Closes dmfdeploy/dmfdeploy#396` only after every verification gate passes.
