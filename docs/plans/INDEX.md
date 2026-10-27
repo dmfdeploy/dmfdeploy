@@ -8,7 +8,7 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (4)
+## Active (5)
 
 - [forgejo-authentik-contributor-policy-plan](forgejo-authentik-contributor-policy-plan.md) — 2026-10-27
 - [openbao-approle-credential-lifecycle-plan](openbao-approle-credential-lifecycle-plan.md) — 2026-10-26
