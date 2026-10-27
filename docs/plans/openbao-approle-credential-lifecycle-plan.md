@@ -244,25 +244,27 @@ break-glass-only recovery path; they must not remain competing rotation paths.
    helper with an authenticated job-hold endpoint backed by a separate,
    named coordination Lease that the idle reaper checks before sleeping AWX.
    The endpoint accepts a non-secret run id and acquire, renew, or release
-   action. Each hold has a configured maximum duration and an expiry. Only the
-   caller holding that run id may renew or release it; an expired hold is
-   ignored, so a crashed trigger cannot keep AWX awake indefinitely. Give the
-   helper access only to this named Lease in addition to its existing wake
-   Lease.
+   action. Acquisition fails while another run holds the Lease. Each hold has
+   a configured maximum duration per renewal and an expiry. Only the active
+   holder for that run id may renew or release it; an expired hold is ignored,
+   so a crashed trigger cannot keep AWX awake indefinitely. Give the helper
+   access only to this named Lease in addition to its existing wake Lease.
 
    The CronJob first calls `/ensure-awake` and waits for the AWX API to become
    ready, then acquires the job hold before launching the registry-sweep Job
    Template through the AWX API. A scoped trigger service account may call only
    the helper and launch/read that one template. While the AWX job is active,
    the controller renews the hold before its expiry, using a duration no longer
-   than the helper's configured maximum. It stops launching or monitoring if
-   renewal fails. The AWX execution uses the dedicated rotation Container
-   Group and its scoped Kubernetes service account. The controller releases
-   the hold in cleanup after success, launch failure, job failure, or
-   cancellation; if cleanup cannot run, the hold expires. It records its
-   heartbeat only after successful job completion. Failure to wake, acquire or
-   renew the hold, launch, or complete is recorded as a failed run and alerted;
-   the independent monitoring stack also alerts on a stale/missing heartbeat.
+   than the helper's configured maximum. Renewal failure marks the run failed
+   and triggers an alert; the controller continues best-effort job monitoring
+   and cleanup, and never records a success heartbeat for that run. The AWX
+   execution uses the dedicated rotation Container Group and its scoped
+   Kubernetes service account. The controller releases the hold in cleanup
+   after success, launch failure, job failure, or cancellation; if cleanup
+   cannot run, the hold expires. It records its heartbeat only after successful
+   job completion. Failure to wake, acquire or renew the hold, launch, or
+   complete is recorded as a failed run and alerted; the independent monitoring
+   stack also alerts on a stale/missing heartbeat.
    Disable any AWX-native schedule so it cannot race the external trigger. The
    playbook Lease remains the backend-independent no-overlap guard. Rotation
    occurs at the two-thirds threshold, giving the 30-day roles at least ten
