@@ -9,14 +9,28 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/11
 **Related issues:** [#396](https://github.com/dmfdeploy/dmfdeploy/issues/396),
 [#727](https://github.com/dmfdeploy/dmfdeploy/issues/727)
 
+**Disposition approved 2026-10-27:** `born-inventory-netbox-reader` is a
+setup-only credential. Its explicit playbook consumers were checked in
+`dmf-infra`: the 694 NetBox inventory survey is called by bootstrap configure
+and the lifecycle Layer 6 test. It is not a long-running application identity.
+It is excluded from continuous rotation and expiry monitoring. Every deliberate
+rerun of those survey paths must obtain a fresh credential through the
+documented operator-triggered setup path; it must not rely on a cached
+break-glass SecretID surviving its TTL. The issuance path, expiry, revocation,
+and failure recovery still need implementation and tests. If a new continuous
+consumer is found, stop and request a new disposition instead of adding it to
+the setup-only exception by assumption.
+
 ## Goal
 
 Close [#11](https://github.com/dmfdeploy/dmfdeploy/issues/11) and
 [#396](https://github.com/dmfdeploy/dmfdeploy/issues/396) as one lifecycle:
-every AppRole SecretID with a finite TTL is inventoried, rotated before expiry,
-delivered to every consumer without exposing its value, monitored independently
-of the orchestration backend, and backed by evidence that bootstrap root-token
-material is not durable.
+every continuously used finite-TTL AppRole SecretID is inventoried, rotated
+before expiry, delivered to every runtime consumer without exposing its value,
+and monitored independently of the orchestration backend. Setup-only credentials
+have an explicit operator-triggered issuance and cleanup path instead of
+continuous rotation. The lifecycle is also backed by evidence that bootstrap
+root-token material is not durable.
 
 The immediate failure to prevent is the observed 30-day ESO credential expiry:
 once repeated failed AppRole logins trigger OpenBao lockout, minting a new
@@ -50,11 +64,13 @@ It does not begin the later Phase-1 issues.
 
 `dmf-infra` currently gives the `external-secrets` and `born-inventory`
 AppRoles a 720-hour SecretID TTL. The object-storage AppRoles have a one-year
-TTL. The existing `110-eso-secret-rotation.yml` can mint and install a new ESO
-credential, but it uses operator break-glass credentials, covers ESO only, and
-is not a periodic steady-state controller. The older `dmf-env` AppRole helper
-scripts write a workstation Keychain value and do not update the cluster
-consumer, so they are not a substitute for this lifecycle.
+TTL. The approved setup-only disposition excludes `born-inventory` from the
+periodic runtime registry; its per-invocation fresh-credential path remains to
+be implemented. The existing `110-eso-secret-rotation.yml` can mint and install
+a new ESO credential, but it uses operator break-glass credentials, covers ESO
+only, and is not a periodic steady-state controller. The older `dmf-env`
+AppRole helper scripts write a workstation Keychain value and do not update the
+cluster consumer, so they do not implement this lifecycle.
 
 The OpenBao bootstrap role already creates a sanitized break-glass record and
 revokes the first-bootstrap root token when
@@ -66,8 +82,10 @@ any residual or restore-path gaps, and never add a second root-token path.
 
 ### AppRole rotation registry
 
-`dmf-infra` owns one declarative registry of every role that sets a finite
-`secret_id_ttl`. A target contains only non-secret metadata:
+`dmf-infra` owns one declarative registry of every continuously used role that
+sets a finite `secret_id_ttl`. Setup-only roles appear in a separate explicit
+disposition inventory and are not silently omitted. The runtime registry
+targets contain only non-secret metadata:
 
 - stable target name and OpenBao AppRole name;
 - TTL and calculated rotation/alert thresholds;
@@ -76,12 +94,42 @@ any residual or restore-path gaps, and never add a second root-token path.
 - readiness check that proves the consumer accepted the replacement; and
 - the location of its metadata record.
 
-The registry initially accounts for `external-secrets`, `born-inventory`, and
-each generated `object-storage-*` role. Before implementation it is generated
-or checked against every AppRole declaration in `dmf-infra`; a finite TTL not
-represented in the registry is a hard failure. Each legacy role has an explicit
+The registry initially accounts for `external-secrets` and each generated
+`object-storage-*` role. The separate disposition inventory records
+`born-inventory-netbox-reader` as setup-only, with its checked Ansible
+entrypoints, fresh-on-rerun requirement, and issuance/revocation verification.
+Before implementation, a static check compares every finite-TTL AppRole
+declaration in `dmf-infra` against exactly one of these inventories; a role in
+neither or both is a hard failure. Each other legacy role also has an explicit
 disposition. An operator-only consumer is either migrated to a managed
 destination or removed before its finite TTL can remain in scope.
+
+The setup-only issuance path is operator-triggered and runs as part of each
+694 survey invocation, including the lifecycle Layer 6 test. It uses a separate
+Kubernetes-authenticated issuer identity bound to a dedicated ServiceAccount in
+the `openbao` namespace. The invoking runner obtains a short-lived TokenRequest
+JWT for that ServiceAccount, authenticates to OpenBao, and mints a fresh
+SecretID for the read-only NetBox runtime lookup. The issuer policy is limited
+to creating, looking up, and destroying SecretIDs for
+`born-inventory-netbox-reader`; it cannot read NetBox data, change the AppRole,
+or mint credentials for another role. Each SecretID create request sets a
+one-use limit and a one-hour maximum TTL. The ID is used only for that
+invocation, and its accessor is revoked in an `always` cleanup path after the
+lookup or on a handled failure. A crash leaves at most a one-use credential
+that expires within one hour; recovery starts with a new run and does not
+depend on the old SecretID. The playbook fails closed if the OpenBao version
+does not accept these per-ID bounds or if the create response does not confirm
+them. The issuer cannot write the AppRole configuration or change its
+policies.
+The SecretID is never written to a persistent workstation file, Keychain, or
+application Secret. A setup run requires trusted C5 attribution context and
+fails closed when identity, reason, request id, issuance, or cleanup is
+unavailable. Tests cover normal completion and interruption between issuance,
+use, and revocation. The setup issuer has no access to the scheduled rotation
+registry and is not a second periodic rotator. The authenticated manual
+dispatcher derives actor and role, requires a reason, creates the request id,
+and invokes the fixed 694 workflow. Direct playbook invocation without that
+trusted context fails before OpenBao writes.
 
 Each target has a non-secret OpenBao metadata record under a dedicated
 `platform/approle-rotation/` prefix. It records the role name, target version,
@@ -159,10 +207,15 @@ with a Kubernetes Lease and follows this order:
    either accessor while delivery/readiness is unresolved.
 
 The transaction is idempotent and records enough protected state for the next
-scheduled run to recover without another mint. The persisted transaction id
-identifies a minted replacement across scheduler attempts. Duplicate triggers
-and retries after a lost response inspect the target's existing
-transaction and resume it with the same staged SecretID; they never mint an
+scheduled run to recover without another mint. Before requesting an OpenBao
+SecretID, persist a transaction intent and the protected candidate value
+required by the supported custom-SecretID API; a lost create response must be
+recoverable by looking up that same candidate and transaction. This avoids an
+additional random ID. Validate this protocol against the deployed OpenBao
+version and fixture-driven API behavior before relying on it. The persisted
+transaction id identifies a minted replacement across scheduler attempts.
+Duplicate triggers and retries after a lost response inspect the target's
+existing transaction and resume it with the same staged SecretID; they never mint an
 additional SecretID while that transaction is pending. Requests and results
 carry only target names, run/transaction ids, C5 fields, and sanitized status
 or reason codes. SecretIDs, tokens, accessors, staging payloads, and application
@@ -187,28 +240,36 @@ break-glass-only recovery path; they must not remain competing rotation paths.
 ### A. #11: credential hygiene and root-token disposal
 
 1. **Inventory and registry.** In `dmf-infra`, locate every finite
-   `secret_id_ttl` assignment and its consumer. Add the registry, the
-   completeness check, and target-specific readiness/delivery adapters. The
-   review must identify whether the current `born-inventory` and
-   `object-storage-*` credentials are consumed from Kubernetes or an OpenBao
-   binding before moving them; do not infer a destination from a name.
+   `secret_id_ttl` assignment and its consumer. Add the runtime registry,
+   setup-only disposition inventory, completeness check, and target-specific
+   readiness/delivery adapters. The review identified `born-inventory` as an
+   Ansible-only setup consumer and `object-storage-*` credentials as requiring
+   target-by-target destination evidence; do not infer a destination from a
+   name. Implement and test the setup-only fresh-on-rerun
+   issuance/use/revocation path separately from periodic rotation.
 
-2. **Create the two identities and policies.** Add the scheduler and observer
-   Kubernetes-auth roles, service accounts, exact RBAC, and rendered explicit
-   OpenBao policy paths. Extend the OpenBao identity verifier with positive
-   login probes and negative probes for application-secret reads, policy
-   writes, unrelated AppRoles, and `sys/*`. Preserve ADR-0021's restricted
-   `approle-reconciler` scope; do not broaden it to solve this task.
+2. **Create scoped identities and policies.** Add the setup-only issuer,
+   scheduler, and observer Kubernetes-auth roles and ServiceAccounts with
+   exact OpenBao policy paths. The setup issuer can adjust only the target's
+   create/lookup/destroy IDs for that target, and cannot read application data
+   or change AppRole configuration or policies. The scheduler and observer
+   keep their distinct permissions. Extend the OpenBao
+   identity verifier with positive login probes and negative probes for
+   application-secret reads, policy writes, unrelated AppRoles, and `sys/*`.
+   Preserve ADR-0021's restricted `approle-reconciler` scope; do not broaden it
+   to solve this task.
 
 3. **Implement the registry-driven transaction.** Replace the ESO-only
    procedure with the transaction above, retaining its useful consumer
    readiness behavior. The playbook must run safely once per target and as a
    complete sweep. Test normal delivery, a duplicate invocation, interruption
-   before delivery, partial delivery, delivered-but-unready recovery, and a
-   target with no prior accessor. Tests assert that an undelivered replacement
-   is safely recoverable from staging, a delivered replacement is retained
-   through readiness failure, and the old accessor is destroyed only after a
-   successful replacement.
+   before mint, lost create response, interruption before delivery, partial
+   delivery, delivered-but-unready recovery, and a target with no prior
+   accessor. Tests assert that a pre-mint intent and staged candidate make a
+   lost response resumable, an undelivered replacement is safely recoverable
+   from staging, a delivered replacement is retained through readiness
+   failure, and the old accessor is destroyed only after a successful
+   replacement.
 
 4. **Converge bootstrap root-token handling.** Audit the OpenBao init output,
    break-glass writer, dmf-init backup/restore inputs, pre-Bao bundles, and
@@ -317,13 +378,17 @@ break-glass-only recovery path; they must not remain competing rotation paths.
 
 Implementation is complete only when all of the following pass:
 
-- Static registry coverage proves that every finite-TTL AppRole declaration
-  belongs to exactly one managed target.
+- Static inventory coverage proves that every finite-TTL AppRole declaration
+  belongs to exactly one runtime-managed target or an explicitly approved
+  setup-only disposition. Tests prove that the setup-only NetBox survey obtains
+  a fresh credential per invocation and does not persist it beyond that run.
 - Unit tests cover expiry calculation, two-thirds scheduling, warning/critical
   thresholds, stale metadata, metric redaction, and alert expressions.
 - Role/playbook tests cover permitted and denied OpenBao paths, consumer update
   ordering, no-overlap locking, retry after interruption, and root-token
-  field rejection. Run syntax checks, `ansible-lint`, and `yamllint` from
+  field rejection. The lost-create-response case must use the same protected
+  candidate and prove no second SecretID is minted. Run syntax checks,
+  `ansible-lint`, and `yamllint` from
   `dmf-infra/k3s-lab-bootstrap/`.
 - Runner tests prove the rotation executes with AWX scaled to zero and makes no
   AWX API or autoscale-helper calls. Cover scheduled machine attribution and
