@@ -14,11 +14,14 @@ identity. This is not open registration: an Authentik application binding
 allows only `forgejo-contributor` or `ops-admin` members to reach Forgejo.
 The `ops-admin` group remains the sole source of Forgejo administrator status.
 
-The account identifier is the OIDC `sub`, emitted by Authentik as `user_uuid`.
-It is stable across display-name changes. Forgejo may refresh display fields,
-but it must not merge accounts by a matching email address. Local registration
-and generic OpenID sign-up are disabled; OAuth auto-registration remains only
-for the approved Authentik application path.
+The target account identifier is the OIDC `sub`, emitted by Authentik as
+`user_uuid`; it is stable across display-name changes. The current deployment
+still uses `user_username` so existing Forgejo identity bindings keep working.
+The role rejects a UUID subject until a supported migration has been tested.
+Forgejo may refresh display fields, but it must not merge accounts by a
+matching email address. Local registration and generic OpenID sign-up are
+disabled; OAuth auto-registration remains only for the approved Authentik
+application path.
 
 Membership in `forgejo-contributor` establishes eligibility to log in and
 receive a normal Forgejo account. It does not grant instance administration,
@@ -35,9 +38,9 @@ where the resulting collaboration trail is recorded.
 - Follows ADR-0028: Authentik remains the human identity authority;
   break-glass accounts stay dormant; routine work is individually attributable.
 - No shared accounts, identity aliases, or email-based automatic linking.
-- No live inspection, migration, or access change is part of this plan. Existing
-  accounts are audited before a rollout and any collision is handled as an
-  explicit migration, never by automatic merging.
+- This implementation PR performs no live inspection, migration, or access
+  change. Existing accounts must be audited before rollout; any collision is
+  handled as an explicit migration, never by automatic merging.
 
 ## Implementation
 
@@ -56,11 +59,13 @@ where the resulting collaboration trail is recorded.
 3. Disable Forgejo local registration and generic OpenID signup while retaining
    OAuth auto-registration for the Authentik source. Add a render/static test
    showing only the Authentik source can create an approved user's account.
-4. Extend `audit-admin-identities.yml` or its companion verifier to report
-   unexpected Forgejo administrators and local users separately, without
-   emitting personal details or credentials. Add a no-live test fixture for
-   permitted `forgejo-break-glass`, Authentik `ops-admin`, service identities,
-   and normal contributors.
+4. Extend `audit-admin-identities.yml` or its companion verifier to report the
+   exact expected Forgejo administrator set without emitting personal details
+   or credentials. Add a no-live fixture for permitted
+   `forgejo-break-glass`, Authentik `ops-admin`, and service identities. The
+   current CLI does not expose local-versus-OIDC bindings or external subject
+   keys; keep that audit explicitly pending until a supported read-only query
+   is available, and never infer bindings from usernames.
 5. Add an operator runbook describing the evidence chain: Authentik subject and
    group decision; Forgejo account and repository events; pull-request review
    and protected-branch history. It must state that a team/repository grant is
@@ -70,17 +75,23 @@ where the resulting collaboration trail is recorded.
 
 - Rendered Authentik blueprint includes both explicit Forgejo application group
   bindings and no unbounded access path.
-- Rendered Forgejo configuration disables local/generic signup, auto-registers
-  only through the named Authentik source, uses UUID-backed `sub`, and does not
-  use automatic account linking.
-- A regression test proves that the deployed blueprint keeps
-  `user_username`; a separate guard test proves that `user_uuid` is rejected
-  until a supported migration exists. The component change does not claim that
-  live identities have already been migrated.
+- Current rendered Forgejo configuration disables local/generic signup,
+  auto-registers through the named Authentik source, and does not use automatic
+  account linking. Rendered Authentik bindings admit only the named groups.
+- Current regression tests prove that the blueprint keeps `user_username`,
+  the role rejects `user_uuid`, and the rendered group bindings admit
+  contributors and administrators while denying ordinary users. These tests
+  do not claim that the UUID target has shipped or that live identity mappings
+  have been audited.
+- Before the UUID target can be enabled, a tested and backed-up migration must
+  preserve each Forgejo account across every subject-key field used by the
+  deployed version. The migration must stop on missing or ambiguous mappings.
 - Tests cover allowed contributor, allowed administrator, and denied ordinary
   Authentik user paths without using a live identity or cluster.
-- The cross-app audit reports no bootstrap administrator as a routine Forgejo
-  identity and documents any pre-existing user collision before rollout.
+- The Forgejo portion of the audit reports the exact expected Forgejo admin
+  set. Proving the full cross-app absence of bootstrap identities, plus
+  Forgejo local-account and OIDC subject-binding inventory, remains pending
+  until those checks have tested read-only data sources.
 - Deployment evidence records the configuration revision and an approved
   contributor's Forgejo account creation without exposing tokens or personal
   data.
