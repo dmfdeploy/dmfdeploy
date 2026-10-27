@@ -118,8 +118,10 @@ short-lived OpenBao login tokens and TLS verification enabled.
 
 ### Safe rotation transaction
 
-The one reusable rotation playbook accepts a registry target. It serializes
-runs with a Kubernetes Lease and follows this order:
+The one reusable rotation playbook accepts a registry target and a non-secret
+run id. A scheduler reuses the same run id when it retries or recovers the same
+logical invocation. The playbook also serializes runs with a Kubernetes Lease
+and follows this order:
 
 1. Read the target's metadata and current consumer state without logging a
    credential. Refuse unknown, incomplete, or expired-without-recovery-state
@@ -153,7 +155,15 @@ runs with a Kubernetes Lease and follows this order:
    either accessor while delivery/readiness is unresolved.
 
 The transaction is idempotent and records enough protected state for the next
-scheduled run to recover without another mint. For
+scheduled run to recover without another mint. The persisted transaction id
+identifies a minted replacement across scheduler attempts. Duplicate triggers
+and retries after a lost response inspect the target's existing
+transaction and resume it with the same staged SecretID; they never mint an
+additional SecretID while that transaction is pending. Scheduler and workflow
+requests and results carry only target names, run/transaction ids, and
+sanitized status or reason codes. SecretIDs, tokens, accessors, staging
+payloads, and application credentials never enter scheduler or workflow
+history, logs, or returned results. For
 `issued-pending-delivery`, the next run inspects every destination: if none has
 the transaction marker, it may resume delivery from the staged SecretID; if
 any has it, it transitions to `delivered-pending-readiness` and retains the
@@ -238,9 +248,16 @@ break-glass-only recovery path; they must not remain competing rotation paths.
 
 8. **Schedule and launch the playbook.** The initial adapter is a Kubernetes
    CronJob controller that remains available while AWX is scaled to zero and
-   runs once daily. The existing AWX autoscale helper exposes an authenticated
-   `/ensure-awake` endpoint; this endpoint establishes only its bounded startup
-   and grace-period wake window. It is not a job-lifetime hold. Extend the
+   runs once daily. It assigns a stable non-secret run id to each logical
+   scheduled invocation and reuses it after retries or recovery. Place the
+   CronJob in a protected runtime namespace with a dedicated service account
+   and pod selector. Add only a narrow NetworkPolicy ingress rule for that
+   selector to the helper on port 8080. The trigger must not impersonate the
+   CMS namespace or pod label. The current helper policy remains unchanged
+   until this trigger is placed. The existing AWX autoscale helper exposes an
+   authenticated `/ensure-awake` endpoint. It establishes only its bounded
+   startup and grace-period wake window. It is not a job-lifetime hold. Extend
+   the
    helper with an authenticated job-hold endpoint backed by a separate,
    named coordination Lease that the idle reaper checks before sleeping AWX.
    The endpoint accepts a non-secret run id and acquire, renew, or release
@@ -268,9 +285,17 @@ break-glass-only recovery path; they must not remain competing rotation paths.
    Disable any AWX-native schedule so it cannot race the external trigger. The
    playbook Lease remains the backend-independent no-overlap guard. Rotation
    occurs at the two-thirds threshold, giving the 30-day roles at least ten
-   days of retry window. The playbook interface, registry, metrics, and rules
-   have no AWX-specific dependency; any future adapter must preserve the daily
-   invocation and no-overlap guarantees.
+   days of retry window. The registry, rotation transaction and safety gates,
+   run request/result, and telemetry are backend-neutral. The current
+   schedule/wake/hold/launch/status adapter is CronJob-to-AWX. Its helper and
+   AWX job operations remain AWX-specific under the current ADRs. A future
+   Temporal or other backend RFC may replace this adapter while preserving
+   the stable non-secret run identity, transaction recovery, shared
+   no-overlap Lease, and telemetry. Workflow history may contain only
+   non-secret request fields and sanitized outcomes. Such a change does not
+   authorize replacing AWX catalog or media actuation, or extending the
+   AWX-only availability contract to other workloads; those changes require
+   their own architectural decision.
 
 9. **Prove steady state.** After a controlled non-production rotation, collect
    redacted evidence that every registry target has a future expiry, a recent
