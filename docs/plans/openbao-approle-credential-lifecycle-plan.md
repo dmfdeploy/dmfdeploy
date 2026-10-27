@@ -230,24 +230,35 @@ fields are `schema_version` (integer `1`), `run_kind` (`scheduled`),
 `outcome` (`success`), `request_id`, `actor`, `role`, `reason`, `completed_at`
 (positive Unix UTC seconds), `runtime_targets` (the sorted, duplicate-free list
 of every runtime target), and `registry_sha256`. The digest is SHA-256 of the
-`runtime_targets` JSON encoded as UTF-8 with keys sorted and compact separators;
-the setup-only disposition is excluded. Manual runs and failed scheduled runs
-never write this marker.
+complete non-secret runtime registry mapping, encoded as UTF-8 JSON with keys
+sorted and compact separators. This covers role names, TTLs, destinations,
+readiness gates, and issuance policy; setup-only dispositions are excluded.
+The observer and writer use this same canonical encoding. Manual runs and
+failed scheduled runs never write this marker.
 
 The writer prepares every target rotation or no-op, consumer readiness gate,
 old-accessor revocation, stage cleanup, and required target metadata before it
 captures `completed_at`. It then persists the exact non-secret completion
 candidate at
-`secret/data/platform/approle-rotation/scheduled-sweep-candidate` as a recovery
-receipt, re-confirms its Lease, and writes the marker last using KV-v2 CAS
-against the observed version (CAS `0` only when the marker is absent). The
-candidate preserves its original request id and timestamp across retries. On
-restart, the writer resolves an existing candidate before beginning a new
-sweep: an exact marker match proves commit; an unchanged marker version permits
-only a retry of that same payload with the same CAS; a newer marker or CAS
-conflict is never overwritten by refreshing the version. An unavailable or
-ambiguous result remains `commit-unknown` with the receipt retained. A failed
-target, manual run, or partial sweep leaves the previous marker unchanged.
+`secret/data/platform/approle-rotation/sweep-candidates/<job-uid>` as an
+immutable per-Job-UID recovery receipt. The path suffix is the validated
+canonical request UUID; the writer has no list permission. Its exact fields
+are `schema_version`, `request_id`,
+`expected_marker_version`, and the complete immutable `marker_payload`.
+`expected_marker_version` is the observed marker version, or `0` when absent.
+Create each per-Job-UID candidate with CAS `0`, retain it as a receipt, and do
+not replace or delete it. If a candidate write response is lost, read back the
+exact candidate, or retry only with the same candidate CAS when the version is
+unchanged. A different value at that Job UID path blocks progress. A later
+CronJob Job may complete its own validated sweep with its own candidate; an
+older candidate cannot overwrite the newer marker because its persisted
+`expected_marker_version` is stale. After staging, re-confirm the Lease and
+write the marker last with the candidate's fixed `expected_marker_version`. On restart,
+an exact marker match proves commit; an unchanged marker version permits only
+the same payload and same CAS retry. A newer marker or CAS conflict is never
+overwritten by refreshing the version. An unavailable or ambiguous result
+remains `commit-unknown` with the receipt retained. A failed target, manual
+run, or partial sweep leaves the previous marker unchanged.
 
 The writer uses monotonic deadlines and a wall-clock-jump guard. `completed_at`
 is captured only after all pre-commit work, is nondecreasing from the previous
@@ -276,9 +287,9 @@ Its OpenBao policy is rendered from the registry and may only:
   OpenBao consumer binding, where applicable; and
 - create, read, and delete the single transaction-scoped staging secret for
   that target, with no list access to other staging records; and
-- read/create/update the exact global marker and read/create/update the exact
-  scheduled-sweep recovery receipt, using KV-v2 CAS for the marker. It has no
-  list access to either path.
+- read/create/update the exact global marker and create/read one candidate at
+  the UUID-scoped scheduled-sweep recovery path, using KV-v2 CAS. It has no list
+  access to either path.
 
 It has no `sys/*`, policy-writing, auth-method administration, arbitrary
 AppRole, application-secret, or unrelated KV access. Its Kubernetes service
@@ -468,27 +479,35 @@ break-glass-only recovery path; they must not remain competing rotation paths.
    architecture is unknown or unsupported; this plan does not claim amd64
    support. Reconfirm image availability and target architecture before
    enablement. This credential-maintenance runner does not call the AWX API or
-   autoscale helper, so it runs while AWX is scaled to zero. The scheduled actor is the authenticated Kubernetes
-   service-account identity; its role is the fixed
-   `approle-rotation-scheduler` role. Its reason is the fixed,
-   non-secret `scheduled-pre-expiry-rotation` value. The CronJob supplies a
-   stable non-secret request id/run id for each logical invocation, derived
-   from the verified Job UID, and reuses it after Pod retries or recovery;
-   caller-supplied variables cannot override the
-   actor, role, or reason. Place the CronJob in a protected runtime namespace
-   with a dedicated service account. Its Kubernetes permissions are limited to
-   the named consumer Secrets and the coordination Lease; its OpenBao identity
+   autoscale helper, so it runs while AWX is scaled to zero. The actor is
+   exactly `system:serviceaccount:dmf-approle-rotation:approle-rotation-scheduler`,
+   the role is `approle-rotation-scheduler`, and the reason is
+   `scheduled-pre-expiry-rotation`. The request id is the exact canonical
+   lowercase Kubernetes Job `metadata.uid` UUID string, reused after Pod
+   retries or recovery. Caller-supplied variables cannot override these
+   values. Place the CronJob in a protected namespace with a dedicated service
+   account. Only the trusted infrastructure deployer may create or change the
+   CronJob. No untrusted user, operator account, or workload may create Pods or
+   Jobs using this service account or manage objects in this namespace. The
+   runner has no Pod, Job, or CronJob create/update permission. Its read-only
+   lineage checks use namespace-scoped GET access for generated Pod and Job
+   names and the fixed CronJob. Other Kubernetes permissions are limited to
+   named consumer Secrets and the coordination Lease; its OpenBao identity
    follows the least-privilege policy above.
 
-   Scheduled authority is verified from the running Pod's service account and
-   the immutable owner chain to the fixed CronJob, including the CronJob UID
-   and expected spec. The request id is derived from the verified Job UID and
-   remains stable across Pod retries. Job and Pod annotations are audit copies
-   only; they are never trusted as authority. The runner has read-only access
-   to the named Pod, Job, and CronJob objects needed for this verification.
+   Scheduled authority requires the protected-namespace creator boundary and
+   exact Pod→Job→CronJob owner UIDs, kinds, names, and controller flags. Verify
+   every namespace and service account, then compare the normalized CronJob,
+   Job template, and Pod specs against configured values. The comparison
+   includes all containers and init containers, image digest and arm64 node
+   selector, commands and arguments, environment, volumes, mounts, and
+   security contexts. Pod and Job annotations are audit copies only. A forged
+   owner reference, altered spec, or direct playbook invocation fails before
+   OpenBao login or Kubernetes mutation.
 
-   Manual rotation remains disabled until a separate reviewed C5 receipt
-   producer and restricted dispatcher exist. The current dmf-cms receipt
+   Manual rotation remains disabled in this work. Its positive path is
+   deferred to a separate reviewed C5 receipt producer and restricted
+   dispatcher. The current dmf-cms receipt
    capability does not authorize creating Jobs or requesting service-account
    tokens. Do not grant CMS Job, Pod, or TokenRequest privileges, and do not
    accept caller-supplied annotations or arbitrary extra-vars as authority.
@@ -509,8 +528,11 @@ break-glass-only recovery path; they must not remain competing rotation paths.
    The playbook Lease remains the semantic no-overlap guard across scheduled,
    duplicate, and manual invocations. Only a full successful scheduled sweep
    commits the global marker; per-target v1 heartbeat fields remain unchanged.
-   A failed-run signal or stale/missing marker alerts through the independent
-   monitoring stack. Rotation occurs
+   A target failure recorded in target metadata alerts immediately. A missing
+   or stale marker alerts when the scheduled-heartbeat freshness window
+   expires. A preflight failure before target metadata is written has no
+   separate per-run failure signal in this contract; heartbeat expiry is its
+   backstop. Rotation occurs
    at the two-thirds threshold, giving the 30-day roles at least ten days of
    retry window. The registry, rotation transaction and safety gates, run
    request/result, and telemetry are backend-neutral. The evaluation in
@@ -550,16 +572,18 @@ Implementation is complete only when all of the following pass:
   `dmf-infra/k3s-lab-bootstrap/`.
 - Runner tests prove the rotation executes with AWX scaled to zero and makes no
   AWX API or autoscale-helper calls. Cover scheduled machine attribution and
-  the authenticated dmf-cms manual path against its immutable request record;
-  verify the quartet reaches the run receipt, Kubernetes annotations, consumer
-  mutation audit, and supported OpenBao audit correlation. Missing or
-  caller-forged context must fail before writes. Cover concurrent invocations
+  verify the quartet reaches the non-secret run receipt, Kubernetes annotations,
+  consumer mutation audit, and supported OpenBao audit correlation. This work
+  rejects manual or direct-playbook invocation before writes; no positive manual
+  path is accepted here. Cover concurrent invocations
   through the shared Lease, duplicate and
   lost-response retries through the same request id and transaction, and prove
   that no manual/failed/partial run changes the marker and that only a complete
   successful sweep commits it. Cover marker CAS conflict/lost response,
-  restart from the exact durable candidate, stale lease/marker, registry
-  digest mismatch, future/backward timestamps, and post-commit reporting
+  restart from the exact durable candidate including its expected marker CAS,
+  candidate write lost-response recovery, stale lease/marker, forged owner
+  references, altered CronJob/Job/Pod specs, denied untrusted create capability,
+  registry digest mismatch, future/backward timestamps, and post-commit reporting
   failure. The observer must withhold heartbeat on invalid/missing marker with
   no legacy fallback while retaining valid target metrics. Assert that no
   SecretID, token, accessor, or staging value appears in attribution metadata,
