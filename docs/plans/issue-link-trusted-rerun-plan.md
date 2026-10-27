@@ -18,42 +18,54 @@ check trusted and preventing the rerun token from affecting unrelated runs.
   `pull_request_target` workflow. Never check out or execute PR-controlled
   files. Read the current body and labels through GitHub's pull-request API on
   every attempt; treat the body only as data passed to the matcher by file.
-- Keep top-level workflow permissions empty. Grant `actions: write` only to
-  the narrowly scoped rerun job; grant it only the read permissions needed to
-  identify the current PR and candidate runs.
+- Keep `issue-link.yml` read-only and preserve its required check name. A
+  separate trusted workflow handles reruns through `workflow_run` after the
+  issue-link check completes. That coordinator uses default-branch code and
+  never checks out PR code.
+- Keep both workflows' top-level permissions empty. Grant `actions: write`
+  only to the coordinator's rerun job; grant it only the read permissions
+  needed to identify the current PR and candidate runs.
 - A body or label edit may re-run an existing completed `issue-link` check
   suite for the same live PR head and event lineage. It must not dispatch a
   new workflow run, rerun a different workflow, or select a run for another PR
   or commit. New commits and normal open/reopen/synchronize events use the
   regular check path.
-- Never cancel, delete, or mutate unrelated check runs. The existing
-  `issue-link` concurrency group remains scoped to the same PR.
+- Never cancel, delete, or mutate unrelated check runs. The required
+  `issue-link` job name remains unchanged. Its concurrency key is unique to a
+  workflow run and attempt so independent original suites do not cancel one
+  another while a coordinator reruns their existing run IDs.
 
 ## Rerun contract
 
-The trusted workflow validates its trigger and obtains the live PR body,
-labels, head SHA, author, and number. Only the first attempt of a body/label
-event may dispatch reruns. The dispatcher accepts the PR author or a current
-repository actor with permission to edit the PR; it fails closed when the live
-PR author, event actor, or permission result is missing or ambiguous. It
-considers only completed runs owned by the exact `issue-link` workflow on
-`pull_request_target`, for that PR number and current PR head SHA. It excludes
-the current run and active candidates, but may retry an older run that failed
-again on a later legitimate edit even if that run already has a prior rerun
-attempt. It rechecks the PR head and each candidate immediately before
-rerunning. Any missing, ambiguous, stale, or untrusted data fails closed
-without making a rerun request.
+The coordinator accepts only successful, first-attempt `issue-link` workflow
+runs from `pull_request_target`. It verifies the source workflow ID and path,
+then obtains the live PR body, labels, head SHA, base ref, author, and number.
+The event actor must be the PR author or a current repository actor with
+permission to edit the PR. Missing or ambiguous identity and permission data
+fails closed. The coordinator reruns only completed runs from the exact
+`issue-link` workflow and `pull_request_target` event, tied to that PR number
+and current head SHA. It excludes the source run and active candidates, but
+may retry a previously rerun candidate that failed again after a later
+legitimate edit. It rechecks the live PR head and each candidate immediately
+before rerunning. Any missing, ambiguous, stale, or untrusted data fails
+closed without making a rerun request.
 
-Each rerun operates on an existing failed run ID, preserving that run's check
-suite, and re-evaluates the live body and labels. Thus a body that changes
-back before a rerun remains failing, and the next legitimate edit can retry
-the same suite. If the PR head changes while selection is in progress, no
-old-head run is rerun; the synchronize event evaluates the new head. If
-multiple matching stale failed suites exist, rerun every eligible suite for
-that PR and commit, without touching successful, active, or unrelated runs.
-Rerun attempts themselves never dispatch another rerun, preventing loops.
-The rerun API call uses the `actions: write` permission only in this trusted
-job.
+Each rerun operates on an existing run ID, preserving that run's check suite,
+and re-evaluates the live body and labels. The coordinator confirms the live
+body still passes the same matcher before it issues a rerun. Thus a body that
+changes back before a rerun remains failing, and a later successful check may
+retry the same suite. If the PR head changes while selection is in progress,
+no old-head run is rerun; the synchronize event evaluates the new head. If
+multiple matching stale failed suites exist, rerun each eligible failure
+sequentially and wait for completion before starting the next. Do not touch
+successful or unrelated runs. The coordinator serializes by PR with
+`cancel-in-progress: false`; GitHub retains only one pending run in a
+concurrency group, so each coordinator freshly scans every eligible stale
+failure, regardless of which event queued that coordinator.
+`workflow_run` events produced by reruns are ignored after attempt one,
+preventing loops while allowing later first-attempt events to retry failures.
+The rerun API call uses the `actions: write` permission only in the trusted
+coordinator job.
 
 ## Verification
 

@@ -24,11 +24,12 @@ on:
 
 permissions: {}
 
-# The newest event for a PR wins. A superseded run ends as cancelled, which
-# never satisfies a required check, and the newer run reports in its place.
+# Keep each event's required check run independent. The trusted rerun
+# coordinator serializes repairs and must not have one same-PR event cancel
+# another check suite while it reruns the original suite ID.
 concurrency:
-  group: issue-link-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  group: issue-link-${{ github.run_id }}-${{ github.run_attempt }}
+  cancel-in-progress: false
 
 jobs:
   issue-link:
@@ -58,34 +59,16 @@ jobs:
             and all(.labels[]; (.name | type) == "string")' \
             "$RUNNER_TEMP/pr.json" >/dev/null
           jq -j '.body // ""' "$RUNNER_TEMP/pr.json" >"$RUNNER_TEMP/pr-body.md"
-          jq -r '[.labels[].name] | join(" ")' "$RUNNER_TEMP/pr.json" >"$RUNNER_TEMP/pr-labels.txt"
+          jq -c '[.labels[].name]' "$RUNNER_TEMP/pr.json" >"$RUNNER_TEMP/pr-labels.json"
 
-      - name: PR body pairs no closing keyword with a negation (#548)
-        # GitHub ignores negation: "does not close #N" links #N as closed by
-        # this PR, and the issue-close reconciler then closes it. Runs even
-        # with the no-issue label. Code blocks and code spans are exempt.
+      - name: Check the live PR body and labels
+        # The same pure matcher is used by the rerun coordinator before each
+        # write, so its live-body decision cannot drift from this check.
         env:
           DEFAULT_REPO: ${{ github.repository }}
         run: |
           set -eu
-          if ! python3 bin/lib/closing_refs.py check --file "$RUNNER_TEMP/pr-body.md" \
-              --default-repo "${DEFAULT_REPO}"; then
-            echo "FAIL: reword each phrase above; the safe rewrite keeps the issue open." >&2
-            exit 1
-          fi
-          echo "OK: no negated closing keyword"
-
-      - name: PR references a canonical-backlog issue
-        run: |
-          set -eu
-          case " $(cat "$RUNNER_TEMP/pr-labels.txt") " in *" no-issue "*)
-            echo "OK: no-issue label set"; exit 0 ;;
-          esac
-          if grep -qiE '(close[sd]?|fix(e[sd])?|resolve[sd]?|refs?)[[:space:]:]+((dmfdeploy/dmfdeploy)?#[0-9]+|https://github\.com/dmfdeploy/dmfdeploy/issues/[0-9]+)' \
-              "$RUNNER_TEMP/pr-body.md"; then
-            echo "OK: issue reference found"
-            exit 0
-          fi
-          echo "FAIL: PR body must reference its tracking issue (e.g. 'Refs #32')." >&2
-          echo "See docs/WORKING-MODEL.md. Trivial change? Add the 'no-issue' label." >&2
-          exit 1
+          python3 bin/lib/issue_link_gate.py \
+            --body-file "$RUNNER_TEMP/pr-body.md" \
+            --labels-file "$RUNNER_TEMP/pr-labels.json" \
+            --default-repo "${DEFAULT_REPO}"

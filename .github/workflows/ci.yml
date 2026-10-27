@@ -39,6 +39,10 @@ jobs:
         # Fixtures for the matcher shared by the issue-link gate and
         # the reconciler: the #531 wording, qualified refs, code exemptions.
         run: python3 bin/lib/closing_refs.py --self-test
+      - name: issue-link trusted rerun selector regressions (#758)
+        # Exact API fixtures; every candidate write is captured by an in-memory
+        # fake, so the test cannot contact GitHub or consume a token.
+        run: python3 -m unittest discover -s tests -p 'test_issue_link_rerun.py' -v
       - name: public-safety worktree regression (R1 §7)
         # Proves the gates scan a git worktree instead of silently skipping it
         # (public canary only; no operator-private include needed).
