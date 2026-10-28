@@ -5,6 +5,10 @@ media archive. The source manifest stays beside the export on the external
 dmf-content media volume. The public website uses selected derivatives from
 this archive.
 
+A private `CATALOG.md` beside the export records file metadata, visual
+descriptions and selection notes for future site work. Review the source file
+before using any catalog recommendation.
+
 For site use, choose a source file, create a web-sized copy in `public/media/`,
 and record the source and treatment in the private manifest. Review desktop
 and mobile crops before committing the public copy. Keep private archive links

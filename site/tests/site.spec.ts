@@ -35,6 +35,7 @@ test('mobile homepage navigation and film control work', async ({ page }) => {
   await page.goto('/');
   const menuButton = page.getByRole('banner').getByRole('button', { name: 'Menu' });
   await expect(menuButton).toBeVisible();
+  await page.screenshot({ path: 'screenshots/home-mobile.png', fullPage: true });
   await menuButton.click();
   await expect(page.getByRole('navigation', { name: 'Mobile primary' })).toBeVisible();
   await page.keyboard.press('Escape');
@@ -42,7 +43,6 @@ test('mobile homepage navigation and film control work', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Play the 30-second project pitch' })).toBeVisible();
   const overflows = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(overflows).toBe(false);
-  await page.screenshot({ path: 'screenshots/home-mobile.png', fullPage: true });
 });
 
 test('mobile sponsorship layout fits and inquiry is actionable', async ({ page }) => {
@@ -72,4 +72,12 @@ test('in-page navigation targets exist', async ({ page }) => {
       .filter((href): href is string => Boolean(href && href.length > 1 && !document.querySelector(href))));
     expect(missing, `${route} has broken in-page links`).toEqual([]);
   }
+});
+
+test('ambient orbital motion respects reduced-motion preference', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const animationName = await page.locator('.home-hero .orbit-field__drift')
+    .evaluate((element) => getComputedStyle(element).animationName);
+  expect(animationName).toBe('none');
 });

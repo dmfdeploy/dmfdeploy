@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import OrbitField from '../components/OrbitField.astro';
 import FilmCard from '../components/FilmCard.astro';
 ---
 
@@ -9,6 +10,7 @@ import FilmCard from '../components/FilmCard.astro';
   description="An open, community-governed foundation for software-defined broadcast and media facilities. Explore the prototype, architecture and founding support programme."
 >
   <section class="home-hero gradient-field" aria-labelledby="home-title">
+    <OrbitField />
     <div class="site-container">
       <div class="hero-grid">
         <div class="hero-copy">
@@ -116,6 +118,7 @@ import FilmCard from '../components/FilmCard.astro';
   </section>
 
   <section class="sponsor-callout gradient-field" aria-labelledby="sponsor-callout-title">
+    <OrbitField variant="band" />
     <div class="site-container sponsor-callout-inner">
       <div><span class="small-label">Founding support / Programme proposed</span><h2 id="sponsor-callout-title">Help build the shared foundation.</h2><p>Founding sponsors can fund the open engineering and documentation needed to make the prototype repeatable and useful across the industry.</p></div>
       <a class="button" href="/sponsor">Explore sponsorship <span aria-hidden="true">↗</span></a>

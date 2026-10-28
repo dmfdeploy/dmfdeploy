@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import OrbitField from '../components/OrbitField.astro';
 
 const tiers = [
   { name: 'Contributor', amount: '€1,000', description: 'Proposed annual level' },
@@ -15,6 +16,7 @@ const tiers = [
   description="Support open engineering for a shared foundation for dynamic media. Explore proposed annual sponsorship levels, funding priorities and governance safeguards."
 >
   <section class="sponsor-hero gradient-field" aria-labelledby="sponsor-title">
+    <OrbitField />
     <div class="site-container sponsor-hero-grid">
       <div>
         <p class="eyebrow">A public-good investment in media infrastructure</p>
@@ -73,6 +75,7 @@ const tiers = [
   </section>
 
   <section class="tiers-section gradient-field" id="levels" aria-labelledby="levels-title">
+    <OrbitField variant="band" />
     <div class="site-container">
       <p class="section-index">03 / Proposed annual levels</p>
       <h2 class="section-heading" id="levels-title">Choose a level of founding support.</h2>
@@ -111,6 +114,7 @@ const tiers = [
   </section>
 
   <section class="sponsor-close gradient-field" aria-labelledby="close-title">
+    <OrbitField variant="band" />
     <div class="site-container sponsor-close-inner">
       <div><p class="section-index">Become a founding sponsor</p><h2 id="close-title">Help make the next steps real.</h2><p>Tell us what your organization wants to support, and we will discuss the programme and current verification work.</p></div>
       <div><a class="button" href="mailto:inquiries@dmfdeploy.io?subject=dmfdeploy%20founding%20sponsorship%20inquiry">Start a sponsorship conversation <span aria-hidden="true">↗</span></a><span class="payment-inactive">Payment link available once operational</span></div>
