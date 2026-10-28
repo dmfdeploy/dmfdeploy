@@ -9,7 +9,9 @@ test('homepage works at desktop size and captures its layout', async ({ page }) 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('A shared foundation for dynamic media.');
   await expect(page.locator('video')).toHaveAttribute('poster', '/media/film-006-poster.jpg');
   await expect(page.getByRole('link', { name: /Explore sponsorship/i })).toHaveAttribute('href', '/sponsor');
-  await expect(page.getByRole('heading', { name: 'A visible operational loop.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'A continuous operations loop.' })).toBeVisible();
+  await expect(page.locator('#architecture .loop-desktop')).toBeVisible();
+  await expect(page.locator('#architecture .loop-mobile')).toBeHidden();
   await page.screenshot({ path: 'screenshots/home-desktop.png', fullPage: true });
   await page.getByRole('button', { name: 'Play the 30-second project pitch' }).click();
   await expect.poll(() => page.locator('video').evaluate((video: HTMLVideoElement) => !video.paused)).toBe(true);
@@ -23,8 +25,8 @@ test('sponsorship page has the proposed levels without a payment route', async (
   for (const amount of ['€1,000', '€5,000', '€15,000', '€25,000+']) {
     await expect(page.getByText(amount, { exact: true })).toBeVisible();
   }
-  await expect(page.getByText('Fiscal host', { exact: true })).toBeVisible();
-  await expect(page.getByText('Unconfirmed', { exact: true })).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Programme status' }).getByText('Fiscal host')).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Programme status' }).getByText('Unconfirmed')).toBeVisible();
   await expect(page.locator('a[href^="mailto:inquiries@dmfdeploy.io"]').first()).toBeVisible();
   await expect(page.locator('a[href*="opencollective.com"], a[href*="stripe.com"], form')).toHaveCount(0);
   await page.screenshot({ path: 'screenshots/sponsor-desktop.png', fullPage: true });
@@ -41,6 +43,8 @@ test('mobile homepage navigation and film control work', async ({ page }) => {
   await page.keyboard.press('Escape');
   await expect(page.getByRole('navigation', { name: 'Mobile primary' })).toBeHidden();
   await expect(page.getByRole('button', { name: 'Play the 30-second project pitch' })).toBeVisible();
+  await expect(page.locator('#architecture .loop-mobile')).toBeVisible();
+  await expect(page.locator('#architecture .loop-desktop')).toBeHidden();
   const overflows = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(overflows).toBe(false);
 });
@@ -48,7 +52,7 @@ test('mobile homepage navigation and film control work', async ({ page }) => {
 test('mobile sponsorship layout fits and inquiry is actionable', async ({ page }) => {
   await page.setViewportSize(mobile);
   await page.goto('/sponsor');
-  await expect(page.getByRole('link', { name: /Start a sponsorship conversation/i }).first()).toHaveAttribute('href', /mailto:inquiries@dmfdeploy.io/);
+  await expect(page.getByRole('link', { name: /inquiries@dmfdeploy.io/i })).toHaveAttribute('href', /mailto:inquiries@dmfdeploy.io/);
   await expect(page.getByText('€25,000+', { exact: true })).toBeVisible();
   const overflows = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(overflows).toBe(false);

@@ -1,0 +1,89 @@
+<div class="operations-loop">
+<svg class="loop-visual loop-desktop" viewBox="0 0 1000 560" role="img" aria-labelledby="loop-title loop-desc">
+<title id="loop-title">dmfdeploy operational loop</title>
+<desc id="loop-desc">Operations initiate an update through Automation to the Facility. The Facility returns observed state through Observability. The difference between intended and observed state is a partial or planned capability. Source of truth sits at the center of the loop.</desc>
+<defs>
+<marker id="loop-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+<path d="M0 0L10 5L0 10Z" fill="#93cae1"/>
+</marker>
+<marker id="plan-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+<path d="M0 0L10 5L0 10Z" fill="#e6b26e"/>
+</marker>
+</defs>
+<path class="flow" d="M323 438 C430 485 560 485 668 436"/>
+<path class="flow" d="M833 360 C881 282 859 218 818 196"/>
+<path class="flow" d="M659 150 C550 119 438 119 340 151"/>
+<text class="flow-label" x="500" y="499">
+<tspan class="lead">Initiate</tspan>
+<tspan> update</tspan>
+</text>
+<text class="flow-label" x="893" y="274">
+<tspan class="lead">Deploy</tspan>
+<tspan x="893" dy="20">intended state</tspan>
+</text>
+<text class="flow-label" x="500" y="96">Observed state</text>
+<text class="planned-note" x="80" y="281">
+<tspan>Delta:</tspan>
+<tspan x="80" dy="18">intended vs</tspan>
+<tspan x="80" dy="18">observed</tspan>
+</text>
+<ellipse class="node-shape" cx="230" cy="184" rx="112" ry="57"/>
+<text class="node-label" x="230" y="184">Observability</text>
+<ellipse class="node-shape" cx="759" cy="184" rx="104" ry="57"/>
+<text class="node-label" x="759" y="184">Facility</text>
+<ellipse class="node-shape" cx="752" cy="398" rx="112" ry="57"/>
+<text class="node-label" x="752" y="398">Automation</text>
+<ellipse class="node-shape" cx="230" cy="398" rx="112" ry="57"/>
+<text class="node-label" x="230" y="398">Operations</text>
+<ellipse class="node-shape source-shape" cx="500" cy="290" rx="112" ry="57"/>
+<path class="planned" d="M162 239 C112 291 112 345 119 398"/>
+<text class="node-label source-label" x="500" y="290">Source of truth</text>
+</svg>
+<svg class="loop-visual loop-mobile" viewBox="0 0 420 400" role="img" aria-labelledby="mobile-loop-title mobile-loop-desc">
+<title id="mobile-loop-title">dmfdeploy operational loop</title>
+<desc id="mobile-loop-desc">Operations initiate an update through Automation to the Facility. Observability returns observed state. A dotted delta path loops from Observability back to Operations and is partial or planned. Source of truth sits at the center.</desc>
+<defs>
+<marker id="mobile-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+<path d="M0 0L10 5L0 10Z" fill="#93cae1"/>
+</marker>
+<marker id="mobile-plan-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+<path d="M0 0L10 5L0 10Z" fill="#e6b26e"/>
+</marker>
+</defs>
+<path class="flow" d="M145 70 C145 86 145 103 145 120"/>
+<path class="flow" d="M120 168 C107 184 100 199 100 220"/>
+<path class="flow" d="M100 270 C108 290 127 304 145 320"/>
+<text class="flow-label" x="260" y="95">
+<tspan class="lead">Initiate</tspan>
+<tspan x="260" dy="16">update</tspan>
+</text>
+<text class="flow-label" x="58" y="195">
+<tspan class="lead">Deploy</tspan>
+<tspan x="58" dy="16">intended state</tspan>
+</text>
+<text class="flow-label" x="292" y="300">
+<tspan>Observed</tspan>
+<tspan x="292" dy="16">state</tspan>
+</text>
+<text class="planned-note" x="368" y="184">
+<tspan>Delta:</tspan>
+<tspan x="368" dy="15">intended</tspan>
+<tspan x="368" dy="15">vs observed</tspan>
+</text>
+<ellipse class="node-shape" cx="145" cy="45" rx="62" ry="25"/>
+<text class="node-label" x="145" y="45">Operations</text>
+<ellipse class="node-shape" cx="145" cy="145" rx="62" ry="25"/>
+<text class="node-label" x="145" y="145">Automation</text>
+<ellipse class="node-shape" cx="100" cy="245" rx="62" ry="25"/>
+<text class="node-label" x="100" y="245">Facility</text>
+<ellipse class="node-shape" cx="145" cy="345" rx="62" ry="25"/>
+<text class="node-label" x="145" y="345">Observability</text>
+<ellipse class="node-shape source-shape" cx="280" cy="245" rx="65" ry="30"/>
+<path class="planned" d="M210 345 C400 345 400 45 210 45"/>
+<text class="node-label source-label" x="280" y="245">Source of truth</text>
+</svg>
+<div class="loop-status">
+  <div><strong>Demonstrated</strong>Single-node deployment and the catalog-to-observation path.</div>
+  <div><strong>Proposed</strong>Independent cold-start and NMOS switching remain to prove.</div>
+</div>
+</div>
