@@ -13,6 +13,8 @@ npm run dev
 ```
 
 Open `http://127.0.0.1:4321/` and `http://127.0.0.1:4321/sponsor`.
+The dev server also listens on local network interfaces. From another device
+on the same LAN, use `http://<your-LAN-IP>:4321/` or `/sponsor`.
 
 ## Check and build
 
