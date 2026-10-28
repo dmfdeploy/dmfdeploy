@@ -8,6 +8,7 @@ The current homepage and sponsor mockups are linked below. The local Astro site 
 - [Homepage mockup](mockups/homepage.html): [desktop](mockups/homepage-desktop.png) and [mobile](mockups/homepage-mobile.png)
 - [Sponsor mockup](mockups/sponsor-operational-loop.html): [desktop](mockups/sponsor-operational-loop-desktop.png) and [mobile](mockups/sponsor-operational-loop-mobile.png)
 - [Website repository handoff](website-repository-handoff.md) records the transfer and deployment checks.
+- [Vercel v0 prompt](vercel-v0-prompt.md) briefs an alternative two-page design exploration with factual and implementation boundaries.
 
 ## Current decisions
 
