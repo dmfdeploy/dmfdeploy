@@ -28,6 +28,9 @@ as its output directory. No Cloudflare adapter is needed for static output.
 
 The checked-in film is a web-sized derivative of the publish-cleared film 006.
 The poster uses the project's own mark and a frame from that film. The source
-master stays in the content repository. No payment endpoint, form, or checkout
-code is present. Fiscal hosting, Open Collective reporting, invoicing, and
-sponsorship terms require confirmation before any payment route is added.
+master stays in the content repository. See [ASSETS.md](ASSETS.md) for the
+workflow for original media supplied from a private, owner-managed archive.
+
+No payment endpoint, form, or checkout code is present. Fiscal hosting, Open
+Collective reporting, invoicing, and sponsorship terms require confirmation
+before any payment route is added.
