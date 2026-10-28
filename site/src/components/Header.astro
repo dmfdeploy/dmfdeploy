@@ -1,0 +1,60 @@
+---
+interface Props { page: 'home' | 'sponsor' }
+const { page } = Astro.props;
+---
+
+<header class="site-header">
+  <div class="site-container header-inner flex items-center justify-between gap-4">
+    <a class="brand flex items-center gap-3" href="/" aria-label="dmfdeploy home">
+      <img src="/brand/mark.svg" width="42" height="38" alt="" />
+      <span>dmfdeploy</span>
+    </a>
+    <span class="header-descriptor">Open media infrastructure</span>
+    <nav class="desktop-nav flex items-center gap-9" aria-label="Primary">
+      <a href="/#project">Project</a>
+      <a href="/#architecture">Architecture</a>
+      <a href="/#status">Status</a>
+      <a class="header-sponsor" href="/sponsor" aria-current={page === 'sponsor' ? 'page' : undefined}>Founding support <span aria-hidden="true">↗</span></a>
+    </nav>
+    <div class="mobile-actions flex items-center gap-3">
+      <a class="mobile-sponsor" href="/sponsor" aria-current={page === 'sponsor' ? 'page' : undefined}>Sponsor ↗</a>
+      <button class="menu-toggle" type="button" aria-controls="mobile-nav" aria-expanded="false">
+        <span class="menu-label">Menu</span>
+        <span class="menu-icon" aria-hidden="true"><span></span><span></span></span>
+      </button>
+    </div>
+  </div>
+  <nav id="mobile-nav" class="mobile-nav" aria-label="Mobile primary" hidden>
+    <div class="site-container mobile-nav-inner">
+      <a href="/#project"><span>01</span> Project</a>
+      <a href="/#architecture"><span>02</span> Architecture</a>
+      <a href="/#status"><span>03</span> Status</a>
+      <a href="/sponsor" aria-current={page === 'sponsor' ? 'page' : undefined}><span>04</span> Become a sponsor ↗</a>
+    </div>
+  </nav>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('.menu-toggle');
+  const menu = document.querySelector<HTMLElement>('#mobile-nav');
+  if (toggle && menu) {
+    const close = (restoreFocus = false) => {
+      toggle.setAttribute('aria-expanded', 'false');
+      menu.hidden = true;
+      if (restoreFocus) toggle.focus();
+    };
+    toggle.addEventListener('click', () => {
+      const opening = toggle.getAttribute('aria-expanded') !== 'true';
+      toggle.setAttribute('aria-expanded', String(opening));
+      menu.hidden = !opening;
+      if (opening) menu.querySelector<HTMLAnchorElement>('a')?.focus();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !menu.hidden) close(true);
+    });
+    document.addEventListener('click', (event) => {
+      if (!menu.hidden && event.target instanceof Node && !menu.contains(event.target) && !toggle.contains(event.target)) close();
+    });
+    menu.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => close()));
+  }
+</script>

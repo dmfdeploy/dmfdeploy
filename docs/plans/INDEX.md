@@ -8,8 +8,9 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (6)
+## Active (7)
 
+- [dmfdeploy-io-site-plan](dmfdeploy-io-site-plan.md) — 2026-10-28
 - [forgejo-authentik-contributor-policy-plan](forgejo-authentik-contributor-policy-plan.md) — 2026-10-27
 - [issue-link-trusted-rerun-plan](issue-link-trusted-rerun-plan.md) — 2026-10-27
 - [openbao-approle-credential-lifecycle-plan](openbao-approle-credential-lifecycle-plan.md) — 2026-10-26

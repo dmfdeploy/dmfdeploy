@@ -1,0 +1,124 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FilmCard from '../components/FilmCard.astro';
+---
+
+<BaseLayout
+  page="home"
+  title="dmfdeploy — A shared foundation for dynamic media"
+  description="An open, community-governed foundation for software-defined broadcast and media facilities. Explore the prototype, architecture and founding support programme."
+>
+  <section class="home-hero gradient-field" aria-labelledby="home-title">
+    <div class="site-container">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Independent open infrastructure / Broadcast &amp; media</p>
+          <h1 class="hero-title" id="home-title"><span>A shared </span><span>foundation </span><span>for dynamic </span><span>media.</span></h1>
+          <div class="hero-rule" aria-hidden="true"></div>
+          <p class="hero-summary">dmfdeploy is building vendor-neutral infrastructure for software-defined media facilities: a common place to declare intent, deploy workloads and see what is running.</p>
+          <div class="hero-actions">
+            <a class="button" href="#architecture">Explore the architecture <span aria-hidden="true">↘</span></a>
+            <a class="text-link" href="https://github.com/dmfdeploy/dmfdeploy/blob/main/docs/THESIS.md">Read the thesis <span aria-hidden="true">↗</span></a>
+          </div>
+          <p class="hero-note meta-line">Open source / Community-governed / Prototype in development</p>
+        </div>
+        <div>
+          <FilmCard />
+          <span class="film-source">Watch the 30-second project pitch</span>
+        </div>
+      </div>
+      <div class="hero-lower">
+        <span class="eyebrow">From fixed systems to composable facilities</span>
+        <a href="#project">The challenge <span aria-hidden="true">↓</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-shell" id="project" aria-labelledby="project-title">
+    <div class="site-container">
+      <div class="problem-layout">
+        <div>
+          <p class="section-index">01 / Why this exists</p>
+          <h2 class="problem-title" id="project-title">Media facilities can be <em>more adaptable.</em></h2>
+        </div>
+        <div class="problem-copy">
+          <p>Broadcast engineering is moving from fixed appliances to software, IP and commodity compute. Yet every facility still has to stitch together deployment, inventory and operational visibility for itself.</p>
+          <p>dmfdeploy explores a shared, open foundation for that work. The aim is practical interoperability and clearer system boundaries, shaped in public with manufacturers, broadcasters and integrators.</p>
+        </div>
+      </div>
+      <div class="problem-grid" aria-label="Project themes">
+        <span>Declare intent</span><span>Deploy functions</span><span>Track lifecycle</span><span>Observe health</span><span>Learn in public</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-shell" id="architecture" aria-labelledby="architecture-title">
+    <div class="site-container">
+      <div class="architecture-intro">
+        <div><p class="section-index">02 / Architecture</p><h2 class="section-heading" id="architecture-title">A visible operational loop.</h2></div>
+        <p class="section-intro">The current prototype connects a small set of proven open tools. The diagram shows the v0.1 control path and the intended observation loop, not a production broadcast plant.</p>
+      </div>
+      <div class="architecture-plate">
+        <div class="plate-topline meta-line"><span>Reference prototype / v0.1</span><span>Control path →</span></div>
+        <ol class="architecture-steps">
+          <li><span class="step-number">01 / Intent</span><h3>Console</h3><p>Select a catalog function and request a deployment.</p></li>
+          <li><span class="step-number">02 / Execute</span><h3>AWX + k3s</h3><p>Apply the workload through automation and Helm.</p></li>
+          <li><span class="step-number">03 / Record</span><h3>NetBox</h3><p>Hold the declared function and lifecycle state.</p></li>
+          <li><span class="step-number">04 / Observe</span><h3>Prometheus</h3><p>Surface targets and health back to the operator.</p></li>
+        </ol>
+        <div class="architecture-feedback"><span>Observed state returns to the console</span></div>
+        <div class="architecture-note">
+          <div><strong>Implemented in the prototype</strong>First-party single-node deployment and the catalog-to-observation path have been demonstrated.</div>
+          <div><strong>Still to verify</strong>An independent engineer completing the cold-start path without project-specific help remains an open milestone.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-shell" id="standards" aria-labelledby="standards-title">
+    <div class="site-container">
+      <div class="standards-head">
+        <div><p class="section-index">03 / Standards &amp; tools</p><h2 class="section-heading" id="standards-title">Built in the open.</h2></div>
+        <p class="section-intro">The architecture uses existing standards and open-source components where they serve a clear job. Each integration is described at its actual stage.</p>
+      </div>
+      <div class="standard-list">
+        <article class="standard-card"><span class="eyebrow">Reference vocabulary</span><h3>EBU Dynamic Media Facility</h3><p>DMF concepts help frame the facility model. dmfdeploy is an independent initiative, not an EBU product or endorsement.</p></article>
+        <article class="standard-card standard-card--pending"><span class="eyebrow">Next development step</span><h3>AMWA NMOS</h3><p>IS-05 controlled workload switching is a v0.2 target. It is not an implemented v0.1 capability.</p></article>
+        <article class="standard-card standard-card--pending"><span class="eyebrow">Active experiment</span><h3>Media eXchange Layer</h3><p>MXL is being explored for media transport. The prototype does not claim a production media plane.</p></article>
+      </div>
+      <div class="tool-rail" aria-label="Open-source tools in the prototype"><span>k3s</span><span>AWX</span><span>Helm</span><span>NetBox</span><span>Prometheus</span></div>
+      <p class="affiliation-note">Technology names identify components and relevant open specifications. They do not imply vendor partnership or standards-body affiliation.</p>
+    </div>
+  </section>
+
+  <section class="section-shell" id="status" aria-labelledby="status-title">
+    <div class="site-container">
+      <div class="status-head">
+        <div><p class="section-index">04 / Project status</p><h2 class="section-heading" id="status-title">A working prototype. An open roadmap.</h2></div>
+        <p class="section-intro">dmfdeploy is early-stage engineering work. These labels separate what has been demonstrated by project maintainers from what the community still needs to build and verify.</p>
+      </div>
+      <div class="status-ledger">
+        <article class="status-panel status-panel--observed"><span class="status-tag">First-party demonstrated</span><h3>In the prototype</h3><ul><li>Commodity ARM64, single-node facility path</li><li>Catalog intent to AWX, k3s and Helm execution</li><li>NetBox lifecycle and Prometheus target visibility</li><li>Operator console for the current control path</li></ul></article>
+        <article class="status-panel status-panel--pending"><span class="status-tag status-tag--pending">Open development</span><h3>Next to prove</h3><ul><li>Independent cold-start reproduction of v0.1</li><li>Team console and NMOS IS-05 switching in v0.2</li><li>Workload and facility planning before provision in v0.3</li><li>Broader contributors and documented decision paths</li></ul></article>
+      </div>
+      <p class="status-disclaimer">The prototype is not a production ST 2110 or PTP plant, a high-availability platform, or a validated performance benchmark. Multi-node operations and federation remain outside the current demonstrated scope.</p>
+    </div>
+  </section>
+
+  <section class="section-shell" id="governance" aria-labelledby="governance-title">
+    <div class="site-container">
+      <div class="governance-grid">
+        <div><p class="section-index">05 / Participation</p><h2 class="section-heading" id="governance-title">Technical direction belongs in the open.</h2></div>
+        <div class="governance-copy"><p>Project proposals move through public discussion, design records and reviewed contributions. Maintainers ask for a signed-off contribution trail and keep the work under Apache-2.0.</p><p>Manufacturers, broadcasters and integrators can challenge assumptions, reproduce the prototype, propose integrations and help make the shared foundation useful beyond one facility.</p><a class="text-link" href="https://github.com/dmfdeploy/dmfdeploy/discussions">Join the discussion <span aria-hidden="true">↗</span></a></div>
+      </div>
+      <div class="governance-rail"><span>Public RFCs</span><span>Architecture decision records</span><span>Maintainer review</span><span>Apache-2.0</span></div>
+    </div>
+  </section>
+
+  <section class="sponsor-callout gradient-field" aria-labelledby="sponsor-callout-title">
+    <div class="site-container sponsor-callout-inner">
+      <div><span class="small-label">Founding support / Programme proposed</span><h2 id="sponsor-callout-title">Help build the shared foundation.</h2><p>Founding sponsors can fund the open engineering and documentation needed to make the prototype repeatable and useful across the industry.</p></div>
+      <a class="button" href="/sponsor">Explore sponsorship <span aria-hidden="true">↗</span></a>
+    </div>
+  </section>
+</BaseLayout>

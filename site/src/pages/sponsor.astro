@@ -1,0 +1,119 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const tiers = [
+  { name: 'Contributor', amount: '€1,000', description: 'Proposed annual level' },
+  { name: 'Builder', amount: '€5,000', description: 'Proposed annual level' },
+  { name: 'Sustaining sponsor', amount: '€15,000', description: 'Proposed annual level' },
+  { name: 'Founding sponsor', amount: '€25,000+', description: 'Proposed annual level' },
+];
+---
+
+<BaseLayout
+  page="sponsor"
+  title="Become a founding sponsor — dmfdeploy"
+  description="Support open engineering for a shared foundation for dynamic media. Explore proposed annual sponsorship levels, funding priorities and governance safeguards."
+>
+  <section class="sponsor-hero gradient-field" aria-labelledby="sponsor-title">
+    <div class="site-container sponsor-hero-grid">
+      <div>
+        <p class="eyebrow">A public-good investment in media infrastructure</p>
+        <h1 id="sponsor-title">Become a founding sponsor.</h1>
+        <p>Help turn an early working prototype into a reproducible, documented foundation that the whole broadcast and media community can inspect, adapt and extend.</p>
+        <div class="hero-actions">
+          <a class="button" href="mailto:inquiries@dmfdeploy.io?subject=dmfdeploy%20founding%20sponsorship%20inquiry">Start a sponsorship conversation <span aria-hidden="true">↗</span></a>
+          <a class="text-link" href="#priorities">See what support funds <span aria-hidden="true">↓</span></a>
+        </div>
+        <span class="small-label">Corporate inquiries open / Payment route pending verification</span>
+      </div>
+      <aside class="programme-panel" aria-label="Programme status">
+        <span class="status-tag status-tag--pending">Programme proposed</span>
+        <h2>Funding open work, with visible boundaries.</h2>
+        <dl>
+          <div><dt>Annual levels</dt><dd>Proposed</dd></div>
+          <div><dt>Fiscal host</dt><dd>Unconfirmed</dd></div>
+          <div><dt>Payment link</dt><dd>Not active</dd></div>
+          <div><dt>Corporate invoices</dt><dd>Pending host</dd></div>
+        </dl>
+        <p>The programme is being shaped in public. An inquiry is a conversation, not a payment commitment.</p>
+      </aside>
+    </div>
+  </section>
+
+  <nav class="site-container sponsor-jump" aria-label="On this page">
+    <a href="#why">01 / Why sponsor</a><a href="#priorities">02 / Priorities</a><a href="#levels">03 / Levels</a><a href="#independence">04 / Independence</a><a href="#finance">05 / Finance</a>
+  </nav>
+
+  <section class="section-shell" id="why" aria-labelledby="why-title">
+    <div class="site-container">
+      <p class="section-index">01 / Strategic value</p>
+      <h2 class="section-heading" id="why-title">A stronger common layer benefits everyone.</h2>
+      <p class="section-intro">Sponsorship supports open engineering that organizations can examine and influence through public technical participation. The value is a more capable shared foundation, rather than a private feature queue.</p>
+      <div class="value-grid">
+        <article class="value-card"><span class="eyebrow">Manufacturers</span><h3>Build against clearer boundaries.</h3><p>Help shape integration points and test how functions behave in a vendor-neutral deployment environment.</p></article>
+        <article class="value-card"><span class="eyebrow">Broadcasters</span><h3>Reduce facility-by-facility reinvention.</h3><p>Support reproducible workflows, operational visibility and public documentation that engineering teams can evaluate on their own terms.</p></article>
+        <article class="value-card"><span class="eyebrow">Integrators</span><h3>Make deployments easier to repeat.</h3><p>Contribute practical installation and lifecycle knowledge to a reference path that can be inspected, reproduced and improved.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-shell" id="priorities" aria-labelledby="priorities-title">
+    <div class="site-container">
+      <p class="section-index">02 / Engineering priorities</p>
+      <h2 class="section-heading" id="priorities-title">What founding support could fund.</h2>
+      <p class="section-intro">Funding would prioritize concrete open work already visible in the roadmap. Scope and sequencing would be published and adjusted through the project’s technical process.</p>
+      <div class="priority-list">
+        <article class="priority-row"><span class="eyebrow">Priority 01</span><div><h3>Reproduce the v0.1 facility</h3><p>Harden the bootstrap, installation guide and verification path until an independent engineer can bring up the single-node prototype without project-specific help.</p></div><span class="status-tag status-tag--pending">Open milestone</span></article>
+        <article class="priority-row"><span class="eyebrow">Priority 02</span><div><h3>Complete the v0.2 control loop</h3><p>Develop a team-oriented console, nonblocking deployments and NMOS IS-05 switching of a multi-function workload, with tests and clear operational boundaries.</p></div><span class="status-tag status-tag--pending">Planned</span></article>
+        <article class="priority-row"><span class="eyebrow">Priority 03</span><div><h3>Plan before provisioning</h3><p>Explore v0.3 workload and facility planning so operators can see intended resource and function relationships before making changes.</p></div><span class="status-tag status-tag--pending">Planned</span></article>
+        <article class="priority-row"><span class="eyebrow">Priority 04</span><div><h3>Document and validate in public</h3><p>Maintain architecture records, integration guidance, reproducible examples and community review so the work is useful beyond its founding team.</p></div><span class="status-tag status-tag--pending">Ongoing need</span></article>
+      </div>
+      <p class="priority-note">These are development priorities, not funded commitments, delivery dates or claims that the capabilities already exist. See the <a class="text-link" href="https://github.com/dmfdeploy/dmfdeploy/blob/main/ROADMAP.md">public roadmap ↗</a>.</p>
+    </div>
+  </section>
+
+  <section class="tiers-section gradient-field" id="levels" aria-labelledby="levels-title">
+    <div class="site-container">
+      <p class="section-index">03 / Proposed annual levels</p>
+      <h2 class="section-heading" id="levels-title">Choose a level of founding support.</h2>
+      <div class="tier-grid">
+        {tiers.map((tier) => <article class="tier-card"><span class="eyebrow">{tier.name}</span><strong>{tier.amount}</strong><p>{tier.description}</p></article>)}
+      </div>
+      <p class="tier-note">All levels and any recognition terms are proposals until the sponsorship programme and fiscal hosting are confirmed. Sponsorship would support shared work and would not confer control of the roadmap or technical decisions.</p>
+      <a class="button tier-inquiry" href="mailto:inquiries@dmfdeploy.io?subject=dmfdeploy%20founding%20sponsorship%20inquiry">Start a sponsorship conversation <span aria-hidden="true">↗</span></a>
+    </div>
+  </section>
+
+  <section class="section-shell" id="independence" aria-labelledby="independence-title">
+    <div class="site-container">
+      <p class="section-index">04 / Governance &amp; independence</p>
+      <h2 class="section-heading" id="independence-title">The mission stays open.</h2>
+      <p class="section-intro">Technical work is discussed and reviewed in public. The proposed sponsorship safeguards are designed to keep the shared mission independent as funding grows.</p>
+      <div class="governance-panel-grid">
+        <article class="governance-panel"><span class="eyebrow">Current project practice</span><h3>Community-led technical review</h3><p>Ideas can enter through public discussions and RFCs. Architecture decisions are recorded, contributions carry a DCO sign-off, and maintainers review changes. The code is Apache-2.0 licensed.</p></article>
+        <article class="governance-panel governance-panel--proposal"><span class="eyebrow">Proposed safeguard</span><h3>Founder-protected mission</h3><p>A mission charter and sponsor boundaries are intended to protect vendor neutrality and open participation. The precise charter and any formal governance structure have not yet been ratified.</p></article>
+      </div>
+      <p class="no-control"><span>Proposed sponsorship principle</span>Financial support would not buy a vote, veto, exclusive feature priority or control of technical direction.</p>
+    </div>
+  </section>
+
+  <section class="section-shell" id="finance" aria-labelledby="finance-title">
+    <div class="site-container">
+      <p class="section-index">05 / Financial transparency</p>
+      <h2 class="section-heading" id="finance-title">A clear route for funds, once verified.</h2>
+      <p class="section-intro">The fiscal host is not yet confirmed. The payment and reporting process will be published only after the legal and operational details are verified.</p>
+      <div class="finance-grid">
+        <article class="finance-item"><span class="eyebrow">01 / Fiscal hosting</span><h3>Under review</h3><p>A host would receive and administer sponsorship funds. The organization and terms will be named when confirmed.</p></article>
+        <article class="finance-item"><span class="eyebrow">02 / Open reporting</span><h3>Planned</h3><p>Open Collective reporting is the proposed route for visible income and expense records, subject to host and platform setup.</p></article>
+        <article class="finance-item"><span class="eyebrow">03 / Corporate process</span><h3>Conditional</h3><p>Corporate invoicing may be available through the eventual fiscal arrangement. Ask us about requirements; we cannot issue invoices through this site yet.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sponsor-close gradient-field" aria-labelledby="close-title">
+    <div class="site-container sponsor-close-inner">
+      <div><p class="section-index">Become a founding sponsor</p><h2 id="close-title">Help make the next steps real.</h2><p>Tell us what your organization wants to support, and we will discuss the programme and current verification work.</p></div>
+      <div><a class="button" href="mailto:inquiries@dmfdeploy.io?subject=dmfdeploy%20founding%20sponsorship%20inquiry">Start a sponsorship conversation <span aria-hidden="true">↗</span></a><span class="payment-inactive">Payment link available once operational</span></div>
+    </div>
+  </section>
+</BaseLayout>

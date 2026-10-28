@@ -1,0 +1,24 @@
+<figure class="film-card">
+  <div class="film-screen">
+    <video id="pitch-film" playsinline preload="none" poster="/media/film-006-poster.jpg" aria-label="dmfdeploy project pitch film">
+      <source src="/media/film-006.mp4" type="video/mp4" />
+      Your browser does not support HTML video. <a href="/media/film-006.mp4">Download the pitch film</a>.
+    </video>
+    <button class="film-play" type="button" aria-label="Play the 30-second project pitch" aria-controls="pitch-film">▶</button>
+  </div>
+  <figcaption class="film-caption"><span>Project film / 006</span><span>00:30</span></figcaption>
+</figure>
+
+<script>
+  const video = document.querySelector<HTMLVideoElement>('#pitch-film');
+  const play = document.querySelector<HTMLButtonElement>('.film-play');
+  if (video && play) {
+    play.addEventListener('click', async () => {
+      video.controls = true;
+      try { await video.play(); } catch { play.hidden = false; }
+    });
+    video.addEventListener('play', () => { play.hidden = true; });
+    video.addEventListener('pause', () => { play.hidden = false; });
+    video.addEventListener('ended', () => { play.hidden = false; });
+  }
+</script>
