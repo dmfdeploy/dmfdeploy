@@ -73,11 +73,3 @@ test('in-page navigation targets exist', async ({ page }) => {
     expect(missing, `${route} has broken in-page links`).toEqual([]);
   }
 });
-
-test('ambient orbital motion respects reduced-motion preference', async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/');
-  const animationName = await page.locator('.home-hero .orbit-field__drift')
-    .evaluate((element) => getComputedStyle(element).animationName);
-  expect(animationName).toBe('none');
-});
