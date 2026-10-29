@@ -302,7 +302,7 @@ if [ -n "$LINK_WARNINGS" ]; then
     done <<< "$LINK_WARNINGS"
 fi
 
-# W2 → HARD FAILURE since 2026-06-11 (working-model plan WP5, issue #32):
+# W2 → HARD FAILURE since 2026-06-11 (working-model plan, issue #32):
 # every active plan must carry a tracking_issue. The 2026-06-11 adjudication
 # cleared the backlog of grandfathered ones; from here this is the gate that
 # keeps liveness (issues) and design state (frontmatter) from splitting.

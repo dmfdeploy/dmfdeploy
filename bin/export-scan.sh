@@ -10,8 +10,8 @@
 #   bin/export-scan.sh <repo>          # e.g. dmf-central
 #   EXPORT_ROOT=/path bin/export-scan.sh <repo>   # override scratch parent (default /tmp/dmf-export)
 #
-# Accepts `.` for the umbrella (WP17, 2026-06-10 — the former B2 deferral is closed by the
-# entrance plan's scrub sweep): exports to /tmp/dmf-export/dmfdeploy with two extra umbrella
+# Accepts `.` for the umbrella (since 2026-06-10, when the entrance plan's scrub sweep closed the
+# earlier deferral): exports to /tmp/dmf-export/dmfdeploy with two extra umbrella
 # gates (STATUS.md no-allowlist identity check; informational full-tree no-allowlist report).
 #
 # Exit: 0 = scratch staged + ALL gates green (ready for operator push); non-zero otherwise.
@@ -99,7 +99,7 @@ if [ "$REPO" = "dmf-env" ]; then
     run "dmf-env-public-surface-gate"  bash "$UMBRELLA_DIR/bin/dmf-env-public-surface-gate.sh" "$SCRATCH"
 fi
 if [ "$REPO" = "." ]; then
-    # WP17 gate: the exported STATUS.md (HUMAN section included) must be
+    # Gate: the exported STATUS.md (HUMAN section included) must be
     # placeholder-clean — the normal scrub allowlists STATUS.md, so check it
     # in isolation with the allowlist disabled.
     status_gate() {
@@ -113,7 +113,7 @@ if [ "$REPO" = "." ]; then
     }
     run "STATUS.md no-allowlist identity/topology" status_gate
     # Informational (never gates): full-tree no-allowlist sweep for the
-    # operator's manual adjudication pass (WP17 raw grep).
+    # operator's manual adjudication pass (a raw grep).
     echo "── umbrella no-allowlist sweep (INFORMATIONAL — adjudicate by hand)"
     SCRUB_NO_ALLOWLIST=1 bash "$UMBRELLA_DIR/bin/scrub-public-repos.sh" --tree "$SCRATCH" || true
 fi

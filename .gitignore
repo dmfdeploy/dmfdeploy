@@ -111,7 +111,7 @@ secret_id.*
 .claude/skills/
 .qwen/skills/
 .agents/skills/_inbox/
-# qwen runtime aid embedding scrub-detection patterns — never track (WP16)
+# qwen runtime aid embedding scrub-detection patterns — never track
 .agents/skills/identity-scrub-sweep/
 
 # Operator-private gitleaks rules (identity/topology) — never track
