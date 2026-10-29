@@ -69,7 +69,7 @@ fi
 
 SCAN_ARGS=(--context scrub)
 [ "$STRICT" -eq 1 ] && SCAN_ARGS+=(--strict)
-# Honor the historical env name for the raw no-allowlist sweep (WP17).
+# Honor the historical env name for the raw no-allowlist sweep.
 [ "${SCRUB_NO_ALLOWLIST:-0}" = "1" ] && SCAN_ARGS+=(--no-allowlist)
 
 worst=0

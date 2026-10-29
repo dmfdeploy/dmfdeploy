@@ -102,7 +102,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `dmf-env/bin/init-wizard.sh` | interactive greenfield env bootstrap wizard. |
 | `dmf-env/bin/install-hooks.sh` | point this clone's git at .githooks/. |
 | `dmf-env/bin/monitor-playbook.sh` | stream filtered ansible-playbook output from a log file. |
-| `dmf-env/bin/recreate-sandbox-vm.sh` | (re)create the WP1S sandbox Lima VM substrate. |
+| `dmf-env/bin/recreate-sandbox-vm.sh` | (re)create the sandbox Lima VM substrate. |
 | `dmf-env/bin/remove-env.sh` | idempotent teardown + removal of new-layout envs. |
 | `dmf-env/bin/rotate-approle-secret-id.sh` | workstation-side wrapper. |
 | `dmf-env/bin/run-playbook.sh` | wrapper for ansible-playbook that exports OpenBao secrets to a temp vars file before execution. |
