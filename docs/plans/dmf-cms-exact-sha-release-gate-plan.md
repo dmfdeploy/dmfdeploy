@@ -59,7 +59,10 @@ exists in one place only.
 | `dmf-cms-release` | Creates `v*` tags | Environment `release` |
 
 Both environments allow deployment only from `main` and have no required
-reviewers.
+reviewers. Each environment holds its App's Client ID and private key as
+secrets: `AUTOMERGE_APP_CLIENT_ID` and `AUTOMERGE_APP_PRIVATE_KEY` in
+`automerge`, and `RELEASE_APP_CLIENT_ID` and `RELEASE_APP_PRIVATE_KEY` in
+`release`. The token action takes the Client ID.
 
 ### Merge, which fixes #568
 
@@ -96,8 +99,9 @@ pull request must pass the shared eligibility rule: open, ready for review, base
 `main`, head in this repository, and no `hold` label. Each path then adds its
 own selection and expected head.
 
-- **Event path (`workflow_run` on `CI`).** The pull requests API selects the
-  pull request for `workflow_run.head_sha`. The expected head is that SHA, and
+- **Event path (`workflow_run` on `CI`).** Only a `CI` run of a pull request
+  starts work. A `CI` run of a push is skipped. The pull requests API selects
+  the pull request for `workflow_run.head_sha`. The expected head is that SHA, and
   the pull request's live head must equal it.
 - **Schedule path.** The sweep lists open pull requests into `main`, 100 per
   page, and follows pagination to the end. For each one it reads the live head
@@ -107,18 +111,34 @@ own selection and expected head.
   does nothing for that pull request and reports no error. GitHub still checks
   the other required contexts and the review when it arms or merges.
 
-On both paths, arming and the direct merge pass the expected head as
-`--match-head-commit`. If the head changes after the read, the call matches
+On both paths, arming passes the expected head as `expectedHeadOid` and the
+direct merge passes it as `sha`. If the head changes after the read, the call matches
 nothing, and the next run handles the new head. One pull request's error does
 not stop the sweep, and the run ends non-zero if any pull request hit an
-unexpected error. A pull request that becomes eligible waits at most one
-schedule interval. The plan sets no interval number.
+unexpected error. The sweep runs every 10 minutes, at minutes 3, 13, 23, 33,
+43, and 53 of the hour, off the top of the hour when scheduled runs queue up.
+A pull request that becomes eligible waits at most one interval, plus any delay
+GitHub adds to scheduled runs under load.
+
+The `hold` label stops a merge. Two paths disarm auto-merge. A separate
+`hold-disarm` workflow runs on `pull_request` `labeled` for the `hold` label.
+It uses only `GITHUB_TOKEN` with `pull-requests: write`, no environment, and no
+secrets, and it checks out nothing. For a pull request from a fork, the token is
+read-only and the call fails, which is acceptable because `automerge` never arms
+a fork pull request. The sweep also disarms any held pull request that has
+auto-merge enabled, whether or not its `CI` run passed, so a failed disarm is
+corrected within one interval. A failed disarm fails the run so it shows in
+Actions.
 
 Three required contexts have no passing run on a push today: `dco`,
 `issue-link`, and `commitlint`. Each reads pull request data from the event
 payload, which a push does not carry. On a push, each of them finds the merged
 pull request from the commit and validates it and all its commits. An empty or
-unresolvable result fails. `dco` and `issue-link` gain a push trigger on
+unresolvable result fails, and so does a commit that several merged pull
+requests claim. A bot push with no pull request therefore fails these three
+contexts. The lookup retries up to four times, five seconds apart, because the
+commit-to-pull-request association can lag behind the push. `dco` and
+`issue-link` gain a push trigger on
 `main`. `commitlint` already has one, through `guard`, and loses its
 pull-request-only condition.
 
@@ -173,6 +193,11 @@ permissions. It takes only the SHA from `verify` and repeats checks 1 to 3
 below from that SHA. Check 4 and the tag creation then run in the serialized
 step.
 
+The repository variable `RELEASE_ENABLED` gates `verify`. While it is not
+`true`, `verify` is skipped, so `release` is skipped too and the workflow is
+inert. An owner sets it last in the rollout. `verify` also acts only on a `push`
+run on `main` whose head repository is this repository.
+
 Property: the release run that starts when the last required workflow
 completes on the push SHA sees every required context green and continues. Each
 earlier run ends without releasing and without a failure, and writes only a
@@ -198,15 +223,23 @@ then check 4.
    it), checked with the compare API now and again immediately before the tag
    is created. A commit that is not reachable ends the run without a tag. On a
    protected `main` this cannot happen, and the check stays as a guard.
-2. **Release bump.** The commit changes `VERSION`, has a release title, carries
-   a qualified issue reference, and its `VERSION` fields agree.
+2. **Release bump.** The commit subject is exactly `chore(release): v<VERSION>`,
+   the commit changes `VERSION`, and `VERSION` at that commit reads the same
+   version. A qualified issue reference is on the commit or on its merged pull
+   request.
 3. **Every required check.** The job reads the live `main-protection` ruleset
    and requires each listed context to have a fresh, completed `success` check
    run from the GitHub Actions app (integration ID 15368) on that exact commit.
-   Missing, failed, skipped, neutral, stale, and foreign-app runs fail the
-   check, and so do duplicate or empty context names and anything but exactly
-   one active `main-protection` ruleset. Results on the pull request head do
-   not count.
+   Each check run must belong to the check suite of the push run of the owning
+   workflow on `main` for that SHA, so a result from a pull request run or a
+   re-run on another ref does not count. Each ruleset entry's `integration_id`
+   must be empty or 15368. Missing, failed, skipped, neutral, stale, and
+   foreign-app runs fail the check, and so do duplicate or empty context names
+   and anything but exactly one active `main-protection` ruleset. A second
+   ruleset that requires status checks on `main` fails the check, and so does a
+   live context list that differs from the contexts mapped to the four
+   workflows. A context whose run has not finished counts as pending.
+   Results on the pull request head do not count.
 4. **Version order and tag state.** No existing `v*` tag is higher than
    `VERSION`. An existing tag equal to `VERSION` is accepted only when it names
    the same verified SHA. Then tag creation is a no-op and the job continues
@@ -317,9 +350,10 @@ cannot merge without approval and passing checks.
 
 The default workflow token permission is `read`. Every workflow declares a
 top-level read-only `permissions` block. A job requests write only where it
-needs it: `contents: write` and `pull-requests: write` for `automerge`;
-`packages: write`, `id-token: write`, and `attestations: write` for the
-release job. The `verify` job of the release workflow requests only read
+needs it: `pull-requests: write` for `hold-disarm`, which uses only
+`GITHUB_TOKEN`; `packages: write`, `id-token: write`, and `attestations: write` for the
+release job. The `automerge` job reads with `actions: read` and makes every
+write with the App token. The `verify` job of the release workflow requests only read
 permissions and uses no environment.
 
 ### Local publication
@@ -327,6 +361,13 @@ permissions and uses no environment.
 Remove the documented local GHCR publication path. The component wrapper fails
 closed outside the release workflow. Package access must let the dmf-cms
 workflow publish and keep the package public.
+
+The release workflow does not change `scripts/publish-to-ghcr.sh`, so the
+lockdown is a follow-up. While `RELEASE_ENABLED` is not `true`, the manual tag
+and publish steps in the component's build rules stay as a labelled fallback. A
+follow-up change after the first unattended release removes that fallback and
+makes the wrapper fail closed outside the workflow. That change closes this
+section.
 
 ## App permissions
 
@@ -366,6 +407,19 @@ All tests use fixtures or mocked GitHub and Docker interfaces.
   request with the rebase method. A transient arm failure is retried on the
   next `CI` completion or schedule run. Arming and merging an already armed or merged pull request
   succeed without change. Any other error fails the step.
+- Hold fixtures. The `hold-disarm` workflow runs only when the added label is
+  `hold`, uses only `GITHUB_TOKEN`, and has no environment, secret, or
+  checkout. The sweep disarms a held pull request that has auto-merge enabled.
+  A pull request without `hold` is not disarmed.
+- With `RELEASE_ENABLED` unset or not `true`, `verify` and `release` do not
+  run. With it `true`, a ready release runs.
+- The check gate fails a check run that belongs to a pull request run, or to a
+  push run of another workflow, even when its name and conclusion match. It
+  accepts a ruleset `integration_id` that is empty or 15368 and fails any other
+  value.
+- On a push, a commit with no merged pull request fails the three contexts, and
+  so does a commit that several pull requests claim. A lookup that is empty on
+  the first attempt and filled on a later one passes.
 - The release workflow triggers only on `workflow_run` for `main` push runs.
   It has no `workflow_dispatch`, ignores tag creation, and reads no SHA,
   version, or ref from user input.
@@ -436,8 +490,8 @@ All tests use fixtures or mocked GitHub and Docker interfaces.
 ## Rollout
 
 An organization owner creates the Apps. Nothing in this plan creates them, and
-the implementation changes no setting. Complete these steps before the
-release workflow is enabled.
+the implementation changes no setting. Complete these steps in order. The
+release workflow stays inert until step 9.
 
 1. Create `dmf-cms-automerge` and `dmf-cms-release` as `dmfdeploy`
    organization Apps with the permissions above. Install each only on dmf-cms.
@@ -452,15 +506,23 @@ release workflow is enabled.
    confirm that a `workflow_run` run of the new `automerge` workflow starts and
    reads the `automerge` environment secret, and that Settings, Actions,
    Policies, Policy insights lists no blocked run for it. Do this before the
-   `pull_request_target` workflow is removed.
+   `pull_request_target` workflow is removed. Also add `hold` to an armed
+   pull request and confirm that both disarm paths clear auto-merge: the
+   `hold-disarm` workflow and the sweep's disarm mutation. Tests cover both
+   only against fakes so far.
 3. Create environments `release` and `automerge`, each limited to `main`, with
-   no required reviewers, and add each App's id and private key as secrets of
-   its own environment only.
+   no required reviewers, and add each App's Client ID and private key as secrets of
+   its own environment only (`AUTOMERGE_APP_CLIENT_ID`,
+   `AUTOMERGE_APP_PRIVATE_KEY`, `RELEASE_APP_CLIENT_ID`,
+   `RELEASE_APP_PRIVATE_KEY`).
 4. Create the `tags-release-create` ruleset with `dmf-cms-release` as the
    only bypass actor.
 5. Set the default workflow token permission to `read`.
 6. Add the push path for `dco`, `issue-link`, and `commitlint` and confirm
    that all twelve contexts complete with `success` on a push to `main`.
+   Confirm that the workflow's `GITHUB_TOKEN` can read the `rulesets` and
+   `rules/branches/main` endpoints. If GitHub refuses, `verify` fails closed
+   and nothing releases.
    On a throwaway repository, create two ready-release runs and a non-release
    run, and confirm that the non-release run never enters the job-level group,
    the pending ready release is not replaced by it, and a later ready release
@@ -474,8 +536,11 @@ release workflow is enabled.
    waits. Recovery is to generate a new key, replace the environment secret,
    delete the old key, and re-run. For a suspected leak, delete the key first,
    then list `v*` tags and the App's recent activity for anything unexpected.
-9. Run the first release as a deliberate, owner-approved exercise. No
-   existing version is tagged or published retroactively.
+9. Set the repository variable `RELEASE_ENABLED` to `true`, after every step
+   above. Until then the manual tag and publish steps stay the labelled
+   fallback.
+10. Run the first release as a deliberate, owner-approved exercise. No
+    existing version is tagged or published retroactively.
 
 ## Observed behavior
 
@@ -530,3 +595,10 @@ Still unconfirmed:
   workflow run can be `pending` in the concurrency group" and that an existing
   pending run "is canceled and replaced", but it does not say how skipped jobs
   count. The rollout probe confirms the ordering.
+- Whether the `GITHUB_TOKEN` of the `verify` job can read the `rulesets` and
+  `rules/branches/main` endpoints. The job requests no administration
+  permission. If GitHub refuses, `verify` fails closed with an error and
+  nothing releases. The rollout probe confirms the read.
+- Whether the `hold-disarm` workflow and the sweep's disarm mutation clear an
+  armed pull request. Tests use fakes. The rollout probe adds `hold` to an
+  armed pull request.
