@@ -96,6 +96,8 @@ class FakeApi:
             if item.get("run_attempt", 1) > 1:
                 item["id"] = response_id
             return item
+        if path == f"repos/{REPO}/collaborators/maintainer/permission":
+            return {"user": {"login": "maintainer"}, "permission": "write"}
         if path == f"repos/{REPO}/collaborators/outsider/permission":
             return {"user": {"login": "outsider"}, "permission": "read"}
         raise AssertionError(f"unexpected GET {path}")
@@ -300,6 +302,62 @@ class RerunTests(unittest.TestCase):
         api = FakeApi([api_run(10)])
         api.source["actor"]["login"] = "outsider"
         with self.assertRaisesRegex(rerun.UnsafeRun, "not authorized"):
+            rerun.rerun_stale_suites(synthetic_event(api.source), api)
+        self.assertEqual(api.posts, [])
+
+    def test_authorized_maintainer_repairs_a_suite_that_the_author_failed(self):
+        # The author opened the failing run; a maintainer's edit produced the
+        # passing source run. Identity binds to PR, workflow, head SHA and
+        # repository, so the differing run actors must not block the rerun.
+        failed = api_run(10)
+        self.assertEqual(failed["actor"]["login"], "pr-author")
+        api = FakeApi([failed])
+        api.source["actor"]["login"] = "maintainer"
+        event = synthetic_event(api.source)
+        result = rerun.rerun_stale_suites(event, api)
+        self.assertEqual(result["rerun_ids"], [10])
+        self.assertEqual(api.posts, [f"repos/{REPO}/actions/runs/10/rerun"])
+
+    def test_unauthorized_source_actor_is_rejected_even_with_matching_candidate(self):
+        api = FakeApi([api_run(10)])
+        api.source["actor"]["login"] = "outsider"
+        with self.assertRaisesRegex(rerun.UnsafeRun, "not authorized"):
+            rerun.rerun_stale_suites(synthetic_event(api.source), api)
+        self.assertEqual(api.posts, [])
+
+    def test_maintainer_source_still_rejects_candidate_for_another_head_sha(self):
+        other = api_run(10)
+        other["head_sha"] = "c" * 40
+        api = FakeApi([other])
+        api.source["actor"]["login"] = "maintainer"
+        result = rerun.rerun_stale_suites(synthetic_event(api.source), api)
+        self.assertEqual(result["rerun_ids"], [])
+        self.assertEqual(api.posts, [])
+
+    def test_maintainer_source_still_rejects_candidate_for_another_workflow(self):
+        other = api_run(10)
+        other["workflow_id"] += 1
+        api = FakeApi([other])
+        api.source["actor"]["login"] = "maintainer"
+        result = rerun.rerun_stale_suites(synthetic_event(api.source), api)
+        self.assertEqual(result["rerun_ids"], [])
+        self.assertEqual(api.posts, [])
+
+    def test_maintainer_source_still_rejects_candidate_for_another_pr(self):
+        bad = api_run(10)
+        bad["pull_requests"][0]["number"] += 1
+        api = FakeApi([bad])
+        api.source["actor"]["login"] = "maintainer"
+        with self.assertRaisesRegex(rerun.UnsafeRun, "association changed"):
+            rerun.rerun_stale_suites(synthetic_event(api.source), api)
+        self.assertEqual(api.posts, [])
+
+    def test_maintainer_source_still_rejects_candidate_from_another_repository(self):
+        bad = api_run(10)
+        bad["repository"] = {"full_name": "fork/dmfdeploy", "id": REPO_ID}
+        api = FakeApi([bad])
+        api.source["actor"]["login"] = "maintainer"
+        with self.assertRaisesRegex(rerun.UnsafeRun, "repository does not match"):
             rerun.rerun_stale_suites(synthetic_event(api.source), api)
         self.assertEqual(api.posts, [])
 

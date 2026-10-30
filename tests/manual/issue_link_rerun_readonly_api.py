@@ -60,11 +60,10 @@ def main() -> int:
         source["actor"]["login"], event_association)
     runs = rerun._list_runs(api, REPOSITORY, workflow_id, identity["head_sha"])
     eligible: list[tuple[dict, dict]] = []
-    actor = source["actor"]["login"]
     for run in runs:
         matches, association = rerun._candidate_matches(
             run, workflow_id=workflow_id, source_id=source_id,
-            identity=identity, actor=actor)
+            identity=identity)
         if matches:
             eligible.append((run, association))
     eligible.sort(key=lambda pair: (str(pair[0].get("created_at", "")), pair[0]["id"]))

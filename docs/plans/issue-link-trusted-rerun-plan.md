@@ -89,7 +89,7 @@ coordinator job.
 - Tests cover multiple stale failed suites (up to the fixed four-suite
   coordinator cap), current or active runs, and a failed prior rerun later
   retried by a new edit. They cover runs with a wrong workflow ID/path, event,
-  PR number, head SHA, or actor, plus missing or ambiguous API fields.
+  PR number, or head SHA, plus missing or ambiguous API fields.
 - Prove rejected cases make no rerun request. Prove accepted calls target only
   exact existing eligible failed runs.
 - The review-only current-API exercise at
