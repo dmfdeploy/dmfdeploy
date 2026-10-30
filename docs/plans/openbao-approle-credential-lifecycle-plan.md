@@ -105,7 +105,9 @@ disposition. An operator-only consumer is either migrated to a managed
 destination or removed before its finite TTL can remain in scope.
 
 The setup-only issuance path is operator-triggered and runs as part of each
-694 survey invocation, including the lifecycle Layer 6 test. It uses a separate
+694 survey invocation. The lifecycle Layer 6 test is a 694 consumer with no
+path of its own: it uses the same receipt, executor input and claim as any
+other run. It uses a separate
 Kubernetes-authenticated issuer identity bound to a dedicated ServiceAccount in
 the `openbao` namespace. The invoking runner obtains a short-lived TokenRequest
 JWT for that ServiceAccount, authenticates to OpenBao, and mints a fresh
@@ -132,7 +134,8 @@ registry and is not a second periodic rotator. The authenticated manual
 dispatcher derives actor and role and requires a reason. It records one fixed
 694 action in the immutable request receipt described below. The existing
 operator SSH executor accepts the opaque receipt id through the bootstrap
-configure invocation. Direct playbook invocation without that trusted context
+configure invocation or, for the lifecycle Layer 6 test, through the same
+executor input. Direct playbook invocation without that trusted context
 fails before OpenBao writes.
 
 The manual dispatcher is an authenticated `dmf-cms` action. dmf-init accepts
@@ -164,21 +167,42 @@ an invalid id/name match, mutable ConfigMaps, wrong action/schema, empty or
 control-bearing C5 strings, future/stale times, and any expiry window longer
 than 15 minutes. The executor revalidates the complete receipt, including
 `immutable: true`, namespace, name, UID, action, environment id and current
-`kube-system` UID. It atomically creates the immutable
-`claim-<request_id>` ConfigMap in the same namespace with exact string data
-keys `schema_version`, `request_id`, `action`, `receipt_name`, `receipt_uid`,
-and `claimed_at`. A claim create conflict means the request was already
+`kube-system` UID. It atomically creates the claim as a
+`coordination.k8s.io` Lease named `claim-<request_id>` in the same namespace.
+The Lease carries the exact string annotations `schema_version`, `request_id`,
+`action`, `receipt_name`, `receipt_uid`, and `claimed_at`. A claim create
+conflict means the request was already
 consumed and fails closed. CMS and executor cannot update or delete receipts
-or claims. The CMS pod uses the dedicated `dmf-cms-setup-requests`
+or claims.
+
+Receipts and claims are distinct resource types so that RBAC can separate
+them. Kubernetes cannot restrict `create` by resource name or prefix, because
+the name is not known when the request is authorized. A ConfigMap `create`
+grant would therefore let the executor write its own receipt, and a Lease
+`create` grant does not. The CMS ServiceAccount holds `create` and `get` on
+ConfigMaps and no Lease access. The executor identity holds `get` on
+ConfigMaps and `create` and `get` on Leases in `dmf-setup-requests`, and no
+ConfigMap `create`. This split needs no admission controller, so it stays
+enforceable on any cluster that enforces RBAC. No identity other than the CMS
+ServiceAccount can create a receipt. The CMS pod uses the dedicated `dmf-cms-setup-requests`
 ServiceAccount. Its RoleBinding grants create/get on ConfigMaps only in
-`dmf-setup-requests`; it cannot list them. The receipt provides append-only
+`dmf-setup-requests`; it cannot list them or touch Leases. The receipt provides append-only
 application evidence. It has no WORM guarantee; platform administrators
 remain trusted. The
 operator-side 694 executor receives only the opaque request id, reads the
 authoritative receipt, validates its schema, action, binding, expiry and
 attribution, then atomically creates the claim before any credential
 operation. A missing, expired, mismatched, already-consumed, or unreadable
-receipt fails closed. Interrupted work is retried only with a fresh
+receipt fails closed.
+
+The Layer 6 test cannot mint a receipt, because only an authenticated
+operator can create one through `dmf-cms`. The operator creates a fresh
+receipt before the test and passes its opaque id to the test run, which hands
+it to the executor unchanged. Without a receipt, 694 fails before any OpenBao
+or Kubernetes write, and the test reports the 694 step as not run instead of
+passing. Automated Layer 6 runs that have no operator context therefore
+exercise only the fail-closed result. The issuance and revocation coverage in
+the test list below runs against fixtures, not against a live receipt. Interrupted work is retried only with a fresh
 authenticated request.
 
 The CMS deployment passes these values through `DMF_CONSOLE_SETUP_REQUEST_ENV_ID`
@@ -499,10 +523,19 @@ Implementation is complete only when all of the following pass:
   OIDC session and active view-as policy, a server-generated request UUID is
   used, and a Kubernetes write failure never returns an acknowledged receipt.
   The receipt serializer is exact-schema and the persisted ConfigMap is
-  immutable. Executor fixtures reject an unbound, expired, malformed,
+  immutable. Authorization tests (`kubectl auth can-i` against each identity, or the
+equivalent API access review) prove that the executor identity cannot create,
+update or delete ConfigMaps in `dmf-setup-requests`, that the CMS
+ServiceAccount cannot create Leases there, and that a live attempt by the
+executor to create a `request-*` ConfigMap is denied.
+  Executor fixtures reject an unbound, expired, malformed,
   unreadable, or already-consumed receipt; competing calls prove the
   consumption record permits one winner. Tests verify that dmf-init passes the
   opaque id without placing it in logs or the exported checkpoint bundle.
+- Layer 6 tests prove that a run without a receipt fails 694 before any OpenBao
+  or Kubernetes write and reports the step as not run, and that a run with a
+  valid receipt consumes it through the executor path above with a single
+  claim.
 - Bootstrap-order tests prove that the checkpoint-2 export gate stays before
   post-seed; initial passkey enrollment and receipt creation pause after
   post-seed and before configure/694; and the existing post-configure passkey
