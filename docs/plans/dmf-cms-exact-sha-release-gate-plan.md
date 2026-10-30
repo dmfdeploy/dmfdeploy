@@ -319,6 +319,16 @@ Its only bypass actor is `dmf-cms-release`, an `Integration` actor. Keep
 `tags-nonrelease-block` and `tags-release-protect` as they are. The repository-wide
 GitHub Actions bypass is not used.
 
+Before the release job creates the tag, and before it builds or pushes an
+image, it reads the rulesets with its own token and fails closed unless exactly
+one ruleset named `tags-release-create` is active, has target `tag`, includes
+exactly `refs/tags/v*` with no narrowing exclude, and has the `creation` rule.
+A missing, duplicate, disabled, or drifted ruleset means no tag and no image.
+The job cannot read the bypass actors, because GitHub returns `bypass_actors`
+only to a caller with write access to the ruleset. The property that
+`dmf-cms-release` is the sole bypass actor is therefore a rollout check by the
+owner (rollout step 4).
+
 ### Provenance
 
 In scope now: the release job attaches a GitHub build-provenance attestation
@@ -484,6 +494,15 @@ All tests use fixtures or mocked GitHub and Docker interfaces.
   of a step input.
 - A ruleset fixture shows tag creation for `v*` restricted with the release
   App as the only bypass actor, and update and deletion still blocked.
+- Tag ruleset check fixtures. It passes for one active `tags-release-create`
+  ruleset with target `tag`, the include pattern `refs/tags/v*` only, and the
+  `creation` rule. The `bypass_actors` field is absent, which is the normal
+  case for this token. It fails, with no tag and no image, in each of these
+  cases: the ruleset is missing, including the live situation where only
+  `tags-release-protect` exists; two rulesets share the name; the ruleset is
+  disabled; the target or pattern differs, or an exclude narrows it; the
+  `creation` rule is missing; the API returns an error. The check runs before the
+  image build and before tag creation.
 - A provenance check, run at rollout against a disposable build, verifies the
   attestation for the digest and fails for a different workflow or SHA.
 
@@ -516,7 +535,8 @@ release workflow stays inert until step 9.
    `AUTOMERGE_APP_PRIVATE_KEY`, `RELEASE_APP_CLIENT_ID`,
    `RELEASE_APP_PRIVATE_KEY`).
 4. Create the `tags-release-create` ruleset with `dmf-cms-release` as the
-   only bypass actor.
+   only bypass actor. The owner confirms the bypass list in the ruleset
+   settings, because the release job cannot read it.
 5. Set the default workflow token permission to `read`.
 6. Add the push path for `dco`, `issue-link`, and `commitlint` and confirm
    that all twelve contexts complete with `success` on a push to `main`.
