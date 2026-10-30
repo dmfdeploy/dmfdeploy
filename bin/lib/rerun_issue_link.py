@@ -373,7 +373,7 @@ def _list_runs(api: Any, repo: str, workflow_id: int, head_sha: str) -> list[dic
 
 def _candidate_matches(
     run: dict[str, Any], *, workflow_id: int, source_id: int,
-    identity: dict[str, Any], actor: str,
+    identity: dict[str, Any],
 ) -> tuple[bool, dict[str, Any]]:
     run_id = run.get("id")
     if isinstance(run_id, bool) or not isinstance(run_id, int) or run_id < 1:
@@ -386,9 +386,11 @@ def _candidate_matches(
             or run.get("path") != WORKFLOW_PATH
             or run.get("name") != "issue-link"):
         return False, {}
-    run_actor = _mapping(run.get("actor"), "candidate actor").get("login")
-    if not isinstance(run_actor, str) or run_actor != actor:
-        raise UnsafeRun("candidate actor does not match source run")
+    # The run actor is deliberately not compared: an author can open the failing
+    # run and a maintainer can then make the edit that produces the passing
+    # source run. The candidate is bound by workflow, head SHA, repository and
+    # PR association below; the source actor's authorization is checked against
+    # the live PR before any candidate is considered.
     if _sha(run.get("head_sha"), "candidate head SHA") != identity["head_sha"]:
         return False, {}
     association = _compact_pr_association(
@@ -417,7 +419,7 @@ def _get_run(api: Any, repo: str, run_id: int) -> dict[str, Any]:
 
 def _validate_candidate_identity(
     run: dict[str, Any], *, run_id: int, workflow_id: int,
-    canonical_identity: dict[str, Any], association_identity: dict[str, Any], actor: str,
+    canonical_identity: dict[str, Any], association_identity: dict[str, Any],
 ) -> None:
     if run.get("id") != run_id or isinstance(run.get("id"), bool):
         raise UnsafeRun("candidate run ID changed")
@@ -426,9 +428,6 @@ def _validate_candidate_identity(
             or run.get("name") != "issue-link"
             or run.get("event") != "pull_request_target"):
         raise UnsafeRun("candidate workflow identity changed")
-    run_actor = _mapping(run.get("actor"), "candidate actor").get("login")
-    if run_actor != actor:
-        raise UnsafeRun("candidate actor changed")
     if _sha(run.get("head_sha"), "candidate head SHA") != canonical_identity["head_sha"]:
         raise UnsafeRun("candidate head SHA changed")
     _run_repository(run, canonical_identity, "candidate run")
@@ -459,7 +458,7 @@ def _validate_base_ancestry(api: Any, repo: str, candidate_base_sha: str, live_b
 def _wait_for_attempt(
     api: Any, repo: str, run_id: int, old_attempt: int,
     *, expected_workflow_id: int, canonical_identity: dict[str, Any],
-    association_identity: dict[str, Any], actor: str,
+    association_identity: dict[str, Any],
     timeout_seconds: float, clock=time.monotonic, sleeper=time.sleep,
 ) -> dict[str, Any]:
     deadline = clock() + timeout_seconds
@@ -468,7 +467,7 @@ def _wait_for_attempt(
         _validate_candidate_identity(
             run, run_id=run_id, workflow_id=expected_workflow_id,
             canonical_identity=canonical_identity,
-            association_identity=association_identity, actor=actor)
+            association_identity=association_identity)
         attempt = run.get("run_attempt")
         if isinstance(attempt, bool) or not isinstance(attempt, int):
             raise UnsafeRun("rerun attempt metadata is malformed")
@@ -517,7 +516,7 @@ def rerun_stale_suites(
     for run in candidates:
         is_candidate, association = _candidate_matches(
             run, workflow_id=workflow_id, source_id=source_id,
-            identity=identity, actor=event_actor)
+            identity=identity)
         if is_candidate:
             matching.append((run, association))
     matching.sort(key=lambda item: (
@@ -542,14 +541,13 @@ def rerun_stale_suites(
         # Repeat all checks that could have gone stale since the list response.
         _validate_candidate_identity(
             current, run_id=run_id, workflow_id=workflow_id,
-            canonical_identity=identity, association_identity=association,
-            actor=event_actor)
+            canonical_identity=identity, association_identity=association)
         if any(current.get(key) != candidate.get(key)
                for key in ("run_attempt", "status", "conclusion")):
             raise UnsafeRun("candidate eligibility changed before rerun")
         is_candidate, current_association = _candidate_matches(
             current, workflow_id=workflow_id, source_id=source_id,
-            identity=identity, actor=event_actor)
+            identity=identity)
         if not is_candidate or current_association != association:
             continue
         latest = _live_pr(api, repository, identity["number"])
@@ -578,7 +576,7 @@ def rerun_stale_suites(
         completed = _wait_for_attempt(
             api, repository, run_id, attempt,
             expected_workflow_id=workflow_id, canonical_identity=identity,
-            association_identity=association, actor=event_actor,
+            association_identity=association,
             timeout_seconds=timeout_per_run, clock=clock, sleeper=sleeper)
         if completed.get("conclusion") != "success":
             raise ApiFailure("rerun did not pass; remaining suites were left untouched")
