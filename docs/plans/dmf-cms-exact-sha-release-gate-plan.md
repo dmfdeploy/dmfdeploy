@@ -494,11 +494,11 @@ All tests use fixtures or mocked GitHub and Docker interfaces.
   of a step input.
 - A ruleset fixture shows tag creation for `v*` restricted with the release
   App as the only bypass actor, and update and deletion still blocked.
-- Tag ruleset check fixtures. It passes for one active `tags-release-create`
-  ruleset with target `tag`, the include pattern `refs/tags/v*` only, and the
-  `creation` rule. The `bypass_actors` field is absent, which is the normal
-  case for this token. It fails, with no tag and no image, in each of these
-  cases: the ruleset is missing, including the live situation where only
+- Tag ruleset check fixtures. The check passes for one active
+  `tags-release-create` ruleset. That ruleset has target `tag`, the include
+  pattern `refs/tags/v*` only, and the `creation` rule. The `bypass_actors` field is absent, which is the normal
+  case for this token. The check fails, with no tag and no image, in each of
+  these cases: the ruleset is missing, including the live situation where only
   `tags-release-protect` exists; two rulesets share the name; the ruleset is
   disabled; the target or pattern differs, or an exclude narrows it; the
   `creation` rule is missing; the API returns an error. The check runs before the
