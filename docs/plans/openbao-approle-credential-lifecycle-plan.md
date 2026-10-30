@@ -237,10 +237,64 @@ Each target has a non-secret OpenBao metadata record under a dedicated
 `platform/approle-rotation/` prefix. It records the role name, target version,
 SecretID accessor, issued-at time, expiry time, TTL, last successful rotation,
 last failure time/reason code, and the non-secret C5 attribution quartet for
-the latest run: actor, role, request id, and reason. It never records the
-SecretID, a token, or an application secret. The accessor is treated as
-sensitive operational metadata and never appears in metrics or normal task
-output. Metrics do not use attribution fields as labels.
+the latest run: actor, role, request id, and reason. The existing v1
+`last_scheduled_success_at` field remains in target records for shape
+compatibility, but the writer preserves its prior value and neither writer nor
+observer treats it as the schedule heartbeat authority. The sole authority is
+the atomic sweep marker below. A target record never stores the SecretID, a
+token, or an application secret. The accessor is treated as sensitive
+operational metadata and never appears in metrics or normal task output.
+Metrics do not use attribution fields as labels.
+
+### Atomic scheduled-sweep completion marker
+
+The sole schedule-heartbeat authority is the KV-v2 record at
+`secret/data/platform/approle-rotation/last-scheduled-sweep`. Its exact v1
+fields are `schema_version` (integer `1`), `run_kind` (`scheduled`),
+`outcome` (`success`), `request_id`, `actor`, `role`, `reason`, `completed_at`
+(positive Unix UTC seconds), `runtime_targets` (the sorted, duplicate-free list
+of every runtime target), and `registry_sha256`. The digest is SHA-256 of the
+complete non-secret runtime registry mapping, encoded as UTF-8 JSON with keys
+sorted and compact separators. This covers role names, TTLs, destinations,
+readiness gates, and issuance policy; setup-only dispositions are excluded.
+The observer and writer use this same canonical encoding. Manual runs and
+failed scheduled runs never write this marker.
+
+The writer prepares every target rotation or no-op, consumer readiness gate,
+old-accessor revocation, stage cleanup, and required target metadata before it
+captures `completed_at`. It then persists the exact non-secret completion
+candidate at
+`secret/data/platform/approle-rotation/sweep-candidates/<job-uid>` as an
+immutable per-Job-UID recovery receipt. The path suffix is the validated
+canonical request UUID; the writer has no list permission. Its exact fields
+are `schema_version`, `request_id`,
+`expected_marker_version`, and the complete immutable `marker_payload`.
+`expected_marker_version` is the observed marker version, or `0` when absent.
+Create each per-Job-UID candidate with CAS `0`, retain it as a receipt, and do
+not replace or delete it. If a candidate write response is lost, read back the
+exact candidate, or retry only with the same candidate CAS when the version is
+unchanged. A different value at that Job UID path blocks progress. A later
+CronJob Job may complete its own validated sweep with its own candidate; an
+older candidate cannot overwrite the newer marker because its persisted
+`expected_marker_version` is stale. After staging, re-confirm the Lease and
+write the marker last with the candidate's fixed `expected_marker_version`. On restart,
+an exact marker match proves commit; an unchanged marker version permits only
+the same payload and same CAS retry. A newer marker or CAS conflict is never
+overwritten by refreshing the version. An unavailable or ambiguous result
+remains `commit-unknown` with the receipt retained. A failed target, manual
+run, or partial sweep leaves the previous marker unchanged.
+
+The writer uses monotonic deadlines and a wall-clock-jump guard. `completed_at`
+is captured only after all pre-commit work, is nondecreasing from the previous
+committed marker, and may be at most 300 seconds in the future. The system
+assumes synchronized clocks; it does not replace an invalid or backward clock
+value with a fabricated maximum. The observer reads the marker once per poll,
+checks its exact schema, success fields, C5 fields, full target set, registry
+digest, and future-time bound, then projects `completed_at` to the existing
+per-target heartbeat metric. It does not fall back to target-record heartbeat
+values or reuse a cached marker. If the marker is missing, invalid, or
+unreadable, it withholds heartbeat series and marks the collector poll failed
+while preserving valid target expiry and failure metrics.
 
 ### Least-privilege identities
 
@@ -256,7 +310,10 @@ Its OpenBao policy is rendered from the registry and may only:
 - read and update that target's rotation metadata and an explicitly declared
   OpenBao consumer binding, where applicable; and
 - create, read, and delete the single transaction-scoped staging secret for
-  that target, with no list access to other staging records.
+  that target, with no list access to other staging records; and
+- read/create/update the exact global marker and create/read one candidate at
+  the UUID-scoped scheduled-sweep recovery path, using KV-v2 CAS. It has no list
+  access to either path.
 
 It has no `sys/*`, policy-writing, auth-method administration, arbitrary
 AppRole, application-secret, or unrelated KV access. Its Kubernetes service
@@ -265,9 +322,14 @@ Lease required by this lifecycle. The policy has explicit paths; it does not
 use a broad AppRole wildcard.
 
 `dmf-promsd` receives a separate Kubernetes-authenticated observer identity.
-It can read the metadata prefix only. It cannot mint, look up, destroy, or
-deliver a SecretID, and cannot read application data. Both identities have
-short-lived OpenBao login tokens and TLS verification enabled.
+It can read the target metadata records and the exact sweep-marker path only.
+It cannot read the recovery receipt, mint, look up, destroy, or deliver a
+SecretID, and cannot read application data. Both identities have short-lived
+OpenBao login tokens and TLS verification enabled. The writer and observer
+auth roles are provisioned only during fresh initialization. Existing
+environments require a separately reviewed privileged migration before
+rotation can be enabled; the normal policy reconciler receives no auth-role
+management authority.
 
 ### Safe rotation transaction
 
@@ -408,6 +470,15 @@ break-glass-only recovery path; they must not remain competing rotation paths.
    - `dmf_openbao_approle_rotation_last_success_seconds{role,target}`; and
    - `dmf_openbao_approle_rotation_last_failure{role,target,reason}`.
 
+   Read the exact scheduled-sweep marker once per poll and validate its v1
+   schema, scheduled-success outcome, C5 quartet, complete sorted target set,
+   configured runtime-registry digest, and 300-second future bound. Derive
+   each target's existing `last_scheduled_success` metric from the validated
+   global `completed_at`. Do not fall back to the legacy per-target
+   `last_scheduled_success_at` field or a cached marker. An invalid or missing
+   marker withholds heartbeat metrics and fails the collector poll, while
+   preserving valid target expiry and failure metrics.
+
    No metric label, log line, health response, or error body includes an
    accessor, SecretID, token, namespace-specific secret value, or OpenBao
    response payload. If metadata cannot be read, the collector exports a
@@ -417,43 +488,56 @@ break-glass-only recovery path; they must not remain competing rotation paths.
    monitoring stack, independent of AWX or a successor scheduler. A target is
    due at two-thirds of its TTL. Alert warning when less than one quarter of
    TTL remains, critical when less than one tenth remains, and alert immediately
-   when the latest scheduled rotation fails or metadata is absent/stale. These
+   when the latest scheduled sweep fails or its global marker is absent/stale.
+   A failed or partial sweep never advances any target heartbeat. These
    ratios apply to each target's declared TTL; the effective values for the
    30-day roles and yearly object-storage roles appear in the runbook and rule
    tests. The alert annotation names the target and runbook, never a secret.
 
 8. **Schedule and run the playbook.** A Kubernetes CronJob runs once daily,
    directly executing the reusable rotation playbook in the approved,
-   digest-pinned Ansible execution image. This credential-maintenance runner
-   does not call the AWX API or autoscale helper, so it runs while AWX is
-   scaled to zero. The scheduled actor is the authenticated Kubernetes
-   service-account identity; its role is the fixed
-   `approle-rotation-scheduler` role. Its reason is the fixed,
-   non-secret `scheduled-pre-expiry-rotation` value. The CronJob supplies a
-   stable non-secret request id/run id for each logical invocation and reuses
-   it after retries or recovery; caller-supplied variables cannot override the
-   actor, role, or reason. Place the CronJob in a protected runtime namespace
-   with a dedicated service account. Its Kubernetes permissions are limited to
-   the named consumer Secrets and the coordination Lease; its OpenBao identity
+   digest-pinned Ansible execution image. The currently verified DMF execution
+   image is the Linux/arm64 manifest
+   `sha256:925d8a35ffabe934091fa063696842583524e40d0a4314c2f1a597d06a42cb3f`.
+   The CronJob selects arm64 explicitly and fails closed when the configured
+   architecture is unknown or unsupported; this plan does not claim amd64
+   support. Reconfirm image availability and target architecture before
+   enablement. This credential-maintenance runner does not call the AWX API or
+   autoscale helper, so it runs while AWX is scaled to zero. The actor is
+   exactly `system:serviceaccount:dmf-approle-rotation:approle-rotation-scheduler`,
+   the role is `approle-rotation-scheduler`, and the reason is
+   `scheduled-pre-expiry-rotation`. The request id is the exact canonical
+   lowercase Kubernetes Job `metadata.uid` UUID string, reused after Pod
+   retries or recovery. Caller-supplied variables cannot override these
+   values. Place the CronJob in a protected namespace with a dedicated service
+   account. Only the trusted infrastructure deployer may create or change the
+   CronJob. No untrusted user, operator account, or workload may create Pods or
+   Jobs using this service account or manage objects in this namespace. The
+   runner has no Pod, Job, or CronJob create/update permission. Its read-only
+   lineage checks use namespace-scoped GET access for generated Pod and Job
+   names and the fixed CronJob. Other Kubernetes permissions are limited to
+   named consumer Secrets and the coordination Lease; its OpenBao identity
    follows the least-privilege policy above.
 
-   A manual run is accepted only through an authenticated `dmf-cms` operator
-   action. It writes the immutable
-   [ADR-0028](../decisions/0028-identity-and-authority-chain.md) request
-   receipt, derives the human actor from the authenticated Authentik subject
-   and the authorized role from the session's effective authorization
-   context, requires a non-secret reason, and generates the request id. It
-   does not create a Kubernetes Job. During bootstrap, dmf-init accepts the
-   resulting opaque request id at a dedicated pause and passes it only to the
-   existing operator SSH configure executor. The executor loads and validates
-   the authoritative receipt and atomically claims its request id before it
-   asks for a short-lived TokenRequest JWT for the fixed issuer ServiceAccount.
-   The CMS API does not accept caller-supplied actor or role fields, and
-   dmf-init does not accept arbitrary extra-vars. Direct playbook invocation
-   without a valid, unconsumed receipt fails before OpenBao or Kubernetes
-   writes. If the trusted origin or C5 context is absent, the executor fails
-   closed. The scheduled CronJob identity and operator SSH executor identity
-   remain distinct and scoped to their respective issuance paths.
+   Scheduled authority requires the protected-namespace creator boundary and
+   exact Pod→Job→CronJob owner UIDs, kinds, names, and controller flags. Verify
+   every namespace and service account, then compare the normalized CronJob,
+   Job template, and Pod specs against configured values. The comparison
+   includes all containers and init containers, image digest and arm64 node
+   selector, commands and arguments, environment, volumes, mounts, and
+   security contexts. Pod and Job annotations are audit copies only. A forged
+   owner reference, altered spec, or direct playbook invocation fails before
+   OpenBao login or Kubernetes mutation.
+
+   Manual rotation remains disabled in this work. Its positive path is
+   deferred to a separate reviewed C5 receipt producer and restricted
+   dispatcher. The current dmf-cms receipt
+   capability does not authorize creating Jobs or requesting service-account
+   tokens. Do not grant CMS Job, Pod, or TokenRequest privileges, and do not
+   accept caller-supplied annotations or arbitrary extra-vars as authority.
+   Direct playbook invocation without the verified scheduled lineage (or a
+   future separately approved manual receipt) fails before OpenBao or
+   Kubernetes writes.
 
    The runner carries the C5 quartet in its durable non-secret run receipt and
    Job/Pod annotations. Kubernetes Secret mutations carry the request id and
@@ -466,9 +550,13 @@ break-glass-only recovery path; they must not remain competing rotation paths.
    ingress.
 
    The playbook Lease remains the semantic no-overlap guard across scheduled,
-   duplicate, and manual invocations. The runner records a success heartbeat
-   only after successful completion. A failed-run signal or stale/missing
-   heartbeat alerts through the independent monitoring stack. Rotation occurs
+   duplicate, and manual invocations. Only a full successful scheduled sweep
+   commits the global marker; per-target v1 heartbeat fields remain unchanged.
+   A target failure recorded in target metadata alerts immediately. A missing
+   or stale marker alerts when the scheduled-heartbeat freshness window
+   expires. A preflight failure before target metadata is written has no
+   separate per-run failure signal in this contract; heartbeat expiry is its
+   backstop. Rotation occurs
    at the two-thirds threshold, giving the 30-day roles at least ten days of
    retry window. The registry, rotation transaction and safety gates, run
    request/result, and telemetry are backend-neutral. The evaluation in
@@ -508,13 +596,20 @@ Implementation is complete only when all of the following pass:
   `dmf-infra/k3s-lab-bootstrap/`.
 - Runner tests prove the rotation executes with AWX scaled to zero and makes no
   AWX API or autoscale-helper calls. Cover scheduled machine attribution and
-  the authenticated dmf-cms manual path against its immutable request record;
-  verify the quartet reaches the run receipt, Kubernetes annotations, consumer
-  mutation audit, and supported OpenBao audit correlation. Missing or
-  caller-forged context must fail before writes. Cover concurrent invocations
+  verify the quartet reaches the non-secret run receipt, Kubernetes annotations,
+  consumer mutation audit, and supported OpenBao audit correlation. This work
+  rejects manual or direct-playbook invocation before writes; no positive manual
+  path is accepted here. Cover concurrent invocations
   through the shared Lease, duplicate and
   lost-response retries through the same request id and transaction, and prove
-  that only a successful run records a success heartbeat. Assert that no
+  that no manual/failed/partial run changes the marker and that only a complete
+  successful sweep commits it. Cover marker CAS conflict/lost response,
+  restart from the exact durable candidate including its expected marker CAS,
+  candidate write lost-response recovery, stale lease/marker, forged owner
+  references, altered CronJob/Job/Pod specs, denied untrusted create capability,
+  registry digest mismatch, future/backward timestamps, and post-commit reporting
+  failure. The observer must withhold heartbeat on invalid/missing marker with
+  no legacy fallback while retaining valid target metrics. Assert that no
   SecretID, token, accessor, or staging value appears in attribution metadata,
   logs, metrics, or results.
 - CMS receipt tests reject unauthenticated, development-login,
