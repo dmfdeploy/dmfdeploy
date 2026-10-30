@@ -497,11 +497,12 @@ All tests use fixtures or mocked GitHub and Docker interfaces.
 - Tag ruleset check fixtures. The check passes for one active
   `tags-release-create` ruleset. That ruleset has target `tag`, the include
   pattern `refs/tags/v*` only, and the `creation` rule. The `bypass_actors` field is absent, which is the normal
-  case for this token. The check fails, with no tag and no image, in each of
-  these cases: the ruleset is missing, including the live situation where only
-  `tags-release-protect` exists; two rulesets share the name; the ruleset is
-  disabled; the target or pattern differs, or an exclude narrows it; the
-  `creation` rule is missing; the API returns an error. The check runs before the
+  case for this token. The check fails, with no tag and no image, when the
+  ruleset is missing. That includes the live situation where only
+  `tags-release-protect` exists. It also fails when two rulesets share the
+  name, when the ruleset is disabled, and when the API returns an error. It
+  fails when the target or pattern differs, when an exclude narrows the
+  pattern, and when the `creation` rule is missing. The check runs before the
   image build and before tag creation.
 - A provenance check, run at rollout against a disposable build, verifies the
   attestation for the digest and fails for a different workflow or SHA.
