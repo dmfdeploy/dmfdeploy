@@ -11,26 +11,25 @@ docs/decisions/README.md, "ADR conventions". -->
 
 ## Context
 
-Issue #568 found that the dmf-cms release commit `v0.38.0` reached `main` with no check
-runs. dmf-cms allows only rebase merges, so the commit on `main` is not the commit the pull
-request tested. Auto-merge ran as `GITHUB_TOKEN`, and GitHub starts no workflows from events
-that token causes, so the rebased commit never got its checks.
+Issue #568 found that the dmf-cms release commit `v0.38.0` reached `main` with no check runs.
+dmf-cms allows only rebase merges, so the commit on `main` is not the one the pull request
+tested. Auto-merge ran as `GITHUB_TOKEN`, which starts no workflows, so it got no checks.
 
 An earlier choice, recorded only in an issue comment, was to add no App and no personal
-credential. This ADR replaces that choice for dmf-cms. A `GITHUB_TOKEN` tag bypass would apply
-to every workflow in the repository.
+credential. This ADR replaces that choice for dmf-cms. A `GITHUB_TOKEN` tag bypass would apply to
+every workflow.
 
 ## Decision
 
-dmf-cms uses two GitHub Apps owned by the `dmfdeploy` organization, installed only on it.
-- **`dmf-cms-automerge`** arms auto-merge, or merges directly when checks have already
-  passed. Its events start workflows, so the commit on `main` gets its checks. It has
-  pull-requests and contents write only.
-- **`dmf-cms-release`** creates `v*` tags with contents write only. It is the only bypass
-  actor on the `tags-release-create` ruleset.
+dmf-cms uses two GitHub Apps owned by the `dmfdeploy` organization. Each is installed with
+repository access limited to dmf-cms alone. Extending either App to another repository needs a
+new decision. The pattern is proven in dmf-cms first.
+- **`dmf-cms-automerge`** arms auto-merge, or merges directly after checks pass. Its events start
+  workflows, so the commit on `main` gets its checks. It has pull-requests and contents write only.
+- **`dmf-cms-release`** creates `v*` tags with contents write only. It is the only bypass actor on
+  the `tags-release-create` ruleset.
 - Each key lives in its own environment (`automerge`, `release`) limited to `main`. It reaches
   the token action as an input, never argv (ADR-0007).
-- The pattern is proven in dmf-cms first. Other repositories need their own decision.
 
 ## Options considered
 
@@ -38,39 +37,40 @@ dmf-cms uses two GitHub Apps owned by the `dmfdeploy` organization, installed on
 2. **One App.** Any job that can arm a merge could also create a release tag.
 3. **Two Apps (chosen).** The key that can create tags exists in one environment only.
 4. **Personal access token.** It ties releases to one person and has broader scope.
-5. **Merge queue.** Tests the exact commit, but tag creation still needs a scoped identity,
-   and its behavior with rebase merges here is unverified.
+5. **Merge queue.** Tests the exact commit, but tag creation still needs a scoped identity.
 
 ## Consequences
 
 - **Positive:** the commit on `main` gets checks, and releases run unattended.
-- **Negative:** two long-lived keys exist. An organization owner creates the Apps and
-  environments, rotates both keys every 90 days and after any owner change, and records it in
-  the pinned operator-notes issue [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618).
-- **Residual risk:** anyone who can change environment settings, or merge to `main` without
-  review, is inside the trust boundary. Review rules limit this and do not remove it.
+- **Negative:** two long-lived keys exist. An organization owner creates the Apps and environments,
+  rotates both keys every 90 days and after any change of owners or of who can edit the environments
+  or their secrets, and records it in the pinned issue [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618).
+- **Residual risk:** anyone who can change environment settings or merge to `main` without review is
+  inside the trust boundary. Review rules limit this risk and do not remove it.
 
 Observed in throwaway probes on 2026-10-30:
 
 - An App-armed merge started the push workflow. A `GITHUB_TOKEN`-armed merge did not.
-- A Free-plan organization accepted its own App as the only tag bypass actor. An organization
-  admin could not create a matching tag, and neither could a stray-branch `GITHUB_TOKEN` workflow.
+- A Free-plan organization accepted its own App as the only tag bypass actor. An organization admin
+  could not create a matching tag, and neither could a stray-branch `GITHUB_TOKEN` workflow.
 - The built-in GitHub Actions integration cannot be a bypass actor.
-- An environment limited to `main` withholds its secret from other branches.
-- Attestations work on a Free-plan public repository.
-Unconfirmed, and checked before the release trigger is enabled: a direct App merge,
-skipped-job concurrency behavior, `workflow_run` under the new `pull_request_target` policy,
-and attestation of a container digest.
+- An environment limited to `main` withholds its secret from other branches, and attestations
+  work on a Free-plan public repository.
+
+Unconfirmed, and checked before the release trigger is enabled: a direct App merge, skipped-job
+concurrency behavior, `workflow_run` under the new `pull_request_target` policy, and attestation
+of a container digest.
 
 ### Enforcement
 
-- The plan's required tests run in dmf-cms CI. A workflow lint test fails unless only the
-  `release` job holds the concurrency group, the `release` environment and write permissions.
-  It also fails if another workflow references the release secrets. Trigger tests cover
-  `automerge` and `release`, and a ruleset fixture requires one tag bypass actor.
+- The plan's required tests run in dmf-cms CI. A workflow lint test fails unless only the `release`
+  job holds the concurrency group, the `release` environment and write permissions, or if another
+  workflow references the release secrets. Trigger tests cover `automerge` and `release`. A ruleset
+  fixture asserts that `dmf-cms-release` is the only bypass actor for `v*` tag creation, so the
+  `dmf-cms-automerge` App and every other actor are absent, and that update and deletion of `v*` tags stay blocked.
 - The rollout probes and the live `tags-release-create` setup are pre-enable gates.
 - Nothing checks the live tag ruleset after rollout (`bin/check-ruleset-drift.sh` reads only
-  the branch ruleset), and nothing checks the 90-day key rotation: discipline only.
+  the branch ruleset), the App repository access, or key rotation: discipline only.
 
 ## Status
 
