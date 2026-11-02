@@ -21,10 +21,14 @@
 #     start with "~" or "$", or be a symlink or sit below one, and must resolve
 #     inside the repository. Quoted comment paths and premise paths get the same
 #     resolved-path test.
-#   - The three git forms run with an empty HOME and no global or system config, so
-#     a .gitconfig in the tree has no effect. The repository's own .git/config
-#     is trusted: the check defends against the report, not against a hostile
-#     working tree.
+#   - Every git call runs with an empty HOME and no global or system config, so
+#     a .gitconfig in the tree has no effect. It also reads attributes from
+#     git's empty tree, with the filesystem monitor off and external diff and
+#     text conversion disabled, so no diff driver, text converter, clean or
+#     smudge filter or monitor hook the repository configures ever runs. This
+#     needs git 2.40 or newer (--attr-source). Otherwise the repository's own
+#     .git/config is trusted: the check defends against the report, not against
+#     a hostile working tree.
 #   - Every result line starts with "pass: ", "fail: " or "note: ", and report
 #     text only ever appears after that prefix or indented below it. Quoted text
 #     therefore cannot forge the verdict line or the BEGIN/END markers.
@@ -58,6 +62,7 @@
 # Exit codes: 0 PASS, 1 FAIL, 2 usage or I/O error.
 set -euo pipefail
 export GIT_OPTIONAL_LOCKS=0
+export GIT_ATTR_NOSYSTEM=1
 
 usage() {
   cat <<'EOF'
@@ -114,10 +119,21 @@ done
 [ -n "$REPORT" ] || { usage >&2; die "--report is required"; }
 [ -n "$DIR" ] || { usage >&2; die "--repo is required"; }
 command -v python3 >/dev/null 2>&1 || die "python3 is required"
+gitver=$(git --version 2>/dev/null | sed -n 's/^git version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/\1 \2/p')
+read -r gitmajor gitminor <<<"$gitver"
+if [ -z "${gitmajor:-}" ] || [ "$gitmajor" -lt 2 ] || { [ "$gitmajor" -eq 2 ] && [ "$gitminor" -lt 40 ]; }; then
+  die "git 2.40 or newer is required (--attr-source)"
+fi
+# The single entry point for git in this script. The empty tree supplies no
+# .gitattributes, so no diff driver or filter applies; the other options turn
+# off the filesystem monitor and external diff.
+git_ro() {
+  git -C "$DIR" --literal-pathspecs --attr-source=4b825dc642cb6eb9a060e54bf8d69288fbee4904 -c core.fsmonitor=false -c diff.external= "$@"
+}
 [ -f "$REPORT" ] && [ -r "$REPORT" ] || die "report not readable: $REPORT"
-git -C "$DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1 || die "not a git work tree: $DIR"
-[ -z "$(git -C "$DIR" rev-parse --show-prefix)" ] || die "--repo must be the repository root: $DIR"
-git -C "$DIR" rev-parse --verify -q "${BASE}^{commit}" >/dev/null || die "base does not resolve: $BASE"
+git_ro rev-parse --is-inside-work-tree >/dev/null 2>&1 || die "not a git work tree: $DIR"
+[ -z "$(git_ro rev-parse --show-prefix)" ] || die "--repo must be the repository root: $DIR"
+git_ro rev-parse --verify -q "${BASE}^{commit}" >/dev/null || die "base does not resolve: $BASE"
 
 W=$(mktemp -d)
 trap 'rm -rf "$W"' EXIT
@@ -125,7 +141,7 @@ trap 'rm -rf "$W"' EXIT
 # Every git call, here and in the command helper, reads a private copy of the
 # index: git diff and git status refresh the index they are given, and the
 # repository's own .git/index must stay byte for byte unchanged.
-idx="$(git -C "$DIR" rev-parse --absolute-git-dir)/index"
+idx="$(git_ro rev-parse --absolute-git-dir)/index"
 if [ -f "$idx" ]; then cp "$idx" "$W/index"; fi
 export GIT_INDEX_FILE="$W/index"
 
@@ -278,7 +294,7 @@ added_lines() {
       bad "unsupported file name (control character, quote or backslash): $(printf '%q' "$f")"
       continue
     fi
-    git -C "$DIR" --literal-pathspecs diff --no-color --no-ext-diff --no-renames -U0 "$BASE" -- "$f" |
+    git_ro diff --no-color --no-ext-diff --no-textconv --no-renames -U0 "$BASE" -- "$f" |
       awk -v p="$f" '
         !seen && /^@@ / { seen = 1 }
         !seen { next }
@@ -287,7 +303,7 @@ added_lines() {
           next
         }
         /^\+/ { printf "%s\t%d\t%s\n", p, ln, substr($0, 2); ln++ }'
-  done < <(git -C "$DIR" diff --name-only -z --no-renames "$BASE" --)
+  done < <(git_ro diff --name-only -z --no-ext-diff --no-textconv --no-renames "$BASE" --)
   while IFS= read -r -d '' f; do
     if odd_name "$f"; then
       bad "unsupported file name (control character, quote or backslash): $(printf '%q' "$f")"
@@ -303,7 +319,7 @@ added_lines() {
     fi
     grep -Iq '' "$DIR/$f" || continue
     awk -v p="$f" '{ printf "%s\t%d\t%s\n", p, NR, $0 }' "$DIR/$f"
-  done < <(git -C "$DIR" ls-files --others --exclude-standard -z)
+  done < <(git_ro ls-files --others --exclude-standard -z)
 }
 
 # py_docstrings FULLPATH RELPATH — "REL<TAB>first<TAB>last" for each docstring
@@ -483,15 +499,20 @@ signal.signal(signal.SIGALRM, on_alarm)
 signal.alarm(60)
 
 
+GIT_FIXED = ["git", "--literal-pathspecs", "--attr-source=4b825dc642cb6eb9a060e54bf8d69288fbee4904",
+             "-c", "core.fsmonitor=false", "-c", "diff.external="]
+
+
 def run_git(argv):
     home = os.path.join(work, "home")
     os.makedirs(home, exist_ok=True)
     env = {"PATH": os.environ.get("PATH", ""), "LC_ALL": "C", "HOME": home,
            "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1",
            "GIT_OPTIONAL_LOCKS": "0", "GIT_LITERAL_PATHSPECS": "1",
+           "GIT_ATTR_NOSYSTEM": "1",
            "GIT_INDEX_FILE": os.path.join(work, "index")}
     try:
-        p = subprocess.run(argv, cwd=repo, env=env, stdin=subprocess.DEVNULL,
+        p = subprocess.run(GIT_FIXED + argv[1:], cwd=repo, env=env, stdin=subprocess.DEVNULL,
                            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=60)
     except subprocess.TimeoutExpired:
         reject("timeout: $ " + line)
@@ -545,7 +566,7 @@ except ValueError:
 n = len(toks)
 if n == 4 and toks[:3] in (["git", "diff", "--stat"], ["git", "diff", "--name-status"]):
     check_ref(toks[3])
-    rc, data = run_git(["git", "diff", toks[2], toks[3]])
+    rc, data = run_git(["git", "diff", "--no-ext-diff", "--no-textconv", toks[2], toks[3]])
     if rc != 0:
         reject("git exited %d: $ %s" % (rc, line))
     out(data.decode("utf-8", "replace"))
@@ -697,7 +718,7 @@ flush_pattern() {
     return 0
   fi
   local rc=0 e
-  git -C "$DIR" grep -nE --untracked --null -e "$PAT" >"$W/grep.raw" 2>"$W/grep.err" || rc=$?
+  git_ro grep --no-textconv -nE --untracked --null -e "$PAT" >"$W/grep.raw" 2>"$W/grep.err" || rc=$?
   if [ "$rc" -gt 1 ]; then
     bad "pattern does not run: $PAT ($(head -n 1 "$W/grep.err"))"
     return 0
@@ -877,7 +898,7 @@ resolve_source() {
       rev=${s#*@}
       if [ -z "$path" ] || [ -z "$rev" ] || [[ $rev == -* ]]; then
         bad "unparseable source: $s"
-      elif git -C "$DIR" cat-file -e "$rev:$path" 2>/dev/null; then
+      elif git_ro cat-file -e "$rev:$path" 2>/dev/null; then
         okp "$s"
       else
         bad "$s does not resolve"
@@ -1027,8 +1048,8 @@ if command -v shasum >/dev/null 2>&1; then
 else
   sha=$(sha256sum "$REPORT" | awk '{print $1}')
 fi
-head_sha=$(git -C "$DIR" rev-parse --short HEAD)
-dirty=$(git -C "$DIR" status --porcelain | wc -l | tr -d ' ')
+head_sha=$(git_ro rev-parse --short HEAD)
+dirty=$(git_ro status --porcelain | wc -l | tr -d ' ')
 
 printf '<!-- PRE-GATE-CHECK-BEGIN -->\n'
 printf '%s\n' "$verdict"

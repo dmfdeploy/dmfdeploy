@@ -442,6 +442,32 @@ S2="$OK_CMD"$'\n$ ls hid\nvisible'; run_case
 verdict ls-hidden 0 "PRE-GATE: PASS"
 finish ""
 
+# A repository helper (diff driver, clean filter, monitor hook) must never run.
+# Each marker lives in $S, outside the repo under test.
+defaults; fresh; rm -f "$S"/marker-*
+printf 'one\n' >"$T/blob.bin"; printf 'blob.bin diff=evil\n' >"$T/.gitattributes"
+git -C "$T" add blob.bin .gitattributes; git -C "$T" commit -q -m blob
+git -C "$T" config diff.evil.textconv "touch $S/marker-textconv; cat"
+printf 'two\n' >"$T/blob.bin"; run_case
+verdict textconv-driver 0 "PRE-GATE: PASS"
+w=""; [ ! -e "$S/marker-textconv" ] || w="textconv driver ran"
+finish "$w"
+
+defaults; fresh; rm -f "$S"/marker-*
+printf 'src/app.sh filter=evil\n' >"$T/.gitattributes"
+git -C "$T" add .gitattributes; git -C "$T" commit -q -m attrs
+git -C "$T" config filter.evil.clean "touch $S/marker-clean; cat"; run_case
+verdict clean-filter 0 "PRE-GATE: PASS"
+w=""; [ ! -e "$S/marker-clean" ] || w="clean filter ran"
+finish "$w"
+
+defaults; fresh; rm -f "$S"/marker-*
+printf '#!/bin/sh\ntouch "%s/marker-fsmonitor"\nexit 0\n' "$S" >"$S/fsmon.sh"; chmod +x "$S/fsmon.sh"
+git -C "$T" config core.fsmonitor "$S/fsmon.sh"; run_case
+verdict fsmonitor-hook 0 "PRE-GATE: PASS"
+w=""; [ ! -e "$S/marker-fsmonitor" ] || w="fsmonitor hook ran"
+finish "$w"
+
 if [ "$FAILED" -eq 0 ]; then
   echo "SELFTEST: PASS ($COUNT scenarios)"
   exit 0
