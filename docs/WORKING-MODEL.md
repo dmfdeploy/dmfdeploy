@@ -287,6 +287,8 @@ Two sanctioned forms:
   A FAIL from a one-shot gate escalates to the interactive form for the fix
   rounds; one-shot gates are never used to re-review their own findings.
 
+Every gate request opens with the output of the mechanical pre-gate check (issues-cruncher skill, hard gate 8), which re-verifies the work-order report's quoted comments, pasted counts, sibling sweep and tree-resolvable premise sources against the working tree. A request without that block is refused; a failed block returns to the implementer without a review round.
+
 ## 7. How this is enforced (mechanics map)
 
 | Mechanism | Scope | Mode |

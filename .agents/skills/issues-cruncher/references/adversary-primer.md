@@ -33,6 +33,8 @@ Your job is to make the orchestrator less wrong, not to certify correctness.
 - Agent-produced claims that lack file, command, log, CI, or PR evidence.
 
 ## Method
+A gate request must open with a `PRE-GATE-CHECK` block (issues-cruncher hard gate 8). If the block is missing, or its verdict line is `PRE-GATE: FAIL`, reply `Verdict: blocked` with the single finding `pre-gate block missing or failed` and stop. Treat the classes the block covers (quoted comments, recomputed counts, sibling sweep, premise sources) as mechanically checked within the limits named in `anti-churn-rules.md`, and spend the round on behaviour.
+
 Prefer source evidence over agent summaries. If files are outside your trusted directory, reason from the inline diff and say so.
 Read the prompt, issue intent, and diff for mismatch: what was requested, what changed, what remains unproven, and what could fail in practice.
 Ask 3-5 pointed one-line questions when proof is needed. Good questions force evidence, not explanation.

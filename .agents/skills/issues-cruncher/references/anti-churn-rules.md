@@ -1,7 +1,7 @@
 # Anti-churn rules — paste these into every WO and gate dispatch
 
 **What to paste:** exactly the block between the `DISPATCH-PAYLOAD-BEGIN` and
-`DISPATCH-PAYLOAD-END` markers below — the five numbered rules, nothing else.
+`DISPATCH-PAYLOAD-END` markers below — the six numbered rules, nothing else.
 The framing above the markers is for the reader deciding *whether* the rules are
 right; it is not part of the payload and must not be pasted into a dispatch.
 
@@ -57,10 +57,11 @@ after a single use, and every test that only exercises entry passes.
 
 ### 3. Counts are pasted command output
 
-Every scope, count, or sweep claim is **raw command output pasted verbatim**
-(`git diff --name-status`, `grep -c`, a test runner's own summary line). The gate
-re-runs the same command and compares. No agent states a number it derived by
-arithmetic, memory, or paraphrase of another agent's report.
+Every scope, count, or sweep claim is **raw output pasted verbatim**: one of the
+six count forms of rule 6, which the pre-gate check recomputes and compares, or a
+test runner's own summary line, which the reviewer re-runs. No agent states a
+number it derived by arithmetic, memory, or paraphrase of another agent's
+report.
 
 *Failure mode:* a number restated by hand drifts from the command that produced
 it, and nothing in the report reveals the drift. Two mechanical traps to know:
@@ -99,4 +100,109 @@ implementer has no reason to doubt its own instructions. Dispatch text is a
 reliable *delivery channel* and an untrusted *content source*; those are
 different properties and the distinction is load-bearing.
 
+### 6. Pre-gate report sections
+
+The WO report carries four level-2 sections, with these exact headings:
+
+- `## Comment fidelity`: a fenced block with one `PATH: literal line` entry for
+  every comment or docstring line touched, or the single line `none`.
+- `## Counts`: a fenced block of `$ <form>` lines, each followed by its pasted
+  output, where `<form>` is one of `git diff --stat <ref>`,
+  `git diff --name-status <ref>`, `git ls-files [<path>]`, `ls <dir>`,
+  `lines <path>` or `count <regex> <path>`. No other command is re-run.
+- `## Sibling sweep`: a fenced block with `pattern: ERE`, then one
+  `PATH:LINE: pass|fail` entry for every match, or `pattern: none`.
+- `## Premise table`: the table from rule 5, or the single line `none` when the
+  work order carries no decision-bearing premise.
+
+The orchestrator runs `bin/pre-gate-check.sh` on the report before any gate
+request. A report the script cannot parse is returned unread.
+
+*Failure mode:* a report in free prose cannot be re-checked by a machine, so
+every claim in it waits for a reviewer to find the one that is wrong.
+
 <!-- DISPATCH-PAYLOAD-END -->
+
+## Mechanical pre-gate check
+
+This section is not part of the payload.
+
+The script `bin/pre-gate-check.sh` re-verifies, against the working tree, the
+parts of a report that the rules make checkable: rule 1 (quoted comments), rule 3
+(pasted counts), rule 4 (sibling sweep) and the source resolution of rule 5.
+Rule 2 (the ownership-move lifecycle test) stays a review criterion.
+
+Run it by path from the skill directory:
+
+```
+bin/pre-gate-check.sh --report <WO report> --repo <tree> [--base REF]
+```
+
+`--base` defaults to `origin/main`. The script diffs the working tree against
+that ref, so staged and unstaged edits both count.
+
+The output is one block between `<!-- PRE-GATE-CHECK-BEGIN -->` and
+`<!-- PRE-GATE-CHECK-END -->`. The first line inside it is the verdict:
+`PRE-GATE: PASS`, or `PRE-GATE: FAIL (sections: 1,3)`. Every result line starts
+with `pass:`, `fail:` or `note:`.
+
+Exit codes: 0 for PASS, 1 for FAIL, 2 for a usage or I/O error (missing file,
+`--repo` is not a git repository, unresolvable `--base`).
+
+Refusal rule: paste the block, verbatim, at the top of every gate request. The
+adversary refuses a request without it. A `PRE-GATE: FAIL` block goes back to the
+implementer as a fix round, and no gate request is sent.
+
+To confirm the script itself still discriminates, run the self-test:
+
+```
+bin/pre-gate-check-selftest.sh
+```
+
+It prints `SELFTEST: PASS (<n> scenarios)` on success.
+
+Limits:
+
+- The `## Counts` section does not run report-supplied commands. Each `$ ` line
+  must be one of the six forms in rule 6, and anything else fails with
+  `not a supported count form`. `ls`, `lines` and `count` are computed inside the
+  checker (`ls` lists sorted names, `lines` counts lines, `count` counts lines
+  where the regular expression matches). The three git forms run git with fixed
+  arguments, in an isolated environment (empty home, no global or system
+  config, a private copy of the index). The two `git diff` forms take a ref that
+  must resolve to a commit; `git ls-files` takes an optional contained path.
+  There is no shell, no pipeline and no option parsing, and an empty `$ ` line
+  fails like any other unsupported form.
+- The `count` form arms a 60-second in-process alarm. A pathological pattern was
+  interrupted after about 60 seconds on macOS; no cross-platform guarantee is
+  claimed.
+- Paths in the forms, in quoted comment paths and in premise sources are
+  contained on the resolved path: not absolute, no `..`, no `~` or `$` prefix,
+  and no symlink in the path, whatever it points to. The one message for a
+  refused path is `path outside the repo or a symlink`. Counts paths must also
+  exist, and `lines` and `count` need a regular file.
+- The report structure fails closed: each of the four headings appears once,
+  every fence is closed, a section holds one fenced block (one table for the
+  premise section), the table has a header separator row, and `## Counts` has no
+  text before its first command.
+- `none` is the literal trimmed line, and it must be the sole content of its
+  block or section in every section that allows it.
+- Output normalization: counts are compared after stripping trailing whitespace
+  on each line and trailing blank lines, and expected output may not be empty.
+  Quoted comment lines are compared as whole lines after trimming leading and
+  trailing whitespace.
+- Comment coverage detects single-line comment markers and Python docstring
+  bodies. It does not detect block-comment bodies in other languages or text
+  inside heredocs. Any untracked symlink fails the coverage scan.
+- Doc files (`.md`, `.rst`, `.txt`, `.adoc`) are prose. The script checks their
+  quoted lines but does not require every added line to be quoted.
+- URL and tracker-ref premise sources are noted, not resolved. At least one
+  source in the table must resolve against the tree.
+- A sibling declared `fail` needs a reason after the word `fail`.
+- The checker writes only to its own temporary directory, removed on exit, and
+  leaves every file under the repository, including `.git/index`, byte for byte
+  unchanged.
+- The check trusts the working tree and its repository config; it defends
+  against the report.
+- `none` is the implementer's declaration that nothing relevant exists. The
+  check cannot verify that, so the reviewer confirms it independently.

@@ -38,11 +38,15 @@ it — do not inline its content here.
 7. **Human approval gate** for destructive / migration / costed-cloud / public-publish
    / dependency-license actions. Green ≠ mergeable if rules can be bypassed.
 8. **Anti-churn rules travel in the dispatch, verbatim.** Every WO (phase 3) and
-   every gate request (phase 4) carries the five rules from
+   every gate request (phase 4) carries the six rules from
    `references/anti-churn-rules.md` — paste exactly the delimited
    `DISPATCH-PAYLOAD` block, nothing else. **Never cite them from memory or
    paraphrase**: recall is not enforcement, and a paraphrase is a different
-   instruction from the one that was reviewed.
+   instruction from the one that was reviewed. Before any gate request, run
+   `bin/pre-gate-check.sh --report <WO report> --repo <tree>` and paste its
+   `PRE-GATE-CHECK` block, verbatim, at the top of the request. The adversary
+   refuses a request without the block; a `PRE-GATE: FAIL` block goes back to the
+   implementer as a fix round and no gate request is sent.
 
 ## The loop (8 phases)
 
@@ -61,7 +65,8 @@ it — do not inline its content here.
    cross-check + verify pass (`references/implementer-primer.md`).
 4. **Cross-check (conditional)** — invoke codex only on risk signals / low
    confidence; treat its verdict as a second angle, not a gate
-   (`references/adversary-primer.md`).
+   (`references/adversary-primer.md`); the request opens with the pre-gate block
+   (hard gate 8).
 5. **Verify** *(orchestrator — local / pre-commit)* — on disk; run tests via the
    project's runner; run the **discrimination check**; lint; **clean-tree** verify
    from a *local export* (`git archive`/`ls-tree`) where built artifacts can mask
@@ -93,7 +98,7 @@ round. (`references/tiers.md`)
 | `references/github-adapter.md` | Phase 0/7 — CI + tracker truth, close-keyword probing, merge guard |
 | `references/dmf-profile.md` | This environment's concrete profile facts |
 | `references/tiers.md` | Phase 1 — risk-signal tiers + checkpoint gates |
-| `references/anti-churn-rules.md` | Phases 3–4 — the five rules pasted verbatim into every WO and gate dispatch (hard gate 8) |
+| `references/anti-churn-rules.md` | Phases 3–4 — the six rules (rule 6 is the report format the pre-gate check reads) pasted verbatim into every WO and gate dispatch (hard gate 8) |
 | `references/guardrails.md` | Phases 5–7 — the hard-gate checklist in full |
 | `references/harness-ops.md` | agent-bridge operation (liveness, flush, hung-agent policy) |
 | `references/orchestrator-primer.md` | Your lane, in depth |
