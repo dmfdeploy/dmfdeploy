@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# pre-gate-check — mechanically re-verify a work-order report before a gate request.
+# pre-gate-check — mechanically re-verify an implementer report against the working tree.
 #
 # Correctness model (why you can trust the verdict):
 #   - The report is UNTRUSTED input (anti-churn rule 5). The script reads claims
