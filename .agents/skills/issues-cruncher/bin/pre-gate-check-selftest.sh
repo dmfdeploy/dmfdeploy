@@ -389,6 +389,24 @@ S1=$'src/app.sh: # cap of 0 means disabled\nsrc/new.sh: # new helper\nsrc/new.py
 verdict docstring-blank-line 0 "PRE-GATE: PASS"
 finish ""
 
+defaults; fresh
+printf '/* Start.\n   stale interior text\n*/\nint x;\n' >"$T/src/blk.c"
+S1=$'src/app.sh: # cap of 0 means disabled\nsrc/new.sh: # new helper\nsrc/blk.c: /* Start.\nsrc/blk.c: */'; run_case
+verdict block-comment-unstarred 1 "PRE-GATE: FAIL (sections: 1)"
+finish "$(need 1 '^fail: uncovered: src/blk.c:\+2: stale interior text')"
+
+defaults; fresh
+printf '/* Start.\n   stale interior text\n*/\nint x;\n' >"$T/src/blk.c"
+S1=$'src/app.sh: # cap of 0 means disabled\nsrc/new.sh: # new helper\nsrc/blk.c: /* Start.\nsrc/blk.c: stale interior text\nsrc/blk.c: */'; run_case
+verdict block-comment-quoted 0 "PRE-GATE: PASS"
+finish ""
+
+defaults; fresh
+printf '<p>x</p>\n<!-- Start.\n  stale html interior\n-->\n' >"$T/src/page.html"
+S1=$'src/app.sh: # cap of 0 means disabled\nsrc/new.sh: # new helper\nsrc/page.html: <!-- Start.\nsrc/page.html: -->'; run_case
+verdict html-comment-unstarred 1 "PRE-GATE: FAIL (sections: 1)"
+finish "$(need 1 '^fail: uncovered: src/page.html:\+3: stale html interior')"
+
 defaults; fresh; S4RAW=$'| premise | source |\n|---|---|\n| the limit is documented | docs/guide.md §Limits |'; run_case
 verdict premise-two-columns 1 "PRE-GATE: FAIL (sections: 4)"
 finish "$(need 4 '^fail: table header must have exactly the four columns premise, source, check performed and result')"
