@@ -36,6 +36,7 @@ ln -s src/app.sh "$S/base/inlink"
 ln -s src "$S/base/dirlink"
 AE=$(printf '\303\244')
 printf 'a\n' >"$S/base/$AE.txt"
+printf '#!/usr/bin/env bash\necho tab\n' >"$S/base/tab"$'\t'"name.sh"
 git -C "$S/base" add -A
 git -C "$S/base" commit -q -m base
 
@@ -64,7 +65,7 @@ write_report() {
     if [ -n "$S4RAW" ]; then
       printf '## Premise table\n\n%s\n' "$S4RAW"
     elif [ "$OMIT4" -eq 0 ]; then
-      printf '## Premise table\n\n| premise | source | check | result |\n'
+      printf '## Premise table\n\n| premise | source | check performed | result |\n'
       [ "$NOSEP" -eq 1 ] || printf '|---|---|---|---|\n'
       printf '| the limit is documented %s checked | ok |\n' "$S4"
       if [ -n "$S4EXTRA" ]; then printf '\n%s\n' "$S4EXTRA"; fi
@@ -263,7 +264,7 @@ verdict premise-urls-only 1 "PRE-GATE: FAIL (sections: 4)"
 finish "$(need 4 '^fail: no premise resolved against the tree')"
 
 defaults; fresh; printf 'secret\n' >"$S/work/outside.txt"
-S4=$'| /etc/hosts |\n| second premise | ../outside.txt |'; run_case
+S4=$'| /etc/hosts | c | r |\n| second premise | ../outside.txt |'; run_case
 verdict premise-escape 1 "PRE-GATE: FAIL (sections: 4)"
 w=""
 if [ "$(section 4 | grep -c '^fail: path outside the repo')" -ne 2 ]; then w="want two 'path outside the repo' lines"; fi
@@ -368,6 +369,45 @@ finish "$(need 4 '^fail: path outside the repo or a symlink: inlink')"
 defaults; fresh; S1=$'src/app.sh: # cap of 0 means disabled\nsrc/new.sh: # new helper\n~/x: text'; run_case
 verdict comment-path-tilde 1 "PRE-GATE: FAIL (sections: 1)"
 finish "$(need 1 '^fail: path outside the repo or a symlink: ~/x')"
+
+defaults; fresh; printf 'cap of 0 here\n' >"$T/src:part.sh"; printf 'cap of 0\0\n' >"$T/blob.bin"
+git -C "$T" add 'src:part.sh'; git -C "$T" commit -q -m colon
+run_case
+verdict sweep-colon-path 1 "PRE-GATE: FAIL (sections: 3)"
+finish "$(need 3 '^fail: unlisted match src:part.sh:1')"
+
+defaults; fresh; printf 'cap of 0\0\n' >"$T/blob.bin"
+git -C "$T" add blob.bin; git -C "$T" commit -q -m binary
+run_case
+verdict sweep-binary 1 "PRE-GATE: FAIL (sections: 3)"
+finish "$(need 3 '^fail: binary file matches')"
+
+defaults; fresh
+printf 'def g():\n    """Summary.\n\n    Details.\n    """\n    return 2\n' >"$T/src/new.py"
+S1=$'src/app.sh: # cap of 0 means disabled\nsrc/new.sh: # new helper\nsrc/new.py: """Summary.\nsrc/new.py: Details.\nsrc/new.py: """'; run_case
+verdict docstring-blank-line 0 "PRE-GATE: PASS"
+finish ""
+
+defaults; fresh; S4RAW=$'| premise | source |\n|---|---|\n| the limit is documented | docs/guide.md §Limits |'; run_case
+verdict premise-two-columns 1 "PRE-GATE: FAIL (sections: 4)"
+finish "$(need 4 '^fail: table header must contain premise, source, check performed and result columns')"
+
+defaults; fresh; S4RAW=$'| premise | source | check performed | result |\n|---|---|---|---|\n| | docs/guide.md §Limits | read | ok |\n| the limit is documented | docs/guide.md §Limits | read | ok |'; run_case
+verdict premise-row-incomplete 1 "PRE-GATE: FAIL (sections: 4)"
+finish "$(need 4 '^fail: premise row 1 incomplete')"
+
+defaults; fresh; printf '# Guide\n\nThe Imaginary word appears only here in a paragraph.\n' >"$T/docs/guide.md"
+S4='| docs/guide.md §Imaginary |'; run_case
+verdict premise-section-mention-only 1 "PRE-GATE: FAIL (sections: 4)"
+finish "$(need 4 '^fail: section heading not found: docs/guide.md §Imaginary')"
+
+defaults; fresh; printf 'def broken(:\n' >"$T/src/bad.py"; run_case
+verdict py-parse-failure 1 "PRE-GATE: FAIL (sections: 1)"
+finish "$(need 1 '^fail: src/bad.py: not parsed as Python; docstring coverage cannot be established')"
+
+defaults; fresh; printf '# edited\n' >>"$T/tab"$'\t'"name.sh"; run_case
+verdict tab-in-filename 1 "PRE-GATE: FAIL (sections: 1)"
+finish "$(need 1 '^fail: unsupported file name \(control character, quote or backslash\)')"
 
 if [ "$FAILED" -eq 0 ]; then
   echo "SELFTEST: PASS ($COUNT scenarios)"

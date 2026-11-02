@@ -35,9 +35,16 @@
 #   - Added lines come from `git diff BASE` (working tree against BASE), so
 #     staged and unstaged edits count. Untracked, non-ignored text files count
 #     as fully added (they are not in that diff, so they are read separately).
+#     Paths come from NUL-separated listings and each diff runs for one literal
+#     path; a name with a control character, quote or backslash fails.
 #   - Comment coverage detects single-line comment markers and, in .py files,
 #     docstring bodies. It does not detect block-comment bodies in other
-#     languages or text inside heredocs.
+#     languages or text inside heredocs. It never asks for a blank line, and a
+#     .py file that does not parse fails.
+#   - The sibling sweep reads NUL-separated `git grep` output, so a colon in a
+#     file name is safe; a binary match or an unparseable line fails.
+#   - The premise table needs the premise, source, check performed and result
+#     columns, all filled in every row; `PATH §HEADING` needs a real heading.
 #
 # Checks: 1 comment fidelity (rule 1), 2 counts (rule 3), 3 sibling sweep
 # (rule 4), 4 premise sources (rule 5). Rule 2 stays a review criterion.
@@ -62,7 +69,7 @@ Report sections (level-2 headings, exact text):
   ## Comment fidelity   fenced block: "PATH: literal line" per touched comment, or none
   ## Counts             fenced block: "$ <form>" then its pasted output
   ## Sibling sweep      fenced block: "pattern: ERE" then "PATH:LINE: pass|fail", or none
-  ## Premise table      markdown table with premise and source columns, or none
+  ## Premise table      markdown table: premise, source, check performed, result; or none
 
 Each "$ " line under ## Counts must be one of six forms; nothing else is run:
   git diff --stat REF         git diff --name-status REF
@@ -243,25 +250,43 @@ sys.exit(0 if real == root or real.startswith(root + os.sep) else 1)' "$DIR" "$1
 
 COMMENT_RE='^[[:space:]]*(#|//|/\*|\*([[:space:]]|/|$)|<!--|"""|'"'''"')'
 
+# odd_name PATH — true when PATH holds a control character, a double quote or a
+# backslash. Git quotes such names in its diff headers, and the report cannot
+# spell them, so they fail instead of being sliced.
+odd_name() {
+  local LC_ALL=C
+  case $1 in
+    *[[:cntrl:]]*|*'"'*|*\\*) return 0 ;;
+  esac
+  return 1
+}
+
 # added_lines — PATH<TAB>N<TAB>TEXT for every line the working tree adds
 # relative to BASE, plus every line of each untracked, non-ignored text file.
+# Paths come from NUL-separated listings and each diff runs for one literal
+# path, so no header is ever parsed for a name.
 added_lines() {
-  git -C "$DIR" -c core.quotePath=false diff --no-color --no-ext-diff --no-renames -U0 "$BASE" -- |
-    awk '
-      /^diff --git / { inhdr = 1; path = ""; next }
-      inhdr && /^\+\+\+ / {
-        if ($0 ~ /^\+\+\+ \/dev\/null/) path = ""
-        else { path = substr($0, 7); sub(/\t.*$/, "", path) }
-        next
-      }
-      /^@@ / {
-        inhdr = 0
-        if (match($0, /\+[0-9]+/)) ln = substr($0, RSTART + 1, RLENGTH - 1) + 0
-        next
-      }
-      !inhdr && path != "" && /^\+/ { printf "%s\t%d\t%s\n", path, ln, substr($0, 2); ln++ }'
   local f
   while IFS= read -r -d '' f; do
+    if odd_name "$f"; then
+      bad "unsupported file name (control character, quote or backslash): $(printf '%q' "$f")"
+      continue
+    fi
+    git -C "$DIR" --literal-pathspecs diff --no-color --no-ext-diff --no-renames -U0 "$BASE" -- "$f" |
+      awk -v p="$f" '
+        !seen && /^@@ / { seen = 1 }
+        !seen { next }
+        /^@@ / {
+          if (match($0, /\+[0-9]+/)) ln = substr($0, RSTART + 1, RLENGTH - 1) + 0
+          next
+        }
+        /^\+/ { printf "%s\t%d\t%s\n", p, ln, substr($0, 2); ln++ }'
+  done < <(git -C "$DIR" diff --name-only -z --no-renames "$BASE" --)
+  while IFS= read -r -d '' f; do
+    if odd_name "$f"; then
+      bad "unsupported file name (control character, quote or backslash): $(printf '%q' "$f")"
+      continue
+    fi
     if [ -L "$DIR/$f" ]; then
       bad "untracked symlink is not allowed in the coverage scan: $f"
       continue
@@ -311,7 +336,7 @@ collect_docstrings() {
     py_docstrings "$DIR/$f" "$f" >>"$W/doc.raw"
   done < <(cut -f1 "$W/added" | LC_ALL=C sort -u | grep '\.py$' || true)
   while IFS= read -r f; do
-    note "$f: not parsed as Python, docstring bodies not covered"
+    bad "$f: not parsed as Python; docstring coverage cannot be established"
   done < <(awk -F'\t' '$1 == "NOPARSE" { print $2 }' "$W/doc.raw")
   awk -F'\t' '$1 != "NOPARSE"' "$W/doc.raw" >"$W/docranges"
 }
@@ -360,6 +385,7 @@ check_comments() {
       md|rst|txt|adoc|MD|RST|TXT|ADOC) continue ;;
     esac
     tt=$(trim "$t")
+    [ -n "$tt" ] || continue
     case $tt in '#!'*) continue ;; esac
     is_comment=0
     if [[ $tt =~ $COMMENT_RE ]]; then
@@ -581,6 +607,39 @@ check_counts() {
 
 # --- section 3: sibling sweep ------------------------------------------------
 
+# sweep_matches FILE — FILE is `git grep -nE --null` output. Prints PATH:LINE for
+# every match on stdout and one failure message per line that is not a match on
+# stderr. A line splits at its first NUL into the path and the rest, so a colon
+# in a file name is harmless. Nothing is dropped without a message.
+sweep_matches() {
+  python3 -I - "$1" <<'PYEOF'
+import re, sys
+
+with open(sys.argv[1], "rb") as fh:
+    data = fh.read()
+rest_re = re.compile(rb"^([0-9]+)[\0:]")
+for raw in data.split(b"\n"):
+    if not raw:
+        continue
+    name, sep, rest = raw.partition(b"\0")
+    if not sep:
+        if raw.startswith(b"Binary file "):
+            shown = raw[len(b"Binary file "):]
+            if shown.endswith(b" matches"):
+                shown = shown[: -len(b" matches")]
+            sys.stderr.write("binary file matches the sibling pattern (binary files cannot be declared; narrow the pattern or remove the file from the sweep): "
+                             + shown.decode("utf-8", "replace") + "\n")
+        else:
+            sys.stderr.write("unparseable sweep output: " + raw.decode("utf-8", "replace") + "\n")
+        continue
+    m = rest_re.match(rest)
+    if not m:
+        sys.stderr.write("unparseable sweep output: " + raw.decode("utf-8", "replace").replace("\0", "<NUL>") + "\n")
+        continue
+    sys.stdout.write(name.decode("utf-8", "replace") + ":" + m.group(1).decode() + "\n")
+PYEOF
+}
+
 PAT=""
 PAT_SET=0
 flush_pattern() {
@@ -591,12 +650,19 @@ flush_pattern() {
     return 0
   fi
   local rc=0 e
-  git -C "$DIR" grep -nE --untracked -e "$PAT" >"$W/grep.raw" 2>"$W/grep.err" || rc=$?
+  git -C "$DIR" grep -nE --untracked --null -e "$PAT" >"$W/grep.raw" 2>"$W/grep.err" || rc=$?
   if [ "$rc" -gt 1 ]; then
     bad "pattern does not run: $PAT ($(head -n 1 "$W/grep.err"))"
     return 0
   fi
-  sed -n 's/^\([^:]*\):\([0-9][0-9]*\):.*/\1:\2/p' "$W/grep.raw" | LC_ALL=C sort -u >"$W/matches"
+  sweep_matches "$W/grep.raw" >"$W/matches.raw" 2>"$W/matches.err" || {
+    bad "sweep output could not be read"
+    return 0
+  }
+  LC_ALL=C sort -u "$W/matches.raw" >"$W/matches"
+  while IFS= read -r e; do
+    [ -n "$e" ] && bad "$e"
+  done <"$W/matches.err"
   LC_ALL=C sort -u "$W/decl" >"$W/decl.s"
   local bad_before=0
   [ ! -e "$W/failed.3" ] || bad_before=1
@@ -668,6 +734,30 @@ lower() { printf '%s' "$1" | tr 'A-Z' 'a-z'; }
 PREM_PASS=0
 okp() { PREM_PASS=$((PREM_PASS + 1)); ok "$@"; }
 
+# has_heading FILE HEADING — true when a line of FILE is an ATX heading whose
+# text equals HEADING (case-insensitive) or, outside Markdown files, a line that
+# consists of HEADING alone. A mention inside a paragraph does not count.
+has_heading() {
+  python3 -I - "$1" "$2" <<'PYEOF'
+import re, sys
+
+path, want = sys.argv[1], sys.argv[2].strip().lower()
+markdown = path.lower().endswith((".md", ".markdown"))
+atx = re.compile(r"^#{1,6}[ \t]+(.*?)[ \t]*#*[ \t]*$")
+atx_raw = re.compile(r"^#{1,6}[ \t]+(.*?)[ \t]*$")
+with open(path, encoding="utf-8", errors="replace") as fh:
+    for line in fh:
+        line = line.rstrip("\r\n")
+        for rx in (atx, atx_raw):
+            m = rx.match(line)
+            if m and m.group(1).strip().lower() == want:
+                sys.exit(0)
+        if not markdown and line.strip().lower() == want:
+            sys.exit(0)
+sys.exit(1)
+PYEOF
+}
+
 resolve_source() {
   local s path rev heading n lines
   s=$(trim "$1")
@@ -705,10 +795,10 @@ resolve_source() {
         bad "unparseable source: $s"
       elif [ ! -f "$DIR/$path" ]; then
         bad "$s: file missing"
-      elif grep -qiF -- "$heading" "$DIR/$path"; then
+      elif has_heading "$DIR/$path" "$heading"; then
         okp "$s"
       else
-        bad "$s: heading not found"
+        bad "section heading not found: $path §$heading"
       fi
       return 0 ;;
     *@*)
@@ -757,7 +847,7 @@ check_premises() {
     bad "more than one table under the heading (one table per section)"
     return 0
   fi
-  local row cells=() c i src_idx=-1 prem_idx=-1 data=0 first=1 cell expect_sep=0 has_none=0 others
+  local row cells=() c i src_idx=-1 prem_idx=-1 chk_idx=-1 res_idx=-1 data=0 first=1 cell expect_sep=0 has_none=0 others
   if printf '%s\n' "$body" | grep -qx '[[:space:]]*none[[:space:]]*'; then has_none=1; fi
   if [ "$has_none" -eq 1 ]; then
     others=$(printf '%s\n' "$body" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | grep -cvx -e '' -e none || true)
@@ -780,10 +870,12 @@ check_premises() {
         c=$(lower "$(trim "$c")")
         case $c in *premise*) prem_idx=$i ;; esac
         case $c in *source*) src_idx=$i ;; esac
+        case $c in *"check performed"*) chk_idx=$i ;; esac
+        case $c in *result*) res_idx=$i ;; esac
         i=$((i + 1))
       done
-      if [ "$prem_idx" -lt 0 ] || [ "$src_idx" -lt 0 ]; then
-        bad "table header must contain premise and source columns"
+      if [ "$prem_idx" -lt 0 ] || [ "$src_idx" -lt 0 ] || [ "$chk_idx" -lt 0 ] || [ "$res_idx" -lt 0 ]; then
+        bad "table header must contain premise, source, check performed and result columns"
         return 0
       fi
       expect_sep=1
@@ -800,11 +892,12 @@ check_premises() {
     [[ $row =~ ^[|:[:space:]-]+$ ]] && continue
     data=$((data + 1))
     IFS='|' read -r -a cells <<<"$row"
-    cell=$(trim "${cells[$src_idx]:-}")
-    if [ -z "$cell" ]; then
-      bad "row $data has no source"
+    if [ -z "$(trim "${cells[$prem_idx]:-}")" ] || [ -z "$(trim "${cells[$src_idx]:-}")" ] ||
+      [ -z "$(trim "${cells[$chk_idx]:-}")" ] || [ -z "$(trim "${cells[$res_idx]:-}")" ]; then
+      bad "premise row $data incomplete (premise, source, check performed and result are all required)"
       continue
     fi
+    cell=$(trim "${cells[$src_idx]}")
     IFS=';' read -r -a srcs <<<"$cell"
     for s in "${srcs[@]}"; do
       resolve_source "$s"

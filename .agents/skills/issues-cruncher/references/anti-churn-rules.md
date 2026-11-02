@@ -194,10 +194,27 @@ Limits:
 - Comment coverage detects single-line comment markers and Python docstring
   bodies. It does not detect block-comment bodies in other languages or text
   inside heredocs. Any untracked symlink fails the coverage scan.
+- Coverage never asks for a blank line to be quoted, inside a docstring or
+  outside one, because a report cannot quote an empty line.
+- A `.py` file among the added files that does not parse fails with `not parsed
+  as Python; docstring coverage cannot be established`.
+- A changed or untracked file whose name contains a control character, a double
+  quote or a backslash fails with `unsupported file name`, because the report
+  cannot spell it. The checker lists names with NUL-separated git output and
+  runs one diff per literal path, so it never slices a quoted diff header.
+- The sweep reads `git grep` output split at NUL, so a colon in a file name is
+  safe. A binary file that matches the pattern fails, and so does any output
+  line the checker cannot parse. Nothing is dropped without a message.
 - Doc files (`.md`, `.rst`, `.txt`, `.adoc`) are prose. The script checks their
   quoted lines but does not require every added line to be quoted.
-- URL and tracker-ref premise sources are noted, not resolved. At least one
-  source in the table must resolve against the tree.
+- The premise table needs four columns, named `premise`, `source`, `check
+  performed` and `result`, and every row needs a value in all four. URL and
+  tracker-ref premise sources are noted, not resolved. At least one source in
+  the table must resolve against the tree.
+- A `PATH §HEADING` source resolves only when a line of the file is a Markdown
+  heading whose text equals the heading, ignoring case. In a file that is not
+  Markdown, a line that consists of the heading alone also counts. A mention in
+  a paragraph does not.
 - A sibling declared `fail` needs a reason after the word `fail`.
 - The checker writes only to its own temporary directory, removed on exit, and
   leaves every file under the repository, including `.git/index`, byte for byte
