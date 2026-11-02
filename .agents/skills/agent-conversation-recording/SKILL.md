@@ -130,6 +130,18 @@ arrow, all three fields, ISO-8601 timestamp with offset:
 Then the verbatim content. **No editing, no summarising.** One mechanical
 normalization is required: rewrite every issue/PR reference to a full URL.
 
+## Finding classification line
+
+In a `review` record, the turn that answers a verdict lists each finding on its
+own line with its class and the fix applied. The classes are `stale comment`,
+`claim precision` and `mechanics` for self-inflicted findings, and `defect` for
+anything else. This is a turn-body convention. It carries no authority, and the
+`Outcome` enum stays as it is.
+
+```
+finding 2: stale comment — docstring named the old retry count; reworded
+```
+
 ## The authoritative outcome lives in metadata, never in a turn
 
 A gate's binding result is the record's `**Outcome:**` field. **Turn bodies are

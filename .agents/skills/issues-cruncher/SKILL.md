@@ -34,7 +34,10 @@ it — do not inline its content here.
 5. **Scope freeze.** Discoveries become follow-up issues unless they block the
    current one.
 6. **Re-verify after every review/CI fix.** Prior adversary/CI passes are void once
-   code changes.
+   code changes. A fix that changes only unconsumed prose, as
+   `references/anti-churn-rules.md` § Closing a verdict in place defines it,
+   keeps the adversary pass, but CI never carries over: it re-runs on the fix
+   push, and you read the new result.
 7. **Human approval gate** for destructive / migration / costed-cloud / public-publish
    / dependency-license actions. Green ≠ mergeable if rules can be bypassed.
 8. **Anti-churn rules travel in the dispatch, verbatim.** Every WO (phase 3) and
@@ -66,7 +69,17 @@ it — do not inline its content here.
 4. **Cross-check (conditional)** — invoke codex only on risk signals / low
    confidence; treat its verdict as a second angle, not a gate
    (`references/adversary-primer.md`); the request opens with the pre-gate block
-   (hard gate 8).
+   (hard gate 8). **Close in place:** when a verdict holds only self-inflicted
+   findings (stale comment, claim precision, mechanics), fix them, and go on to
+   verify with no new gate round. Re-gate in three cases. First, any finding is a
+   genuine defect, a fix-round regression, or a scope change. Second, a fix
+   edits a behaviour-bearing byte, one that a script, a tool, or a dispatch
+   consumes.
+   Third, the arc is risk tier 3. Closing in place still needs hard gate 3,
+   with the literal final text quoted from the working tree. Record each
+   finding's classification and fix next to the verdict it answers. The
+   behaviour-bearing definition, class definitions, and a worked example:
+   `references/anti-churn-rules.md`, § Closing a verdict in place.
 5. **Verify** *(orchestrator — local / pre-commit)* — on disk; run tests via the
    project's runner; run the **discrimination check**; lint; **clean-tree** verify
    from a *local export* (`git archive`/`ls-tree`) where built artifacts can mask

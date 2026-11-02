@@ -245,9 +245,11 @@ Every non-trivial change is adversarially reviewed by an independent agent
 Two sanctioned forms:
 
 - **Interactive bridge** (agent-bridge tmux pane): for design and
-  implementation reviews that take multiple rounds. Findings get fixed and
-  re-verified in delta rounds, and the reviewer may need approvals for its
-  own scratch reproductions. Reset the reviewer's session between rounds.
+  implementation reviews that take multiple rounds. Findings that can change
+  behaviour get fixed and re-verified in delta rounds; self-inflicted findings
+  close in place under the issues-cruncher rule. The reviewer may need
+  approvals for its own scratch reproductions. Reset the reviewer's session
+  between rounds.
 - **One-shot `codex exec --sandbox read-only`** (R6,
   [#229](https://github.com/dmfdeploy/dmfdeploy/issues/229)): for **routine**
   gates: bounded, single-verdict reviews (a docs change, a mechanical sweep,
@@ -284,8 +286,12 @@ Two sanctioned forms:
     can infer from the prose. Passing the first and declaring the second clean
     is how umbrella #354 shipped and had to be reverted.
 
-  A FAIL from a one-shot gate escalates to the interactive form for the fix
-  rounds; one-shot gates are never used to re-review their own findings.
+  A one-shot FAIL closes in place under the issues-cruncher rule, and does not
+  escalate, only when no phase 4 re-gate trigger applies: no finding is a
+  defect, a fix-round regression or a scope change; no fix edits a consumed
+  byte; the arc is not risk tier 3. Any one-shot FAIL where a trigger applies
+  escalates to the interactive form for the fix rounds. One-shot gates are never
+  used to re-review their own findings.
 
 Every gate request opens with the output of the mechanical pre-gate check (issues-cruncher skill, hard gate 8), which re-verifies the work-order report's quoted comments, pasted counts, sibling sweep and tree-resolvable premise sources against the working tree. A request without that block is refused; a failed block returns to the implementer without a review round.
 
