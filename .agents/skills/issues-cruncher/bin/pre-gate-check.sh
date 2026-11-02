@@ -48,6 +48,9 @@
 #     as fully added (they are not in that diff, so they are read separately).
 #     Paths come from NUL-separated listings and each diff runs for one literal
 #     path; a name with a control character, quote or backslash fails.
+#   - Quoted comment entries are matched as a multiset: an identical comment
+#     line added twice in one file needs two entries, and each surplus added
+#     line (the highest line numbers) fails as uncovered.
 #   - Comment coverage detects single-line comment markers, in .py files
 #     docstring bodies, and a trailing " #" or " //" comment after code in
 #     files of a known language (the marker needs whitespace before it and an
@@ -540,7 +543,8 @@ check_comments() {
   added_lines >"$W/added"
   collect_docstrings
   inline_comments <"$W/added" >"$W/inline"
-  local p n t tt total=0 uncovered=0 is_comment
+  local p n t tt total=0 uncovered=0 is_comment key have want
+  : >"$W/seen"
   while IFS=$'\t' read -r p n t; do
     case ${p##*.} in
       md|rst|txt|adoc|MD|RST|TXT|ADOC) continue ;;
@@ -558,7 +562,11 @@ check_comments() {
     fi
     [ "$is_comment" -eq 1 ] || continue
     total=$((total + 1))
-    if ! grep -qxF -- "$p"$'\t'"$tt" "$W/quoted"; then
+    key="$p"$'\t'"$tt"
+    printf '%s\n' "$key" >>"$W/seen"
+    have=$(grep -cxF -- "$key" "$W/quoted" || true)
+    want=$(grep -cxF -- "$key" "$W/seen" || true)
+    if [ "$want" -gt "$have" ]; then
       uncovered=$((uncovered + 1))
       bad "uncovered: $p:+$n: $tt"
     fi
