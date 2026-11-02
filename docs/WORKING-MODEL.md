@@ -287,11 +287,12 @@ Two sanctioned forms:
     is how umbrella #354 shipped and had to be reverted.
 
   A one-shot FAIL closes in place under the issues-cruncher rule, and does not
-  escalate, only when no phase 4 re-gate trigger applies: no finding is a
-  defect, a fix-round regression or a scope change; no fix edits a consumed
-  byte; the arc is not risk tier 3. Any one-shot FAIL where a trigger applies
-  escalates to the interactive form for the fix rounds. One-shot gates are never
-  used to re-review their own findings.
+  escalate, only when no phase 4 re-gate trigger applies. That means three
+  things hold. No finding is a defect, a fix-round regression or a scope
+  change. No fix edits a consumed byte. The arc is not risk tier 3. Any
+  one-shot FAIL where a trigger applies escalates to the interactive form for
+  the fix rounds. One-shot gates are never used to re-review their own
+  findings.
 
 Every gate request opens with the output of the mechanical pre-gate check (issues-cruncher skill, hard gate 8), which re-verifies the work-order report's quoted comments, pasted counts, sibling sweep and tree-resolvable premise sources against the working tree. A request without that block is refused; a failed block returns to the implementer without a review round.
 
