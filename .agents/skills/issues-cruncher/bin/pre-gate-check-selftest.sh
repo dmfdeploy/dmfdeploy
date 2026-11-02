@@ -390,6 +390,18 @@ verdict docstring-blank-line 0 "PRE-GATE: PASS"
 finish ""
 
 defaults; fresh
+printf 'echo a\n# repeated note\necho b\n# repeated note\n' >>"$T/src/new.sh"
+S1=$'src/app.sh: # cap of 0 means disabled\nsrc/new.sh: # new helper\nsrc/new.sh: # repeated note'; run_case
+verdict duplicate-comment-lines 1 "PRE-GATE: FAIL (sections: 1)"
+finish "$(need 1 '^fail: uncovered: src/new.sh:\+6: # repeated note')"
+
+defaults; fresh
+printf 'echo a\n# repeated note\necho b\n# repeated note\n' >>"$T/src/new.sh"
+S1=$'src/app.sh: # cap of 0 means disabled\nsrc/new.sh: # new helper\nsrc/new.sh: # repeated note\nsrc/new.sh: # repeated note'; run_case
+verdict duplicate-comment-lines-quoted 0 "PRE-GATE: PASS"
+finish ""
+
+defaults; fresh
 printf '/* Start.\n   stale interior text\n*/\nint x;\n' >"$T/src/blk.c"
 S1=$'src/app.sh: # cap of 0 means disabled\nsrc/new.sh: # new helper\nsrc/blk.c: /* Start.\nsrc/blk.c: */'; run_case
 verdict block-comment-unstarred 1 "PRE-GATE: FAIL (sections: 1)"

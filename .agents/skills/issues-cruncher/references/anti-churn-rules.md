@@ -179,6 +179,9 @@ Limits:
   must resolve to a commit; `git ls-files` takes an optional contained path.
   There is no shell, no pipeline and no option parsing, and an empty `$ ` line
   fails like any other unsupported form.
+- The `## Comment fidelity` entries are matched as a multiset. An identical
+  comment line added twice in one file needs two entries; each surplus added
+  line, counting from the highest line number, fails as `uncovered`.
 - Every git call runs against a private repository view built in the checker's
   temporary directory: its own HEAD, a copy of the refs, a minimal config, the
   private index, and the real objects reached through alternates. The view has
