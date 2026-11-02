@@ -52,9 +52,11 @@
 #     docstring bodies, and a trailing " #" or " //" comment after code in
 #     files of a known language (the marker needs whitespace before it and an
 #     even count of unescaped quotes before it, which is a heuristic, not a
-#     parser). It does not detect block-comment bodies in other languages or
-#     text inside heredocs. It never asks for a blank line, and a .py file that
-#     does not parse fails.
+#     parser). It also detects the interiors of C-style block comments and of
+#     HTML comments in files of the listed extensions (string literals are not
+#     tracked, and an unterminated block runs to the end of the file). It does
+#     not detect text inside heredocs or block comments in other languages. It
+#     never asks for a blank line, and a .py file that does not parse fails.
 #   - The sibling sweep reads NUL-separated `git grep` output, so a colon in a
 #     file name is safe; a binary match or an unparseable line fails.
 #   - The premise table has exactly four cells per row: a header naming premise,
@@ -432,12 +434,55 @@ for row in sys.stdin:
             break'
 }
 
-# in_docstring PATH N — true when line N of PATH is inside a docstring range.
+# block_comments FULLPATH RELPATH — "REL<TAB>first<TAB>last" for each block
+# comment in a file whose extension has one: /* */ for c h cc cpp hpp cxx hxx m
+# mm js mjs cjs ts tsx jsx java kt kts swift cs go rs scala css scss less php,
+# and <!-- --> for html htm xhtml xml svg vue j2 jinja. A block opens at the
+# first marker and closes at the next terminator; string and character literals
+# are not tracked, and an unterminated block runs to the end of the file.
+block_comments() {
+  python3 -I - "$1" "$2" <<'PYEOF'
+import sys
+
+full, rel = sys.argv[1], sys.argv[2]
+ext = rel.rsplit(".", 1)[1] if "." in rel.rsplit("/", 1)[-1] else ""
+C_STYLE = {"c", "h", "cc", "cpp", "hpp", "cxx", "hxx", "m", "mm", "js", "mjs", "cjs", "ts", "tsx", "jsx", "java", "kt", "kts", "swift", "cs", "go", "rs", "scala", "css", "scss", "less", "php"}
+MARKUP = {"html", "htm", "xhtml", "xml", "svg", "vue", "j2", "jinja"}
+if ext in C_STYLE:
+    opener, closer = "/*", "*/"
+elif ext in MARKUP:
+    opener, closer = "<!--", "-->"
+else:
+    sys.exit(0)
+try:
+    with open(full, encoding="utf-8", errors="replace") as fh:
+        text = fh.read()
+except OSError:
+    sys.exit(0)
+last_line = text.count("\n") + (0 if text == "" or text.endswith("\n") else 1)
+pos = 0
+while True:
+    start = text.find(opener, pos)
+    if start < 0:
+        break
+    first = text.count("\n", 0, start) + 1
+    stop = text.find(closer, start + len(opener))
+    if stop < 0:
+        print("%s\t%d\t%d" % (rel, first, last_line))
+        break
+    print("%s\t%d\t%d" % (rel, first, text.count("\n", 0, stop) + 1))
+    pos = stop + len(closer)
+PYEOF
+}
+
+# in_docstring PATH N — true when line N of PATH is inside a docstring or block
+# comment range (one range file serves both).
 in_docstring() {
   awk -F'\t' -v p="$1" -v n="$2" '$1 == p && n >= $2 + 0 && n <= $3 + 0 { f = 1 } END { exit !f }' "$W/docranges"
 }
 
-# collect_docstrings — fill $W/docranges for the .py files among the added lines.
+# collect_docstrings — fill $W/docranges for the added lines: docstring ranges
+# for .py files, block-comment ranges for the listed extensions.
 collect_docstrings() {
   local f
   : >"$W/docranges"
@@ -446,6 +491,10 @@ collect_docstrings() {
     [ -n "$f" ] || continue
     py_docstrings "$DIR/$f" "$f" >>"$W/doc.raw"
   done < <(cut -f1 "$W/added" | LC_ALL=C sort -u | grep '\.py$' || true)
+  while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    block_comments "$DIR/$f" "$f" >>"$W/doc.raw"
+  done < <(cut -f1 "$W/added" | LC_ALL=C sort -u || true)
   while IFS= read -r f; do
     bad "$f: not parsed as Python; docstring coverage cannot be established"
   done < <(awk -F'\t' '$1 == "NOPARSE" { print $2 }' "$W/doc.raw")
@@ -504,7 +553,7 @@ check_comments() {
       is_comment=1
     elif grep -qxF -- "$p"$'\t'"$n" "$W/inline"; then
       is_comment=1
-    elif [ "${p##*.}" = py ] && in_docstring "$p" "$n"; then
+    elif in_docstring "$p" "$n"; then
       is_comment=1
     fi
     [ "$is_comment" -eq 1 ] || continue

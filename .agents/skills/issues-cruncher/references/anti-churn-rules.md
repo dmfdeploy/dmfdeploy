@@ -213,9 +213,20 @@ Limits:
   on each line and trailing blank lines, and expected output may not be empty.
   Quoted comment lines are compared as whole lines after trimming leading and
   trailing whitespace.
-- Comment coverage detects single-line comment markers and Python docstring
-  bodies. It does not detect block-comment bodies in other languages or text
-  inside heredocs. Any untracked symlink fails the coverage scan.
+- Comment coverage detects single-line comment markers, inline comments after
+  code (a heuristic), Python docstring bodies, and the interiors of C-style and
+  HTML block comments for the listed extensions. It still does not detect text
+  inside heredocs or block comments in other languages. Any untracked symlink
+  fails the coverage scan.
+- Block comments are found by scanning the file text, not by parsing. In a file
+  with a `c`, `h`, `cc`, `cpp`, `hpp`, `cxx`, `hxx`, `m`, `mm`, `js`, `mjs`,
+  `cjs`, `ts`, `tsx`, `jsx`, `java`, `kt`, `kts`, `swift`, `cs`, `go`, `rs`,
+  `scala`, `css`, `scss`, `less` or `php` extension, a block opens at `/*` and
+  closes at the next `*/`. In a file with an `html`, `htm`, `xhtml`, `xml`,
+  `svg`, `vue`, `j2` or `jinja` extension, it opens at `<!--` and closes at
+  `-->`. String and character literals are not tracked, so a marker inside a
+  string opens a block. An unterminated block runs to the end of the file. Every
+  added line inside a block must be quoted, as a docstring line is.
 - Coverage also detects a comment that follows code on the same line. In a file
   with a `sh`, `bash`, `zsh`, `py`, `rb`, `pl`, `yaml`, `yml`, `toml`, `ini`,
   `cfg`, `conf` or `mk` extension, or named `Makefile`, a ` #` counts. In a file
