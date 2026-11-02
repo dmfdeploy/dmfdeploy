@@ -179,6 +179,12 @@ Limits:
   must resolve to a commit; `git ls-files` takes an optional contained path.
   There is no shell, no pipeline and no option parsing, and an empty `$ ` line
   fails like any other unsupported form.
+- Every git call reads attributes from git's empty tree and runs with the
+  filesystem monitor off and external diff and text conversion disabled, so a
+  repository's own diff drivers, text converters, clean or smudge filters and
+  monitor hooks never run during a check. Git 2.40 or newer is required. The
+  repository's `.git/config` is otherwise trusted: apart from those helpers, a
+  setting in it still takes effect.
 - The `count` form arms a 60-second in-process alarm. A pathological pattern was
   interrupted after about 60 seconds on macOS; no cross-platform guarantee is
   claimed.
