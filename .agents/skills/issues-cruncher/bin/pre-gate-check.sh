@@ -27,9 +27,14 @@
 #     alternates, with no info, hooks or logs directory. Global and system
 #     configuration are disabled, attributes come from git's empty tree, the
 #     filesystem monitor is off, and external diff and text conversion are
-#     disabled. The repository's own configuration and attribute files are not
-#     read during a check, so nothing they name can run; the working tree's
-#     files are read as they are. This needs git 2.40 or newer (--attr-source).
+#     disabled. Startup runs, in a sanitized environment, rev-parse discovery
+#     and reads exactly two structural keys from the real repository
+#     (core.repositoryformatversion and extensions.*), then copies them into
+#     the view; everything after that reads only the view. A malformed
+#     config.worktree can stop the checker at startup with exit 2, and cannot
+#     make anything run. No git call inherits the caller's environment. The
+#     working tree's files are read as they are. This needs git 2.40 or newer
+#     (--attr-source) and a SHA-1 repository.
 #   - Every result line starts with "pass: ", "fail: " or "note: ", and report
 #     text only ever appears after that prefix or indented below it. Quoted text
 #     therefore cannot forge the verdict line or the BEGIN/END markers.
@@ -120,16 +125,25 @@ done
 [ -n "$REPORT" ] || { usage >&2; die "--report is required"; }
 [ -n "$DIR" ] || { usage >&2; die "--repo is required"; }
 command -v python3 >/dev/null 2>&1 || die "python3 is required"
-gitver=$(git --version 2>/dev/null | sed -n 's/^git version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/\1 \2/p')
+W=$(mktemp -d)
+trap 'rm -rf "$W"' EXIT
+mkdir -p "$W/home"
+
+# No git call runs with the caller's environment. This array serves the calls
+# made before the private view exists, so it sets no GIT_DIR: discovery needs
+# the real repository.
+GIT_ENV0=(env -i "PATH=$PATH" LC_ALL=C "HOME=$W/home" GIT_CONFIG_GLOBAL=/dev/null
+  GIT_CONFIG_NOSYSTEM=1 GIT_ATTR_NOSYSTEM=1 GIT_OPTIONAL_LOCKS=0 GIT_LITERAL_PATHSPECS=1)
+gitver=$("${GIT_ENV0[@]}" git --version 2>/dev/null | sed -n 's/^git version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/\1 \2/p')
 read -r gitmajor gitminor <<<"$gitver"
 if [ -z "${gitmajor:-}" ] || [ "$gitmajor" -lt 2 ] || { [ "$gitmajor" -eq 2 ] && [ "$gitminor" -lt 40 ]; }; then
   die "git 2.40 or newer is required (--attr-source)"
 fi
 # Plain git, used only before the private view exists, for rev-parse queries
-# about the repository's location. It never reads files or runs a program the
-# repository names.
+# about the repository's location and two structural config reads. It runs in
+# the sanitized pre-view environment.
 git_plain() {
-  git -C "$DIR" -c core.fsmonitor=false "$@"
+  "${GIT_ENV0[@]}" git -C "$DIR" -c core.fsmonitor=false "$@"
 }
 [ -f "$REPORT" ] && [ -r "$REPORT" ] || die "report not readable: $REPORT"
 git_plain rev-parse --is-inside-work-tree >/dev/null 2>&1 || die "not a git work tree: $DIR"
@@ -141,15 +155,16 @@ real_head=$(git_plain rev-parse --path-format=absolute --git-path HEAD)
 real_index=$(git_plain rev-parse --path-format=absolute --git-path index)
 real_fmt=$(git_plain config --local --get core.repositoryformatversion 2>/dev/null || true)
 real_ext=$(git_plain config --local --get-regexp '^extensions\.' 2>/dev/null || true)
-
-W=$(mktemp -d)
-trap 'rm -rf "$W"' EXIT
+real_objfmt=$(git_plain config --local --get extensions.objectformat 2>/dev/null || true)
+if [ -n "$real_objfmt" ] && [ "$real_objfmt" != sha1 ]; then
+  die "only SHA-1 repositories are supported (extensions.objectFormat=$real_objfmt)"
+fi
 
 # The private repository view: git never opens the repository's own config,
 # info/attributes, hooks or logs. Objects come through alternates; refs, HEAD
 # and the index are copies; the config holds only the structural keys.
 V="$W/view"
-mkdir -p "$V/objects/info" "$W/home"
+mkdir -p "$V/objects/info"
 printf '%s\n' "$real_objects" >"$V/objects/info/alternates"
 if [ -f "$real_common/packed-refs" ]; then cp "$real_common/packed-refs" "$V/packed-refs"; fi
 if [ -d "$real_common/refs" ]; then cp -R "$real_common/refs" "$V/refs"; else mkdir "$V/refs"; fi

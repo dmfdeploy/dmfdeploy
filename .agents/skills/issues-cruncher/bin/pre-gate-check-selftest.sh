@@ -500,6 +500,41 @@ S2="$OK_CMD"$'\n'"${STAT/HEAD/origin/main}"; BASE_REF=origin/main; run_case
 verdict remote-ref-base 0 "PRE-GATE: PASS"
 finish ""
 
+# No git call may inherit the caller's environment: GIT_TRACE would make git
+# write a trace file at the path it names, outside the checker's scratch.
+defaults; fresh; mkdir -p "$S/outside"; rm -f "$S/outside/trace.log"
+COUNT=$((COUNT + 1)); RC=0; write_report
+OUT=$(env "GIT_TRACE=$S/outside/trace.log" "$CHECK" --report "$S/report.md" --repo "$T" --base HEAD 2>&1) || RC=$?
+w=""
+[ "$RC" -eq 0 ] || w="exit $RC, want 0"
+[ "$(printf '%s\n' "$OUT" | sed -n 2p)" = "PRE-GATE: PASS" ] || w="$w; verdict is not PASS"
+[ ! -e "$S/outside/trace.log" ] || w="$w; trace file created"
+VERDICT_WHY="" CASE_ID=trace-env-untouched
+finish "$w"
+
+defaults; fresh; printf 'sentinel\n' >"$S/outside/trace.log"
+COUNT=$((COUNT + 1)); RC=0; write_report
+OUT=$(env "GIT_TRACE=$S/outside/trace.log" "$CHECK" --report "$S/report.md" --repo "$T" --base HEAD 2>&1) || RC=$?
+w=""
+[ "$RC" -eq 0 ] || w="exit $RC, want 0"
+[ "$(cat "$S/outside/trace.log")" = sentinel ] || w="$w; trace file changed"
+VERDICT_WHY="" CASE_ID=trace-env-existing-file-untouched
+finish "$w"
+
+# A SHA-256 repository is refused at startup.
+rm -rf "$S/sha256"; git init -q --object-format=sha256 "$S/sha256"
+git -C "$S/sha256" config user.name selftest; git -C "$S/sha256" config user.email selftest@example.invalid
+git -C "$S/sha256" config commit.gpgsign false
+printf 'a\n' >"$S/sha256/f.txt"; git -C "$S/sha256" add f.txt; git -C "$S/sha256" commit -q -m c
+printf 'b\n' >>"$S/sha256/f.txt"; defaults; write_report
+COUNT=$((COUNT + 1)); RC=0
+OUT=$(env "$CHECK" --report "$S/report.md" --repo "$S/sha256" --base HEAD 2>&1) || RC=$?
+w=""
+[ "$RC" -eq 2 ] || w="exit $RC, want 2"
+printf '%s\n' "$OUT" | grep -qxF 'pre-gate-check: only SHA-1 repositories are supported (extensions.objectFormat=sha256)' || w="$w; message missing"
+VERDICT_WHY="" CASE_ID=sha256-unsupported
+finish "$w"
+
 if [ "$FAILED" -eq 0 ]; then
   echo "SELFTEST: PASS ($COUNT scenarios)"
   exit 0
