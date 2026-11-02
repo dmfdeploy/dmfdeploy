@@ -11,7 +11,8 @@
 #   - The Counts section (2) never runs a report-supplied command. Each "$ "
 #     line must match one of six fixed forms: git diff --stat REF, git diff
 #     --name-status REF, git ls-files [PATH], ls DIR, lines PATH, and count
-#     REGEX PATH. ls, lines and count are computed inside the checker in
+#     REGEX PATH. ls (names without a leading dot, sorted by byte value, as
+#     `LC_ALL=C ls -1` prints them), lines and count are computed inside the checker in
 #     Python; the three git forms (diff --stat, diff --name-status, ls-files)
 #     run git with fixed arguments. There is no
 #     shell, no pipeline and no option parsing, so no external tool has options
@@ -37,14 +38,19 @@
 #     as fully added (they are not in that diff, so they are read separately).
 #     Paths come from NUL-separated listings and each diff runs for one literal
 #     path; a name with a control character, quote or backslash fails.
-#   - Comment coverage detects single-line comment markers and, in .py files,
-#     docstring bodies. It does not detect block-comment bodies in other
-#     languages or text inside heredocs. It never asks for a blank line, and a
-#     .py file that does not parse fails.
+#   - Comment coverage detects single-line comment markers, in .py files
+#     docstring bodies, and a trailing " #" or " //" comment after code in
+#     files of a known language (the marker needs whitespace before it and an
+#     even count of unescaped quotes before it, which is a heuristic, not a
+#     parser). It does not detect block-comment bodies in other languages or
+#     text inside heredocs. It never asks for a blank line, and a .py file that
+#     does not parse fails.
 #   - The sibling sweep reads NUL-separated `git grep` output, so a colon in a
 #     file name is safe; a binary match or an unparseable line fails.
-#   - The premise table needs the premise, source, check performed and result
-#     columns, all filled in every row; `PATH §HEADING` needs a real heading.
+#   - The premise table has exactly four cells per row: a header naming premise,
+#     source, check performed and result once each, a separator of four dash
+#     cells, and rows with all four filled. `PATH §HEADING` needs a real
+#     heading outside any fenced code block.
 #
 # Checks: 1 comment fidelity (rule 1), 2 counts (rule 3), 3 sibling sweep
 # (rule 4), 4 premise sources (rule 5). Rule 2 stays a review criterion.
@@ -321,6 +327,43 @@ for node in ast.walk(tree):
 PYEOF
 }
 
+# inline_comments — stdin: the added-lines file; prints PATH<TAB>N for each line
+# that carries a comment after code. The marker is " #" (sh bash zsh py rb pl
+# yaml yml toml ini cfg conf mk Makefile) or " //" (js ts jsx tsx go rs c h cpp
+# hpp java kt swift cs), preceded by whitespace, with an even number of
+# unescaped single quotes and of unescaped double quotes before it.
+inline_comments() {
+  python3 -I -c 'import os, sys
+HASH = {"sh", "bash", "zsh", "py", "rb", "pl", "yaml", "yml", "toml", "ini", "cfg", "conf", "mk", "Makefile"}
+SLASH = {"js", "ts", "jsx", "tsx", "go", "rs", "c", "h", "cpp", "hpp", "java", "kt", "swift", "cs"}
+
+def unescaped(text, ch):
+    return sum(1 for i, c in enumerate(text) if c == ch and (i == 0 or text[i - 1] != chr(92)))
+
+for row in sys.stdin:
+    parts = row.rstrip("\n").split("\t", 2)
+    if len(parts) != 3:
+        continue
+    path, n, text = parts
+    name = os.path.basename(path)
+    ext = name.rsplit(".", 1)[1] if "." in name else name
+    marker = "#" if ext in HASH else "//" if ext in SLASH else None
+    if marker is None or text.lstrip().startswith("#!"):
+        continue
+    start = 0
+    while True:
+        at = text.find(marker, start)
+        if at < 0:
+            break
+        start = at + 1
+        if at == 0 or not text[at - 1].isspace():
+            continue
+        before = text[:at]
+        if before.strip() and unescaped(before, chr(39)) % 2 == 0 and unescaped(before, chr(34)) % 2 == 0:
+            print(path + "\t" + n)
+            break'
+}
+
 # in_docstring PATH N — true when line N of PATH is inside a docstring range.
 in_docstring() {
   awk -F'\t' -v p="$1" -v n="$2" '$1 == p && n >= $2 + 0 && n <= $3 + 0 { f = 1 } END { exit !f }' "$W/docranges"
@@ -379,6 +422,7 @@ check_comments() {
 
   added_lines >"$W/added"
   collect_docstrings
+  inline_comments <"$W/added" >"$W/inline"
   local p n t tt total=0 uncovered=0 is_comment
   while IFS=$'\t' read -r p n t; do
     case ${p##*.} in
@@ -389,6 +433,8 @@ check_comments() {
     case $tt in '#!'*) continue ;; esac
     is_comment=0
     if [[ $tt =~ $COMMENT_RE ]]; then
+      is_comment=1
+    elif grep -qxF -- "$p"$'\t'"$n" "$W/inline"; then
       is_comment=1
     elif [ "${p##*.}" = py ] && in_docstring "$p" "$n"; then
       is_comment=1
@@ -514,7 +560,8 @@ elif n in (2, 3) and toks[:2] == ["git", "ls-files"]:
     out(data.decode("utf-8", "replace"))
 elif n == 2 and toks[0] == "ls":
     full = check_path(toks[1], "dir")
-    out("\n".join(sorted(os.listdir(full))))
+    names = sorted((n for n in os.listdir(full) if not n.startswith(".")), key=os.fsencode)
+    out("\n".join(names))
 elif n == 2 and toks[0] == "lines":
     full = check_path(toks[1], "file")
     with open(full, "rb") as fh:
@@ -731,12 +778,25 @@ check_sweep() {
 
 lower() { printf '%s' "$1" | tr 'A-Z' 'a-z'; }
 
+# split_cells ROW — fill CELLS with the pipe-separated cells of ROW (outer pipes
+# already removed), keeping empty cells.
+CELLS=()
+split_cells() {
+  local r="$1|"
+  CELLS=()
+  while [[ $r == *'|'* ]]; do
+    CELLS+=("${r%%|*}")
+    r=${r#*|}
+  done
+}
+
 PREM_PASS=0
 okp() { PREM_PASS=$((PREM_PASS + 1)); ok "$@"; }
 
 # has_heading FILE HEADING — true when a line of FILE is an ATX heading whose
 # text equals HEADING (case-insensitive) or, outside Markdown files, a line that
-# consists of HEADING alone. A mention inside a paragraph does not count.
+# consists of HEADING alone. A mention inside a paragraph does not count, and in
+# a Markdown file a line inside a fenced code block does not count either.
 has_heading() {
   python3 -I - "$1" "$2" <<'PYEOF'
 import re, sys
@@ -745,9 +805,20 @@ path, want = sys.argv[1], sys.argv[2].strip().lower()
 markdown = path.lower().endswith((".md", ".markdown"))
 atx = re.compile(r"^#{1,6}[ \t]+(.*?)[ \t]*#*[ \t]*$")
 atx_raw = re.compile(r"^#{1,6}[ \t]+(.*?)[ \t]*$")
+fence = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
+opened = None
 with open(path, encoding="utf-8", errors="replace") as fh:
     for line in fh:
         line = line.rstrip("\r\n")
+        if markdown:
+            m = fence.match(line)
+            if opened is None and m:
+                opened = m.group(1)
+                continue
+            if opened is not None:
+                if m and m.group(1)[0] == opened[0] and len(m.group(1)) >= len(opened) and not m.group(2).strip():
+                    opened = None
+                continue
         for rx in (atx, atx_raw):
             m = rx.match(line)
             if m and m.group(1).strip().lower() == want:
@@ -862,20 +933,24 @@ check_premises() {
     row=$(trim "$row")
     row=${row#|}
     row=${row%|}
+    split_cells "$row"
+    cells=("${CELLS[@]}")
     if [ "$first" -eq 1 ]; then
       first=0
-      IFS='|' read -r -a cells <<<"$row"
+      prem_idx=-1 src_idx=-1 chk_idx=-1 res_idx=-1
       i=0
       for c in "${cells[@]}"; do
         c=$(lower "$(trim "$c")")
-        case $c in *premise*) prem_idx=$i ;; esac
-        case $c in *source*) src_idx=$i ;; esac
-        case $c in *"check performed"*) chk_idx=$i ;; esac
-        case $c in *result*) res_idx=$i ;; esac
+        case $c in
+          premise) [ "$prem_idx" -ne -1 ] && prem_idx=-2 || prem_idx=$i ;;
+          source) [ "$src_idx" -ne -1 ] && src_idx=-2 || src_idx=$i ;;
+          "check performed") [ "$chk_idx" -ne -1 ] && chk_idx=-2 || chk_idx=$i ;;
+          result) [ "$res_idx" -ne -1 ] && res_idx=-2 || res_idx=$i ;;
+        esac
         i=$((i + 1))
       done
-      if [ "$prem_idx" -lt 0 ] || [ "$src_idx" -lt 0 ] || [ "$chk_idx" -lt 0 ] || [ "$res_idx" -lt 0 ]; then
-        bad "table header must contain premise, source, check performed and result columns"
+      if [ "${#cells[@]}" -ne 4 ] || [ "$prem_idx" -lt 0 ] || [ "$src_idx" -lt 0 ] || [ "$chk_idx" -lt 0 ] || [ "$res_idx" -lt 0 ]; then
+        bad "table header must have exactly the four columns premise, source, check performed and result"
         return 0
       fi
       expect_sep=1
@@ -887,13 +962,23 @@ check_premises() {
         bad "table has no header separator row"
         return 0
       fi
+      local sep_ok=1
+      for c in "${cells[@]}"; do
+        [[ $(trim "$c") =~ ^:?-{3,}:?$ ]] || sep_ok=0
+      done
+      if [ "${#cells[@]}" -ne 4 ] || [ "$sep_ok" -eq 0 ]; then
+        bad "table separator row is malformed (four cells of three or more dashes)"
+        return 0
+      fi
       continue
     fi
-    [[ $row =~ ^[|:[:space:]-]+$ ]] && continue
     data=$((data + 1))
-    IFS='|' read -r -a cells <<<"$row"
-    if [ -z "$(trim "${cells[$prem_idx]:-}")" ] || [ -z "$(trim "${cells[$src_idx]:-}")" ] ||
-      [ -z "$(trim "${cells[$chk_idx]:-}")" ] || [ -z "$(trim "${cells[$res_idx]:-}")" ]; then
+    if [ "${#cells[@]}" -ne 4 ]; then
+      bad "premise row $data has ${#cells[@]} cells, want 4"
+      continue
+    fi
+    if [ -z "$(trim "${cells[$prem_idx]}")" ] || [ -z "$(trim "${cells[$src_idx]}")" ] ||
+      [ -z "$(trim "${cells[$chk_idx]}")" ] || [ -z "$(trim "${cells[$res_idx]}")" ]; then
       bad "premise row $data incomplete (premise, source, check performed and result are all required)"
       continue
     fi

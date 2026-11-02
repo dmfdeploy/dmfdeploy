@@ -390,7 +390,7 @@ finish ""
 
 defaults; fresh; S4RAW=$'| premise | source |\n|---|---|\n| the limit is documented | docs/guide.md §Limits |'; run_case
 verdict premise-two-columns 1 "PRE-GATE: FAIL (sections: 4)"
-finish "$(need 4 '^fail: table header must contain premise, source, check performed and result columns')"
+finish "$(need 4 '^fail: table header must have exactly the four columns premise, source, check performed and result')"
 
 defaults; fresh; S4RAW=$'| premise | source | check performed | result |\n|---|---|---|---|\n| | docs/guide.md §Limits | read | ok |\n| the limit is documented | docs/guide.md §Limits | read | ok |'; run_case
 verdict premise-row-incomplete 1 "PRE-GATE: FAIL (sections: 4)"
@@ -408,6 +408,39 @@ finish "$(need 1 '^fail: src/bad.py: not parsed as Python; docstring coverage ca
 defaults; fresh; printf '# edited\n' >>"$T/tab"$'\t'"name.sh"; run_case
 verdict tab-in-filename 1 "PRE-GATE: FAIL (sections: 1)"
 finish "$(need 1 '^fail: unsupported file name \(control character, quote or backslash\)')"
+
+defaults; fresh
+printf '#!/usr/bin/env bash\nvalue=1\n' >"$T/val.sh"; git -C "$T" add val.sh; git -C "$T" commit -q -m val
+sed -i.bak 's/^value=1$/value=1 # always unlimited/' "$T/val.sh"; rm -f "$T/val.sh.bak"
+run_case
+verdict inline-comment-uncovered 1 "PRE-GATE: FAIL (sections: 1)"
+finish "$(need 1 '^fail: uncovered: val.sh:\+2: value=1 # always unlimited')"
+
+defaults; fresh; printf 'echo "a # b"\n' >>"$T/src/new.sh"; run_case
+verdict inline-comment-in-string 0 "PRE-GATE: PASS"
+finish ""
+
+defaults; fresh; S4RAW=$'| premise source check performed result |\n|---|\n| a.txt |'; run_case
+verdict premise-impersonated-columns 1 "PRE-GATE: FAIL (sections: 4)"
+finish "$(need 4 '^fail: table header must have exactly the four columns premise, source, check performed and result')"
+
+defaults; fresh; S4RAW=$'| premise | source | check performed | result |\n|-|\n| the limit is documented | docs/guide.md §Limits | read | ok |'; run_case
+verdict premise-bad-separator 1 "PRE-GATE: FAIL (sections: 4)"
+finish "$(need 4 '^fail: table separator row is malformed')"
+
+defaults; fresh; S4RAW=$'| premise | source | check performed | result |\n|---|---|---|---|\n| the limit is documented | docs/guide.md §Limits | read |\n| the limit is documented | docs/guide.md §Limits | read | ok |'; run_case
+verdict premise-row-cell-count 1 "PRE-GATE: FAIL (sections: 4)"
+finish "$(need 4 '^fail: premise row 1 has 3 cells, want 4')"
+
+defaults; fresh; printf '# Document\n\n```\n## Imaginary\n```\n' >"$T/docs/guide.md"
+S4='| docs/guide.md §Imaginary |'; run_case
+verdict heading-in-fence 1 "PRE-GATE: FAIL (sections: 4)"
+finish "$(need 4 '^fail: section heading not found: docs/guide.md §Imaginary')"
+
+defaults; fresh; mkdir "$T/hid"; : >"$T/hid/.hidden"; printf 'x\n' >"$T/hid/visible"
+S2="$OK_CMD"$'\n$ ls hid\nvisible'; run_case
+verdict ls-hidden 0 "PRE-GATE: PASS"
+finish ""
 
 if [ "$FAILED" -eq 0 ]; then
   echo "SELFTEST: PASS ($COUNT scenarios)"
