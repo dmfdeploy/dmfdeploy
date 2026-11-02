@@ -21,14 +21,15 @@
 #     start with "~" or "$", or be a symlink or sit below one, and must resolve
 #     inside the repository. Quoted comment paths and premise paths get the same
 #     resolved-path test.
-#   - Every git call runs with an empty HOME and no global or system config, so
-#     a .gitconfig in the tree has no effect. It also reads attributes from
-#     git's empty tree, with the filesystem monitor off and external diff and
-#     text conversion disabled, so no diff driver, text converter, clean or
-#     smudge filter or monitor hook the repository configures ever runs. This
-#     needs git 2.40 or newer (--attr-source). Otherwise the repository's own
-#     .git/config is trusted: the check defends against the report, not against
-#     a hostile working tree.
+#   - Every git call runs against a private repository view built in the
+#     checker's temporary directory: its own HEAD, a copy of the refs, a
+#     minimal config, the private index, and the real objects reached through
+#     alternates, with no info, hooks or logs directory. Global and system
+#     configuration are disabled, attributes come from git's empty tree, the
+#     filesystem monitor is off, and external diff and text conversion are
+#     disabled. The repository's own configuration and attribute files are not
+#     read during a check, so nothing they name can run; the working tree's
+#     files are read as they are. This needs git 2.40 or newer (--attr-source).
 #   - Every result line starts with "pass: ", "fail: " or "note: ", and report
 #     text only ever appears after that prefix or indented below it. Quoted text
 #     therefore cannot forge the verdict line or the BEGIN/END markers.
@@ -124,26 +125,62 @@ read -r gitmajor gitminor <<<"$gitver"
 if [ -z "${gitmajor:-}" ] || [ "$gitmajor" -lt 2 ] || { [ "$gitmajor" -eq 2 ] && [ "$gitminor" -lt 40 ]; }; then
   die "git 2.40 or newer is required (--attr-source)"
 fi
-# The single entry point for git in this script. The empty tree supplies no
-# .gitattributes, so no diff driver or filter applies; the other options turn
-# off the filesystem monitor and external diff.
-git_ro() {
-  git -C "$DIR" --literal-pathspecs --attr-source=4b825dc642cb6eb9a060e54bf8d69288fbee4904 -c core.fsmonitor=false -c diff.external= "$@"
+# Plain git, used only before the private view exists, for rev-parse queries
+# about the repository's location. It never reads files or runs a program the
+# repository names.
+git_plain() {
+  git -C "$DIR" -c core.fsmonitor=false "$@"
 }
 [ -f "$REPORT" ] && [ -r "$REPORT" ] || die "report not readable: $REPORT"
-git_ro rev-parse --is-inside-work-tree >/dev/null 2>&1 || die "not a git work tree: $DIR"
-[ -z "$(git_ro rev-parse --show-prefix)" ] || die "--repo must be the repository root: $DIR"
-git_ro rev-parse --verify -q "${BASE}^{commit}" >/dev/null || die "base does not resolve: $BASE"
+git_plain rev-parse --is-inside-work-tree >/dev/null 2>&1 || die "not a git work tree: $DIR"
+[ -z "$(git_plain rev-parse --show-prefix)" ] || die "--repo must be the repository root: $DIR"
+DIRABS=$(cd "$DIR" && pwd -P)
+real_objects=$(git_plain rev-parse --path-format=absolute --git-path objects)
+real_common=$(git_plain rev-parse --path-format=absolute --git-common-dir)
+real_head=$(git_plain rev-parse --path-format=absolute --git-path HEAD)
+real_index=$(git_plain rev-parse --path-format=absolute --git-path index)
+real_fmt=$(git_plain config --local --get core.repositoryformatversion 2>/dev/null || true)
+real_ext=$(git_plain config --local --get-regexp '^extensions\.' 2>/dev/null || true)
 
 W=$(mktemp -d)
 trap 'rm -rf "$W"' EXIT
 
-# Every git call, here and in the command helper, reads a private copy of the
-# index: git diff and git status refresh the index they are given, and the
-# repository's own .git/index must stay byte for byte unchanged.
-idx="$(git_ro rev-parse --absolute-git-dir)/index"
-if [ -f "$idx" ]; then cp "$idx" "$W/index"; fi
-export GIT_INDEX_FILE="$W/index"
+# The private repository view: git never opens the repository's own config,
+# info/attributes, hooks or logs. Objects come through alternates; refs, HEAD
+# and the index are copies; the config holds only the structural keys.
+V="$W/view"
+mkdir -p "$V/objects/info" "$W/home"
+printf '%s\n' "$real_objects" >"$V/objects/info/alternates"
+if [ -f "$real_common/packed-refs" ]; then cp "$real_common/packed-refs" "$V/packed-refs"; fi
+if [ -d "$real_common/refs" ]; then cp -R "$real_common/refs" "$V/refs"; else mkdir "$V/refs"; fi
+cp "$real_head" "$V/HEAD"
+# git diff and git status refresh the index they are given, and the
+# repository's own index must stay byte for byte unchanged.
+if [ -f "$real_index" ]; then cp "$real_index" "$V/index"; fi
+{
+  printf '[core]\n'
+  printf '\trepositoryformatversion = %s\n' "$([ "$real_fmt" = 1 ] && echo 1 || echo 0)"
+  printf '\tfilemode = true\n\tbare = false\n\tlogallrefupdates = false\n'
+  if [ "$real_fmt" = 1 ] && [ -n "$real_ext" ]; then
+    printf '[extensions]\n'
+    while read -r k v; do
+      printf '\t%s = %s\n' "${k#extensions.}" "$v"
+    done <<<"$real_ext"
+  fi
+} >"$V/config"
+
+# Every git call, bash and Python, runs with this environment and these
+# options. The empty tree supplies no .gitattributes; the other options turn
+# off the filesystem monitor, external diff and any attributes file.
+GIT_ENV=(env -i "PATH=$PATH" LC_ALL=C "HOME=$W/home" "GIT_DIR=$V" "GIT_WORK_TREE=$DIRABS"
+  GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 GIT_ATTR_NOSYSTEM=1
+  GIT_OPTIONAL_LOCKS=0 GIT_LITERAL_PATHSPECS=1 "GIT_INDEX_FILE=$V/index")
+GIT_OPTS=(--literal-pathspecs --attr-source=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+  -c core.fsmonitor=false -c diff.external= -c core.attributesFile=/dev/null)
+git_ro() {
+  "${GIT_ENV[@]}" git -C "$DIR" "${GIT_OPTS[@]}" "$@"
+}
+git_ro rev-parse --verify -q "${BASE}^{commit}" >/dev/null || die "base does not resolve: $BASE"
 
 # --- output plumbing ---------------------------------------------------------
 
@@ -499,20 +536,19 @@ signal.signal(signal.SIGALRM, on_alarm)
 signal.alarm(60)
 
 
+VIEW = os.path.join(work, "view")
 GIT_FIXED = ["git", "--literal-pathspecs", "--attr-source=4b825dc642cb6eb9a060e54bf8d69288fbee4904",
-             "-c", "core.fsmonitor=false", "-c", "diff.external="]
+             "-c", "core.fsmonitor=false", "-c", "diff.external=", "-c", "core.attributesFile=/dev/null"]
+GIT_ENV = {"PATH": os.environ.get("PATH", ""), "LC_ALL": "C",
+           "HOME": os.path.join(work, "home"), "GIT_DIR": VIEW, "GIT_WORK_TREE": ROOT,
+           "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1",
+           "GIT_ATTR_NOSYSTEM": "1", "GIT_OPTIONAL_LOCKS": "0",
+           "GIT_LITERAL_PATHSPECS": "1", "GIT_INDEX_FILE": os.path.join(VIEW, "index")}
 
 
 def run_git(argv):
-    home = os.path.join(work, "home")
-    os.makedirs(home, exist_ok=True)
-    env = {"PATH": os.environ.get("PATH", ""), "LC_ALL": "C", "HOME": home,
-           "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1",
-           "GIT_OPTIONAL_LOCKS": "0", "GIT_LITERAL_PATHSPECS": "1",
-           "GIT_ATTR_NOSYSTEM": "1",
-           "GIT_INDEX_FILE": os.path.join(work, "index")}
     try:
-        p = subprocess.run(GIT_FIXED + argv[1:], cwd=repo, env=env, stdin=subprocess.DEVNULL,
+        p = subprocess.run(GIT_FIXED + argv[1:], cwd=repo, env=GIT_ENV, stdin=subprocess.DEVNULL,
                            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=60)
     except subprocess.TimeoutExpired:
         reject("timeout: $ " + line)

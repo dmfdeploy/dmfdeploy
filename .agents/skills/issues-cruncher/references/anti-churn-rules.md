@@ -175,16 +175,20 @@ Limits:
   `lines` counts lines; `count` counts lines where the regular expression
   matches). The three git forms run git with fixed
   arguments, in an isolated environment (empty home, no global or system
-  config, a private copy of the index). The two `git diff` forms take a ref that
+  config, a private repository view). The two `git diff` forms take a ref that
   must resolve to a commit; `git ls-files` takes an optional contained path.
   There is no shell, no pipeline and no option parsing, and an empty `$ ` line
   fails like any other unsupported form.
-- Every git call reads attributes from git's empty tree and runs with the
-  filesystem monitor off and external diff and text conversion disabled, so a
-  repository's own diff drivers, text converters, clean or smudge filters and
-  monitor hooks never run during a check. Git 2.40 or newer is required. The
-  repository's `.git/config` is otherwise trusted: apart from those helpers, a
-  setting in it still takes effect.
+- Every git call runs against a private repository view built in the checker's
+  temporary directory: its own HEAD, a copy of the refs, a minimal config, the
+  private index, and the real objects reached through alternates. The view has
+  no `info`, `hooks` or `logs` directory. Global and system configuration are
+  disabled, attributes come from git's empty tree, the filesystem monitor is
+  off, and external diff and text conversion are disabled. The repository's own
+  configuration and attribute files are not read during a check, so nothing they
+  name can run; the working tree's files are read as they are. Because
+  `info/exclude` is not read either, a file that only it ignores counts as
+  untracked. Git 2.40 or newer is required.
 - The `count` form arms a 60-second in-process alarm. A pathological pattern was
   interrupted after about 60 seconds on macOS; no cross-platform guarantee is
   claimed.

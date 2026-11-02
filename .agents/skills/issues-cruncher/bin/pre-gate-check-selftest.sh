@@ -86,11 +86,12 @@ fresh() {
 
 # --- assertions --------------------------------------------------------------
 
-OUT="" RC=0 FAILED=0 COUNT=0
+OUT="" RC=0 FAILED=0 COUNT=0 CHECK_HOME="" BASE_REF=""
 run_case() {
   write_report
   RC=0
-  OUT=$("$CHECK" --report "$S/report.md" --repo "$T" --base HEAD 2>&1) || RC=$?
+  OUT=$(env ${CHECK_HOME:+"HOME=$CHECK_HOME"} "$CHECK" --report "$S/report.md" --repo "$T" --base "${BASE_REF:-HEAD}" 2>&1) || RC=$?
+  CHECK_HOME="" BASE_REF=""
 }
 
 # section N — the text of section N of the last output.
@@ -467,6 +468,37 @@ git -C "$T" config core.fsmonitor "$S/fsmon.sh"; run_case
 verdict fsmonitor-hook 0 "PRE-GATE: PASS"
 w=""; [ ! -e "$S/marker-fsmonitor" ] || w="fsmonitor hook ran"
 finish "$w"
+
+# Attribute sources outside the tree: .git/info/attributes and a global
+# core.attributesFile both select a clean filter, which must never run. The
+# tracked file is edited so a diff or status has to compare its content.
+prep_data() {
+  printf 'one\n' >"$T/data.txt"; git -C "$T" add data.txt; git -C "$T" commit -q -m data
+  printf 'two\n' >"$T/data.txt"
+  S2=$'$ lines data.txt\n1'
+}
+
+defaults; fresh; rm -f "$S"/marker-*; prep_data
+mkdir -p "$T/.git/info"; printf 'data.txt filter=evil\n' >"$T/.git/info/attributes"
+git -C "$T" config filter.evil.clean "touch $S/marker-info; cat"; run_case
+verdict info-attributes-filter 0 "PRE-GATE: PASS"
+w=""; [ ! -e "$S/marker-info" ] || w="clean filter ran from info/attributes"
+finish "$w"
+
+defaults; fresh; rm -f "$S"/marker-*; prep_data
+mkdir -p "$S/userdir"
+printf 'data.txt filter=evil\n' >"$S/userdir/attrs"
+printf '[core]\n\tattributesFile = %s/userdir/attrs\n[filter "evil"]\n\tclean = touch %s/marker-global; cat\n' "$S" "$S" >"$S/userdir/.gitconfig"
+CHECK_HOME="$S/userdir"; run_case
+verdict global-attributes-filter 0 "PRE-GATE: PASS"
+w=""; [ ! -e "$S/marker-global" ] || w="clean filter ran from global config"
+finish "$w"
+
+# A remote-tracking ref resolves through the copied refs.
+defaults; fresh; git -C "$T" update-ref refs/remotes/origin/main HEAD
+S2="$OK_CMD"$'\n'"${STAT/HEAD/origin/main}"; BASE_REF=origin/main; run_case
+verdict remote-ref-base 0 "PRE-GATE: PASS"
+finish ""
 
 if [ "$FAILED" -eq 0 ]; then
   echo "SELFTEST: PASS ($COUNT scenarios)"
