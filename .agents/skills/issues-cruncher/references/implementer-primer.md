@@ -30,6 +30,8 @@ Every fix that adds a guard must have a test that **discriminates**: it must FAI
 
 Run the project's full test suite, lint, and type checks before sending DONE. Paste the actual output — not a claim. The orchestrator re-verifies every claim on disk.
 
+The DONE report carries the four sections of anti-churn rule 6. The orchestrator runs `bin/pre-gate-check.sh` on it before any gate request, and a report the script cannot parse comes back unread.
+
 ```
 .venv/bin/python -m pytest tests/ -q     → paste the summary line
 .venv/bin/ruff check ...                  → paste "All checks passed" or the errors
