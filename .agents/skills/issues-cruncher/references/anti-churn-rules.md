@@ -127,6 +127,51 @@ every claim in it waits for a reviewer to find the one that is wrong.
 
 <!-- DISPATCH-PAYLOAD-END -->
 
+## Closing a verdict in place
+
+This section is not part of the payload.
+
+A gate round that answers only self-inflicted findings buys no product safety.
+When a verdict holds nothing else, you fix the findings and proceed without a
+new round. Three classes count as self-inflicted. Use these names in the
+verdict classification, the pre-gate check and the record:
+
+- **stale comment**: a comment, docstring, or doc line that no longer matches the
+  code or the decision it describes.
+- **claim precision**: the report stated a count, scope, or result that the
+  evidence did not support.
+- **mechanics**: format, commit hygiene, naming, or link form.
+
+An edit is **behaviour-bearing** when it changes bytes that a script, a tool,
+or a dispatch consumes. Comment lines in source files are not consumed
+unless a script or tool reads them. For example, a script that prints its own
+header comments as `--help` consumes them, and a linter directive such as a
+`shellcheck disable` comment is consumed by the linter. Docstrings are
+consumed only when code reads them, for example as help text or through a
+`__doc__` lookup. Prose lines in a
+Markdown file are not consumed unless a script or tool reads them to produce a
+result other than a style check of the prose itself, or a dispatch delivers them
+to an agent. A prose style check such as Vale does not make ordinary prose
+consumed, because CI re-runs it on the fix push. A test fixture is always
+consumed, including a Markdown fixture. These are always consumed: executable code, string literals, templates,
+playbooks, manifests, workflows, schemas, configuration, `SKILL.md`
+frontmatter, the `DISPATCH-PAYLOAD` block, executable snippets and test
+fixtures. A fix that edits a consumed byte requires a re-gate whatever its
+finding class.
+
+The re-gate triggers are in phase 4 of `SKILL.md`. Next to the verdict, record
+each finding's class and the fix you applied.
+
+**Worked example.** A gate returns two findings in a source file: a docstring
+still describes the old retry count, and a comment names a function that was
+renamed. No code reads the docstring, and no script or tool reads the comment.
+Both are stale comments, and both fixes leave every consumed byte unchanged. You
+fix both lines, quote the final text from the working tree (hard gate 3), record
+the two classifications, and continue to verify. Now suppose the same verdict
+also flags a template line that renders the wrong port. That finding is a
+genuine defect, and the fix edits a consumed byte, so either condition alone
+requires a re-gate. Fix all three, then send a delta round.
+
 ## Mechanical pre-gate check
 
 This section is not part of the payload.

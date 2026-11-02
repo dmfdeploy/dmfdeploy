@@ -39,8 +39,13 @@ real failures this session.
 
 ## Reviewer / CI rounds
 - [ ] **Re-run the whole verification chain after every fix.** A reviewer or CI
-      change voids prior adversary/verify passes. The trio (and you) missed real
-      bugs that only the external reviewer caught — expect rounds, re-verify each.
+      change voids prior adversary/verify passes. The one exception is a fix to
+      unconsumed prose that closes a self-inflicted-only verdict: it keeps the
+      adversary pass (`SKILL.md` hard gate 6 and phase 4), though you still
+      verify it on disk, and CI re-runs on the fix push and is never carried
+      over. Every other change voids the pass. The trio
+      (and you) missed real bugs that only the external reviewer caught, so
+      expect rounds and re-verify each.
 - [ ] **Don't assume green = mergeable.** Respect `REVIEW_REQUIRED`, required
       checks, and admin-bypass rules.
 
