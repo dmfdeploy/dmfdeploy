@@ -105,15 +105,19 @@ different properties and the distinction is load-bearing.
 The WO report carries four level-2 sections, with these exact headings:
 
 - `## Comment fidelity`: a fenced block with one `PATH: literal line` entry for
-  every comment or docstring line touched, or the single line `none`.
+  every comment or docstring line touched, or the single line `none`. A
+  comment that follows code on the same line counts: quote the whole line.
 - `## Counts`: a fenced block of `$ <form>` lines, each followed by its pasted
   output, where `<form>` is one of `git diff --stat <ref>`,
   `git diff --name-status <ref>`, `git ls-files [<path>]`, `ls <dir>`,
-  `lines <path>` or `count <regex> <path>`. No other command is re-run.
+  `lines <path>` or `count <regex> <path>`. No other command is re-run. The
+  `ls <dir>` form lists the entry names that do not start with a dot, sorted by
+  code point, one per line; paste the output of `LC_ALL=C ls -1 <dir>`.
 - `## Sibling sweep`: a fenced block with `pattern: ERE`, then one
   `PATH:LINE: pass|fail` entry for every match, or `pattern: none`.
-- `## Premise table`: the table from rule 5, or the single line `none` when the
-  work order carries no decision-bearing premise.
+- `## Premise table`: the table from rule 5, with exactly the four columns
+  `premise`, `source`, `check performed` and `result`, or the single line
+  `none` when the work order carries no decision-bearing premise.
 
 The orchestrator runs `bin/pre-gate-check.sh` on the report before any gate
 request. A report the script cannot parse is returned unread.
@@ -166,8 +170,10 @@ Limits:
 - The `## Counts` section does not run report-supplied commands. Each `$ ` line
   must be one of the six forms in rule 6, and anything else fails with
   `not a supported count form`. `ls`, `lines` and `count` are computed inside the
-  checker (`ls` lists sorted names, `lines` counts lines, `count` counts lines
-  where the regular expression matches). The three git forms run git with fixed
+  checker (`ls` lists the entry names that do not start with a dot, sorted by
+  code point, one per line, which is what `LC_ALL=C ls -1 <dir>` prints;
+  `lines` counts lines; `count` counts lines where the regular expression
+  matches). The three git forms run git with fixed
   arguments, in an isolated environment (empty home, no global or system
   config, a private copy of the index). The two `git diff` forms take a ref that
   must resolve to a commit; `git ls-files` takes an optional contained path.
@@ -194,6 +200,17 @@ Limits:
 - Comment coverage detects single-line comment markers and Python docstring
   bodies. It does not detect block-comment bodies in other languages or text
   inside heredocs. Any untracked symlink fails the coverage scan.
+- Coverage also detects a comment that follows code on the same line. In a file
+  with a `sh`, `bash`, `zsh`, `py`, `rb`, `pl`, `yaml`, `yml`, `toml`, `ini`,
+  `cfg`, `conf` or `mk` extension, or named `Makefile`, a ` #` counts. In a file
+  with a `js`, `ts`, `jsx`, `tsx`, `go`, `rs`, `c`, `h`, `cpp`, `hpp`, `java`,
+  `kt`, `swift` or `cs` extension, a ` //` counts. The marker needs whitespace
+  before it, and the text before it needs an even number of unescaped single
+  quotes and an even number of unescaped double quotes, so a marker inside a
+  string literal does not count. The quote count is a heuristic, not a parser:
+  a quote inside a here-document, a regular expression or a multi-line string
+  can misclassify a line in either direction. Shebang lines are skipped, and the
+  quoted text for such a line is the whole trimmed line.
 - Coverage never asks for a blank line to be quoted, inside a docstring or
   outside one, because a report cannot quote an empty line.
 - A `.py` file among the added files that does not parse fails with `not parsed
@@ -207,12 +224,17 @@ Limits:
   line the checker cannot parse. Nothing is dropped without a message.
 - Doc files (`.md`, `.rst`, `.txt`, `.adoc`) are prose. The script checks their
   quoted lines but does not require every added line to be quoted.
-- The premise table needs four columns, named `premise`, `source`, `check
-  performed` and `result`, and every row needs a value in all four. URL and
-  tracker-ref premise sources are noted, not resolved. At least one source in
-  the table must resolve against the tree.
+- The premise table has exactly four columns. The header row has four cells
+  whose text, ignoring case, is `premise`, `source`, `check performed` and
+  `result`, each once, in any order. The separator row has four cells that each
+  match `:?---+:?`. Every data row has four cells with a value in each; a pipe
+  inside a cell splits it, so a row with an extra pipe fails with a cell count.
+  URL and tracker-ref premise sources are noted, not resolved. At least one
+  source in the table must resolve against the tree.
 - A `PATH §HEADING` source resolves only when a line of the file is a Markdown
-  heading whose text equals the heading, ignoring case. In a file that is not
+  heading whose text equals the heading, ignoring case, and that is not inside a
+  fenced code block (a fence opens with three or more backticks or tildes and
+  closes with the same character, at least as many times). In a file that is not
   Markdown, a line that consists of the heading alone also counts. A mention in
   a paragraph does not.
 - A sibling declared `fail` needs a reason after the word `fail`.
