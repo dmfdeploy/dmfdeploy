@@ -184,11 +184,17 @@ Limits:
   private index, and the real objects reached through alternates. The view has
   no `info`, `hooks` or `logs` directory. Global and system configuration are
   disabled, attributes come from git's empty tree, the filesystem monitor is
-  off, and external diff and text conversion are disabled. The repository's own
-  configuration and attribute files are not read during a check, so nothing they
-  name can run; the working tree's files are read as they are. Because
+  off, and external diff and text conversion are disabled. Startup runs
+  `rev-parse` discovery and reads exactly two structural keys from the real
+  repository (`core.repositoryformatversion` and `extensions.*`), in a sanitized
+  environment, and copies them into the private view; everything after that
+  reads only the view. A malformed `config.worktree` can therefore stop the
+  checker at startup with exit 2; it cannot make anything run. No git call
+  inherits the caller's environment, so a variable such as `GIT_TRACE` writes
+  nothing. The working tree's files are read as they are. Because
   `info/exclude` is not read either, a file that only it ignores counts as
-  untracked. Git 2.40 or newer is required.
+  untracked. Git 2.40 or newer is required, and the repository must use SHA-1
+  (`extensions.objectFormat=sha256` fails with exit 2).
 - The `count` form arms a 60-second in-process alarm. A pathological pattern was
   interrupted after about 60 seconds on macOS; no cross-platform guarantee is
   claimed.
