@@ -348,24 +348,31 @@ odd_name() {
 # added_lines — PATH<TAB>N<TAB>TEXT for every line the working tree adds
 # relative to BASE, plus every line of each untracked, non-ignored text file.
 # Paths come from NUL-separated listings and each diff runs for one literal
-# path, so no header is ever parsed for a name.
+# path, so no header is ever parsed for a name. Every git call writes to a file
+# first, so a failed call stops the check with exit 2 instead of vanishing
+# inside a pipeline or a process substitution.
 added_lines() {
   local f
+  git_ro diff --name-only -z --no-ext-diff --no-textconv --no-renames "$BASE" -- \
+    >"$W/changed.nul" || die "git diff failed while listing changed files"
   while IFS= read -r -d '' f; do
     if odd_name "$f"; then
       bad "unsupported file name (control character, quote or backslash): $(printf '%q' "$f")"
       continue
     fi
-    git_ro diff --no-color --no-ext-diff --no-textconv --no-renames -U0 "$BASE" -- "$f" |
-      awk -v p="$f" '
+    git_ro diff --no-color --no-ext-diff --no-textconv --no-renames -U0 "$BASE" -- "$f" \
+      >"$W/file.diff" || die "git diff failed for: $(printf '%q' "$f")"
+    awk -v p="$f" '
         !seen && /^@@ / { seen = 1 }
         !seen { next }
         /^@@ / {
           if (match($0, /\+[0-9]+/)) ln = substr($0, RSTART + 1, RLENGTH - 1) + 0
           next
         }
-        /^\+/ { printf "%s\t%d\t%s\n", p, ln, substr($0, 2); ln++ }'
-  done < <(git_ro diff --name-only -z --no-ext-diff --no-textconv --no-renames "$BASE" --)
+        /^\+/ { printf "%s\t%d\t%s\n", p, ln, substr($0, 2); ln++ }' "$W/file.diff"
+  done <"$W/changed.nul"
+  git_ro ls-files --others --exclude-standard -z >"$W/untracked.nul" ||
+    die "git ls-files failed while listing untracked files"
   while IFS= read -r -d '' f; do
     if odd_name "$f"; then
       bad "unsupported file name (control character, quote or backslash): $(printf '%q' "$f")"
@@ -381,7 +388,7 @@ added_lines() {
     fi
     grep -Iq '' "$DIR/$f" || continue
     awk -v p="$f" '{ printf "%s\t%d\t%s\n", p, NR, $0 }' "$DIR/$f"
-  done < <(git_ro ls-files --others --exclude-standard -z)
+  done <"$W/untracked.nul"
 }
 
 # py_docstrings FULLPATH RELPATH — "REL<TAB>first<TAB>last" for each docstring
@@ -586,7 +593,9 @@ check_comments() {
 # cmd_helper LINE — evaluate one Counts line. LINE must match one of six fixed
 # forms (see the header). Prints "REJECT <message>" and exits 3 when it does not,
 # or when a path, ref or regex fails validation; otherwise prints the count or
-# listing. git runs with fixed arguments and an isolated environment.
+# listing. A git call that fails after validation prints "FATAL <message>" and
+# exits 4, which stops the whole check. git runs with fixed arguments and an
+# isolated environment.
 cmd_helper() {
   python3 -I - "$1" "$DIR" "$W" "$EMPTY_TREE" <<'PYEOF'
 import os, re, shlex, signal, subprocess, sys
@@ -599,6 +608,11 @@ REF_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/~^-]*$")
 def reject(msg):
     print("REJECT " + msg)
     sys.exit(3)
+
+
+def fatal(msg):
+    print("FATAL " + msg)
+    sys.exit(4)
 
 
 def unsupported():
@@ -628,9 +642,9 @@ def run_git(argv):
         p = subprocess.run(GIT_FIXED + argv[1:], cwd=repo, env=GIT_ENV, stdin=subprocess.DEVNULL,
                            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=60)
     except subprocess.TimeoutExpired:
-        reject("timeout: $ " + line)
+        fatal("git timed out: $ " + line)
     except OSError as e:
-        reject("cannot start git: " + str(e))
+        fatal("cannot start git: " + str(e))
     return p.returncode, p.stdout
 
 
@@ -681,7 +695,7 @@ if n == 4 and toks[:3] in (["git", "diff", "--stat"], ["git", "diff", "--name-st
     check_ref(toks[3])
     rc, data = run_git(["git", "diff", "--no-ext-diff", "--no-textconv", toks[2], toks[3]])
     if rc != 0:
-        reject("git exited %d: $ %s" % (rc, line))
+        fatal("git exited %d: $ %s" % (rc, line))
     out(data.decode("utf-8", "replace"))
 elif n in (2, 3) and toks[:2] == ["git", "ls-files"]:
     argv = ["git", "ls-files"]
@@ -690,7 +704,7 @@ elif n in (2, 3) and toks[:2] == ["git", "ls-files"]:
         argv += ["--", toks[2]]
     rc, data = run_git(argv)
     if rc != 0:
-        reject("git exited %d: $ %s" % (rc, line))
+        fatal("git exited %d: $ %s" % (rc, line))
     out(data.decode("utf-8", "replace"))
 elif n == 2 and toks[0] == "ls":
     full = check_path(toks[1], "dir")
@@ -736,6 +750,8 @@ flush_cmd() {
   if [ "$rc" -eq 3 ]; then
     bad "$(sed -n '1s/^REJECT //p' "$W/act.raw")"
     return 0
+  elif [ "$rc" -eq 4 ]; then
+    die "$(sed -n '1s/^FATAL //p' "$W/act.raw")"
   elif [ "$rc" -ne 0 ]; then
     bad "helper failed (exit $rc): \$ $cmd"
     return 0
@@ -1161,8 +1177,9 @@ if command -v shasum >/dev/null 2>&1; then
 else
   sha=$(sha256sum "$REPORT" | awk '{print $1}')
 fi
-head_sha=$(git_ro rev-parse --short HEAD)
-dirty=$(git_ro status --porcelain | wc -l | tr -d ' ')
+head_sha=$(git_ro rev-parse --short HEAD) || die "git rev-parse failed for HEAD"
+git_ro status --porcelain >"$W/status.txt" || die "git status failed"
+dirty=$(wc -l <"$W/status.txt" | tr -d ' ')
 
 printf '<!-- PRE-GATE-CHECK-BEGIN -->\n'
 printf '%s\n' "$verdict"
