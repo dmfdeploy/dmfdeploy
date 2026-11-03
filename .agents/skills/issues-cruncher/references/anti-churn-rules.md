@@ -229,8 +229,13 @@ Limits:
   line, counting from the highest line number, fails as `uncovered`.
 - Every git call runs against a private repository view built in the checker's
   temporary directory: its own HEAD, a copy of the refs, a minimal config, the
-  private index, and the real objects reached through alternates. The view has
-  no `info`, `hooks` or `logs` directory. Global and system configuration are
+  private index, and the real objects reached through alternates. The private
+  index holds the mode, object id and path of each real entry but no cached size
+  or time and no `assume-unchanged` flag, so git reads the content of every
+  tracked file. It carries no `skip-worktree` flag either, with one exception:
+  an entry that had the flag in the real index and is absent from disk keeps it,
+  so a sparse checkout does not read as a deletion. The view has no `info`, `hooks` or `logs`
+  directory. Global and system configuration are
   disabled, attributes come from git's empty tree, the filesystem monitor is
   off, and external diff and text conversion are disabled. Startup runs
   `rev-parse` discovery and reads exactly two structural keys from the real
