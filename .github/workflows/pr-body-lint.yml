@@ -84,9 +84,18 @@ jobs:
           if [[ "${VOICE_STATUS:-2}" == 2 ]]; then
             echo "::warning::check-voice could not run; no comment posted"; exit 0
           fi
-          existing="$(gh api --paginate "repos/$REPO/issues/$PR_NUMBER/comments" \
+          # A failed lookup is not "no comment yet": posting then could
+          # duplicate the findings comment. Read the whole output before
+          # taking the first id, so an early-closed pipe cannot fail the lookup.
+          ids="$RUNNER_TEMP/comment-ids.txt"
+          lookup=0
+          gh api --paginate "repos/$REPO/issues/$PR_NUMBER/comments" \
             --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | startswith(\"$marker\"))) | .id" \
-            | head -n 1)" || existing=""
+            >"$ids" || lookup=$?
+          if [[ "$lookup" != 0 ]]; then
+            echo "::warning::could not list the existing comments; no comment posted"; exit 0
+          fi
+          existing="$(head -n 1 "$ids")"
           summary="$(tail -n 1 "$RUNNER_TEMP/voice.txt")"
           if ! grep -q ': \(error\|warning\|suggestion\): ' "$RUNNER_TEMP/voice.txt"; then
             [[ -n "$existing" ]] || exit 0
