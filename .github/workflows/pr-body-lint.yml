@@ -66,8 +66,9 @@ jobs:
           # conventional-commit title ("type(scope): ...") would trip the
           # label-style heading rule.
           printf '%s\n\n%s\n' "${PR_TITLE}" "${PR_BODY}" >"$body"
-          bin/check-voice.sh "$body" >"$RUNNER_TEMP/voice.raw" 2>&1
-          echo "VOICE_STATUS=$?" >>"$GITHUB_ENV"
+          status=0
+          bin/check-voice.sh "$body" >"$RUNNER_TEMP/voice.raw" 2>&1 || status=$?
+          echo "VOICE_STATUS=$status" >>"$GITHUB_ENV"
           sed "s|$body|body|g" "$RUNNER_TEMP/voice.raw" >"$RUNNER_TEMP/voice.txt"
           cat "$RUNNER_TEMP/voice.txt"
 
