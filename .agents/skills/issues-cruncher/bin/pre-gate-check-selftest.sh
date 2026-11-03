@@ -590,6 +590,27 @@ printf '%s\n' "$OUT" | grep -q 'PRE-GATE: PASS' && w="$w; verdict printed"
 VERDICT_WHY="" CASE_ID=unknown-object-format
 finish "$w"
 
+# A git read that fails must stop the check with exit 2 and never print PASS.
+# The committed blob of a changed file is removed, so the per-file diff fails.
+for fmt in sha1 sha256; do
+  rm -rf "$S/blob-$fmt"; git init -q --object-format="$fmt" "$S/blob-$fmt"
+  git -C "$S/blob-$fmt" config user.name selftest; git -C "$S/blob-$fmt" config user.email selftest@example.invalid
+  git -C "$S/blob-$fmt" config commit.gpgsign false
+  printf '#!/bin/sh\n# original\necho yes\n' >"$S/blob-$fmt/x.sh"
+  git -C "$S/blob-$fmt" add x.sh; git -C "$S/blob-$fmt" commit -q -m base
+  oid=$(git -C "$S/blob-$fmt" rev-parse HEAD:x.sh)
+  printf '#!/bin/sh\n# new unreported comment\necho yes\n' >"$S/blob-$fmt/x.sh"
+  rm -f "$S/blob-$fmt/.git/objects/${oid%"${oid#??}"}/${oid#??}"
+  defaults; S1="none"; S2=$'$ lines x.sh\n3'; S3="pattern: none"; S4RAW="none"; write_report
+  COUNT=$((COUNT + 1)); RC=0
+  OUT=$(env "$CHECK" --report "$S/report.md" --repo "$S/blob-$fmt" --base HEAD 2>&1) || RC=$?
+  w=""
+  [ "$RC" -eq 2 ] || w="exit $RC, want 2"
+  ! printf '%s\n' "$OUT" | grep -q 'PRE-GATE: PASS' || w="$w; PASS printed"
+  VERDICT_WHY="" CASE_ID=missing-blob-$fmt
+  finish "$w"
+done
+
 if [ "$FAILED" -eq 0 ]; then
   echo "SELFTEST: PASS ($COUNT scenarios)"
   exit 0
