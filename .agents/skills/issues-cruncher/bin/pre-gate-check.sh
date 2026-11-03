@@ -7,7 +7,7 @@
 #     claim because the report states it.
 #   - The checker writes only to its own temporary directory, removed on exit,
 #     and leaves every file under the repository, including .git/index, byte
-#     for byte unchanged (git runs against a private copy of the index).
+#     for byte unchanged (git runs against a private index rebuilt from a copy).
 #   - The Counts section (2) never runs a report-supplied command. Each "$ "
 #     line must match one of six fixed forms: git diff --stat REF, git diff
 #     --name-status REF, git ls-files [PATH], ls DIR, lines PATH, and count
@@ -179,8 +179,9 @@ if [ -f "$real_common/packed-refs" ]; then cp "$real_common/packed-refs" "$V/pac
 if [ -d "$real_common/refs" ]; then cp -R "$real_common/refs" "$V/refs"; else mkdir "$V/refs"; fi
 cp "$real_head" "$V/HEAD"
 # git diff and git status refresh the index they are given, and the
-# repository's own index must stay byte for byte unchanged.
-if [ -f "$real_index" ]; then cp "$real_index" "$V/index"; fi
+# repository's own index must stay byte for byte unchanged. Only a copy of it is
+# read; the private index is rebuilt from that copy further down.
+if [ -f "$real_index" ]; then cp "$real_index" "$W/real.index"; fi
 {
   printf '[core]\n'
   printf '\trepositoryformatversion = %s\n' "$([ "$real_fmt" = 1 ] && echo 1 || echo 0)"
@@ -206,6 +207,37 @@ git_ro() {
   "${GIT_ENV[@]}" git -C "$DIR" "${GIT_OPTS[@]}" "$@"
 }
 git_ro rev-parse --verify -q "${BASE}^{commit}" >/dev/null || die "base does not resolve: $BASE"
+
+# The private index is rebuilt from the mode, object id, stage and path of each
+# entry in the copy, so it holds no cached size or time. Git then reads the
+# content of every tracked file instead of trusting a stat match. The rebuilt
+# index carries no assume-unchanged flag at all, and no skip-worktree flag with
+# one exception: an entry that carried skip-worktree in the real index and is
+# absent from disk keeps the flag, so a sparse checkout does not read as a
+# deletion. An absent entry that carried only assume-unchanged is compared like
+# any other and shows as a deletion. Unmerged entries keep their stages. The
+# repository's own index is never touched.
+if [ -f "$W/real.index" ]; then
+  git_real_index() { "${GIT_ENV[@]}" "GIT_INDEX_FILE=$W/real.index" git -C "$DIR" "${GIT_OPTS[@]}" "$@"; }
+  git_real_index ls-files -s -z >"$W/entries.nul" || die "git ls-files failed while reading the index"
+  git_real_index ls-files -t -z >"$W/tags.nul" || die "git ls-files failed while reading index flags"
+  if [ -s "$W/entries.nul" ]; then
+    git_ro update-index -z --index-info <"$W/entries.nul" ||
+      die "git update-index failed while building the private index"
+  fi
+  : >"$W/flag-absent.nul"
+  while IFS= read -r -d '' ent; do
+    [ "${ent%"${ent#?}"}" = "S" ] || continue
+    ent=${ent#?}; ent=${ent# }
+    if [ ! -e "$DIRABS/$ent" ] && [ ! -L "$DIRABS/$ent" ]; then
+      printf '%s\0' "$ent" >>"$W/flag-absent.nul"
+    fi
+  done <"$W/tags.nul"
+  if [ -s "$W/flag-absent.nul" ]; then
+    git_ro update-index --skip-worktree -z --stdin <"$W/flag-absent.nul" ||
+      die "git update-index failed while keeping absent files out of the comparison"
+  fi
+fi
 
 # --- output plumbing ---------------------------------------------------------
 

@@ -611,6 +611,125 @@ for fmt in sha1 sha256; do
   finish "$w"
 done
 
+# An index flag must not hide a modified tracked file, and the repository's
+# own index stays byte for byte unchanged.
+for fmt in sha1 sha256; do
+  for flag in assume-unchanged skip-worktree; do
+    R="$S/flag-$flag-$fmt"
+    rm -rf "$R"; git init -q --object-format="$fmt" "$R"
+    git -C "$R" config user.name selftest; git -C "$R" config user.email selftest@example.invalid
+    git -C "$R" config commit.gpgsign false
+    printf '#!/bin/sh\n# original\necho yes\n' >"$R/x.sh"
+    git -C "$R" add x.sh; git -C "$R" commit -q -m base
+    git -C "$R" update-index "--$flag" x.sh
+    printf '#!/bin/sh\n# new unreported comment\necho yes\n' >"$R/x.sh"
+    idx_before=$(shasum "$R/.git/index")
+    defaults; S1="none"; S2=$'$ lines x.sh\n3'; S3="pattern: none"; S4RAW="none"; write_report
+    COUNT=$((COUNT + 1)); RC=0
+    OUT=$(env "$CHECK" --report "$S/report.md" --repo "$R" --base HEAD 2>&1) || RC=$?
+    w=""
+    [ "$RC" -eq 1 ] || w="exit $RC, want 1"
+    printf '%s\n' "$OUT" | grep -q '^fail: uncovered: x.sh:+2: ' || w="$w; changed comment not reported"
+    ! printf '%s\n' "$OUT" | grep -q 'PRE-GATE: PASS' || w="$w; PASS printed"
+    [ "$idx_before" = "$(shasum "$R/.git/index")" ] || w="$w; real index changed"
+    VERDICT_WHY="" CASE_ID=index-flag-$flag-$fmt
+    finish "$w"
+  done
+  # A skip-worktree file that is absent from disk is not a deletion.
+  R="$S/flag-absent-$fmt"
+  rm -rf "$R"; git init -q --object-format="$fmt" "$R"
+  git -C "$R" config user.name selftest; git -C "$R" config user.email selftest@example.invalid
+  git -C "$R" config commit.gpgsign false
+  printf '#!/bin/sh\n# original\necho yes\n' >"$R/x.sh"; cp "$R/x.sh" "$R/y.sh"
+  git -C "$R" add x.sh y.sh; git -C "$R" commit -q -m base
+  git -C "$R" update-index --skip-worktree x.sh; rm "$R/x.sh"
+  idx_before=$(shasum "$R/.git/index")
+  defaults; S1="none"; S2=$'$ lines y.sh\n3'; S3="pattern: none"; S4RAW="none"; write_report
+  COUNT=$((COUNT + 1)); RC=0
+  OUT=$(env "$CHECK" --report "$S/report.md" --repo "$R" --base HEAD 2>&1) || RC=$?
+  w=""
+  [ "$RC" -eq 0 ] || w="exit $RC, want 0"
+  printf '%s\n' "$OUT" | grep -q 'PRE-GATE: PASS' || w="$w; no PASS"
+  [ "$idx_before" = "$(shasum "$R/.git/index")" ] || w="$w; real index changed"
+  VERDICT_WHY="" CASE_ID=index-flag-absent-$fmt
+  finish "$w"
+done
+
+# Git skips reading a file whose size and times match its index entry. A
+# same-size edit made in the second of the index write must still be found,
+# with or without index flags. Each fixture waits for the start of a second,
+# commits the file and edits it within that second, and retries until the
+# modification and change times of both writes show the same second. The
+# checker then runs in a later second, so a stat match in its index copy would
+# not be caught by git's same-second safeguard.
+for fmt in sha1 sha256; do
+  for flags in none assume-unchanged skip-worktree both; do
+    R="$S/racy-$flags-$fmt"
+    built=""
+    for attempt in 1 2 3 4 5 6; do
+      rm -rf "$R"; git init -q --object-format="$fmt" "$R"
+      git -C "$R" config user.name selftest; git -C "$R" config user.email selftest@example.invalid
+      git -C "$R" config commit.gpgsign false
+      python3 -c 'import time; time.sleep(1 - time.time() % 1)'
+      printf '#!/bin/sh\n# original\necho yes\n' >"$R/x.sh"
+      git -C "$R" add x.sh; git -C "$R" commit -q -m base
+      case $flags in
+        assume-unchanged) git -C "$R" update-index --assume-unchanged x.sh ;;
+        skip-worktree) git -C "$R" update-index --skip-worktree x.sh ;;
+        both) git -C "$R" update-index --assume-unchanged x.sh; git -C "$R" update-index --skip-worktree x.sh ;;
+      esac
+      t1=$(stat -f '%m %c' "$R/x.sh")
+      printf '#!/bin/sh\n# changed!\necho yes\n' >"$R/x.sh"
+      t2=$(stat -f '%m %c' "$R/x.sh")
+      [ "$t1" = "$t2" ] || continue
+      built=yes; break
+    done
+    idx_before=$(shasum "$R/.git/index")
+    python3 -c 'import time; time.sleep(1 - time.time() % 1 + 0.05)'
+    defaults; S1="none"; S2=$'$ lines x.sh\n3'; S3="pattern: none"; S4RAW="none"; write_report
+    COUNT=$((COUNT + 1)); RC=0
+    OUT=$(env "$CHECK" --report "$S/report.md" --repo "$R" --base HEAD 2>&1) || RC=$?
+    w=""
+    [ -n "$built" ] || w="could not build a same-second fixture"
+    [ "$RC" -eq 1 ] || w="$w; exit $RC, want 1"
+    printf '%s\n' "$OUT" | grep -q '^fail: uncovered: x.sh:+2: ' || w="$w; changed comment not reported"
+    ! printf '%s\n' "$OUT" | grep -q 'PRE-GATE: PASS' || w="$w; PASS printed"
+    [ "$idx_before" = "$(shasum "$R/.git/index")" ] || w="$w; real index changed"
+    VERDICT_WHY="" CASE_ID=same-second-edit-$flags-$fmt
+    finish "${w#; }"
+  done
+done
+
+# An absent tracked file is a deletion unless it carried skip-worktree. A file
+# with only assume-unchanged shows as deleted; a file with skip-worktree, alone
+# or together with assume-unchanged, does not.
+for fmt in sha1 sha256; do
+  for flags in assume-unchanged skip-worktree both; do
+    R="$S/absent-$flags-$fmt"
+    rm -rf "$R"; git init -q --object-format="$fmt" "$R"
+    git -C "$R" config user.name selftest; git -C "$R" config user.email selftest@example.invalid
+    git -C "$R" config commit.gpgsign false
+    printf '#!/bin/sh\n# original\necho yes\n' >"$R/x.sh"; cp "$R/x.sh" "$R/y.sh"
+    git -C "$R" add x.sh y.sh; git -C "$R" commit -q -m base
+    case $flags in
+      assume-unchanged) git -C "$R" update-index --assume-unchanged x.sh; want_dirty=1 ;;
+      skip-worktree) git -C "$R" update-index --skip-worktree x.sh; want_dirty=0 ;;
+      both) git -C "$R" update-index --assume-unchanged x.sh; git -C "$R" update-index --skip-worktree x.sh; want_dirty=0 ;;
+    esac
+    rm "$R/x.sh"
+    idx_before=$(shasum "$R/.git/index")
+    defaults; S1="none"; S2=$'$ lines y.sh\n3'; S3="pattern: none"; S4RAW="none"; write_report
+    COUNT=$((COUNT + 1)); RC=0
+    OUT=$(env "$CHECK" --report "$S/report.md" --repo "$R" --base HEAD 2>&1) || RC=$?
+    w=""
+    [ "$RC" -eq 0 ] || w="exit $RC, want 0"
+    printf '%s\n' "$OUT" | grep -q " dirty-files: $want_dirty " || w="$w; dirty-files is not $want_dirty"
+    [ "$idx_before" = "$(shasum "$R/.git/index")" ] || w="$w; real index changed"
+    VERDICT_WHY="" CASE_ID=absent-file-$flags-$fmt
+    finish "${w#; }"
+  done
+done
+
 if [ "$FAILED" -eq 0 ]; then
   echo "SELFTEST: PASS ($COUNT scenarios)"
   exit 0
