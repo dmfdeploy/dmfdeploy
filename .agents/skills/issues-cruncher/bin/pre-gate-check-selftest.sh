@@ -551,18 +551,43 @@ w=""
 VERDICT_WHY="" CASE_ID=trace-env-existing-file-untouched
 finish "$w"
 
-# A SHA-256 repository is refused at startup.
-rm -rf "$S/sha256"; git init -q --object-format=sha256 "$S/sha256"
+# A SHA-256 repository works, and the converter and filter markers stay absent.
+rm -f "$S"/marker-*; rm -rf "$S/sha256"; git init -q --object-format=sha256 "$S/sha256"
 git -C "$S/sha256" config user.name selftest; git -C "$S/sha256" config user.email selftest@example.invalid
 git -C "$S/sha256" config commit.gpgsign false
-printf 'a\n' >"$S/sha256/f.txt"; git -C "$S/sha256" add f.txt; git -C "$S/sha256" commit -q -m c
-printf 'b\n' >>"$S/sha256/f.txt"; defaults; write_report
+(cd "$S/base" && tar --exclude=.git -cf - .) | tar -xf - -C "$S/sha256"
+printf 'src/app.sh diff=evil filter=evil\n' >"$S/sha256/.gitattributes"
+git -C "$S/sha256" add -A; git -C "$S/sha256" commit -q -m c
+git -C "$S/sha256" config diff.evil.textconv "touch $S/marker-textconv; cat"
+git -C "$S/sha256" config filter.evil.clean "touch $S/marker-clean; cat"
+sed -i.bak 's/means unlimited/means disabled/' "$S/sha256/src/app.sh"; rm -f "$S/sha256/src/app.sh.bak"
+printf '#!/usr/bin/env bash\n# new helper\n' >"$S/sha256/src/new.sh"
+defaults; write_report
 COUNT=$((COUNT + 1)); RC=0
 OUT=$(env "$CHECK" --report "$S/report.md" --repo "$S/sha256" --base HEAD 2>&1) || RC=$?
 w=""
+[ "$RC" -eq 0 ] || w="exit $RC, want 0"
+[ "$(printf '%s\n' "$OUT" | sed -n 2p)" = "PRE-GATE: PASS" ] || w="$w; verdict is not PASS"
+[ ! -e "$S/marker-textconv" ] || w="$w; textconv driver ran"
+[ ! -e "$S/marker-clean" ] || w="$w; clean filter ran"
+VERDICT_WHY="" CASE_ID=sha256-supported
+finish "$w"
+
+# An object format the checker does not know stops it with exit 2.
+rm -rf "$S/badfmt"; git init -q "$S/badfmt"
+git -C "$S/badfmt" config user.name selftest; git -C "$S/badfmt" config user.email selftest@example.invalid
+git -C "$S/badfmt" config commit.gpgsign false
+printf 'a\n' >"$S/badfmt/f.txt"; git -C "$S/badfmt" add f.txt; git -C "$S/badfmt" commit -q -m c
+git -C "$S/badfmt" config core.repositoryformatversion 1
+git -C "$S/badfmt" config extensions.objectformat md5
+defaults; write_report
+COUNT=$((COUNT + 1)); RC=0
+OUT=$(env "$CHECK" --report "$S/report.md" --repo "$S/badfmt" --base HEAD 2>&1) || RC=$?
+w=""
 [ "$RC" -eq 2 ] || w="exit $RC, want 2"
-printf '%s\n' "$OUT" | grep -qxF 'pre-gate-check: only SHA-1 repositories are supported (extensions.objectFormat=sha256)' || w="$w; message missing"
-VERDICT_WHY="" CASE_ID=sha256-unsupported
+printf '%s\n' "$OUT" | grep -q '^pre-gate-check: ' || w="$w; no error message"
+printf '%s\n' "$OUT" | grep -q 'PRE-GATE: PASS' && w="$w; verdict printed"
+VERDICT_WHY="" CASE_ID=unknown-object-format
 finish "$w"
 
 if [ "$FAILED" -eq 0 ]; then

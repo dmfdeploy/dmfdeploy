@@ -241,8 +241,9 @@ Limits:
   inherits the caller's environment, so a variable such as `GIT_TRACE` writes
   nothing. The working tree's files are read as they are. Because
   `info/exclude` is not read either, a file that only it ignores counts as
-  untracked. Git 2.40 or newer is required, and the repository must use SHA-1
-  (`extensions.objectFormat=sha256` fails with exit 2).
+  untracked. Git 2.40 or newer is required. Both SHA-1 and SHA-256 repositories
+  work. A repository with any other `extensions.objectFormat` value fails with
+  exit 2.
 - The `count` form arms a 60-second in-process alarm. A pathological pattern was
   interrupted after about 60 seconds on macOS; no cross-platform guarantee is
   claimed.

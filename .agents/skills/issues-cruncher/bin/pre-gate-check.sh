@@ -34,7 +34,7 @@
 #     config.worktree can stop the checker at startup with exit 2, and cannot
 #     make anything run. No git call inherits the caller's environment. The
 #     working tree's files are read as they are. This needs git 2.40 or newer
-#     (--attr-source) and a SHA-1 repository.
+#     (--attr-source). Both SHA-1 and SHA-256 repositories work.
 #   - Every result line starts with "pass: ", "fail: " or "note: ", and report
 #     text only ever appears after that prefix or indented below it. Quoted text
 #     therefore cannot forge the verdict line or the BEGIN/END markers.
@@ -161,9 +161,13 @@ real_index=$(git_plain rev-parse --path-format=absolute --git-path index)
 real_fmt=$(git_plain config --local --get core.repositoryformatversion 2>/dev/null || true)
 real_ext=$(git_plain config --local --get-regexp '^extensions\.' 2>/dev/null || true)
 real_objfmt=$(git_plain config --local --get extensions.objectformat 2>/dev/null || true)
-if [ -n "$real_objfmt" ] && [ "$real_objfmt" != sha1 ]; then
-  die "only SHA-1 repositories are supported (extensions.objectFormat=$real_objfmt)"
-fi
+# The empty tree has a different id in each object format. An absent key means
+# SHA-1. Any other value stops the checker: it never guesses a format.
+case $real_objfmt in
+  ''|sha1) EMPTY_TREE=4b825dc642cb6eb9a060e54bf8d69288fbee4904 ;;
+  sha256)  EMPTY_TREE=6ef19b41225c5369f1c104d45d8d85efa9b057b53b14b4b9b939dd74decc5321 ;;
+  *) die "unsupported object format (extensions.objectFormat=$real_objfmt)" ;;
+esac
 
 # The private repository view: git never opens the repository's own config,
 # info/attributes, hooks or logs. Objects come through alternates; refs, HEAD
@@ -190,12 +194,13 @@ if [ -f "$real_index" ]; then cp "$real_index" "$V/index"; fi
 } >"$V/config"
 
 # Every git call, bash and Python, runs with this environment and these
-# options. The empty tree supplies no .gitattributes; the other options turn
-# off the filesystem monitor, external diff and any attributes file.
+# options. The empty tree (in the repository's object format) supplies no
+# .gitattributes; the other options turn off the filesystem monitor, external
+# diff and any attributes file.
 GIT_ENV=(env -i "PATH=$PATH" LC_ALL=C "HOME=$W/home" "GIT_DIR=$V" "GIT_WORK_TREE=$DIRABS"
   GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 GIT_ATTR_NOSYSTEM=1
   GIT_OPTIONAL_LOCKS=0 GIT_LITERAL_PATHSPECS=1 "GIT_INDEX_FILE=$V/index")
-GIT_OPTS=(--literal-pathspecs --attr-source=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+GIT_OPTS=(--literal-pathspecs "--attr-source=$EMPTY_TREE"
   -c core.fsmonitor=false -c diff.external= -c core.attributesFile=/dev/null)
 git_ro() {
   "${GIT_ENV[@]}" git -C "$DIR" "${GIT_OPTS[@]}" "$@"
@@ -583,10 +588,10 @@ check_comments() {
 # or when a path, ref or regex fails validation; otherwise prints the count or
 # listing. git runs with fixed arguments and an isolated environment.
 cmd_helper() {
-  python3 -I - "$1" "$DIR" "$W" <<'PYEOF'
+  python3 -I - "$1" "$DIR" "$W" "$EMPTY_TREE" <<'PYEOF'
 import os, re, shlex, signal, subprocess, sys
 
-line, repo, work = sys.argv[1], sys.argv[2], sys.argv[3]
+line, repo, work, EMPTY_TREE = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
 ROOT = os.path.realpath(repo)
 REF_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/~^-]*$")
 
@@ -609,7 +614,7 @@ signal.alarm(60)
 
 
 VIEW = os.path.join(work, "view")
-GIT_FIXED = ["git", "--literal-pathspecs", "--attr-source=4b825dc642cb6eb9a060e54bf8d69288fbee4904",
+GIT_FIXED = ["git", "--literal-pathspecs", "--attr-source=" + EMPTY_TREE,
              "-c", "core.fsmonitor=false", "-c", "diff.external=", "-c", "core.attributesFile=/dev/null"]
 GIT_ENV = {"PATH": os.environ.get("PATH", ""), "LC_ALL": "C",
            "HOME": os.path.join(work, "home"), "GIT_DIR": VIEW, "GIT_WORK_TREE": ROOT,
