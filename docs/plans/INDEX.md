@@ -8,22 +8,18 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (7)
+## Active (4)
 
-- [dmf-cms-exact-sha-release-gate-plan](dmf-cms-exact-sha-release-gate-plan.md) — 2026-10-27
 - [forgejo-authentik-contributor-policy-plan](forgejo-authentik-contributor-policy-plan.md) — 2026-10-27
-- [issue-link-trusted-rerun-plan](issue-link-trusted-rerun-plan.md) — 2026-10-27
 - [openbao-approle-credential-lifecycle-plan](openbao-approle-credential-lifecycle-plan.md) — 2026-10-26
 - [platform-debt-work-order](platform-debt-work-order.md) — 2026-10-25
-- [dmf-umbrella-security-audit-remediation-spec](dmf-umbrella-security-audit-remediation-spec.md) — 2026-06-15
 - [dmf-internal-ansible-collection-source-plan](dmf-internal-ansible-collection-source-plan.md) — 2026-05-29
 
-## Draft (4)
+## Draft (3)
 
 - [dmf-closed-loop-assurance-pattern-plan](dmf-closed-loop-assurance-pattern-plan.md) — 2026-10-21
 - [dmf-facility-console-born-inventoried-env-surfacing-plan](dmf-facility-console-born-inventoried-env-surfacing-plan.md) — 2026-10-21
 - [dmf-media-workload-design-canvas-plan](dmf-media-workload-design-canvas-plan.md) — 2026-10-20
-- [dmf-console-shell-round-2-rail-band-and-message-bus](dmf-console-shell-round-2-rail-band-and-message-bus.md) — 2026-08-31
 
 ## Executed (41)
 
