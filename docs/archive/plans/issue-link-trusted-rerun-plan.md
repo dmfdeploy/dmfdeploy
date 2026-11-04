@@ -1,10 +1,16 @@
 ---
-status: active
+status: executed
 date: 2026-10-27
+executed: 2026-11-04
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/758
 ---
 
 # Trusted issue-link check rerun plan
+
+> **Executed (2026-11-04).** The check lives in `.github/workflows/issue-link.yml`, and the
+> rerun lives in `.github/workflows/issue-link-rerun.yml`. A live body-edit check, recorded as
+> a comment on [#758](https://github.com/dmfdeploy/dmfdeploy/issues/758) on 2026-11-04, showed
+> a corrected PR body turning the check green without a push.
 
 ## Goal
 

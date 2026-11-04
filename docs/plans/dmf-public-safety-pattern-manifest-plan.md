@@ -669,7 +669,7 @@ consumers — including their per-consumer case handling — lost no coverage.
 - **[#133](https://github.com/dmfdeploy/dmfdeploy/issues/133)** — the lineage of
   the private topology/identity rules and the account-fingerprint miss that
   motivates "impossible-to-truncate" pattern storage.
-- **`docs/plans/dmf-umbrella-security-audit-remediation-spec.md`** —
+- **`docs/archive/plans/dmf-umbrella-security-audit-remediation-spec.md`** —
   adjacent hardening spec; the private configs already allowlist it.
 - **ADR-0035** — operator-local `~/.dmfdeploy/` state convention (location
   rationale, §3.1). **ADR-0041** — GitHub-canonical-forward / clean-orphan first

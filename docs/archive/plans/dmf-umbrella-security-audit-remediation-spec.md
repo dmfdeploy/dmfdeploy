@@ -1,8 +1,23 @@
 ---
-status: active
+status: executed
 date: 2026-06-15
+executed: 2026-11-04
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/165
 ---
+> **Executed (2026-11-04).** Every change in this spec is now shipped, done by removal or
+> by design, or moot:
+>
+> - **Shipped:** Changes 4–7 and 12 landed under #133 and #137. PR #775 delivered Change 9
+>   (closing #705). PR #774 delivered Changes 10 and 11. PR #776 delivered Changes 14, 15
+>   and 16.
+> - **Done by removal:** Change 3. The `bash -c` calls it described no longer exist in
+>   `bin/export-scan.sh` (commit `b441aaf`).
+> - **Done by design:** Changes 13b and 13c. Each says to document the limit and make no code
+>   change.
+> - **Moot:** Changes 1, 2, 8, 13a and 13d, because commit `7143888` removed `bin/agentic/`
+>   and the files no longer exist. Change 17 is moot too, because the tree has no
+>   `wizard-spike/` directory.
+
 > **Public-safety note (2026-07-02).** This spec originally enumerated the real
 > leaked literals as before→after mappings. Before committing, every real value
 > was replaced by its placeholder form (the concrete values live only in the

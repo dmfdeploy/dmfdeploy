@@ -1,11 +1,17 @@
 ---
 title: DMF Console Shell Round 2 — Rail Band and Message Bus
 date: 2026-08-31
-status: draft
+status: historical
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/480
 ---
 
 # Console Shell Round 2 — the rail band and the message bus
+
+> **Closed without full delivery (2026-11-04).** Phase A shipped: the rail band, the
+> per-key icons and the chevron form. The message bus, tracked in
+> [#480](https://github.com/dmfdeploy/dmfdeploy/issues/480), was closed as not planned on
+> 2026-10-25 in the platform-debt triage. Its surviving root cause is tracked in
+> [dmfdeploy/dmfdeploy#729](https://github.com/dmfdeploy/dmfdeploy/issues/729).
 
 Round 1 (`dmf-console-shell-round-plan.md`, merged) **decided** the shell's
 shape and **built none of it** except the throbber. This round builds it.
