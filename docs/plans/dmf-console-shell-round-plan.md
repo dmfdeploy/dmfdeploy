@@ -6,9 +6,9 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/480
 ---
 # DMF Console Shell Round Plan (2026-08-30)
 
-> Executed. Status aligned with the backlog on 2026-10-21: the round 1 design record landed; the message bus lives on in Shell Round 2.
+> Executed. Status aligned with the backlog on 2026-10-21: the round 1 design record landed. The message bus was not built: #480 closed as not planned on 2026-10-25, and its surviving root cause is dmfdeploy/dmfdeploy#729.
 
-> **STATUS: ACTIVE — Phase 0 (docs) of the console shell round.** This plan is
+> **STATUS: EXECUTED — Phase 0 (docs) of the console shell round.** This plan is
 > the design record for the console's **top-bar shell**: the message bus, the
 > alarm LED, the top-bar layout, and the storage architecture underneath the
 > bus. It tracks dmfdeploy/dmfdeploy#480 (top bar → message bus) — **#480

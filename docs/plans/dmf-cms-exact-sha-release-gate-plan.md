@@ -1,20 +1,20 @@
 ---
-status: executed
+status: active
 date: 2026-10-27
-executed: 2026-11-04
-tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/568
+tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/831
 ---
 
 # dmf-cms exact-SHA release gate
 
-> **Executed (2026-11-04).** The release workflow, the automerge trigger on `workflow_run`,
-> the hold-disarm workflow, the push-path checks, the tag rulesets, ADR-0048 and the
-> multi-arch image index are merged and running. The rollout checks below are not done, and
-> this note does not claim them: a recorded probe of the hold-disarm and scheduled-sweep
-> disarm paths; the 90-day App key rotation date in
-> [dmfdeploy/dmfdeploy#618](https://github.com/dmfdeploy/dmfdeploy/issues/618); the GHCR
-> package access mode; the merge-actor and direct-merge probes; and the owner's approval of
-> the first release.
+> **Rollout in progress (2026-11-04).** The release workflow, the automerge trigger on
+> `workflow_run`, the hold-disarm workflow, the push-path checks, the tag ruleset, ADR-0048
+> and the multi-arch image index are merged and running. The original tracker,
+> [#568](https://github.com/dmfdeploy/dmfdeploy/issues/568), closed as completed on
+> 2026-11-04. [#831](https://github.com/dmfdeploy/dmfdeploy/issues/831) tracks the remaining
+> rollout checks: a probe of hold-disarm and the scheduled sweep, the key rotation date in
+> [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618), the GHCR package access mode,
+> the merge-actor and direct-merge probes, and the owner's approval of the first release.
+> The plan is executed when #831 is done.
 
 ## Outcome
 
