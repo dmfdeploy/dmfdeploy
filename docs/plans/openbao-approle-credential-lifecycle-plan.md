@@ -553,12 +553,15 @@ executor to create a `request-*` ConfigMap is denied.
 
 ## Deferred decisions and boundaries
 
-- [#568](https://github.com/dmfdeploy/dmfdeploy/issues/568) needs an operator
-  decision about release CI for the exact tagged SHA. No release workflow,
-  ruleset, or alternative publication path is changed by this plan.
-- [#758](https://github.com/dmfdeploy/dmfdeploy/issues/758) needs an operator
-  decision on granting the trusted issue-link workflow `actions: write`. No
-  workflow permission or rerun workaround is introduced here.
+- [#568](https://github.com/dmfdeploy/dmfdeploy/issues/568) settled release CI for
+  the exact tagged SHA, and that work is outside this plan.
+  [#831](https://github.com/dmfdeploy/dmfdeploy/issues/831) tracks its remaining
+  rollout checks. No release workflow, ruleset, or alternative publication path is
+  changed by this plan.
+- [#758](https://github.com/dmfdeploy/dmfdeploy/issues/758) holds the operator
+  decision of 2026-10-27 to grant the trusted issue-link workflow `actions: write`,
+  and that work is outside this plan. No workflow permission or rerun workaround is
+  introduced here.
 - [#782](https://github.com/dmfdeploy/dmfdeploy/issues/782) is intentionally
   held pending Discussion #762 and is outside this plan. Do not edit its ADR
   draft.

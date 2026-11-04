@@ -7,7 +7,7 @@ docs/decisions/README.md, "ADR conventions". -->
 **Date:** 2026-10-30.
 **Deciders:** @znerol2 and a second maintainer (Discussion [#805](https://github.com/orgs/dmfdeploy/discussions/805)).
 **Rule:** dmf-cms release automation uses two organization-owned GitHub Apps, one that arms or performs merges and one that is the only bypass actor for `v*` tag creation, each with its private key held only in a GitHub environment limited to `main`; no personal access token and no `GITHUB_TOKEN` bypass.
-**Cross-references / touches:** ADR-0007 (secrets never in argv), ADR-0041 (release model). **Plan:** [`docs/plans/dmf-cms-exact-sha-release-gate-plan.md`](https://github.com/dmfdeploy/dmfdeploy/blob/6dd4f149d7e4a68f66642570da07acb43133f247/docs/plans/dmf-cms-exact-sha-release-gate-plan.md) (tracked by [#568](https://github.com/dmfdeploy/dmfdeploy/issues/568))
+**Cross-references / touches:** ADR-0007 (secrets never in argv), ADR-0041 (release model). **Plan:** [`docs/plans/dmf-cms-exact-sha-release-gate-plan.md`](../plans/dmf-cms-exact-sha-release-gate-plan.md) (tracked by [#831](https://github.com/dmfdeploy/dmfdeploy/issues/831); originally [#568](https://github.com/dmfdeploy/dmfdeploy/issues/568))
 
 ## Context
 
