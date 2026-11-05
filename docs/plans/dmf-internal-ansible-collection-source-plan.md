@@ -27,8 +27,8 @@ posture and the ADR-0031 self-contained sandbox release gate.
 ## 2. Interim state (v0.1 unblock, live until the step 5 cutover)
 
 - `netbox.netbox` and all required collections are baked into the `dmf/awx-ee` image.
-- The intended AWX **Organization Galaxy Credentials** state is internal or
-  none. The live state is unconfirmed: [#443](https://github.com/dmfdeploy/dmfdeploy/issues/443)
+- The intended AWX **Organization Galaxy Credentials** state is the internal
+  source only. An empty set is not compliant, because empty credentials alone do not prevent the fallback to the public default. The live state is unconfirmed: [#443](https://github.com/dmfdeploy/dmfdeploy/issues/443)
   reports the public Galaxy credential still attached, and no code sets the
   credentials. Treat the control as unenforced until someone inspects the
   organization.
@@ -75,8 +75,7 @@ renderer.
 ### 3.4 Wiring
 
 - The awx-integration role renders `requirements.yml` from the list.
-- The role sets the Organization Galaxy credentials to none or internal, and
-  a check asserts it.
+- The role sets the Organization Galaxy credentials to name only the internal source, and a check asserts it. Credentials are one control. The effective Galaxy server list that project updates and jobs see must also name only internal sources and never be empty, and the gate must prove no contact. Open item 1 holds the mechanism.
 - The no-public-Galaxy rule covers roles as well as collections. How to prove it is an open item (section 7).
 - The retained `kubernetes.core` entry in `ee/requirements.yml` stays pinned.
   The current input uses a range, so step 4 pins it.
@@ -132,7 +131,7 @@ The gate must prove these properties. Section 7 holds the mechanism questions.
 
 Open items. Each names the step that settles it.
 
-1. Proving no contact with public Galaxy. The `ansible-galaxy` CLI falls back to the public default server when the effective server list is empty, so an empty list or credential set does not prove the rule. AWX also supplies its own task environment and runs in the project directory. Settle which configuration is effective during a project update, including precedence, and how to prove no contact for collections, roles, and nested role dependencies. A negative test must tell a rejection before any public contact from a blocked connection attempt, for example with egress observation. Settle in step 3, and add the test in step 6.
+1. Proving no contact with public Galaxy. The `ansible-galaxy` CLI falls back to the public default server when the effective server list is empty, so an empty effective list does not prove the rule and is not compliant, and empty credentials alone do not prevent the fallback. The required property is a non-empty effective list that names only internal sources. AWX also supplies its own task environment and runs in the project directory. Settle which configuration is effective during a project update, including precedence, and how to prove no contact for collections, roles, and nested role dependencies. A negative test must tell a rejection before any public contact from a blocked connection attempt, for example with egress observation. Settle in step 3, and add the test in step 6.
 2. Schema-aware checks. Collection and role entries use different fields, and a requirements file can include other files. Settle how the checks read each kind, included files, and transitive role requirements. Settle in step 3.
 3. Collections that the base image ships. The EE extends the upstream `awx-ee` image, and removing entries from `ee/requirements.yml` does not remove collections the base already ships (at least `awx.awx`). Nobody has inspected the pinned base. The decision is that the EE holds only `kubernetes.core`. Accepting any inherited collection changes that decision, so it needs an owner decision and an ADR amendment before implementation. If the decision is infeasible, bring a concrete alternative to the owner. Settle in step 4.
 4. Role source and pin policy. Two rules already apply to roles: public Galaxy is never contacted, and roles resolve exclusively from an internal, self-hosted source (ADR-0034 Decision). The choice of internal role source and the pin policy for roles are open for the owner, and the Forgejo mirror and full SHA rules do not apply to roles today. Settle before step 3.
