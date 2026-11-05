@@ -103,8 +103,8 @@ carry the corrected shape.
 
 Move 1 also surfaced the platform's rough edges. A NetBox write needed its
 own scoped service identity ([ADR-0032](decisions/0032-catalog-launcher-scoped-netbox-writer.md)).
-Running air-gapped taxed every layer (collections baked into the execution
-environment, pinned on inventory sources too:
+Running air-gapped taxed every layer (collections first baked into the execution
+environment, with a move to pinned internal mirrors planned:
 [ADR-0034](decisions/0034-internal-ansible-collection-source.md)). Two
 concurrency races in the deploy/teardown path were found by actually clicking
 the buttons fast: one fixed, one still open (see
