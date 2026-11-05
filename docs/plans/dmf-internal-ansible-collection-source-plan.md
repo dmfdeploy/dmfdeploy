@@ -5,10 +5,12 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/443
 ---
 # DMF Internal Ansible Collection Source Plan (2026-05-29)
 
-**Status:** PLAN — not yet implemented. Opened as the permanent follow-up to the
-v0.1 EE-bake unblock (FIX 2 on `<env>`).
-**ADR:** [ADR-0034](../decisions/0034-internal-ansible-collection-source.md) — no public
+**Status:** PLAN. The design is settled by the 2026-11-05 amendment to
+[ADR-0034](../decisions/0034-internal-ansible-collection-source.md). Migration is not
+started. The v0.1 EE-bake interim is still live.
+**ADR:** [ADR-0034](../decisions/0034-internal-ansible-collection-source.md): no public
 Ansible Galaxy at runtime; internal collection source.
+**Discussion:** [RFC #830](https://github.com/orgs/dmfdeploy/discussions/830).
 **Touches:** [ADR-0030](../decisions/0030-console-i18n-and-airgap-posture.md),
 [ADR-0031](../decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md),
 [ADR-0025](../decisions/0025-ansible-in-cluster-pods-and-catalog-helm.md).
@@ -22,61 +24,115 @@ into a failed Console catalog deploy (job 29 → inventory sync 31 →
 project update 32). Public Galaxy egress violates the ADR-0030 air-gap
 posture and the ADR-0031 self-contained sandbox release gate.
 
-## 2. Interim state (v0.1 unblock — already dispatched)
+## 2. Interim state (v0.1 unblock, live until the step 5 cutover)
 
-- `netbox.netbox` + all required collections baked into the `dmf/awx-ee` image.
-- AWX **Organization Galaxy Credentials** set to internal/none so
-  `project_update` cannot reach public Galaxy.
-- `collections/requirements.yml` kept declarative + version-pinned.
+- `netbox.netbox` and all required collections are baked into the `dmf/awx-ee` image.
+- The intended AWX **Organization Galaxy Credentials** state is internal or
+  none. The live state is unconfirmed: [#443](https://github.com/dmfdeploy/dmfdeploy/issues/443)
+  reports the public Galaxy credential still attached, and no code sets the
+  credentials. Treat the control as unenforced until someone inspects the
+  organization.
+- The awx-integration role pushes `collections: []` to match the image.
 
-This closes the gate but leaves the EE as the implicit source of truth.
+The image is the dependency record, and a version bump needs an image rebuild.
+The cutover is step 5, when the new EE digest is pinned on the catalog job
+templates and the inventory source. Until then the old image stays in use.
 
-## 3. Target (permanent)
+## 3. Target design
 
-Pick the internal collection source and wire it end to end:
+### 3.1 Split by when a collection is needed
 
-### 3.1 Source mechanism — Forgejo-git (LOCKED 2026-05-29, ADR-0034)
-Git-mirror each required collection into internal Forgejo (under e.g.
-`mirrors/<collection>`), and reference them as git sources in
-`requirements.yml`:
+| Collection | Where it lives | Why |
+|---|---|---|
+| `kubernetes.core` | EE image | The AWX launcher playbooks call it. |
+| `community.general`, `ansible.posix` | dmf-init's own bootstrap copy | dmf-init runs them before Forgejo and AWX exist. They leave the EE. |
+| `netbox.netbox` | Forgejo mirror, installed at project sync | Runtime set: used by the AWX inventory source. |
+| `community.docker` | Removed | No playbook calls it. |
+
+### 3.2 Mirrors and pins
+
+Each runtime collection has a Forgejo pull mirror named
+`mirrors/<namespace>.<name>`. `requirements.yml` references it as a git
+source and pins a full commit SHA. The upstream tag goes in a comment.
+
 ```yaml
 collections:
-  - name: https://forgejo.<domain>/mirrors/netbox.netbox.git
+  - name: https://<forgejo-host>/mirrors/netbox.netbox.git
     type: git
-    version: v3.23.0   # pin by tag or sha
+    version: <full-commit-sha>   # v3.23.0
 ```
-`ansible-galaxy`'s git-source install contacts no galaxy server, works on
-every ansible version, and `project_update` clones straight from internal
-Forgejo. **Zot-OCI deferred** until `ansible-galaxy` OCI support is
-first-class (see ADR-0034 §Decision).
 
-### 3.2 Wiring
-- AWX Organization Galaxy Credential → the chosen internal source.
-- EE `ansible.cfg` / `ANSIBLE_GALAXY_SERVER_LIST` → internal source, with
-  public Galaxy removed so a stray `requirements.yml` cannot reach out.
-- `requirements.yml` declarative + digest/version pinned, resolving internally.
-- Reconsider `scm_update_on_launch`: sync deliberately, not on every launch.
+A tag can move and a SHA cannot, so a tag alone is not a valid pin.
 
-## 4. Acceptance
+### 3.3 One list, one mechanic
 
-1. With egress to `galaxy.ansible.com` **blocked** at the node, a fresh
-   `project_update` + the full Console catalog loop (deploy → health →
-   lifecycle → teardown) succeed.
-2. A new collection (or version bump) flows through the internal source +
-   EE rebuild with no public Galaxy contact.
-3. Release-gate check asserts no DMF runtime resolves collections from a
-   public Galaxy endpoint (feeds the WP5 sandbox row).
+One variable, `dmf_dependency_mirrors`, drives both Forgejo mirror creation
+and the rendered `collections/requirements.yml`. Each entry has a `kind`
+(`collection` today), a name, an upstream URL, and a pin. To add a
+dependency, add one entry. A new dependency type adds a `kind` and a
+renderer.
 
-## 5. Open items
+### 3.4 Wiring
 
-- Confirm `ansible-galaxy` OCI maturity in the pinned ansible version
-  (decides Zot-OCI vs Forgejo-git).
-- Inventory the full collection set across all DMF projects/EEs (not just
-  `netbox.netbox`).
-- Decide whether the internal mirror is seeded at bootstrap (platform
-  invariant) or maintained out-of-band.
+- The awx-integration role renders `requirements.yml` from the list.
+- The role sets the Organization Galaxy credentials to none or internal, and
+  a check asserts it.
+- The no-public-Galaxy rule covers roles as well as collections. How to prove it is an open item (section 7).
+- The retained `kubernetes.core` entry in `ee/requirements.yml` stays pinned.
+  The current input uses a range, so step 4 pins it.
+- `scm_update_on_launch` is off. The project syncs when it changes, so a
+  launch does not depend on Forgejo being reachable at that moment.
+- Air-gapped installs seed the mirrors from a bundle that ships with the
+  install. Other installs fill them from upstream once, at seed time.
+- On a fresh facility, mirror creation runs after Forgejo exists (620, 692)
+  and before the first project sync that needs a mirror, in the window
+  before the AWX integration play (693).
+- Zot-OCI stays deferred until `ansible-galaxy` OCI support is first-class.
 
-## 6. Related
+### 3.5 Ownership
 
-- `[[reference_sandbox_standalone_playbook_profile_gap]]`
-- ADR-0034; the `<env>` FIX 2 EE-bake unblock (interim).
+The platform maintainers own `dmf_dependency_mirrors`. They bump it monthly,
+and immediately for a security fix. Each bump is one pull request to the list.
+
+## 4. Migration steps
+
+Each step is one PR.
+
+1. Add the `dmf_dependency_mirrors` variable and the mirror-creation task for `kind: collection`.
+2. Render `collections/requirements.yml` from the variable, with `netbox.netbox` as the first entry.
+3. Set the organization Galaxy credentials explicitly, turn `scm_update_on_launch` off, and add the static checks 1 and 2.
+4. Test the first item under "Not yet verified" and settle open item 3. Remove `netbox.netbox`, `community.docker`, `community.general`, and `ansible.posix` from `ee/requirements.yml`, pin `kubernetes.core`, and build the EE. Run check 3 on the built image before publishing it.
+5. Publish the EE and pin the new digest on the catalog job templates and the inventory source. This is the cutover.
+6. Add the image-content check (3) and the blocked-egress check (4) to the release gate.
+7. Flip this plan's frontmatter and update the ADR status to record that the migration is complete.
+
+The amendment to ADR-0034 is already recorded, so no step amends it again.
+
+## 5. Acceptance (release gate)
+
+The gate must prove these properties. Section 7 holds the mechanism questions.
+
+1. No project update or job resolves any collection or role from public Galaxy.
+2. Every project-sync collection resolves from a Forgejo mirror at a full commit SHA. The EE's `kubernetes.core` stays pinned in the EE and needs no mirror.
+3. The EE holds only `kubernetes.core`, pinned.
+4. With egress to `galaxy.ansible.com` blocked, a fresh `project_update` and one catalog launch succeed. This check runs on the sandbox profile (ADR-0031) and feeds the WP5 sandbox row.
+
+## 6. Consequences
+
+- Forgejo is a project-sync dependency. This is already true for the project source (ADR-0014).
+- The EE shrinks, and `requirements.yml` in the project lists what a job runs.
+- If a mirror or SHA is missing, `project_update` fails with a git clone or version error that names the mirror URL, a platform-owned repo you can fix.
+- Mirror fill needs upstream egress once, at seed time, except on air-gapped installs.
+
+## 7. Not yet verified
+
+- An AWX inventory update may not see collections that project sync installed. If it does not, `netbox.netbox` cannot leave the EE. Test this before migration step 4.
+- No existing code creates Forgejo pull mirrors, so mirror creation and seeding is new work.
+- The live state of the organization's Galaxy credentials is unconfirmed, and no code sets them today.
+
+Open items. Each names the step that settles it.
+
+1. Proving no contact with public Galaxy. The `ansible-galaxy` CLI falls back to the public default server when the effective server list is empty, so an empty list or credential set does not prove the rule. AWX also supplies its own task environment and runs in the project directory. Settle which configuration is effective during a project update, including precedence, and how to prove no contact for collections, roles, and nested role dependencies. A negative test must tell a rejection before any public contact from a blocked connection attempt, for example with egress observation. Settle in step 3, and add the test in step 6.
+2. Schema-aware checks. Collection and role entries use different fields, and a requirements file can include other files. Settle how the checks read each kind, included files, and transitive role requirements. Settle in step 3.
+3. Collections that the base image ships. The EE extends the upstream `awx-ee` image, and removing entries from `ee/requirements.yml` does not remove collections the base already ships (at least `awx.awx`). Nobody has inspected the pinned base. The decision is that the EE holds only `kubernetes.core`. Accepting any inherited collection changes that decision, so it needs an owner decision and an ADR amendment before implementation. If the decision is infeasible, bring a concrete alternative to the owner. Settle in step 4.
+4. Role source and pin policy. Two rules already apply to roles: public Galaxy is never contacted, and roles resolve exclusively from an internal, self-hosted source (ADR-0034 Decision). The choice of internal role source and the pin policy for roles are open for the owner, and the Forgejo mirror and full SHA rules do not apply to roles today. Settle before step 3.
