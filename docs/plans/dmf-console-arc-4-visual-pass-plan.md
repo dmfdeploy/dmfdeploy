@@ -176,16 +176,23 @@ two rows of two with each panel's internals byte-for-byte unchanged. One redunda
 is deleted outright; the other stays visible or moves behind a focusable, tappable info
 affordance — not a `title=` tooltip.
 
-### WP-5 — the CI gap
+### WP-5: the CI gap (done)
 
-No workflow in the console repo currently references npm, node, vitest or the frontend, and
-the vitest run is not a typecheck or a build. A frontend that does not compile can reach
-`main` with auto-merge armed.
+Done. [dmf-cms PR #85](https://github.com/dmfdeploy/dmf-cms/pull/85) merged on
+2026-08-12, and
+[dmfdeploy/dmfdeploy#287](https://github.com/dmfdeploy/dmfdeploy/issues/287) was closed
+by hand on 2026-08-28. The console repo's `.github/workflows/ci.yml` now has a required
+`frontend` job.
 
-Add exactly `npm ci`, `npm test`, and `npm run build` to CI — `npm ci` specifically, because
-`npm install` would permit lockfile drift and reopen the reproducibility gap this package
-exists to close. Run the Python suite from the repo's own virtualenv after clearing the
-built static app. CI must fail on a deliberately introduced type error.
+Before this work package, no workflow in the console repo referenced npm, node, vitest or
+the frontend, and the vitest run is not a typecheck or a build. A frontend that did not
+compile could reach `main` with auto-merge armed.
+
+The `frontend` job runs `npm ci`, `npm test` and `npm run build`. It uses `npm ci`
+specifically, because `npm install` would permit lockfile drift and reopen the
+reproducibility gap this package exists to close. The Python job clears the built static
+app before it runs the suite. Because `npm run build` includes the type check, a type error
+fails CI.
 
 ### WP-6 — release
 
