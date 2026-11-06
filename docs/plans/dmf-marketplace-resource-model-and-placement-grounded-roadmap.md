@@ -113,7 +113,7 @@ Confirmed (with the record going further than v0.3 assumed in several cases):
   accepted; flypack-offline lane; the console i18n/air-gap posture ADR-0030
   is still Proposed), deferred at the installer layer (ADR-0036: portable
   bundle is a future profile).
-- Vendor isolation spectrum — ✅ already analysed (ADR-0020 mode B.3
+- Vendor isolation spectrum — ✅ already analysed (ADR-0049 mode B.3
   cluster-per-tenant; ADR-0027 third-party safety set; ADR-0017 node roles;
   Vendor Vision isolation ladder).
 - Licensing as allocatable resource — ✅ has its own ADR (ADR-0045, Proposed).
@@ -203,7 +203,7 @@ core does not depend on re-litigating a frozen decision.
 | Workload profiles resembling cloud instance types | 🔶 | Prefigured as "media capability classes" (#112 Topic 5) and EBU "Resource Profile" (Design-stage output, explicitly deferred in the EBU Mapping); nothing implemented |
 | Licensing as allocatable resource | ✅ | ADR-0045 (Proposed): `LicenceReservationProvider` seam, declared-but-not-enforced in v0.2, **mock NetBox-tag pools explicitly rejected** |
 | Air-gapped operation may be required | ✅ | Established; installer-layer bundle deferred (ADR-0036) |
-| Isolation modes needed per vendor workload | ✅ | Analysed; for the managed mode the recorded constraint is **cluster-per-tenant** (ADR-0020 B.3 — Mode B itself remains Proposed, no work in flight); shared-cluster multi-tenancy for managed deployments was rejected in that analysis |
+| Isolation modes needed per vendor workload | ✅ | Analysed; for the managed mode the recorded constraint is **cluster-per-tenant** (ADR-0049 B.3 — Mode B itself remains Proposed, no work in flight); shared-cluster multi-tenancy for managed deployments was rejected in that analysis |
 | Forgejo/Zot/OpenBao/ESO present | ✅ | Confirmed with the ADR-0041 nuance (Forgejo archive-only for contribution, still the runtime SCM/mirror) |
 
 ---
@@ -311,7 +311,7 @@ Verified 2026-07-17. Absences were established by search, not assumption.
 | Signatures/SBOM/admission policy | ❌ deferred | Platform Plan Stage 5 hardening; cosign/Kyverno named as candidates, nothing deployed |
 | Runtime reconciliation | 🔶 split | Monitoring: real continuous reconcile (ADR-0038, dmf-promsd). Workloads: Operate-stage drift-detection smoke test only — no desired-state controller (deliberate, with Argo frozen) |
 | Licensing | 🔶 seam only | ADR-0045; catalog `licence:{required:[{class,count}]}` block reserved (parse/validate/display); console IA reserves a "Licenses" rail slot ("named here but unmodelled") |
-| Multi-tenancy isolation | ❌ (analysed) | Platform is single-tenant. `vcluster` appears in exactly one file (Vendor Vision). Console "tenancy" = NetBox read filter. ADR-0027's safety set (Proposed) and ADR-0020 B.3's Mode-B customer-tenancy constraint are the recorded analyses — neither is an accepted guardrail for vendor/media tenancy today |
+| Multi-tenancy isolation | ❌ (analysed) | Platform is single-tenant. `vcluster` appears in exactly one file (Vendor Vision). Console "tenancy" = NetBox read filter. ADR-0027's safety set (Proposed) and ADR-0049 B.3's Mode-B customer-tenancy constraint are the recorded analyses — neither is an accepted guardrail for vendor/media tenancy today |
 | MXL resource modeling | ❌ | "MXL runtime slots" / `mxl.*` profiles have **no precedent**; `mxl_flows` is graph wiring, not capacity; MXL is intra-host only (ADR-0017), cross-node fabric is roadmap |
 | Air-gap | ✅ | ADR-0030/0034; flypack-offline lane; #25 tracks the permanent internal collection source |
 | Live capacity data point | ✅ | Full demo menu = 96% CPU requests on the 3-CPU sandbox node, AWX EE pods unschedulable — the incident that seeded #202 |
@@ -355,7 +355,7 @@ opinions; overriding any of them requires the stated process.
    NetBox-tag licence pool was explicitly rejected as "teaching the wrong
    model". Any resource-pool MVP must have real counts/leases/rollback or
    carry `declared-but-not-enforced` marking.
-5. **Cluster-per-tenant for a future managed service** (ADR-0020 B.3 — the
+5. **Cluster-per-tenant for a future managed service** (ADR-0049 B.3 — the
    recorded constraint for Mode B *customer* tenancy; Mode B itself remains
    Proposed, no work in flight). This does not settle *vendor/media* tenancy
    inside one facility — that axis is open (Vendor Vision). Namespace-grade
@@ -701,7 +701,7 @@ The five modes of v0.3 §14.1 map onto the recorded ladder:
   exists to use it.
 - Isolated k8s environment → vcluster/Kamaji/Capsule surveyed as
   off-the-shelf (Vendor Vision, "solved"). Note the axis distinction:
-  ADR-0020 B.3's cluster-per-tenant constraint governs *customer* tenancy
+  ADR-0049 B.3's cluster-per-tenant constraint governs *customer* tenancy
   of a future managed service (Mode B, itself Proposed) — it is not a
   decided answer for *vendor/media* tenancy inside one facility, which the
   Vendor Vision leaves open.
@@ -835,7 +835,7 @@ quantity actually reserved (first ADR-0045 provider).
 | Is OCI the canonical transport? | In practice yes for charts/images (Zot); collections deferred | ADR-0025/0034 |
 | Who owns inventory vs allocation state | NetBox inventory; reservation ledger explicitly not NetBox | ADR-0037/0045 |
 | Custom scheduler? | No — scope, don't schedule | ADR-0037 |
-| Shared-cluster tenancy for managed mode | No — cluster-per-tenant is the recorded Mode B constraint (Mode B itself remains Proposed) | ADR-0020 B.3 |
+| Shared-cluster tenancy for managed mode | No — cluster-per-tenant is the recorded Mode B constraint (Mode B itself remains Proposed) | ADR-0049 B.3 |
 | Immutability mechanism | Digest-pinning + git history | catalog schema; ADR-0013 |
 | Contribution/legal baseline | GitHub PRs + DCO; Conventional Commits | ADR-0041 |
 | Trust/source-class governance & signing gate | Settled — four axes, `project`/`vendor`/`community`, two-maintainer promotion quorum + one-maintainer emergency revoke, cosign/Sigstore at promotion (implementation not started) | ADR-0047 (closes #204) |

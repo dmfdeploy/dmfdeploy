@@ -290,7 +290,7 @@ HEAD@{prior-attempt}` against `dmf-infra` (the changes were `git
 checkout`-rolled-back before commit). Re-implement against the
 `Role` API, not Django Permissions.
 
-**ADR posture:** R4 stays raised to BLOCKING for ADR-0020 Mode B
+**ADR posture:** R4 stays raised to BLOCKING for ADR-0049 (Mode B)
 promote (production), acceptable in experiment phase per ADR-0004.
 
 ### R5 — Platform-wide ADR-0007 §2 hardening (itoken-in-stdout)

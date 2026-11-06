@@ -9,7 +9,7 @@ date: 2026-05-11
 > **HISTORICAL — partially delivered.** Its **Tier A** gate (Mode A, the OSS self-host
 > path) *was* met, at the 2026-06-11 public release, and is tracked to completion by the
 > [Tier A Phase Execution Plan](https://github.com/dmfdeploy/dmfdeploy/blob/dbf852b0fb91ae6d7747cd88bdb356056c8dcaad/docs/archive/plans/DMF%20Tier%20A%20Phase%20Execution%20Plan%202026-05-11.md),
-> now `executed`. **Tiers B and C** depend on ADR-0020 **Modes B and C**, both still
+> now `executed`. **Tiers B and C** depend on ADR-0049 **Mode B** and ADR-0050 **Mode C**, both still
 > `Proposed` with no forcing function — no customer or partner requires them.
 >
 > So this is not `executed` (two of its three tiers never happened) and not live work.
@@ -251,7 +251,7 @@ security questionnaire honestly.
 
 **Required (in addition to all Tier A items):**
 
-1. **ADR-0020 Mode B constraints enforced architecturally:**
+1. **ADR-0049 (Mode B) constraints enforced architecturally:**
    - B.1 Shamir-shares-customer-side bring-up ceremony implemented and
      test-rehearsed once; no Shamir share material crosses dmfdeploy.io
      systems, support tooling, logs, or agent transcripts.
@@ -339,7 +339,7 @@ security questionnaire honestly.
 - Mutable audit-log buckets
 - ADR-0011-style operator-local automation quorum for customer hubs
 - Long-lived cloud credentials at rest (except residual-risk-documented
-  providers per ADR-0020 B.2)
+  providers per ADR-0049 B.2)
 
 ### Tier C — Before flypack v0.1 (Mode C go-live)
 
@@ -388,7 +388,7 @@ ADR-0020 (Proposed → Accepted)
     │
     └──→ Tier B (managed v0.1)
             │
-            ├──→ ADR-0020 B.1–B.4 architectural enforcement
+            ├──→ ADR-0049 B.1–B.4 architectural enforcement
             ├──→ Close ADR-0011 auto-unseal gap for customer hubs
             ├──→ SoA + DPA + DPIA + RoPA + TIA + privacy role matrix
             ├──→ Incident response runbook
@@ -448,8 +448,8 @@ for DPA/SCC adds external time.
   to Mode A self-host operators who accept the residual risk themselves.
   EDPB stance is unchanged: third-country-equivalent regardless of
   region.
-- **Cluster-per-tenant economics** — ADR-0020 B.3 binds this. If unit
-  economics force a change, ADR-0020 must be superseded; this plan's
+- **Cluster-per-tenant economics** — ADR-0049 B.3 binds this. If unit
+  economics force a change, ADR-0049 must be superseded; this plan's
   Tier B controls assume B.3.
 - **ADR-0011 auto-unseal tradeoff** — acceptable for the lab, but
   incompatible with Mode B's customer-side Shamir custody claim. Tier B

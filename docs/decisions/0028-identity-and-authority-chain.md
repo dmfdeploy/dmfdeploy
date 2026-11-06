@@ -51,7 +51,7 @@ No fourth exception emerged. The **AWX shadow superuser** (`<operator>22daa48fb6
 
 **Bootstrap convergence audit gate** (D2): a bootstrap run is not complete until temporary bootstrap authority has been sealed, rotated, or explicitly recorded as retained. Enforced by `k3s-lab-bootstrap/playbooks/verify-bootstrap-convergence.yml` (`dmf-infra@0f9e7f0`).
 
-**Attribution strength for experiment phase** (D6): **strong dmf-cms attestation**. The immutable request log inside dmf-cms is the source of truth; actor / role / request_id / reason propagate to AWX `extra_vars`, NetBox change-request custom fields, Forgejo commit footer metadata, OpenBao audit context tags, and Kubernetes audit annotations. Cryptographic binding (per-action signed tokens) is deferred. Revisit gate: (a) ADR-0020 Mode B (managed service) promotes to Accepted, or (b) the first safety-critical automated path lands where a forged request could affect live production output.
+**Attribution strength for experiment phase** (D6): **strong dmf-cms attestation**. The immutable request log inside dmf-cms is the source of truth; actor / role / request_id / reason propagate to AWX `extra_vars`, NetBox change-request custom fields, Forgejo commit footer metadata, OpenBao audit context tags, and Kubernetes audit annotations. Cryptographic binding (per-action signed tokens) is deferred. Revisit gate: (a) ADR-0049 (Mode B) (managed service) promotes to Accepted, or (b) the first safety-critical automated path lands where a forged request could affect live production output.
 
 ## Consequences
 

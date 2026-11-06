@@ -311,11 +311,11 @@ operations, land on **strong dmf-cms attestation** now. Implementation:
 
 Do NOT block live operations on per-action cryptographic signing yet.
 Cryptographic binding is the right destination for managed-service mode
-(ADR-0020 Mode B) and for safety-critical automated changes (live
+(ADR-0049 (Mode B)) and for safety-critical automated changes (live
 production graph mutations during a broadcast, e.g.), but the
 complexity-vs-benefit math doesn't favour it during experiment phase.
 
-**Revisit gate:** (a) ADR-0020 Mode B promotes to Accepted (managed-
+**Revisit gate:** (a) ADR-0049 (Mode B) promotes to Accepted (managed-
 service customers require cryptographic guarantees, not attestation);
 or (b) the first safety-critical automated path lands (where a forged
 request could affect live production output).
@@ -519,7 +519,7 @@ Landed as D3 implementation in `dmf-infra@c426dc0`; not a carve-out.
 | D3 | Binding — survey closed 2026-05-24; 3 exceptions confirmed (Authentik / Zot / Grafana); AWX rename landed as follow-on, not a carve-out; Grafana rename evaluated and rejected 2026-05-25 | n/a |
 | D4 | Binding | n/a |
 | D5 | Binding | n/a |
-| **D6** | **Binding — for experiment phase** | **ADR-0020 Mode B promotion** OR **first safety-critical automated path** |
+| **D6** | **Binding — for experiment phase** | **ADR-0049 (Mode B) promotion** OR **first safety-critical automated path** |
 | D7 | Binding (architectural commitment) — implementation per Tier A.4 readiness | n/a |
 | D8 | Binding (operational defaults) — drills + token TTL + ≥2 passkeys | n/a |
 
@@ -539,7 +539,7 @@ binding in the current phase. D3's binding-ness rides on §7.
   Reference UX precedent for D4. Not amended.
 - **[ADR-0007 — Secrets never in argv](../decisions/0007-secrets-never-in-argv.md):**
   Transport-layer discipline that D6 and D7 inherit. Not amended.
-- **[ADR-0020 — Deployment scope and regulatory posture](../decisions/0020-deployment-scope-and-regulatory-posture.md):**
+- **[ADR-0049 — Managed service mode (`dmfdeploy.io`)](../decisions/0049-managed-service-mode-dmfdeploy-io.md):**
   Mode B promotion is D6's revisit gate. Not amended.
 - **[Unified App-Admin Helper Plan v3](../plans/dmf-unified-app-admin-helper-plan.md):**
   Downstream implementation of D1's "OpenBao custody" half. The plan is

@@ -57,7 +57,7 @@ already scope by Site. The survey detail is in the archive record.
   services to the Cluster). This is explicitly not done now. It is unnecessary, and it
   avoids editing born-inventory/`app-service.yml` while the ADR-0038 monitoring effort
   owns those files.
-- **Neutral:** the shared `DMF` tenant is unchanged. ADR-0020 cluster-per-tenant is a
+- **Neutral:** the shared `DMF` tenant is unchanged. ADR-0049 cluster-per-tenant is a
   different (media-tenant) axis and is not affected. The dmf-cms gap that prompted this
   (the Facility page querying NetBox unscoped and ignoring `dmf_env_id`) is closed in the
   **console query/UI layer**. The inventory model does not change. See the work package
@@ -66,7 +66,7 @@ already scope by Site. The survey detail is in the archive record.
 ### Rejected alternatives
 
 - A per-env `env:<id>` tag: rejected, env ids rotate and nothing prunes the tags.
-- A per-env Tenant: rejected, ADR-0020 assigns the tenant axis to media tenants.
+- A per-env Tenant: rejected, ADR-0049 assigns the tenant axis to media tenants.
 - `dmf_env_id` on every leaf object type now: deferred, more write surface for no current need.
 
 ### Enforcement

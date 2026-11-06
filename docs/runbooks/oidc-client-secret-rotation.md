@@ -14,7 +14,7 @@ OpenBao / ESO / the consuming app's K8s Secret.
    the operator may choose to defer rotation on short-lived test envs
    (record the decision in the operator-notes issue [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618)); for any environment
    serving real users or carrying Mode-B obligations
-   ([ADR-0020](../decisions/0020-deployment-scope-and-regulatory-posture.md)),
+   ([ADR-0049](../decisions/0049-managed-service-mode-dmfdeploy-io.md)),
    immediate rotation is binding.
 2. **Scheduled rotation** — per ADR-0028 D8 operational hardening
    baseline (currently target, not yet automated). Each OIDC client
@@ -276,7 +276,7 @@ envs. When this happens:
    risk closes; record the closure.
 4. **This option is NOT available** for any env serving real users,
    any env under Mode-B obligations
-   ([ADR-0020](../decisions/0020-deployment-scope-and-regulatory-posture.md)),
+   ([ADR-0049](../decisions/0049-managed-service-mode-dmfdeploy-io.md)),
    or any env that's part of a flypack (Mode C). For those, rotation
    is binding.
 

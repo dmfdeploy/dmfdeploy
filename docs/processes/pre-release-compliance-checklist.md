@@ -43,7 +43,7 @@ This checklist is run **before** each tier's go-live. Re-run it on any material 
 
 - [ ] [ADR-0020](../decisions/0020-deployment-scope-and-regulatory-posture.md) status = **Accepted** (not Proposed)
 - [ ] Operator has confirmed the three-mode model is the intended posture
-- [ ] Cluster-per-tenant constraint (ADR-0020 B.3) sanity-checked against unit-economics expectations
+- [ ] Cluster-per-tenant constraint (ADR-0049 B.3) sanity-checked against unit-economics expectations
 
 ### A.2 — Release & Contribution Model Phases 0–2
 
@@ -123,7 +123,7 @@ Per [DMF Release and Contribution Model Implementation Plan](../plans/dmf-releas
 > Goal: dmfdeploy.io can sign a DPA and onboard one customer without retrofitting.
 > All Tier A items remain checked.
 
-### B.1 — ADR-0020 architectural constraints enforced
+### B.1 — ADR-0049 architectural constraints enforced
 
 - [ ] B.1 Shamir shares originate customer-side: bring-up ceremony documented and rehearsed once
 - [ ] No Shamir share material crosses dmfdeploy.io systems, support tooling, logs, or agent transcripts

@@ -39,7 +39,7 @@ ADR-0027 deferred the installation layer. MXL is the second function that forces
 - **Positive**: no new platform component (no CRD, no custom operator). The instance layer rides NetBox + AWX, which already exist and already inter-operate. The hard NetBox-modelling problem (flows-as-edges) is avoided by scoping NetBox to instances. Drift becomes a feature (NetBox-desired vs cluster-actual is diffable). The model is layer-faithful to the EBU whitepaper.
 - **Positive**: answers the operator's actual question (what/how-many/where), tenant-scoped, with a clean growth path to composition + flow visualisation.
 - **Negative**: the composition/flow graph and free "design canvas" are deferred. The page is an inventory before it is a true Media *Workload* (assembly) view. Tenant scoping with today's single service NetBox token means the console enforces scope by mapping group to permitted tenants until per-user NetBox tokens exist. This is a security-sensitive surface that needs review.
-- **Neutral**: ADR-0013 catalog YAML, ADR-0025 Helm/EE pattern, ADR-0017 MXL placement contract, and ADR-0020 cluster-per-tenant all survive unchanged. This decision inserts ADR-0027's middle layer using existing stores.
+- **Neutral**: ADR-0013 catalog YAML, ADR-0025 Helm/EE pattern, ADR-0017 MXL placement contract, and ADR-0049 cluster-per-tenant all survive unchanged. This decision inserts ADR-0027's middle layer using existing stores.
 
 ## Enforcement
 
