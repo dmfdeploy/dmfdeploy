@@ -18,13 +18,17 @@ builds on it, together with the descriptor work in
 
 **Decision, 2026-11-06:** AMWA IN-003 field names are authoritative.
 dmfdeploy's media function descriptor is a superset of IN-003. Where a
-descriptor field means the same as an IN-003 field, the descriptor uses the
-IN-003 name and shape. Fields that only dmfdeploy needs, such as artefact
-identity, provenance and revocation, are additions and never renamed IN-003
-fields. The descriptor will export an optional IN-003 manifest, and a test
-will check that export against a pinned IN-003 commit. Both are planned
-under [dmfdeploy/dmfdeploy#746](https://github.com/dmfdeploy/dmfdeploy/issues/746)
-and [dmfdeploy/dmfdeploy#637](https://github.com/dmfdeploy/dmfdeploy/issues/637);
+descriptor field means the same as an IN-003 field, the rule is that the
+descriptor takes the IN-003 name and shape. That alignment is the agreed target
+and is still to be implemented under #746: today `frame_rate` and two
+`host_capabilities` mappings still differ in shape. Fields that only dmfdeploy
+needs, such as artefact identity, provenance and revocation, are additions and
+never renamed IN-003 fields. The descriptor will export an optional IN-003
+manifest, and a test will check that export against a pinned IN-003 commit.
+Both are planned under
+[dmfdeploy/dmfdeploy#746](https://github.com/dmfdeploy/dmfdeploy/issues/746)
+and
+[dmfdeploy/dmfdeploy#637](https://github.com/dmfdeploy/dmfdeploy/issues/637);
 neither exists yet. The IN-003 documents are licensed CC BY-ND 4.0, and the
 IN-003 schema carries no license grant. For both reasons, dmfdeploy never
 copies or adapts IN-003 text or schema. The research below predates this
