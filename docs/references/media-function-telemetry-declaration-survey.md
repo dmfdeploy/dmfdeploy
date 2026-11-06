@@ -295,9 +295,11 @@ in any ADR.
     `flow.label`; `inputs[]` and `outputs[]` with video and audio formats;
     `args[]`; and `requirements` (cpu, memory, host_capabilities).
   - **No telemetry or monitoring field.** The project confirmed this with a
-    grep of the schema and manifests. The [overview](https://github.com/AMWA-TV/in-003/blob/fd5f0363b0e6a634e9d98e2c64e2d89157d74cef/docs/Overview.md) mentions that the
-    workload emits media function metrics, but IN-003 defines no schema field
-    for them.
+    grep of the schema and manifests. For how IN-003 treats metrics in its
+    architecture, see its
+    [overview](https://github.com/AMWA-TV/in-003/blob/fd5f0363b0e6a634e9d98e2c64e2d89157d74cef/docs/Overview.md).
+    A descriptor that declares telemetry therefore has no IN-003 field to take
+    a name from.
   - IN-003 issue #4, opened 2026-10-21, had no replies on 2026-10-22.
 - **IN-004** "Flow Connection Phase 2" (WIP) has the only concrete AMWA
   monitoring text for DMF
