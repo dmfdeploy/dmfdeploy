@@ -80,8 +80,7 @@ docs/decisions/0016-awx-control-node-ssh-via-cloud-init-and-openbao.md 83
 docs/decisions/0020-deployment-scope-and-regulatory-posture.md 130
 docs/decisions/0021-openbao-approle-reconciler-identity.md 83
 docs/decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md 248
-docs/decisions/0032-catalog-launcher-scoped-netbox-writer.md 124
-docs/decisions/0038-netbox-driven-dynamic-monitoring.md 266
+docs/decisions/0038-netbox-driven-dynamic-monitoring.md 195
 docs/decisions/0049-managed-service-mode-dmfdeploy-io.md 100
 docs/decisions/0047-media-function-packaging-catalog-sources-trust-model.md 202'
 

@@ -302,3 +302,84 @@ platform-wide, only that this identity couldn't read it.)
   - `dmf-catalog-purge-svc` (`media-finalise-purge` only): can **delete** an `ipam.service`/`extras.tag` record, but only one already carrying/matching a `workload:*` tag (Amendment 2's constraint) — and, critically, **cannot create or patch anything**, on either model. It cannot manufacture a record's eligibility before deleting it; the constraint is a real bound on this identity, not a filter a sibling capability could route around (Amendment 1/2's own residual risk, now closed).
   - Neither identity ever reaches `dcim.device` write, staff, or superuser. `dcim.device` stays `dmf-catalog-svc`-view-only, unchanged (§1).
   This corrects two prior versions of this paragraph in turn: Amendment 1 made "flip a lifecycle tag, nothing more" stale by adding delete to the shared token; Amendment 2's constraint narrowed but did not remove that same-token delete capability; Amendment 3 removes it from the shared token entirely and gives the narrower capability its own, non-mutating identity.
+
+## Amendment history
+
+These are Amendments 1–4 to ADR-0032, moved from the ADR's Decision section when the Decision was rewritten as the current rule. The text is unchanged apart from relative link paths. Where an amendment overrides an earlier rule, the ADR's Decision states only the later rule.
+
+### Inline notes on the original Decision list
+
+   **[Amended: this list is the original 2026-05-27 record, left as written per this ADR's own convention (Amendment 1: "the Decision section above is left as originally written for the historical record"). It has since been amended four times; as of Amendment 4 the grant covers a fourth model, `dcim.site`, so "exactly the three models" is no longer accurate. Do not read the list below as current. See Amendment 4's consolidated current-matrix table.]**
+
+   **[Amended: as of Amendment 3 (2026-08-14), this no longer covers every launcher: `media-finalise-purge` authenticates as a second, separate identity (`dmf-catalog-purge-svc`, its own `vault_netbox_purge_token`), so the single scoped catalog token described here does not cover it. See Amendment 4's consolidated current-matrix table, which lists both identities.]**
+
+### Amendment 1 (2026-08-13, dmfdeploy/dmfdeploy#347)
+
+Problem statement and evidence: see the [archive record](0032-catalog-launcher-scoped-netbox-writer.md).
+
+**Amended scope:** `delete` added to both `catalog-service-writer` (`ipam.service`) and `catalog-tag-writer` (`extras.tag`) in `dmf-infra/k3s-lab-bootstrap/roles/stack/operator/netbox-sot/defaults/main.yml`. The grant covers only the same two models this account already writes. No other model, no staff/superuser bit, and `dcim.device` stays view-only. The existing `691-netbox-sot.yml` reconcile task updates `ObjectPermission` actions, object types and group binding idempotently, so re-running it is sufficient; no new provisioning task was needed. The Decision section above is left as originally written for the historical record; this amendment is the current source of truth for the permission matrix.
+
+**Superseded in part by Amendment 2 below.** This amendment's `delete` grant was model-wide (unconstrained across every `ipam.service`/`extras.tag` record). Amendment 2 narrows it to an object-level constraint without changing the models or actions granted here.
+
+### Amendment 2 (2026-08-14, dmfdeploy/dmfdeploy#393 review)
+
+Problem statement and evidence: see the [archive record](0032-catalog-launcher-scoped-netbox-writer.md).
+
+**What makes an `ipam.service` record legitimately purge-eligible**, per `dmf-cms`'s own preflight (`resolve_purge_target`, `src/dmf_cms/media_workloads.py`) and tag-classification logic:
+- carries a tag matching `workload:<slug>` (the record is actually assigned to some workload; an unassigned/untagged record is never a purge candidate);
+- the workload's members are not currently active/running. This is a **live** condition, cross-referencing the NetBox `lifecycle:*` tag against Prometheus overlay state (ADR-0013's model: liveness is a NetBox+Prometheus join, and NetBox itself holds no opinion on it).
+
+**Amended scope:** `delete` is split out of `catalog-service-writer` (`ipam.service`) and `catalog-tag-writer` (`extras.tag`) into its own `ObjectPermission` entry per model (`catalog-service-delete`, `catalog-tag-delete` in `dmf-infra/k3s-lab-bootstrap/roles/stack/operator/netbox-sot/defaults/main.yml`), each carrying a `constraints` filter:
+
+- `catalog-service-delete`: `{"tags__name__startswith": "workload:"}` **allows** deleting an `ipam.service` record only if it *currently* carries at least one tag matching `workload:*`; it **forbids** deleting any service bearing no such tag at the moment of the DELETE call.
+- `catalog-tag-delete`: `{"name__startswith": "workload:"}` (`extras.Tag`'s own `name` field is a plain `CharField` and is not a many-to-many relation, so this is a name filter) **allows** deleting only `Tag` objects literally named `workload:<slug>`; it **forbids** deleting any `lifecycle:*`, `app:*`, `dmf-catalog`, or other tag. The account can never remove platform-wide tag taxonomy, only a `workload:*` assignment tag.
+- `view`/`add`/`change` on both models are **unchanged and still unconstrained** (Decision §1). Those actions apply to a record before a launcher has tagged it (at creation) or must reach any record the launcher already manages (at patch time), so constraining them the same way would break every catalog CREATE/PATCH, including outside finalise-purge.
+
+Investigation of why a NetBox constraint cannot also require inactivity: see the [archive record](0032-catalog-launcher-scoped-netbox-writer.md).
+
+The liveness axis stays exclusively enforced by `media-finalise-purge`'s own preflight (`resolve_purge_target`'s three-layered zero-running check against NetBox + Prometheus) before any DELETE is issued. The object-level NetBox constraint is a second, independent enforcement point for the *static* half of purge eligibility (workload assignment). It does not duplicate the app-layer check, and it does not cover the half only the app layer can see.
+
+**Superseded by Amendment 3 below.** lkirc rejected this amendment's constraint-only design twice, on exactly the residual risk documented above, and asked for it closed. Amendment 3 closes it.
+
+### Amendment 3 (2026-08-14, dmfdeploy/dmfdeploy#347)
+
+Problem statement and evidence: see the [archive record](0032-catalog-launcher-scoped-netbox-writer.md).
+
+**Amended scope:** `delete` is removed from `dmf-catalog-svc` entirely. `catalog-service-writer`/`catalog-tag-writer` revert to exactly their original ADR-0032 scope: `view`/`add`/`change` on `ipam.service`, `view`/`add` on `extras.tag`, no `delete` at all. The Amendment-2-era `catalog-service-delete`/`catalog-tag-delete` entries are retired. An explicit idempotent cleanup task removes the corresponding `ObjectPermission` rows on an already-provisioned instance, because dropping them from the declared permission list would leave them in place (the reconcile loop only creates or updates what it is given, and never prunes).
+
+`media-finalise-purge` moves to a **new, genuinely delete-only identity**: `dmf-catalog-purge-svc` (group `dmf-catalog-purge`), granted:
+- `view` (unconstrained) on `ipam.service` + `extras.tag`, needed for the launcher's own preflight reads and readback-confirms.
+- `delete` on `ipam.service`, constrained `{"tags__name__startswith": "workload:"}` (Amendment 2's constraint, unchanged, reused as-is).
+- `delete` on `extras.tag`, constrained `{"name__startswith": "workload:"}` (likewise reused unchanged).
+- **No `add`, no `change`, on either model.** This is the entire point: this identity cannot create a tag or retag a service, so it cannot manufacture its own delete-eligibility. Amendment 2's constraint is now a real bound on what this token can do. It is no longer a filter that a sibling capability on the *same* token could route around.
+
+**Token plumbing:** `netbox-sot` mints the new token into `secret/apps/netbox/runtime` (key `netbox_purge_token`), and `awx-integration` wires it into `media-finalise-purge`'s own JT `extra_vars` as `vault_netbox_purge_token`. Every other catalog launcher JT is unchanged, still on `vault_netbox_catalog_token`. Details: see the [archive record](0032-catalog-launcher-scoped-netbox-writer.md).
+
+**What this still does not close, unchanged from Amendment 2, and for the same reason:** whether a workload is *currently* active/running remains outside NetBox's own queryable data (a live NetBox+Prometheus join per ADR-0013) and stays exclusively enforced by `resolve_purge_target`'s own preflight. The identity split never addressed that gap and does not claim to.
+
+### Amendment 4 (2026-08-16, dmfdeploy/dmfdeploy#399)
+
+Problem statement and evidence: see the [archive record](0032-catalog-launcher-scoped-netbox-writer.md).
+
+**Amended scope:** a new `catalog-site-reader` ObjectPermission (`view` on `dcim.site`, bound to `dmf-catalog-writer`) is added to `netbox_sot_catalog_permissions` in `dmf-infra/k3s-lab-bootstrap/roles/stack/operator/netbox-sot/defaults/main.yml`, adjacent to `catalog-device-reader`. No write, no delete, no staff/superuser bit, no change to any existing grant. The existing catalog-permission reconcile loop (`691-netbox-sot.yml`, the same idempotent create-or-update-by-name task Amendment 1 already relied on) applies it on the next run; no new provisioning task was needed. It has the same shape as the `catalog-device-reader` grant: a read-only lookup the launcher needs for a fail-closed validation, with no new capability class for this identity.
+
+**Deliberately left unconstrained (operator ruling).** Do not scope visible sites to the env's own, for two reasons:
+1. A constrained read cannot support the check it is for. `topology_validate.yml` asserts *site agreement*, and an identity that sees only one site would pass unconditionally because it cannot observe disagreement.
+2. The console's Plan step is meant to become a facility picker, with an environment owning one-or-more `Site`s scoped by `cf_dmf_env_id`. A single-site constraint would have to be undone. This is directional context only; it opens no scope beyond this amendment's own grant, and implements nothing toward that picker.
+
+**ADR-0032 Decision §2 is preserved and not touched.** Launchers use the scoped catalog token for every NetBox call, "reads and writes": one principal per job, which keeps the single-principal audit story and [ADR-0028](../../decisions/0028-identity-and-authority-chain.md) C3.1 attribution intact. `dmf-catalog-svc` gains one more read-only model and remains the only NetBox identity a topology-carrying launch authenticates as. The rejected alternative, routing only this read through the existing read-only `awx-netbox` identity, was rejected precisely because it would have broken that contract: two NetBox principals inside one job is a real audit boundary that ADR-0028 C3.1 would require documenting. It is not a free routing choice. (The model is readable by that other identity, since `awx-readonly` does hold `dcim.site` view. The gap was never that the data was unreadable platform-wide, only that this identity couldn't read it.)
+
+**Current effective permission matrix, all four amendments applied.** Decision §1 above is the *original* record and is deliberately left unedited (this ADR's own convention); it undercounts by one model and says nothing about the second identity Amendment 3 introduced. This table is the single place that reflects both. It is derived directly from the committed `dmf-infra` source (`k3s-lab-bootstrap/roles/stack/operator/netbox-sot/defaults/main.yml`, `netbox_sot_catalog_permissions` and `netbox_sot_catalog_purge_permissions`, branch `fix/399-catalog-site-reader` @ `cf30fb8`) and is not re-derived from this ADR's own prose:
+
+| Object type | Actions | Constraint | Identity |
+|---|---|---|---|
+| `ipam.service` | view, add, change | none | `dmf-catalog-svc` |
+| `extras.tag` | view, add | none | `dmf-catalog-svc` |
+| `dcim.device` | view | none | `dmf-catalog-svc` |
+| `dcim.site` | view | none | `dmf-catalog-svc` |
+| `ipam.service` | view | none | `dmf-catalog-purge-svc` |
+| `extras.tag` | view | none | `dmf-catalog-purge-svc` |
+| `ipam.service` | delete | `tags__name__startswith: "workload:"` | `dmf-catalog-purge-svc` |
+| `extras.tag` | delete | `name__startswith: "workload:"` | `dmf-catalog-purge-svc` |
+
+`dmf-catalog-svc` (group `dmf-catalog-writer`) never holds `delete` on anything. `dmf-catalog-purge-svc` (group `dmf-catalog-purge`) never holds `add` or `change` on anything. Amendment 3 depends on the first invariant and Amendment 2's constraint on the second, and both still hold.

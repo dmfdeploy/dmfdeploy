@@ -37,6 +37,7 @@ monitoring:
   probe:
     enabled: false
     probe_module: http_2xx
+    probe_path: /ready  # optional; probe lane only, http probers only
   snmp:
     enabled: false
     snmp_module: if_mib
@@ -50,6 +51,7 @@ Rules:
 - `monitoring.scrape.scheme` is optional and defaults to `http`. Set `https` only for TLS-only scrape targets (maps to `prometheus.io/scheme`). No NetBox custom field is needed. The launcher derives the annotation directly from the catalog block.
 - `monitoring.probe.enabled` enables blackbox-style probing through the adapter.
 - `monitoring.probe.probe_module` is required when probe is enabled.
+- `monitoring.probe.probe_path` is optional and maps 1:1 to the `probe_path` custom field.
 - `monitoring.snmp.enabled` enables SNMP discovery through the adapter.
 - `monitoring.snmp.snmp_module` is required when SNMP is enabled.
 
@@ -61,8 +63,11 @@ The custom-field definitions are fixed and typed as follows:
 |---|---|---|---|---|
 | `monitoring.scrape.metrics_port` | `metrics_port` | integer | required | `monitoring:scrape` tag and field are both present |
 | `monitoring.scrape.metrics_path` | `metrics_path` | text | `/metrics` | `monitoring:scrape` tag and field are both present |
-| `monitoring.probe.probe_module` | `probe_module` | text constrained by `dmf_blackbox_probe_modules` | `http_2xx`, `http_2xx_insecure`, `tcp_connect`, `icmp` | `monitoring:probe` tag and field are both present |
+| `monitoring.probe.probe_module` | `probe_module` | text constrained by `dmf_blackbox_probe_modules` | `http_2xx`, `http_2xx_insecure`, `http_2xx_302`, `tcp_connect`, `icmp` | `monitoring:probe` tag and field are both present |
 | `monitoring.snmp.snmp_module` | `snmp_module` | text constrained by `dmf_snmp_modules` | `if_mib` by default; values must match the deployed snmp-exporter modules for the `full` profile | `monitoring:snmp` tag and field are both present |
+| `monitoring.probe.probe_path` | `probe_path` (on `ipam.service`, `dcim.device`, `virtualization.virtualmachine`) | text | empty | `monitoring:probe` tag and field are both present |
+
+`http_2xx_302` is an http prober with `follow_redirects: false` and `valid_status_codes: [200, 301, 302, 303, 307, 308]`, for targets whose healthy root response is a redirect that must not be dereferenced (canonical case: Grafana's `/` to `/login` behind an OAuth auto-login chain to a local-CA URL). The choice set must stay lock-step with the deployed blackbox-exporter module list.
 
 `dmf_monitoring_severities` is also seeded by WP1 for WP10 alerting. It is not part of the discovery contract and the adapter ignores it.
 
@@ -72,7 +77,7 @@ The custom-field definitions are fixed and typed as follows:
 - `monitoring:probe` means the object should be emitted on the probe lane.
 - `monitoring:snmp` means the object should be emitted on the SNMP lane.
 
-The custom fields are fixed and map 1:1 to the catalog schema: `metrics_port`, `metrics_path`, `probe_module`, and `snmp_module`. The tags carry lane selection. The custom fields carry lane parameters. A monitoring contract without the matching tag is not active, even if the custom field is populated.
+The custom fields are fixed and map 1:1 to the catalog schema: `metrics_port`, `metrics_path`, `probe_module`, `probe_path`, and `snmp_module`. Three further typed, optional custom fields record the cluster identity of an in-cluster object (see §5). The tags carry lane selection. The custom fields carry lane parameters. A monitoring contract without the matching tag is not active, even if the custom field is populated.
 
 `exposure:*` is a separate NetBox taxonomy defined by `netbox-sot` and consumed by the adapter only for label derivation. Expected values include `exposure:internal` and `exposure:public`.
 
@@ -85,6 +90,17 @@ The custom fields are fixed and map 1:1 to the catalog schema: `metrics_port`, `
 | `monitoring.scrape.scheme` | derived from the workload / exposure; no NetBox field | `prometheus.io/scheme` (`http` by default; `https` only when explicitly required by the workload) |
 | `monitoring.probe.probe_module` | `probe_module` + `monitoring:probe` | `__param_module` |
 | `monitoring.snmp.snmp_module` | `snmp_module` + `monitoring:snmp` | `__param_module` |
+| `monitoring.probe.probe_path` | `probe_path` + `monitoring:probe` | appended to the probe target |
+
+**`probe_path` semantics (probe lane only):**
+
+1. `probe_path` participates only in the probe lane. The scrape lane keeps `metrics_path`, and the SNMP lane ignores `probe_path` entirely.
+2. The adapter appends the path to the composed probe target **only when the selected `probe_module` is an http prober** (module name starting `http_`). For any other module (`tcp_connect`, `icmp`, and so on) the field is ignored and the target remains `host:port`.
+3. The path is normalized to a single leading `/` (`ready` and `/ready` both yield `…:3100/ready`). Trailing content is preserved as given.
+4. An empty or absent `probe_path` is a no-op.
+5. The append applies to **both** address compositions: the svc-DNS form (`<svc>.<ns>.svc.cluster.local:<cluster_port><probe_path>`) and the `primary_ip4.address` fallback (`<ip>:<port><probe_path>`).
+
+The blackbox http prober accepts a schemeless full-URL target, and the existing probe-job relabelling (`__param_target <- __address__`) forwards it unchanged. So `probe_path` changes only the adapter's target composition. It leaves the Prometheus job contract and the `/sd/*` output shape unchanged.
 
 **5. Kubernetes monitoring uses the standard `prometheus.io/*` conventions.**
 
@@ -97,13 +113,31 @@ For in-cluster workloads, the launcher stamps these annotations on the target Po
 
 The launcher also preserves the normal `app.kubernetes.io/*` labels so the workload remains discoverable and traceable. The monitoring trigger itself is the `prometheus.io/*` annotation set. This ADR introduces no separate k8s monitoring label namespace.
 
-Lane-level address contract:
+**In-cluster targets use the stable cluster Service DNS name.** The probe and scrape targets for in-cluster objects are the object's stable cluster Service DNS name, composed by the adapter from identity recorded in NetBox. They are never a pod or ingress IP. This applies uniformly to born-inventoried platform apps and to dynamically deployed catalog/media-function services. The contract records no IP for in-cluster objects.
+
+Three custom fields record the cluster identity, typed, optional and stamped by whoever deploys the object:
+
+| Custom field | Type | Meaning |
+|---|---|---|
+| `cluster_service` | text | the Kubernetes `Service` name |
+| `cluster_namespace` | text | the Kubernetes namespace |
+| `cluster_port` | integer | the in-cluster Service port to probe (the app's service port, which is **not** necessarily the ingress `:443` recorded in `ipam.service.ports`) |
+
+A Kubernetes Service's DNS name (`<svc>.<ns>.svc.cluster.local`) and ClusterIP are **stable for the Service's lifetime** and survive pod rescheduling, so the adapter never needs to discover or track an IP. The target is a deterministic function of `cluster_service` + `cluster_namespace`.
+
+**The deployer is the bridge.** The agent that *creates* the Kubernetes Service holds both the cluster reality and the NetBox record, so it stamps `cluster_service`, `cluster_namespace` and `cluster_port` at registration time, in the same lifecycle step in which it stamps the monitoring tags (and `probe_path`, gated on `monitoring:probe`). Born-inventory (platform apps) knows each app's Service name, namespace and port. The catalog launcher (dynamic media functions) knows the Service it created (ADR-0037 instance inventory). No separate IP-to-service reconciler is needed.
+
+Lane-level address contract, with `host = <cluster_service>.<cluster_namespace>.svc.cluster.local`:
 
 | Lane | Adapter emits | Prometheus job contract |
 |---|---|---|
-| Scrape | `__address__ = <object primary_ip4.address or ipam.service host>:<metrics_port>` and `__metrics_path__ = metrics_path` | Direct scrape against the object target |
-| Probe | `__address__ = <real target>` and `__param_module = probe_module` | WP5 relabels `__param_target <- __address__`, `__address__ <- blackbox service addr`, `instance <- original target` |
+| Scrape | `__address__ = <host>:<metrics_port>` and `__metrics_path__ = metrics_path` | Direct scrape against the object target |
+| Probe | `__address__ = <host>:<cluster_port>` (plus `probe_path` per §4) and `__param_module = probe_module`. The request is plain internal **HTTP** (ADR-0023). | WP5 relabels `__param_target <- __address__`, `__address__ <- blackbox service addr`, `instance <- original target` |
 | SNMP | `__address__ = <device primary_ip4.address>` and `__param_module = snmp_module` | WP9 applies snmp-exporter indirection analogous to blackbox |
+
+**Precedence / fallback:** if `cluster_service` + `cluster_namespace` are present, the adapter uses the svc-DNS form. Otherwise it falls back to `primary_ip4.address` (for the scrape lane, also the `ipam.service` host), which remains correct for **external / off-cluster devices** and the **SNMP lane** (physical gear that legitimately has an IP and no cluster Service).
+
+This fits the ADR-0023 internal-svc-DNS-over-plain-HTTP posture: no ingress Host/path juggling, no TLS/CA-in-pod problem, no shared-LB-IP ambiguity. The probe answers "is the Service responding." An **additional** external-URL probe for `exposure:public` objects (does the ingress serve it end-to-end), composed from `exposure:*` + `external_base_url`, is optional and **deferred**. The internal svc-DNS probe is the baseline and the default.
 
 **6. The bridge is a standalone DMF PromSD service, and the platform does not use a NetBox plugin.**
 
@@ -141,112 +175,7 @@ The scaling path is fixed and non-breaking for the `http_sd` contract: v1 is a f
 
 WP1 pre-creates the monitoring tags and custom-field definitions at bootstrap, so the launcher only references them. The existing `ipam.service` `change` permission and `extras.tag` `view` permission are sufficient for the monitoring contract as defined here. A grant bump is needed only if WP6 chooses to stamp monitoring metadata directly onto `dcim.device` via the catalog writer; external devices are stamped by `nmos-cpp` / born-inventory under different writers today. Reconfirm in WP6 and bump ADR-0032 only if that case actually appears.
 
-### Amendment A (2026-06-04): probe / scrape targets via cluster service DNS
-
-**Status:** Accepted. Amends §3, §4, and the §5 lane-level address contract.
-
-Problem statement and evidence: see the [archive record](../archive/decisions/0038-netbox-driven-dynamic-monitoring.md).
-
-#### Decision
-
-**The probe and scrape targets for in-cluster objects are the object's stable
-cluster Service DNS name, composed by the adapter from identity recorded in NetBox.
-They are never a pod or ingress IP.** This applies uniformly to born-inventoried platform
-apps and to dynamically deployed catalog/media-function services.
-
-1. **Record the stable cluster identity.** Add three custom fields to the
-   contract (typed, optional, stamped by whoever deploys the object). The contract records no IP for in-cluster objects.
-
-   | Custom field | Type | Meaning |
-   |---|---|---|
-   | `cluster_service` | text | the Kubernetes `Service` name |
-   | `cluster_namespace` | text | the Kubernetes namespace |
-   | `cluster_port` | integer | the in-cluster Service port to probe (the app's service port, which is **not** necessarily the ingress `:443` recorded in `ipam.service.ports`) |
-
-   A Kubernetes Service's DNS name (`<svc>.<ns>.svc.cluster.local`) and ClusterIP are
-   **stable for the Service's lifetime** and survive pod rescheduling; only the pods
-   behind it churn. So the adapter never needs to discover or track an IP. The
-   target is a deterministic function of `cluster_service` + `cluster_namespace`.
-
-2. **The deployer is the bridge.** The agent that *creates* the Kubernetes Service is
-   the one thing that holds both the cluster reality and the NetBox record, so it
-   stamps `cluster_service`/`cluster_namespace`/`cluster_port` at registration time,
-   in the same lifecycle step it already stamps the monitoring tags:
-   - **born-inventory** (platform apps) knows each app's Service name/ns/port.
-   - **catalog launcher** (dynamic media functions) knows the Service it
-     created (ADR-0037 instance inventory).
-
-   No separate IP-to-service reconciler is needed.
-
-3. **Adapter composition (replaces the §5 Probe / Scrape `__address__` derivation for
-   in-cluster objects).** Let `host = <cluster_service>.<cluster_namespace>.svc.cluster.local`:
-   - **Probe:** `__address__ = host:<cluster_port>`; the request is plain internal
-     **HTTP** (ADR-0023). `__param_module = probe_module` as before. WP5's blackbox
-     indirection relabel is unchanged.
-   - **Scrape:** `__address__ = host:<metrics_port>`, `__metrics_path__ = metrics_path`.
-   - **Precedence / fallback:** if `cluster_service` + `cluster_namespace` are present,
-     the adapter uses the svc-DNS form. Otherwise it falls back to
-     `primary_ip4.address`, which remains correct for **external / off-cluster
-     devices** and the **SNMP lane** (physical gear that legitimately has an IP and no
-     cluster Service).
-
-#### Consequences / notes
-
-- This fits the ADR-0023 internal-svc-DNS-over-plain-HTTP posture: no
-  ingress Host/path juggling, no TLS/CA-in-pod problem, no shared-LB-IP ambiguity.
-  The probe answers "is the Service responding," which is the right health signal.
-- `exposure:public` objects *may* later warrant an **additional** external-URL probe
-  (does the ingress actually serve it end-to-end), composed from `exposure:*` +
-  `external_base_url`. That is an optional second probe and is **deferred**; the
-  internal svc-DNS probe is the robust baseline and the default.
-
-### Amendment B (2026-07-03): `probe_path` probe-lane URL path
-
-**Status:** Accepted. Amends §3, §4, and the Amendment A adapter composition.
-
-Problem statement: see the [archive record](../archive/decisions/0038-netbox-driven-dynamic-monitoring.md).
-
-#### Decision
-
-**Add one custom field to the monitoring contract:**
-
-| Custom field | Type | Default | Object types |
-|---|---|---|---|
-| `probe_path` | text | empty | `ipam.service`, `dcim.device`, `virtualization.virtualmachine` |
-
-**Semantics (probe-lane only):**
-
-1. `probe_path` participates only in the probe lane. The scrape lane keeps
-   `metrics_path`; the SNMP lane ignores `probe_path` entirely.
-2. The adapter appends the path to the composed probe target **only when the
-   selected `probe_module` is an http prober** (module name starting `http_`).
-   For any other module (`tcp_connect`, `icmp`, …) the field is ignored and the
-   target remains `host:port`.
-3. The path is normalized to a single leading `/` (`ready` and `/ready` both
-   yield `…:3100/ready`); trailing content is preserved as given.
-4. An empty or absent `probe_path` is a no-op: the composed target is exactly
-   what Amendment A specifies.
-5. The append applies to **both** address compositions: the svc-DNS form
-   (`<svc>.<ns>.svc.cluster.local:<cluster_port><probe_path>`) and the
-   `primary_ip4.address` fallback (`<ip>:<port><probe_path>`).
-
-The blackbox http prober accepts a schemeless full-URL target, and the existing probe-job relabelling (`__param_target <- __address__`) forwards it unchanged. So this amendment changes only the adapter's target composition. It leaves the Prometheus job contract and the `/sd/*` output shape unchanged.
-
-**The `dmf_blackbox_probe_modules` choice set (§3) additionally gains
-`http_2xx_302`**, an http prober with `follow_redirects: false` and
-`valid_status_codes: [200, 301, 302, 303, 307, 308]`, for targets whose healthy
-root response is a redirect that must not be dereferenced (canonical case:
-Grafana's `/` to `/login` behind an OAuth auto-login chain to a local-CA URL).
-As everywhere in §3, the choice set must stay lock-step with the deployed
-blackbox-exporter module list.
-
-#### Consequences / notes
-
-- The catalog `monitoring.probe` block gains an optional `probe_path` key,
-  mapping 1:1 to the custom field, consistent with §3's additive-schema rule.
-- Stamping follows Amendment A's "the deployer is the bridge" rule: born-inventory
-  (platform apps) and the catalog launcher stamp `probe_path` alongside the other
-  monitoring fields, gated on `monitoring:probe`.
+The amendment history (Amendment A, cluster Service DNS targets, and Amendment B, `probe_path`) is in the [archive record](../archive/decisions/0038-netbox-driven-dynamic-monitoring.md#amendment-history). This Decision is the current rule with both amendments applied.
 
 ## Consequences
 
