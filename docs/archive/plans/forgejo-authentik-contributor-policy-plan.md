@@ -98,7 +98,8 @@ where the resulting collaboration trail is recorded.
 - The Forgejo portion of the audit reports the exact expected Forgejo admin
   set. Proving the full cross-app absence of bootstrap identities, plus
   Forgejo local-account and OIDC subject-binding inventory, remains pending
-  until those checks have tested read-only data sources.
+  until those checks have tested read-only data sources. This work moves to
+  [#837](https://github.com/dmfdeploy/dmfdeploy/issues/837).
 - Deployment evidence records the configuration revision and an approved
   contributor's Forgejo account creation without exposing tokens or personal
   data.
@@ -127,3 +128,11 @@ environment and recorded on the tracking issue. Four live checks passed:
 
 One finding came out of the rollout: an Authentik user needs an email address
 for Forgejo auto-registration to succeed.
+
+Three acceptance items were outside this rollout and move to
+[#837](https://github.com/dmfdeploy/dmfdeploy/issues/837):
+
+- the cross-app proof that no bootstrap identity remains
+- the inventory of Forgejo local accounts and their OIDC subject bindings
+- the tested migration that must exist before the UUID subject target is
+  enabled
