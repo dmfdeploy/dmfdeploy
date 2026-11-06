@@ -89,9 +89,9 @@ decision. Passages that conflicted with it have been updated.
    an "operational control & monitoring axis" driven by a "facility
    controller". IN-001 also separates the "orchestration system" (deploys) from
    the "control system" (sets parameters).
-6. **No standard calls an orchestrator a media function.** IN-003 defines a
-   Media Function as something that handles live media streams, as producer,
-   consumer or both. The EBU architecture puts control applications in the Application
+6. **No standard calls an orchestrator a media function.** IN-003's Media
+   Function definition is tied to media streams (see its
+   [overview](https://github.com/AMWA-TV/in-003/blob/fd5f0363b0e6a634e9d98e2c64e2d89157d74cef/docs/Overview.md)). The EBU architecture puts control applications in the Application
    and UI layer, which the platform launches like other software. A controller
    is deployable, and the fitting names are application or platform function.
 7. **No public Ember+ to IS-12 or SNMP to IS-12 translator was found.** The
@@ -445,15 +445,11 @@ release record was checked directly, so the trade-press article is out of date.
 
 **IN-003 (Compute Resource Management, WIP)** [DOC]:
 
-- Tiers: an application and UI tier for media workloads built from modular
-  applications, a media functions tier, a container platform tier with
-  operators, and orchestration and monitoring services that span the tiers.
-- A Media Function handles a closely related group of live media streams, as
-  producer, consumer or both. Its specification records the control type.
-- A Media Function Config covers shared, cluster-wide components such as a
-  database or licence server.
-- One pod may host several logical Media Function instances. Each instance is
-  an independently configured session, channel or task.
+- See the IN-003 [overview](https://github.com/AMWA-TV/in-003/blob/fd5f0363b0e6a634e9d98e2c64e2d89157d74cef/docs/Overview.md) for its tiers and its Media Function
+  definition. This survey draws two points from it. The definition is tied to
+  media streams, so a controller that handles none is not a media function by
+  that definition. The overview also lists several logical instances per pod
+  as a supported pattern.
 
 **EBU DMF Reference Architecture v2.0 (2026-04-15)** [DOC], pages 20 to 22:
 
@@ -493,7 +489,7 @@ control presentation on the event page, <https://vsf.tv/2025-vsf-vidtrans25/>.
 - No standard or Increment describes an orchestrator or controller as a
   deployable *media function*. The EBU architecture describes control
   applications that the platform launches, in the Application and UI layer.
-  IN-003's Media Function definition requires media streams.
+  IN-003's Media Function definition is tied to media streams.
 
 **Judgment:**
 
@@ -554,8 +550,9 @@ standalone translator that exposes legacy devices through IS-12.
 - **Catena slots.** One Catena service fronts many device models by slot, with
   slots added and removed live and a push to invalidate a device model. [DOC]
   `st2138-a/interface/proto`
-- **IN-003 `[N..1]`.** Several logical Media Function instances per pod is an
-  accepted deployment pattern. [DOC]
+- **IN-003 `[N..1]`.** The IN-003 [overview](https://github.com/AMWA-TV/in-003/blob/fd5f0363b0e6a634e9d98e2c64e2d89157d74cef/docs/Overview.md) lists several logical
+  instances per pod as a supported pattern, which supports a translator that
+  fronts many devices. [DOC]
 - **The model carries most of the work.** AMWA's own deck says IS-12 is "a thin
   wrapper around the models". A translator's main job is to map a device onto
   MS-05-02 classes, and the protocol on top is the easy part. [DOC]
@@ -689,7 +686,7 @@ interface, so the loop keeps working if the workflow engine changes").
    an on-behalf-of identity. Requiring that is a reasonable admission condition
    for third-party controllers, though NMOS does not standardise it.
 5. **Naming.** Call a third-party controller a "control application" (EBU
-   Application and UI layer, IN-003 Application tier). Call a translator a
+   Application and UI layer, IN-003 Application and UI tier). Call a translator a
    "translator function". Reserve "media function" for functions that handle
    media streams.
 6. **Third-party controllers are packaged like anything else.** A control

@@ -64,8 +64,8 @@ deltas between intended and observed state.
 3. AMWA has one released monitoring model: BCP-008-01 and BCP-008-02 (v1.0.0,
    2025-08-26) on IS-12 and MS-05-02. It is a typed traffic-light model for
    NMOS senders and receivers. It is subscribe-first, and it has no unit
-   field. The AMWA DMF increments (IN-001, IN-003, IN-004) leave monitoring as
-   TBD. IN-004 names IS-12, OpenTelemetry and SMPTE ST 2138 (Catena) as
+   field. IN-001 and IN-004 leave monitoring for later, and IN-003 defines no
+   monitoring field. IN-004 names IS-12, OpenTelemetry and SMPTE ST 2138 (Catena) as
    candidate protocols.
 4. The best precedents for the shape of the declaration come from outside
    broadcast. ETSI NFV `monitoringParameter` and VNF indicators, and the ONAP
@@ -295,8 +295,9 @@ in any ADR.
     `flow.label`; `inputs[]` and `outputs[]` with video and audio formats;
     `args[]`; and `requirements` (cpu, memory, host_capabilities).
   - **No telemetry or monitoring field.** The project confirmed this with a
-    grep. The overview prose names media function metrics only as a box in
-    its architecture picture.
+    grep of the schema and manifests. The [overview](https://github.com/AMWA-TV/in-003/blob/fd5f0363b0e6a634e9d98e2c64e2d89157d74cef/docs/Overview.md) mentions that the
+    workload emits media function metrics, but IN-003 defines no schema field
+    for them.
   - IN-003 issue #4, opened 2026-10-21, had no replies on 2026-10-22.
 - **IN-004** "Flow Connection Phase 2" (WIP) has the only concrete AMWA
   monitoring text for DMF
