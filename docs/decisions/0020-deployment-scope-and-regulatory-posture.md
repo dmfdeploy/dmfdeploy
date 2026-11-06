@@ -2,7 +2,7 @@
 
 **Status:** Accepted
 **Date:** 2026-05-11
-**Amended:** 2026-05-23; Mode A promoted to Accepted; Modes B and C remain Proposed pending a real driver (see §Amendment 2026-05-23).
+**Amended:** 2026-05-23; Mode A promoted to Accepted; Modes B and C remain Proposed pending a real driver (see §Amendment 2026-05-23). 2026-11-06; Modes B and C moved to ADR-0049 and ADR-0050 (see Status).
 **Deciders:** operator
 **Rule:** DMF ships in three named modes, each with a binding regulatory posture and a binding architectural constraint. Only Mode A (OSS self-host, no attestation, zero outbound calls to dmfdeploy.io) is Accepted here; the Mode B (managed service) and Mode C (flypack) constraints stay Proposed in [ADR-0049](0049-managed-service-mode-dmfdeploy-io.md) and [ADR-0050](0050-flypack-mode-portable-offline-kit.md).
 
@@ -125,6 +125,6 @@ Reference downstream links: see the [archive record](../archive/decisions/0020-d
 
 Accepted
 
-Status history: until 2026-11-06 this ADR also carried Mode B and Mode C, each Proposed. Mode B is now [ADR-0049](0049-managed-service-mode-dmfdeploy-io.md) and Mode C is [ADR-0050](0050-flypack-mode-portable-offline-kit.md). The amendment above is kept as written, so it still describes the split as a later step. The split was made to give each Proposed mode its own record; it does not mean the amendment's condition for a split was met.
+Status history: until 2026-11-06 this ADR also carried Mode B and Mode C, each Proposed. Mode B is now [ADR-0049](0049-managed-service-mode-dmfdeploy-io.md) and Mode C is [ADR-0050](0050-flypack-mode-portable-offline-kit.md). **Amendment 2026-11-06 (dmfdeploy/dmfdeploy#725, maintainer decision):** this replaces the 2026-05-23 rule above that Modes B and C split out only when a real driver appears. They moved now so that this ADR holds one status. The move changes neither mode's status, constraints nor promotion gate, and no real driver is implied.
 
 Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0020-deployment-scope-and-regulatory-posture.md).
