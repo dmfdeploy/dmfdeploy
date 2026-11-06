@@ -23,10 +23,14 @@ dmfdeploy's media function descriptor is a superset of IN-003. Where a
 descriptor field means the same as an IN-003 field, the descriptor uses the
 IN-003 name and shape. Fields that only dmfdeploy needs, such as artefact
 identity, provenance and revocation, are additions and never renamed IN-003
-fields. The descriptor still exports an optional IN-003 manifest and checks
-that export against a pinned IN-003 commit at test time. dmfdeploy never
-copies or adapts IN-003 text or schema, which is CC BY-ND 4.0. Tracked in
-[dmfdeploy/dmfdeploy#746](https://github.com/dmfdeploy/dmfdeploy/issues/746). The survey below predates this decision.
+fields. The descriptor will export an optional IN-003 manifest, and a test
+will check that export against a pinned IN-003 commit. Both are planned
+under [dmfdeploy/dmfdeploy#746](https://github.com/dmfdeploy/dmfdeploy/issues/746)
+and [dmfdeploy/dmfdeploy#637](https://github.com/dmfdeploy/dmfdeploy/issues/637);
+neither exists yet. The IN-003 documents are licensed CC BY-ND 4.0, and the
+IN-003 schema carries no license grant. For both reasons, dmfdeploy never
+copies or adapts IN-003 text or schema. The research below predates this
+decision. Passages that conflicted with it have been updated.
 
 **How to read it:** the survey is web research and reading. It made no code
 changes. The project accessed every web source on 2026-10-22 unless a line
@@ -129,28 +133,26 @@ and are marked "secondary" where nobody read the primary page.
 **IN-003** (<https://specs.amwa.tv/in-003>, repository `AMWA-TV/in-003`; the
 same content also sits in `AMWA-TV/jt-dmf-crm`, Apache-2.0):
 
-- Purpose: "a platform-agnostic way to declare the resources required by a
-  Media Function": compute, memory, storage, network and accelerators.
-- Architecture: a Media Functions tier defines "the overall Media Function
-  Descriptor and the primary Manifests Schema". A Container Platform tier has
-  "Operator(s)" that consume manifests and instantiate the workload, which
-  emits "Media Function Metrics".
-- It has a section "Level Trigger Pattern and Desired State Reconciliation"
-  that describes a Kubernetes custom resource with Spec and Status and an
-  operator control loop.
-- Domain model: Media Function (a configured instance or session), Media
-  Function Context (separates productions), and Media Function Config
-  (cluster-wide shared components such as a licence server). The function
-  specification names its "Control type (NMOS, etc.)" and "Transport (MXL,
-  etc.)".
-- Schema: `manifest/schema/resource_manifest_schema.yaml`, JSON Schema
-  draft-07, `apiVersion` pattern `mxl.media.fn/v…`,
-  `kind: MxlMediaFunctionParameters`. Fields: `role`, `inputs`/`outputs` with
-  typed video and audio formats, and `requirements` (CPU in Kubernetes
-  millicores, memory type and throughput, host capabilities, GPU, NIC,
-  storage). The repository has a `validate_manifest.py`.
-- **Configuration parameters are not declared.** `spec.args` is
-  `type: array, items: {type: object}` with no further schema.
+- Purpose: a vendor-neutral way to declare what a media function needs to
+  run: compute, memory, storage, network and accelerators.
+- Architecture: a media function tier holds the function descriptor and the
+  main manifest schema. A container platform tier runs operators that read
+  manifests and start the workload. The workload reports metrics.
+- A section on level-triggered, desired-state reconciliation describes a
+  Kubernetes custom resource with a spec and a status, driven by an operator
+  control loop.
+- Domain model: a Media Function is one configured instance or session. A
+  Media Function Context separates productions. A Media Function Config holds
+  shared components for the whole cluster, such as a licence server. The
+  function specification records the control type and the transport.
+- Schema: `manifest/schema/resource_manifest_schema.yaml` is a JSON Schema
+  draft-07 file with an `apiVersion` pattern under `mxl.media.fn/` and
+  `kind: MxlMediaFunctionParameters`. The fields cover `role`,
+  `inputs`/`outputs` with typed video and audio formats, and `requirements`
+  for CPU (in Kubernetes millicores), memory, host capabilities, GPU, NIC and
+  storage. The repository has a `validate_manifest.py`.
+- **Configuration parameters are not declared.** `spec.args` is a list of
+  objects with no further schema.
 - Example: the repository holds an example manifest and a presentation
   (`JT-DMF-CRM-Riedel-Example.pdf`) for an MXL sink demonstration contributed
   by Riedel. It runs on kind with Kubernetes Dynamic Resource Allocation
@@ -635,7 +637,7 @@ Facts:
 - Precedents for containerised controllers: easy-nmos runs the nmos-js
   controller, an nmos-cpp registry and a node in Docker Compose. The AMWA
   NMOS testing tool is a test controller that is commonly run as a container.
-  IN-003 places "Operator(s)" in the Container Platform tier. Nephio
+  IN-003 places operators in its container platform tier. Nephio
   configures network functions from Kubernetes controllers. The survey found
   no published open project that packages an IS-12/IS-14 configuration
   controller as a Kubernetes operator.
