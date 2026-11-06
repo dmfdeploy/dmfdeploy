@@ -1,53 +1,6 @@
 # ADR-0049 archive: Managed service mode (`dmfdeploy.io`)
 
-This companion record holds the full text that ADR-0049 links to: the Mode B constraint list and promotion gate, which are the authoritative reference text for Mode B (Proposed; they bind no implementation today), and the Mode B amendment text, alternatives and consequences. Change it together with ADR-0049.
-
-## Binding architectural constraints
-
-**Binding architectural constraints:**
-
-1. **Shamir shares originate customer-side and never traverse dmfdeploy.io.**
-   The control plane orchestrates; the customer holds the unseal quorum
-   from second 1. Sigstore-style "dmfdeploy.io signs, customer verifies"
-   pattern for image and config provenance. This is the dividing line
-   between "we are a data processor" and "we are a software supplier."
-   This constraint is incompatible with the experiment-phase
-   auto-unseal tradeoff accepted in
-   [ADR-0011](../../decisions/0011-auto-unseal-tradeoff.md), where an operator-local
-   automation file holds a Shamir quorum. Before Mode B ships, that
-   automation-quorum path must be removed or replaced for customer hubs
-   (for example by HA OpenBao with manual initial unseal, or by a
-   customer-side unseal ceremony whose share material never reaches
-   dmfdeploy.io systems or agent transcripts).
-2. **No long-lived customer cloud credentials at rest in dmfdeploy.io.**
-   Use OIDC/workload-identity federation where the provider supports it
-   (for example AWS IAM Roles Anywhere or GCP Workload Identity).
-   Provider-specific bootstrap mechanisms such as Hetzner cloud-init
-   seed are not federation. They are acceptable only when customer-side,
-   ephemeral, and documented as a non-federated bootstrap path.
-   Providers without federation (Aliyun, small clouds) are handled
-   out-of-band via the customer's own credential vault and logged as
-   residual risk in their TIA.
-3. **Each tenant gets its own cluster.** Mode B has no multi-tenant shared
-   cluster. This inherits from the existing Authentik-per-cluster +
-   `dmf-central` scaffold posture. Wrong for unit economics; right for
-   compliance blast-radius and is the binding constraint that lets us
-   answer customer auditors honestly.
-4. **External-service gating enforces the OSS / managed boundary.** Feature
-   flags do not. Managed features (multi-tenant billing,
-   hub-orchestration UI, support-portal hooks) require an API key from
-   dmfdeploy.io to function; they may live in the public OSS repos as
-   "dormant" code but provide no value without the managed API. Avoids
-   the open-core fragmentation and the feature-flag-flip risk.
-
-## Amendment 2026-05-23: Mode B remains Proposed
-
-- **Mode B (managed `dmfdeploy.io`) remains Proposed.** The B.1–B.4
-  architectural constraints stand as the authoritative reference for any
-  future managed-service work, but no Mode B work is in flight and no
-  ship date is committed. Promotion is gated on the original Status
-  criteria 1–4 and on a concrete managed-service driver (paying customer pilot,
-  funded contract, or explicit dmfdeploy.io GmbH formation).
+This file holds material moved out of [ADR-0049](../../decisions/0049-managed-service-mode-dmfdeploy-io.md), which took it from ADR-0020 when Mode B was split out. The text is unchanged apart from headings and relative link paths. The ADR is the binding record; this file is history and is not maintained.
 
 ## Alternatives considered
 

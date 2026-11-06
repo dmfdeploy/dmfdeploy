@@ -73,6 +73,8 @@ BUDGET_STATUS=30
 # the tree scan reports a ceiling above the file's current line count, so
 # lower the ceiling in the change that trims the ADR, and remove the entry
 # once the ADR fits the budget. Every other ADR keeps BUDGET_ADR.
+# ADR-0049 is the exception to "when enforcement started": it holds the Mode B
+# text moved word for word out of ADR-0020 (#725), so it starts at that length.
 ADR_CEILINGS='
 docs/decisions/0016-awx-control-node-ssh-via-cloud-init-and-openbao.md 83
 docs/decisions/0020-deployment-scope-and-regulatory-posture.md 130
@@ -80,6 +82,7 @@ docs/decisions/0021-openbao-approle-reconciler-identity.md 83
 docs/decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md 248
 docs/decisions/0032-catalog-launcher-scoped-netbox-writer.md 124
 docs/decisions/0038-netbox-driven-dynamic-monitoring.md 266
+docs/decisions/0049-managed-service-mode-dmfdeploy-io.md 100
 docs/decisions/0047-media-function-packaging-catalog-sources-trust-model.md 202'
 
 # Plans whose status is not active or draft but that stay in docs/plans/
