@@ -1,6 +1,7 @@
 ---
-status: active
+status: executed
 date: 2026-10-27
+executed: 2026-11-06
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/15
 ---
 
@@ -111,3 +112,18 @@ automatic login and perform a reviewed account-link migration; do not enable
 email-based linking to make the error disappear. A rejected user remains unable
 to log in; removing their Authentik group ends future Forgejo access, while
 repository history remains attributable to the account that created it.
+
+## Outcome
+
+The plan is executed. Every rollout step is verified on the sandbox
+environment and recorded on the tracking issue. Four live checks passed:
+
+- An `ops-admin` user signs in through single sign-on and lands as a Forgejo
+  administrator.
+- A `forgejo-contributor` user is auto-provisioned as a non-administrator OAuth 2.0
+  account.
+- Sign-in is refused after the user leaves the contributor group.
+- The break-glass local login keeps site administrator access.
+
+One finding came out of the rollout: an Authentik user needs an email address
+for Forgejo auto-registration to succeed.
