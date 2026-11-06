@@ -41,7 +41,7 @@ Discipline only: no script, test or workflow checks Mode B.
 
 Proposed
 
-Promote from **Proposed** → **Accepted** when:
+Promote from **Proposed** → **Accepted** when the criteria below hold and the concrete managed-service driver that the [2026-05-23 amendment](../archive/decisions/0049-managed-service-mode-dmfdeploy-io.md#amendment-2026-05-23-mode-b-remains-proposed) requires exists:
 
 1. The OSS-vs-managed boundary (B.4) has been confirmed by the operator
    as the chosen pattern (alternatives explicitly rejected in the [archive record](../archive/decisions/0049-managed-service-mode-dmfdeploy-io.md#alternatives-considered)).
