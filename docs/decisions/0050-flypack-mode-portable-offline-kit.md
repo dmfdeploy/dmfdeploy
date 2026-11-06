@@ -48,6 +48,8 @@ breach assessment.
 
 ### Enforcement
 
+Discipline only: no script, test or workflow checks Mode C.
+
 - **Mode C architectural constraints (C.1–C.4):** the flypack readiness
   checklist (Tier C of the
   [Pre-Release Compliance Readiness Plan](../plans/DMF%20Pre-Release%20Compliance%20Readiness%20Plan%202026-05-11.md))
