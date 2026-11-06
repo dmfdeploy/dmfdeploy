@@ -56,10 +56,9 @@ and are marked "secondary" where nobody read the primary page.
   three are released as "AMWA Specification", with open implementations and
   test suites.
 - **JT-DMF works on the deployment side.** Its public outputs are AMWA
-  "Increments" (IN-001 to IN-006). IN-003 is a compute-resource manifest for a
-  media function. It is Kubernetes-oriented, and its model has an operator
-  with spec and status reconciliation. It does not declare configuration
-  parameters: `spec.args` is an untyped array.
+  "Increments" (IN-001 to IN-006). IN-003 is the one that covers a media
+  function manifest (see its [overview](https://github.com/AMWA-TV/in-003/blob/fd5f0363b0e6a634e9d98e2c64e2d89157d74cef/docs/Overview.md)). It does not declare
+  configuration parameters: `spec.args` is an untyped array.
 - **No open standard covers the whole chain** from a package descriptor to
   validated, read-back, monitored configuration of a containerised media
   function. dmfdeploy has to compose one.
@@ -130,34 +129,20 @@ and are marked "secondary" where nobody read the primary page.
 - Monitoring "will be defined in a future revision".
 - It names no protocol. BCP-007-03 (below) is the NMOS answer for connection.
 
-**IN-003** (<https://specs.amwa.tv/in-003>, repository `AMWA-TV/in-003`; the
-same content also sits in `AMWA-TV/jt-dmf-crm`, Apache-2.0):
+**IN-003** (<https://specs.amwa.tv/in-003>, repository `AMWA-TV/in-003`):
 
-- Purpose: a vendor-neutral way to declare what a media function needs to
-  run: compute, memory, storage, network and accelerators.
-- Architecture: a media function tier holds the function descriptor and the
-  main manifest schema. A container platform tier runs operators that read
-  manifests and start the workload. The workload reports metrics.
-- A section on level-triggered, desired-state reconciliation describes a
-  Kubernetes custom resource with a spec and a status, driven by an operator
-  control loop.
-- Domain model: a Media Function is one configured instance or session. A
-  Media Function Context separates productions. A Media Function Config holds
-  shared components for the whole cluster, such as a licence server. The
-  function specification records the control type and the transport.
-- Schema: `manifest/schema/resource_manifest_schema.yaml` is a JSON Schema
-  draft-07 file with an `apiVersion` pattern under `mxl.media.fn/` and
-  `kind: MxlMediaFunctionParameters`. The fields cover `role`,
-  `inputs`/`outputs` with typed video and audio formats, and `requirements`
-  for CPU (in Kubernetes millicores), memory, host capabilities, GPU, NIC and
-  storage. The repository has a `validate_manifest.py`.
+- For the purpose, tiers, domain model and reconciliation pattern, read the
+  IN-003
+  [overview](https://github.com/AMWA-TV/in-003/blob/fd5f0363b0e6a634e9d98e2c64e2d89157d74cef/docs/Overview.md).
+  This survey does not restate them.
+- The manifest schema is `manifest/schema/resource_manifest_schema.yaml`,
+  with `apiVersion` under `mxl.media.fn/` and `kind:
+  MxlMediaFunctionParameters`. The fields include `role`, `inputs`,
+  `outputs` and `requirements`. The repository includes `validate_manifest.py`.
 - **Configuration parameters are not declared.** `spec.args` is a list of
   objects with no further schema.
-- Example: the repository holds an example manifest and a presentation
-  (`JT-DMF-CRM-Riedel-Example.pdf`) for an MXL sink demonstration contributed
-  by Riedel. It runs on kind with Kubernetes Dynamic Resource Allocation
-  (`resource.k8s.io/v1` ResourceSlice for memory throughput) and needs
-  Kubernetes v1.35 or later.
+- Example: the repository holds `examples/riedel-mxl-sink-demo`, with its own
+  HOWTO and presentation. The demo needs Kubernetes v1.35 or later.
 
 **IN-004** (<https://specs.amwa.tv/in-004>):
 
@@ -222,8 +207,8 @@ copy of the PDF; <https://tech.ebu.ch/dmf/ra>). Page numbers are PDF pages.
 - IN-004's deploy-time configuration file is a real requirement for static
   wiring. It shows that JT-DMF expects both a deploy-time file and a live
   protocol.
-- IN-003 already assumes an operator with spec and status. That supports the
-  idea of a controller packaged as a platform function.
+- IN-003's overview describes an operator-based deployment model, which fits
+  the idea of a controller packaged as a platform function.
 
 ## 2. AMWA NMOS beyond IS-04 and IS-05
 
@@ -637,7 +622,7 @@ Facts:
 - Precedents for containerised controllers: easy-nmos runs the nmos-js
   controller, an nmos-cpp registry and a node in Docker Compose. The AMWA
   NMOS testing tool is a test controller that is commonly run as a container.
-  IN-003 places operators in its container platform tier. Nephio
+  IN-003 also expects operators (see its [overview](https://github.com/AMWA-TV/in-003/blob/fd5f0363b0e6a634e9d98e2c64e2d89157d74cef/docs/Overview.md)). Nephio
   configures network functions from Kubernetes controllers. The survey found
   no published open project that packages an IS-12/IS-14 configuration
   controller as a Kubernetes operator.
