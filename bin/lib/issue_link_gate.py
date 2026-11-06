@@ -21,6 +21,10 @@ ISSUE_REF = re.compile(
 )
 
 
+# A link to a private agent session does not belong in a public PR (#838).
+SESSION_LINK = re.compile(r"claude\.ai/code/session")
+
+
 def evaluate(body: Any, labels: Any, default_repo: Any) -> list[str]:
     """Return safe, non-sensitive gate errors for API-supplied PR data."""
     if not isinstance(body, str):
@@ -32,6 +36,8 @@ def evaluate(body: Any, labels: Any, default_repo: Any) -> list[str]:
         return ["default repository is not the canonical backlog"]
 
     errors: list[str] = []
+    if SESSION_LINK.search(body):
+        errors.append("PR body links to an agent session")
     if find_negated(body):
         errors.append("PR body pairs a closing keyword with a negation")
     if "no-issue" not in labels and not ISSUE_REF.search(body):
