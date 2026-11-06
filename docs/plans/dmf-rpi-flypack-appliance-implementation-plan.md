@@ -39,7 +39,8 @@ Before implementing any part of this plan:
    - `0013-media-function-catalog-model.md`
    - `0014-awx-project-layout.md`
    - `0016-awx-control-node-ssh-via-cloud-init-and-openbao.md`
-   - `0020-deployment-scope-and-regulatory-posture.md` if still Proposed
+   - `0050-flypack-mode-portable-offline-kit.md` (Mode C, its constraints and promotion gate), with
+     `0020-deployment-scope-and-regulatory-posture.md` for the three-mode framing
 6. Check `git status` in any component repo before touching it.
 7. Do not inspect or edit `dmf-env` unless explicitly instructed by the
    operator; it is private/secrets-sensitive.
