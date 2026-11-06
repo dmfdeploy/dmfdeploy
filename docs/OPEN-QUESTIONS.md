@@ -72,7 +72,7 @@ calls this the project's systemic risk.
 
 - **Proposed ADRs without a forcing function** (see
   [INDEX.md §Open decision debt](decisions/INDEX.md)):
-  managed-service and flypack modes ([ADR-0020](decisions/0020-deployment-scope-and-regulatory-posture.md) B/C),
+  managed-service and flypack modes ([ADR-0049](decisions/0049-managed-service-mode-dmfdeploy-io.md) and [ADR-0050](decisions/0050-flypack-mode-portable-offline-kit.md)),
   flypack-online edge agent ([ADR-0022](decisions/0022-flypack-online-thin-edge-agent.md)),
   provider descriptors ([ADR-0026](decisions/0026-provider-descriptors.md)),
   console i18n/air-gap posture ([ADR-0030](decisions/0030-console-i18n-and-airgap-posture.md)),

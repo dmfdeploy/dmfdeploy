@@ -288,7 +288,7 @@ real ownership join and an independent no-disclosure proof (properties 4 and
 11) before blank containers are served in `scoped` mode.
 
 Three things are called "tenant" and must not be conflated: the shared NetBox
-tenant `DMF` (ADR-0039), the media tenant (ADR-0020), and the console's media
+tenant `DMF` (ADR-0039), the media tenant (ADR-0049), and the console's media
 tenancy setting (empty keeps the surface dark, `single`, `scoped`).
 
 ### 6.2 Create's producer (operator, 2026-09-11)

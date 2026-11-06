@@ -32,7 +32,7 @@ The reconciler's responsibilities are in the archive record.
 
 - **Positive**: when implemented, eliminates per-function bootstrap-layer churn. Third-party functions become a YAML+chart contribution (no DMF maintainer code change). Namespace count tracks instantiations and does not track catalog size. The trust-boundary tooling (NetworkPolicy, PSA, image signing, ResourceQuota) lands in one reconciler instead of being duplicated per function.
 - **Negative**: a Kubernetes operator/controller is a new platform component to build and operate; CRDs are an API surface to version; the migration from today's bootstrap-RBAC pattern to the reconciler-RBAC pattern requires a one-time per-function lift.
-- **Neutral**: the catalog YAML schema (ADR-0013) survives; the Helm chart pattern (ADR-0025 Lane B) survives; ADR-0020 B.3 cluster-per-tenant survives. This ADR is additive and inserts the middle layer that today is implicit.
+- **Neutral**: the catalog YAML schema (ADR-0013) survives; the Helm chart pattern (ADR-0025 Lane B) survives; ADR-0049 B.3 cluster-per-tenant survives. This ADR is additive and inserts the middle layer that today is implicit.
 
 ## Enforcement
 
@@ -58,7 +58,7 @@ Promote from **deferred** to **imminent** (i.e. start building) when
 3. Cluster namespace count crosses 50 from catalog functions alone
    (well below SIG Scalability's 10K, but the operational-overhead
    inflection point per GPT-5's guidance).
-4. ADR-0020 **Mode B** promotes to Accepted (managed `dmfdeploy.io`
+4. ADR-0049 (**Mode B**) promotes to Accepted (managed `dmfdeploy.io`
    active), since Mode B implies 3rd-party functions become a real
    channel. The 2026-05-23 Mode-A-only promotion of ADR-0020 does not
    trigger this criterion: Mode A is single-tenant operator-self-host

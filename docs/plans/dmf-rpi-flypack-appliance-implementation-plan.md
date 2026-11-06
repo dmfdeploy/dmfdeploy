@@ -602,7 +602,7 @@ must limit concurrency:
 
 ### RPi vs Mode C Compliance
 
-ADR-0020 is Proposed at plan time and says a shipping Mode C flypack needs
+ADR-0050 is Proposed at plan time and says a shipping Mode C flypack needs
 secrets sealed to local TPM/HSM. A stock RPi 5 does not satisfy that by itself.
 
 Therefore this plan produces a **Mode C prototype/reference appliance**, not a
