@@ -165,3 +165,114 @@ The follow-on work packages must implement the contract exactly as written here.
 Any implementation that changes the monitoring contract schema, introduces a second
 contract shape, or reverts the bridge to a bootstrap-only file export should be
 treated as an ADR violation and reviewed against this decision first.
+
+## Amendment history
+
+These are Amendments A and B to ADR-0038, moved from the ADR when its Decision was rewritten as the current rule. The text is unchanged apart from relative link paths. Where an amendment overrides an earlier rule, the ADR's Decision states only the later rule.
+
+### Amendment A (2026-06-04): probe / scrape targets via cluster service DNS
+
+**Status:** Accepted. Amends §3, §4, and the §5 lane-level address contract.
+
+Problem statement and evidence: see the [archive record](0038-netbox-driven-dynamic-monitoring.md).
+
+#### Decision
+
+**The probe and scrape targets for in-cluster objects are the object's stable
+cluster Service DNS name, composed by the adapter from identity recorded in NetBox.
+They are never a pod or ingress IP.** This applies uniformly to born-inventoried platform
+apps and to dynamically deployed catalog/media-function services.
+
+1. **Record the stable cluster identity.** Add three custom fields to the
+   contract (typed, optional, stamped by whoever deploys the object). The contract records no IP for in-cluster objects.
+
+   | Custom field | Type | Meaning |
+   |---|---|---|
+   | `cluster_service` | text | the Kubernetes `Service` name |
+   | `cluster_namespace` | text | the Kubernetes namespace |
+   | `cluster_port` | integer | the in-cluster Service port to probe (the app's service port, which is **not** necessarily the ingress `:443` recorded in `ipam.service.ports`) |
+
+   A Kubernetes Service's DNS name (`<svc>.<ns>.svc.cluster.local`) and ClusterIP are
+   **stable for the Service's lifetime** and survive pod rescheduling; only the pods
+   behind it churn. So the adapter never needs to discover or track an IP. The
+   target is a deterministic function of `cluster_service` + `cluster_namespace`.
+
+2. **The deployer is the bridge.** The agent that *creates* the Kubernetes Service is
+   the one thing that holds both the cluster reality and the NetBox record, so it
+   stamps `cluster_service`/`cluster_namespace`/`cluster_port` at registration time,
+   in the same lifecycle step it already stamps the monitoring tags:
+   - **born-inventory** (platform apps) knows each app's Service name/ns/port.
+   - **catalog launcher** (dynamic media functions) knows the Service it
+     created (ADR-0037 instance inventory).
+
+   No separate IP-to-service reconciler is needed.
+
+3. **Adapter composition (replaces the §5 Probe / Scrape `__address__` derivation for
+   in-cluster objects).** Let `host = <cluster_service>.<cluster_namespace>.svc.cluster.local`:
+   - **Probe:** `__address__ = host:<cluster_port>`; the request is plain internal
+     **HTTP** (ADR-0023). `__param_module = probe_module` as before. WP5's blackbox
+     indirection relabel is unchanged.
+   - **Scrape:** `__address__ = host:<metrics_port>`, `__metrics_path__ = metrics_path`.
+   - **Precedence / fallback:** if `cluster_service` + `cluster_namespace` are present,
+     the adapter uses the svc-DNS form. Otherwise it falls back to
+     `primary_ip4.address`, which remains correct for **external / off-cluster
+     devices** and the **SNMP lane** (physical gear that legitimately has an IP and no
+     cluster Service).
+
+#### Consequences / notes
+
+- This fits the ADR-0023 internal-svc-DNS-over-plain-HTTP posture: no
+  ingress Host/path juggling, no TLS/CA-in-pod problem, no shared-LB-IP ambiguity.
+  The probe answers "is the Service responding," which is the right health signal.
+- `exposure:public` objects *may* later warrant an **additional** external-URL probe
+  (does the ingress actually serve it end-to-end), composed from `exposure:*` +
+  `external_base_url`. That is an optional second probe and is **deferred**; the
+  internal svc-DNS probe is the robust baseline and the default.
+
+### Amendment B (2026-07-03): `probe_path` probe-lane URL path
+
+**Status:** Accepted. Amends §3, §4, and the Amendment A adapter composition.
+
+Problem statement: see the [archive record](0038-netbox-driven-dynamic-monitoring.md).
+
+#### Decision
+
+**Add one custom field to the monitoring contract:**
+
+| Custom field | Type | Default | Object types |
+|---|---|---|---|
+| `probe_path` | text | empty | `ipam.service`, `dcim.device`, `virtualization.virtualmachine` |
+
+**Semantics (probe-lane only):**
+
+1. `probe_path` participates only in the probe lane. The scrape lane keeps
+   `metrics_path`; the SNMP lane ignores `probe_path` entirely.
+2. The adapter appends the path to the composed probe target **only when the
+   selected `probe_module` is an http prober** (module name starting `http_`).
+   For any other module (`tcp_connect`, `icmp`, …) the field is ignored and the
+   target remains `host:port`.
+3. The path is normalized to a single leading `/` (`ready` and `/ready` both
+   yield `…:3100/ready`); trailing content is preserved as given.
+4. An empty or absent `probe_path` is a no-op: the composed target is exactly
+   what Amendment A specifies.
+5. The append applies to **both** address compositions: the svc-DNS form
+   (`<svc>.<ns>.svc.cluster.local:<cluster_port><probe_path>`) and the
+   `primary_ip4.address` fallback (`<ip>:<port><probe_path>`).
+
+The blackbox http prober accepts a schemeless full-URL target, and the existing probe-job relabelling (`__param_target <- __address__`) forwards it unchanged. So this amendment changes only the adapter's target composition. It leaves the Prometheus job contract and the `/sd/*` output shape unchanged.
+
+**The `dmf_blackbox_probe_modules` choice set (§3) additionally gains
+`http_2xx_302`**, an http prober with `follow_redirects: false` and
+`valid_status_codes: [200, 301, 302, 303, 307, 308]`, for targets whose healthy
+root response is a redirect that must not be dereferenced (canonical case:
+Grafana's `/` to `/login` behind an OAuth auto-login chain to a local-CA URL).
+As everywhere in §3, the choice set must stay lock-step with the deployed
+blackbox-exporter module list.
+
+#### Consequences / notes
+
+- The catalog `monitoring.probe` block gains an optional `probe_path` key,
+  mapping 1:1 to the custom field, consistent with §3's additive-schema rule.
+- Stamping follows Amendment A's "the deployer is the bridge" rule: born-inventory
+  (platform apps) and the catalog launcher stamp `probe_path` alongside the other
+  monitoring fields, gated on `monitoring:probe`.
