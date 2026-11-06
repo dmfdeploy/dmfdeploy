@@ -18,6 +18,16 @@ builds on it, together with the descriptor work in
 [#634](https://github.com/dmfdeploy/dmfdeploy/issues/634). A companion note
 covers [telemetry declaration](media-function-telemetry-declaration-survey.md).
 
+**Decision, 2026-11-06:** AMWA IN-003 field names are authoritative.
+dmfdeploy's media function descriptor is a superset of IN-003. Where a
+descriptor field means the same as an IN-003 field, the descriptor uses the
+IN-003 name and shape. Fields that only dmfdeploy needs, such as artefact
+identity, provenance and revocation, are additions and never renamed IN-003
+fields. The descriptor still exports an optional IN-003 manifest and checks
+that export against a pinned IN-003 commit at test time. dmfdeploy never
+copies or adapts IN-003 text or schema, which is CC BY-ND 4.0. Tracked in
+[dmfdeploy/dmfdeploy#746](https://github.com/dmfdeploy/dmfdeploy/issues/746). The survey below predates this decision.
+
 **How to read it:** the survey is web research and reading. It made no code
 changes. The project accessed every web source on 2026-10-22 unless a line
 says otherwise. Each section separates **Facts** (with a source) from
@@ -203,9 +213,10 @@ copy of the PDF; <https://tech.ebu.ch/dmf/ra>). Page numbers are PDF pages.
 ### Judgment
 
 - IN-003 is close to dmfdeploy's `dmf-function.yaml` in purpose and shape
-  (Kubernetes-style `apiVersion`/`kind`/`metadata`/`spec`). It is the natural
-  upstream to align the resource part of the descriptor with, and the gap in
-  `spec.args` is where a parameter declaration could be proposed.
+  (Kubernetes-style `apiVersion`/`kind`/`metadata`/`spec`). The descriptor
+  takes its field names from IN-003 wherever the meaning is the same (see the
+  decision note at the top of this document), and the gap in `spec.args` is
+  where a parameter declaration could be proposed.
 - IN-004's deploy-time configuration file is a real requirement for static
   wiring. It shows that JT-DMF expects both a deploy-time file and a live
   protocol.

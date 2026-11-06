@@ -16,6 +16,16 @@ decides nothing and schedules nothing. The RFC tracked in
 builds on it, together with the descriptor work in
 [#634](https://github.com/dmfdeploy/dmfdeploy/issues/634).
 
+**Decision, 2026-11-06:** AMWA IN-003 field names are authoritative.
+dmfdeploy's media function descriptor is a superset of IN-003. Where a
+descriptor field means the same as an IN-003 field, the descriptor uses the
+IN-003 name and shape. Fields that only dmfdeploy needs, such as artefact
+identity, provenance and revocation, are additions and never renamed IN-003
+fields. The descriptor still exports an optional IN-003 manifest and checks
+that export against a pinned IN-003 commit at test time. dmfdeploy never
+copies or adapts IN-003 text or schema, which is CC BY-ND 4.0. Tracked in
+[dmfdeploy/dmfdeploy#746](https://github.com/dmfdeploy/dmfdeploy/issues/746). The survey below predates this decision.
+
 **How to read it:** the project accessed the web sources on 2026-10-22, except
 where a line marks a source (U) as not read or not fetched. Five
 slices of research ran in parallel (JT-DMF and EBU, AMWA, broadcast transport,
@@ -1048,8 +1058,8 @@ the ADR-0047 rule that publishers ship apps and the platform owns cluster machin
    reader and writer counters, latency) to AMWA and the JT-DMF CRM track,
    building on IN-004? This is external contact, so the project decides
    first.
-9. Does the IN-003 mapping (#634) need a telemetry extension point, or should
-   it stay out until AMWA defines one?
+9. Does the descriptor (#634), which uses IN-003 field names, need a
+   telemetry extension point, or should it stay out until AMWA defines one?
 10. Is the metered subset (the DSL alignment) in scope before ADR-0045
     licence enforcement is decided?
 
