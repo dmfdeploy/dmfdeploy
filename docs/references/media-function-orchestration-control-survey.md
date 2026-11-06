@@ -21,6 +21,17 @@ builds on it, together with the descriptor work in
 names appear because this is a research reference. A product named here is
 evidence about the market. It is not a design dmfdeploy follows.
 
+**Decision, 2026-11-06:** AMWA IN-003 field names are authoritative.
+dmfdeploy's media function descriptor is a superset of IN-003. Where a
+descriptor field means the same as an IN-003 field, the descriptor uses the
+IN-003 name and shape. Fields that only dmfdeploy needs, such as artefact
+identity, provenance and revocation, are additions and never renamed IN-003
+fields. The descriptor still exports an optional IN-003 manifest and checks
+that export against a pinned IN-003 commit at test time. dmfdeploy never
+copies or adapts IN-003 text or schema, which is CC BY-ND 4.0. Tracked in
+[dmfdeploy/dmfdeploy#746](https://github.com/dmfdeploy/dmfdeploy/issues/746).
+The survey below predates this decision.
+
 ## How to read this survey
 
 - The project accessed the web sources on 2026-10-22, except where the text
