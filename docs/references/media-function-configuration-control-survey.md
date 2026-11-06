@@ -203,8 +203,10 @@ copy of the PDF; <https://tech.ebu.ch/dmf/ra>). Page numbers are PDF pages.
 
 ### Judgment
 
-- IN-003 is close to dmfdeploy's `dmf-function.yaml` in purpose and shape
-  (Kubernetes-style `apiVersion`/`kind`/`metadata`/`spec`). The descriptor
+- IN-003 is close to dmfdeploy's `dmf-function.yaml` in purpose. Both open
+  with Kubernetes-style `apiVersion`, `kind` and `metadata`, but IN-003 nests
+  the rest under `spec`, while the descriptor keeps its fields at the top
+  level and has no `spec`. The descriptor
   takes its field names from IN-003 wherever the meaning is the same (see the
   decision note at the top of this document), and the gap in `spec.args` is
   where a parameter declaration could be proposed.
