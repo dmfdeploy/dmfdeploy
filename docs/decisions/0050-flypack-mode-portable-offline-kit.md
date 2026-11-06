@@ -60,7 +60,7 @@ Discipline only: no script, test or workflow checks Mode C.
 
 Proposed
 
-Promote from **Proposed** → **Accepted** when the criterion below holds. ADR-0020 numbered its promotion criteria across both modes: criteria 1–4 gate Mode B and are in [ADR-0049](0049-managed-service-mode-dmfdeploy-io.md); criterion 5 alone gates Mode C, so the number is kept:
+Promote from **Proposed** → **Accepted** when the criterion below holds and the named operator/integrator partner that the amendment above requires exists. ADR-0020 numbered its promotion criteria across both modes: criteria 1–4 gate Mode B and are in [ADR-0049](0049-managed-service-mode-dmfdeploy-io.md); criterion 5 is Mode C's, so the number is kept:
 
 5. The flypack hardware story (C.1–C.4) has at least one identified
    reference platform (TPM-equipped mini-PC class).
