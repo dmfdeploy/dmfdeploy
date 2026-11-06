@@ -26,11 +26,14 @@ dmfdeploy's media function descriptor is a superset of IN-003. Where a
 descriptor field means the same as an IN-003 field, the descriptor uses the
 IN-003 name and shape. Fields that only dmfdeploy needs, such as artefact
 identity, provenance and revocation, are additions and never renamed IN-003
-fields. The descriptor still exports an optional IN-003 manifest and checks
-that export against a pinned IN-003 commit at test time. dmfdeploy never
-copies or adapts IN-003 text or schema, which is CC BY-ND 4.0. Tracked in
-[dmfdeploy/dmfdeploy#746](https://github.com/dmfdeploy/dmfdeploy/issues/746).
-The survey below predates this decision.
+fields. The descriptor will export an optional IN-003 manifest, and a test
+will check that export against a pinned IN-003 commit. Both are planned
+under [dmfdeploy/dmfdeploy#746](https://github.com/dmfdeploy/dmfdeploy/issues/746)
+and [dmfdeploy/dmfdeploy#637](https://github.com/dmfdeploy/dmfdeploy/issues/637);
+neither exists yet. The IN-003 documents are licensed CC BY-ND 4.0, and the
+IN-003 schema carries no license grant. For both reasons, dmfdeploy never
+copies or adapts IN-003 text or schema. The research below predates this
+decision. Passages that conflicted with it have been updated.
 
 ## How to read this survey
 
@@ -87,8 +90,8 @@ The survey below predates this decision.
    controller". IN-001 also separates the "orchestration system" (deploys) from
    the "control system" (sets parameters).
 6. **No standard calls an orchestrator a media function.** IN-003 defines a
-   Media Function as something that "produces and/or consumes ... live media
-   streams". The EBU architecture puts control applications in the Application
+   Media Function as something that handles live media streams, as producer,
+   consumer or both. The EBU architecture puts control applications in the Application
    and UI layer, which the platform launches like other software. A controller
    is deployable, and the fitting names are application or platform function.
 7. **No public Ember+ to IS-12 or SNMP to IS-12 translator was found.** The
@@ -442,16 +445,15 @@ release record was checked directly, so the trade-press article is out of date.
 
 **IN-003 (Compute Resource Management, WIP)** [DOC]:
 
-- Tiers: an "Application and UI Tier" of "Media Workloads composed of one or
-  more modular Applications", a Media Functions tier, a Container Platform tier
-  with "Operator(s)", and cross-tier "Orchestration & Monitoring".
-- A Media Function "produces and/or consumes a tightly coupled group of one or
-  more live media streams". Its specification names a "Control type (NMOS,
-  etc.)".
-- "Media Function Config" covers "cluster-wide configuration and deployment of
-  high-level components, such as a database or license server".
-- It allows "Multiple Media Function instances per pod, where a logical Media
-  Function instance is an independently configured session/channel/task".
+- Tiers: an application and UI tier for media workloads built from modular
+  applications, a media functions tier, a container platform tier with
+  operators, and orchestration and monitoring services that span the tiers.
+- A Media Function handles a closely related group of live media streams, as
+  producer, consumer or both. Its specification records the control type.
+- A Media Function Config covers shared, cluster-wide components such as a
+  database or licence server.
+- One pod may host several logical Media Function instances. Each instance is
+  an independently configured session, channel or task.
 
 **EBU DMF Reference Architecture v2.0 (2026-04-15)** [DOC], pages 20 to 22:
 

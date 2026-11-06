@@ -21,10 +21,14 @@ dmfdeploy's media function descriptor is a superset of IN-003. Where a
 descriptor field means the same as an IN-003 field, the descriptor uses the
 IN-003 name and shape. Fields that only dmfdeploy needs, such as artefact
 identity, provenance and revocation, are additions and never renamed IN-003
-fields. The descriptor still exports an optional IN-003 manifest and checks
-that export against a pinned IN-003 commit at test time. dmfdeploy never
-copies or adapts IN-003 text or schema, which is CC BY-ND 4.0. Tracked in
-[dmfdeploy/dmfdeploy#746](https://github.com/dmfdeploy/dmfdeploy/issues/746). The survey below predates this decision.
+fields. The descriptor will export an optional IN-003 manifest, and a test
+will check that export against a pinned IN-003 commit. Both are planned
+under [dmfdeploy/dmfdeploy#746](https://github.com/dmfdeploy/dmfdeploy/issues/746)
+and [dmfdeploy/dmfdeploy#637](https://github.com/dmfdeploy/dmfdeploy/issues/637);
+neither exists yet. The IN-003 documents are licensed CC BY-ND 4.0, and the
+IN-003 schema carries no license grant. For both reasons, dmfdeploy never
+copies or adapts IN-003 text or schema. The research below predates this
+decision. Passages that conflicted with it have been updated.
 
 **How to read it:** the project accessed the web sources on 2026-10-22, except
 where a line marks a source (U) as not read or not fetched. Five
@@ -291,8 +295,8 @@ in any ADR.
     `flow.label`; `inputs[]` and `outputs[]` with video and audio formats;
     `args[]`; and `requirements` (cpu, memory, host_capabilities).
   - **No telemetry or monitoring field.** The project confirmed this with a
-    grep. The overview prose mentions "Media Function Metrics" only as an
-    architecture box.
+    grep. The overview prose names media function metrics only as a box in
+    its architecture picture.
   - IN-003 issue #4, opened 2026-10-21, had no replies on 2026-10-22.
 - **IN-004** "Flow Connection Phase 2" (WIP) has the only concrete AMWA
   monitoring text for DMF
