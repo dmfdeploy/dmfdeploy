@@ -8,12 +8,34 @@ gives a concrete action and the expected result, and every domain term is
 glossed the first time it matters, so you never have to improvise or fall
 back on jargon you weren't handed.
 
+**Verification status.**
+
+- **Last verified:** 2026-10-25, a live walk with the operator present (sixth
+  pass).
+- **Verified against:** deployed dmf-cms 0.39.0.
+- **Coverage: 7/9 beats visited live on 0.39.0.** The nine beats are §1 to §5
+  and §6a to §6d. The seven visited are §1, §2, §3, §4, §5, §6a and §6b. The
+  two not visited are §6c (AWX re-idle), which the sixth-pass note lists as
+  not observed, and §6d (workload independence). The §6d exclusion is an
+  inference, not an observation: §6d only works if you watched AWX re-idle
+  while the workload ran, and the sixth pass did not watch AWX re-idle.
+- **Last end-to-end walk in runbook order on one workload:** 2026-09-02,
+  against 0.33.0.
+- **This count is beats visited, not beats fully verified.** The header does
+  not claim that any of the nine beats is fully verified. Each one still has
+  parts no pass has watched on 0.39.0. The main places that name them are the
+  carried-forward markers in §1, §2, §3 and §5 (each names its source console
+  version) and the items in §9.1 and §9.2, which cover §1, §3, §4, §6a, §6b,
+  §6c and §6d. That list isn't complete: some beats also flag unconfirmed
+  details in their own text, for example §5's note that the switch's System
+  details disclosure and request ID are unconfirmed on 0.39.0.
+
 **Provenance — read this before you present from this file.** This file is a
 layered record, not a single snapshot. Six passes have touched it, mostly
 against different consoles, and **no single pass verified everything below**.
 The current edition is the sixth (2026-10-25, against deployed **dmf-cms
-0.39.0**). It was a **live walk with the operator present** that ran every
-beat, including the ones that write. The fifth pass (2026-09-19, also against
+0.39.0**). It was a **live walk with the operator present** that walked
+§1 to §6b, including the beats that write, and did not walk §6c or §6d. The fifth pass (2026-09-19, also against
 0.39.0) was **read-only**: the env was frozen mid-capture, so that pass could
 look at every surface and run nothing. The fifth-pass and sixth-pass notes
 below give the full account of what each one watched and what it only read.
@@ -24,9 +46,10 @@ A claim stated as plain fact was watched on a live console by some pass, and
 the beat normally names which. A claim marked *(source-derived)* was read
 from the console's code and **no human has seen it on screen** — those are
 concentrated in the beats that write or run something, because the freeze put
-those out of reach. A claim marked *(carried forward)* survives unconfirmed
-from an earlier edition and is not contradicted by anything any pass has
-found. The 2026-10-25 walk watched most of the beats that held those
+those out of reach. A claim marked *(carried forward from 0.21.1)*, for
+example, survives unconfirmed from the edition written against that console
+version, and is not contradicted by anything any pass has found. Every such
+marker names a console version. The 2026-10-25 walk watched most of the beats that held those
 markers, and where it did, the beat now says so with that date. UI copy in
 quotation marks is transcribed from a live page, not typed
 from memory — but check the date the surrounding beat gives, because copy has
@@ -553,8 +576,8 @@ walk `marty-mcfly` held the admin role, and the audit rows read
 `marty-mcfly (admin)` (§6b). The 2026-09-02 walk's persona was an engineer.
 The left rail is **permanently icon-only** — three icons (Workspace,
 Facilities, Media Workloads), no text labels at all, each confirmed to
-carry an `aria-label` naming it. *(Carried forward, not confirmed this
-round: that hovering or keyboard-focusing an icon shows its name as a
+carry an `aria-label` naming it. *(Carried forward from the 0.21.1 edition, not
+confirmed this round: that hovering or keyboard-focusing an icon shows its name as a
 **visible** tooltip — this round confirmed the accessible name a screen
 reader would announce, not that a hover/focus popup actually renders; see
 §9.)* A page's own name
@@ -659,8 +682,8 @@ signed in and nobody else, so the floor is simply "be logged in".
 *(Source-derived — minting an invitation is a write, which the 2026-09-19
 freeze ruled out.)* Don't complete it live unless you have a
 second authenticator to hand — just show that the invitation minted.
-*(Carried forward from the previous edit, not independently re-verified this
-round.)*
+*(Carried forward from the 0.21.1 edition, not independently re-verified
+this round.)*
 
 ---
 
@@ -769,7 +792,8 @@ then **Next →**.
 Clicking **Next** again lands you on **Provision** — that's §3, next. If you
 click ahead to **Configure** or **Finalise & Review** out of curiosity, each
 renders only its own locked reason — two distinct strings, not one merged
-sentence *(carried forward, not re-quoted this round)*:
+sentence *(carried forward from the 0.21.1 edition, not re-quoted this
+round)*:
 
 - Configure: *"Locked for the whole draft — nothing has been provisioned
   yet, so there is nothing to configure."*
@@ -951,7 +975,7 @@ current, not the 0.24.0 wording.**
    permanently lands on, §6a. This specific SCENARIO — following an
    active "View live" link early, mid-Provision, before the record
    exists — was not deliberately re-triggered this round; that half of
-   this point is carried forward.)* Once the record exists, home
+   this point is carried forward from the 0.24.0 edition.)* Once the record exists, home
    only renders §4's monitoring view once it reaches Operate
    (`lifecycle === 'operate'` internally); short of that it shows a
    "Continue setup" panel or an unresolved-status notice instead, not
@@ -1160,7 +1184,8 @@ converging.
   Don't read a paused tile as broken if you've tabbed away mid-demo; bring
   the tab back to the foreground and it resumes.
 
-**Confirmed live 2026-09-02 (previously carried forward, unconfirmed).**
+**Confirmed live 2026-09-02 (previously carried forward from the 0.21.1
+edition, unconfirmed).**
 Clicking a tile opens a larger live-detail modal with the same nine
 flow-stat fields as before — head index, latency, format, grain rate, role,
 provider, MXL version, Active, and Node (NetBox) — still ticking roughly
@@ -1343,7 +1368,8 @@ not the whole platform — not an instant cut, which is exactly why the
 description above disclaims being "a live IS-05 switch." Don't panic if the
 tile goes quiet for a while.
 
-**(Not exercised this round — carried forward from source reading only. Not
+**(Not exercised this round — carried forward from the 0.21.1 edition's
+source reading only. Not
 exercised on 2026-10-25 either: that switch succeeded.)**
 On failure, the platform automatically rolls the receiver back to its
 previous source and still reports the switch as **failed** — a switch that
@@ -1845,7 +1871,7 @@ being briefed on it.
 
 | Symptom you might see | What it is | Reference |
 |---|---|---|
-| ~~The guided-flow page briefly shows an amber banner, *"`<Step>` isn't open yet: `<reason>`"*, on a step that is actually open~~ **Retired — do not expect this.** | Listed as a live symptom through the 2026-09-02 walk, but #416 closed 2026-08-20, *before* that walk, and the code path that rendered it was removed in a later rail redesign. A 2026-09-19 probe drove ~35 rail-step navigations over about a minute and a half with a 400 ms watcher on the page's one live region and saw it zero times. That is one browser on one settled workload, so it is not proof the banner can never appear — but it is reason enough to stop briefing a presenter to expect it. Nothing in the runbook recorded whether the 2026-09-02 sighting was a regression or a row carried forward unchecked. | [dmfdeploy/dmfdeploy#416](https://github.com/dmfdeploy/dmfdeploy/issues/416) (closed) |
+| ~~The guided-flow page briefly shows an amber banner, *"`<Step>` isn't open yet: `<reason>`"*, on a step that is actually open~~ **Retired — do not expect this.** | Listed as a live symptom through the 2026-09-02 walk, but #416 closed 2026-08-20, *before* that walk, and the code path that rendered it was removed in a later rail redesign. A 2026-09-19 probe drove ~35 rail-step navigations over about a minute and a half with a 400 ms watcher on the page's one live region and saw it zero times. That is one browser on one settled workload, so it is not proof the banner can never appear — but it is reason enough to stop briefing a presenter to expect it. The row entered this runbook in the 0.24.0 edition (2026-08-19). Nothing in the runbook recorded whether the 2026-09-02 sighting was a regression or the row carried forward unchecked from the 0.24.0 edition. | [dmfdeploy/dmfdeploy#416](https://github.com/dmfdeploy/dmfdeploy/issues/416) (closed) |
 | After Teardown or Delete permanently completes, you may land somewhere you didn't ask for — Teardown was observed once (2026-08-19) bouncing unprompted to the Provision step's desired-state panel; **this round's Teardown (2026-09-02) landed cleanly on Finalise & Review instead, no bounce** — so it's confirmed NOT to happen every time, not fixed. Delete permanently reliably strands you on a "Workload not found" page for the workload you just removed (confirmed again this round) | A completed lifecycle action should hand you back to the workload's home or the collection view, not to an unrelated next step or a dead URL. Disorienting, not dangerous — nothing runs automatically from either landing without another explicit confirm. | [dmfdeploy/dmfdeploy#418](https://github.com/dmfdeploy/dmfdeploy/issues/418) |
 | On the Design step, **after a Teardown**, the two topology-spawned sources' function keys show *"This function key isn't in the current catalog — it may have been removed since this workload was deployed."* | Was reported fixed (0.24.0 edition). Confirmed back, live, **post-Teardown**, 2026-09-02. **The state matters:** on a freshly provisioned workload the warning is absent — the 2026-09-19 pass looked and saw nothing — so don't read its absence before a Teardown as the bug being fixed. That pass could not re-run a Teardown to reproduce it. Cosmetic either way — the sources still deploy and run correctly regardless of what Design says about their catalog membership. | [dmfdeploy/dmfdeploy#532](https://github.com/dmfdeploy/dmfdeploy/issues/532) |
 | Provisioned instances show up **grouped as "Unassigned"** in the grid | The launcher hasn't stamped a `workload:<slug>` tag onto every member, so the grouping logic has nothing to group them by. Cosmetic/legibility only. | [dmfdeploy/dmfdeploy#239](https://github.com/dmfdeploy/dmfdeploy/issues/239) |
@@ -1927,7 +1953,7 @@ For history: the first round (0.24.0) walked create through a working Switch;
 the second (0.24.0) walked Teardown through Delete permanently, the audit
 trail, and AWX's re-idle behaviour; the third (2026-09-02, v0.33.0) walked the
 whole journey end to end, which remains the last walk in runbook order on a
-single workload. The sixth (2026-10-25, 0.39.0) walked every beat live, in a
+single workload. The sixth (2026-10-25, 0.39.0) walked §1 to §6b live, not §6c or §6d, in a
 different order and across two workloads; the sixth-pass note at the top of
 this file has the details.
 
@@ -1957,9 +1983,15 @@ or changes a carried-forward marker on any beat: re-read §9.3's
 specific beat before committing — don't assume the beat-level fix is complete on its
 own.** [dmfdeploy/dmfdeploy#536](https://github.com/dmfdeploy/dmfdeploy/issues/536)
 tracks the deeper fix (verification markers that name their source round,
-so a partially-verified beat can't collapse into one true/false flag) —
-not implemented here, but the shape to reach for if this file's own
-hedging keeps needing hand-reconciliation.
+so a partially-verified beat can't collapse into one true/false flag). The
+header's version and coverage line, and the source version on each
+carried-forward marker, are an interim step toward that fix, not the whole
+of it. #536 stays open. These requirements are not met: splitting or naming
+the unverified branches of partially verified beats where the beats do not
+already do so, an independent runbook revision, validation events keyed to
+both runbook revision and observed console version, and a historical full
+baseline. The triage of 2026-10-25 moved that ledger to platform debt. It
+did not withdraw it.
 
 ### 9.1 Deferred and outstanding — walked before, not re-verified against 0.39.0
 
