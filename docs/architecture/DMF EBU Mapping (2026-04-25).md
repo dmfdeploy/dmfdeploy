@@ -30,7 +30,7 @@ Industry-specific (green) = layers 4–6, broadcast/media.
 ### 4 verticals (white paper Figure 3, p.6) — cross-cutting, apply to every layer
 
 - **Orchestration** — IaC; create/destroy/configure resources at each layer
-- **Control** — operate-time control surfaces
+- **Control** — operate-time control surfaces; in the Facility Orchestration Model (Figure 4, p.7; Annex C, p.28) it holds Operate
 - **Monitoring** — telemetry, alerts, analysis
 - **Security** — zero-trust: AAA, least-privilege, segmentation, continuous monitoring (EBU R 160)
 
@@ -38,6 +38,8 @@ Industry-specific (green) = layers 4–6, broadcast/media.
 
 Design → Plan → Provision → Configure → Operate → Finalise & Review
 (+ continuous **Monitor & Update**)
+
+Operate, with Monitor & Update in the middle of Figure 1, is the workload's steady state between Configure and Finalise & Review. In the Facility Orchestration Model (Figure 4, p.7; Annex C, p.28) that steady state sits in the Control vertical, a sibling of Monitor and Security, so the orchestration group holds the five other stages.
 
 ---
 
@@ -71,7 +73,7 @@ historical artifacts in the archive.
 |---|---|---|
 | Layer (1–6) | Phase (0–9) | "Phase" survives only as informal rollout-order ordinal in chat |
 | Vertical (Orchestration, Control, Monitoring, Security) | (was conflated into Phase 4/5) | Cross-cutting; not a numbered layer |
-| Lifecycle stage (Design / Plan / Provision / Configure / Operate / Finalise & Review) | (was conflated into Phase 8/9) | Time axis, runs across layers |
+| Lifecycle stage (Design / Plan / Provision / Configure / Operate / Finalise & Review) | (was conflated into Phase 8/9) | Time axis, runs across layers; Operate is held in the Control vertical in the Facility Orchestration Model (p.7, p.28) |
 | Cluster | k3s cluster, lab cluster | EBU §Host Platform §Cluster |
 | Host | node | EBU treats Kubernetes "Node" as a Host |
 | Container | pod content | EBU treats Kubernetes "Pod" as a group of Containers |
