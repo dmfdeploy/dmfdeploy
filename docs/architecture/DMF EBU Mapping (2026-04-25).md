@@ -39,7 +39,7 @@ Industry-specific (green) = layers 4–6, broadcast/media.
 Design → Plan → Provision → Configure → Operate → Finalise & Review
 (+ continuous **Monitor & Update**)
 
-Operate, with Monitor & Update in the middle of Figure 1, is the workload's steady state between Configure and Finalise & Review. In the Facility Orchestration Model (Figure 4, p.7; Annex C, p.28) that steady state sits in the Control vertical, a sibling of Monitor and Security, so the orchestration group holds the five other stages.
+Operate is the workload's steady state, where users make changes within the reserved resources. Monitor & Update sits at the centre of Figure 1 and applies throughout the lifecycle: it is not a stage, and it feeds changes back into the stages. In the Facility Orchestration Model (Figure 4, p.7; Annex C, p.28), Operate sits in the Control vertical and monitoring in the Monitor vertical, a sibling of Control and Security, so the orchestration group holds the other five stages.
 
 ---
 
