@@ -56,6 +56,18 @@ stop and ask for a new decision.
    switch. The rotation job from the credential lifecycle plan renews it, so
    it cannot expire or lock out during the window. After that, the role and
    its SecretID are deleted.
+6. **WP1 runs transient operations directly and uses a snapshot-job
+   stand-in.** The operator amended WP1 on 2026-11-07
+   ([decision on #866](https://github.com/dmfdeploy/dmfdeploy/issues/866#issuecomment-6709798849)).
+   On the disposable environment, WP1 runs its short-lived operations
+   directly: a throwaway namespace and ServiceAccount, the deliberate OpenBao
+   pod replacements, a config reload, and the writes made with the temporary
+   root token. Each one is journaled and reverted. Persistent changes (the
+   OpenBao ServiceAccount, its TokenReview binding and the audit device) still
+   go through the playbook, from an unmerged experiment branch. WP1 proves the
+   snapshot job's login with a probe that has the same token shape. Proving
+   the real snapshot job, and every other Kubernetes-auth client, moves to
+   WP4.
 
 ## Binding constraints
 
@@ -67,7 +79,8 @@ stop and ask for a new decision.
   or PR body. Secret-bearing tasks use `no_log`. Values flow only through
   stdin, files with restrictive modes, or the Kubernetes and OpenBao APIs.
   Record token metadata only, such as expiry and binding claims.
-- Run cluster writes only through the sanctioned playbook path.
+- Run cluster writes only through the sanctioned playbook path. The one
+  exception is WP1's transient operations, under decided scope item 6.
 - A work package changes a live environment only where its text says so.
   WP1, WP4 and WP5 are the only ones that do. WP5 changes one environment at
   a time, through the sanctioned playbook path, and only after the operator
@@ -145,7 +158,9 @@ step-by-step protocol lives in the work order for this package.
   then succeeds after a pod replacement, before any reapply or repair of the
   reviewer config. Metadata shows that the local reviewer token used before
   has rotated or expired, and a later fresh login succeeds.
-- The other Kubernetes-auth clients, including the snapshot job, still log in.
+- A stand-in probe with the snapshot job's token shape still logs in (decided
+  scope item 6). The real snapshot job and the other Kubernetes-auth clients
+  are proven in WP4.
 - The throwaway roles, accounts and tokens are removed.
 - A least-disruptive recovery path is defined and verified before the run: an
   authorized privileged identity restores a working reviewer config,
@@ -173,14 +188,20 @@ temporary root token (issued, used, revoked), and the cleanup listing.
 
 **Done when.**
 
-- [ ] The recovery path is defined and verified on the disposable environment.
-- [ ] Every preceding property has recorded evidence, or the outcome is recorded
+- [x] The recovery path is defined and verified on the disposable environment.
+- [x] Every preceding property has recorded evidence, or the outcome is recorded
       as fail or inconclusive with the reason.
-- [ ] The temporary root token was revoked and the audit shows issue, use and
+- [x] The temporary root token was revoked and the audit shows issue, use and
       revoke.
-- [ ] The throwaway objects are removed and the environment is back to its
+- [x] The throwaway objects are removed and the environment is back to its
       starting state.
-- [ ] The evidence comment is on #866 and the Status section below is updated.
+- [x] The evidence comment is on #866 and the Status section below is updated.
+
+**Result.** Pass, with the snapshot-job stand-in
+([evidence on #866](https://github.com/dmfdeploy/dmfdeploy/issues/866#issuecomment-6712869189)).
+The local-file reviewer mode survived a pod replacement and a kubelet rotation
+of the reviewer token with no repair. The stored-token config that the
+installer writes today failed after a pod replacement.
 
 ### WP2 profile-scoped ADR
 
@@ -251,8 +272,13 @@ what has to be built. The infra repo's OpenBao and external-secrets roles.
   refreshes with fresh observed data, and negative tests for a wrong
   ServiceAccount, namespace and audience. The object-storage stores are
   checked on their own.
-- The reviewer config is cleared by an explicit, version-verified step if
-  WP1 shows it is needed.
+- OpenBao runs as a dedicated ServiceAccount, bound to a ClusterRole that
+  grants only `create` on `tokenreviews`. It is not bound to
+  `system:auth-delegator`, which also grants SubjectAccessReviews.
+- The reviewer config uses the local-file mode
+  (`token_reviewer_jwt_set=false`, `disable_local_ca_jwt=false`), set and
+  checked by an explicit, version-verified step. WP1 showed this is needed:
+  the stored reviewer token fails after a pod replacement.
 - Docs that describe the old shape are updated: the role README, the default
   comment, and the offline lane spec's seed list and auth methods.
 
@@ -284,6 +310,12 @@ during the window. A separate, explicit operator approval for the rollout.
 
 - The operator's approval names the environment and the date. A passing WP1
   alone is not approval.
+- Before the switch, on each environment that runs them, the real snapshot
+  job and every other Kubernetes-auth client are shown to log in. WP1 used a
+  stand-in for these (decided scope item 6).
+- Before the switch, the environment's Kubernetes API server audit log
+  records a rejected TokenReview (401). Without that record, a login failure
+  after the switch can't be attributed to the reviewer path.
 - The auth config is written with a temporary root token from generate-root,
   used for that one change, then revoked, with the use audited. No other
   identity writes it.
@@ -309,6 +341,8 @@ window started, and the rollback test result.
 **Done when.**
 
 - [ ] The operator's approval is recorded on #866.
+- [ ] Before the switch, the real Kubernetes-auth clients log in and the API
+      server audit log shows a recorded 401 on the environment.
 - [ ] The main store runs on Kubernetes auth on the approved environment and
       the verifier passes.
 - [ ] The temporary root token is revoked and audited.
@@ -384,7 +418,7 @@ Update this table as the work moves. Each row links the evidence.
 
 | WP | Status | Links |
 |---|---|---|
-| WP1 experiment | not started | |
+| WP1 experiment | done (pass, with the snapshot-job stand-in) | [evidence](https://github.com/dmfdeploy/dmfdeploy/issues/866#issuecomment-6712869189), [scope decision](https://github.com/dmfdeploy/dmfdeploy/issues/866#issuecomment-6709798849) |
 | WP2 ADR | not started | |
 | WP3 installer | not started | |
 | WP4 rollout | not started | |
