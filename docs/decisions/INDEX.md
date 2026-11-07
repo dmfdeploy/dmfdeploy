@@ -83,7 +83,7 @@ truth is visible without opening the file.
 | [0005](0005-version-as-single-source-of-truth.md) | dmf-cms VERSION file is the single source of truth | Accepted | dmf-cms |
 | [0006](0006-cluster-is-the-truth.md) | The cluster is the truth; local kubectl is not | Accepted | operations |
 | [0007](0007-secrets-never-in-argv.md) | Secrets never in argv, env, /tmp, or AI transcripts | Accepted | security |
-| [0008](0008-openbao-secrets-architecture.md) | ★ OpenBao + ESO + AppRole shim as secrets architecture | Accepted | security |
+| [0008](0008-openbao-secrets-architecture.md) | ★ OpenBao + ESO + AppRole shim as secrets architecture | Accepted. ESO login method for the main store is pending supersession by [ADR-0051](0051-eso-main-store-kubernetes-auth.md), which takes effect on its acceptance | security |
 | [0009](0009-shamir-dr-model.md) | 5-share Shamir, 3-of-5 threshold, distributed across 5 locations | Accepted | DR |
 | [0010](0010-run-playbook-as-sanctioned-entry.md) | `bin/run-playbook.sh` is the only sanctioned ansible entry point | Accepted | operations |
 | [0011](0011-auto-unseal-tradeoff.md) | Auto-unseal trades Shamir defense-in-depth for operational tolerability | Accepted (with known tradeoff); reframed as "Tier 3" by [ADR-0029](0029-tiered-unseal-posture.md); still the operative description of the live single-replica posture | security |
@@ -126,6 +126,7 @@ truth is visible without opening the file.
 | [0048](0048-two-scoped-github-apps-for-dmf-cms-releases.md) | dmf-cms release automation uses **two organization-owned GitHub Apps**: `dmf-cms-automerge` arms or performs merges (App events start workflows, which fixes #568) and `dmf-cms-release` is the only bypass actor for `v*` tag creation. Each key lives only in a GitHub environment limited to `main`. No personal access token and no `GITHUB_TOKEN` bypass. Two long-lived keys, rotated every 90 days by an organization owner. Replaces the earlier no-credential choice for dmf-cms; proven there before any other repository. Converged in Discussion #805 | Accepted | release / security / dmf-cms |
 | [0049](0049-managed-service-mode-dmfdeploy-io.md) | Managed service mode (`dmfdeploy.io`): the Mode B regulatory posture and four binding architectural constraints, split out of ADR-0020 | Proposed | strategic / compliance |
 | [0050](0050-flypack-mode-portable-offline-kit.md) | Flypack mode (portable offline kit): the Mode C regulatory posture and four binding architectural constraints, split out of ADR-0020 | Proposed | strategic / compliance |
+| [0051](0051-eso-main-store-kubernetes-auth.md) | ESO's main `openbao` ClusterSecretStore authenticates to OpenBao with Kubernetes auth. The Kubernetes auth config is written only by the initial root token on a new install, or, on an installed environment, by a temporary root token from generate-root used for that one change, then explicitly revoked and audited. The ESO AppRole stays at least 14 days after the switch; removal per environment needs a clean, fully evidenced window and operator approval. OpenBao runs as a dedicated ServiceAccount with a TokenReview-only ClusterRole and the local-file reviewer mode. Out of scope: the two object-storage stores, hub and edge AppRole (ADR-0022), remote TokenReview trust. Will partially supersede ADR-0008 on acceptance; ADR-0021 and ADR-0022 unchanged. Converged in Discussion #851 | Proposed | security / secrets |
 ## Commitments
 
 - ★ [architectural-commitments-v1](architectural-commitments-v1.md) (2026-06-06): closes
@@ -145,7 +146,7 @@ rest are history or context behind them.
 |---|---|---|
 | **Identity & authority** | **ADR-0028** (Identity & Authority Chain) | 0015 (passkey-only), 0021 (AppRole reconciler id), 0024 (largely superseded → 0028), 0032 (scoped NetBox writer) |
 | **Catalog & execution** | **ADR-0013** (catalog model) + **ADR-0047** (packaging, catalog sources and trust model; extends 0013) + **ADR-0025** (in-cluster Helm) + **ADR-0037** (Media Workloads: instances in NetBox) + **ADR-0046** (first-class Media Workload entity; amends 0037) + **ADR-0038** (dynamic monitoring contract / PromSD bridge) | 0014 (AWX layout), 0016 (Path A, partially superseded by 0025), 0027 (instance/definition split, deferred; amended by 0037) |
-| **Secrets / unseal** | **ADR-0029** (tiered posture, directional) + **ADR-0009** (Shamir DR) | 0008 (OpenBao/ESO arch), 0011 (auto-unseal = today's Tier 3), 0031 (AWS-KMS = Tier 3 sub-variant) |
+| **Secrets / unseal** | **ADR-0029** (tiered posture, directional) + **ADR-0009** (Shamir DR) | 0008 (OpenBao/ESO arch; ESO main-store login pending supersession by 0051), 0011 (auto-unseal = today's Tier 3), 0031 (AWS-KMS = Tier 3 sub-variant) |
 | **Deployment scope / release** | **ADR-0031** (OSS v0.1 release matrix) | 0004 (experiment stance), 0018 (self-managed k3s), 0020 (three modes), 0022 (flypack-online), 0026 (provider descriptors, proposed) |
 
 > Note: "canonical" means *the doc that states current truth for that scope*. It does
