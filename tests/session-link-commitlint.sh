@@ -18,6 +18,7 @@ awk '
 
 # Built from parts so this file never holds a real session URL.
 link="https://claude.ai/""code/session_""01Example"
+ulink="https://""CLAUDE"".AI/""code/session_""01Example"
 
 # run_step PR_COMMITS COUNT MESSAGE: the stub lists COUNT commits (capped at 250,
 # 100 per page, like the real endpoint), each with MESSAGE and a distinct SHA.
@@ -79,6 +80,21 @@ grep -qE 'commit 0000000 has a non-conventional subject' "$work/out" || { echo "
 expect "merge commit with link fails" 1 1 1 "Merge branch x
 
 $link"
+expect "uppercase hostname in subject fails" 1 1 1 "feat(ci): SUBJECTTEXT $ulink"
+if grep -qF "$ulink" "$work/out" || grep -qF "SUBJECTTEXT" "$work/out"; then
+  echo "FAIL: uppercase subject output echoes the link or subject" >&2; fail=1
+fi
+expect "uppercase hostname in body fails" 1 1 1 "feat(ci): add a thing
+
+Claude-Session: $ulink"
+expect "uppercase hostname in merge commit fails" 1 1 1 "Merge branch x
+
+$ulink"
+expect "PR_COMMITS empty fails" 1 "" 1 "feat(ci): add a thing"
+grep -qF 'not a number' "$work/out" || { echo "FAIL: no count diagnostic (empty)" >&2; fail=1; }
+expect "PR_COMMITS non-numeric fails" 1 abc 1 "feat(ci): add a thing"
+grep -qF 'not a number' "$work/out" || { echo "FAIL: no count diagnostic (non-numeric)" >&2; fail=1; }
+expect "PR_COMMITS valid unequal fails" 1 2 1 "feat(ci): add a thing"
 expect "250 commits, PR holds 250, passes" 0 250 250 "feat(ci): add a thing"
 expect "PR holds 300, API lists 250, fails closed" 1 300 300 "feat(ci): add a thing"
 grep -qF 'checked 250 of 300 PR commits' "$work/out" || { echo "FAIL: no cap message" >&2; fail=1; }

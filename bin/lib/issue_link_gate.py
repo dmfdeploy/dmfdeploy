@@ -21,8 +21,10 @@ ISSUE_REF = re.compile(
 )
 
 
-# A link to a private agent session does not belong in a public PR (#838).
-SESSION_LINK = re.compile(r"claude\.ai/code/session")
+# A link to a private agent session does not belong in a public PR (#838). The
+# match is case-insensitive because hostnames are; it targets accidental links,
+# not deliberate obfuscation.
+SESSION_LINK = re.compile(r"claude\.ai/code/session", re.IGNORECASE)
 
 
 def evaluate(body: Any, labels: Any, default_repo: Any) -> list[str]:
