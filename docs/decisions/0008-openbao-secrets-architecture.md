@@ -3,6 +3,7 @@
 **Status:** Accepted
 **Date:** 2026-04-22 (formalized in `DMF Secret Ownership and OpenBao Migration Plan.md`)
 **Deciders:** @<handle>
+**Pending supersession:** [ADR-0051](0051-eso-main-store-kubernetes-auth.md) proposes to supersede the External Secrets Operator (ESO) login method for the main store: the AppRole wording in the Rule and in the first Decision paragraph, and the AppRole bootstrap cost under Consequences. The supersession takes effect when ADR-0051 is Accepted. Until then this ADR binds in full.
 **Rule:** Cluster-runtime secrets live in OpenBao and reach pods via External Secrets Operator (AppRole auth); operator scripts inject bootstrap secrets via a temp vars file; break-glass material (Shamir shares, ops_admin) stays outside the runtime path.
 
 ## Context
@@ -70,5 +71,7 @@ and `dmf-infra/k3s-lab-bootstrap/roles/stack/operator/openbao/tasks/main.yml` ar
 ## Status
 
 Accepted
+
+2026-11-07: ADR-0051 is Proposed. On its acceptance, this ADR becomes Partially superseded by ADR-0051 for the ESO login method of the main store. Everything else here stays authoritative.
 
 Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0008-openbao-secrets-architecture.md).
