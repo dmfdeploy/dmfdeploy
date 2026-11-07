@@ -550,7 +550,9 @@ can lock the site out.
 **Dependencies.** WP1 and WP2 done, and the packages that apply to the site
 done with their evidence: WP5, WP6, WP8 and WP9, WP3 for a long-lived site,
 and WP7 for a kit. This is the last package for a site. It does not complete
-the plan.
+the plan. [#868](https://github.com/dmfdeploy/dmfdeploy/issues/868): any dmf-init
+Manage path that unseals with the automation file hands off to the operator
+unlock, and a restored package does not bring the file back.
 
 **Properties that must hold.**
 

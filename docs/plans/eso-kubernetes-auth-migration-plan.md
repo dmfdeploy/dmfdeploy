@@ -94,6 +94,9 @@ stop and ask for a new decision.
   completing PR of this plan removes that registry entry. WP4 cannot start
   until the job is running on the target environment. WP5 removes the entry.
   The two object-storage targets stay in the registry.
+- **[#868](https://github.com/dmfdeploy/dmfdeploy/issues/868), the dmf-init
+  Manage lane.** A Manage restore and a playbook rerun must work after WP5
+  without the ESO AppRole. WP5's restore proof covers the Manage restore path.
 - **[#864](https://github.com/dmfdeploy/dmfdeploy/issues/864), Tier 2 operator
   unseal.** The generate-root procedure needs a quorum of unseal shares. Until
   Tier 2 lands, it uses the existing shares under the current unseal
