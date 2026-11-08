@@ -42,10 +42,13 @@ stop and ask for a new decision.
 2. **No standing identity writes the Kubernetes auth config.** A new install
    writes it with the initial root token, before that token is disposed of.
    On an installed environment, any later write uses a temporary root token
-   from OpenBao's generate-root procedure (a quorum of unseal shares). The
-   token is used for that change only, then revoked, and the use is audited.
-   This keeps ADR-0021's separation of duties: no routine reconciler or administrator
-   identity holds this power.
+   from OpenBao's generate-root procedure. Generate-root needs a quorum of
+   unseal shares under a Shamir seal, and a quorum of recovery keys under an
+   auto-unseal seal. In the sandbox lane, one enrolled admin device meets the
+   recovery threshold alone once the Tier 2 plan's posture lands. The token
+   is used for that change only, then revoked, and the use is audited. This
+   keeps ADR-0021's separation of duties: no routine reconciler or
+   administrator identity holds this power.
 3. **Only the main store moves.** The two object-storage stores stay on
    AppRole. Moving them is separate later work with its own roles and
    isolation tests.
@@ -75,7 +78,7 @@ stop and ask for a new decision.
   are named, scoped and separated by duty, and every action carries actor,
   role, request id, and reason.
 - Do not print a SecretID, a root token, a ServiceAccount token, a userpass
-  password or an unseal share in a task result, log, test fixture, or issue
+  password, an unseal share or a recovery key in a task result, log, test fixture, or issue
   or PR body. Secret-bearing tasks use `no_log`. Values flow only through
   stdin, files with restrictive modes, or the Kubernetes and OpenBao APIs.
   Record token metadata only, such as expiry and binding claims.
@@ -110,10 +113,13 @@ stop and ask for a new decision.
 - **[#868](https://github.com/dmfdeploy/dmfdeploy/issues/868), the dmf-init
   Manage lane.** A Manage restore and a playbook rerun must work after WP5
   without the ESO AppRole. WP5's restore proof covers the Manage restore path.
-- **[#864](https://github.com/dmfdeploy/dmfdeploy/issues/864), Tier 2 operator
-  unseal.** The generate-root procedure needs a quorum of unseal shares. Until
-  Tier 2 lands, it uses the existing shares under the current unseal
-  procedure. Once Tier 2 lands, generate-root uses the phone unseal. This plan
+- **[#864](https://github.com/dmfdeploy/dmfdeploy/issues/864), operator
+  unseal posture.** The generate-root procedure needs a quorum of unseal
+  shares under a Shamir seal, and a quorum of recovery keys under an
+  auto-unseal seal. Until the Tier 2 plan's posture lands, it uses the
+  existing shares under the current unseal procedure. Once that posture lands
+  in the sandbox lane, generate-root takes its recovery keys from an enrolled
+  admin device, and one device meets the threshold alone. This plan
   does not wait for it, and it does not design that flow.
 - **The RFC's experiment properties.** WP1 follows the RFC's "Prerequisite
   experiment" section. Its outcomes decide whether the rest of the plan runs.
@@ -121,14 +127,14 @@ stop and ask for a new decision.
 ## Work packages
 
 Each work package fits in one session. The sessions marked "operator present"
-need the operator for an approval or for unseal shares.
+need the operator for an approval or for the unseal shares or recovery keys.
 
 | WP | Session | Needs from the operator |
 |---|---|---|
-| WP1 experiment | One live session on a disposable environment | The environment, permission to replace the OpenBao pod, and the unseal shares for the generate-root step |
+| WP1 experiment | One live session on a disposable environment | The environment, permission to replace the OpenBao pod, and the unseal shares or recovery keys for the generate-root step |
 | WP2 ADR | One writing session, no cluster | Review of the draft, then acceptance after WP1 passes |
 | WP3 installer | One or two code sessions in the infra repo, no live writes | A review. The change stays off by default until WP4 |
-| WP4 rollout | One live session per environment, operator present | A separate approval after WP1 and WP2, and the unseal shares |
+| WP4 rollout | One live session per environment, operator present | A separate approval after WP1 and WP2, and the unseal shares or recovery keys |
 | WP5 removal | A disposable-environment session, then one live session per environment, each 14 days or more after its WP4 | An approval for each environment's removal, based on the window evidence |
 
 WP1 and WP2 can run at the same time. WP3 can start once WP1 has produced a
@@ -279,13 +285,22 @@ what has to be built. The infra repo's OpenBao and external-secrets roles.
   (`token_reviewer_jwt_set=false`, `disable_local_ca_jwt=false`), set and
   checked by an explicit, version-verified step. WP1 showed this is needed:
   the stored reviewer token fails after a pod replacement.
+- The config is portable. It sets `kubernetes_host` to the in-cluster DNS
+  name `https://kubernetes.default.svc`. It never uses the numeric Service IP
+  or the value of `$KUBERNETES_SERVICE_HOST`, because a new cluster can assign
+  the API Service a different IP. The config reads the CA and token from the
+  pod's local files and pins no CA, so `kubernetes_ca_cert` is unset. A
+  snapshot restored to a new cluster then logs in without a config write, and
+  no root token is needed for the restore (decision 19 of the plan for
+  [#864](https://github.com/dmfdeploy/dmfdeploy/issues/864)).
 - Docs that describe the old shape are updated: the role README, the default
   comment, and the offline lane spec's seed list and auth methods.
 
 **Verification evidence.** Test output for a fresh install and for an
-installed environment, each with reapply and restart. Lint and syntax checks
-as CI runs them. A list of every caller of the AppRole inputs with its
-disposition. No live-environment change.
+installed environment, each with reapply and restart. A test or check that the
+written config has no `kubernetes_ca_cert` and has `kubernetes_host` equal to
+`https://kubernetes.default.svc`. Lint and syntax checks as CI runs them. A list of every
+caller of the AppRole inputs with its disposition. No live-environment change.
 
 **Done when.**
 
@@ -294,6 +309,8 @@ disposition. No live-environment change.
 - [ ] The installed-environment path passes on a disposable environment,
       including reapply and restart.
 - [ ] With the variable off, nothing changes for any existing environment.
+- [ ] A test or check shows that the written config has no `kubernetes_ca_cert`
+      and has `kubernetes_host` equal to `https://kubernetes.default.svc`.
 - [ ] The caller list is complete and every caller is covered.
 - [ ] The docs are updated and the Status section is updated.
 
@@ -432,7 +449,7 @@ the WP4 row when it begins.
 - The two object-storage stores. Their long-offline recovery stays with the
   credential lifecycle plan until a separate decision moves them.
 - Hub and edge AppRole (ADR-0022) and remote TokenReview trust.
-- The generate-root phone unseal, which belongs to
+- The generate-root approval from an enrolled admin device, which belongs to
   [#864](https://github.com/dmfdeploy/dmfdeploy/issues/864).
 - Choosing an ESO retry interval. The RFC proposes no number because none is
   shown to work across several stores and controllers.
