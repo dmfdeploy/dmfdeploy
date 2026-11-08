@@ -46,7 +46,9 @@ stop and ask for a new decision.
    unseal shares under a Shamir seal, and a quorum of recovery keys under an
    auto-unseal seal. In the sandbox lane, one enrolled admin device meets the
    recovery threshold alone once the Tier 2 plan's posture lands. The token
-   is used for that change only, then revoked, and the use is audited. This
+   is used for that change only, then revoked, and the use is audited. Once
+   the Tier 2 plan's executor lands, that write goes through the executor.
+   Until then, the operator-run procedure applies. This
    keeps ADR-0021's separation of duties: no routine reconciler or
    administrator identity holds this power.
 3. **Only the main store moves.** The two object-storage stores stay on
@@ -260,8 +262,8 @@ what has to be built. The infra repo's OpenBao and external-secrets roles.
 - The ESO role is bound to ESO's controller ServiceAccount in its namespace,
   with the AppRole's `eso-reader` policy unchanged, a short token TTL, and
   an audience that ESO also requests. That policy also grants certificate
-  issuance on the internal CA; narrowing it is
-  [#881](https://github.com/dmfdeploy/dmfdeploy/issues/881), not this plan.
+  issuance on the internal CA. Narrowing it belongs to
+  [#881](https://github.com/dmfdeploy/dmfdeploy/issues/881).
 - The store applies a `kubernetes` auth block with a ServiceAccount
   reference. A test shows whether a changed auth block replaces or merges
   with the old `appRole` key on an existing store, and the result is handled
@@ -340,7 +342,8 @@ during the window. A separate, explicit operator approval for the rollout.
   after the switch can't be attributed to the reviewer path.
 - The auth config is written with a temporary root token from generate-root,
   used for that one change, then revoked, with the use audited. No other
-  identity writes it.
+  identity writes it. Once the Tier 2 plan's executor lands, the write goes
+  through the executor. Until then, the operator-run procedure applies.
 - The rollout runs through the sanctioned playbook path, one environment at a
   time.
 - The verifier from WP3 passes after the switch, and the main store reads
