@@ -278,7 +278,9 @@ what has to be built. The infra repo's OpenBao and external-secrets roles.
 - The identity verifier covers the main store: a newly requested token with
   the right audience, a real fresh authentication, an ExternalSecret that
   refreshes with fresh observed data, and negative tests for a wrong
-  ServiceAccount, namespace and audience. The object-storage stores are
+  ServiceAccount, namespace and audience. A negative write probe shows that
+  each standing identity (the ops-admin user and the two reconcilers) gets 403
+  when it writes `auth/kubernetes/config`. The object-storage stores are
   checked on their own.
 - OpenBao runs as a dedicated ServiceAccount, bound to a ClusterRole that
   grants only `create` on `tokenreviews`. It is not bound to
@@ -307,7 +309,8 @@ caller of the AppRole inputs with its disposition. No live-environment change.
 **Done when.**
 
 - [ ] A fresh install on a disposable environment runs the main store on
-      Kubernetes auth, and the verifier passes with the negative tests.
+      Kubernetes auth, and the verifier passes with the negative tests,
+      including the write probe on `auth/kubernetes/config`.
 - [ ] The installed-environment path passes on a disposable environment,
       including reapply and restart.
 - [ ] With the variable off, nothing changes for any existing environment.
