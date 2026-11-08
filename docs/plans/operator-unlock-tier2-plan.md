@@ -127,7 +127,8 @@ needs a different scope, stop and ask for a new decision.
     the Raft snapshots, and a direct copy in the recovery package.
 16. Dated 2026-11-08. The device screen names the operation: unseal, root
     token or restore. A generated root token is used only by a server-side
-    executor, to mint a token scoped to the one named change. The root token
+    executor, to mint a token scoped to the one named change, after it checks
+    the change's pinned policy and the exact approved request. The root token
     is revoked at once. The generate-root, the mint, both revokes and the
     change are audited.
 17. Dated 2026-11-08. Removing a lost or stolen device rotates the recovery
@@ -462,12 +463,19 @@ from WP1 for the end-to-end check.
     limit. Each approvable change has its own policy, installed beforehand by
     the installer, that allows only the path and capabilities that change
     needs, so the mint needs no policy write.
+  - The policies are pinned. The repo holds each policy's text, and the
+    executor holds the digest of each. Before it mints, the executor reads the
+    live policy and refuses when its digest differs from the pinned one, so a
+    policy changed after install cannot widen the scoped token.
   - The executor revokes the root token synchronously, before it performs the
     change. The change runs with the scoped token, which the executor also
     revokes when the change is done.
   - On any failure, the executor revokes both tokens before it returns.
-  - The device screen names the change, and the executor accepts only the
-    change bound to that session.
+  - The approval binds the exact request. The session carries the change's
+    name, its pinned policy digest and a digest of the exact request the
+    change sends, and the device screen shows the name and a short form of
+    the request digest. The executor refuses any request whose digest or
+    policy digest differs from what the device approved, before it mints.
   - The audit records the enrolled admin as actor for the generate-root, the
     mint, the root revoke, the change and the scoped revoke. No token value
     appears in a log, result or record.
@@ -493,6 +501,9 @@ from WP1 for the end-to-end check.
 - In the same rehearsal, a negative test on a disposable environment: during
   the run, a second or unrelated mutation with the scoped token is refused by
   OpenBao.
+- Drift tests: a pinned policy changed on the disposable environment, and a
+  request changed after approval. Each is refused before the mint, and no
+  root token is generated or used for it.
 - A crash test: a crash of the executor after the mint leaves the root token
   already revoked and the scoped token expiring within its short TTL.
 - Audit entries for the generate-root, the mint, the root revoke, the change
@@ -515,8 +526,9 @@ from WP1 for the end-to-end check.
 
 - [ ] In the sandbox lane, a change is approved from an enrolled admin device
       and run through the executor. The root token lookup fails afterward, and
-      the scoped token refuses a second or unrelated mutation. The crash test
-      passes, and the audit entries are complete.
+      the scoped token refuses a second or unrelated mutation. A changed
+      policy and a changed request are each refused before the mint. The crash
+      test passes, and the audit entries are complete.
 - [ ] In a lane with a boot-time unseal, a cold boot is unsealed from an
       enrolled admin device on the disposable environment, and the
       no-material-at-rest scan, crash dumps included, passes.
