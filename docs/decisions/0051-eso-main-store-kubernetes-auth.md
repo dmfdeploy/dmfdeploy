@@ -1,9 +1,9 @@
 # ADR-0051: ESO's main store authenticates to OpenBao with Kubernetes auth
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-11-07
 **Deciders:** operator
-**Supersedes/amends:** [ADR-0008](0008-openbao-secrets-architecture.md), for the External Secrets Operator (ESO) login method of the main store only. The supersession takes effect when this ADR is Accepted. Until then ADR-0008 binds.
+**Supersedes/amends:** [ADR-0008](0008-openbao-secrets-architecture.md), for the External Secrets Operator (ESO) login method of the main store only.
 **Rule:** Authenticate the main `openbao` ClusterSecretStore with Kubernetes auth, and write its auth config only with the initial root token on a new install or with a generate-root token used for that one change, then explicitly revoked and audited.
 
 ## Context
@@ -35,10 +35,10 @@ The operator decided these points on 2026-11-07 ([decisions comment](https://git
 
 ## Enforcement
 
-Discipline only: nothing yet checks that the main store uses Kubernetes auth, or that a standing identity gets 403 when it writes `auth/kubernetes/config`. The plan's WP3 adds verifier coverage for the main store: a fresh login and negative tests for a wrong ServiceAccount, namespace and audience. When it lands, this section must name that playbook and its probes. No planned work checks the writer prohibition, so that part stays discipline only until a probe for it is added.
+Discipline only: nothing yet checks that the main store uses Kubernetes auth, or that a standing identity gets 403 when it writes `auth/kubernetes/config`. The plan's WP3 adds verifier coverage for the main store: a fresh login, negative tests for a wrong ServiceAccount, namespace and audience, and a negative write probe that shows each standing identity gets 403 when it writes `auth/kubernetes/config`. When it lands, this section must name that playbook and its probes.
 
 ## Status
 
-Proposed, 2026-11-07. The plan's WP1 passed with a snapshot-job stand-in. The ADR becomes Accepted when the operator approves it. On acceptance, ADR-0008 becomes Partially superseded by this ADR.
+Accepted, 2026-11-08, by the operator. Proposed 2026-11-07, after the plan's WP1 passed with a snapshot-job stand-in. ADR-0008 is Partially superseded by this ADR.
 
 Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0051-eso-main-store-kubernetes-auth.md).
