@@ -124,7 +124,9 @@ needs a different scope, stop and ask for a new decision.
 15. Dated 2026-11-08. Recovery keys cannot unseal. They only authorize, as the
     OpenBao seal documentation says. The seal key therefore needs its own
     backup: a copy encrypted to each enrolled admin device and stored with
-    the Raft snapshots, and a direct copy in the recovery package.
+    the Raft snapshots, and a direct copy in the recovery package. In the
+    sandbox lane that direct copy has one custodian, the admin, instead of
+    ADR-0009's five shares at a threshold of three, which WP2 amends.
 16. Dated 2026-11-08. The device screen names the operation: unseal, root
     token or restore. A generated root token is used only by a server-side
     executor, to mint a token scoped to the one named change, after it checks
@@ -295,8 +297,9 @@ share appears in it.
 
 ### WP2 ADR-0029 amendments
 
-**Goal.** Amend ADR-0029 through the RFC-to-ADR path so that the code in the
-later packages matches an accepted decision.
+**Goal.** Amend ADR-0029, and ADR-0009 for the sandbox lane, through the
+RFC-to-ADR path so that the code in the later packages matches an accepted
+decision.
 
 **Needs from the operator.** Review of the draft and acceptance. The RFC
 thread has already converged.
@@ -305,7 +308,7 @@ thread has already converged.
 
 **Properties that must hold.**
 
-- The amendments are exactly five, and each cites its decision:
+- The ADR-0029 amendments are exactly five, and each cites its decision:
   - Single replica allowed in the sandbox lane, with a visible warning
     (decision 1).
   - No per-boot token for Tier 2, which keeps the token for Tier 1
@@ -332,6 +335,11 @@ thread has already converged.
     records the synced-passkey risk and its limits (decision 18). The ADR's
     Enforcement section says what checks the declared tier against the
     configured seal: the boot-time check from WP5, or "discipline only."
+- One ADR-0009 amendment, for the sandbox lane only: the recovery package
+  holds the seal key as one copy in the admin's custody, instead of five
+  shares at a threshold of three. It cites decisions 14 and 15 and the
+  accepted local-root risk. A lane with a boot-time unseal keeps ADR-0009 as
+  it is.
 - The signed, boot-checked tier and the audited downgrade are unchanged, and
   the ADR still says so.
 - The ADR keeps its **Rule:** line and its `## Enforcement` section, and the
@@ -347,7 +355,8 @@ announcement thread that the RFC process requires.
 
 **Done when.**
 
-- [ ] The five amendments are merged and accepted.
+- [ ] The five ADR-0029 amendments and the ADR-0009 amendment are merged and
+      accepted.
 - [ ] The announcement thread is posted.
 - [ ] The Status section is updated.
 
@@ -470,6 +479,13 @@ from WP1 for the end-to-end check.
   - The executor revokes the root token synchronously, before it performs the
     change. The change runs with the scoped token, which the executor also
     revokes when the change is done.
+  - The interval before that revoke is abort-safe. Before the mint, the
+    executor looks up the root token's accessor, which is not secret, and
+    records it durably. On every start, and on a short timer, a standing
+    revoker identity revokes every recorded accessor and then clears the
+    record. That identity can only revoke tokens by accessor: it cannot
+    create, read or use one. A crash at any point therefore leaves the root
+    token revoked at the next start or timer tick.
   - On any failure, the executor revokes both tokens before it returns.
   - The approval binds the exact request. The session carries the change's
     name, its pinned policy digest and a digest of the exact request the
@@ -504,8 +520,10 @@ from WP1 for the end-to-end check.
 - Drift tests: a pinned policy changed on the disposable environment, and a
   request changed after approval. Each is refused before the mint, and no
   root token is generated or used for it.
-- A crash test: a crash of the executor after the mint leaves the root token
-  already revoked and the scoped token expiring within its short TTL.
+- Injected-failure tests: a crash after the generate-root and before the mint,
+  and a crash after the mint and before the root revoke. In each, the revoker
+  revokes the root token by its recorded accessor at the next start, a later
+  lookup of it fails, and the scoped token expires within its short TTL.
 - Audit entries for the generate-root, the mint, the root revoke, the change
   and the scoped revoke, with no token value.
 - In a lane with a boot-time unseal: a cold boot unsealed by one admin with an
@@ -527,8 +545,8 @@ from WP1 for the end-to-end check.
 - [ ] In the sandbox lane, a change is approved from an enrolled admin device
       and run through the executor. The root token lookup fails afterward, and
       the scoped token refuses a second or unrelated mutation. A changed
-      policy and a changed request are each refused before the mint. The crash
-      test passes, and the audit entries are complete.
+      policy and a changed request are each refused before the mint. Both
+      injected-failure tests pass, and the audit entries are complete.
 - [ ] In a lane with a boot-time unseal, a cold boot is unsealed from an
       enrolled admin device on the disposable environment, and the
       no-material-at-rest scan, crash dumps included, passes.
