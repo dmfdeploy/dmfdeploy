@@ -258,8 +258,10 @@ what has to be built. The infra repo's OpenBao and external-secrets roles.
   before that token is disposed of. No standing identity gains the power to
   write it.
 - The ESO role is bound to ESO's controller ServiceAccount in its namespace,
-  with the same read policy the AppRole has, a short token TTL, and an
-  audience that ESO also requests.
+  with the AppRole's `eso-reader` policy unchanged, a short token TTL, and
+  an audience that ESO also requests. That policy also grants certificate
+  issuance on the internal CA; narrowing it is
+  [#881](https://github.com/dmfdeploy/dmfdeploy/issues/881), not this plan.
 - The store applies a `kubernetes` auth block with a ServiceAccount
   reference. A test shows whether a changed auth block replaces or merges
   with the old `appRole` key on an existing store, and the result is handled
