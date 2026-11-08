@@ -126,8 +126,10 @@ needs a different scope, stop and ask for a new decision.
     backup: a copy encrypted to each enrolled admin device and stored with
     the Raft snapshots, and a direct copy in the recovery package.
 16. Dated 2026-11-08. The device screen names the operation: unseal, root
-    token or restore. Every root token is single-use and short-lived, is
-    revoked after its one change, and is audited at issue, use and revoke.
+    token or restore. A generated root token is used only by a server-side
+    executor, to mint a token scoped to the one named change. The root token
+    is revoked at once. The generate-root, the mint, both revokes and the
+    change are audited.
 17. Dated 2026-11-08. Removing a lost or stolen device rotates the recovery
     keys and the seal key, and re-encrypts the copies for the remaining
     devices.
@@ -450,10 +452,25 @@ from WP1 for the end-to-end check.
 - Approval of a root token needs the recovery keys, which an enrolled admin
   device holds. One device meets the threshold alone, and material on the node
   cannot mint a root token (decisions 13 and 14).
-- Every root token the page approves is single-use and short-lived, is revoked
-  after its one change, and is audited at issue, use and revoke with the
-  enrolled admin as actor (decision 16). The token value appears in no log,
-  result or record.
+- A root token has unrestricted authority, so the plan does not rely on a
+  revoke after the change. A server-side executor handles every approved root
+  token (decision 16):
+  - The generated root token goes only to the executor. It never reaches the
+    device, the page, a log or any caller.
+  - The executor uses the root token for exactly one call: it mints an orphan
+    token with the policy for the named change, with a short TTL and a use
+    limit. Each approvable change has its own policy, installed beforehand by
+    the installer, that allows only the path and capabilities that change
+    needs, so the mint needs no policy write.
+  - The executor revokes the root token synchronously, before it performs the
+    change. The change runs with the scoped token, which the executor also
+    revokes when the change is done.
+  - On any failure, the executor revokes both tokens before it returns.
+  - The device screen names the change, and the executor accepts only the
+    change bound to that session.
+  - The audit records the enrolled admin as actor for the generate-root, the
+    mint, the root revoke, the change and the scoped revoke. No token value
+    appears in a log, result or record.
 - The page has no job at boot. OpenBao auto-unseals without it (decision 12).
 
 **Properties that must hold in a lane with a boot-time unseal.**
@@ -469,10 +486,17 @@ from WP1 for the end-to-end check.
 
 **Closing evidence.** On a disposable environment, these results:
 
-- In the sandbox lane: a root token approved from one enrolled admin device,
-  used for one change, then revoked, with the audit entries for issue, use
-  and revoke, and a check that the token no longer works. An approval for
-  restore that fails to mint a root token, and the reverse.
+- In the sandbox lane: a change approved from one enrolled admin device and
+  run through the executor. After the executor returns, a lookup of the root
+  token fails because it is revoked, and the scoped token is revoked as well.
+  An approval for restore that fails to mint a root token, and the reverse.
+- In the same rehearsal, a negative test on a disposable environment: during
+  the run, a second or unrelated mutation with the scoped token is refused by
+  OpenBao.
+- A crash test: a crash of the executor after the mint leaves the root token
+  already revoked and the scoped token expiring within its short TTL.
+- Audit entries for the generate-root, the mint, the root revoke, the change
+  and the scoped revoke, with no token value.
 - In a lane with a boot-time unseal: a cold boot unsealed by one admin with an
   enrolled admin device and without access to the node. It starts from the
   sealed notification and its link, on the online flow with a laptop and QR
@@ -489,8 +513,10 @@ from WP1 for the end-to-end check.
 
 **Done when.**
 
-- [ ] In the sandbox lane, a root token is approved from an enrolled admin
-      device, single-use and revoked, with the audit entries.
+- [ ] In the sandbox lane, a change is approved from an enrolled admin device
+      and run through the executor. The root token lookup fails afterward, and
+      the scoped token refuses a second or unrelated mutation. The crash test
+      passes, and the audit entries are complete.
 - [ ] In a lane with a boot-time unseal, a cold boot is unsealed from an
       enrolled admin device on the disposable environment, and the
       no-material-at-rest scan, crash dumps included, passes.
@@ -834,8 +860,8 @@ unseal, and a restored package does not bring the file back.
   recovery keys when it migrates a seal, so this property closes a path that
   would otherwise mint a root token from the old file.
 - One enrolled admin device meets the recovery threshold alone, and the
-  rehearsal proves it with a root token approval that is revoked after its one
-  change (decisions 14 and 16).
+  rehearsal proves it with a change approved through the executor from WP5
+  (decisions 14 and 16).
 - Enrolled devices carry across the transition. Every retained device
   receives encrypted copies of the new recovery keys and the seal key as part
   of the same change, and the recovery path stays usable throughout.
