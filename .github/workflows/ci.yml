@@ -49,6 +49,10 @@ jobs:
         run: |
           python3 -m unittest discover -s tests -p 'test_session_link_gate.py' -v
           bash tests/session-link-commitlint.sh
+      - name: DCO commit-count regression
+        # Runs the DCO step's own script against a stubbed gh: a missing
+        # sign-off, a bad commit count and the dependabot exemption.
+        run: bash tests/dco-commit-count.sh
       - name: public-safety worktree regression (R1 §7)
         # Proves the gates scan a git worktree instead of silently skipping it
         # (public canary only; no operator-private include needed).
