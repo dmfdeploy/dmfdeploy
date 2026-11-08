@@ -484,8 +484,15 @@ from WP1 for the end-to-end check.
     records it durably. On every start, and on a short timer, a standing
     revoker identity revokes every recorded accessor and then clears the
     record. That identity can only revoke tokens by accessor: it cannot
-    create, read or use one. A crash at any point therefore leaves the root
-    token revoked at the next start or timer tick.
+    create, read or use one. A crash after the record therefore leaves the
+    root token revoked at the next start or timer tick.
+  - One window stays open, and the plan accepts it for the sandbox lane: a
+    crash after generate-root completes and before the accessor is recorded.
+    The root token is then valid, but nobody holds it. OpenBao returns it
+    encoded with a one-time pad that exists only in the executor's memory,
+    so no one can decode it. WP5's design review decides whether to close
+    this window, for example with a periodic scan that revokes unrecorded
+    root tokens.
   - On any failure, the executor revokes both tokens before it returns.
   - The approval binds the exact request. The session carries the change's
     name, its pinned policy digest and a digest of the exact request the
@@ -520,10 +527,11 @@ from WP1 for the end-to-end check.
 - Drift tests: a pinned policy changed on the disposable environment, and a
   request changed after approval. Each is refused before the mint, and no
   root token is generated or used for it.
-- Injected-failure tests: a crash after the generate-root and before the mint,
-  and a crash after the mint and before the root revoke. In each, the revoker
-  revokes the root token by its recorded accessor at the next start, a later
-  lookup of it fails, and the scoped token expires within its short TTL.
+- Injected-failure tests: a crash after the accessor is recorded and before
+  the mint, and a crash after the mint and before the root revoke. In each,
+  the revoker revokes the root token by its recorded accessor at the next
+  start, a later lookup of it fails, and the scoped token expires within its
+  short TTL.
 - Audit entries for the generate-root, the mint, the root revoke, the change
   and the scoped revoke, with no token value.
 - In a lane with a boot-time unseal: a cold boot unsealed by one admin with an
