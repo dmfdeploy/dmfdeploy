@@ -36,7 +36,7 @@ The operator decided these points on 2026-11-07 ([decisions comment](https://git
 
 ## Enforcement
 
-The identity verifier, `k3s-lab-bootstrap/playbooks/verify-openbao-identity-model.yml` in the infra repo, checks the main store: a fresh ESO login with a newly requested ServiceAccount token, an ExternalSecret that refreshes through the store, refusal of a wrong ServiceAccount, namespace and audience, a negative write probe that shows each standing identity gets 403 when it writes `auth/kubernetes/config`, and a probe that the ESO token has no capability on the PKI issue path. Who may generate a root token, and that it is revoked after the one change, stays discipline only.
+The identity verifier, `dmf-infra/k3s-lab-bootstrap/playbooks/verify-openbao-identity-model.yml`, checks the main store. It logs in as ESO with a newly requested ServiceAccount token, forces an ExternalSecret to refresh through the store, and shows that a wrong ServiceAccount, namespace or audience is refused. A negative write probe shows that each standing identity gets 403 when it writes `auth/kubernetes/config`. Another probe shows that the ESO token has no capability on the PKI issue path. Who may generate a root token, and its revocation after the one change, stay discipline only.
 
 ### Amendment 2026-11-09
 
