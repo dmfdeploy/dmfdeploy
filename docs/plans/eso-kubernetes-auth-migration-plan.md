@@ -240,10 +240,10 @@ announcement thread that the RFC process requires after merge.
 
 **Done when.**
 
-- [ ] The ADR draft is reviewed and merged as Proposed, with its links.
-- [ ] After WP1 passes and the operator approves, the ADR is Accepted.
-- [ ] The announcement thread is posted.
-- [ ] The Status section below is updated.
+- [x] The ADR draft is reviewed and merged as Proposed, with its links.
+- [x] After WP1 passes and the operator approves, the ADR is Accepted.
+- [x] The announcement thread is posted.
+- [x] The Status section below is updated.
 
 ### WP3 installer change
 
@@ -444,8 +444,8 @@ Update this table as the work moves. Each row links the evidence.
 | WP | Status | Links |
 |---|---|---|
 | WP1 experiment | done (pass, with the snapshot-job stand-in) | [evidence](https://github.com/dmfdeploy/dmfdeploy/issues/866#issuecomment-6712869189), [scope decision](https://github.com/dmfdeploy/dmfdeploy/issues/866#issuecomment-6709798849) |
-| WP2 ADR | not started | |
-| WP3 installer | not started | |
+| WP2 ADR | done (ADR-0051 accepted) | [ADR PR](https://github.com/dmfdeploy/dmfdeploy/pull/877), [announcement](https://github.com/orgs/dmfdeploy/discussions/851#discussioncomment-19474026) |
+| WP3 installer | in progress (switch merged; installed-environment path passed on a disposable environment; fresh install and [#887](https://github.com/dmfdeploy/dmfdeploy/issues/887) open) | [switch](https://github.com/dmfdeploy/dmf-infra/pull/133), [live-run fixes](https://github.com/dmfdeploy/dmf-infra/pull/136), [evidence](https://github.com/dmfdeploy/dmfdeploy/issues/866#issuecomment-6726917740) |
 | WP4 rollout | not started | |
 | WP5 removal | not started | |
 
