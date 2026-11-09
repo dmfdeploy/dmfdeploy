@@ -1,13 +1,25 @@
 # DMF Workspace Alarm Surface Research (EEMUA 191) — 2026-07-06
 
-> **STATUS: RESEARCH COMPLETE (verified) — pending operator review.** This is
+> **STATUS: RESEARCH ACCEPTED — the operator accepted it on 2026-11-08.** This is
 > WP-G of the v0.2 round
 > (`docs/archive/plans/DMF v0.2 Media-Native Console Demo Plan 2026-07-06.md`,
 > tracking [#187](https://github.com/dmfdeploy/dmfdeploy/issues/187)). 15
 > claims are adversarially verified 3-0 (§3); the synthesis + HealthCore
 > mapping (§4-§6) is authored from those. The one thin spot is visual-design
-> specifics (§3c) — flagged where it matters. WP-H applies §5/§6 after the
-> operator reviews this doc; WP-H is **not** a 0.14.0 release gate.
+> specifics (§3c) — flagged where it matters. WP-H applies §5/§6; WP-H is
+> **not** a 0.14.0 release gate.
+>
+> **Checked against:** EEMUA 191, 2024 edition (Publication 191, Edition 4),
+> checked 2026-11-08. The copy used for the check holds the front matter and
+> pages 1 to 34 (Sections 1 to 2.7.2). It confirms the alarm definition, the
+> alert, prompt and event classes, alarm classification, the lifecycle, and the
+> operator-workload reasoning. These carry EEMUA 191 section numbers below. The
+> priority distribution, alarm-rate bands, flood tolerance, standing-alarm
+> benchmark, KPIs, shelving and suppression sit in Chapters 5 to 7, which the
+> copy does not include. Those statements keep their original sources, which are
+> other alarm-management guidance. This document did not check that guidance
+> against its source. The statements are marked "not checked against EEMUA 191". One conclusion is qualified: see
+> §4, point 2.
 
 ## 1. Why this research exists (context for a cold agent)
 
@@ -30,7 +42,9 @@ secondary sources, cite only what was actually read, **never fabricate clause
 numbers**. Every clause number and figure below is quoted from a source that
 was actually fetched and read; where a number lives beyond a preview boundary
 it is attributed to the secondary source that reproduced it, not to the
-primary standard.
+primary standard. The 2024 edition of EEMUA 191 was read later for the
+sections named in the "Checked against" note. Every EEMUA 191 section number
+in this document comes from that read or from the edition's contents pages.
 
 ## 2. Method + run provenance
 
@@ -70,25 +84,48 @@ primary standard.
   *"3 priorities: ~80% Low, ~15% Medium, ~5% High or 4 priorities: ~80% Low,
   ~15% Medium, ~5% High, ~<1% 'highest'."*
   <https://www.processvue.com/downloads/Alarm_system_performance_KPIs_V1_0.pdf>
+  EEMUA 191 (2024) has, by title, a priority-distribution table (Table 15,
+  Section 7.3.2) and a priority-distribution section in Appendix 3 (A3.3),
+  seen in the contents only. Neither is in the copy checked, so the 80/15/5 figures are other
+  alarm-management guidance, and this document did not check them against
+  their source. EEMUA 191's own table may differ.
 - **Steady-state alarm-rate bands per operator (EEMUA 191 3rd ed., p.96):**
   <1 alarm/10 min very likely acceptable; 1/5 min manageable; 1/2 min
   over-demanding; >1/min very likely unacceptable. — ProcessVue (quoting
-  EEMUA 191 p.96 verbatim).
+  EEMUA 191 p.96 verbatim). The page number belongs to the 3rd edition. In the
+  2024 edition the table with the closest title is Table 16, "Long term
+  average alarm rate" (Chapter 7, page 107; seen in the contents only). The 2024 edition says the criteria in earlier
+  editions have not changed ("Revised Fourth Edition, 2024"), but Table 16 is
+  not in the copy checked, so the bands are not checked against EEMUA 191. The
+  2024 edition does explain why the rate matters: if each alarm takes about
+  five minutes to handle, six alarms an hour occupy half of the operator's
+  time (Section 2.1.4).
 - **Flood tolerance after a major upset (EEMUA 191 3rd ed., p.97):** <10
   alarms/operator in the first 10 min manageable; 20-100 hard to cope with;
   >100 excessive and likely to make the operator abandon the alarm system.
-  — ProcessVue.
+  — ProcessVue. In the 2024 edition the related tables are, by title, Table 17,
+  "Major process upset alarm", and Table 18, "Target maximum occurrence rates
+  of alarms of different priorities" (Chapter 7, page 108; seen in the
+  contents only). Neither is in the copy checked, so these figures are not checked against EEMUA 191. The principle
+  holds: EEMUA 191 says floods during upsets overload operators so that they
+  cannot diagnose the problem (Section 1.3).
 - **ISA-18.2-2016 flood/hygiene KPIs (Table 7):** <~1% of 10-min periods with
   >10 alarms; ≤10 alarms in any 10-min period; system in flood <~1% of the
   time; zero chattering/fleeting alarms; <5 stale alarms/day. **Averages must
   not be extrapolated** — *"One alarm per ten minutes cannot be converted to
   six alarms per hour and certainly not extrapolated to 144 alarms per day…
   the 144 alarms of a day can all occur in (less than) an hour"* (clustering
-  is what overwhelms). — ProcessVue.
+  is what overwhelms). — ProcessVue. These KPIs come from ISA-18.2 and do not appear in
+  the EEMUA 191 text checked. EEMUA 191 has its own standing-alarm benchmark (Section 7.4.4,
+  Table 19) and KPI set (Section 7.4.5, Tables 20 and 21), seen in the
+  contents only and not checked. The clustering point matches EEMUA 191 Section 2.1.4: a scenario
+  that creates many alarms at once overloads the operator even when each alarm
+  is useful.
 - **Targets are approximate and non-mandatory; rate alone is not
   acceptability:** *"The target metrics … are approximate and depend upon
   many factors … Alarm rate alone is not an indicator of acceptability."*
-  — PAS "Understanding ISA-18.2" (Hollifield), hosted by ISA.
+  — PAS "Understanding ISA-18.2" (Hollifield), hosted by ISA. This is an
+  ISA-18.2 statement. It is not checked against EEMUA 191.
   <https://www.isa.org/getmedia/55b4210e-6cb2-4de4-89f8-2b5b6b46d954/PAS-Understanding-ISA-18-2.pdf>
 
 ### (b) What is an alarm / what belongs on the surface
@@ -99,6 +136,19 @@ primary standard.
   indications are not alarms. — PAS (ISA-18.2 definition) and independently
   Yokogawa/Control-Engineering
   (<https://www.yokogawa.com/us/library/resources/media-publications/implementing-alarm-management-per-the-ansi-isa-182-standard-control-engineering/>).
+  EEMUA 191 (2024) agrees, with one difference. Its definition (Section 1.1)
+  says the condition requires a *timely* response. It also says that if you
+  cannot define a response, the signal should not be an alarm (Section 1.4),
+  and it lists signals that are not alarms (Section 2.3.4).
+- **EEMUA 191 separates alarms from alerts, prompts and events (Section 2.3,
+  Figures 7 and 9).** An alarm is an unexpected event that needs timely
+  operator action. An alert is an unexpected event that needs no response. An
+  alert is not time critical, always ranks below an alarm, should not be
+  audible, and can be suppressed during upsets (Sections 2.3.1 and 2.3.3). A
+  prompt is an expected event that may need action but is not time critical
+  (Section 2.3.3). Most events need no alarm (Section 2.3.2). Section 2.4 adds
+  that an alarm class groups alarms that share management requirements, such as
+  testing, training or shelving. A class is different from a priority.
 - **Prioritization + suppression are lifecycle work-products, not UI
   features.** IEC 62682:2022 defines a full alarm-management life cycle
   (Clause 5.2, Fig. 2): philosophy (6) → identification (8) →
@@ -108,11 +158,23 @@ primary standard.
   the prioritization method, alarm-class definitions, and HMI design
   principles. — IEC 62682:2022 preview PDF
   (<https://cdn.standards.iteh.ai/samples/103485/6f7b44e368fc4f4d93216f716a51771a/IEC-62682-2022.pdf>).
+  EEMUA 191 reproduces the same lifecycle in Figure 4 and Table 2
+  (Section 1.5.5). The stages are philosophy, identification, rationalisation,
+  detailed design, implementation, operation, maintenance, monitoring and
+  assessment, management of change, and audit. The chain above leaves out the
+  implementation stage. EEMUA 191 also says the philosophy identifies alarm
+  classes and the method of classifying alarms (Section 2.4), and defines the
+  use of alerts, events, prompts, alarms and highly managed alarms
+  (Section 2.6). Its example philosophy has headings for prioritisation methods and HMI
+  design principles (Appendix 4, A4.5 and A4.11, seen in the contents only);
+  the content was not checked. The IEC clause numbers were not re-checked.
 - **Per-operator-console KPIs are normative content (IEC 62682 Clause 16):**
   average alarm rate (16.3.3), peak rate (16.3.4), floods (16.3.5),
   chattering/fleeting (16.3.7), stale (16.3.8), annunciated priority
   distribution (16.3.9), with numeric Table 5 (average rates) + Table 6
-  (example priority distribution). — IEC 62682:2022 preview.
+  (example priority distribution). — IEC 62682:2022 preview. EEMUA 191 lists
+  KPIs in Section 7.4.5 and Tables 20 and 21 (seen in the contents only);
+  that content was not checked.
 - **IT-monitoring crossover (Google SRE Workbook)** — the natural bridge to a
   Prometheus-native console: a **two-tier** page-vs-ticket split chosen by
   required response speed (*"If an issue will exhaust the error budget within
@@ -143,7 +205,13 @@ Rockwell WP023 + the PAS overview first (both fetched, listed in §7).
   alarm displays), **11.8 Out-of-service alarms** (incl. 11.8.3 displays),
   **11.9 Alarms suppressed by design** (incl. 11.9.4 displays). *A surface
   that offers any of these states must also display them — not merely hide
-  alarms.* — IEC 62682:2022 preview.
+  alarms.* — IEC 62682:2022 preview. EEMUA 191 has sections with matching titles:
+  5.7 (shelved and suppressed alarms), 6.3 (suppression, including 6.3.4,
+  authorisation and control) and 6.5 (shelving). They were seen in the
+  contents only and not checked, so this bullet rests on IEC 62682. EEMUA 191 does say that an alarm system needs a mechanism for
+  suppression, shelving, overrides and inhibits (Section 2.2.2), and that
+  highly managed alarms need stricter control of shelving, out-of-service
+  handling and change (Section 2.5.3).
 - **Shelved = operator-initiated, temporary, tracked** — *"temporarily
   suppressed, usually via a manual initiation by the operator, using a method
   meeting a variety of administrative requirements to ensure the shelved
@@ -169,22 +237,37 @@ findings, four things follow:
    central WP-H move is a **rationalization split**: each surfaced alert is
    either an *alarm* (needs response → front page) or an *alert/info* (no
    response → segregated, one click away). This is the operator's "no
-   non-required info on the front page" restated in standards terms.
+   non-required info on the front page" restated in standards terms. EEMUA 191
+   supports the split (Sections 1.1, 1.4 and 2.3.4, and Figures 7 and 9). It
+   calls the no-response class an *alert*. This document says "info" for that
+   class, to avoid confusion with a Prometheus alert.
 
 2. **Collapse severity to a small priority set with a sane distribution.**
    The secondary-sourced ISA/IEC target is **3-4 priorities, skewed ~80/15/5**
-   (§3a, via ProcessVue — not primary-verified). A Prometheus-native console
+   (§3a, via ProcessVue — not checked against EEMUA 191; see Section 7.3.2,
+   not checked here). A Prometheus-native console
    maps cleanly onto the Google SRE **two-tier page-vs-ticket** urgency model
    (§3b, verified), which this doc extends with a **separate
    non-actionable/info class** (a synthesis from the alarm definition in §3b,
    not something Google itself prescribes) — giving a practical page-now /
    attend-soon / info split rather than mirroring raw Prometheus `severity`
    labels. The ~80/15/5 target doubles as a **KPI / design smell**: if most
-   tiles are "high", the surface communicates no priority (a flattened
-   distribution is the failure mode the sources name).
+   tiles are "high", the surface communicates no priority. EEMUA 191 names
+   inconsistent prioritisation as a problem, because operators then cannot
+   tell which alarm to handle first (Section 1.3). The distribution figures
+   themselves are not checked against EEMUA 191.
+
+   **Qualification from EEMUA 191.** The three-bucket split stands, but the
+   rule for the middle bucket changes. An alarm needs a *timely* response. A
+   condition that can wait, such as one the Google model sends to a ticket for
+   the next working day, is an alert under EEMUA 191 and never an
+   alarm (Sections 1.4 and 2.3.1, Figure 9). An "attend-soon" item belongs in the
+   alarm buckets only when it needs a timely response, which EEMUA 191 describes
+   as "look at this soon" (Section 1.4). Ticket-class conditions belong in the
+   info class. Apply this rule to the Attention bucket in §5.
 
 3. **The verdict line + counts are the legitimate L1; everything else is one
-   click away.** Per-operator-console KPIs are standardized (§3b, Clause 16),
+   click away.** Per-operator-console KPIs are standardized (§3b, IEC 62682 Clause 16),
    and the "at-a-glance" overview should carry only the required-at-a-glance
    content. Concretely for HealthCore L1: **the single verdict + a
    priority-bucketed count of open alarms + the top N problems**. Rates,
@@ -194,7 +277,8 @@ findings, four things follow:
 4. **Do NOT add Ack/shelve/mute/OOS in v0.2.** This is the strongest verified
    result (§3d, 3-0): shelving, out-of-service, and designed suppression are
    three separate mechanisms, each requiring functional rules, tracking, a
-   dedicated display, and unauthorized-suppression detection. A half-built
+   dedicated display, and unauthorized-suppression detection (IEC 62682; the
+   matching EEMUA 191 sections are not checked). A half-built
    "mute" would be actively non-conformant. The v0.2 HealthCore must stay a
    **raw, honest, un-silenceable surface** — which is exactly the current
    #174 stance (no Ack). Silencing/lifecycle graduates only via the future
@@ -207,7 +291,8 @@ Front page (L1), keep only:
 - the single **verdict line** (unchanged);
 - **priority-bucketed counts** over a collapsed 3-bucket scheme
   (e.g. Urgent / Attention / Info-segregated), Info excluded from the "are we
-  OK?" verdict;
+  OK?" verdict. Attention holds only alarms that need a timely response (§4,
+  point 2);
 - **top N current problems** (alarms only, i.e. actionable), deterministically
   ordered by priority then firing time.
 
@@ -219,7 +304,9 @@ Move one click away (a "Details"/"All signals" step):
 Add (small, honest):
 - a **priority-distribution / count sanity indicator** (optional, L2): if the
   live distribution is far from ~80/15/5, that itself is a rationalization
-  smell worth surfacing to an admin — not to the front page.
+  smell worth surfacing to an admin — not to the front page. The 80/15/5 figure
+  is not checked against EEMUA 191; confirm it against Table 15 in
+  Section 7.3.2 before you build this indicator.
 
 Explicitly do NOT add: Ack, shelve, mute, snooze, out-of-service, or any
 per-alert hide. Those are blocked on the Alarm Philosophy spec.
@@ -243,9 +330,15 @@ tracked state + display (11.8), with a permit/renewal process *(secondary)*;
 **suppressed-by-design** (11.9); **unauthorized-suppression detection** as a
 monitoring lane (16.4); and a **KPI panel** (rates, flood %, stale, priority
 distribution — Clause 16). None of these should appear, even partially, in the
-v0.2 raw-alert surface.
+v0.2 raw-alert surface. EEMUA 191 (2024) has sections with matching titles:
+6.3 (suppression), 6.5 (shelving, including release) and 7.4 (performance
+metrics and KPIs). They were seen in the contents only and not checked. Read
+them before the spec adopts any figure.
 
 ## 7. Source inventory (22 fetched; quality as rated by the harness)
+
+Checked directly: EEMUA 191, 2024 edition (primary; contents pages and
+Sections 1 to 2.7.2, read 2026-11-08).
 
 Verified-source subset (carried a 3-0 confirmed claim): IEC 62682:2022 preview
 (primary), Google SRE Workbook (primary), ProcessVue KPI paper (secondary,
@@ -267,10 +360,15 @@ Full URLs are in the run output (§2). The two primary sources:
 
 ## 8. Honest limitations
 
-- **Nobody in this run read EEMUA 191 directly** (paywalled). Its numbers
-  (p.96/p.97 bands, flood tolerance) are quoted via ProcessVue, whose author
-  is an ISA-18.2 committee voting member — reputable, but a secondary. Cite
-  the secondaries, not EEMUA 191, in any UI copy or ADR.
+- **The original run did not read EEMUA 191 directly** (paywalled). The
+  2026-11-08 check read the 2024 edition for the contents pages and
+  Sections 1 to 2.7.2 only. The rate bands, flood tolerance and priority
+  distribution are still quoted via ProcessVue, whose author is an ISA-18.2
+  committee voting member — reputable, but a secondary. The p.96 and p.97 page
+  numbers belong to the 3rd edition and do not apply to the 2024 edition. Cite
+  the 2024 edition by section for the statements listed in the "Checked
+  against" note. For the rest, cite the secondaries, and keep the unchecked
+  figures out of UI copy and ADRs until someone checks them against Chapter 7.
 - The specific IEC 62682 Table 5/Table 6 **numbers** sit beyond the preview
   boundary (pp. 83-85); only the *table titles + clause structure* are
   primary-verified. The numeric targets come from the ISA-18.2 secondaries.

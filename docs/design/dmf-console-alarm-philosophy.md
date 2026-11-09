@@ -55,19 +55,19 @@ The full design record lives in the
 [Shell Round Plan](../plans/dmf-console-shell-round-plan.md)
 §2c, tracked by umbrella issue #497. It covers the two-tier (emitter-alive / end-to-end) heartbeat
 model, the "a quiet bus is legitimately quiet" alarm-flood caution (EEMUA
-191), and the fact that `dmf-cms` currently has **no monitoring exposition
+191, Section 1.3), and the fact that `dmf-cms` currently has **no monitoring exposition
 at all** to build this on. This doc records it only as a pointer, so a
 reader who lands on this doc's own "source of truth for conditions" open
 question (below) does not miss that a whole new condition class is coming
 that this doc will eventually need to classify.
 
 ## To define
-- **Alarm classes / severity**: for example, alarm · warning · advisory · notice · activity-outcome. Define each one and its threshold.
+- **Alarm classes / severity**: for example, alarm · warning · advisory · notice · activity-outcome. Define each one and its threshold. In EEMUA 191 (Section 2.4), a class groups alarms that share management requirements, such as testing, training or shelving rules. A class is different from a priority, which "Priority assignment" below covers. EEMUA 191 also separates alarms from alerts, prompts and events (Section 2.3): an alarm needs a timely response, and an alert does not.
 - **Required response per class**: not only "fixable": escalate, acknowledge, suppress-during-maintenance, watch-degradation, call-engineering.
-- **Priority assignment**: how urgency × consequence maps to class.
+- **Priority assignment**: how urgency × consequence maps to a priority. In EEMUA 191, priority says which alarm to respond to first (Section 1.4), and it differs from class (Section 2.4). Section 1.6 lists Appendix 3 as example prioritisation methods to adapt. Appendix 3 and Section 6.1.1 were not checked here. For the alarm-versus-alert split and the priority-distribution figures this spec might adopt, see the [alarm surface research](../reviews/dmf-alarm-surface-research.md). Some figures in that research are not checked against EEMUA 191.
 - **Lifecycle states**: unacked → acked → shelved → suppressed-by-design → out-of-service → expiry; transitions and who may make them. (The "acked" transition's own semantics are recorded above; the rest of the lifecycle is still open.)
 - **Presentation / annunciation**: colour + shape + text + position (ties Art. 11), placement, sound (if any), and the "calm by default" budget.
-- **Rationalisation criteria**: every alarm must be necessary, unique, actionable (EEMUA 191). Process for adding/removing one.
+- **Rationalisation criteria**: EEMUA 191 expects every alarm to be justified and useful to the operator (Sections 1.4 and 2.2.4), to have a defined response (Sections 1.4 and 1.5.7), and to be unique, so that no other alarm duplicates it (Table 1). For its example checklist and criteria, see Section 6.7.2 and Appendix 4 (A4.8), which were not checked here. This spec sets its own list. Define the process for adding and removing an alarm.
 - **Suppression during maintenance**: how planned work silences expected conditions without blinding the operator to real ones.
 
 ## Open questions
