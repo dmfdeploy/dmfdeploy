@@ -94,9 +94,9 @@ in this document comes from that read or from the edition's contents pages.
   over-demanding; >1/min very likely unacceptable. — ProcessVue (quoting
   EEMUA 191 p.96 verbatim). The page number belongs to the 3rd edition. In the
   2024 edition the table with the closest title is Table 16, "Long term
-  average alarm rate" (Chapter 7, page 107; seen in the contents only). The 2024 edition says the criteria in earlier
-  editions have not changed ("Revised Fourth Edition, 2024"), but Table 16 is
-  not in the copy checked, so the bands are not checked against EEMUA 191. The
+  average alarm rate" (Chapter 7, page 107; seen in the contents only). Table 16
+  is not in the copy checked, so the bands are not checked against EEMUA 191,
+  and whether the 2024 edition changed them is not known. The
   2024 edition does explain why the rate matters: if each alarm takes about
   five minutes to handle, six alarms an hour occupy half of the operator's
   time (Section 2.1.4).
