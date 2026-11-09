@@ -207,8 +207,7 @@ non-required info on the front page**.
   scale, alarm-flood suppression). EEMUA 191 itself is paywalled — research from
   reputable secondary sources and cite what was actually read; never fabricate
   clause numbers.
-- Deliverable: `docs/archive/reviews/DMF Workspace Alarm Surface Research (EEMUA 191)
-  2026-07-06.md` — findings mapped **concretely to the current HealthCore**
+- Deliverable: `docs/reviews/dmf-alarm-surface-research.md` — findings mapped **concretely to the current HealthCore**
   (tiles/list/verdict): what a compliant priority structure looks like (e.g. max
   3-4 priorities, target rates, what belongs on L1 vs one click away), what to
   remove from the front page, what's missing (shelving/out-of-service concepts —
