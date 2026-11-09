@@ -3,6 +3,7 @@
 **Status:** Accepted
 **Date:** 2026-11-07
 **Deciders:** operator
+**Amended:** 2026-11-09: the `eso-reader` policy no longer grants certificate issuance, and Enforcement names the verifier. See §Amendment 2026-11-09.
 **Supersedes/amends:** [ADR-0008](0008-openbao-secrets-architecture.md), for the External Secrets Operator (ESO) login method of the main store only.
 **Rule:** Authenticate the main `openbao` ClusterSecretStore with Kubernetes auth, and write its auth config only with the initial root token on a new install or with a generate-root token used for that one change, then explicitly revoked and audited.
 
@@ -17,7 +18,7 @@ Kubernetes auth removes that stored credential. Two facts make the move more tha
 
 The operator decided these points on 2026-11-07 ([decisions comment](https://github.com/dmfdeploy/dmfdeploy/discussions/851#discussioncomment-19459895)).
 
-1. **Main-store login.** The main `openbao` ClusterSecretStore uses the OpenBao [Kubernetes auth method](https://openbao.org/docs/auth/kubernetes/). The role binds to ESO's controller ServiceAccount in its namespace. It carries the AppRole's `eso-reader` policy unchanged, a short token TTL, and an audience that ESO also requests (items 1 and 2 of the "Proposal" section in the RFC). That policy is not read-only: it also grants certificate issuance on the internal CA. This ADR keeps that grant as it is, and narrowing it is a separate change ([#881](https://github.com/dmfdeploy/dmfdeploy/issues/881)).
+1. **Main-store login.** The main `openbao` ClusterSecretStore uses the OpenBao [Kubernetes auth method](https://openbao.org/docs/auth/kubernetes/). The role binds to ESO's controller ServiceAccount in its namespace. It carries the AppRole's `eso-reader` policy, a short token TTL, and an audience that ESO also requests (items 1 and 2 of the "Proposal" section in the RFC). That policy reads the application secret paths and grants nothing on the PKI mount (§Amendment 2026-11-09).
 2. **Reviewer mode.** OpenBao runs as its own ServiceAccount. A ClusterRole grants that account `create` on `tokenreviews` and nothing else, so it is not bound to `system:auth-delegator`, which also grants SubjectAccessReviews. The mount reviews tokens through the [TokenReview API](https://kubernetes.io/docs/reference/kubernetes-api/authentication-resources/token-review-v1/) with the pod's local token file: `token_reviewer_jwt_set=false` and `disable_local_ca_jwt=false`. OpenBao re-reads that file, so a rotated token keeps working.
 3. **Config writer.** On a new install, the installer writes the config with the initial root token before that token is disposed of. On an installed environment, any later write uses a temporary root token from the [generate-root procedure](https://openbao.org/docs/api/system/generate-root/). That procedure needs a quorum of unseal shares under a Shamir seal, and a quorum of recovery keys under an auto-unseal seal. In the sandbox lane, one enrolled admin device meets the recovery threshold alone once the posture in the [Tier 2 operator unseal plan](../plans/operator-unlock-tier2-plan.md) lands. Use the token for one change, revoke it, and leave audit entries for its issue, use and revoke. No other identity gains this power.
 4. **Rollback window.** The ESO AppRole stays for at least 14 days after the switch. The rotation job from the [credential lifecycle plan](../plans/openbao-approle-credential-lifecycle-plan.md) renews its SecretID, so it cannot expire or lock out in that time. Removing the role and its SecretID from an installed environment is conditional. It needs a full 14-day window with complete evidence and no ESO login failure, the operator's approval for that environment, and a recorded recovery test from a disposable environment before the first such removal. A login failure, an evidence gap or a rollback restarts the window ([plan](../plans/eso-kubernetes-auth-migration-plan.md), WP5).
@@ -35,7 +36,14 @@ The operator decided these points on 2026-11-07 ([decisions comment](https://git
 
 ## Enforcement
 
-Discipline only: nothing yet checks that the main store uses Kubernetes auth, or that a standing identity gets 403 when it writes `auth/kubernetes/config`. The plan's WP3 adds verifier coverage for the main store: a fresh login, negative tests for a wrong ServiceAccount, namespace and audience, and a negative write probe that shows each standing identity gets 403 when it writes `auth/kubernetes/config`. When it lands, this section must name that playbook and its probes.
+The identity verifier, `k3s-lab-bootstrap/playbooks/verify-openbao-identity-model.yml` in the infra repo, checks the main store: a fresh ESO login with a newly requested ServiceAccount token, an ExternalSecret that refreshes through the store, refusal of a wrong ServiceAccount, namespace and audience, a negative write probe that shows each standing identity gets 403 when it writes `auth/kubernetes/config`, and a probe that the ESO token has no capability on the PKI issue path. Who may generate a root token, and that it is revoked after the one change, stays discipline only.
+
+### Amendment 2026-11-09
+
+Reopens no decision. Two corrections:
+
+- **The policy grants no certificate issuance.** Decision 1 kept the `eso-reader` policy unchanged, and that policy also granted issuance on the internal CA. A check found no user of that grant: no ExternalSecret, PushSecret or generator points at a PKI path, no issuer uses OpenBao, and the PKI mount has no issuer configured. The grant is removed, and the verifier checks that the ESO token holds no capability on the PKI issue path ([#881](https://github.com/dmfdeploy/dmfdeploy/issues/881)).
+- **Enforcement names the verifier.** The plan's WP3 verifier coverage has landed, so Enforcement names the playbook and its probes, as the section required.
 
 ## Status
 
