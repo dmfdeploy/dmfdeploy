@@ -142,11 +142,18 @@ in this document comes from that read or from the edition's contents pages.
   and it lists signals that are not alarms (Section 2.3.4).
 - **EEMUA 191 separates alarms from alerts, prompts and events (Section 2.3,
   Figures 7 and 9).** An alarm is an unexpected event that needs timely
-  operator action. An alert is an unexpected event that needs no response. An
-  alert is not time critical, always ranks below an alarm, should not be
-  audible, and can be suppressed during upsets (Sections 2.3.1 and 2.3.3). A
-  prompt is an expected event that may need action but is not time critical
-  (Section 2.3.3). Most events need no alarm (Section 2.3.2). Section 2.4 adds
+  operator action. A prompt is an expected event that may need operator action
+  but is not time critical (Section 2.3.3). An alert is the class for an
+  unexpected event that needs no *timely* response. The text is not uniform on
+  whether an alert can need action. Section 2.3.3 summarises an alert as an
+  event that does not require a response. Section 2.3.1 says an alert draws
+  attention to situations that may need assessment or action when time allows,
+  and that alerts can reach other people, for example in a daily report to
+  maintenance. Figure 9 sends an unexpected event that needs a response, but
+  not in a short time frame, to Alert. Figure 7 does the same for an unexpected
+  event with no timely response required. An alert is not time critical,
+  always ranks below an alarm, should not be audible, and can be suppressed
+  during upsets (Section 2.3.1). Most events need no alarm (Section 2.3.2). Section 2.4 adds
   that an alarm class groups alarms that share management requirements, such as
   testing, training or shelving. A class is different from a priority.
 - **Prioritization + suppression are lifecycle work-products, not UI
@@ -238,14 +245,17 @@ findings, four things follow:
    either an *alarm* (needs response → front page) or an *alert/info* (no
    response → segregated, one click away). This is the operator's "no
    non-required info on the front page" restated in standards terms. EEMUA 191
-   supports the split (Sections 1.1, 1.4 and 2.3.4, and Figures 7 and 9). It
-   calls the no-response class an *alert*. This document says "info" for that
-   class, to avoid confusion with a Prometheus alert.
+   supports the split (Sections 1.1, 1.4 and 2.3.4, and Figures 7 and 9). Its
+   *alert* class is wider than the no-response class used here, because it also
+   holds unexpected conditions that need action but not a timely one (§3b;
+   Section 2.3.1, Figure 9). This document uses "info" only for conditions that
+   need no response, and keeps conditions that need deferred action out of it
+   (§4, point 2).
 
 2. **Collapse severity to a small priority set with a sane distribution.**
    The secondary-sourced ISA/IEC target is **3-4 priorities, skewed ~80/15/5**
-   (§3a, via ProcessVue — not checked against EEMUA 191; see Section 7.3.2,
-   not checked here). A Prometheus-native console
+   (§3a, via ProcessVue; EEMUA 191 was not checked for this figure, see
+   Section 7.3.2, which was outside the copy). A Prometheus-native console
    maps cleanly onto the Google SRE **two-tier page-vs-ticket** urgency model
    (§3b, verified), which this doc extends with a **separate
    non-actionable/info class** (a synthesis from the alarm definition in §3b,
@@ -258,13 +268,27 @@ findings, four things follow:
    themselves are not checked against EEMUA 191.
 
    **Qualification from EEMUA 191.** The three-bucket split stands, but the
-   rule for the middle bucket changes. An alarm needs a *timely* response. A
-   condition that can wait, such as one the Google model sends to a ticket for
-   the next working day, is an alert under EEMUA 191 and never an
-   alarm (Sections 1.4 and 2.3.1, Figure 9). An "attend-soon" item belongs in the
-   alarm buckets only when it needs a timely response, which EEMUA 191 describes
-   as "look at this soon" (Section 1.4). Ticket-class conditions belong in the
-   info class. Apply this rule to the Attention bucket in §5.
+   rule for the middle bucket changes. An alarm needs a *timely* response
+   (Sections 1.1 and 1.4). A condition that needs action but can wait, such as
+   one the Google model sends to a ticket for the next working day, is
+   therefore not an alarm. It is also not a prompt, because a prompt is an
+   expected event (Section 2.3.3, Figures 7 and 9). EEMUA 191 puts an
+   unexpected condition like this in its alert class. Figure 9 sends an
+   unexpected event that needs a response, but not in a short time frame, to
+   Alert. Section 1.4 says an alert may suit work such as asking a fitter to
+   repair failed equipment. Section 2.3.1 adds that alerts can go to other
+   people, for example in a daily report to maintenance. The checked sections do
+   not say which system should hold the follow-up work.
+
+   This document's Info class is narrower than EEMUA 191's alert class. Info
+   holds conditions that need no response. A condition that needs deferred
+   action does not belong in Info, because readers treat Info as safe to
+   ignore. **This is this document's own recommendation, and the checked
+   sections of EEMUA 191 do not state it:** keep a separate deferred-action list, outside the alarm buckets and
+   outside Info, for conditions that need action without a timely response. An
+   "attend-soon" item belongs in the Attention bucket only when it needs a
+   timely response, which EEMUA 191 describes as "look at this soon"
+   (Section 1.4). Apply this rule to the Attention bucket in §5.
 
 3. **The verdict line + counts are the legitimate L1; everything else is one
    click away.** Per-operator-console KPIs are standardized (§3b, IEC 62682 Clause 16),
@@ -291,8 +315,9 @@ Front page (L1), keep only:
 - the single **verdict line** (unchanged);
 - **priority-bucketed counts** over a collapsed 3-bucket scheme
   (e.g. Urgent / Attention / Info-segregated), Info excluded from the "are we
-  OK?" verdict. Attention holds only alarms that need a timely response (§4,
-  point 2);
+  OK?" verdict. Attention holds only alarms that need a timely response.
+  Conditions that need deferred action go to a separate deferred-action list,
+  outside the three buckets (§4, point 2; this document's recommendation);
 - **top N current problems** (alarms only, i.e. actionable), deterministically
   ordered by priority then firing time.
 
@@ -300,6 +325,10 @@ Move one click away (a "Details"/"All signals" step):
 - the full Current Problems list, the info/non-actionable alerts (visually
   segregated as a separate class, never mixed into the alarm list),
   per-instance detail, and any rate/history KPI panel.
+
+The deferred-action list (§4, point 2) sits apart from both the alarm list and
+the info class. Whether it appears on the front page or one click away is for
+the operator to confirm.
 
 Add (small, honest):
 - a **priority-distribution / count sanity indicator** (optional, L2): if the
