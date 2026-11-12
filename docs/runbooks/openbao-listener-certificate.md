@@ -36,10 +36,10 @@ running pod after each issuance.
 ## Prerequisites
 
 - OpenBao is unsealed on `<env>`. If it is sealed, follow the
-  [`dmf-openbao-unseal`](../../.claude/skills/dmf-openbao-unseal/SKILL.md)
+  [`dmf-openbao-unseal`](../../.agents/skills/dmf-openbao-unseal/SKILL.md)
   procedure first.
 - `kubectl` reaches `<env>` (see the
-  [`dmf-cluster-access`](../../.claude/skills/dmf-cluster-access/SKILL.md)
+  [`dmf-cluster-access`](../../.agents/skills/dmf-cluster-access/SKILL.md)
   skill).
 - You run the plays from `dmf-env` with `bin/run-playbook.sh <env> <playbook>`,
   from a checkout of dmf-infra at `origin/main`.
@@ -83,7 +83,7 @@ Run the plays in this order.
 
      In the sandbox lane only, add `-e openbao_restart_unseal_from_automation_file=true`
      to unseal from the automation file. Otherwise unseal with the shares, as the
-     [`dmf-openbao-unseal`](../../.claude/skills/dmf-openbao-unseal/SKILL.md)
+     [`dmf-openbao-unseal`](../../.agents/skills/dmf-openbao-unseal/SKILL.md)
      skill describes.
 
 The stores report not ready between step 1 and steps 2 and 3, because they still
@@ -206,7 +206,7 @@ Verify with the checks in part A, then the checks in part B.
 
 - [OpenBao Bootstrap And Security Model](https://github.com/dmfdeploy/dmf-infra/blob/main/docs/openbao-bootstrap-security-model.md)
   (the design, the stop points of the Raft migration, and the trust model).
-- [`dmf-openbao-unseal`](../../.claude/skills/dmf-openbao-unseal/SKILL.md)
+- [`dmf-openbao-unseal`](../../.agents/skills/dmf-openbao-unseal/SKILL.md)
   (unseal after a pod restart).
 - [ADR-0007](../decisions/0007-secrets-never-in-argv.md) (no secret values in
   argv).
