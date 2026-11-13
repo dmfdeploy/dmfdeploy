@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="266" viewBox="0 0 1100 266" font-family="Helvetica, Arial, sans-serif" fill="#1b1b1b">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1b1b1b"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1100" height="266" fill="#ffffff"/>
+
+  <!-- Main chain -->
+  <rect x="30" y="30" width="168" height="100" rx="10" fill="#f8f9fa" stroke="#868e96" stroke-width="2"/>
+  <polygon points="248,30 416,30 400,130 264,130" fill="#d0ebff" stroke="#1971c2" stroke-width="2"/>
+  <rect x="466" y="30" width="168" height="100" rx="10" fill="#d0ebff" stroke="#1971c2" stroke-width="2"/>
+  <path d="M 684 42 L 684 118 A 84 12 0 0 0 852 118 L 852 42 Z" fill="#d3f9d8" stroke="#2b8a3e" stroke-width="2"/>
+  <ellipse cx="768" cy="42" rx="84" ry="12" fill="#d3f9d8" stroke="#2b8a3e" stroke-width="2"/>
+  <rect x="902" y="30" width="168" height="100" rx="10" fill="#d3f9d8" stroke="#2b8a3e" stroke-width="2"/>
+
+  <!-- Side box: no device -->
+  <rect x="600" y="180" width="470" height="56" rx="10" fill="#fff3bf" stroke="#e67700" stroke-width="2"/>
+
+  <!-- Arrows -->
+  <line x1="198" y1="80" x2="256" y2="80" stroke="#1b1b1b" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="408" y1="80" x2="466" y2="80" stroke="#1b1b1b" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="634" y1="80" x2="684" y2="80" stroke="#1b1b1b" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="852" y1="80" x2="902" y2="80" stroke="#1b1b1b" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="768" y1="180" x2="768" y2="134" stroke="#1b1b1b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <g><title>Vault open</title><circle cx="768" cy="59" r="19" fill="#ffffff" stroke="#1b1b1b" stroke-width="1.5"/><g transform="translate(753,44) scale(1.15)"><path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z" fill="#1e7a34"/></g></g>
+  <!-- Box text -->
+  <g font-size="22" text-anchor="middle">
+    <text x="114" y="75">Latest</text>
+    <text x="114" y="101">snapshot</text>
+    <text x="332" y="62">You confirm</text>
+    <text x="332" y="88">'restore' on</text>
+    <text x="332" y="114">one device</text>
+    <text x="550" y="62">Device</text>
+    <text x="550" y="88">decrypts the</text>
+    <text x="550" y="114">unlock key</text>
+    <text x="768" y="99">Vault opens,</text>
+    <text x="768" y="125">data restored</text>
+    <text x="986" y="75">Credentials</text>
+    <text x="986" y="101">reissued</text>
+    <text x="835" y="216">No device: recovery package</text>
+  </g>
+
+  <!-- Arrow labels -->
+  <g font-size="18" text-anchor="middle">
+    <text x="227" y="72">then</text>
+    <text x="437" y="72">then</text>
+    <text x="659" y="72">then</text>
+    <text x="877" y="72">then</text>
+  </g>
+  <text x="780" y="160" font-size="18">then</text>
+</svg>

@@ -1,0 +1,10 @@
+flowchart LR
+    M["Machine starts"] -->|"then"| U["Unlock key on the machine"] -->|"then"| V[("Vault opens itself")] -->|"then"| W["Workloads run"]
+    A["Admin action: none"]
+
+    classDef machine fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px,color:#1b1b1b
+    classDef custody fill:#fff3bf,stroke:#e67700,stroke-width:2px,color:#1b1b1b
+    classDef quiet fill:#f8f9fa,stroke:#868e96,stroke-width:2px,stroke-dasharray:6 4,color:#1b1b1b
+    class M,V,W machine
+    class U custody
+    class A quiet

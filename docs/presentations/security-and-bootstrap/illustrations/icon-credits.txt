@@ -1,0 +1,1 @@
+Fingerprint, lock and lock-open glyphs: Material Icons / Material Symbols by Google, Apache License 2.0, https://github.com/google/material-design-icons
