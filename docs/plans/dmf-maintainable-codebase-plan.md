@@ -222,11 +222,11 @@ image too.
 
 | Part | Status | Links |
 |---|---|---|
-| Track 1: #833 | in progress | dmf-cms confirmed on 2026-11-14. The policy insights and the organization setting still need a browser check. |
-| Track 1: #831 | not started | The armed-PR probe needs its design. |
+| Track 1: #833 | in progress | Every repository has a successful run under its policy, and policy insights show no would-be block since the policies took effect (checked 2026-11-14). The ineffective organization-level policy still exists and is to be deleted. |
+| Track 1: #831 | done | The disarm and direct-merge probes passed on [dmf-cms#220](https://github.com/dmfdeploy/dmf-cms/pull/220) on 2026-11-14, and the key rotation dates are in #618. The operator skipped the sweep-disarm probe. |
 | Track 2: #864 | in progress | Plan reconciled in [#908](https://github.com/dmfdeploy/dmfdeploy/pull/908). ADR-0029 amendment v2 on Discussion #865; ADR-0051 RFC on Discussion #907. |
-| Track 3: #911 | in progress | dmf-infra and dmf-env pull requests open. |
-| Track 3: #912 | in progress | dmf-cms pull request open; the other repositories follow its layout. |
+| Track 3: #911 | done | [dmf-infra#148](https://github.com/dmfdeploy/dmf-infra/pull/148) and [dmf-env#41](https://github.com/dmfdeploy/dmf-env/pull/41) merged on 2026-11-14. |
+| Track 3: #912 | in progress | dmf-cms done in [dmf-cms#220](https://github.com/dmfdeploy/dmf-cms/pull/220), merged on 2026-11-14. The other repositories follow its layout. |
 | Security and supply chain | not started | |
 | Structure | not started | |
 | Accessibility and UI substrate | not started | |
