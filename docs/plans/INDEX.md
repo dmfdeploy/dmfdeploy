@@ -8,11 +8,10 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (6)
+## Active (5)
 
 - [eso-kubernetes-auth-migration-plan](eso-kubernetes-auth-migration-plan.md) — 2026-11-07
 - [operator-unlock-tier2-plan](operator-unlock-tier2-plan.md) — 2026-11-07
-- [dmf-cms-exact-sha-release-gate-plan](dmf-cms-exact-sha-release-gate-plan.md) — 2026-10-27
 - [openbao-approle-credential-lifecycle-plan](openbao-approle-credential-lifecycle-plan.md) — 2026-10-26
 - [platform-debt-work-order](platform-debt-work-order.md) — 2026-10-25
 - [dmf-internal-ansible-collection-source-plan](dmf-internal-ansible-collection-source-plan.md) — 2026-05-29
