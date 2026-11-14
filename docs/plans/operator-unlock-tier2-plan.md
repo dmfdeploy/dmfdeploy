@@ -60,8 +60,8 @@ for example on a USB key, and the admin downloads later snapshots by hand
 
 A lane that needs a boot-time unseal keeps Tier 2 as this plan designs it.
 For that lane, the boot-time properties of WP5 (the sealed-node notification,
-the boot-bound session and the no-material-at-rest scan), WP7 and the
-no-material-at-rest constraint apply in full. The device lifecycle (WP6), the
+the boot-bound session and the no-material-at-rest scan), WP7 (tracked in
+#909 since decision 48) and the no-material-at-rest constraint apply in full. The device lifecycle (WP6), the
 audit spool (WP9) and the check-in (WP8) apply to every lane. This plan
 designs nothing for regulated lanes.
 
@@ -410,7 +410,7 @@ the plan puts there itself.
 | Seal key | In the clear, for the auto-unseal (decision 13) | One copy encrypted for each enrolled passkey, with the snapshots (decisions 15, 21 and 27). A direct copy in the recovery package (decision 15) | Decrypted in memory for a restore (decision 21). Never stored by the plan |
 | Recovery keys | Only as one copy encrypted for each enrolled passkey (decision 21) | The same encrypted copies in each snapshot download (decisions 33 and 36), and the keys themselves in the recovery package (decision 32) | Decrypted in memory for an approval (decision 21). Never stored by the plan |
 | Passkey, with its PRF secret | Never. A public key derived from it (decision 37) | Not in any download or package. A synced passkey is also held by its sync provider | In the authenticator |
-| OpenBao data | The live data, from which snapshots are taken | The latest snapshot (decision 27) and the snapshot saved with the recovery package (decision 31) | Nothing from the plan. A download kept there is encrypted (decision 33) |
+| OpenBao data | The live data, from which snapshots are taken | The most recent download, which can lag the latest snapshot (decisions 27 and 33), and the snapshot saved with the recovery package (decision 31) | Nothing from the plan. A download kept there is encrypted (decision 33) |
 | Audit record | The chained, numbered record (decision 28) | A copy inside the encrypted snapshot download (decisions 33 and 39) | Nothing from the plan. A download kept there is encrypted (decision 33) |
 | Executor credentials | A projected ServiceAccount token and a short-lived OpenBao token, neither copied off the server (decision 38) | Never | Never |
 
@@ -471,9 +471,8 @@ passkey, and the Mac stability repeat before a Mac approves.
 | WP5 unseal page and session | WP1 recorded, WP2 merged | WP9 |
 | WP9 audit spool and delivery | WP1 recorded, WP2 merged | WP5 |
 | WP6 enrollment and lifecycle | WP5 | WP9 if it is still open |
-| WP7 portable kit, moved to #909 (decision 48) | WP1, WP5, WP6 | WP8 |
-| WP8 periodic check-in | WP6, WP9 | WP7 |
-| WP10 restore with an enrolled admin device (sandbox lane) | WP5, WP6, the WP4 rehearsal, and the portable config in the #866 plan's WP3 | WP7, WP8 |
+| WP8 periodic check-in | WP6, WP9 | WP10 |
+| WP10 restore with an enrolled admin device (sandbox lane) | WP5, WP6, the WP4 rehearsal, and the portable config in the #866 plan's WP3 | WP8 |
 | WP4 seal transition and retiring the automation quorum | WP1, WP2, and the site's applicable packages | nothing: its live change is the last package for a site |
 
 WP5 and WP9 ship to an environment together, because the page writes its
@@ -504,8 +503,9 @@ These are two different events.
 
 - **A site is ready to declare its posture** when WP1 and WP2 are done and the
   packages that apply to that site are done with their evidence. These are
-  WP5, WP6, WP8 and WP9 for every site, WP3 for a long-lived site, WP7 for a
-  kit, and WP10 for a sandbox-lane site. The posture is Tier 3 with recovery
+  WP5, WP6, WP8 and WP9 for every site, WP3 for a long-lived site, and WP10
+  for a sandbox-lane site. A kit also needs WP7, which #909 tracks since
+  decision 48. The posture is Tier 3 with recovery
   keys kept off the node in the clear in the sandbox lane
   (decision 21), and Tier 2 in a lane with a boot-time
   unseal. WP4 then runs for the site, with the operator's approval.
@@ -569,7 +569,10 @@ version. No result is inferred from a vendor page.
 - The single unseal session works end to end on each platform: QR code scan, the
   session page opening on the enrolled admin device, the passkey assertion,
   local unwrap, and the submission. A device that cannot scan the QR code
-  records the cross-device path that covers it.
+  records the cross-device path that covers it. *Changed on 2026-11-14
+  (decision 41):* a device that holds its own passkey, such as a laptop or a
+  tablet, opens the session page directly and needs no QR code. No platform
+  uses the cross-device passkey flow.
 - *Changed on 2026-11-14 (decision 29).* Approvals do not use the QR
   cross-device flow from a laptop. In part 1 the Mac received the same PRF
   output as the Android phone and decrypted the test text that the phone had
@@ -688,7 +691,7 @@ thread has already converged.
 - The ADR links the RFC thread. The decision index is current.
 - ADR-0050's TPM sealing constraint conflicts with Tier 2 on a kit. This plan
   does not change that ADR while it is Proposed. The amendment waits for its
-  promotion, and WP7 records the conflict.
+  promotion, and WP7, now tracked in #909, records the conflict.
 - ADR-0051 is not part of this package. Its clarification goes through its own
   RFC and amendment: root token generation needs an authenticated caller, and
   the approval executor uses its own narrow identity (decisions 22 and 24).
@@ -703,14 +706,14 @@ column was "To specify" for every job before decision 32 set the contents.
 | Job | What the plan says today | What the package must hold |
 |---|---|---|
 | Restore | A direct copy of the seal key completes the restore with no enrolled device (decisions 15 and 19, WP10). | The seal key, the OpenBao snapshot saved with the package, and the private key that opens every later snapshot download (decisions 32 and 33). Test: with no passkey, restore from the package snapshot, and from a real later download opened with the package key. |
-| Approve | The package stays the last resort when no enrolled device is available (decision 14). A root token needs a quorum of recovery keys (decision 13). | The recovery keys, which meet the threshold alone (decision 32). Test: with no passkey, the package's recovery keys complete one approval through the executor of WP5. |
-| Check in | The package path always works, also after expiry, and can check in (decision 10, WP8). | The recovery keys (decision 32). A check-in needs no root token; WP8 records how the package proves possession of the keys. Test: after expiry and with no passkey, a check-in made with the package succeeds. |
-| Enrol | When no enrolled device is available, the package approves an enrolment (WP6). | The recovery keys and the seal key (decision 32). The recovery keys approve the enrolment (WP6), and both are encrypted for the new passkey's bound public key (decision 37). Test: with no passkey, the package enrols a new one, and that passkey then approves. |
+| Approve | The package stays the last resort when no enrolled device is available (decision 14). A root token needs a quorum of recovery keys (decision 13). | The recovery keys, which meet the threshold alone (decision 32). The executor's own login is still required (decisions 24 and 38). Test: with no passkey and a working executor login, the package's recovery keys complete one approval through the executor of WP5. |
+| Check in | The package path always works, also after expiry, and can check in (decision 10, WP8). | The recovery keys (decision 32). Required outcome: after expiry and with no passkey, a check-in made with the package succeeds. How the package authenticates a check-in is open (see "Open items"). |
+| Enrol | When no enrolled device is available, the package approves an enrolment (WP6). | The recovery keys and the seal key (decision 32), so the new passkey receives copies encrypted for its bound public key (decision 37). Required outcome: with no passkey, the package enrols a new one, and that passkey then approves. How the package authenticates an enrolment is open (see "Open items"). |
 
-Only an approval creates a root token. Enrolment and check-in use the
-recovery keys to show possession, with no root token. WP6, WP8 and WP10 record
-the steps for their jobs against this table, and their tests are the ones in
-the last column.
+Decision 32 sets what the package holds. It does not set how the package
+authenticates a check-in or an enrolment. WP8 defines a check-in as a passkey
+ceremony, so the package path needs its own design. WP6, WP8 and WP10 record
+the steps for their jobs against this table.
 
 **Closing evidence.** The merged amendment, the index entry, and the
 announcement thread that the RFC process requires.
@@ -1185,6 +1188,11 @@ check. An interrupted rotation recovered. No record holds a secret value.
 
 ### WP7 portable-kit variant
 
+*Moved on 2026-11-14 (decision 48).* This package is tracked in
+[#909](https://github.com/dmfdeploy/dmfdeploy/issues/909). Its text stays here
+for reference until #909 gets its own plan. Its checkboxes do not gate this
+plan's completion or any site in this plan.
+
 **Goal.** Make the unseal page and its approvals work on an offline kit on
 its own local network. In the sandbox lane the kit unseals itself at boot, and
 the page serves approvals and restore. In a lane with a boot-time unseal, the
@@ -1325,17 +1333,20 @@ WP3 of the plan for
   screen that names the operation "restore" (decision 16). The inputs are the
   latest snapshot and the seal key. The device decrypts the seal key from the
   copy stored with the snapshot, on the device that holds the passkey.
-  *Changed on 2026-11-14 (decision 41):* no QR code carries the confirmation
-  to another device, because that device would receive the PRF output. The
-  earlier text allowed that path as conditional on an operator decision, and
-  decision 41 drops it.
+  *Changed on 2026-11-14 (decision 41):* the cross-device passkey flow, in
+  which another device would receive the PRF output, is not used for
+  restore. The earlier text allowed it as conditional on an operator
+  decision. The session-URL QR code, which only opens the page on the device
+  that holds the passkey, stays.
 - *Added on 2026-11-14 (decision 27).* The latest snapshot and the encrypted
   copy of the seal key are kept off the server, so the loss of the server
   does not take them. The decision says "off the server" and does not name the
   place or how the pieces get there. The design of this package records both.
   *Changed on 2026-11-14 (decisions 31 and 33):* the pieces are the snapshot
   saved with the recovery package and the snapshot downloads, and decision 33
-  says what a download holds.
+  says what a download holds. The off-server copy is the most recent
+  completed download, so it can lag the latest snapshot or a key change, and
+  a restore recovers the state of that download.
   A full restore is rehearsed with the real pieces, taken from that place, before
   restore is claimed to work. Restore from the recovery package stays as the
   alternative, and its contents follow the package specification under WP2.
@@ -1369,12 +1380,13 @@ secret value.
 **Done when.**
 
 - [ ] A restore after the loss of every seal key copy on the nodes succeeds
-      with one confirmation from one enrolled admin device. The QR path is
-      conditional on an operator decision and is not required until then.
+      with one confirmation from one enrolled admin device, on the device that
+      holds the passkey, with no cross-device passkey flow (decision 41).
 - [ ] The same restore succeeds from the recovery package copy with no
       enrolled device.
 - [ ] The snapshot and the encrypted copy of the seal key are kept off the
-      server, and the full restore ran with those real pieces.
+      server as decision 33 describes, and the full restore ran with a real
+      download and with the package and a real later download.
 - [ ] The data read matches before and after, and the retained devices still
       approve.
 - [ ] The credential reconcilers run after the restore and reissue expired
@@ -1397,7 +1409,8 @@ mistake can lock the site out.
 
 **Dependencies.** WP1 and WP2 done, and the packages that apply to the site
 done with their evidence: WP5, WP6, WP8 and WP9, WP10 for a sandbox-lane
-site, WP3 for a long-lived site, and WP7 for a kit. The WP4 rehearsal runs
+site, and WP3 for a long-lived site. A kit's WP7 is tracked in #909 since
+decision 48. The WP4 rehearsal runs
 before WP10, and the live change runs after it. This is the last package for
 a site. It does not complete the plan.
 [#868](https://github.com/dmfdeploy/dmfdeploy/issues/868): any dmf-init
@@ -1546,6 +1559,11 @@ before the package that depends on it is built.
   they do not, decision 27 needs an amendment or an automatic off-server copy.
 - The Static Key seal of decision 43 holds only once the WP4 rehearsal passes.
   If it fails, the seal type comes back as a decision.
+- How the recovery package authenticates a check-in and an enrolment when no
+  passkey is left (the WP2 package table). Decision 32 puts the recovery keys
+  and the seal key in the package, and decision 10 requires the package path
+  to work after expiry. The design must not accept an unauthenticated claim
+  of possession. WP8 and WP6 record it.
 - Where a lane with a boot-time unseal keeps its per-passkey copies. That
   waits for such a lane, in
   [#909](https://github.com/dmfdeploy/dmfdeploy/issues/909).
