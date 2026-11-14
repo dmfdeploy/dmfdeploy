@@ -8,8 +8,9 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (5)
+## Active (6)
 
+- [dmf-maintainable-codebase-plan](dmf-maintainable-codebase-plan.md) — 2026-11-14
 - [eso-kubernetes-auth-migration-plan](eso-kubernetes-auth-migration-plan.md) — 2026-11-07
 - [operator-unlock-tier2-plan](operator-unlock-tier2-plan.md) — 2026-11-07
 - [openbao-approle-credential-lifecycle-plan](openbao-approle-credential-lifecycle-plan.md) — 2026-10-26
