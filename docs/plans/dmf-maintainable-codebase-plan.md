@@ -23,7 +23,8 @@ the sandbox single-admin passkey unlock in
 
 This plan orders the debt under that priority. Three tracks run now, in
 parallel. The work after them follows exposure and dependency, across
-repositories.
+repositories. A prerequisite that #864 needs runs when #864 needs it, whatever
+group it sits in below.
 
 ## Decisions
 
@@ -75,22 +76,35 @@ Properties:
 - The #864 plan, ADR-0029 and the RFC in Discussion #865 agree with the
   decisions of 2026-11-08, 2026-11-12, 2026-11-13 and 2026-11-14.
 - Every remaining open item in the #864 plan has an owner work package.
-- The ADR changes go through the RFC threads first: ADR-0029 on Discussion
-  #865, and the ADR-0051 clarification on Discussion #907.
+- The ADR changes go through the RFC threads first: the ADR-0029 amendment
+  and the ADR-0009 recovery-package amendment on Discussion #865, and the
+  ADR-0051 clarification on Discussion #907.
+- The prerequisites that the #864 work packages name are scheduled with them.
+  The #864 plan's WP10 restore depends on the portable Kubernetes-auth
+  configuration from WP3 of the plan for
+  [#866](https://github.com/dmfdeploy/dmfdeploy/issues/866), so that work
+  package runs before WP10, even while the tracks are still running.
 
 ## Track 3, contributor onboarding
 
-A newcomer walkthrough of all nine repositories on 2026-11-14 found that seven
-pass their CI checks on a fresh checkout. Two depend on tools that only the CI
-runner image provides. It also found that the test commands live in agent-only
-files or only in CI configuration, and that READMEs and CONTRIBUTING files
-disagree.
+A newcomer walkthrough of all nine repositories on 2026-11-14 reproduced each
+repository's offline CI checks from a fresh checkout. It did not run anything
+that needs a live cluster, a cloud account, an image build, `skopeo` or
+secrets, and it did not reproduce the working-model sync job. Within that
+scope, seven repositories passed. dmf-infra failed 13 unit tests on an
+undeclared Python package, and dmf-env failed one test script on an
+undeclared tool version. The walkthrough also found that the test commands
+live in agent-only files or only in CI configuration, and that READMEs and
+CONTRIBUTING files disagree.
 
 Properties:
 
-- Every repository passes its CI checks on a fresh checkout with only the
-  documented prerequisites
-  ([#911](https://github.com/dmfdeploy/dmfdeploy/issues/911)).
+- Every repository passes its offline CI checks on a fresh checkout with only
+  the documented prerequisites
+  ([#911](https://github.com/dmfdeploy/dmfdeploy/issues/911)). Each repository
+  says which of its checks need a live cluster, cloud credentials, an image
+  build or CI only, so nobody reads a local pass as covering them. dmf-runbooks
+  keeps its existing CI, including its ansible-core version matrix.
 - Each repository's CONTRIBUTING.md names one test command that works on a
   fresh checkout, and CI runs the same command
   ([#912](https://github.com/dmfdeploy/dmfdeploy/issues/912)).
@@ -104,7 +118,17 @@ Properties:
 - The existing LICENSE, NOTICE, SECURITY.md, CODEOWNERS and CONTRIBUTING files
   in every repository are audited for content. All nine repositories already
   have them.
-- A second walkthrough after the changes shows the gaps closed.
+- A map in the umbrella README says which repository a kind of task belongs
+  to and what each repository needs installed.
+- Each repository names a few representative contributor tasks, and for each
+  one says whether it can be done and tested offline or needs a live
+  environment.
+- A second agent walkthrough after the changes repeats the first one's method
+  on the same nine repositories and adds one representative task per
+  repository. For each repository it records the test command run, its result,
+  the checks left out and why, and whether the task could be completed from
+  the documentation alone. The track is done when every repository passes that
+  walkthrough or has a recorded reason it cannot.
 
 ## After the tracks
 
@@ -114,8 +138,6 @@ One ranked list, ordered by real exposure:
 
 - Secrets in arguments, logs and staged files:
   [#872](https://github.com/dmfdeploy/dmfdeploy/issues/872),
-  [#873](https://github.com/dmfdeploy/dmfdeploy/issues/873) (check first
-  whether merged work already closes it),
   [#885](https://github.com/dmfdeploy/dmfdeploy/issues/885),
   [#896](https://github.com/dmfdeploy/dmfdeploy/issues/896),
   [#897](https://github.com/dmfdeploy/dmfdeploy/issues/897).
@@ -130,20 +152,33 @@ One ranked list, ordered by real exposure:
 - Credential lifecycle, only where it carries real exposure or #864 needs it:
   [#11](https://github.com/dmfdeploy/dmfdeploy/issues/11),
   [#396](https://github.com/dmfdeploy/dmfdeploy/issues/396),
-  [#866](https://github.com/dmfdeploy/dmfdeploy/issues/866),
-  [#893](https://github.com/dmfdeploy/dmfdeploy/issues/893),
-  [#882](https://github.com/dmfdeploy/dmfdeploy/issues/882).
+  [#866](https://github.com/dmfdeploy/dmfdeploy/issues/866) (its WP3 runs
+  earlier, for #864),
+  [#893](https://github.com/dmfdeploy/dmfdeploy/issues/893).
 - Also: [#731](https://github.com/dmfdeploy/dmfdeploy/issues/731),
   [#234](https://github.com/dmfdeploy/dmfdeploy/issues/234),
-  [#443](https://github.com/dmfdeploy/dmfdeploy/issues/443),
-  [#910](https://github.com/dmfdeploy/dmfdeploy/issues/910).
+  [#443](https://github.com/dmfdeploy/dmfdeploy/issues/443).
+
+### Broken paths that are not security exposures
+
+- [#873](https://github.com/dmfdeploy/dmfdeploy/issues/873): the OpenBao
+  snapshot job uses plain HTTP against a TLS listener, a NetworkPolicy blocks
+  it, its Kubernetes-auth role write needs a root token on a rerun, and it
+  pins one pod. Its log leak is already fixed. Done when the job takes a
+  snapshot on a TLS environment and a rerun converges without a root token.
+- [#882](https://github.com/dmfdeploy/dmfdeploy/issues/882): dmf-init's
+  setup-request gate and dmf-infra's receipt path both default off. Done when
+  a fresh bootstrap passes the setup-request pause with the gate on.
+- [#910](https://github.com/dmfdeploy/dmfdeploy/issues/910): the dmf-cms
+  release gate fails on a digest read right after a push. Done when the gate
+  retries a not-found read for a bounded time.
 
 ### Structure conventions and one measured restructure
 
 - The code conventions are written down and enforced in CI
-  ([#768](https://github.com/dmfdeploy/dmfdeploy/issues/768),
-  [#73](https://github.com/dmfdeploy/dmfdeploy/issues/73),
-  [#740](https://github.com/dmfdeploy/dmfdeploy/issues/740)).
+  ([#768](https://github.com/dmfdeploy/dmfdeploy/issues/768)), and files that
+  are identical across repositories have one source
+  ([#73](https://github.com/dmfdeploy/dmfdeploy/issues/73)).
 - One behaviour-preserving restructure: cohesive route groups move out of
   `dmf-cms/src/dmf_cms/main.py`, the largest source file in the project at
   about 7,200 lines. Its dependencies are mapped and its behaviour is pinned by
@@ -156,7 +191,11 @@ One ranked list, ordered by real exposure:
 
 ### Accessibility, bounded
 
-Two defects in the console's durable layout:
+The console's durable UI substrate, which survives the planned layout
+changes: its surface, border, status, radius and type tokens, shared
+primitives, and touch affordances with their accessibility acceptance
+([#740](https://github.com/dmfdeploy/dmfdeploy/issues/740)). Two defects in
+the same layer:
 [#526](https://github.com/dmfdeploy/dmfdeploy/issues/526) (the navigation clips
 at 200% zoom but stays focusable by keyboard) and
 [#529](https://github.com/dmfdeploy/dmfdeploy/issues/529) (a redundant
@@ -167,8 +206,11 @@ landmark).
 [#487](https://github.com/dmfdeploy/dmfdeploy/issues/487) and
 [#737](https://github.com/dmfdeploy/dmfdeploy/issues/737).
 [#341](https://github.com/dmfdeploy/dmfdeploy/issues/341) stays parked under
-its owner decision of 2026-11-05. The plan records its risk and does not
-override that decision.
+its owner decision of 2026-11-05. Its risk: the deploy endpoint has no
+server-side refusal, so a client guard working from a stale read is the only
+protection against a duplicate deployment, and the workload-instance model
+that a server-side fix depends on is undecided. This plan does not override
+that decision.
 
 ### Kept open
 
@@ -187,10 +229,28 @@ image too.
 | Track 3: #912 | in progress | dmf-cms pull request open; the other repositories follow its layout. |
 | Security and supply chain | not started | |
 | Structure | not started | |
-| Accessibility | not started | |
+| Accessibility and UI substrate | not started | |
+| Broken paths | not started | |
 | Console defects | not started | |
 
 Allowed values: not started, in progress, done.
+
+## Done when
+
+This plan orders the work. It is complete when each part above is done by its
+properties, or closed with a recorded reason. The underlying issues close on
+their own evidence, and an issue that this plan deliberately keeps open, such
+as #6 or #341, does not hold the plan open.
+
+- [ ] Track 1 is done before 2026-12-02.
+- [ ] Track 2 is done: the #864 plan, its ADRs and its RFCs agree, and its
+      prerequisites are scheduled.
+- [ ] Track 3 is done by its second walkthrough.
+- [ ] Each later group is done, or closed with a recorded reason, in the
+      status table.
+- [ ] The completing PR sets `status: executed` with an `executed:` date, moves
+      the plan to `docs/archive/plans/`, fixes the links to it, regenerates the
+      plans index, and closes #913 with `Closes dmfdeploy/dmfdeploy#913`.
 
 ## Out of scope
 
