@@ -223,7 +223,7 @@ image too.
 | Part | Status | Links |
 |---|---|---|
 | Track 1: #833 | done | Every repository has a successful run under its policy, policy insights show no would-be block since the policies took effect, and the ineffective organization-level policy is deleted (2026-11-14). |
-| Track 1: #831 | done | The disarm and direct-merge probes passed on [dmf-cms#220](https://github.com/dmfdeploy/dmf-cms/pull/220) on 2026-11-14, and the key rotation dates are in #618. The operator skipped the sweep-disarm probe. [#915](https://github.com/dmfdeploy/dmfdeploy/pull/915) archives the release gate plan. |
+| Track 1: #831 | done | The disarm and direct-merge probes passed on [dmf-cms#220](https://github.com/dmfdeploy/dmf-cms/pull/220), and the key rotation dates are in #618. The operator skipped the sweep-disarm probe. [#915](https://github.com/dmfdeploy/dmfdeploy/pull/915) archived the release gate plan and #831 closed on 2026-11-14. |
 | Track 2: #864 | in progress | Plan reconciled in [#908](https://github.com/dmfdeploy/dmfdeploy/pull/908). ADR-0029 amendment v2 on Discussion #865; ADR-0051 RFC on Discussion #907. |
 | Track 3: #911 | done | [dmf-infra#148](https://github.com/dmfdeploy/dmf-infra/pull/148) and [dmf-env#41](https://github.com/dmfdeploy/dmf-env/pull/41) merged on 2026-11-14. |
 | Track 3: #912 | in progress | dmf-cms done in [dmf-cms#220](https://github.com/dmfdeploy/dmf-cms/pull/220), merged on 2026-11-14. The other repositories follow its layout. |
