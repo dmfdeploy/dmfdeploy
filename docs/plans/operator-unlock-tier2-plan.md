@@ -457,7 +457,11 @@ iPhone, the Android phone and the iPad. The hardware security key with a PIN
 has no result, and the Mac stability repeat has not run. Code in WP5 to WP10
 may start. A full test on the real approval page comes before any rollout.
 The rule in "What each WP1 result opens" still applies to each device type or
-platform whose result is not recorded.
+platform whose result is not recorded. *Added on 2026-11-14 (decision 44):*
+before rollout, PRF output must be refused without user verification, and an
+interrupted rotation under the Static Key seal must recover. The hardware
+security key with a PIN must pass before a site uses one as its second
+passkey, and the Mac stability repeat before a Mac approves.
 
 | WP | Needs first | Can run in parallel with |
 |---|---|---|
@@ -573,6 +577,9 @@ version. No result is inferred from a vendor page.
   give a laptop the PRF output that decrypts the real copy. The unwrap
   happens on the phone only. The design for the approval page says how it
   keeps the cross-device flow out of approvals. The decision does not say.
+  *Changed on 2026-11-14 (decision 41):* the unwrap happens on the device
+  that holds the passkey, which may be a phone, a tablet or a laptop with its
+  own passkey. The cross-device QR flow is not used for approvals or restore.
 - The wrapped copy survives the device's storage rules over the check-in
   period, or the result records the eviction behavior and what covers it.
   This applies to a lane that keeps the copy on the device, for now the
@@ -644,7 +651,8 @@ thread has already converged.
     recovery keys kept off the node in the clear (decisions 12, 13
     and 21). The amendment states these
     properties of the variant:
-    - the auto-unseal seal;
+    - the auto-unseal seal, which decision 43 names as the Static Key seal,
+      holding once the WP4 rehearsal passes;
     - recovery keys separate from the seal key, held on enrolled admin
       devices, where one device meets the threshold alone and at least two
       are enrolled (decision 14). *Changed on 2026-11-12 and 2026-11-14
@@ -654,7 +662,11 @@ thread has already converged.
     - the seal key backed up as decision 15 says;
     - the audit record of the unseal itself as a system action under
       ADR-0028, with each approval carrying the enrolled admin as actor;
-    - what the recovery package holds for each of its jobs (decision 25).
+    - what the recovery package holds for each of its jobs (decision 25),
+      from the specification below;
+    - the snapshot downloads, encrypted to each enrolled passkey and to the
+      recovery package's key, and the limit that the off-server copy can lag
+      the latest snapshot (decision 33).
 
     It states that the declared posture equals the actual one, so the lane is
     never described as Tier 2. It
@@ -684,19 +696,21 @@ thread has already converged.
 **Recovery package specification (decision 25).** Before the ADR-0009
 amendment is written, this plan records what the package must hold for each
 job that the plan expects of it. If a job needs the recovery keys, they go in
-the package. The table lists what the plan says today. The last column is the
-requirement to fill in.
+the package. The table lists what the plan says, and the last column is the
+requirement. *Changed on 2026-11-14 (decisions 32, 33 and 45):* the last
+column was "To specify" for every job before decision 32 set the contents.
 
 | Job | What the plan says today | What the package must hold |
 |---|---|---|
-| Restore | A direct copy of the seal key completes the restore with no enrolled device (decisions 15 and 19, WP10). | To specify. The seal key copy is the known item. |
-| Approve | The package stays the last resort when no enrolled device is available (decision 14). A root token needs a quorum of recovery keys (decision 13). | To specify. |
-| Check in | The package path always works, also after expiry, and can check in (decision 10, WP8). | To specify. |
-| Enrol | When no enrolled device is available, the package approves an enrolment (WP6). | To specify. |
+| Restore | A direct copy of the seal key completes the restore with no enrolled device (decisions 15 and 19, WP10). | The seal key, the OpenBao snapshot saved with the package, and the private key that opens every later snapshot download (decisions 32 and 33). Test: with no passkey, restore from the package snapshot, and from a real later download opened with the package key. |
+| Approve | The package stays the last resort when no enrolled device is available (decision 14). A root token needs a quorum of recovery keys (decision 13). | The recovery keys, which meet the threshold alone (decision 32). Test: with no passkey, the package's recovery keys complete one approval through the executor of WP5. |
+| Check in | The package path always works, also after expiry, and can check in (decision 10, WP8). | The recovery keys (decision 32). A check-in needs no root token; WP8 records how the package proves possession of the keys. Test: after expiry and with no passkey, a check-in made with the package succeeds. |
+| Enrol | When no enrolled device is available, the package approves an enrolment (WP6). | The recovery keys and the seal key (decision 32). The recovery keys approve the enrolment (WP6), and both are encrypted for the new passkey's bound public key (decision 37). Test: with no passkey, the package enrols a new one, and that passkey then approves. |
 
-The plan does not say whether enrolment and check-in need a root token quorum
-or only the decryption of the stored copies. The specification states the
-material and the steps for each job. WP6, WP8 and WP10 follow it.
+Only an approval creates a root token. Enrolment and check-in use the
+recovery keys to show possession, with no root token. WP6, WP8 and WP10 record
+the steps for their jobs against this table, and their tests are the ones in
+the last column.
 
 **Closing evidence.** The merged amendment, the index entry, and the
 announcement thread that the RFC process requires.
@@ -817,14 +831,20 @@ from WP1 for the end-to-end check.
   other device sees key material stays. A tablet or a laptop would need an
   operator amendment to approve on itself, because the decision names the
   phone. The decision does not mention the session-URL QR code, in which the
-  phone opens the session and the laptop only shows the code.
+  phone opens the session and the laptop only shows the code. *Changed on
+  2026-11-14 (decision 41):* that amendment is made. A tablet or a laptop
+  with its own passkey approves on itself, and the session-URL QR code stays,
+  because it carries no key material.
 - The session accepts one submission, expires after a short time and cannot
   be replayed. Only a session that completed a passkey assertion for an
   enrolled credential, and that holds the wrapped copy, may submit. *In the
   sandbox lane (decision 21):* "holds the wrapped copy" means that the
-  session received the server-stored ciphertext for that passkey. The plan
-  does not yet say which session obtains the ciphertext or how the assertion
-  gates its release. The design review of this package records both. The
+  session received the server-stored ciphertext for that passkey. *Changed
+  on 2026-11-14 (decision 42):* the server returns the copy for one
+  credential only after it verifies that credential's assertion, with user
+  verification, over a challenge bound to the named operation and to this
+  session. A copy released for one operation or session is refused for any
+  other. The design review of this package records the message format. The
   session URL alone approves nothing.
 - The page never logs the passkey output, the unwrapped material or a session
   URL. Every submission is rate limited.
@@ -858,9 +878,13 @@ from WP1 for the end-to-end check.
     does not log in as `ops-admin`, and the `ops-admin` password is not copied
     into the per-passkey encrypted copies. The executor revokes every login
     token on every exit path. This replaces the rule in decision 22 that every
-    caller logs in as `ops-admin`. The plan does not yet say how the
-    identity's credential is issued, held, rotated and revoked. The design
-    review of this package records that before the executor is built.
+    caller logs in as `ops-admin`. *Changed on 2026-11-14 (decision 38):*
+    the executor logs in through Kubernetes auth bound to its
+    ServiceAccount. It holds a projected ServiceAccount token that Kubernetes
+    rotates, each login gets a short-lived OpenBao token, and no long-lived
+    secret is stored. When Kubernetes auth does not work, the executor cannot
+    log in, and the recovery-mode follow-up of decision 22 is the way back.
+    The design review of this package records the role and its bindings.
   - The generated root token goes only to the executor. It never reaches the
     device, the page, a log or any caller.
   - The executor uses the root token for exactly one call: it mints an orphan
@@ -1034,9 +1058,10 @@ guardrail applies them only where they do not weaken it.
   written (decision 28). This is a new rule, and it differs from the unseal
   rule above. A full or unavailable spool never blocks an unseal, but in the
   sandbox lane it stops the creation of a root token.
-- The plan does not yet say how the on-server record stays bounded in the
-  sandbox lane, because nothing there delivers records or clears them. The
-  design of this package records it, and the sandbox lane waits for it.
+- *Changed on 2026-11-14 (decision 39):* the sandbox lane keeps its
+  on-server record for a fixed period, trims whole segments, and keeps the
+  hash of the last trimmed entry so the chain stays checkable. Every snapshot
+  download carries a copy. The design of this package records the period.
 
 **Closing evidence.** Tests for the record contents, the chain and the
 sequence; in the sandbox lane, a full-spool unseal that proceeds; and, for a
@@ -1082,7 +1107,11 @@ and the unseal key material in a lane with a boot-time unseal.
   counted devices. A passkey that syncs to several devices counts once, and an
   install with fewer than two is not complete. The design of this package says
   how enrollment applies the rule. The decision does not say whether two
-  passkeys in one passkey sync account count as independent.
+  passkeys in one passkey sync account count as independent. *Changed on
+  2026-11-14 (decision 40):* they do not. Enrollment refuses to count a second
+  passkey that the admin says lives in the same sync account as the first.
+  It asks where each passkey lives and records the answer, and treats the
+  authenticator's reported model as a hint only.
 - One enrolled admin device meets the recovery threshold alone. Losing any one
   device leaves the other able to approve. Since decision 26, read "device" as
   "independent passkey" here.
@@ -1295,13 +1324,11 @@ WP3 of the plan for
 - The restore needs one confirmation from one enrolled admin device, on a
   screen that names the operation "restore" (decision 16). The inputs are the
   latest snapshot and the seal key. The device decrypts the seal key from the
-  copy stored with the snapshot. When the authenticator is on another device,
-  a QR code carries the confirmation to it. *Conditional (decision 29):* this
-  QR path is not a requirement and is not authorized until the operator
-  decides. Decision 29 excludes the QR cross-device flow from a laptop for
-  approvals and does not name restore, and the laptop would receive the PRF
-  output in this flow too. *Changed on 2026-11-14 (decision 41):* the QR
-  path is dropped for restore.
+  copy stored with the snapshot, on the device that holds the passkey.
+  *Changed on 2026-11-14 (decision 41):* no QR code carries the confirmation
+  to another device, because that device would receive the PRF output. The
+  earlier text allowed that path as conditional on an operator decision, and
+  decision 41 drops it.
 - *Added on 2026-11-14 (decision 27).* The latest snapshot and the encrypted
   copy of the seal key are kept off the server, so the loss of the server
   does not take them. The decision says "off the server" and does not name the
