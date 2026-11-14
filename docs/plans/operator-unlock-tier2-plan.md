@@ -18,7 +18,8 @@ later records add decisions 21 to 30: the operator's decision of 2026-11-12 on
 where the encrypted copies live, the decision of 2026-11-13 on
 [#902](https://github.com/dmfdeploy/dmfdeploy/issues/902), and the
 [decision record of 2026-11-14](https://github.com/dmfdeploy/dmfdeploy/issues/864#issuecomment-6879677199)
-on #864. The RFC holds the evidence, the threat model and the reasoning. This
+on #864. A later operator decision on 2026-11-14 adds decision 31, on the
+install-time recovery media. The RFC holds the evidence, the threat model and the reasoning. This
 plan holds the work. The RFC calls the page that starts the unseal the unlock
 page. This plan calls it the unseal page.
 
@@ -35,10 +36,12 @@ window (decision 12). The admin authorizes the rare privileged changes, a
 root token or a restore, with one confirmation on an enrolled admin device,
 without physical access to the node. Under ADR-0029 an auto-unseal on every
 boot is Tier 3, so the declared posture of the sandbox lane is Tier 3 with
-recovery keys held on enrolled admin devices (decisions 13 and 14). The plan
-never describes that lane as Tier 2, because the declared posture must equal
-the actual one. The seal key stays on the node in this lane. The recovery
-keys do not, so material on the node cannot mint a root token.
+recovery keys that only an enrolled admin passkey can decrypt (decisions 13,
+14 and 21). The plan never describes that lane as Tier 2, because the
+declared posture must equal the actual one. The seal key stays on the node in
+this lane. The recovery keys rest there only as copies encrypted for each
+enrolled passkey, so material on the node cannot mint a root token. "Where
+the key material lives" below lists every place.
 
 *Changed on 2026-11-08.* Before this date the goal was ADR-0029 Tier 2
 ("Operator unseal") for the sandbox and open source lane, with a phone
@@ -49,7 +52,9 @@ confirming every cold-boot unseal and no unseal material at rest on the node.
 latest snapshot and the encrypted copy of the seal key are kept off the server
 (decision 27). The audit record stays on the server and write-once delivery is
 waived (decision 28). A portable sandbox kit is not a deliverable for now
-(decision 30).
+(decision 30). At install, dmf-init writes a full recovery package and a
+snapshot to removable media, and the admin downloads later snapshots by hand
+(decision 31).
 
 A lane that needs a boot-time unseal keeps Tier 2 as this plan designs it.
 For that lane, the boot-time properties of WP5 (the sealed-node notification,
@@ -72,9 +77,10 @@ the sandbox lane. Where a change touched decisions 1, 3, 6 or 7, the decision
 carries a note that says what changed on 2026-11-08. Decisions 21 to 30 came
 later. Decisions 21 and 22 record the decisions of 2026-11-12 and 2026-11-13.
 Decisions 23 to 30 record the eight decisions of 2026-11-14, in the order of
-the decision record. Each of them says which earlier decision it amends. The
+the decision record. Decision 31 records a later operator decision of the same
+day. Each of them says which earlier decision it amends. The
 earlier decision keeps its text, with a note that points forward. This plan
-carries all thirty. A work package does not widen or narrow them. If a package
+carries all thirty-one. A work package does not widen or narrow them. If a package
 needs a different scope, stop and ask for a new decision.
 
 1. HA OpenBao first for long-lived sites. A single replica is allowed in the
@@ -231,7 +237,8 @@ needs a different scope, stop and ask for a new decision.
     15.* The plan expects the recovery package to restore, approve, check in
     and enrol a device. For each of these jobs, the plan records what the
     package must hold. If any job needs the recovery keys, they go in the
-    package.
+    package. *Settled for the sandbox lane by decision 31:* the package is
+    full and holds the recovery keys.
 26. Dated 2026-11-14 (record item 4). *Amends decision 14 and the 2026-11-08
     wording, which counted devices.* The admin enrols at least two independent
     passkeys. A passkey that syncs to several devices counts once.
@@ -239,6 +246,8 @@ needs a different scope, stop and ask for a new decision.
     snapshot and the encrypted copy of the seal key are kept off the server. A
     full restore is rehearsed with the real pieces before restore is claimed
     to work. Restore from the recovery package stays as the alternative.
+    *Place settled by decision 31:* removable media written at install, then
+    snapshots that the admin downloads by hand.
 28. Dated 2026-11-14 (record item 6). *Amends decision 5 for the sandbox
     lane.* The chained, numbered audit record stays on the server, where it
     detects accidental corruption and gaps. Write-once delivery is waived for
@@ -253,6 +262,36 @@ needs a different scope, stop and ask for a new decision.
 30. Dated 2026-11-14 (record item 8). *Confirms decision 10.* The 30-day
     check-in stays as approved. A portable sandbox kit is not a deliverable for
     now. The boot-time auto-unseal method is decided separately.
+31. Dated 2026-11-14, after the decision record. *Settles the place in decision
+    27 and the package contents in decision 25 for the sandbox lane.* During
+    the install, dmf-init takes a snapshot and saves a full recovery package
+    and that system snapshot to removable media, such as a USB key. The admin
+    downloads later snapshots by hand. "Full" means the package holds what
+    every one of its jobs needs, including the recovery keys and the seal key.
+
+## Where the key material lives
+
+This section lists, for the sandbox lane, every place that each piece of key
+material rests. A cell marked *lean* follows a recommendation under "Open
+items" and is not yet an operator decision. Every other cell follows the
+decision it names.
+
+| Material | On the server | In a snapshot download | On an admin device | In the recovery package |
+|---|---|---|---|---|
+| Seal key | In the clear, for the auto-unseal (decision 13) | One copy encrypted for each enrolled passkey (decisions 15, 21 and 27) | Never at rest. Decrypted in memory for a restore (decision 21) | A direct copy (decisions 15 and 31) |
+| Recovery keys | Only as one copy encrypted for each enrolled passkey, never in the clear (decision 21) | *Lean:* the same encrypted copies | Never at rest. Decrypted in memory for an approval (decision 21) | Yes (decision 31) |
+| Passkey, with its PRF secret | Never. *Lean:* the public key derived from it | Never | In the authenticator, or in the passkey sync account for a synced passkey | Never |
+| OpenBao snapshot | The live data | The latest snapshot (decision 27) | Not stored by the plan | The install-time snapshot (decision 31) |
+| Audit record | The chained, numbered record (decision 28) | *Lean:* a copy of the record | Never | Never |
+| Executor credential | *Lean:* none stored, a short-lived login | Never | Never | Never |
+
+The admin device keeps nothing but the passkey. Everything else that the
+device uses exists in its memory only after a passkey assertion with user
+verification. Today's dmf-init recovery package carries its backup encrypted
+with a passphrase that the admin keeps apart from the package. *Lean:* the
+full package keeps that protection, so whoever holds both the media and the
+passphrase holds everything. That is the accepted single-admin risk of this
+lane.
 
 ## Binding constraints
 
@@ -334,8 +373,9 @@ These are two different events.
 - **A site is ready to declare its posture** when WP1 and WP2 are done and the
   packages that apply to that site are done with their evidence. These are
   WP5, WP6, WP8 and WP9 for every site, WP3 for a long-lived site, WP7 for a
-  kit, and WP10 for a sandbox-lane site. The posture is Tier 3 with device-held
-  recovery keys in the sandbox lane, and Tier 2 in a lane with a boot-time
+  kit, and WP10 for a sandbox-lane site. The posture is Tier 3 with recovery
+  keys that only an enrolled passkey can decrypt in the sandbox lane
+  (decision 21), and Tier 2 in a lane with a boot-time
   unseal. WP4 then runs for the site, with the operator's approval.
 - **The plan is complete** when every package is closed. The completing PR
   archives the plan as WORKING-MODEL section 5 requires: it sets the
@@ -473,7 +513,8 @@ thread has already converged.
     the server loses the trail), and no root token is created unless its audit
     record is written.
   - The sandbox-lane posture as a named sub-variant of Tier 3, with
-    device-held recovery keys (decisions 12 and 13). The amendment states these
+    recovery keys that only an enrolled passkey can decrypt (decisions 12, 13
+    and 21). The amendment states these
     properties of the variant:
     - the auto-unseal seal;
     - recovery keys separate from the seal key, held on enrolled admin
@@ -925,7 +966,10 @@ and the unseal key material in a lane with a boot-time unseal.
   passkey assertion. Two devices that share one synced passkey share one
   copy. The boot-time lane needs its own decision.
 - An already enrolled device approves, decrypts the key material on that
-  device and encrypts a copy for the new one. When no enrolled device is
+  device and encrypts a copy for the new one. *Open since 2026-11-14:* with a
+  key derived from the PRF output alone, only the new passkey can produce its
+  own key, so the enrolled device cannot encrypt for it. "Open items" carries
+  the question and a lean. When no enrolled device is
   available, the ADR-0009 recovery package approves. The current owner is
   notified when a device is added. *Added on 2026-11-14 (decision 25):* the
   recovery package's part in this job is in the package specification under
@@ -1180,7 +1224,7 @@ secret value.
 **Goal.** Move a site to the posture it declares, retire the single-machine
 auto-unseal path before the posture is declared, and confirm the recovery
 material works. In the sandbox lane, the posture is an auto-unseal seal with
-recovery keys held on enrolled admin devices. In a lane that keeps a boot-time
+recovery keys that only an enrolled passkey can decrypt. In a lane that keeps a boot-time
 unseal, it is the approved five-share recovery distribution.
 
 **Needs from the operator.** The operator approves the live rollout for each
@@ -1201,16 +1245,23 @@ package use the contents that the package specification under WP2 records.
 
 **Properties that must hold in the sandbox lane.**
 
+*Changed on 2026-11-14 (decisions 21 and 31).* Before this date these
+properties put an encrypted copy of the key material on each enrolled admin
+device. The server now holds one encrypted copy for each enrolled passkey,
+and no admin device stores key material. "Where the key material lives" lists
+every place.
+
 - The sandbox's actual seal configuration today is one Shamir share, as
   ADR-0029's Enforcement section records. A rehearsed transition moves a site
   from that seal to an auto-unseal seal with recovery keys (decision 13). The
   rehearsal runs on a disposable environment first. It preserves the data. It
   reads the same objects before and after, and it shows that OpenBao
   unseals on restart with no admin action.
-- The seal key is backed up as decision 15 says before the old unseal path is
-  retired: a copy encrypted to each enrolled admin device and stored with the
-  Raft snapshots, and a direct copy in the recovery package. The backup is
-  verified by a decryption on a device and by a read of the package copy.
+- The seal key is backed up before the old unseal path is retired: one copy
+  encrypted for each enrolled passkey, stored on the server and with the
+  snapshot on the recovery media, and a direct copy in the recovery package
+  on that media (decisions 15, 21 and 31). The backup is verified by
+  a decryption on an enrolled admin device and by a read of the package copy.
 - The recovery keys are issued fresh as part of the transition. An old Shamir
   share, including every share in the ADR-0011 automation file, is not valid
   recovery material afterward. OpenBao carries the old unseal keys over as
@@ -1219,15 +1270,17 @@ package use the contents that the package specification under WP2 records.
 - One enrolled admin device meets the recovery threshold alone, and the
   rehearsal proves it with a change approved through the executor from WP5
   (decisions 14 and 16).
-- Enrolled devices carry across the transition. Every retained device
-  receives encrypted copies of the new recovery keys and the seal key as part
-  of the same change, and the recovery path stays usable throughout.
+- Enrolled passkeys carry across the transition. As part of the same change,
+  the server stores new encrypted copies of the new recovery keys and the seal
+  key for every retained passkey, and replaces the copies made under the old
+  key material. The recovery package is written again with the new keys. The
+  recovery path stays usable throughout.
 - The ADR-0011 automation file, which holds enough shares to unseal without a
   person, is deleted from the workstation that holds it and from every backup
   of it, before the posture is declared. Declaring a posture while it exists
   would declare one that differs from the real one.
-- The declared tier changes to Tier 3 with device-held recovery keys through
-  the signed, audited path from WP5.
+- The declared tier changes to Tier 3 with recovery keys that only an enrolled
+  passkey can decrypt, through the signed, audited path from WP5.
 - Between deleting the automation copies and the first successful approval
   from an enrolled admin device, the site stays recoverable through the
   recovery package. A rehearsal makes the seal key unavailable on the node on
@@ -1309,44 +1362,115 @@ opens on the WP1 row.
 
 These items are open after 2026-11-14. The decisions say nothing on each of
 them, so each needs a decision or a design step before the package that
-depends on it is built.
+depends on it is built. Each item carries a lean: the orchestrator's
+recommendation of 2026-11-14. A lean is not a decision. It becomes one only
+when the operator accepts it, and then it moves to "Decisions".
 
 - What the recovery package holds for restore, approve, check in and enrol
-  (decision 25). WP2 records it.
+  (decision 25). Decision 31 makes the package full. *Lean:* the recovery
+  keys, the seal key, the install-time OpenBao snapshot, and the environment
+  backup that dmf-init already packages, encrypted with the dmf-init
+  passphrase. No root token and no passkey material. WP2 records the list.
+- What a snapshot download holds, now that decision 31 settles where the
+  pieces go. *Lean:* the latest OpenBao snapshot, the per-passkey encrypted
+  copies of the seal key and the recovery keys, a copy of the audit record,
+  the identifier of the seal key that the snapshot needs, and a manifest with
+  digests. Every part except the manifest is already encrypted, so the
+  download needs the operator role and writes an audit line, with no extra
+  passkey step. The check-in (WP8) reminds the admin when the last download
+  is old. The design of WP10 records it.
+- What happens to the media after a rotation. *Lean:* rotating the recovery
+  keys or the seal key (decision 17) marks the recovery package on the media
+  as stale. The console says so until the admin writes a new package, which
+  WP6 already calls the reissued package.
+- Whether "system snapshot" in decision 31 covers more than OpenBao. *Lean:*
+  this plan covers the OpenBao snapshot. Snapshots of the other platform
+  state, such as the inventory and automation databases, belong to a separate
+  issue.
+- Where on the server the per-passkey copies live (decision 21). *Lean:*
+  outside OpenBao, in storage that the unseal page's own service owns, and
+  copied into every snapshot download. A restore must read the seal key copy
+  before OpenBao runs, and the executor then needs no read access in OpenBao.
+  The copies are encrypted, so this storage carries no secret in the clear.
+- How a copy is encrypted for a passkey that is not present, at enrollment
+  (WP6) and after a rotation (decision 17). A key derived from the PRF output
+  alone works only when that passkey is present. *Lean:* at enrollment, the
+  device derives a key pair from the PRF output and gives the server only the
+  public key. The server or another device then encrypts to any enrolled
+  passkey with hybrid public key encryption (RFC 9180), and only that passkey
+  can decrypt. No device ever sends key material to another device.
 - How the executor identity's credential is issued, held, rotated and revoked
-  (decision 24). The design review of WP5 records it.
-- Where the snapshot and the encrypted copy of the seal key are kept off the
-  server, and how they get there (decision 27). The design of WP10 records it.
+  (decision 24). *Lean:* Kubernetes auth bound to the executor's
+  ServiceAccount, as ADR-0051 does for the main secret store. Each login gets
+  a short-lived token that is revoked on every exit path, and no credential is
+  stored or rotated. The design review of WP5 records it.
 - How the sandbox lane keeps its on-server audit record bounded when nothing
-  delivers or clears it (decision 28). The design of WP9 records it.
+  delivers or clears it (decision 28). *Lean:* keep the record for a fixed
+  period, trim whole segments, and keep the hash of the last trimmed entry so
+  the chain stays checkable. Each snapshot download carries a copy, which
+  gives the admin an off-server copy without a delivery service. The design
+  of WP9 records it.
 - Whether two passkeys in one passkey sync account count as independent, and
-  how enrollment applies the rule (decision 26).
+  how enrollment applies the rule (decision 26). *Lean:* they don't. One
+  account takeover or one lost account takes both. The second passkey lives
+  in a different sync account or on a hardware security key with a PIN.
+  Enrollment asks where each passkey lives, and uses the authenticator's
+  reported model where it has one.
 - Decision 29 names the phone. Approval on a tablet or a laptop that holds its
   own passkey would need an operator amendment, and the plan does not assume
   one. Whether the QR path in WP10 stays is open, because decision 29 names
   approvals and not restore. Whether the session-URL QR code stays for
-  approvals is also open, because the decision does not mention it.
+  approvals is also open, because the decision does not mention it. *Lean:*
+  the risk that decision 29 found is the cross-device flow, which hands the
+  PRF output to the laptop. So the unwrap happens on the device that holds
+  the passkey, and that device may be a tablet or a laptop with its own
+  passkey. The cross-device QR flow is dropped for restore too. The
+  session-URL QR code stays, because it only opens the page on the phone and
+  carries no key material.
 - Which session obtains the server-stored ciphertext in the sandbox lane, and
-  how the passkey assertion gates its release (decision 21). The design review
-  of WP5 records it.
+  how the passkey assertion gates its release (decision 21). *Lean:* the
+  server returns the copy for one credential only after it verifies that
+  credential's assertion, with user verification, over a challenge bound to
+  the named operation and the session. The copy is useless without the PRF
+  output, so this check is a second layer. The design review of WP5 records
+  it.
 - The seal type of the auto-unseal seal (decision 13), the method that decision
   30 leaves to a separate decision, and where the boot-time lane keeps its
   copies (decision 21). The plan does not say whether these are one decision.
+  *Lean:* the Static Key seal. OpenBao's 2.7.x seal configuration lists it,
+  reads the key from a file, and rotates from one key to the next with
+  `previous_key`. That answers both the seal type and the boot-time method
+  for the sandbox lane. The WP4 rehearsal confirms on the pinned 2.7.2 that
+  generate-root asks for recovery keys under this seal. Where a boot-time lane
+  keeps its copies waits until such a lane is scheduled.
 - Which of the remaining WP1 results must pass before rollout, beyond the full
   test on the real approval page: that PRF output is refused without user
   verification, the hardware security key with a PIN, the Mac stability repeat,
-  and the interrupted rekey under the chosen seal.
-- Who approves the removal of a device. The sources are silent.
+  and the interrupted rekey under the chosen seal. *Lean:* the refusal
+  without user verification and the interrupted rotation under the chosen
+  seal must pass. The hardware key with a PIN must pass before a site uses
+  one as its second passkey. The Mac stability repeat matters only if a Mac
+  approves, so it waits for the item on decision 29.
+- Who approves the removal of a device. The sources are silent. *Lean:* any
+  other enrolled passkey, or the recovery package when no other passkey is
+  available. A passkey cannot approve its own removal. The removal counts as
+  done only after the rotation of decision 17. If one passkey remains, the
+  console asks for a replacement, because one is below the minimum of
+  decision 26.
 - What happens to WP7. The decision drops only the portable sandbox kit for
   now. WP7 stays for a kit in a lane with a boot-time unseal, and the plan is
   complete only when every package is closed, unless the operator decides
-  otherwise.
+  otherwise. *Lean:* move WP7 to its own issue with `platform-debt`, so the
+  plan can complete without it.
 - Whether the sandbox-lane acceptance tests must run on a one-server
   environment, which is the shape that decision 23 gives the sandbox lane.
+  *Lean:* yes. Three-server tests belong to WP3 and long-lived sites.
 - A step that moves the credentials other than the unseal shares out of the
   ADR-0011 automation file before WP4 deletes it. The
   [plan gap found on 2026-11-07](https://github.com/dmfdeploy/dmfdeploy/issues/864#issuecomment-6709653882)
-  is not yet in WP4.
+  is not yet in WP4. *Lean:* add the step to WP4. It lists every other
+  credential in the file and moves each to the environment bundle or the
+  recovery package before the deletion.
 
 ## Out of scope
 
