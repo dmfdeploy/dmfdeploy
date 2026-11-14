@@ -40,8 +40,8 @@ recovery keys kept off the node in the clear (decisions 13,
 14 and 21). The plan never describes that lane as Tier 2, because the
 declared posture must equal the actual one. The seal key stays on the node in
 this lane. The recovery keys rest there only as copies encrypted for each
-enrolled passkey, so material on the node cannot mint a root token. Off the
-node, the recovery package also holds them (decision 31). "Where
+enrolled passkey, so material on the node cannot mint a root token. *Lean:*
+off the node, the full recovery package of decision 31 also holds them. "Where
 the key material lives" below lists every place.
 
 *Changed on 2026-11-08.* Before this date the goal was ADR-0029 Tier 2
@@ -285,20 +285,21 @@ decision it names.
 "Off the server" means the snapshot downloads and the recovery package,
 wherever the admin keeps them: a computer, a USB key or other media. "Passkey
 device" means the phone or other device that holds the passkey and does the
-unwrap.
+unwrap. The columns name roles. One computer can be the passkey device and
+also keep downloads. A row about the passkey device describes what
+the plan puts there itself.
 
 | Material | On the server | Off the server | On the passkey device |
 |---|---|---|---|
 | Seal key | In the clear, for the auto-unseal (decision 13) | One copy encrypted for each enrolled passkey, with the snapshots (decisions 15, 21 and 27). A direct copy in the recovery package (decision 15) | Decrypted in memory for a restore (decision 21). *Lean:* never stored |
 | Recovery keys | Only as one copy encrypted for each enrolled passkey (decision 21) | *Lean:* the same encrypted copies in each snapshot download, and the keys themselves in the recovery package, which decision 31 asks to be full | Decrypted in memory for an approval (decision 21). *Lean:* never stored |
-| Passkey, with its PRF secret | Never. *Lean:* a public key derived from it | Never | In the authenticator, or in the passkey sync account for a synced passkey |
-| OpenBao data | The live data, from which snapshots are taken | The latest snapshot (decision 27) and the snapshot saved with the recovery package (decision 31) | Never |
-| Audit record | The chained, numbered record (decision 28) | *Lean:* a copy inside the encrypted snapshot download | Never |
+| Passkey, with its PRF secret | Never. *Lean:* a public key derived from it | Not in any download or package. A synced passkey is also held by its sync provider | In the authenticator |
+| OpenBao data | The live data, from which snapshots are taken | The latest snapshot (decision 27) and the snapshot saved with the recovery package (decision 31) | Nothing from the plan. A download kept there is encrypted (*lean*) |
+| Audit record | The chained, numbered record (decision 28) | *Lean:* a copy inside the encrypted snapshot download | Nothing from the plan. A download kept there is encrypted (*lean*) |
 | Executor credentials | *Lean:* a projected ServiceAccount token and a short-lived OpenBao token, neither copied off the server | Never | Never |
 
-Only the recovery package holds the recovery keys without passkey
-encryption. Everything else off the server is encrypted for the enrolled
-passkeys. Today's dmf-init
+*Lean:* only the recovery package holds the recovery keys without passkey
+encryption, and every snapshot download is encrypted. Today's dmf-init
 recovery package carries its backup encrypted with a passphrase that the admin
 keeps apart from the package. *Lean:* the full package keeps that protection,
 so whoever holds both the package and the passphrase holds everything. That is
@@ -1262,7 +1263,7 @@ package use the contents that the package specification under WP2 records.
 *Changed on 2026-11-14 (decisions 21 and 31).* Before this date these
 properties put an encrypted copy of the key material on each enrolled admin
 device. The server now holds one encrypted copy for each enrolled passkey,
-and no admin device stores key material. "Where the key material lives" lists
+and no admin device stores a per-passkey copy. "Where the key material lives" lists
 every place.
 
 - The sandbox's actual seal configuration today is one Shamir share, as
@@ -1273,8 +1274,9 @@ every place.
   unseals on restart with no admin action.
 - The seal key is backed up before the old unseal path is retired: one copy
   encrypted for each enrolled passkey, stored on the server and with the
-  snapshot on the recovery media, and a direct copy in the recovery package
-  on that media (decisions 15, 21 and 31). The backup is verified by
+  off-server snapshots, and a direct copy in the recovery package (decisions
+  15, 21 and 27). Decision 31 says where the package and a snapshot are saved,
+  with a USB key as the example; the medium stays open. The backup is verified by
   a decryption on an enrolled admin device and by a read of the package copy.
 - The recovery keys are issued fresh as part of the transition. An old Shamir
   share, including every share in the ADR-0011 automation file, is not valid
@@ -1383,8 +1385,8 @@ when the operator accepts it, and then it moves to "Decisions".
 - What the recovery package holds for restore, approve, check in and enrol
   (decision 25). Decision 31 asks for a full package. *Lean:* "full" means
   the recovery keys, the seal key, the OpenBao snapshot saved with it, and the
-  environment backup that dmf-init already packages, all encrypted with the
-  dmf-init passphrase. No root token and no passkey material. The snapshot is
+  environment backup that dmf-init already packages, and the private key that
+  opens every snapshot download, all encrypted with the dmf-init passphrase. No root token and no passkey material. The snapshot is
   taken at the end of the install, after the seal transition, and dmf-init
   writes the package again whenever it changes the keys. WP2 records the
   list.
@@ -1395,8 +1397,12 @@ when the operator accepts it, and then it moves to "Decisions".
   that match it. It also holds a copy of the audit record, the identifier of
   the seal key that the snapshot needs, and a manifest with digests. The audit record is not
   encrypted on the server, so the whole bundle is encrypted and authenticated
-  for the enrolled passkeys, and the download needs the operator role and
-  writes an audit line. The console shows the time of the last download and
+  with public-key encryption, which needs no passkey assertion. The
+  recipients are the enrolled passkeys, taken from the signed bindings in the
+  item on encrypting for an absent passkey, and a recovery key pair whose private key is in the recovery package.
+  The recovery package can then open every later bundle when no passkey is
+  left, and a restore from the package with a real later bundle is rehearsed.
+  The download needs the operator role and writes an audit line. The console shows the time of the last download and
   warns once the server holds changes that no download carries: a newer
   snapshot, an enrollment or a rotation. A warning cannot prove that the off-
   server copy is current, so decision 27 holds only as well as the admin
@@ -1432,7 +1438,11 @@ when the operator accepts it, and then it moves to "Decisions".
   enrollment the passkey signs an assertion over a challenge that carries the
   public key's digest, and every encryption checks the recipient list against
   those signed bindings. Without that, a server could hand out its own public
-  key for an absent passkey. The design also names the PRF salt and its
+  key for an absent passkey. The binding alone is not a complete defense.
+  Unresolved design checks remain: the device must confirm that the challenge
+  carries the digest of the key it derived itself, and the recipient list must
+  be versioned and tied to the enrolled credentials, so that a removed
+  passkey or an older list is refused. The design also names the PRF salt and its
   version, the key derivation labels, the cipher suite and the associated
   data, and tests each. At a server-side rotation the server sees the new
   recovery keys anyway, because OpenBao returns them there, so the binding
