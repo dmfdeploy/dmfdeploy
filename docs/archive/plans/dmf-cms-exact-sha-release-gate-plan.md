@@ -1,10 +1,34 @@
 ---
-status: active
+status: executed
 date: 2026-10-27
+executed: 2026-11-14
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/831
 ---
 
 # dmf-cms exact-SHA release gate
+
+## Outcome
+
+The plan is executed. Releases v0.40.1, v0.40.2, v0.41.0 and v0.42.0 were
+published by the unattended release workflow. The rollout checks on
+[#831](https://github.com/dmfdeploy/dmfdeploy/issues/831) are recorded:
+
+- Adding `hold` to an armed pull request clears auto-merge through the
+  `hold-disarm` workflow, on `pull_request_target`. The operator chose to skip
+  a live probe of the scheduled sweep's disarm path.
+- A direct merge by the automerge App starts the push workflows, and so do the
+  merges it makes through armed auto-merge.
+- The GHCR package is public and linked to the dmf-cms repository.
+- The owner's approval of releases is recorded.
+- Both App private keys rotate by 2027-01-28, recorded in
+  [#618](https://github.com/dmfdeploy/dmfdeploy/issues/618).
+
+The v0.42.0 run found one transient fault: a digest read right after a push
+returned not found. A re-run of the failed job published the release.
+[#910](https://github.com/dmfdeploy/dmfdeploy/issues/910) tracks a bounded
+retry.
+
+The rollout note below is kept as it was during the rollout.
 
 > **Rollout in progress (2026-11-04).** The release workflow, the automerge trigger on
 > `workflow_run`, the hold-disarm workflow, the push-path checks, the tag ruleset, ADR-0048
