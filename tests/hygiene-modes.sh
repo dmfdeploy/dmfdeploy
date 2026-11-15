@@ -6,25 +6,29 @@
 # check would still pass. This test reads the workflow files and the
 # pre-commit hook and asserts that each check runs in its intended mode:
 #
-#   surface.yml          the fixture step runs first, then size, filenames,
-#                        placement, statuslog and enforcement each run with
-#                        --strict in their own step.
+#   surface.yml          the job runs "bin/check.sh surface". In bin/check.sh,
+#                        step_surface runs the fixtures first, then size,
+#                        filenames, placement, statuslog and enforcement, each
+#                        with --strict. The function is pinned verbatim.
 #   pre-commit hook      check-surface runs with --strict on the staged
 #                        content, and a failure refuses the commit.
-#   vale.yml             the whole-tree step and the clean-set step fail on
-#                        errors (no --no-exit), and the changed-files
-#                        ratchet runs.
+#   vale.yml             the job runs "bin/check.sh vale". In bin/check.sh,
+#                        step_vale fails on errors in the whole tree and the
+#                        clean set (no --no-exit), and runs the changed-files
+#                        ratchet. The function is pinned verbatim, with the
+#                        static step's function.
 #                        The pull_request trigger has no path filter, so the
 #                        check reports on every PR. The scope step decides
 #                        whether the Vale steps run, and each of them carries
 #                        exactly the pinned "if:" on its output.
-#   title-check.yml      the title job sets STRICT to "1".
+#   title-check.yml      the title job sets STRICT to "1". The static job runs
+#                        "bin/check.sh static", and step_static is pinned.
 #   backlog-hygiene.yml  the self-test runs first, the check has no --warn,
 #                        and a later step fails the job on findings.
 #
 # Each guarded step must run exactly its expected command, with no "if:" that
-# can switch it off (the Vale steps' scope condition, the Vale ratchet's and
-# the backlog gate's conditions are pinned to their current text), and the
+# can switch it off (the Vale step's scope condition and the backlog gate's
+# condition are pinned to their current text), and the
 # owning jobs have no "if:". The
 # surface and title workflows keep their pull_request trigger. The hook's
 # surface guards are pinned line by line, with no exit or return before the
@@ -285,12 +289,7 @@ def common_rules(rel, doc):
 # --- expected steps of the guarded jobs, in order --------------------------
 SURFACE_STEPS = [
     {"uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683", "with": {"persist-credentials": False}},
-    {"name": "Fixture tests", "run": "tests/surface/run.sh"},
-    {"name": "Size budgets", "run": "bin/check-surface.sh --strict size"},
-    {"name": "Filenames", "run": "bin/check-surface.sh --strict filenames"},
-    {"name": "Archive placement", "run": "bin/check-surface.sh --strict placement"},
-    {"name": "Status log", "run": "bin/check-surface.sh --strict statuslog"},
-    {"name": "ADR enforcement", "run": "bin/check-surface.sh --strict enforcement"},
+    {"name": "Run the surface step", "run": "bin/check.sh surface"},
 ]
 
 TITLE_STEPS = [
@@ -322,6 +321,7 @@ VALE_SCOPE_RUN = (
     "  \"docs/STYLE.md\"\n"
     "  \"docs/templates/**\"\n"
     "  \".github/**/*.md\"\n"
+    "  \"bin/check.sh\"\n"
     "  \"bin/check-voice*.sh\"\n"
     "  \"bin/mutate-voice.sh\"\n"
     "  \"tests/voice-changed-head.sh\"\n"
@@ -359,27 +359,7 @@ VALE_STEPS = [
         "tar -xz -C \"$RUNNER_TEMP/vale\" -f \"$RUNNER_TEMP/vale.tgz\" vale\n"
         "echo \"$RUNNER_TEMP/vale\" >> \"$GITHUB_PATH\"\n")},
     {"name": "Sync the Google package", "if": VALE_IF, "run": "vale sync"},
-    {"name": "Lint working surfaces (error level blocks)", "if": VALE_IF, "run": "vale ."},
-    {"name": "Enforce Vale on the clean set (error level blocks)", "if": VALE_IF, "run": (
-        "set -euo pipefail\n"
-        "grep -v -e '^#' -e '^[[:space:]]*$' .vale/clean-set.txt \\\n"
-        "  | xargs vale --minAlertLevel=error\n")},
-    {"name": "Check the README scope", "if": VALE_IF, "run": ".vale/scope-test.sh"},
-    {"name": "Check the fixtures (strict config)", "if": VALE_IF, "run": (
-        "set -euo pipefail\n"
-        "for bad in .vale/fixtures/bad-*.md; do\n"
-        "  good=\"${bad/bad-/good-}\"\n"
-        "  if vale --config .vale/strict.ini \"$bad\" >/dev/null; then\n"
-        "    echo \"::error::$bad passed but must fail\"; exit 1\n"
-        "  fi\n"
-        "  vale --config .vale/strict.ini \"$good\" >/dev/null \\\n"
-        "    || { echo \"::error::$good must pass\"; exit 1; }\n"
-        "done\n")},
-    {"name": "Check the Voice fixtures", "if": VALE_IF, "run": "bin/check-voice-fixtures.sh"},
-    {"name": "Mutation-test the Voice rules", "if": VALE_IF, "run": "bin/mutate-voice.sh"},
-    {"name": "Ratchet the Voice errors in changed files", "if": RATCHET_IF, "run": "bin/check-voice-changed.sh HEAD^1 HEAD"},
-    {"name": "Test that the ratchet reads HEAD, not the checkout", "if": VALE_IF, "run": "tests/voice-changed-head.sh"},
-    {"name": "Test that the ratchet counts encoded link targets the same way", "if": VALE_IF, "run": "tests/voice-changed-links.sh"},
+    {"name": "Run the Vale checks", "if": VALE_IF, "env": {"VOICE_RATCHET_BASE": "${{ github.event_name == 'pull_request' && 'HEAD^1' || '' }}"}, "run": "bin/check.sh vale"},
 ]
 
 HYGIENE_STEPS = [
@@ -472,51 +452,117 @@ steps = steps_of(doc, "surface")
 pin_job(rel, doc, "surface", {"runs-on": "ubuntu-24.04", "timeout-minutes": 5},
         ["name", "on", "permissions", "concurrency", "jobs"])
 pin_all_steps(rel, "surface", steps, SURFACE_STEPS)
-pin_step(rel, steps, "Fixture tests",
-         {"name": "Fixture tests", "run": "tests/surface/run.sh"})
-for _n, _sub in (("Size budgets", "size"), ("Filenames", "filenames"),
-                 ("Archive placement", "placement"), ("Status log", "statuslog")):
-    pin_step(rel, steps, _n, {"name": _n,
-                              "run": f"bin/check-surface.sh --strict {_sub}"})
-runs = [run_of(s).strip() for s in steps]
-fixture_idx = [i for i, r in enumerate(runs) if r == "tests/surface/run.sh"]
-check(len(fixture_idx) == 1,
-      f"{rel}: the fixture suite runs exactly 'tests/surface/run.sh'",
-      f"found {len(fixture_idx)} steps with that exact run")
-for i in fixture_idx:
-    no_if(rel, "the fixture step", steps[i])
-first_check = None
-for sub in ("size", "filenames", "placement", "statuslog"):
-    hits = [i for i, r in enumerate(runs)
-            if "bin/check-surface.sh" in r and sub in tokens(r)]
-    if len(hits) != 1:
-        fail(f"{rel}: {sub} runs in its own step: found {len(hits)} steps")
-        continue
-    t = tokens(runs[hits[0]])
-    subs = [x for x in t if x in ("size", "filenames", "placement", "statuslog")]
-    check(subs == [sub], f"{rel}: {sub} runs alone in its step",
-          f"step runs {subs}")
-    check("--strict" in t and "--warn" not in t,
-          f"{rel}: {sub} runs with --strict",
-          f"step runs '{runs[hits[0]]}'")
-    exact_run(rel, f"the {sub} step", steps[hits[0]],
-              f"bin/check-surface.sh --strict {sub}")
-    no_if(rel, f"the {sub} step", steps[hits[0]])
-    first_check = hits[0] if first_check is None else min(first_check, hits[0])
-# The ADR Enforcement rule enforces now that every ADR names a real check or
-# a discipline-only reason (#661, #702).
-hits = [i for i, r in enumerate(runs)
-        if "bin/check-surface.sh" in r and "enforcement" in tokens(r)]
-check(len(hits) == 1, f"{rel}: enforcement runs in its own step",
-      f"found {len(hits)} steps")
-for i in hits:
-    exact_run(rel, "the enforcement step", steps[i],
-              "bin/check-surface.sh --strict enforcement")
-    no_if(rel, "the enforcement step", steps[i])
-if fixture_idx and first_check is not None:
-    check(fixture_idx[0] < first_check,
-          f"{rel}: the fixture step runs before the checks",
-          "a surface check step comes before the fixture step")
+pin_step(rel, steps, "Run the surface step",
+         {"name": "Run the surface step", "run": "bin/check.sh surface"})
+for s in steps:
+    if run_of(s).strip().startswith("bin/check.sh"):
+        exact_run(rel, "the surface step", s, "bin/check.sh surface")
+        no_if(rel, "the surface step", s)
+
+# --- bin/check.sh ----------------------------------------------------------
+# The commands of the surface, static and vale CI steps live in bin/check.sh.
+# Each step function is pinned verbatim, as the hook's surface block is below.
+with open(os.path.join(root, "bin/check.sh"), encoding="utf-8") as fh:
+    check_sh = fh.read()
+
+
+def step_function(name):
+    m = re.search(r"^step_%s\(\) \{\n.*?^\}\n" % name, check_sh, re.S | re.M)
+    return m.group(0) if m else None
+
+
+STEP_SURFACE = (
+    'step_surface() {\n'
+    '    tests/surface/run.sh\n'
+    '    bin/check-surface.sh --strict size\n'
+    '    bin/check-surface.sh --strict filenames\n'
+    '    bin/check-surface.sh --strict placement\n'
+    '    bin/check-surface.sh --strict statuslog\n'
+    '    bin/check-surface.sh --strict enforcement\n'
+    '}\n')
+STEP_STATIC = (
+    'step_static() {\n'
+    '    .github/scripts/hygiene-check.sh real\n'
+    '    .github/scripts/hygiene-check.sh fixtures\n'
+    '}\n')
+STEP_VALE = (
+    'step_vale() {\n'
+    '    local bad good\n'
+    '    vale .\n'
+    "    grep -v -e '^#' -e '^[[:space:]]*$' .vale/clean-set.txt \\\n"
+    '        | xargs vale --minAlertLevel=error\n'
+    '    .vale/scope-test.sh\n'
+    '    for bad in .vale/fixtures/bad-*.md; do\n'
+    '        good="${bad/bad-/good-}"\n'
+    '        if vale --config .vale/strict.ini "$bad" >/dev/null; then\n'
+    '            echo "$bad passed but must fail" >&2\n'
+    '            return 1\n'
+    '        fi\n'
+    '        vale --config .vale/strict.ini "$good" >/dev/null \\\n'
+    '            || { echo "$good must pass" >&2; return 1; }\n'
+    '    done\n'
+    '    bin/check-voice-fixtures.sh\n'
+    '    bin/mutate-voice.sh\n'
+    '    if [ -n "${VOICE_RATCHET_BASE:-}" ]; then\n'
+    '        bin/check-voice-changed.sh "$VOICE_RATCHET_BASE" HEAD\n'
+    '    fi\n'
+    '    tests/voice-changed-head.sh\n'
+    '    tests/voice-changed-links.sh\n'
+    '}\n')
+for _name, _want in (("surface", STEP_SURFACE), ("static", STEP_STATIC),
+                     ("vale", STEP_VALE)):
+    check(step_function(_name) == _want,
+          f"bin/check.sh: step_{_name} is pinned verbatim",
+          f"the step_{_name} function changed. This test guards against an "
+          "accidental or unreviewed change to how a hygiene check runs. If "
+          "the change is deliberate, update STEP_" + _name.upper() +
+          " in tests/hygiene-modes.sh in the same PR")
+surface_body = step_function("surface") or ""
+surface_calls = [ln.split() for ln in surface_body.splitlines()
+                 if "bin/check-surface.sh" in ln]
+for sub in ("size", "filenames", "placement", "statuslog", "enforcement"):
+    hits = [c for c in surface_calls if sub in c]
+    check(len(hits) == 1, f"bin/check.sh: surface runs {sub} once",
+          f"found {len(hits)} calls")
+    for c in hits:
+        check("--strict" in c and "--warn" not in c,
+              f"bin/check.sh: surface runs {sub} with --strict",
+              f"call is '{' '.join(c)}'")
+fixture_pos = surface_body.find("tests/surface/run.sh")
+first_call = surface_body.find("bin/check-surface.sh")
+check(0 <= fixture_pos < first_call,
+      "bin/check.sh: the surface fixture suite runs before the checks",
+      "tests/surface/run.sh does not come first in step_surface")
+vale_body = step_function("vale") or ""
+check("--no-exit" not in vale_body, "bin/check.sh: no vale step passes --no-exit",
+      "step_vale passes --no-exit, so findings would not fail the step")
+for needle in ("vale .\n", "bin/check-voice-fixtures.sh", "bin/mutate-voice.sh",
+               "bin/check-voice-changed.sh", ".vale/clean-set.txt"):
+    check(needle in vale_body, f"bin/check.sh: step_vale runs {needle.strip()}",
+          "the command is missing")
+for _name in ("surface", "static", "vale"):
+    body = step_function(_name) or ""
+    check(not re.search(r"\|\|\s*(true|:)\s*$", body, re.M),
+          f"bin/check.sh: step_{_name} has no line ending in '|| true'",
+          "a command's failure is swallowed")
+# Each step function runs many commands, so the shell options decide whether
+# a failure stops the step. Pin errexit, nounset and pipefail before the first
+# function, and refuse any later line that turns one of them off.
+prologue = check_sh.split("\n# ── Preflight", 1)[0]
+check(re.search(r"^set -euo pipefail$", prologue, re.M) is not None,
+      "bin/check.sh: the script sets -euo pipefail before any function",
+      "without errexit a failing command does not stop its step, and without "
+      "pipefail a failure on the left of a pipe is masked")
+relax = [ln.strip() for ln in check_sh.splitlines()
+         if re.match(r"\s*set\s+(\+[a-z]*[eu]|\+o\s+(errexit|pipefail|nounset))", ln)]
+check(not relax, "bin/check.sh: no line turns errexit, nounset or pipefail off",
+      f"found {relax!r}")
+main_loop = check_sh.split("# ── Main", 1)[-1]
+call_lines = [ln for ln in main_loop.splitlines() if "step_${s//-/_}" in ln]
+check(call_lines == ['    "step_${s//-/_}"'],
+      "bin/check.sh: a failing step stops the run",
+      "the main loop must call each step as a plain command, not inside a "
+      f"condition or with '||'. Found {call_lines!r}")
 
 # --- pre-commit hook -------------------------------------------------------
 rel = ".githooks/pre-commit"
@@ -612,7 +658,6 @@ rel = ".github/workflows/vale.yml"
 doc = load_yaml(rel)
 common_rules(rel, doc)
 steps = steps_of(doc, "vale")
-runs = [run_of(s) for s in steps]
 no_if(rel, "the vale job", (doc.get("jobs") or {}).get("vale") or {})
 pin_job(rel, doc, "vale", {"runs-on": "ubuntu-24.04", "timeout-minutes": 10},
         ["name", "on", "permissions", "jobs"])
@@ -623,72 +668,22 @@ check(pr is None or (isinstance(pr, dict) and not ({"paths", "paths-ignore"} & s
       f"pull_request is {pr!r}. A path filter means a PR that changes no "
       "listed file never gets the vale check, and a required check that never "
       "reports blocks the merge. Filter inside the job (the scope step)")
-VALE_EXACT = {
-    "bin/check-voice-changed.sh": "bin/check-voice-changed.sh HEAD^1 HEAD",
-    "bin/check-voice-fixtures.sh": "bin/check-voice-fixtures.sh",
-    ".vale/clean-set.txt": (
-        "set -euo pipefail\n"
-        "grep -v -e '^#' -e '^[[:space:]]*$' .vale/clean-set.txt \\\n"
-        "  | xargs vale --minAlertLevel=error"),
-    "--config .vale/strict.ini": (
-        "set -euo pipefail\n"
-        "for bad in .vale/fixtures/bad-*.md; do\n"
-        "  good=\"${bad/bad-/good-}\"\n"
-        "  if vale --config .vale/strict.ini \"$bad\" >/dev/null; then\n"
-        "    echo \"::error::$bad passed but must fail\"; exit 1\n"
-        "  fi\n"
-        "  vale --config .vale/strict.ini \"$good\" >/dev/null \\\n"
-        "    || { echo \"::error::$good must pass\"; exit 1; }\n"
-        "done"),
-    "vale .": "vale .",
-}
 for _name, _step in (
     ("Find the changed Vale paths",
      {"id": "scope", "run": VALE_SCOPE_RUN}),
-    ("Lint working surfaces (error level blocks)",
-     {"if": VALE_IF, "run": "vale ."}),
-    ("Enforce Vale on the clean set (error level blocks)",
-     {"if": VALE_IF, "run": VALE_EXACT[".vale/clean-set.txt"] + "\n"}),
-    ("Check the fixtures (strict config)",
-     {"if": VALE_IF, "run": VALE_EXACT["--config .vale/strict.ini"] + "\n"}),
-    ("Check the Voice fixtures",
-     {"if": VALE_IF, "run": "bin/check-voice-fixtures.sh"}),
-    ("Ratchet the Voice errors in changed files",
-     {"if": RATCHET_IF, "run": "bin/check-voice-changed.sh HEAD^1 HEAD"}),
+    ("Run the Vale checks",
+     {"if": VALE_IF,
+      "env": {"VOICE_RATCHET_BASE":
+              "${{ github.event_name == 'pull_request' && 'HEAD^1' || '' }}"},
+      "run": "bin/check.sh vale"}),
 ):
     pin_step(rel, steps, _name, {"name": _name, **_step})
-for key, want in VALE_EXACT.items():
-    hit = [s for s in steps if key in run_of(s)]
-    check(len(hit) == 1, f"{rel}: one step matches {key!r}",
-          f"found {len(hit)}")
-    for s in hit:
-        exact_run(rel, f"the {key!r} step", s, want)
-        if key == "bin/check-voice-changed.sh":
-            exact_if(rel, "the ratchet step", s, RATCHET_IF)
-        else:
-            exact_if(rel, f"the {key!r} step", s, VALE_IF)
-clean = [r for r in runs if ".vale/clean-set.txt" in r]
-check(len(clean) == 1, f"{rel}: one step reads .vale/clean-set.txt",
-      f"found {len(clean)}")
-for r in clean:
-    t = tokens(r)
-    check("vale" in t, f"{rel}: the clean-set step runs Vale", "no vale call")
-    check("--no-exit" not in t, f"{rel}: the clean-set step fails on errors",
-          "it passes --no-exit")
-whole = [r for r in runs
-         if (t := tokens(r)) and t[0] == "vale" and t[-1] == "."]
-check(len(whole) == 1, f"{rel}: one step lints the whole tree",
-      f"found {len(whole)} steps running 'vale ... .'")
-for r in whole:
-    check("--no-exit" not in tokens(r),
-          f"{rel}: the whole-tree step fails on errors",
-          "it passes --no-exit")
-check(any("bin/check-voice-changed.sh" in r for r in runs),
-      f"{rel}: the changed-files ratchet runs",
-      "no step calls bin/check-voice-changed.sh")
-check(any("bin/check-voice-fixtures.sh" in r for r in runs),
-      f"{rel}: the Voice fixture checks run",
-      "no step calls bin/check-voice-fixtures.sh")
+vale_runs = [s for s in steps if run_of(s).strip().startswith("bin/check.sh")]
+check(len(vale_runs) == 1, f"{rel}: one step runs bin/check.sh",
+      f"found {len(vale_runs)}")
+for s in vale_runs:
+    exact_run(rel, "the Vale step", s, "bin/check.sh vale")
+    exact_if(rel, "the Vale step", s, VALE_IF)
 
 # --- title-check.yml -------------------------------------------------------
 rel = ".github/workflows/title-check.yml"

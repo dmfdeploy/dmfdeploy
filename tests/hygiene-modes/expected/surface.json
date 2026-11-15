@@ -14,28 +14,8 @@
           }
         },
         {
-          "name": "Fixture tests",
-          "run": "tests/surface/run.sh"
-        },
-        {
-          "name": "Size budgets",
-          "run": "bin/check-surface.sh --strict size"
-        },
-        {
-          "name": "Filenames",
-          "run": "bin/check-surface.sh --strict filenames"
-        },
-        {
-          "name": "Archive placement",
-          "run": "bin/check-surface.sh --strict placement"
-        },
-        {
-          "name": "Status log",
-          "run": "bin/check-surface.sh --strict statuslog"
-        },
-        {
-          "name": "ADR enforcement",
-          "run": "bin/check-surface.sh --strict enforcement"
+          "name": "Run the surface step",
+          "run": "bin/check.sh surface"
         }
       ],
       "timeout-minutes": 5

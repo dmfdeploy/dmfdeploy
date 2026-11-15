@@ -44,19 +44,19 @@ The [docs landing page](docs/README.md) maps the knowledge base, and
 
 ## Component repos
 
-Each is an independent git repo under the [dmfdeploy org](https://github.com/dmfdeploy),
-checked out as a sibling directory of this umbrella under a common parent:
+Each repo is independent and sits beside this one under a common parent. Pick the repo by the kind of task. Each linked CONTRIBUTING.md has the exact versions, the test command and the checks that need a live environment.
 
-| Repo | EBU layer / vertical | Stack | Status |
-|---|---|---|---|
-| [`dmf-infra`](https://github.com/dmfdeploy/dmf-infra) | Layers 1–3 + verticals (Security, Monitoring, Orchestration, Control) | Ansible + Helm | **Active**: generic playbooks/roles, the bootstrap engine |
-| [`dmf-env`](https://github.com/dmfdeploy/dmf-env) | Layer 1 + generic env tooling | Terraform (OpenTofu) + Ansible vars | **Active**: generic; per-env state is operator-local (ADR-0035) |
-| [`dmf-central`](https://github.com/dmfdeploy/dmf-central) | Deploy-once central services | Ansible (stub) | Scaffold: **frozen** for v0.1 (federation is a named non-goal) |
-| [`dmf-media`](https://github.com/dmfdeploy/dmf-media) | Layers 4–5 (Media Exchange + Functions) | Ansible + Helm | **Active**: catalog metadata; v2 media roles frozen for v0.1 |
-| [`dmf-runbooks`](https://github.com/dmfdeploy/dmf-runbooks) | Layers 4–5 execution | Ansible (AWX launchers) | **Active**: thin AWX launchers + authoritative `nmos-cpp` role |
-| [`dmf-cms`](https://github.com/dmfdeploy/dmf-cms) | Layer 6 (Application & UI) | React + TypeScript / FastAPI / OIDC | **Active**: the operator console |
-| [`dmf-init`](https://github.com/dmfdeploy/dmf-init) | Day-0 bootstrap | React + FastAPI container | **Active**: the installer: blank node → full platform |
-| [`dmf-promsd`](https://github.com/dmfdeploy/dmf-promsd) | Monitoring vertical | Python | **Active**: NetBox-driven Prometheus service discovery (ADR-0038) |
+| Repo | Work here when you change | Needs installed |
+|---|---|---|
+| [`dmfdeploy`](CONTRIBUTING.md) (this repo) | Docs, decisions, plans, agent skills and the repo-wide checks | Python 3, ShellCheck, `jq`, `ruby`, Vale |
+| [`dmf-infra`](https://github.com/dmfdeploy/dmf-infra/blob/main/CONTRIBUTING.md) | Ansible roles and playbooks for layers 1–3 and the verticals | Ansible and the Python packages in its `requirements.txt` |
+| [`dmf-env`](https://github.com/dmfdeploy/dmf-env/blob/main/CONTRIBUTING.md) | Environment tooling (wizard, wrappers, OpenTofu); env state stays operator-local (ADR-0035) | bash, Python 3, `jq`, `sops`, `age`, Go `yq` v4, OpenSSH, ShellCheck, OpenTofu |
+| [`dmf-central`](https://github.com/dmfdeploy/dmf-central/blob/main/CONTRIBUTING.md) | Central services: a scaffold, **frozen** for v0.1 | Python 3, Ansible, `ansible-lint`, `yamllint` |
+| [`dmf-media`](https://github.com/dmfdeploy/dmf-media/blob/main/CONTRIBUTING.md) | Media function catalog and charts for layers 4–5 (v2 roles frozen for v0.1) | Python 3, Helm, Ansible |
+| [`dmf-runbooks`](https://github.com/dmfdeploy/dmf-runbooks/blob/main/CONTRIBUTING.md) | Playbooks that AWX launches to start, switch, and tear down workloads | Python 3, `ansible-core`; no cluster for the tests |
+| [`dmf-cms`](https://github.com/dmfdeploy/dmf-cms/blob/main/CONTRIBUTING.md) | The operator console, with a React frontend and a FastAPI backend (layer 6) | Python 3, Node.js 22 |
+| [`dmf-init`](https://github.com/dmfdeploy/dmf-init/blob/main/CONTRIBUTING.md) | The Day-0 installer container: blank node to full platform | Python 3, Node.js 22, `age`, `rclone`; Docker for the image |
+| [`dmf-promsd`](https://github.com/dmfdeploy/dmf-promsd/blob/main/CONTRIBUTING.md) | NetBox-driven Prometheus service discovery (ADR-0038) | Python 3 |
 
 Canonical architecture: [`docs/architecture/dmfdeploy-platform-plan.md`](docs/architecture/dmfdeploy-platform-plan.md).
 Canonical vocabulary (layers/verticals/lifecycle): [`docs/architecture/DMF EBU Mapping (2026-04-25).md`](docs/architecture/DMF%20EBU%20Mapping%20%282026-04-25%29.md).

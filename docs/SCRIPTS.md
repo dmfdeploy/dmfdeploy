@@ -32,6 +32,7 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `bin/check-voice-fixtures.sh` | Prove the Voice rules against their fixtures. |
 | `bin/check-voice.sh` | Lint prose against the project voice (Voice + Google + Dmfdeploy styles). |
 | `bin/check-working-model-sync.sh` | keep the working-model block from drifting. |
+| `bin/check.sh` | run the umbrella's CI checks from one command. |
 | `bin/close-completed-issues.sh` | auto-close umbrella tracking issues whose completing PR has merged. |
 | `bin/dmf-env-public-surface-gate.sh` | fail-closed gate: is a dmf-env tree safe to publish as a generic env-tooling repo? |
 | `bin/export-scan.sh` | stage a CLEAN-HISTORY orphan export of one component repo and run every public-safety gate against that exact tree. Workstream A (first public release). |

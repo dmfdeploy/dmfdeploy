@@ -17,9 +17,10 @@ name: vale
 # matter. When a pull request changes none of them, every Vale step is
 # skipped and the job passes.
 #
-# The fixtures step proves the project rules still fire (each bad fixture
-# fails under the strict config, each good twin passes). The Voice steps prove
-# the Voice rules against their own fixtures and a mutation test.
+# The vale step of bin/check.sh runs all three layers. It also proves the
+# project rules still fire (each bad fixture fails under the strict config,
+# each good twin passes) and proves the Voice rules against their own fixtures
+# and a mutation test. tests/hygiene-modes.sh pins its commands there.
 
 on:
   pull_request:
@@ -62,6 +63,7 @@ jobs:
             "docs/STYLE.md"
             "docs/templates/**"
             ".github/**/*.md"
+            "bin/check.sh"
             "bin/check-voice*.sh"
             "bin/mutate-voice.sh"
             "tests/voice-changed-head.sh"
@@ -104,52 +106,10 @@ jobs:
         if: steps.scope.outputs.lint == 'true'
         run: vale sync
 
-      - name: Lint working surfaces (error level blocks)
+      - name: Run the Vale checks
         if: steps.scope.outputs.lint == 'true'
-        run: vale .
-
-      - name: Enforce Vale on the clean set (error level blocks)
-        if: steps.scope.outputs.lint == 'true'
-        # The list lives in .vale/clean-set.txt.
-        run: |
-          set -euo pipefail
-          grep -v -e '^#' -e '^[[:space:]]*$' .vale/clean-set.txt \
-            | xargs vale --minAlertLevel=error
-
-      - name: Check the README scope
-        if: steps.scope.outputs.lint == 'true'
-        run: .vale/scope-test.sh
-
-      - name: Check the fixtures (strict config)
-        if: steps.scope.outputs.lint == 'true'
-        run: |
-          set -euo pipefail
-          for bad in .vale/fixtures/bad-*.md; do
-            good="${bad/bad-/good-}"
-            if vale --config .vale/strict.ini "$bad" >/dev/null; then
-              echo "::error::$bad passed but must fail"; exit 1
-            fi
-            vale --config .vale/strict.ini "$good" >/dev/null \
-              || { echo "::error::$good must pass"; exit 1; }
-          done
-
-      - name: Check the Voice fixtures
-        if: steps.scope.outputs.lint == 'true'
-        run: bin/check-voice-fixtures.sh
-
-      - name: Mutation-test the Voice rules
-        if: steps.scope.outputs.lint == 'true'
-        run: bin/mutate-voice.sh
-
-      - name: Ratchet the Voice errors in changed files
-        if: github.event_name == 'pull_request' && steps.scope.outputs.lint == 'true'
         # HEAD is the PR merge commit; its first parent is the base branch.
-        run: bin/check-voice-changed.sh HEAD^1 HEAD
-
-      - name: Test that the ratchet reads HEAD, not the checkout
-        if: steps.scope.outputs.lint == 'true'
-        run: tests/voice-changed-head.sh
-
-      - name: Test that the ratchet counts encoded link targets the same way
-        if: steps.scope.outputs.lint == 'true'
-        run: tests/voice-changed-links.sh
+        # A non-empty base turns on the ratchet in the vale step of bin/check.sh.
+        env:
+          VOICE_RATCHET_BASE: ${{ github.event_name == 'pull_request' && 'HEAD^1' || '' }}
+        run: bin/check.sh vale
