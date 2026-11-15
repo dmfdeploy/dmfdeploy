@@ -237,6 +237,78 @@ that decision.
 image producer and its tag trigger is inventoried, because dmf-media builds an
 image too.
 
+### The rest of the backlog
+
+Every other `platform-debt` issue open on 2026-11-15 is listed here, so each
+one has a place in this plan. An issue filed later is ranked by the rule in
+the goal.
+
+Filed after this plan was written:
+
+| Issue | Joins |
+|---|---|
+| [#869](https://github.com/dmfdeploy/dmfdeploy/issues/869) | Console defects that need no redesign |
+| [#870](https://github.com/dmfdeploy/dmfdeploy/issues/870) | Broken paths that are not security exposures |
+| [#874](https://github.com/dmfdeploy/dmfdeploy/issues/874) | Broken paths that are not security exposures |
+| [#875](https://github.com/dmfdeploy/dmfdeploy/issues/875) | Broken paths that are not security exposures |
+| [#890](https://github.com/dmfdeploy/dmfdeploy/issues/890) | Track 3: a contributor document that contradicts the code |
+| [#919](https://github.com/dmfdeploy/dmfdeploy/issues/919) | Track 3: hooks that a contributor can install |
+| [#920](https://github.com/dmfdeploy/dmfdeploy/issues/920) | Track 3: offline checks that CI runs |
+| [#883](https://github.com/dmfdeploy/dmfdeploy/issues/883) | After the groups, once no Docker-typed dmf-cms image remains |
+| [#909](https://github.com/dmfdeploy/dmfdeploy/issues/909) | Parked until a lane with a boot-time unseal is scheduled (see #864) |
+
+Carried from the platform debt work order, in its phase order. Each issue's
+title and scope are on the issue. An issue from its first phase joins the
+security list. The others run after the groups, top to bottom, unless their
+exposure or a dependency moves them earlier.
+
+| Issue | Old phase | Joins |
+|---|---|---|
+| [#868](https://github.com/dmfdeploy/dmfdeploy/issues/868) | 1 | Security and supply chain |
+| [#837](https://github.com/dmfdeploy/dmfdeploy/issues/837) | 1 | Security and supply chain |
+| [#302](https://github.com/dmfdeploy/dmfdeploy/issues/302) | 2 | After the groups |
+| [#495](https://github.com/dmfdeploy/dmfdeploy/issues/495) | 2 | After the groups |
+| [#497](https://github.com/dmfdeploy/dmfdeploy/issues/497) | 2 | After the groups |
+| [#729](https://github.com/dmfdeploy/dmfdeploy/issues/729) | 2 | After the groups |
+| [#733](https://github.com/dmfdeploy/dmfdeploy/issues/733) | 2 | After the groups |
+| [#357](https://github.com/dmfdeploy/dmfdeploy/issues/357) | 3 | After the groups |
+| [#336](https://github.com/dmfdeploy/dmfdeploy/issues/336) | 4 | After the groups |
+| [#340](https://github.com/dmfdeploy/dmfdeploy/issues/340) | 4 | After the groups |
+| [#469](https://github.com/dmfdeploy/dmfdeploy/issues/469) | 4 | After the groups |
+| [#10](https://github.com/dmfdeploy/dmfdeploy/issues/10) | 5 | After the groups |
+| [#12](https://github.com/dmfdeploy/dmfdeploy/issues/12) | 5 | After the groups |
+| [#13](https://github.com/dmfdeploy/dmfdeploy/issues/13) | 5 | After the groups |
+| [#18](https://github.com/dmfdeploy/dmfdeploy/issues/18) | 5 | After the groups |
+| [#23](https://github.com/dmfdeploy/dmfdeploy/issues/23) | 5 | After the groups |
+| [#25](https://github.com/dmfdeploy/dmfdeploy/issues/25) | 5 | After the groups |
+| [#159](https://github.com/dmfdeploy/dmfdeploy/issues/159) | 5 | After the groups |
+| [#199](https://github.com/dmfdeploy/dmfdeploy/issues/199) | 5 | After the groups |
+| [#221](https://github.com/dmfdeploy/dmfdeploy/issues/221) | 5 | After the groups |
+| [#244](https://github.com/dmfdeploy/dmfdeploy/issues/244) | 5 | After the groups |
+| [#245](https://github.com/dmfdeploy/dmfdeploy/issues/245) | 5 | After the groups |
+| [#521](https://github.com/dmfdeploy/dmfdeploy/issues/521) | 5 | After the groups |
+| [#524](https://github.com/dmfdeploy/dmfdeploy/issues/524) | 5 | After the groups |
+| [#536](https://github.com/dmfdeploy/dmfdeploy/issues/536) | 5 | After the groups |
+| [#669](https://github.com/dmfdeploy/dmfdeploy/issues/669) | 5 | After the groups |
+| [#675](https://github.com/dmfdeploy/dmfdeploy/issues/675) | 5 | After the groups |
+| [#703](https://github.com/dmfdeploy/dmfdeploy/issues/703) | 5 | After the groups |
+| [#732](https://github.com/dmfdeploy/dmfdeploy/issues/732) | 5 | After the groups |
+| [#738](https://github.com/dmfdeploy/dmfdeploy/issues/738) | 5 | After the groups |
+| [#739](https://github.com/dmfdeploy/dmfdeploy/issues/739) | 5 | After the groups |
+| [#742](https://github.com/dmfdeploy/dmfdeploy/issues/742) | 5 | After the groups |
+| [#744](https://github.com/dmfdeploy/dmfdeploy/issues/744) | 5 | After the groups |
+| [#745](https://github.com/dmfdeploy/dmfdeploy/issues/745) | 5 | After the groups |
+| [#746](https://github.com/dmfdeploy/dmfdeploy/issues/746) | 5 | After the groups |
+| [#750](https://github.com/dmfdeploy/dmfdeploy/issues/750) | 5 | After the groups |
+| [#761](https://github.com/dmfdeploy/dmfdeploy/issues/761) | 5 | After the groups |
+| [#803](https://github.com/dmfdeploy/dmfdeploy/issues/803) | 5 | After the groups |
+| [#818](https://github.com/dmfdeploy/dmfdeploy/issues/818) | 5 | After the groups |
+| [#835](https://github.com/dmfdeploy/dmfdeploy/issues/835) | 5 | After the groups |
+
+[#8](https://github.com/dmfdeploy/dmfdeploy/issues/8), [#9](https://github.com/dmfdeploy/dmfdeploy/issues/9) and [#28](https://github.com/dmfdeploy/dmfdeploy/issues/28) stay open on purpose with no planned work: #8 is a
+frozen non-goal with a documented re-open trigger, #9 is an open question about
+the EBU taxonomy, and #28 waits on the decision in #29.
+
 ## Status
 
 | Part | Status | Links |
@@ -245,12 +317,13 @@ image too.
 | Track 1: #831 | done | The disarm and direct-merge probes passed on [dmf-cms#220](https://github.com/dmfdeploy/dmf-cms/pull/220), and the key rotation dates are in #618. The operator skipped the sweep-disarm probe. [#915](https://github.com/dmfdeploy/dmfdeploy/pull/915) archived the release gate plan and #831 closed on 2026-11-14. |
 | Track 2: #864 | in progress | Plan reconciled in [#908](https://github.com/dmfdeploy/dmfdeploy/pull/908). ADR-0029 amendment v2 on Discussion #865; ADR-0051 RFC on Discussion #907. |
 | Track 3: #911 | done | [dmf-infra#148](https://github.com/dmfdeploy/dmf-infra/pull/148) and [dmf-env#41](https://github.com/dmfdeploy/dmf-env/pull/41) merged on 2026-11-14. |
-| Track 3: #912 | in progress | Merged: [dmf-cms#220](https://github.com/dmfdeploy/dmf-cms/pull/220) on 2026-11-14; [dmf-init#53](https://github.com/dmfdeploy/dmf-init/pull/53), [dmf-media#51](https://github.com/dmfdeploy/dmf-media/pull/51) and [dmf-runbooks#62](https://github.com/dmfdeploy/dmf-runbooks/pull/62) on 2026-11-15. |
+| Track 3: #912 | in progress | Merged: [dmf-cms#220](https://github.com/dmfdeploy/dmf-cms/pull/220) on 2026-11-14; [dmf-init#53](https://github.com/dmfdeploy/dmf-init/pull/53), [dmf-media#51](https://github.com/dmfdeploy/dmf-media/pull/51), [dmf-runbooks#62](https://github.com/dmfdeploy/dmf-runbooks/pull/62) and [dmf-promsd#21](https://github.com/dmfdeploy/dmf-promsd/pull/21) on 2026-11-15. |
 | Security and supply chain | not started | |
 | Structure | not started | |
 | Accessibility and UI substrate | not started | |
 | Broken paths | not started | |
 | Console defects | not started | |
+| Carried issues, after the groups | not started | |
 
 Allowed values: not started, in progress, done.
 
@@ -267,6 +340,9 @@ as #6 or #341, does not hold the plan open.
 - [ ] Track 3 is done by its second walkthrough.
 - [ ] Each later group is done, or closed with a recorded reason, in the
       status table.
+- [ ] Each carried issue that runs after the groups is closed, or the
+      completing PR names its next place: a successor plan, parked with a
+      trigger, or kept open with a reason.
 - [ ] The completing PR sets `status: executed` with an `executed:` date, moves
       the plan to `docs/archive/plans/`, fixes the links to it, regenerates the
       plans index, and closes #913 with `Closes dmfdeploy/dmfdeploy#913`.
