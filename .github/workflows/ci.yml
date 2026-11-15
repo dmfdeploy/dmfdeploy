@@ -19,126 +19,11 @@ jobs:
           persist-credentials: false
       - name: Install shellcheck
         run: sudo apt-get update && sudo apt-get install -y shellcheck
-      - name: shellcheck bin/
-        run: |
-          set -eu
-          shopt -s nullglob
-          scripts=(bin/*.sh bin/lib/*.sh tests/*.sh)
-          if [ ${#scripts[@]} -eq 0 ]; then
-            echo "SKIP: no scripts found in bin/"
-            exit 0
-          fi
-          # Gate on warnings+errors; style/info findings stay advisory
-          # (legacy-script style burndown is follow-up work, not a gate).
-          shellcheck --severity=warning "${scripts[@]}"
-      - name: close-completed-issues candidate-filter self-test
-        # Pure-local unit tests (no network/token) guarding the candidate
-        # filter against false-close regressions (refs #47).
-        run: bash bin/close-completed-issues.sh --self-test
-      - name: negated closing-keyword matcher self-test (#548)
-        # Fixtures for the matcher shared by the issue-link gate and
-        # the reconciler: the #531 wording, qualified refs, code exemptions.
-        run: python3 bin/lib/closing_refs.py --self-test
-      - name: issue-link trusted rerun selector regressions (#758)
-        # Exact API fixtures; every candidate write is captured by an in-memory
-        # fake, so the test cannot contact GitHub or consume a token.
-        run: python3 -m unittest discover -s tests -p 'test_issue_link_rerun.py' -v
-      - name: session-link gate regressions (#838)
-        # Body check against the matcher; commit check against the guard
-        # commitlint step's own script, with a stubbed gh.
-        run: |
-          python3 -m unittest discover -s tests -p 'test_session_link_gate.py' -v
-          bash tests/session-link-commitlint.sh
-      - name: DCO commit-count regression
-        # Runs the DCO step's own script against a stubbed gh: a missing
-        # sign-off, a bad commit count and the dependabot exemption.
-        run: bash tests/dco-commit-count.sh
-      - name: public-safety worktree regression (R1 §7)
-        # Proves the gates scan a git worktree instead of silently skipping it
-        # (public canary only; no operator-private include needed).
-        run: bash tests/worktree-regression.sh
-      - name: pre-commit gate scoping regression (R7)
-        # Rename sources fire their gates (--no-renames), gate implementation
-        # scripts are part of their own triggers, hook edits re-arm all gates,
-        # and the unrelated-file fast path stays fast.
-        run: bash tests/hook-scoping.sh
-      - name: ruleset expectation is well-formed (#368)
-        # Shape check only. The live comparison runs on a schedule in
-        # governance-drift.yml and is credential-free — it reads the public
-        # ruleset endpoint unauthenticated. No PAT is required anywhere, and
-        # none may be added: an Administration-scoped token was withdrawn for
-        # being fail-open and reachable by PR-controlled code (#368).
-        run: |
-          set -eu
-          f=.github/expected-ruleset.json
-          python3 -c "
-          import json,sys
-          d=json.load(open('$f'))
-          need=['name','target','enforcement','conditions','rule_types','required_status_checks','pull_request']
-          missing=[k for k in need if k not in d]
-          if missing: sys.exit('expectation missing keys: '+', '.join(missing))
-          if not isinstance(d['required_status_checks'],list) or not d['required_status_checks']:
-              sys.exit('required_status_checks must be a non-empty list')
-          if 'bypass_actor_count' in d:
-              sys.exit('expectation carries bypass_actor_count, which the drift check does NOT read — remove it')
-          print('expectation well-formed:', len(d['required_status_checks']), 'required checks')
-          "
-      - name: ruleset drift assertion regressions (#368)
-        # Case E is the one that matters: the original design was
-        # mutation-tested across eight cases and still shipped a fail-open,
-        # because every case mutated the EXPECTATION and none degraded the API
-        # RESPONSE. Hermetic — stubs curl, no network or credential.
-        run: bash tests/ruleset-drift.sh
-      - name: automerge live-state regression (#439)
-        # automerge.yml must decide from the PR's labels and draft state at
-        # run time, not the event payload. Hermetic — fake gh on PATH.
-        run: bash tests/automerge-live-state.sh
-      - name: sync-skills stale generated view regression (#364)
-        # A generated view surviving its canonical skill is a live instruction
-        # surface (ADR-0042). Proves --check fails on a dangling view symlink,
-        # a stale --copy directory, and a de-targeted view — it previously
-        # passed all three, reporting the invariant as holding either way.
-        run: bash tests/sync-skills-prune.sh
-      - name: live environment identifier gate (#361)
-        # A shape rule cannot work here: env ids are 8 chars drawn uniformly
-        # from [a-z0-9], so they are indistinguishable by shape from ordinary
-        # tokens. The gate matches identifiers that actually exist, DERIVED from
-        # the env store at run time so it follows rotation. Hermetic fixture —
-        # never reads operator state.
-        run: bash tests/live-env-leak.sh
-      - name: GHCR publish scripts require GHCR_USER on piped stdin (#677)
-        # PATH-shimmed helm and docker, placeholder token. A piped run without
-        # GHCR_USER must fail with a message that names it, before any tool runs.
-        run: bash tests/ghcr-publish-user.sh
-      - name: hygiene checks stay in their modes (#617)
-        # Parses surface.yml, vale.yml, title-check.yml, backlog-hygiene.yml
-        # and the pre-commit hook. Fails if a check falls back to warn mode,
-        # gains continue-on-error or "|| true", or loses its fixture step.
-        # ci.yml has no path filter, so this runs on every PR.
-        run: bash tests/hygiene-modes.sh
-      - name: gitleaks rules generator — drift check + self-test (R1 §4/§9)
-        # --check: the .gitleaks.toml [[rules]] region matches the manifest.
-        # --self-test: per-engine canary MATCH tests + the useDefault coverage
-        # proof (positives caught, negatives not) — resolves the PINNED
-        # gitleaks (8.21.2 + sha256) itself, same binary guard.yml pins.
-        run: |
-          python3 bin/gen-gitleaks-rules.py --check
-          python3 bin/gen-gitleaks-rules.py --self-test
-      - name: scan library self-test (R1 §5–§6; acceptance rows 10/11 + canaries)
-        # Hermetic fixture repos: §5.4 opt-out authorization, fail-closed
-        # missing-private-manifest, seeded-sentinel LEAK_FOUND through the
-        # tree/staged/range surfaces, worktree scanning, §4.2 redaction,
-        # ephemeral merged-config cleanup. Never reads operator data.
-        run: bin/dmf-scan self-test
-      - name: acceptance matrix — public rows through the real callers (R1 §8)
-        # Seeded DMF-CANARY sentinel + synthetic private fixture exercised
-        # through the ACTUAL caller wiring: pre-commit/pre-push hooks, scrub,
-        # export-scan (fixture umbrella), the dmf-env gate, plus fail-closed
-        # row 10 and the §5.4 opt-out spoof row 11. The §9.1 parity gate that
-        # previously ran here completed its precondition role at the caller
-        # switchover (evidence on the tracking issue); the private rows run
-        # operator-locally via tests/acceptance-matrix.sh --private.
-        run: bash tests/acceptance-matrix.sh
+      - name: Run the shellcheck step
+        # ShellCheck, then the self-tests and regression tests of the other
+        # gates. The steps live in bin/check.sh, so contributors run the same
+        # command (see CONTRIBUTING.md, "Develop and test").
+        run: bin/check.sh shellcheck
   review-comments:
     # Comments state why, not which review prompted them
     # (dmfdeploy/dmfdeploy#768). Allowlist: .review-comment-allow.
@@ -148,10 +33,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
-      - name: No review history in comments
-        run: bin/check-review-comments.sh
-      - name: Allowlist parser self-test
-        run: bin/check-review-comments.sh --self-test
+      - name: Run the review-comments step
+        run: bin/check.sh review-comments
   check-docs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -159,12 +42,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
-      - name: Regenerate plans index
-        run: bin/generate-plans-index.sh --check
-      - name: Run doc gate
-        run: bin/check-docs.sh
-      - name: Working-model block sync
-        run: bin/check-working-model-sync.sh --umbrella-only
+      - name: Run the check-docs step
+        run: bin/check.sh check-docs
   skills-sync:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -172,5 +51,5 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
-      - name: Skills canonical-only invariant (.agents/skills/ is the only tracked copy)
-        run: bin/sync-skills.sh --check --umbrella-only
+      - name: Run the skills-sync step
+        run: bin/check.sh skills-sync

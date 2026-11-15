@@ -17,8 +17,8 @@ reference architecture.
 4. Run `git status` in each component repo you will touch, and ask before you
    modify one with uncommitted changes. Before you change one, read its own
    AGENTS.md and CLAUDE.md: they carry component-scoped rules.
-5. Run `bin/install-hooks.sh` once per clone. `STATUS_HOOK_SKIP=1` skips the
-   doc gates on commit, but never secret scanning.
+5. Install the hooks once per clone, as
+   [CONTRIBUTING.md](CONTRIBUTING.md#install-the-hooks) describes.
 
 ## Where things live
 

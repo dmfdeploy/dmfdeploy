@@ -7,11 +7,15 @@ responsibility first.
 
 ## What & why
 
-<!-- One paragraph: what this changes and the motivation. Link issues with "Closes dmfdeploy/dmfdeploy#NNN". -->
+<!-- One paragraph: what this changes and the motivation. -->
+
+Refs dmfdeploy/dmfdeploy#NNN
+
+<!-- Replace NNN with the issue number. Keep the full dmfdeploy/dmfdeploy prefix, and use "Closes" in place of "Refs" if this is the last PR for the issue. For a change with no issue, ask a maintainer for the `no-issue` label. -->
 
 ## How it's tested
 
-<!-- The commands you ran and what they showed, so a reviewer can rerun them. If no test applies, say why. -->
+<!-- The commands you ran and what they showed, so a reviewer can rerun them. Match the evidence to the change: see "Match the evidence to the change" in CONTRIBUTING.md. If no test applies, say why. -->
 
 ## Checklist
 
@@ -21,6 +25,7 @@ responsibility first.
 - [ ] Commit messages follow **Conventional Commits** (`feat:`/`fix:`/`docs:`/…).
 - [ ] `VERSION` bumped if this is a release-tagged change (ADR-0005); otherwise N/A.
 - [ ] No secrets / real IPs / DNS / operator identity anywhere in the diff or this PR.
+- [ ] The checks in [Develop and test](https://github.com/dmfdeploy/dmfdeploy/blob/main/CONTRIBUTING.md#develop-and-test) that match this change pass, or the description says why they were not run.
 - [ ] CI is green (gitleaks, scrub, lint, commitlint where applicable).
 - [ ] Docs/ADRs updated if behavior or decisions changed.
 - [ ] Docs gate: `bin/check-docs.sh` passes, and a plan doc's frontmatter is updated in this PR if the PR completes it.
