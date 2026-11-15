@@ -21,7 +21,12 @@ that it is pleasant to contribute to. The only large new function in scope is
 the sandbox single-admin passkey unlock in
 [#864](https://github.com/dmfdeploy/dmfdeploy/issues/864).
 
-This plan orders the debt under that priority. Three tracks run now, in
+This plan orders the debt under that priority. It replaces the phase order in
+the [platform debt work order](https://github.com/dmfdeploy/dmfdeploy/blob/9b64083879575638b2c23d49dd0b72c517c6ebb8/docs/plans/platform-debt-work-order.md)
+([#727](https://github.com/dmfdeploy/dmfdeploy/issues/727)), now in the
+archive. That plan's rules for telling durable debt from debt that a later
+release replaces still apply. An open `platform-debt` issue that this plan
+doesn't name waits until the groups below are done. Three tracks run now, in
 parallel. The work after them follows exposure and dependency, across
 repositories. A prerequisite that #864 needs runs when #864 needs it, whatever
 group it sits in below.
@@ -60,10 +65,14 @@ Properties that must hold before 2026-12-02:
 - Policy insights show no would-be block since the policies took effect, and
   no ineffective organization-level policy remains.
 - The dmf-cms release rollout checks are recorded: a `hold` label clears
-  auto-merge on an armed pull request, and the scheduled sweep clears it when
-  `hold` is already present
-  ([#831](https://github.com/dmfdeploy/dmfdeploy/issues/831)). That probe needs
-  a pull request that is armed but not yet merged, so its design comes first.
+  auto-merge on an armed pull request, and the scheduled sweep merges an
+  approved, unarmed pull request directly
+  ([#831](https://github.com/dmfdeploy/dmfdeploy/issues/831)). On 2026-11-14
+  the operator waived the probe that the sweep also clears auto-merge on a
+  pull request that is already held. That state only arises when someone arms
+  a held pull request by hand, and the `automerge` workflow refuses to arm
+  one. The waiver is
+  [recorded on #831](https://github.com/dmfdeploy/dmfdeploy/issues/831#issuecomment-6884081365).
 
 ## Track 2, reconcile #864 before sizing it
 
@@ -234,7 +243,7 @@ image too.
 | Track 1: #831 | done | The disarm and direct-merge probes passed on [dmf-cms#220](https://github.com/dmfdeploy/dmf-cms/pull/220), and the key rotation dates are in #618. The operator skipped the sweep-disarm probe. [#915](https://github.com/dmfdeploy/dmfdeploy/pull/915) archived the release gate plan and #831 closed on 2026-11-14. |
 | Track 2: #864 | in progress | Plan reconciled in [#908](https://github.com/dmfdeploy/dmfdeploy/pull/908). ADR-0029 amendment v2 on Discussion #865; ADR-0051 RFC on Discussion #907. |
 | Track 3: #911 | done | [dmf-infra#148](https://github.com/dmfdeploy/dmf-infra/pull/148) and [dmf-env#41](https://github.com/dmfdeploy/dmf-env/pull/41) merged on 2026-11-14. |
-| Track 3: #912 | in progress | dmf-cms done in [dmf-cms#220](https://github.com/dmfdeploy/dmf-cms/pull/220), merged on 2026-11-14. The other repositories follow its layout. |
+| Track 3: #912 | in progress | Merged: [dmf-cms#220](https://github.com/dmfdeploy/dmf-cms/pull/220) on 2026-11-14; [dmf-init#53](https://github.com/dmfdeploy/dmf-init/pull/53), [dmf-media#51](https://github.com/dmfdeploy/dmf-media/pull/51) and [dmf-runbooks#62](https://github.com/dmfdeploy/dmf-runbooks/pull/62) on 2026-11-15. The other repositories follow the dmf-cms layout. |
 | Security and supply chain | not started | |
 | Structure | not started | |
 | Accessibility and UI substrate | not started | |
