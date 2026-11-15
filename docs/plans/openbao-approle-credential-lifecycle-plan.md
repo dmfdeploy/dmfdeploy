@@ -38,7 +38,8 @@ SecretID is not an immediate recovery. Rotation must therefore happen before
 expiry; alerts provide the backstop.
 
 This plan implements the first two rows of Phase 1 in
-[the platform-debt work order](platform-debt-work-order.md), in that order.
+[the platform-debt work order](https://github.com/dmfdeploy/dmfdeploy/blob/9b64083879575638b2c23d49dd0b72c517c6ebb8/docs/plans/platform-debt-work-order.md),
+in that order.
 It does not begin the later Phase-1 issues.
 
 ## Binding constraints

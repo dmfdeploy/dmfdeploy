@@ -1,10 +1,13 @@
 ---
-status: active
+status: superseded
 date: 2026-10-25
+superseded_by: "dmf-maintainable-codebase-plan.md"
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/727
 ---
 
 # Platform debt work order
+
+> **Superseded on 2026-11-15.** The [maintainable codebase plan](../../plans/dmf-maintainable-codebase-plan.md) now orders the debt, so don't work the phases below in order. The rules under "How debt is separated" still apply, and the tables stay for the record.
 
 ## Goal
 
@@ -54,8 +57,8 @@ Secrets that expire or leak, and gates that pass when they shouldn't. Each one m
 |---|---|---|---|
 | [#11](https://github.com/dmfdeploy/dmfdeploy/issues/11) | OpenBao credential hygiene: AppRole secret_id TTL rotation + root-token disposal | M | AppRole secret_id rotation and disposal of bootstrap root-token artifacts; sequence with #396 (pre-expiry alerting). |
 | [#396](https://github.com/dmfdeploy/dmfdeploy/issues/396) | Alert before AppRole SecretID expiry; schedule pre-expiry rotation | M | Monitored SecretID lifetime signal (platform monitoring), scheduled rotation inside the TTL, coverage of every TTL'd AppRole, documented steady state. Prefer a Prometheus-side alert (dmf-promsd) so it survives the AWX/Temporal move; schedule through whichever backend runs the plays. |
-| [#866](https://github.com/dmfdeploy/dmfdeploy/issues/866) | Move ESO's main store to OpenBao Kubernetes auth | L | ESO logs in with a short-lived ServiceAccount token, so no stored ESO credential can expire while a cluster is off. Plan: [eso-kubernetes-auth-migration-plan](eso-kubernetes-auth-migration-plan.md). The rotation job from #11 and #396 keeps the AppRole renewed during the 14-day rollback window. |
-| [#864](https://github.com/dmfdeploy/dmfdeploy/issues/864) | Implement ADR-0029 Tier 2 operator unlock with a phone passkey | L | One admin unseals OpenBao after a cold boot from a phone, and no unseal material rests on the node. Plan: [operator-unlock-tier2-plan](operator-unlock-tier2-plan.md). #12 (HA raft) is this plan's WP3. |
+| [#866](https://github.com/dmfdeploy/dmfdeploy/issues/866) | Move ESO's main store to OpenBao Kubernetes auth | L | ESO logs in with a short-lived ServiceAccount token, so no stored ESO credential can expire while a cluster is off. Plan: [eso-kubernetes-auth-migration-plan](../../plans/eso-kubernetes-auth-migration-plan.md). The rotation job from #11 and #396 keeps the AppRole renewed during the 14-day rollback window. |
+| [#864](https://github.com/dmfdeploy/dmfdeploy/issues/864) | Implement ADR-0029 Tier 2 operator unlock with a phone passkey | L | One admin unseals OpenBao after a cold boot from a phone, and no unseal material rests on the node. Plan: [operator-unlock-tier2-plan](../../plans/operator-unlock-tier2-plan.md). #12 (HA raft) is this plan's WP3. |
 | [#868](https://github.com/dmfdeploy/dmfdeploy/issues/868) | Align the dmf-init Manage lane with the credential, ESO and unlock plans | M | A Manage restore or rerun never reintroduces a root token, the ESO AppRole or the automation file, and keeps working after #11, #866 and #864 land. |
 | [#717](https://github.com/dmfdeploy/dmfdeploy/issues/717) | Make the OpenBao unseal wrapper verify TLS by default **Done 2026-10-25, closed as completed.** | M | Remove the -k fallback in dmf-env/bin/unseal-openbao.sh; verify via in-pod bao or a covered address with the openbao-tls CA; fail with a clear message; keep shares on stdin only; add a failure-path test; repoint dmf-infra quick start. |
 | [#15](https://github.com/dmfdeploy/dmfdeploy/issues/15) | Bootstrap-user privilege residue: Forgejo OAuth auto-create + cross-app admin audit **Done 2026-11-06, closed as completed.** | M | Audit that no bootstrap admin access remains across apps; close local and generic OpenID account creation while retaining OAuth auto-provisioning only for Authentik users bound to `forgejo-contributor` or `ops-admin`; use UUID subjects without email linking, and migrate existing identities before the subject change |
