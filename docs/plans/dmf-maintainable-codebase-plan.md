@@ -21,15 +21,17 @@ that it is pleasant to contribute to. The only large new function in scope is
 the sandbox single-admin passkey unlock in
 [#864](https://github.com/dmfdeploy/dmfdeploy/issues/864).
 
-This plan orders the debt under that priority. It replaces the phase order in
-the [platform debt work order](https://github.com/dmfdeploy/dmfdeploy/blob/9b64083879575638b2c23d49dd0b72c517c6ebb8/docs/plans/platform-debt-work-order.md)
+This plan orders the debt under that priority. Three tracks run now, in
+parallel. The work after them follows exposure and dependency, across
+repositories. An open `platform-debt` issue that this plan doesn't name,
+including one filed later, is ranked the same way. A prerequisite that #864
+needs runs when #864 needs it, whatever group it sits in below.
+
+This plan replaces the phase order in the
+[platform debt work order](https://github.com/dmfdeploy/dmfdeploy/blob/9b64083879575638b2c23d49dd0b72c517c6ebb8/docs/plans/platform-debt-work-order.md)
 ([#727](https://github.com/dmfdeploy/dmfdeploy/issues/727)), now in the
 archive. That plan's rules for telling durable debt from debt that a later
-release replaces still apply. An open `platform-debt` issue that this plan
-doesn't name waits until the groups below are done. Three tracks run now, in
-parallel. The work after them follows exposure and dependency, across
-repositories. A prerequisite that #864 needs runs when #864 needs it, whatever
-group it sits in below.
+release replaces still apply.
 
 ## Decisions
 
@@ -243,7 +245,7 @@ image too.
 | Track 1: #831 | done | The disarm and direct-merge probes passed on [dmf-cms#220](https://github.com/dmfdeploy/dmf-cms/pull/220), and the key rotation dates are in #618. The operator skipped the sweep-disarm probe. [#915](https://github.com/dmfdeploy/dmfdeploy/pull/915) archived the release gate plan and #831 closed on 2026-11-14. |
 | Track 2: #864 | in progress | Plan reconciled in [#908](https://github.com/dmfdeploy/dmfdeploy/pull/908). ADR-0029 amendment v2 on Discussion #865; ADR-0051 RFC on Discussion #907. |
 | Track 3: #911 | done | [dmf-infra#148](https://github.com/dmfdeploy/dmf-infra/pull/148) and [dmf-env#41](https://github.com/dmfdeploy/dmf-env/pull/41) merged on 2026-11-14. |
-| Track 3: #912 | in progress | Merged: [dmf-cms#220](https://github.com/dmfdeploy/dmf-cms/pull/220) on 2026-11-14; [dmf-init#53](https://github.com/dmfdeploy/dmf-init/pull/53), [dmf-media#51](https://github.com/dmfdeploy/dmf-media/pull/51) and [dmf-runbooks#62](https://github.com/dmfdeploy/dmf-runbooks/pull/62) on 2026-11-15. The other repositories follow the dmf-cms layout. |
+| Track 3: #912 | in progress | Merged: [dmf-cms#220](https://github.com/dmfdeploy/dmf-cms/pull/220) on 2026-11-14; [dmf-init#53](https://github.com/dmfdeploy/dmf-init/pull/53), [dmf-media#51](https://github.com/dmfdeploy/dmf-media/pull/51) and [dmf-runbooks#62](https://github.com/dmfdeploy/dmf-runbooks/pull/62) on 2026-11-15. |
 | Security and supply chain | not started | |
 | Structure | not started | |
 | Accessibility and UI substrate | not started | |

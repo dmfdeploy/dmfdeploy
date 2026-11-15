@@ -37,10 +37,9 @@ once repeated failed AppRole logins trigger OpenBao lockout, minting a new
 SecretID is not an immediate recovery. Rotation must therefore happen before
 expiry; alerts provide the backstop.
 
-This plan implements the first two rows of Phase 1 in
-[the platform-debt work order](https://github.com/dmfdeploy/dmfdeploy/blob/9b64083879575638b2c23d49dd0b72c517c6ebb8/docs/plans/platform-debt-work-order.md),
-in that order.
-It does not begin the later Phase-1 issues.
+This plan covers #11 and #396 only. When they run against other debt is set
+by the [maintainable codebase plan](dmf-maintainable-codebase-plan.md), which
+ranks credential lifecycle work by real exposure and by what #864 needs.
 
 ## Binding constraints
 
