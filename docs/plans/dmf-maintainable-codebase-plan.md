@@ -155,6 +155,9 @@ One ranked list, ordered by real exposure:
   [#866](https://github.com/dmfdeploy/dmfdeploy/issues/866) (its WP3 runs
   earlier, for #864),
   [#893](https://github.com/dmfdeploy/dmfdeploy/issues/893).
+- Public-safety gate: dmf-cms's `guard` lacks the session-link check that the
+  other repositories run
+  ([#917](https://github.com/dmfdeploy/dmfdeploy/issues/917)).
 - Also: [#731](https://github.com/dmfdeploy/dmfdeploy/issues/731),
   [#234](https://github.com/dmfdeploy/dmfdeploy/issues/234),
   [#443](https://github.com/dmfdeploy/dmfdeploy/issues/443).
@@ -172,6 +175,11 @@ One ranked list, ordered by real exposure:
 - [#910](https://github.com/dmfdeploy/dmfdeploy/issues/910): the dmf-cms
   release gate fails on a digest read right after a push. Done when the gate
   retries a not-found read for a bounded time.
+- [#916](https://github.com/dmfdeploy/dmfdeploy/issues/916): two dmf-init
+  round-trip tests fail when they are enabled, one test fails instead of
+  skipping without `age` or `rclone`, and a `Dockerfile` comment contradicts
+  the `rclone` requirement. Done when the tests pass or skip as intended and
+  the requirement is stated once.
 
 ### Structure conventions and one measured restructure
 
