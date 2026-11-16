@@ -1,82 +1,77 @@
 # The DMF thesis in one page
 
-**The claim:** a software-defined media facility, as described by the
-[EBU](https://tech.ebu.ch/) *Dynamic Media Facility* Reference Architecture,
-can run on one commodity ARM64 box using only open-source infrastructure, and
-a stranger can stand it up and verify it without talking to a vendor or to me.
+**The idea:** dmfdeploy is an open-source prototype for exploring how a
+software-defined media facility can be installed, managed, and monitored. It
+brings together supporting services for identity, deployment, inventory, and
+monitoring, based on the [EBU](https://tech.ebu.ch/) *Dynamic Media Facility*
+Reference Architecture.
 
-**Where the claim stands:** the first half is demonstrated first-party, on
-the author's environments
-([Move 1 learnings](reviews/dmf-platform-move-1-learnings.md)). The
-second half, reproduction by a stranger, has not happened yet. It is the
-outcome of the current
-[`v0.1-polish` milestone](https://github.com/dmfdeploy/dmfdeploy/milestone/1):
-an outsider completes the documented journey cold. If you run the loop below,
-you are the experiment.
+**The experiment:** The initial setup runs on a single computer or virtual
+machine, so engineers can learn and experiment without first building a
+cluster. This test environment leaves the size and architecture of future
+facilities open.
+
+**What has been demonstrated:** The author has installed the platform and
+deployed an NMOS registry. An independent user has yet to reproduce the
+process using the public instructions. That is the goal of the current
+[`v0.1-polish` milestone](https://github.com/dmfdeploy/dmfdeploy/milestone/1).
+The [Move 1 learnings](reviews/dmf-platform-move-1-learnings.md) record what
+has been tested and what remains open.
 
 ## Who it's for
 
-Broadcast and media-tech engineers who need the *operational fabric* of an
-IP-media facility (identity, secrets custody, source-of-truth inventory,
-deployment, monitoring) at OB-truck or small-facility scale, and who today
-choose between a proprietary vendor stack and a months-long DIY integration
-project. Also, anyone who wants to study a complete, working EBU-DMF-aligned
-build whose every decision is on the record.
+Broadcast and media-tech engineers who want to explore how to build and operate
+an IP-media facility, including at the scale of an outside broadcast truck or a
+small facility. It is also for anyone who wants to study a working prototype
+aligned with the EBU reference architecture, with its decisions on the record.
 
-## The first pain it solves
+## The problem it addresses
 
-Deploying a media function (an NMOS registry or a Media eXchange Layer (MXL)
-fabric) is the easy 10%.
-The hard 90% is everything around it: who may operate it, where its secrets
-live, what the facility's source of truth says is running, how it gets deployed
-repeatably, and how you know it's healthy. dmfdeploy packages that 90% as a
-bootable whole. One installer container takes a **blank Debian node** to a
-running facility: k3s, Authentik (passkey-first identity), OpenBao (secrets),
-NetBox (source of truth), AWX (commissioning engine), Prometheus/Grafana
-(NetBox-driven monitoring), and an operator console. A deployable
-media-function catalog sits on top.
+Media functions perform tasks such as video mixing or format conversion. They
+can use the Media eXchange Layer (MXL) to exchange media and AMWA NMOS
+specifications for discovery and control. An NMOS registry supports discovery;
+it is infrastructure for media workflows.
 
-## What a stranger validates in under an hour
+A facility also needs a way to manage access, protect secrets, keep an inventory,
+deploy services, and monitor their health. dmfdeploy brings these supporting
+services together in a platform that can be installed from a single container.
+An operator console provides access to a catalog of deployable services and
+media functions.
 
-This loop has been run first-party. Making it runnable by a stranger from
-public artifacts is the goal of the `v0.1-polish` milestone, and that goal is
-still open.
+## What an independent user can test
 
-1. **Bootstrap:** run the [dmf-init](https://github.com/dmfdeploy/dmf-init)
-   container against a blank ARM64 Debian node (one node, ≥4 vCPU / 8 GiB:
-   a small cloud instance or a local VM); watch it converge to a full platform.
-2. **Identity:** enroll a passkey and log into the operator console. There
-   are no passwords in the steady state, by decision
+The author has run this test. The goal is for an independent user to complete
+it in under an hour using public artifacts and instructions:
+
+1. **Install:** run the [dmf-init](https://github.com/dmfdeploy/dmf-init)
+   container against a blank ARM64 Debian computer or virtual machine with at
+   least 4 virtual CPUs and 8 GiB of memory.
+2. **Sign in:** enroll a passkey and open the operator console. The steady-state
+   design uses passkeys without passwords
    ([ADR-0015](decisions/0015-dmf-console-passkey-only.md)).
-3. **Deploy:** click *Deploy* on the NMOS registry catalog entry.
-4. **Inspect the receipts:** the AWX job that ran, the NetBox lifecycle tag it
-   flipped, the Helm release it created, and the Prometheus targets that
-   appeared. NetBox generates the targets. Nothing comes from a static config.
+3. **Deploy:** choose the NMOS registry in the catalog and deploy it.
+4. **Verify:** check that the deployment completed, the inventory reflects the
+   service, and monitoring has discovered it.
 
-That loop (catalog intent → actuated deployment → source-of-truth state →
-observed health) *is* the platform. Everything else is depth.
+Together, these steps test the path from an operator's request to deployment,
+inventory, and monitoring. They do not yet demonstrate a complete production
+media facility.
 
-## What v0.1 does **not** claim
+## What the prototype does not claim
 
-The non-claims are explicit by decision (see
+The current prototype does not claim production-ready real-time media transport
+or timing, resilience across multiple machines or sites, or measured
+performance. The detailed boundaries are in
 [ADR-0031](decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md)
-and [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md)): no production ST-2110/PTP/multicast
-correctness, no real-time media-plant claims, no multi-node HA, no cross-site
-federation, no performance numbers. Single-node is the proof surface; the rest
-is named future work. None of it is a claimed capability.
+and [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md).
 
-## After v0.1
+## What comes next
 
-The [roadmap](../ROADMAP.md) names two more milestones.
-[`v0.2`](https://github.com/dmfdeploy/dmfdeploy/milestone/2) has a team share
-one console to run a multi-function workload switched by NMOS IS-05.
-[`v0.3`](https://github.com/dmfdeploy/dmfdeploy/milestone/4) has the team
-design and plan a workload and a facility in the console.
+The [roadmap](../ROADMAP.md) describes two later milestones. In
+[`v0.2`](https://github.com/dmfdeploy/dmfdeploy/milestone/2), a team uses one
+console to run a workload made up of multiple media functions. In
+[`v0.3`](https://github.com/dmfdeploy/dmfdeploy/milestone/4), the team designs
+and plans a workload and facility in the console.
 
-## Why believe it
-
-The thesis was tested as a falsifiable experiment. The
-[Move 1 learnings](reviews/dmf-platform-move-1-learnings.md) record
-six architectural assumptions and their verdicts, including the one still
-unproven. The full arc is in [JOURNEY.md](JOURNEY.md); the decisions are in the
-[ADR record](decisions/INDEX.md#start-here).
+The project's development is recorded in [JOURNEY.md](JOURNEY.md), and its
+architectural decisions are in the [ADR record](decisions/INDEX.md#start-here).
