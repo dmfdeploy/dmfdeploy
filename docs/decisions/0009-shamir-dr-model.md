@@ -3,7 +3,7 @@
 **Status:** Accepted
 **Date:** 2026-04-22 (rebuild session)
 **Deciders:** @<handle>
-**Amended by:** [ADR-0052](0052-sandbox-lane-tier3-variant.md), for the sandbox lane only (2026-11-17).
+**Amended:** 2026-11-17, for the sandbox lane only (see the amendment before Enforcement).
 
 ## Context
 
@@ -60,7 +60,7 @@ for the openbao role's auto-unseal during normal playbook runs.
 
 ### Amendment 2026-11-17 for the sandbox lane
 
-The decision numbers are in the [Tier 2 operator unseal plan](../plans/operator-unlock-tier2-plan.md). In the sandbox lane, the recovery package holds the seal key as one copy in the administrator's custody, in place of five shares at a threshold of three (decisions 14 and 15). The package also holds the recovery keys, because its jobs of approving, checking in and enrolling need them (decisions 25 and 32). [ADR-0052](0052-sandbox-lane-tier3-variant.md) specifies the package contents. One custodian rests on the accepted local-root risk of this lane. A lane with a boot-time unseal keeps this ADR unchanged.
+The decision numbers are in the [Tier 2 operator unseal plan](../plans/operator-unlock-tier2-plan.md). In the sandbox lane, the recovery package holds the seal key as one copy in the administrator's custody, in place of five shares at a threshold of three (decisions 14 and 15). The package also holds the recovery keys, because its jobs of approving, checking in and enrolling need them (decisions 25 and 32). [ADR-0052](0052-sandbox-lane-tier3-variant.md) (Proposed) lists the contents for each job of the package. One custodian rests on the accepted local-root risk of this lane. A lane with a boot-time unseal keeps this ADR unchanged.
 
 ### Enforcement
 
@@ -73,6 +73,6 @@ operator-facing interface; never improvise share handling outside it
 ## Status
 
 Accepted
-Amended 2026-11-17 for the sandbox lane: see [ADR-0052](0052-sandbox-lane-tier3-variant.md).
+Amended 2026-11-17 for the sandbox lane: see the amendment before Enforcement.
 
 Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0009-shamir-dr-model.md).

@@ -3,7 +3,7 @@
 **Status:** Proposed
 **Date:** 2026-11-17
 **Deciders:** operator
-**Amends:** [ADR-0029](0029-tiered-unseal-posture.md) and [ADR-0009](0009-shamir-dr-model.md), for the sandbox lane only.
+**Details:** the sandbox-lane amendments of [ADR-0029](0029-tiered-unseal-posture.md) and [ADR-0009](0009-shamir-dr-model.md).
 **Rule:** Declare the sandbox lane as Tier 3 and never describe it as Tier 2; keep every recovery key off the node except as a copy encrypted for one enrolled passkey; keep the seal key's backups, the recovery package and the snapshot downloads as this ADR specifies.
 
 ## Context
