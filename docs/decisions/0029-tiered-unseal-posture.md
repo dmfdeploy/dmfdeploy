@@ -56,7 +56,7 @@ Naming discipline: Tier 2 is the correct security for a single-operator threat m
 
 ### Amendments of 2026-11-17
 
-The decision numbers are in the [Tier 2 operator unseal plan](../plans/operator-unlock-tier2-plan.md). The RFC thread is [Discussion #865](https://github.com/orgs/dmfdeploy/discussions/865). The signed, boot-checked tier and the audited downgrade are unchanged.
+The decision numbers are in the [Tier 2 operator unseal plan](../plans/operator-unlock-tier2-plan.md). The RFC thread is [Discussion #865](https://github.com/orgs/dmfdeploy/discussions/865). The signed, boot-checked tier and the audited downgrade are unchanged. Like the guardrails, these amendments bind the eventual implementation. None of them is built yet, and the live posture stays as Context and Enforcement describe it.
 
 - The sandbox lane runs one OpenBao server, and the deploy shows a visible warning. Raft with three servers is the baseline for long-lived sites. A sandbox that was grown to three servers keeps them until it is rebuilt with one; there is no in-place shrink (decisions 1 and 23).
 - Tier 2 has no per-boot one-time token, and Tier 1 keeps it. Removing the token weakens the original proof of infrastructure access (decision 4).
