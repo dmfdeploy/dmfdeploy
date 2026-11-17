@@ -720,12 +720,12 @@ announcement thread that the RFC process requires.
 
 **Done when.**
 
-- [ ] The five ADR-0029 amendments and the ADR-0009 amendment are merged and
+- [x] The five ADR-0029 amendments and the ADR-0009 amendment are merged and
       accepted.
-- [ ] The recovery package specification names the contents for restore,
+- [x] The recovery package specification names the contents for restore,
       approve, check in and enrol, and the ADR-0009 amendment matches it.
-- [ ] The announcement thread is posted.
-- [ ] The Status section is updated.
+- [x] The announcement thread is posted.
+- [x] The Status section is updated.
 
 ### WP3 HA OpenBao with Raft for long-lived sites
 
@@ -1529,7 +1529,7 @@ Update this table as the work moves. Each row links the evidence.
 | WP | Status | Links |
 |---|---|---|
 | WP1 device confirmations | in progress | [Part 1 results, recorded 2026-11-12](https://github.com/dmfdeploy/dmfdeploy/issues/864#issuecomment-6825130858). The gate opened for building on 2026-11-14 (decision 29). Rollout needs the full test on the real approval page. |
-| WP2 ADR-0029 amendments | not started | |
+| WP2 ADR-0029 amendments | done | ADR-0029 and ADR-0009 amended and ADR-0052 proposed in [#930](https://github.com/dmfdeploy/dmfdeploy/pull/930), merged on 2026-11-17. Announcement: [Discussion #931](https://github.com/orgs/dmfdeploy/discussions/931). ADR-0052 stays Proposed. |
 | WP3 HA OpenBao | in progress | Raft install, guard and grow procedure merged in [dmf-infra#130](https://github.com/dmfdeploy/dmf-infra/pull/130) on 2026-11-08. Open: the single-server warning is not built, and [#12](https://github.com/dmfdeploy/dmfdeploy/issues/12) is open. |
 | WP4 seal transition and retiring the automation quorum | not started | |
 | WP5 unseal page and session | not started | |
