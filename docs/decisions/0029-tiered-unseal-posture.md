@@ -5,18 +5,21 @@
 **Deciders:** @<handle> (operator). Distilled from the 2026-05-24 design session (operator + claude-bottom); promoted from plan to ADR on 2026-05-30 at operator request to close the reserved-0029 numbering gap.
 **Reframes (does not yet supersede):** [ADR-0011](0011-auto-unseal-tradeoff.md)
 **Concretizes:** [ADR-0028](0028-identity-and-authority-chain.md) D1/C2 (OpenBao custody) per declared tier.
-**Orthogonal to:** [ADR-0009](0009-shamir-dr-model.md) (5-share Shamir remains the disaster-recovery custody layer for all tiers); [ADR-0020](0020-deployment-scope-and-regulatory-posture.md) (deployment-scope axis is independent of this security-posture axis).
+**Orthogonal to:** [ADR-0009](0009-shamir-dr-model.md) (5-share Shamir remains the disaster-recovery custody layer for all tiers, except in the sandbox lane under ADR-0052); [ADR-0020](0020-deployment-scope-and-regulatory-posture.md) (deployment-scope axis is independent of this security-posture axis).
+**Amended by:** [ADR-0052](0052-sandbox-lane-tier3-variant.md), for the sandbox lane (2026-11-17).
 **Source plan:** `docs/plans/dmf-unseal-posture-tiered-framework-plan.md` (full design rationale, threat trees, and the passkey/PRF/QR transport design).
+
+**Rule:** Declare the unseal tier at deploy time, bind it in signed git-tracked config, and refuse to run below it; lower it only through an explicit, signed, audited change.
 
 ## Context
 
 OpenBao starts **sealed** after any restart. Today's single-replica lab seals it several times a week, and the only unseal paths need the operator's workstation, encrypted volume, OS keychain and Tailscale reachability. ADR-0009 declares 3-of-5 Shamir defense, while ADR-0011 records that the routine path collapses to 1-of-1 (the automation file). This ADR names the posture explicitly and per deployment.
 
-> **Warning: this is a directional posture and an unavailable menu. Read this first.** Every tier below is defined on top of an HA-bao-plus-raft baseline, and that baseline is **not yet implemented** (deferred per the 2026-05-25 operator decision; see Scope). Until raft lands, the tiers are **not selectable**. The live cluster runs the ADR-0011 single-replica auto-unseal reality. The value of this ADR today is narrow but real: it makes ADR-0011's auto-unseal legible as an explicitly chosen, warned and audited **Tier 3** instead of a silent confidentiality weakness, and it fixes the vocabulary so future hardening has a target. Do not read the tier table as a posture you can pick right now.
+> **Warning: this is a directional posture and an unavailable menu. Read this first.** Every tier below is defined on top of an HA-bao-plus-raft baseline, and that baseline is **not yet implemented** (deferred per the 2026-05-25 operator decision; see Scope). Until raft lands, the tiers are **not selectable**. The live cluster runs the ADR-0011 single-replica auto-unseal reality. The value of this ADR today is narrow but real: it makes ADR-0011's auto-unseal legible as an explicitly chosen, warned and audited **Tier 3** instead of a silent confidentiality weakness, and it fixes the vocabulary so future hardening has a target. Do not read the tier table as a posture you can pick right now. The sandbox lane is the one exception: it runs one server and declares the Tier 3 variant of [ADR-0052](0052-sandbox-lane-tier3-variant.md), with no Raft baseline (see Amendments).
 
 ## Decision
 
-Adopt a **three-tier unseal posture**, declared at deploy time, as the framework the platform's unseal story is organised around. **HA bao + raft is the universal baseline** for all tiers (it eliminates routine pod-restart pain independent of cold-boot posture). A cluster-resident **unseal kiosk** (a Traefik-served app with no bao dependency of its own, so it is reachable precisely when bao is sealed) provides the cold-boot human interaction for Tiers 1-2.
+Adopt a **three-tier unseal posture**, declared at deploy time, as the framework the platform's unseal story is organized around. **HA bao + raft is the universal baseline** for all tiers, except in the sandbox lane, which runs one server (see Amendments) (it eliminates routine pod-restart pain independent of cold-boot posture). A cluster-resident **unseal kiosk** (a Traefik-served app with no bao dependency of its own, so it is reachable precisely when bao is sealed) provides the cold-boot human interaction for Tiers 1-2.
 
 | Tier | Name | Cold-boot effort | Threat boundary | Suitable for |
 |---|---|---|---|---|
@@ -26,7 +29,7 @@ Adopt a **three-tier unseal posture**, declared at deploy time, as the framework
 
 Naming discipline: Tier 2 is the correct security for a single-operator threat model, so it is never described as "reduced security." That framing pushes operators to over-declare Tier 1 and then silently bypass it, which produces the worst outcome (declared posture differs from actual posture).
 
-**Tier 3 reframes ADR-0011.** The existing single-replica auto-unseal file *is* Tier 3 (sub-variant 3b, cluster-resident wrapped blob); cloud-KMS auto-unseal (`awskms`/`gcpkms`, the ADR-0031 release-profile path) is sub-variant 3a, the most defensible form. Tier 3 has **no human actor**, so audit entries carry `actor: system: cluster-bootstrap` per ADR-0028 C5, named explicitly rather than omitted.
+**Tier 3 reframes ADR-0011.** The existing single-replica auto-unseal file *is* Tier 3 (sub-variant 3b, cluster-resident wrapped blob); cloud-KMS auto-unseal (`awskms`/`gcpkms`, the ADR-0031 release-profile path) is sub-variant 3a, the most defensible form. Tier 3 has **no human actor**, so audit entries carry `actor: system: cluster-bootstrap` per ADR-0028 C5, named explicitly rather than omitted. In the sandbox-lane variant of ADR-0052, the unseal stays a system action, and each approval of a root token or a restore carries the enrolled administrator as actor.
 
 **Mandatory guardrails (all tiers), recorded as invariants for the eventual implementation:**
 
@@ -49,7 +52,17 @@ Naming discipline: Tier 2 is the correct security for a single-operator threat m
 ## Consequences
 
 - **Negative / honest:** because the raft baseline is unbuilt, this ADR is a *direction* and is not an operable control. If raft never lands, Tier 1/2 remain paper tiers and the live posture stays Tier 3 (ADR-0011). The warning in Context exists to keep readers from over-reading the table.
-- **Neutral:** ADR-0009's 5-share DR path is untouched and remains the disaster custody layer for every tier.
+- **Neutral:** ADR-0009's 5-share DR path is untouched and remains the disaster custody layer for every tier, except in the sandbox lane, where ADR-0052 amends it.
+
+### Amendments of 2026-11-17
+
+The decision numbers are in the [Tier 2 operator unseal plan](../plans/operator-unlock-tier2-plan.md). The RFC thread is [Discussion #865](https://github.com/orgs/dmfdeploy/discussions/865). The signed, boot-checked tier and the audited downgrade are unchanged.
+
+- The sandbox lane runs one OpenBao server, and the deploy shows a visible warning. Raft with three servers is the baseline for long-lived sites (decisions 1 and 23).
+- Tier 2 has no per-boot one-time token, and Tier 1 keeps it. Removing the token weakens the original proof of infrastructure access (decision 4).
+- The Tier 2 row accepts user verification by any method the platform offers, including a device PIN (decision 8).
+- The sandbox lane keeps its chained, numbered audit record on the server and waives write-once delivery, so losing the server loses the trail. A full spool never blocks the automatic unseal, and a lost record is accepted. No root token is created unless its audit record is written. Other lanes keep the write-once target of the audit guardrail (decisions 5 and 28).
+- [ADR-0052](0052-sandbox-lane-tier3-variant.md) holds the named sandbox-lane variant of Tier 3, with its recovery package and its snapshot downloads (decisions 12, 13 and 21).
 
 ### Enforcement
 
@@ -58,5 +71,6 @@ Discipline only: the implementation that would enforce tiers mechanically is def
 ## Status
 
 Accepted (framework/posture only: implementation deferred)
+Amended 2026-11-17 for the sandbox lane: see Amendments and [ADR-0052](0052-sandbox-lane-tier3-variant.md).
 
 Alternatives, deliberation and implementation detail for this decision are in the [archive record](../archive/decisions/0029-tiered-unseal-posture.md).
