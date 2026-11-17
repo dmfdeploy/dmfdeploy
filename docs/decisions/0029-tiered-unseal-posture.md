@@ -19,23 +19,23 @@ OpenBao starts **sealed** after any restart. Today's single-replica lab seals it
 
 ## Decision
 
-Adopt a **three-tier unseal posture**, declared at deploy time, as the framework the platform's unseal story is organized around. **HA bao + raft is the universal baseline** for all tiers, except in the sandbox lane, which runs one server (see Amendments) (it eliminates routine pod-restart pain independent of cold-boot posture). A cluster-resident **unseal kiosk** (a Traefik-served app with no bao dependency of its own, so it is reachable precisely when bao is sealed) provides the cold-boot human interaction for Tiers 1-2.
+Adopt a **three-tier unseal posture**, declared at deploy time, as the framework the platform's unseal story is organized around. **HA bao + raft is the universal baseline** for all tiers (it eliminates routine pod-restart pain independent of cold-boot posture), except in the sandbox lane, which runs one server (see Amendments). A cluster-resident **unseal kiosk** (a Traefik-served app with no bao dependency of its own, so it is reachable precisely when bao is sealed) provides the cold-boot human interaction for Tiers 1-2.
 
 | Tier | Name | Cold-boot effort | Threat boundary | Suitable for |
 |---|---|---|---|---|
 | 1 | **Quorum unseal** | ≥3 humans × ≥3 attested devices × ≥3 biometric events | Multi-device + multi-human | Multi-operator / regulated facilities |
-| 2 | **Operator unseal** *(recommended default)* | 1 phone × 1 biometric (+ optional passphrase) | Operator + their device | Single-operator deployments, labs, single-admin facilities |
+| 2 | **Operator unseal** *(recommended default)* | 1 enrolled device × 1 user verification by any method the platform offers, such as a biometric or a device PIN (+ optional passphrase) | Operator + their device | Single-operator deployments, labs, single-admin facilities |
 | 3 | **Self-recovering** | None: cluster auto-unseals on boot | Cluster admin = bao admin | Temporary / demo / disposable; uptime > confidentiality |
 
 Naming discipline: Tier 2 is the correct security for a single-operator threat model, so it is never described as "reduced security." That framing pushes operators to over-declare Tier 1 and then silently bypass it, which produces the worst outcome (declared posture differs from actual posture).
 
 **Tier 3 reframes ADR-0011.** The existing single-replica auto-unseal file *is* Tier 3 (sub-variant 3b, cluster-resident wrapped blob); cloud-KMS auto-unseal (`awskms`/`gcpkms`, the ADR-0031 release-profile path) is sub-variant 3a, the most defensible form. Tier 3 has **no human actor**, so audit entries carry `actor: system: cluster-bootstrap` per ADR-0028 C5, named explicitly rather than omitted. In the sandbox-lane variant of ADR-0052, the unseal stays a system action, and each approval of a root token or a restore carries the enrolled administrator as actor.
 
-**Mandatory guardrails (all tiers), recorded as invariants for the eventual implementation:**
+**Mandatory guardrails (all tiers, except where a bullet names its scope), recorded as invariants for the eventual implementation:**
 
-- **Per-cold-boot one-time token** printed to node console / SSH MOTD, required by the kiosk form. This holds the unseal surface to operators with legitimate infra access at boot.
+- **Per-cold-boot one-time token** for Tier 1, printed to node console / SSH MOTD, required by the kiosk form. This holds the unseal surface to operators with legitimate infra access at boot. Tier 2 has no such token (see Amendments).
 - **Tier-downgrade protection** (the load-bearing guardrail): the declared tier is bound at deploy time in git-tracked config and **cryptographically checked at boot**; the unsealer refuses to operate *below* the declared tier. A downgrade requires an explicit, signed, audited config change. Dropping a file in a directory never suffices. The tier is visible in `kubectl` and the dmf-cms console.
-- **Hard rate-limiting + audit-per-submission** on the kiosk (actor / role / request_id / reason to a WORM target, per ADR-0028 C5).
+- **Hard rate-limiting + audit-per-submission** on the kiosk (actor / role / request_id / reason to a WORM target, per ADR-0028 C5). In the sandbox lane, the record stays on the server and write-once delivery is waived (see Amendments).
 - **No useless factor-stacking:** TOTP-on-top of a passkey flow is rejected (NIST `SP 800-63B`: weaker-over-stronger does not compose). Tier 1 *is* the quorum control; Tier 2 + per-device passphrase *is* the multi-factor control.
 
 ### Scope (what this ADR does and does not promote)
@@ -66,7 +66,7 @@ The decision numbers are in the [Tier 2 operator unseal plan](../plans/operator-
 
 ### Enforcement
 
-Discipline only: the implementation that would enforce tiers mechanically is deferred, and no check enforces the declared tier or the tier-downgrade guardrail. The sandbox profile does select Tier-3 self-recovering behaviour (`dmf-env/bin/init-wizard.sh` sets `openbao_breakglass_distribution_enabled: false` and one Shamir share, overriding the default in `dmf-infra/k3s-lab-bootstrap/roles/stack/operator/openbao/defaults/main.yml`), but nothing checks that choice against a declared tier. When the HA/raft baseline and kiosk are built, the boot-time signed-tier check (tier-downgrade protection) becomes the enforcement mechanism, and ADR-0011's automation file is either deleted (Tiers 1-2) or relabelled as the declared Tier 3 mechanism. Re-open trigger: the deferred-implementation review pass, or any of ADR-0011's revisit triggers firing.
+Discipline only: the implementation that would enforce tiers mechanically is deferred, and no check enforces the declared tier or the tier-downgrade guardrail. The sandbox profile does select Tier-3 self-recovering behaviour (`dmf-env/bin/init-wizard.sh` sets `openbao_breakglass_distribution_enabled: false` and one Shamir share, overriding the default in `dmf-infra/k3s-lab-bootstrap/roles/stack/operator/openbao/defaults/main.yml`), but nothing checks that choice against a declared tier. When the HA/raft baseline and kiosk are built, the boot-time signed-tier check (tier-downgrade protection) becomes the enforcement mechanism, and ADR-0011's automation file is either deleted (Tiers 1-2) or relabelled as the declared Tier 3 mechanism. In the sandbox lane, the Static Key seal of ADR-0052 replaces it. Re-open trigger: the deferred-implementation review pass, or any of ADR-0011's revisit triggers firing.
 
 ## Status
 
