@@ -60,7 +60,7 @@ for the openbao role's auto-unseal during normal playbook runs.
 
 ### Amendment 2026-11-17 for the sandbox lane
 
-The decision numbers are in the [Tier 2 operator unseal plan](../plans/operator-unlock-tier2-plan.md). In the sandbox lane, the recovery package holds the seal key as one copy in the administrator's custody, in place of five shares at a threshold of three (decisions 14 and 15). The package also holds the recovery keys, because its jobs of approving, checking in and enrolling need them (decisions 25 and 32). [ADR-0052](0052-sandbox-lane-tier3-variant.md) (Proposed) lists the contents for each job of the package. One custodian rests on the accepted local-root risk of this lane. A lane with a boot-time unseal keeps this ADR unchanged.
+The decision numbers are in the [Tier 2 operator unseal plan](../plans/operator-unlock-tier2-plan.md). Today the sandbox lane keeps its current arrangement: the sandbox profile sets one Shamir share at a threshold of one, held in the local break-glass file and not distributed (`dmf-env/bin/init-wizard.sh`). This stays until the lane's seal transition is built and rehearsed. From then on, the recovery package holds the seal key as one copy in the administrator's custody, in place of five shares at a threshold of three (decisions 14 and 15). The package also holds the recovery keys, because its jobs of approving, checking in and enrolling need them (decisions 25 and 32). [ADR-0052](0052-sandbox-lane-tier3-variant.md) (Proposed) lists the contents for each job of the package. One custodian rests on the accepted local-root risk of this lane. A lane with a boot-time unseal keeps this ADR unchanged.
 
 ### Enforcement
 
