@@ -525,7 +525,7 @@ off until the slices it depends on are in.
 |---|---|---|---|
 | A. Audit record | Audit module done: dmfdeploy/dmf-init#55, merged 2026-11-18. In dmf-init: a stdlib-only audit module with a chained, numbered, append-only record, on a node volume that only the executor writes to. Retention is 13 months or 64 MiB, whichever comes first: it trims whole segments and keeps the hash of the last trimmed entry. Tamper and gap detection. A gate refuses a root token when its record can't be written, and a full record never blocks an unseal. Intent entries for the revoker. The installer's first entry records its initial root token (decision 69). The failed-attempt counter lives on the public tier's own small volume. The slim second build target of decision 73 moves to slice D, where the approval service first needs an image. | The retention (13 months, 64 MiB) and the overflow behavior are recorded and tested, including a full record that doesn't block an unseal and a flood of failed attempts that doesn't trim authenticated entries. | None |
 | C. Modes, name, and CA | Done: dmfdeploy/dmf-env#43, dmfdeploy/dmf-init#56, dmfdeploy/dmf-infra#155 and #156, dmfdeploy/dmf-cms#221, merged 2026-11-18. Four parts in five pull requests (C3 has two) in order, listed below the table. In both modes the install gets one CA, made on the workstation and shared by the console and the page. The CA lasts 730 days (two years). The page detects the Chromium certificate error and shows the guided CA install with a QR code. The cluster's own self-signed CA is replaced for new installs only. | A fresh install in each mode serves a valid certificate under the right name; in LAN mode the fingerprint matches in both places and one CA install covers the console and the page. | The address-change device test (decision 61) |
-| B. Executor identity and catalogue | In dmf-infra, in the seven steps B0 to B6 listed below the table: the executor's identity with no workload, the catalogue and its pinned policies, the standing revoker, the identity verifier, the install path, and a dry run against the fake OpenBao. The ADR-0051 amendment is accepted on #907, and the ADR text is in dmfdeploy/dmfdeploy#944. | The executor alone can't finish a root token request; drift is refused before the mint; recovery works after a crash at each step; the scan revokes an unrecorded root token, doesn't race an in-flight mint, and a token left by a crash lives 6 minutes at most. | None. It no longer waits for the amendment |
+| B. Executor identity and catalogue | Seven steps, B0 to B6, listed below the table. They take eight pull requests, because B5 has one in dmf-infra and one in dmf-env. The steps build the executor's identity with no workload, the catalogue and its pinned policies, the standing revoker, the identity verifier, the install path, and a dry run against the fake OpenBao. The ADR-0051 amendment is accepted on #907, and the ADR text is in dmfdeploy/dmfdeploy#944. | The executor alone can't finish a root token request. After the install, no path to a root token outside the executor remains in dmf-infra or dmf-env. Drift is refused before the mint; recovery works after a crash at each step; the scan revokes an unrecorded root token, doesn't race an in-flight mint, and a token left by a crash lives 6 minutes at most. | None. It no longer waits for the amendment |
 | D. Page, session, and enrollment | In dmf-init: the public tier, and the slim second build target of decision 73 that the approval service runs from. Sessions are single use and bound to one catalogue entry and its parameters. WebAuthn uses user verification and the relying party ID. The page shows the short code and the catalogue text. Enrollment and removal need an enrolled passkey. The encrypted copy is released only after a verified assertion (decision 42). Rate limits, and a 404 when nothing is pending. It starts with a fixture credential and a fixture copy, so it doesn't wait for WP6. The real encrypted copy then follows the WP6 sandbox design in the operator unseal plan: a key pair from the PRF output, and the enrolled device makes the new copy. | WP5's negative tests; the rate-limit and 404 tests; an enrollment that another LAN device can't take over; a console session that can't add or remove a passkey; a compromised-console test in which the page shows the real operation. | A, B (the catalogue), C. The real encrypted copy depends on the WP6 key-pair device test (decision 37) |
 | E. Executor run | In dmf-init: the executor tier, with login, the per-session key, generate-root with the recovery keys, the recorded accessor, the drift checks, the scoped mint, the revokes, and the audit lines. | WP5's sandbox-lane run and its injected-failure tests; the public tier's server side never holds the recovery keys in clear; the page refuses an executor key that isn't signed by the executor. | A, B, D |
 
@@ -542,7 +542,8 @@ Slice C is four parts, C0 to C3, in five pull requests (C3 has one in dmf-cms an
    names and renew them, and announce the page's `.local` name.
 4. **C3, dmf-cms:** the fingerprint and the warnings in the console.
 
-Slice B is seven steps, all in dmf-infra. Start with step B0. Steps B1 and B2
+Slice B is seven steps in eight pull requests. Every step is in dmf-infra, and
+B5 also has one in dmf-env. Start with step B0. Steps B1 and B2
 can run in parallel. Steps B3 to B6 follow in order.
 
 0. **B0, test fake:** extend the OpenBao fake with a token store (policies,
@@ -572,9 +573,11 @@ can run in parallel. Steps B3 to B6 follow in order.
 5. **B5, install path and caller retirement:** the installer does every root
    step with its initial token and revokes it at the end (decision 90). It never
    attaches `generate-root` to `ops-admin` (decision 91). The 2.6 preflight
-   checks the executor role. The dmf-env temporary root helper, the 120
-   rotation's `ops-admin` path, and the README procedure retire outright
-   (decision 93).
+   checks the executor role. The 120 rotation's `ops-admin` path and the
+   README procedure retire outright (decision 93). In dmf-env, a second pull
+   request retires the temporary root helper and moves its callers in the
+   secret bootstrap to the installer's initial token (decisions 90 and 93).
+   Slice B isn't done until both pull requests are in.
 6. **B6, dry run:** end to end against the fake, including a crash after the
    intent, after the mint, and before the write.
 
