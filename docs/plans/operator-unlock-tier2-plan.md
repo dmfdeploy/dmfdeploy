@@ -1653,9 +1653,12 @@ These items are open after 2026-11-14. Each needs a decision or a design step
 before the package that depends on it is built.
 
 - The design checks of decision 37. The device confirms that the challenge it
-  signs carries the digest of the key it derived itself. The recipient list is
-  versioned and tied to the enrolled credentials, so that a removed passkey or
-  an older list is refused. The design names the PRF salt and its version, the
+  signs carries the digest of the key it derived itself. Each copy is bound to
+  its credential ID, and the server releases a copy only for a credential that
+  is currently registered, so a removed passkey's copy is never released. The
+  registry of enrolled credentials carries a version, and the server refuses
+  to store a new copy made against an older registry version; retained copies
+  stay valid (the sandbox lane design under WP6). The design names the PRF salt and its version, the
   key derivation labels, the cipher suite and the associated data, and tests
   each. At a server-side rotation the server sees the new recovery keys anyway,
   because OpenBao returns them there, so the binding matters most when a device
