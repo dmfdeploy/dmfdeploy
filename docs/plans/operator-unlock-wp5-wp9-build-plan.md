@@ -41,7 +41,7 @@ report, a research report on private networks, a device test, and two reviews.
       package restores only and doesn't enroll a passkey (decision 79). dmf-init,
       the console and the sandbox documentation say this plainly, at install
       and before any change of hosting.
-51. **A name-constrained private CA, shared by the console and the page**
+51. **A name-constrained private CA that the console and the page share**
     (amended by decisions 58 and 76). dmf-init creates the CA on the
     administrator's workstation at install. The CA may sign only the install's
     own names. The sandbox lane has one CA, which the console and the page
@@ -197,7 +197,7 @@ has the full text and the test results. Numbering continues from decision 73.
     any browser that refuses). The documentation leads with the tap-through
     path. When the page gets the error "WebAuthn is not supported on sites
     with TLS certificate errors", it switches to guided CA install steps with a
-    QR code. This amends decisions 50, 51, 58 and 60.
+    QR code. This amends decisions 50, 51, 58, and 60.
 77. **Project-run sandbox names stay deferred.** The refined design, and the
     gates that must pass before anyone builds it, go into ADR-0040 through an
     RFC.
@@ -228,6 +228,18 @@ the WP6 text in the operator unseal plan as it stands.
     amends decision 17 for the sandbox lane.
 
 The design details are in the WP6 section of the operator unseal plan.
+
+## Decisions of 2026-11-18, fourth set
+
+Numbering continues from decision 81. The
+[decision record](https://github.com/dmfdeploy/dmfdeploy/issues/864#issuecomment-6980461877)
+has the full text.
+
+82. **In LAN mode, only the approval page moves to `.local`.** The page is
+    served at `dmf-<install-id>.local`. The console and the other apps keep
+    the install's base domain. The install's local CA is constrained to that
+    base domain and the page's name. Moving every app to `.local` stays out of
+    slice C, because every route and OIDC redirect would change shape.
 
 ## How an administrator approves an operation
 
@@ -341,11 +353,11 @@ paths (decision 76):
 
 - **Tap through, for browsers built on WebKit.** The administrator taps through
   the certificate warning, and the browser then accepts passkeys on the page.
-  On iPadOS, after "visit this website", go back and reload the page. The
+  On iPadOS, the page loads only when you go back and reload it after tapping the "visit this website" link. The
   warning returns after a browser restart, so it is routine.
 - **Install the CA, for browsers built on Chromium.** These browsers refuse
   passkeys on a page with a certificate error. When the page gets the error
-  "WebAuthn is not supported on sites with TLS certificate errors", it offers
+  `WebAuthn is not supported on sites with TLS certificate errors`, it offers
   the guided CA install.
 
 After a tap-through, the browser no longer refuses a spoofed `.local` page, so
@@ -388,7 +400,7 @@ the sandbox is an unsafe, ephemeral learning environment (decision 75).
 | Passkey sync-account takeover | A second passkey in another sync account, which the sandbox recommends but doesn't require (decisions 40 and 80); LAN mode is private | Yes. With one passkey, a takeover of its sync account gives the attacker an approver. In public mode the page is reachable, so this is the largest residual risk there |
 | Stolen phone with a known passcode | Device user verification | Yes, as decision 8 accepts |
 | Loss of the IP or of the wildcard DNS service (public mode) | None beyond the requirement | Yes, "lose the IP, lose the sandbox" |
-| Someone who controls the IP or the wildcard DNS answer (public mode) | None for tap-through devices, which accept any certificate; the CA pins nothing against them | Yes, under decisions 75 and 76 |
+| Someone who controls the IP or the wildcard DNS answer (public mode) | None for tap-through devices, which accept any certificate; the CA pins nothing against them | Yes (decisions 75 and 76) |
 
 ## Device test, 2026-11-17
 
@@ -414,7 +426,7 @@ intended reason only.
 | iPadOS, Chrome | Works after a tap-through. It runs on WebKit there. |
 | macOS, Safari | Works after a tap-through. |
 | macOS, Chrome | Refuses: "WebAuthn is not supported on sites with TLS certificate errors." |
-| Android, Chrome and Samsung browser | Refuse with the same error. `.local` names resolve. |
+| Chrome and the Samsung browser on Android | Refuse with the same error. `.local` names resolve. |
 | Android, Chrome, CA installed | No warning, and the passkey prompt appears. The enrollment wasn't completed, because the device was borrowed. |
 
 **Before the sandbox rollout**, these need a result:
@@ -443,19 +455,108 @@ off until the slices it depends on are in.
 
 | Slice | What it delivers | Done when | Depends on |
 |---|---|---|---|
-| A. Audit record | In dmf-init: a stdlib-only audit module with a chained, numbered, append-only record, on a node volume that only the executor writes to. Retention is 13 months or 64 MiB, whichever comes first: it trims whole segments and keeps the hash of the last trimmed entry. Tamper and gap detection. A gate refuses a root token when its record can't be written, and a full record never blocks an unseal. Intent entries for the revoker. The installer's first entry records its initial root token (decision 69). The failed-attempt counter lives on the public tier's own small volume. The slim second build target (decisions 68 to 73). | The retention (13 months, 64 MiB) and the overflow behavior are recorded and tested, including a full record that doesn't block an unseal and a flood of failed attempts that doesn't trim authenticated entries. | None |
-| C. Modes, name, and CA | dmf-init asks for the mode. In both modes it creates one CA per install on the workstation, shared by the console and the page, puts the key on the node and in the package, and serves the CA download. The certificate manager renews both certificates. The page detects the Chromium certificate error and shows the guided CA install with a QR code. dmf-infra announces the `.local` name in LAN mode. The console shows the fingerprint and the public-mode warning. | A fresh install in each mode serves a valid certificate under the right name; in LAN mode the fingerprint matches in both places and one CA install covers the console and the page. | The address-change device test (decision 61) |
+| A. Audit record | Done: dmfdeploy/dmf-init#55, merged 2026-11-18. In dmf-init: a stdlib-only audit module with a chained, numbered, append-only record, on a node volume that only the executor writes to. Retention is 13 months or 64 MiB, whichever comes first: it trims whole segments and keeps the hash of the last trimmed entry. Tamper and gap detection. A gate refuses a root token when its record can't be written, and a full record never blocks an unseal. Intent entries for the revoker. The installer's first entry records its initial root token (decision 69). The failed-attempt counter lives on the public tier's own small volume. The slim second build target (decisions 68 to 73). | The retention (13 months, 64 MiB) and the overflow behavior are recorded and tested, including a full record that doesn't block an unseal and a flood of failed attempts that doesn't trim authenticated entries. | None |
+| C. Modes, name, and CA | Four pull requests in order, listed below the table. In both modes the install gets one CA, made on the workstation and shared by the console and the page. The CA lasts 730 days (two years). The page detects the Chromium certificate error and shows the guided CA install with a QR code. The cluster's own self-signed CA is replaced for new installs only. | A fresh install in each mode serves a valid certificate under the right name; in LAN mode the fingerprint matches in both places and one CA install covers the console and the page. | The address-change device test (decision 61) |
 | B. Executor identity and catalogue | In dmf-infra: the executor's Kubernetes-auth role and ServiceAccount, its narrow policy, its NetworkPolicy, the standing revoker with a 5-minute grace period and a scan every minute, and the catalogue's pinned per-change policies with their digests. The identity verifier checks every auth method and identity group for who holds each policy. The callers of `ops-admin`'s generate-root policy move or retire (decisions 65 to 69). A dry run against the fake OpenBao. | The executor alone can't finish a root token request; drift is refused before the mint; recovery works after a crash at each step; the scan revokes an unrecorded root token, doesn't race an in-flight mint, and a token left by a crash lives 6 minutes at most. | The ADR-0051 amendment, before it's built |
 | D. Page, session, and enrollment | In dmf-init: the public tier. Sessions are single use and bound to one catalogue entry and its parameters. WebAuthn uses user verification and the relying party ID. The page shows the short code and the catalogue text. Enrollment and removal need an enrolled passkey. The encrypted copy is released only after a verified assertion (decision 42). Rate limits, and a 404 when nothing is pending. It starts with a fixture credential and a fixture copy, so it doesn't wait for WP6. The real encrypted copy then follows the WP6 sandbox design in the operator unseal plan: a key pair from the PRF output, and the enrolled device makes the new copy. | WP5's negative tests; the rate-limit and 404 tests; an enrollment that another LAN device can't take over; a console session that can't add or remove a passkey; a compromised-console test in which the page shows the real operation. | A, B (the catalogue), C. The real encrypted copy depends on the WP6 key-pair device test (decision 37) |
 | E. Executor run | In dmf-init: the executor tier, with login, the per-session key, generate-root with the recovery keys, the recorded accessor, the drift checks, the scoped mint, the revokes, and the audit lines. | WP5's sandbox-lane run and its injected-failure tests; the public tier's server side never holds the recovery keys in clear; the page refuses an executor key that isn't signed by the executor. | A, B, D |
 
 The order is A first, then B, and C once the device tests of decision 61 pass, then D and E.
 
+Slice C is four pull requests, in this order:
+
+1. **C0, dmf-env:** the network mode and the page's name
+   ([dmfdeploy/dmf-env#43](https://github.com/dmfdeploy/dmf-env/issues/43)).
+2. **C1, dmf-init:** the mode question, the name-constrained CA made on the
+   workstation and kept with the env, the CA download and fingerprint, and the
+   warnings.
+3. **C2, dmf-infra:** import the CA, make the leaf certificates under the right
+   names and renew them, and announce the page's `.local` name.
+4. **C3, dmf-cms:** the fingerprint and the warnings in the console.
+
+## Audit record design
+
+Slice A is dmfdeploy/dmf-init#55.
+
+- **Format:** the record is JSON Lines in segment files named `segment-NNNNNNNN.jsonl`. Each
+  entry has `seq`, `time`, `prev`, `event`, the event's fields, and `hash`. The
+  hash is SHA-256 over the canonical JSON without `hash`. No key rests on the
+  node.
+- **Start:** a new chain begins with a `genesis` entry. A restored node starts
+  a new chain whose next entry is `restore`. It links to the old `seq` and
+  `hash`, or says `unlinked`.
+- **Segment size:** a segment rolls when it reaches 1 MiB, so it ends slightly
+  over. It also rolls when a new entry falls in a later UTC month than the
+  segment's first entry. The monthly roll lets age trimming run on a quiet
+  record that never reaches 1 MiB. Whole segments are the unit of trimming.
+- **Retention:** trim the oldest segments while the total exceeds 64 MiB, or
+  while the oldest segment's newest entry is older than 13 months (396 days).
+  Trimming runs on every roll, so the total can exceed the cap by about one
+  segment, and an entry can outlive 13 months by up to a month. The newest
+  segment is never trimmed.
+- **Anchor:** before deleting a segment, write `anchor.json`, which holds the
+  `seq` and `hash` of that segment's last entry, by atomic replace. `verify`
+  reports TRIMMED when the first remaining entry's `prev` matches the anchor.
+- **Overflow:** a full record trims and keeps accepting writes. It never
+  refuses a write for size. If trimming fails, the write still succeeds.
+- **Gate:** `require_written` validates the entry, appends it under an
+  exclusive file lock, and fsyncs the file (and the directory for a new
+  segment). On any failure it rolls back the partial write and raises
+  `AuditWriteError`. The executor aborts the root token request on a raise.
+  `try_write` is for the unseal path. It never raises, and it counts what it
+  drops in memory.
+- **Counter:** a separate directory holds a total and a ring of the last 1,000
+  attempts (time, source, reason). It has a single owner (a lock at open) and
+  is best-effort, with no fsync. It never touches the chain.
+- **What a gap or truncation loses:** a GAP means entries or segments are gone,
+  and the record can't say what they held. Deleting entries from the end of the
+  newest segment is not detectable, because nothing after them refers back. The
+  anchor shows only that a trim happened. The chain protects against
+  accidents. Root can defeat it.
+- **Entry bounds:** a string is at most 1024 characters, including `claimed`
+  keys and values and list items. `claimed` has at most 32 keys, and a list has
+  at most 16 items. The canonical JSON of an entry as stored is at most 8192
+  bytes. In the worst case, a segment rolls at 1 MiB plus at most one entry, so
+  the overshoot past the 64 MiB cap is at most one segment. Device-reported
+  input can't grow a segment without bound.
+- **Interrupted trims:** a trim writes the anchor, then deletes the segment. If
+  it stops between the two, the anchor names the last entry of a segment that
+  still exists. `verify` accepts this when that entry carries the anchor's
+  hash, and reports TAMPER otherwise. The next write, gated or unseal, deletes
+  the leftover segment first, so an interrupted trim finishes on the next
+  write. This happens only when the whole chain verifies. A damaged segment is
+  never deleted as housekeeping, and the gated write then refuses. While the
+  overlap lasts, a retained start higher than seq 1 can't be checked against an
+  earlier anchor. The window closes at the next write.
+- **Gate verifies the whole chain:** before each gated write, `require_written`
+  runs `verify` on the retained chain inside the lock. If the result is not OK
+  or TRIMMED, it raises `AuditWriteError` that names the status and the first
+  bad seq, and it appends nothing until the record is restored or the sandbox
+  is rebuilt (decision 66). The cost is one read of the retained record per
+  gated write, bounded by the 64 MiB cap, and gated writes are rare. The unseal
+  path (`try_write`) skips the check, so a broken record never blocks an
+  unseal.
+- **Deleted record:** if the anchor exists and every segment is gone, `verify`
+  reports GAP and `require_written` refuses to write. No root token can be
+  minted until the record is restored or the sandbox is rebuilt (decision 66).
+  The unseal path keeps going through `try_write` and counts drops. A trim
+  never removes the newest segment, so this state means deletion. An empty
+  directory with no anchor is a first install and starts with `genesis`.
+- **Unreadable last entry:** if the newest entry can't be parsed,
+  `require_written` fails on every call. This fails closed: no root token can
+  be minted, while the unseal path keeps going through `try_write` and counts
+  drops. This is acceptable for the sandbox lane (decision 66: rebuild).
+- **Genesis:** only the chain writes `genesis`. The schema rejects it from
+  callers.
+- **Not in this slice:** no service, endpoint, volume, or build target. The
+  counter's unauthenticated use and the executor-only mount are deployment
+  concerns for later slices.
+
 ## Changes to other plans and ADRs
 
 - **WP6:** enrollment moves to the page, started by the console, and needs an
   enrolled passkey after the first one.
-- **WP6 and decisions 17 and 26:** WP6 in the operator unseal plan gains a
+- **WP6 and decisions 17 and 26:** the operator unseal plan's WP6 gains a
   sandbox-lane design (decisions 79 to 81). Decisions 17 and 26 are amended
   for the sandbox lane.
 - **Decision 18, ADR-0052 and WP5:** the private-network limit is amended for
@@ -475,7 +576,7 @@ The order is A first, then B, and C once the device tests of decision 61 pass, t
 1. **The WP5 and WP9 design records** that the operator unseal plan names: the
    session message format, the executor's role and bindings, the retention
    period, and how the page keeps the cross-device passkey flow out of
-   approvals. Slices A, B, and D record them.
+   approvals. Slices A, B, and D record them. WP9: recorded in "Audit record design" (slice A).
 2. **The package path for enrollment**: settled by decision 79 for the sandbox
    lane. The package restores only, so a lost IP, or the loss of every
    passkey, means a rebuild.
