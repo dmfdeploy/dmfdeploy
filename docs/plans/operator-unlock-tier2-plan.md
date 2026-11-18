@@ -1090,13 +1090,18 @@ record creates no root token.
 
 ### WP6 enrollment, device lifecycle, rotation and recovery material
 
+In the sandbox lane, the "Sandbox lane design" subsection below replaces the
+rules it names. Everything else here applies to both lanes.
+
 **Goal.** Enroll the admin's first device and a second device at install, let
 the admin add, remove and transfer devices later, and keep removed devices
-from approving anything.
+from approving anything. (Long-lived sites. Sandbox lane: decision 80, one
+passkey finishes an install.)
 
 **Needs from the operator.** A disposable environment and two enrolled admin
 devices, with at least one of them a different device type from the other.
-Since decision 26 the two must also hold independent passkeys.
+Since decision 26 the two must also hold independent passkeys. (Long-lived
+sites. Sandbox lane: decision 80, one passkey finishes an install.)
 
 **Dependencies.** WP5. WP1's rekey-interruption result.
 
@@ -1106,11 +1111,13 @@ and the unseal key material in a lane with a boot-time unseal.
 
 - At install, the admin registers the first enrolled admin device and enrolls
   a second device. The minimum is two, and an install without both is not
-  complete. Later enrollment happens only in the running console, behind its
+  complete. (Long-lived sites. Sandbox lane: decision 80, one passkey finishes
+  an install.) Later enrollment happens only in the running console, behind its
   normal sign-in. The unseal page never enrolls. *Changed on 2026-11-17:* in the sandbox lane, enrollment moved to the approval page (build plan, decisions of 2026-11-17). *Changed on 2026-11-14
   (decision 26):* the minimum is two independent passkeys. The earlier minimum
   counted devices. A passkey that syncs to several devices counts once, and an
-  install with fewer than two is not complete. The design of this package says
+  install with fewer than two is not complete. (Long-lived sites. Sandbox
+  lane: decision 80.) The design of this package says
   how enrollment applies the rule. The decision does not say whether two
   passkeys in one passkey sync account count as independent. *Changed on
   2026-11-14 (decision 40):* they do not. Enrollment refuses to count a second
@@ -1120,6 +1127,8 @@ and the unseal key material in a lane with a boot-time unseal.
 - One enrolled admin device meets the recovery threshold alone. Losing any one
   device leaves the other able to approve. Since decision 26, read "device" as
   "independent passkey" here. Decision 26 words the minimum as "passkeys".
+  (Long-lived sites. Sandbox lane: decision 80, one passkey can be the only
+  one.)
 - In the sandbox lane, every enrolled device holds its own independently
   encrypted copy of the recovery keys and of the seal key. The copy of the
   seal key is also stored with the Raft snapshots, and a direct copy is in the
@@ -1136,11 +1145,14 @@ and the unseal key material in a lane with a boot-time unseal.
   own key, so the enrolled device cannot encrypt for it. *Changed on
   2026-11-14 (decision 37):* the device and the server encrypt to the
   passkey's bound public key instead. When no enrolled device is
-  available, the ADR-0009 recovery package approves. The current owner is
+  available, the ADR-0009 recovery package approves. (Long-lived sites.
+  Sandbox lane: decision 79, the package restores only.) The current owner is
   notified when a device is added. *Added on 2026-11-14 (decision 25):* the
   recovery package's part in this job is in the package specification under
   WP2.
-- In the sandbox lane, removal and transfer rotate the recovery keys and the
+- (Long-lived sites. Sandbox lane: decision 81, removal deletes the credential
+  and its copy and rotates no keys.) Removal and transfer
+  rotate the recovery keys and the
   seal key, and re-encrypt the copies for the retained devices only,
   including the copies stored with the snapshots. Every copy encrypted under
   the old key material stops working. A snapshot taken before the removal
@@ -1148,13 +1160,15 @@ and the unseal key material in a lane with a boot-time unseal.
   limit. In a lane with a boot-time unseal, removal and transfer end with a
   Shamir rekey, so every copy wrapped under the old key stops working, and the
   five ADR-0009 shares are reissued from the new key.
-- In the sandbox lane after the rotation, a retained device approves with the
+- (Long-lived sites. Sandbox lane: decision 81, no rotation, and decision 79,
+  the package restores only.) After the rotation, a retained device approves with the
   new recovery keys, and the reissued recovery package approves as well. In a
   lane with a boot-time unseal, a retained device unseals with the new key and
   the reissued share quorum unseals as well. Either way both are proven, the
   custody of the reissued material is verified again, and no secret value is
   recorded.
-- An interrupted rotation is recoverable, using the behavior that WP1 recorded
+- (Long-lived sites. Sandbox lane: decision 81, no rotation.) An interrupted
+  rotation is recoverable, using the behavior that WP1 recorded
   for cancel, resume and key validity. The command to use is checked against
   the OpenBao version, because the documentation marks `rekey` as deprecated
   in favor of `rotate-keys`.
@@ -1166,7 +1180,8 @@ and the unseal key material in a lane with a boot-time unseal.
   every use. A lane may require a device whose credential does not sync, such
   as a hardware security key.
 - Every enrollment, removal and rotation is recorded with actor, role, request
-  ID, reason, time and result.
+  ID, reason, time and result. (Sandbox lane: decision 81, no rotation to
+  record. The removal record states the limit.)
 
 **Closing evidence.** On a disposable environment: a fresh install that enrolls
 a first and a second independent passkey (decision 26), with each approving on
@@ -1175,16 +1190,25 @@ an enrolled device, and one approved by the recovery package. A removal after
 which the removed device's copy no longer approves. After the rotation, an
 approval by a retained device and one by the reissued recovery package, with the custody
 check. An interrupted rotation recovered. No record holds a secret value.
+(Long-lived sites. Sandbox lane: decisions 79 to 81. One passkey finishes an
+install, the package restores only, and removal rotates nothing, so the
+sandbox evidence is in the subsection below.)
 
 **Done when.**
 
 - [ ] A fresh install enrolls two independent passkeys (decision 26, which
-      replaces "two devices"), and each one approves alone.
-- [ ] Both enrollment paths work, and the owner is notified.
+      replaces "two devices"), and each one approves alone. (Long-lived sites.
+      Sandbox lane: decision 80, one passkey finishes an install.)
+- [ ] Both enrollment paths work, and the owner is notified. (Long-lived
+      sites. Sandbox lane: decision 79, the package doesn't enroll.)
 - [ ] A removed device cannot approve after the rotation, and a retained device
-      and the reissued recovery package both do.
-- [ ] The recovery package is reissued and re-verified.
-- [ ] An interrupted rotation is recovered by a written procedure.
+      and the reissued recovery package both do. (Long-lived sites. Sandbox
+      lane: decision 81, no rotation. Removal deletes the credential and its
+      copy.)
+- [ ] The recovery package is reissued and re-verified. (Long-lived sites.
+      Sandbox lane: decision 81, no reissue on removal.)
+- [ ] An interrupted rotation is recovered by a written procedure. (Long-lived
+      sites. Sandbox lane: decision 81, no rotation.)
 - [ ] The synced-passkey risk is shown at enrollment and recorded.
 - [ ] The Status section is updated.
 
@@ -1198,8 +1222,8 @@ this subsection. These properties must hold in the sandbox lane.
 - Each copy is encrypted to an X25519 key pair that the passkey's device
   derives from its PRF output (decision 37). The derivation uses HKDF with
   fixed, versioned labels. The encryption uses X25519 key agreement,
-  HKDF-SHA-256 and AES-256-GCM. The associated data binds the credential ID
-  and the recipient-list version.
+  HKDF-SHA-256 and AES-256-GCM. The associated data binds the copy to its
+  credential ID and the copy format version.
 - Any holder of the recovery keys can make a copy for a new passkey without
   that passkey present, because the copy needs only its public key.
 - A device test passes before slice D depends on the key pair. It checks that
@@ -1224,9 +1248,17 @@ this subsection. These properties must hold in the sandbox lane.
 - dmf-init generates the package passphrase: six random words, shown once.
   The package uses the passphrase format that dmf-init already uses. The
   administrator keeps the passphrase apart from the package.
-- The PRF salt is the SHA-256 hash of the versioned label `dmf-copy-prf-v1`.
-  The copy format carries a version. The server keeps a recipient-list
-  version, and it refuses a copy made for an older list.
+- The server releases a copy only for a credential that is currently
+  registered. A removed credential can't produce an assertion, so its copy is
+  never released. Removal deletes it.
+- Enrolling a passkey adds one copy and changes no other copy, so no retained
+  copy needs re-encryption.
+- The registry of enrolled credentials carries a version. The enrolling device
+  fetches it, checks the new passkey's signed binding against the current
+  registry, and the server refuses to store a copy made against an older
+  registry version.
+- The PRF salt is the SHA-256 hash of the versioned label `dmf-copy-prf-v1`,
+  and the copy format carries a version.
 
 ### WP7 portable-kit variant
 
