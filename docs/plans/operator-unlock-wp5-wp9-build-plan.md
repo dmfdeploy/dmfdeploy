@@ -246,9 +246,13 @@ The page is separate from the console on purpose:
   administrator reads it.
 
 The page keeps the console's look and a name shown in advance, but the real
-check is the browser itself: on a wrong or spoofed address, it doesn't offer
-the passkey at all. If a device has no passkey for the address, the page says
-so and names the expected address, so nobody enrolls again by mistake.
+check is the browser itself. On a wrong address, a different name, it doesn't
+offer the passkey at all, because a passkey binds to its name. A spoofed page
+under the right name is refused only on devices that installed the CA. A device
+that tapped through the certificate warning offers the passkey there too (see
+"Trusting the certificate authority"), which the sandbox accepts under
+decision 75. If a device has no passkey for the address, the page says so and
+names the expected address, so nobody enrolls again by mistake.
 
 ## Design properties from the reviews
 
