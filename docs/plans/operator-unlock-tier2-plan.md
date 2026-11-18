@@ -204,7 +204,9 @@ needs a different scope, stop and ask for a new decision.
     copy of the recovery keys and the seal key for each enrolled passkey. To
     use a copy, the admin's device asserts the passkey with user verification,
     derives a key from the PRF output and decrypts the copy on the device. The
-    server never stores the key material in the clear. The copy of the seal
+    server never stores the key material in the clear. The executor holds the
+    recovery keys in memory during an approval. The public tier never handles
+    them in clear (the build plan's two-tier design). The copy of the seal
     key stored with the Raft snapshots covers a rebuild. A lane with a
     boot-time unseal needs its own decision, because the copy must be
     reachable while OpenBao is sealed. *See also decisions 36, 37 and 42 (2026-11-14).*
@@ -1105,7 +1107,7 @@ and the unseal key material in a lane with a boot-time unseal.
 - At install, the admin registers the first enrolled admin device and enrolls
   a second device. The minimum is two, and an install without both is not
   complete. Later enrollment happens only in the running console, behind its
-  normal sign-in. The unseal page never enrolls. *Changed on 2026-11-14
+  normal sign-in. The unseal page never enrolls. *Changed on 2026-11-17:* in the sandbox lane, enrollment moved to the approval page (build plan, decisions of 2026-11-17). *Changed on 2026-11-14
   (decision 26):* the minimum is two independent passkeys. The earlier minimum
   counted devices. A passkey that syncs to several devices counts once, and an
   install with fewer than two is not complete. The design of this package says
@@ -1117,7 +1119,7 @@ and the unseal key material in a lane with a boot-time unseal.
   authenticator's reported model as a hint only.
 - One enrolled admin device meets the recovery threshold alone. Losing any one
   device leaves the other able to approve. Since decision 26, read "device" as
-  "independent passkey" here.
+  "independent passkey" here. Decision 26 words the minimum as "passkeys".
 - In the sandbox lane, every enrolled device holds its own independently
   encrypted copy of the recovery keys and of the seal key. The copy of the
   seal key is also stored with the Raft snapshots, and a direct copy is in the
@@ -1129,7 +1131,7 @@ and the unseal key material in a lane with a boot-time unseal.
   passkey assertion. Two devices that share one synced passkey share one
   copy. The boot-time lane needs its own decision.
 - An already enrolled device approves, decrypts the key material on that
-  device and encrypts a copy for the new one. *Open since 2026-11-14:* with a
+  device and encrypts a copy for the new one. *Open since 2026-11-14, resolved by decision 37's key-pair design; the sandbox lane design below specifies it:* with a
   key derived from the PRF output alone, only the new passkey can produce its
   own key, so the enrolled device cannot encrypt for it. *Changed on
   2026-11-14 (decision 37):* the device and the server encrypt to the
@@ -1185,6 +1187,46 @@ check. An interrupted rotation recovered. No record holds a secret value.
 - [ ] An interrupted rotation is recovered by a written procedure.
 - [ ] The synced-passkey risk is shown at enrollment and recorded.
 - [ ] The Status section is updated.
+
+### Sandbox lane design (2026-11-18)
+
+Decisions 79 to 81 in the build plan, and the design details in the
+[decision record](https://github.com/dmfdeploy/dmfdeploy/issues/864#issuecomment-6977341381),
+shape WP6 for the sandbox lane. Long-lived sites keep the WP6 text above
+this subsection. These properties must hold in the sandbox lane.
+
+- Each copy is encrypted to an X25519 key pair that the passkey's device
+  derives from its PRF output (decision 37). The derivation uses HKDF with
+  fixed, versioned labels. The encryption uses X25519 key agreement,
+  HKDF-SHA-256 and AES-256-GCM. The associated data binds the credential ID
+  and the recipient-list version.
+- Any holder of the recovery keys can make a copy for a new passkey without
+  that passkey present, because the copy needs only its public key.
+- A device test passes before slice D depends on the key pair. It checks that
+  browsers can derive and import an X25519 private key from the 32 PRF bytes,
+  and use it, on WebKit (iPadOS and macOS Safari) and on Chromium (Android,
+  with the CA installed). If the import fails on any of them, the fallback is
+  P-256 ECDH.
+- To enroll a passkey, the new passkey registers on the approval page and signs
+  a binding of its public key. An enrolled passkey approves the enrollment,
+  and its device checks the binding and makes the new copy. The recovery keys
+  don't pass through the server in clear.
+- At install, dmf-init makes the first copy, because it holds the recovery
+  keys at that point.
+- The recovery package restores only (decision 79). It doesn't enroll a
+  passkey or approve an operation. Losing every passkey means a rebuild.
+- One passkey finishes an install (decision 80). dmf-init and the console
+  recommend a second passkey from a different sync account until one is
+  enrolled. The documentation says that losing a lone passkey means a rebuild.
+- Removing a passkey deletes its credential and its copy, and rotates no keys
+  (decision 81). The removal record states the limit: the removed device has
+  seen the recovery keys during earlier approvals.
+- dmf-init generates the package passphrase: six random words, shown once.
+  The package uses the passphrase format that dmf-init already uses. The
+  administrator keeps the passphrase apart from the package.
+- The PRF salt is the SHA-256 hash of the versioned label `dmf-copy-prf-v1`.
+  The copy format carries a version. The server keeps a recipient-list
+  version, and it refuses a copy made for an older list.
 
 ### WP7 portable-kit variant
 

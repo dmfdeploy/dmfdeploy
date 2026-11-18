@@ -37,9 +37,8 @@ report, a research report on private networks, a device test, and two reviews.
       a requirement. Public mode uses the install's local CA, as LAN mode does
       (amended by decision 76). **If the
       IP is lost, the sandbox is lost**: the name changes, every passkey stops
-      working, and the way back is a rebuild with new passkeys. Recovering
-      without a rebuild needs the package path for enrollment, which WP6 has
-      yet to design (open point 2). dmf-init,
+      working, and the way back is a rebuild with new passkeys. The recovery
+      package restores only and doesn't enroll a passkey (decision 79). dmf-init,
       the console and the sandbox documentation say this plainly, at install
       and before any change of hosting.
 51. **A name-constrained private CA, shared by the console and the page**
@@ -207,6 +206,29 @@ has the full text and the test results. Numbering continues from decision 73.
     Chromium. Browsers built on WebKit allow it. The same RFC carries the
     correction.
 
+## Decisions of 2026-11-18, third set
+
+These follow a review of WP6, the per-passkey encrypted copy and enrollment,
+against decision 75. The
+[decision record](https://github.com/dmfdeploy/dmfdeploy/issues/864#issuecomment-6977341381)
+has the full text. Numbering continues from decision 78. Long-lived sites keep
+the WP6 text in the operator unseal plan as it stands.
+
+79. **The recovery package restores, and that's all it does in the sandbox
+    lane.** It doesn't enroll a passkey or approve an operation. Losing every
+    passkey means a rebuild, as decision 64 says. This settles the conflict
+    with decisions 32 and 45, and closes open point 2.
+80. **One passkey finishes a sandbox install.** dmf-init and the console keep
+    recommending a second passkey from a different sync account until one is
+    enrolled. The documentation says that losing a lone passkey means a
+    rebuild. This amends decision 26 for the sandbox lane.
+81. **Removing a passkey deletes its credential and its copy, and rotates no
+    keys, in the sandbox lane.** The removal record states the limit: the
+    removed device has seen the recovery keys during earlier approvals. This
+    amends decision 17 for the sandbox lane.
+
+The design details are in the WP6 section of the operator unseal plan.
+
 ## How an administrator approves an operation
 
 In steady state the sandbox unseals itself, so approvals are rare: the monthly
@@ -286,8 +308,9 @@ names the expected address, so nobody enrolls again by mistake.
   single global limit.
 - **Enrolling and removing passkeys needs an enrolled passkey.** A console
   session alone can never add or remove a passkey. After the first enrollment
-  at install, a new passkey needs approval by an enrolled one, or the recovery
-  package path once WP6 designs it. No passkey approves its own removal
+  at install, a new passkey needs approval by an enrolled one. In the sandbox
+  lane the recovery package restores only (decision 79). No passkey approves
+  its own removal
   (decision 45).
 - **The page's certificate stays valid.** Its lifetime equals the CA's
   (decision 59), and the certificate manager renews it on the node. The console warns 30 days before expiry.
@@ -423,7 +446,7 @@ off until the slices it depends on are in.
 | A. Audit record | In dmf-init: a stdlib-only audit module with a chained, numbered, append-only record, on a node volume that only the executor writes to. Retention is 13 months or 64 MiB, whichever comes first: it trims whole segments and keeps the hash of the last trimmed entry. Tamper and gap detection. A gate refuses a root token when its record can't be written, and a full record never blocks an unseal. Intent entries for the revoker. The installer's first entry records its initial root token (decision 69). The failed-attempt counter lives on the public tier's own small volume. The slim second build target (decisions 68 to 73). | The retention (13 months, 64 MiB) and the overflow behavior are recorded and tested, including a full record that doesn't block an unseal and a flood of failed attempts that doesn't trim authenticated entries. | None |
 | C. Modes, name, and CA | dmf-init asks for the mode. In both modes it creates one CA per install on the workstation, shared by the console and the page, puts the key on the node and in the package, and serves the CA download. The certificate manager renews both certificates. The page detects the Chromium certificate error and shows the guided CA install with a QR code. dmf-infra announces the `.local` name in LAN mode. The console shows the fingerprint and the public-mode warning. | A fresh install in each mode serves a valid certificate under the right name; in LAN mode the fingerprint matches in both places and one CA install covers the console and the page. | The address-change device test (decision 61) |
 | B. Executor identity and catalogue | In dmf-infra: the executor's Kubernetes-auth role and ServiceAccount, its narrow policy, its NetworkPolicy, the standing revoker with a 5-minute grace period and a scan every minute, and the catalogue's pinned per-change policies with their digests. The identity verifier checks every auth method and identity group for who holds each policy. The callers of `ops-admin`'s generate-root policy move or retire (decisions 65 to 69). A dry run against the fake OpenBao. | The executor alone can't finish a root token request; drift is refused before the mint; recovery works after a crash at each step; the scan revokes an unrecorded root token, doesn't race an in-flight mint, and a token left by a crash lives 6 minutes at most. | The ADR-0051 amendment, before it's built |
-| D. Page, session, and enrollment | In dmf-init: the public tier. Sessions are single use and bound to one catalogue entry and its parameters. WebAuthn uses user verification and the relying party ID. The page shows the short code and the catalogue text. Enrollment and removal need an enrolled passkey. The encrypted copy is released only after a verified assertion (decision 42). Rate limits, and a 404 when nothing is pending. It starts with a fixture credential and a fixture copy, so it doesn't wait for WP6. | WP5's negative tests; the rate-limit and 404 tests; an enrollment that another LAN device can't take over; a console session that can't add or remove a passkey; a compromised-console test in which the page shows the real operation. | A, B (the catalogue), C. The real encrypted copy waits for the WP6 design (decision 37) |
+| D. Page, session, and enrollment | In dmf-init: the public tier. Sessions are single use and bound to one catalogue entry and its parameters. WebAuthn uses user verification and the relying party ID. The page shows the short code and the catalogue text. Enrollment and removal need an enrolled passkey. The encrypted copy is released only after a verified assertion (decision 42). Rate limits, and a 404 when nothing is pending. It starts with a fixture credential and a fixture copy, so it doesn't wait for WP6. The real encrypted copy then follows the WP6 sandbox design in the operator unseal plan: a key pair from the PRF output, and the enrolled device makes the new copy. | WP5's negative tests; the rate-limit and 404 tests; an enrollment that another LAN device can't take over; a console session that can't add or remove a passkey; a compromised-console test in which the page shows the real operation. | A, B (the catalogue), C. The real encrypted copy depends on the WP6 key-pair device test (decision 37) |
 | E. Executor run | In dmf-init: the executor tier, with login, the per-session key, generate-root with the recovery keys, the recorded accessor, the drift checks, the scoped mint, the revokes, and the audit lines. | WP5's sandbox-lane run and its injected-failure tests; the public tier's server side never holds the recovery keys in clear; the page refuses an executor key that isn't signed by the executor. | A, B, D |
 
 The order is A first, then B, and C once the device tests of decision 61 pass, then D and E.
@@ -432,6 +455,9 @@ The order is A first, then B, and C once the device tests of decision 61 pass, t
 
 - **WP6:** enrollment moves to the page, started by the console, and needs an
   enrolled passkey after the first one.
+- **WP6 and decisions 17 and 26:** WP6 in the operator unseal plan gains a
+  sandbox-lane design (decisions 79 to 81). Decisions 17 and 26 are amended
+  for the sandbox lane.
 - **Decision 18, ADR-0052 and WP5:** the private-network limit is amended for
   public mode only (decision 52).
 - **Decision 2:** the CA key is on the workstation, in the recovery package, and
@@ -450,9 +476,9 @@ The order is A first, then B, and C once the device tests of decision 61 pass, t
    session message format, the executor's role and bindings, the retention
    period, and how the page keeps the cross-device passkey flow out of
    approvals. Slices A, B, and D record them.
-2. **The package path for enrollment**, which the operator unseal plan lists as
-   open, is needed before public mode can recover from a lost IP without a
-   rebuild.
+2. **The package path for enrollment**: settled by decision 79 for the sandbox
+   lane. The package restores only, so a lost IP, or the loss of every
+   passkey, means a rebuild.
 3. **The device results** listed in the device test section, before the
    sandbox rollout.
 4. **The order of the device tests** (decision 61): the address-change test
