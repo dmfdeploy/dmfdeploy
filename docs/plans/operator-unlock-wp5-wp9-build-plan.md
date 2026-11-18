@@ -80,20 +80,33 @@ report, a research report on private networks, a device test, and two reviews.
     it outlives a key rotation, so the CA is reissued when the package or the
     workstation store is compromised (see "Trusting the certificate
     authority"). This applies in both modes, because each has a CA.
-55. **Executor and revoker adjustments** (details left to the orchestrator):
-    - Once the executor's identity exists, `ops-admin` loses the
-      `generate-root` policy, so the password and the recovery keys aren't a
-      second path to a root token.
-    - The standing revoker also scans for tokens with the root policy whose
+55. **Executor and revoker adjustments** (amended by decisions 83, 87 to 89,
+    91 and 92; details left to the orchestrator):
+    - A new install never attaches the `generate-root` policy to `ops-admin`,
+      so the password and the recovery keys aren't a second path to a root
+      token (decisions 91 and 93).
+    - The executor doesn't use the generated root token for the change. It
+      creates one scoped, use-limited orphan token that lives 15 minutes at
+      most, and it revokes the generated root token before the first write
+      (decision 83).
+    - The standing revoker runs as a Deployment that scans every 60 seconds
+      (decision 87). It also scans for tokens with the root policy whose
       accessor isn't recorded, and revokes them. This closes the one crash
       window that the operator unseal plan leaves open. It also revokes a
-      break-glass root token or an install's initial token on its next run,
-      which is intended: in steady state, no root token outlives its approval. Decisions 65 to 69
-      set the grace period and the scan.
+      break-glass root token on its next run, which is intended: in steady
+      state, no root token outlives its approval. The installer's initial token
+      is revoked at the end of the install, before the revoker starts
+      (decision 90). The revoker reads the audit record through a read-only
+      mount (decision 88). If it can't read the record, it revokes every
+      unrecorded root token older than the grace period and raises an alert
+      (decision 89). It measures the grace period from the token's creation
+      time on the server (decision 92). Decisions 65 to 69 set the grace period
+      and the scan.
     - These identities amend ADR-0051 rule 3. The executor may start a root
       token request and finish it only with recovery keys from an approved
-      session. The revoker may list, look up, and revoke tokens by accessor. The
-      amendment goes through RFC Discussion #907 before slice B is built.
+      session. The revoker may list, look up, and revoke tokens by accessor.
+      The amendment is accepted on RFC Discussion #907, with decisions 83, 91
+      and 93 applied in dmfdeploy/dmfdeploy#944.
 56. **Later, a public certificate.** A later option, outside this plan, lets an
     engineer with their own domain use a certificate from a public ACME
     certificate authority through their DNS, which removes the CA install.
@@ -144,7 +157,8 @@ has the full text.
 
 **The ADR-0051 amendment (decision 55)**
 
-65. **The callers of `ops-admin`'s generate-root policy move or retire.** The
+65. **The callers of `ops-admin`'s generate-root policy move or retire**
+    (amended by decisions 91 and 93: they retire outright). The
     credential rotation becomes a catalogue entry. The `dmf-env` temporary
     root helper retires on environments that run the executor. The role
     README's manual procedure points to a rebuild.
@@ -155,12 +169,14 @@ has the full text.
 67. **The identity verifier checks who holds each policy.** Across every
     enabled auth method and identity group, only the executor holds
     `generate-root`, and only the revoker holds the revoker's policy.
-68. **The revoker's grace period is 5 minutes, and it scans every minute.**
+68. **The revoker's grace period is 5 minutes, and it scans every minute**
+    (amended by decision 92: the server's creation time starts the grace period).
     The executor writes an intent entry before it finishes a root token
     request. The revoker revokes an unrecorded root token when no intent is
     open or the token is older than the grace period, so a token left by a
     crash lives 6 minutes at most.
-69. **The installer's initial root token is the one exception** to the rule
+69. **The installer's initial root token is the one exception** (amended by
+    decision 90: every install step uses it) to the rule
     that no root token is created unless its audit record is written. It
     exists before the record. The installer revokes it and writes the
     record's first entry, which says so.
@@ -240,6 +256,54 @@ has the full text.
     the install's base domain. The install's local CA is constrained to that
     base domain and the page's name. Moving every app to `.local` stays out of
     slice C, because every route and OIDC redirect would change shape.
+
+## Decisions of 2026-11-18, fifth set
+
+These follow a scout of dmf-infra and dmf-env for the executor, the revoker, and
+the catalogue. Numbering continues from decision 82. The
+[decision record](https://github.com/dmfdeploy/dmfdeploy/issues/864#issuecomment-6985438079)
+has decisions 83 to 92, and a
+[later comment](https://github.com/dmfdeploy/dmfdeploy/issues/864#issuecomment-6985525581)
+has decision 93.
+
+83. **The executor mints a scoped, use-limited, short-lived token.** From the
+    generated root token, it creates one orphan token with only the catalogue
+    entry's pinned policy, a use limit equal to the number of requests that
+    entry declares, and a lifetime of 15 minutes at most. It revokes the
+    generated root token before the first write. OpenBao revokes the scoped
+    token after its last use. This narrows the ADR-0051 amendment text.
+84. **In slice B the executor is an identity only.** Its Kubernetes auth role,
+    ServiceAccount, policy, and network rule exist, with no workload, because
+    no image exists until slice D builds one.
+85. **The revoker is a small standard-library script** mounted from a
+    ConfigMap, on the landing page's pattern.
+86. **dmf-infra holds the catalogue:** one data file plus the pinned policy
+    files, rendered into a ConfigMap that the approval service reads in slice D.
+87. **The revoker runs as a Deployment that scans every 60 seconds.** A CronJob
+    can delay or skip runs, and a stuck run would block the next ones.
+88. **The revoker reads the audit record through a read-only mount** of the
+    executor's volume.
+89. **If the record can't be read, the revoker revokes every unrecorded root
+    token older than the grace period and raises an alert.** The executor can't
+    mint while the record is broken, because its gate refuses.
+90. **Everything during install runs with the installer's initial token,** which
+    the installer revokes at the end, before the revoker starts. This widens
+    decision 69 to the rotation play and the secret seeding at install.
+91. **The new model applies to new installs.** The installer never attaches the
+    `generate-root` policy to `ops-admin`. Existing sandboxes keep the old
+    model until they're rebuilt, so no live removal step is built. (Amended by
+    decision 93: no environment keeps the old model, and environments
+    installed before slice B are rebuilt.)
+92. **The identity verifier checks an allowlist of login methods** (userpass,
+    Kubernetes, AppRole, token) and every role, user, token role, identity
+    entity, and group under them. **The revoker measures the grace period from
+    the token's creation time on the server;** the intent entry only decides
+    whether a request is still open.
+93. **No existing environment needs a migration path.** The live sandbox can be
+    reset completely, so no environment keeps the old model, and nothing is
+    built to carry an installed environment across. The old callers retire
+    outright where slice B replaces them. Environments installed before slice B
+    are rebuilt.
 
 ## How an administrator approves an operation
 
@@ -456,12 +520,12 @@ off until the slices it depends on are in.
 | Slice | What it delivers | Done when | Depends on |
 |---|---|---|---|
 | A. Audit record | Audit module done: dmfdeploy/dmf-init#55, merged 2026-11-18. In dmf-init: a stdlib-only audit module with a chained, numbered, append-only record, on a node volume that only the executor writes to. Retention is 13 months or 64 MiB, whichever comes first: it trims whole segments and keeps the hash of the last trimmed entry. Tamper and gap detection. A gate refuses a root token when its record can't be written, and a full record never blocks an unseal. Intent entries for the revoker. The installer's first entry records its initial root token (decision 69). The failed-attempt counter lives on the public tier's own small volume. The slim second build target of decision 73 moves to slice D, where the approval service first needs an image. | The retention (13 months, 64 MiB) and the overflow behavior are recorded and tested, including a full record that doesn't block an unseal and a flood of failed attempts that doesn't trim authenticated entries. | None |
-| C. Modes, name, and CA | Four pull requests in order, listed below the table. In both modes the install gets one CA, made on the workstation and shared by the console and the page. The CA lasts 730 days (two years). The page detects the Chromium certificate error and shows the guided CA install with a QR code. The cluster's own self-signed CA is replaced for new installs only. | A fresh install in each mode serves a valid certificate under the right name; in LAN mode the fingerprint matches in both places and one CA install covers the console and the page. | The address-change device test (decision 61) |
-| B. Executor identity and catalogue | In dmf-infra: the executor's Kubernetes-auth role and ServiceAccount, its narrow policy, its NetworkPolicy, the standing revoker with a 5-minute grace period and a scan every minute, and the catalogue's pinned per-change policies with their digests. The identity verifier checks every auth method and identity group for who holds each policy. The callers of `ops-admin`'s generate-root policy move or retire (decisions 65 to 69). A dry run against the fake OpenBao. | The executor alone can't finish a root token request; drift is refused before the mint; recovery works after a crash at each step; the scan revokes an unrecorded root token, doesn't race an in-flight mint, and a token left by a crash lives 6 minutes at most. | The ADR-0051 amendment, before it's built |
+| C. Modes, name, and CA | Done: dmfdeploy/dmf-env#43, dmfdeploy/dmf-init#56, dmfdeploy/dmf-infra#155 and #156, dmfdeploy/dmf-cms#221, merged 2026-11-18. Four pull requests in order, listed below the table. In both modes the install gets one CA, made on the workstation and shared by the console and the page. The CA lasts 730 days (two years). The page detects the Chromium certificate error and shows the guided CA install with a QR code. The cluster's own self-signed CA is replaced for new installs only. | A fresh install in each mode serves a valid certificate under the right name; in LAN mode the fingerprint matches in both places and one CA install covers the console and the page. | The address-change device test (decision 61) |
+| B. Executor identity and catalogue | In dmf-infra, in the seven steps B0 to B6 listed below the table: the executor's identity with no workload, the catalogue and its pinned policies, the standing revoker, the identity verifier, the install path, and a dry run against the fake OpenBao. The ADR-0051 amendment is accepted on #907, and the ADR text is in dmfdeploy/dmfdeploy#944. | The executor alone can't finish a root token request; drift is refused before the mint; recovery works after a crash at each step; the scan revokes an unrecorded root token, doesn't race an in-flight mint, and a token left by a crash lives 6 minutes at most. | None. It no longer waits for the amendment |
 | D. Page, session, and enrollment | In dmf-init: the public tier, and the slim second build target of decision 73 that the approval service runs from. Sessions are single use and bound to one catalogue entry and its parameters. WebAuthn uses user verification and the relying party ID. The page shows the short code and the catalogue text. Enrollment and removal need an enrolled passkey. The encrypted copy is released only after a verified assertion (decision 42). Rate limits, and a 404 when nothing is pending. It starts with a fixture credential and a fixture copy, so it doesn't wait for WP6. The real encrypted copy then follows the WP6 sandbox design in the operator unseal plan: a key pair from the PRF output, and the enrolled device makes the new copy. | WP5's negative tests; the rate-limit and 404 tests; an enrollment that another LAN device can't take over; a console session that can't add or remove a passkey; a compromised-console test in which the page shows the real operation. | A, B (the catalogue), C. The real encrypted copy depends on the WP6 key-pair device test (decision 37) |
 | E. Executor run | In dmf-init: the executor tier, with login, the per-session key, generate-root with the recovery keys, the recorded accessor, the drift checks, the scoped mint, the revokes, and the audit lines. | WP5's sandbox-lane run and its injected-failure tests; the public tier's server side never holds the recovery keys in clear; the page refuses an executor key that isn't signed by the executor. | A, B, D |
 
-The order is A first, then B, and C once the device tests of decision 61 pass, then D and E.
+The order is A first, then B, and C once the device tests of decision 61 pass, then D and E. Slice B no longer waits for the ADR-0051 amendment.
 
 Slice C is four pull requests, in this order:
 
@@ -473,6 +537,41 @@ Slice C is four pull requests, in this order:
 3. **C2, dmf-infra:** import the CA, make the leaf certificates under the right
    names and renew them, and announce the page's `.local` name.
 4. **C3, dmf-cms:** the fingerprint and the warnings in the console.
+
+Slice B is seven steps, all in dmf-infra. Start with step B0. Steps B1 and B2
+can run in parallel. Steps B3 to B6 follow in order.
+
+0. **B0, test fake:** extend the OpenBao fake with a token store (policies,
+   orphan flag, use limit, creation time, lifetime, accessors), the token and
+   accessor calls, Kubernetes login and role reads, generate-root enforcement
+   per token, and the reads the verifier needs. The other steps depend on it.
+1. **B1, executor identity:** the ServiceAccount, the Kubernetes auth role with
+   only the `generate-root` policy and a short lifetime, its NetworkPolicy
+   (cluster-internal callers only), and the allow rule on OpenBao ingress. No
+   workload (decision 84).
+2. **B2, catalogue and pinned policies:** the data file, with each entry's name,
+   consequence text, pinned policy file, SHA-256 digest, parameter schema, and
+   request count for the use limit. The first entries are the `ops-admin`
+   password rotation and any seeding entries. The openbao role installs the
+   policies, and a ConfigMap carries the catalogue (decision 86). A test checks
+   the digests for drift.
+3. **B3, revoker:** its ServiceAccount, Kubernetes auth role, and policy, and a
+   standard-library scan script in a ConfigMap. A Deployment runs the script
+   every 60 seconds (decisions 85 and 87). It reads the audit record through a
+   read-only mount (decision 88) and measures the grace period from the token's
+   server creation time (decision 92). If the record is unreadable, it revokes
+   and alerts (decision 89). It starts only after the install.
+4. **B4, verifier coverage:** the allowlist of login methods and the
+   policy-holder check across roles, users, token roles, identity entities, and
+   groups (decision 92), plus the live policy digests.
+5. **B5, install path and caller retirement:** the installer does every root
+   step with its initial token and revokes it at the end (decision 90). It never
+   attaches `generate-root` to `ops-admin` (decision 91). The 2.6 preflight
+   checks the executor role. The dmf-env temporary root helper, the 120
+   rotation's `ops-admin` path, and the README procedure retire outright
+   (decision 93).
+6. **B6, dry run:** end to end against the fake, including a crash after the
+   intent, after the mint, and before the write.
 
 ## Audit record design
 
@@ -565,7 +664,8 @@ Slice A is dmfdeploy/dmf-init#55.
   on the node (decision 58, which amends decision 51). Decision 2 was written
   for the portable kit.
 - **ADR-0051 rule 3:** amended for the executor and the revoker (decision 55),
-  with the details of decisions 65 to 69.
+  with the details of decisions 65 to 69. The amendment is accepted on #907,
+  with decisions 83, 91 and 93 applied in dmfdeploy/dmfdeploy#944.
 - **ADR-0040:** amendment through RFC Discussion
   [#938](https://github.com/orgs/dmfdeploy/discussions/938) (decisions 77 and
   78). It defers project-run names with their gates and corrects the
