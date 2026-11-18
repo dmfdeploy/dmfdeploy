@@ -50,7 +50,9 @@ the key material lives" below lists every place.
 confirming every cold-boot unseal and no unseal material at rest on the node.
 
 *Changed on 2026-11-14.* The sandbox lane runs one OpenBao server (decision
-23). The admin enrols at least two independent passkeys (decision 26). The
+23). The admin enrols at least two independent passkeys (decision 26); in
+the sandbox lane one passkey finishes an install and a second is recommended
+(decision 80 of the build plan). The
 latest snapshot and the encrypted copy of the seal key are kept off the server
 (decision 27). The audit record stays on the server and write-once delivery is
 waived (decision 28). A portable sandbox kit is not a deliverable for now
@@ -112,7 +114,9 @@ needs a different scope, stop and ask for a new decision.
 6. The device lifecycle properties, including the rekey and the reissue of
    the recovery shares. *Changed on 2026-11-08:* in the sandbox lane a
    removal or a transfer rotates the recovery keys and the seal key, and
-   re-encrypts the retained devices' copies (decision 17).
+   re-encrypts the retained devices' copies (decision 17). *Changed on
+   2026-11-18 (decision 81 of the build plan):* in the sandbox lane a removal
+   deletes the credential and its copy and rotates nothing.
 7. The single unseal session design: the wrapped copy lives on the enrolled
    admin device, the QR code carries a single-use session URL, and the device
    unwraps the key. *Changed on 2026-11-08:* in the sandbox lane the same
@@ -156,7 +160,8 @@ needs a different scope, stop and ask for a new decision.
     token creation. The device is a phone, a laptop or tablet with a platform
     authenticator, or a hardware security key with a PIN. The sandbox lane
     needs at least two enrolled admin devices. The ADR-0009 recovery package
-    stays the last resort. *Sandbox lane, decision 79 of the build plan:* the package only restores. *Changed on 2026-11-12 (decision 21):* the device
+    stays the last resort. *Sandbox lane, decisions 79 and 80 of the build
+    plan:* the package only restores, and one passkey finishes an install. *Changed on 2026-11-12 (decision 21):* the device
     does not store the recovery key material. It decrypts the server-stored
     copy for its passkey. *Changed on 2026-11-14 (decision 26):* the minimum
     is two independent passkeys. The earlier minimum counted devices.
@@ -179,7 +184,9 @@ needs a different scope, stop and ask for a new decision.
     in with its own narrow identity.
 17. Dated 2026-11-08. Removing a lost or stolen device rotates the recovery
     keys and the seal key, and re-encrypts the copies for the remaining
-    devices. *See also decisions 37 and 45 (2026-11-14).*
+    devices. *See also decisions 37 and 45 (2026-11-14).* *Sandbox lane,
+    decision 81 of the build plan:* a removal deletes the credential and its
+    copy and rotates nothing.
 18. Dated 2026-11-08. Synced passkeys are the sandbox-lane default. The risk
     is a takeover of the passkey sync account. That is a remote risk, and the
     accepted local-root risk does not cover it. The limits are encrypted
@@ -252,6 +259,7 @@ needs a different scope, stop and ask for a new decision.
 26. Dated 2026-11-14 (record item 4). *Amends decision 14 and the 2026-11-08
     wording, which counted devices.* The admin enrols at least two independent
     passkeys. A passkey that syncs to several devices counts once. *See also decision 40 (2026-11-14).*
+    *Sandbox lane, decision 80 of the build plan:* one passkey finishes an install, and a second is recommended.
 27. Dated 2026-11-14 (record item 5). *Adds to decision 19.* The latest
     snapshot and the encrypted copy of the seal key are kept off the server. A
     full restore is rehearsed with the real pieces before restore is claimed
@@ -313,7 +321,8 @@ needs a different scope, stop and ask for a new decision.
     Until then the console shows the rotation as unfinished. If the admin has
     no media at hand, the rotation waits at that step, and the old package
     still works until the new keys replace the old ones. Each package and
-    download names the key version it holds.
+    download names the key version it holds. *Sandbox lane, decision 81 of
+    the build plan:* a removal rotates nothing, so it needs no new package.
 35. Dated 2026-11-14. *Narrows "system snapshot" in decision 31 for this
     plan.* This plan covers the OpenBao snapshot. Snapshots of the other
     platform state, such as the inventory and automation databases, belong to
@@ -348,7 +357,9 @@ needs a different scope, stop and ask for a new decision.
 40. Dated 2026-11-14. *Adds to decision 26.* Two passkeys in one passkey sync
     account do not count as independent, because one account takeover or one
     lost account takes both. The second passkey lives in a different sync
-    account or on a hardware security key with a PIN. Enrollment asks where
+    account or on a hardware security key with a PIN. *Sandbox lane,
+    decision 80 of the build plan:* the second passkey is recommended, not
+    required. Enrollment asks where
     each passkey lives and records the admin's answer. The authenticator's
     reported model is a hint only, so independence rests on the admin's
     statement.
@@ -383,12 +394,15 @@ needs a different scope, stop and ask for a new decision.
 45. Dated 2026-11-14. *Adds to decision 17.* Any other enrolled passkey
     approves the removal of a device, or the recovery package when no other
     passkey is available. A passkey cannot approve its own removal.
-    *Sandbox lane, decisions 79 and 81 of the build plan:* the package doesn't
-    approve a removal, and a removal deletes the credential and its copy
-    without rotation. The
-    removal counts as done only after the rotation of decision 17 and the
+    The removal counts as done only after the rotation of decision 17 and the
     reissued package of decision 34. If one passkey remains, the console asks
     for a replacement, because one is below the minimum of decision 26.
+    *Sandbox lane, decisions 79 to 81 of the build plan:* another enrolled
+    passkey approves the removal, and the package doesn't. The removal is
+    done when the credential and its copy are deleted and the removal record
+    is written, with no rotation and no new package. The last passkey can't
+    be removed, because no other passkey can approve it; losing it means a
+    rebuild.
 46. Dated 2026-11-14. *Adds to decision 23.* The sandbox-lane acceptance
     tests run on a one-server environment. Three-server tests belong to WP3
     and long-lived sites.
@@ -537,7 +551,8 @@ a package says that the wrapped copy lives on the enrolled admin device,
 decision 21 replaces that for the sandbox lane: the server stores the copy,
 encrypted for each enrolled passkey, and the device decrypts it after the
 passkey assertion. Where a package says "two enrolled devices", decision
-26 replaces that with two independent passkeys. A package that a decision
+26 replaces that with two independent passkeys, and in the sandbox lane
+decision 80 of the build plan lets one passkey finish an install. A package that a decision
 changes carries a "Changed on 2026-11-14" note, and the superseded wording
 stays next to it.
 
@@ -669,7 +684,8 @@ thread has already converged.
       are enrolled (decision 14). *Changed on 2026-11-12 and 2026-11-14
       (decisions 21 and 26):* the copies are encrypted for each enrolled
       passkey and stored on the server, and the minimum is two independent
-      passkeys;
+      passkeys (in the sandbox lane, one passkey finishes an install:
+      decision 80 of the build plan);
     - the seal key backed up as decision 15 says;
     - the audit record of the unseal itself as a system action under
       ADR-0028, with each approval carrying the enrolled admin as actor;
@@ -1375,7 +1391,10 @@ part in a check-in (decision 79 of the build plan).
   one-tap check-in link.
 - After expiry, running workloads keep running and privileged changes are
   refused until an admin checks in. The recovery package path always works
-  after expiry: it can check in and enroll a replacement device. In a lane
+  after expiry: it can check in and enroll a replacement device. (Long-lived
+  sites. Sandbox lane: decision 79 of the build plan, the package only
+  restores. After expiry, a check-in with an enrolled passkey resumes
+  privileged changes, and with no passkey left the way back is a rebuild.) In a lane
   with a boot-time unseal, OpenBao seals at the next restart, as it does
   today. In the sandbox lane it auto-unseals at the restart, and on expiry
   privileged changes wait. An immediate seal is rejected.
@@ -1386,13 +1405,16 @@ part in a check-in (decision 79 of the build plan).
 **Closing evidence.** Tests that move the clock: warnings at each day,
 expiry that keeps workloads running and refuses a privileged change, a
 check-in that restarts the period, a restart that does not extend it, and the
-recovery package path after expiry.
+recovery package path after expiry. In the sandbox lane, the last test is a
+passkey check-in after expiry instead (decision 79 of the build plan).
 
 **Done when.**
 
 - [ ] The period, the warnings and the expiry behave as described.
 - [ ] The device list shows last check-ins and warns about an unseen device.
-- [ ] The recovery package path works after expiry.
+- [ ] The recovery package path works after expiry. (Long-lived sites.
+      Sandbox lane: a passkey check-in after expiry resumes privileged
+      changes, per decision 79 of the build plan.)
 - [ ] The Status section is updated.
 
 ### WP10 restore with an enrolled admin device

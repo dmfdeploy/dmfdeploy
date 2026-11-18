@@ -385,7 +385,7 @@ the sandbox is an unsafe, ephemeral learning environment (decision 75).
 | Compromised console | Separate page, catalogue text, passkey required | Yes, the administrator must read the page |
 | Compromised public tier | Static, read-only page code; signed executor key; no executor identity in the public tier | Yes, a compromise can capture keys during an approval |
 | Attacker on the LAN squatting the `.local` name | On devices with the CA installed, the browser refuses the page. On tap-through devices, nothing: an attacker can imitate the page and capture key material during an approval | Yes, under decision 75 (unsafe, ephemeral learning environment) |
-| Passkey sync-account takeover | Two independent passkeys (decision 40); LAN mode is private | In public mode the page is reachable, so this is the largest residual risk there |
+| Passkey sync-account takeover | A second passkey in another sync account, which the sandbox recommends but doesn't require (decisions 40 and 80); LAN mode is private | Yes. With one passkey, a takeover of its sync account gives the attacker an approver. In public mode the page is reachable, so this is the largest residual risk there |
 | Stolen phone with a known passcode | Device user verification | Yes, as decision 8 accepts |
 | Loss of the IP or of the wildcard DNS service (public mode) | None beyond the requirement | Yes, "lose the IP, lose the sandbox" |
 | Someone who controls the IP or the wildcard DNS answer (public mode) | None for tap-through devices, which accept any certificate; the CA pins nothing against them | Yes, under decisions 75 and 76 |
