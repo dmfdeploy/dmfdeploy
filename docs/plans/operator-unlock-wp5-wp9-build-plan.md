@@ -514,7 +514,7 @@ intended reason only.
 
 ## Slices
 
-Each slice is one pull request per repository, and each one ships switched
+Each part of a slice is one pull request per repository, so a slice with several parts can have more than one in a repository (slice C has two in dmf-infra), and each one ships switched
 off until the slices it depends on are in.
 
 | Slice | What it delivers | Done when | Depends on |
