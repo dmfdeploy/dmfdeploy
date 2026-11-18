@@ -34,8 +34,8 @@ report, a research report on private networks, a device test, and two reviews.
     - **Public, with a fixed IP.** For a VPS. The page is
       `unlock.<ip>.<wildcard-DNS-domain>`, a name from a public wildcard DNS
       service that maps a name to the IP it contains, and a fixed public IP is
-      a requirement. Public mode uses a publicly trusted certificate (amended
-      by decision 57). **If the
+      a requirement. Public mode uses the install's local CA, as LAN mode does
+      (amended by decision 76). **If the
       IP is lost, the sandbox is lost**: the name changes, every passkey stops
       working, and the way back is a rebuild with new passkeys. Recovering
       without a rebuild needs the package path for enrollment, which WP6 has
@@ -43,15 +43,16 @@ report, a research report on private networks, a device test, and two reviews.
       the console and the sandbox documentation say this plainly, at install
       and before any change of hosting.
 51. **A name-constrained private CA, shared by the console and the page**
-    (amended by decisions 57 and 58). dmf-init creates the CA on the
+    (amended by decisions 58 and 76). dmf-init creates the CA on the
     administrator's workstation at install. The CA may sign only the install's
     own names. The sandbox lane has one CA, which the console and the page
     share. Its key is in dmf-init's store for the env, in the recovery package,
     and, by decision 58, on the node, where the certificate manager renews
     both certificates. The original rule kept the key off the node; decision
-    58 reverses that. In public mode there is no private CA (decision 57).
-    Each administrator device installs and trusts the CA once, at enrollment,
-    from the workstation (see "Trusting the certificate authority"). This
+    58 reverses that. Public mode uses the same CA (decision 76). Each
+    administrator device either taps through the certificate warning or
+    installs and trusts the CA once, at enrollment, from the workstation
+    (decision 76; see "Trusting the certificate authority"). The CA install
     follows ADR-0040, whose local-CA tier already asks for a one-time CA
     install.
 52. **A public page in public mode.** Public mode has no private network, so
@@ -71,15 +72,15 @@ report, a research report on private networks, a device test, and two reviews.
     - in LAN or air-gapped mode, from the workstation, which announces the
       `.local` name itself;
     - in public mode, from a replacement VPS that holds the same IP; dmf-init
-      starts the page there first, then restores. The replacement VPS gets a
-      public certificate for the name, so this case needs no CA key (decision
-      57). If the IP is gone, decision 50 applies.
+      starts the page there first, then restores, with a certificate that it
+      issues from the CA key in the package (decision 76). If the IP is gone,
+      decision 50 applies.
 
     The CA key lets its holder impersonate the page. That is less than the
     package already gives its holder (the recovery keys and the seal key), but
     it outlives a key rotation, so the CA is reissued when the package or the
     workstation store is compromised (see "Trusting the certificate
-    authority"). This applies to LAN mode, where the CA exists.
+    authority"). This applies in both modes, because each has a CA.
 55. **Executor and revoker adjustments** (details left to the orchestrator):
     - Once the executor's identity exists, `ops-admin` loses the
       `generate-root` policy, so the password and the recovery keys aren't a
@@ -97,8 +98,7 @@ report, a research report on private networks, a device test, and two reviews.
 56. **Later, a public certificate.** A later option, outside this plan, lets an
     engineer with their own domain use a certificate from a public ACME
     certificate authority through their DNS, which removes the CA install.
-    That is ADR-0040's own-domain tier. Decision 57 gives public mode a
-    publicly trusted certificate without a domain of the engineer's own.
+    That is ADR-0040's own-domain tier.
 
 ## Decisions of 2026-11-18
 
@@ -109,13 +109,14 @@ has the full text.
 
 **Certificates and names**
 
-57. **Public mode uses a publicly trusted certificate** from an ACME issuer
+57. **Withdrawn by decision 74.** **Public mode uses a publicly trusted certificate** from an ACME issuer
     for its IP-based name. The private CA protects nothing there, and dropping
     it removes a device step. The page answers the ACME challenge path even
     while no approval is pending. This amends decisions 50 and 51 for public
     mode. It needs an amendment of ADR-0040, through an RFC first.
 58. **One CA for the console and the page in the sandbox lane.** Each install
-    has one name-constrained CA, and each device installs it once. Its key
+    has one name-constrained CA, and each device installs it once (amended by
+    decision 76: a device that taps through installs nothing). Its key
     stays on the node, where the certificate manager renews both
     certificates, and a copy goes into the recovery package for the restore
     certificate (decision 54). This amends decision 51's "key off the node":
@@ -125,7 +126,9 @@ has the full text.
     renewal never becomes a recurring task.
 60. **Click-through doesn't replace the CA install.** Browsers refuse passkeys
     on a page with a certificate error, as ADR-0040 records. A short test on
-    the iPad confirms this for its browser.
+    the iPad confirms this for its browser. (Amended by decision 76 and
+    corrected by decision 78: browsers built on WebKit accept passkeys after a
+    tap-through.)
 61. **Order.** The address-change test and the `.local` test on an
     Android-powered device run before slice C, because they can change its
     naming code. Slice A doesn't wait for them.
@@ -174,6 +177,35 @@ has the full text.
 73. **The approval service gets a slim second build target** in the dmf-init
     repository. The audit module uses only the standard library, so both
     images share it.
+
+## Decisions of 2026-11-18, second set
+
+These follow a device test of passkeys on pages with certificate errors, and a
+review of a project-run name service. The
+[decision record](https://github.com/dmfdeploy/dmfdeploy/issues/864#issuecomment-6976610389)
+has the full text and the test results. Numbering continues from decision 73.
+
+74. **Decision 57 is withdrawn.** A public certificate on a name under a public
+    wildcard DNS service can't be relied on. The service's domain isn't on the
+    Public Suffix List, so all its users share one certificate budget, which
+    runs out. ADR-0040's archive recorded the same gap on 2026-06-08.
+75. **The sandbox is an unsafe, ephemeral learning environment.** It
+    demonstrates the approval workflow and protects nothing. The
+    documentation, dmf-init and the console say so plainly.
+76. **One local CA per install issues the certificates for the console and the
+    page, in both modes.** A device either taps through the warning (browsers
+    built on WebKit) or installs the CA once (browsers built on Chromium, and
+    any browser that refuses). The documentation leads with the tap-through
+    path. When the page gets the error "WebAuthn is not supported on sites
+    with TLS certificate errors", it switches to guided CA install steps with a
+    QR code. This amends decisions 50, 51, 58 and 60.
+77. **Project-run sandbox names stay deferred.** The refined design, and the
+    gates that must pass before anyone builds it, go into ADR-0040 through an
+    RFC.
+78. **ADR-0040's statement that tapping through a certificate warning can't
+    work with passkeys is corrected.** It holds for browsers built on
+    Chromium. Browsers built on WebKit allow it. The same RFC carries the
+    correction.
 
 ## How an administrator approves an operation
 
@@ -254,8 +286,7 @@ so and names the expected address, so nobody enrolls again by mistake.
   package path once WP6 designs it. No passkey approves its own removal
   (decision 45).
 - **The page's certificate stays valid.** Its lifetime equals the CA's
-  (decision 59), and the certificate manager renews it on the node. In public
-  mode, ACME renewal runs on the node. The console warns 30 days before expiry.
+  (decision 59), and the certificate manager renews it on the node. The console warns 30 days before expiry.
   The check-in and approvals keep working until the certificate expires. The
   node holds the certificate and its key as a plain Kubernetes Secret; the
   service needs no ExternalSecret, no OpenBao, and no console to start. It
@@ -265,31 +296,50 @@ so and names the expected address, so nobody enrolls again by mistake.
 
 Public mode is weaker than LAN mode, and the plan says so:
 
-- The page answers only while an approval is pending. It also answers the ACME
-  challenge path, and returns 404 at every other path and time (decision 57).
+- The page answers only while an approval is pending. It returns 404 at every
+  other path and time.
 - Rate limits and the failed-attempt counter apply, and the console and
   dmf-init warn that this sandbox approves over the public internet.
-- The page serves a publicly trusted certificate from a public ACME
-  certificate authority (decision 57). No private CA exists in public mode, and
-  devices install nothing. Whoever controls the IP or the wildcard DNS answer
-  for it could obtain a certificate for the name. Public mode relies on the
-  fixed IP staying the operator's and on the wildcard DNS service.
+- The page serves a certificate from the install's local CA, as in LAN mode
+  (decision 76). Devices tap through the warning (browsers built on WebKit) or
+  install the CA. A device that taps through accepts any certificate, so the
+  private CA pins nothing against someone who controls the IP or the wildcard
+  DNS answer for it. Public mode still relies on the fixed IP staying the
+  operator's and on the wildcard DNS service.
 
 ## Trusting the certificate authority
 
-- **One CA install covers the console and the page.** The CA exists in LAN mode
-  (decisions 57 and 58). Its key is on the node, so the certificate manager
-  renews both certificates there, and a copy is in the recovery package.
+The CA install is the fallback, and tap-through is the default. A device takes one of two
+paths (decision 76):
+
+- **Tap through, for browsers built on WebKit.** The administrator taps through
+  the certificate warning, and the browser then accepts passkeys on the page.
+  On iPadOS, after "visit this website", go back and reload the page. The
+  warning returns after a browser restart, so it is routine.
+- **Install the CA, for browsers built on Chromium.** These browsers refuse
+  passkeys on a page with a certificate error. When the page gets the error
+  "WebAuthn is not supported on sites with TLS certificate errors", it offers
+  the guided CA install.
+
+After a tap-through, the browser no longer refuses a spoofed `.local` page, so
+an attacker on the LAN could imitate the page. The plan accepts this, because
+the sandbox is an unsafe, ephemeral learning environment (decision 75).
+
+- **One CA install covers the console and the page.** The CA exists in both
+  modes (decisions 58 and 76). Its key is on the node, so the certificate
+  manager renews both certificates there, and a copy is in the recovery
+  package.
 - **The CA comes from the workstation.** dmf-init serves the CA
   download for enrollment from the workstation and shows the CA's fingerprint
   there; the console shows the fingerprint too. The administrator compares it
   with the fingerprint in the device's certificate details. The enrollment
   instructions show where to find it on each platform. The administrator picks the platform, because the browser's user
   agent reports a Mac on an iPad.
-- **After the CA is trusted, a spoofed `.local` name can't approve.** Another
-  device on the LAN can claim the name, but it can't present a certificate
-  from the CA. The browser refuses the page and doesn't offer the passkey. A
-  spoofed name can block approvals; it can't approve or capture key material.
+- **After the CA is trusted, a spoofed `.local` name can't approve.** This
+  holds only for devices that installed the CA. Another device on the LAN can
+  claim the name, but it can't present a certificate from the CA. The browser
+  refuses the page and doesn't offer the passkey. A spoofed name can block
+  approvals; it can't approve or capture key material.
 - **The CA has a lifetime and a reissue rule.** dmf-init sets the CA's
   lifetime at install. It reissues the CA, and every device trusts the new one,
   when the recovery package or the workstation store is compromised. A lost
@@ -307,10 +357,11 @@ Public mode is weaker than LAN mode, and the plan says so:
 | Stolen recovery package with a weak passphrase | The passphrase and its key derivation, which WP6 specifies | Yes, with a passphrase policy |
 | Compromised console | Separate page, catalogue text, passkey required | Yes, the administrator must read the page |
 | Compromised public tier | Static, read-only page code; signed executor key; no executor identity in the public tier | Yes, a compromise can capture keys during an approval |
-| Attacker on the LAN squatting the `.local` name | The CA; the browser refuses the page | Denial of service only |
+| Attacker on the LAN squatting the `.local` name | On devices with the CA installed, the browser refuses the page. On tap-through devices, nothing: an attacker can imitate the page and capture key material during an approval | Yes, under decision 75 (unsafe, ephemeral learning environment) |
 | Passkey sync-account takeover | Two independent passkeys (decision 40); LAN mode is private | In public mode the page is reachable, so this is the largest residual risk there |
 | Stolen phone with a known passcode | Device user verification | Yes, as decision 8 accepts |
 | Loss of the IP or of the wildcard DNS service (public mode) | None beyond the requirement | Yes, "lose the IP, lose the sandbox" |
+| Someone who controls the IP or the wildcard DNS answer (public mode) | None for tap-through devices, which accept any certificate; the CA pins nothing against them | Yes, under decisions 75 and 76 |
 
 ## Device test, 2026-11-17
 
@@ -324,12 +375,29 @@ evidence for Chrome on Android or on a desktop.
 | Safari | Yes | Yes, through a profile, then the Certificate Trust Settings switch | Yes, synced passkey | Yes, also after a browser restart | Yes. Not rechecked after the restart, because the page's storage was cleared |
 | Chrome | Yes | Uses the same system trust store | Yes, synced passkey | Yes | Yes |
 
+## Device test, 2026-11-18
+
+A throwaway page behind a local CA served one variant per certificate error
+(self-signed, unknown issuer, and others), each checked to fail for its
+intended reason only.
+
+| Device and browser | Result |
+|---|---|
+| iPadOS, Safari | Passkey with PRF and user verification works after a tap-through (go back and reload). The warning returns after a restart. |
+| iPadOS, Chrome | Works after a tap-through. It runs on WebKit there. |
+| macOS, Safari | Works after a tap-through. |
+| macOS, Chrome | Refuses: "WebAuthn is not supported on sites with TLS certificate errors." |
+| Android, Chrome and Samsung browser | Refuse with the same error. `.local` names resolve. |
+| Android, Chrome, CA installed | No warning, and the passkey prompt appears. The enrollment wasn't completed, because the device was borrowed. |
+
 **Before the sandbox rollout**, these need a result:
 
 - an address change of the node: the passkey still approves, and the name is
   still announced;
-- a device with no VPN; an Android-powered device, where `.local` resolution is
-  the main doubt; an iPhone; the Mac;
+- an enrollment on Android with the CA installed, on a device with its owner's
+  account;
+- a device with no VPN;
+- an iPhone, which is optional because it is expected to match the iPad;
 - the `.local` announcer on a Linux k3s node, and from dmf-init on the
   workstation, including in a container;
 - a certificate from another CA, and a certificate from this CA for a name
@@ -349,7 +417,7 @@ off until the slices it depends on are in.
 | Slice | What it delivers | Done when | Depends on |
 |---|---|---|---|
 | A. Audit record | In dmf-init: a stdlib-only audit module with a chained, numbered, append-only record, on a node volume that only the executor writes to. Retention is 13 months or 64 MiB, whichever comes first: it trims whole segments and keeps the hash of the last trimmed entry. Tamper and gap detection. A gate refuses a root token when its record can't be written, and a full record never blocks an unseal. Intent entries for the revoker. The installer's first entry records its initial root token (decision 69). The failed-attempt counter lives on the public tier's own small volume. The slim second build target (decisions 68 to 73). | The retention (13 months, 64 MiB) and the overflow behavior are recorded and tested, including a full record that doesn't block an unseal and a flood of failed attempts that doesn't trim authenticated entries. | None |
-| C. Modes, name, and CA | dmf-init asks for the mode. In LAN mode it creates one CA on the workstation, shared by the console and the page, puts the key on the node and in the package, and serves the CA download. The certificate manager renews both certificates. In public mode there is no private CA: the page gets a public ACME certificate and answers the challenge path. dmf-infra announces the `.local` name in LAN mode. The console shows the fingerprint and the public-mode warning. | A fresh install in each mode serves a valid certificate under the right name; in LAN mode the fingerprint matches in both places and one CA install covers the console and the page. | The address-change and Android `.local` device tests (decision 61) |
+| C. Modes, name, and CA | dmf-init asks for the mode. In both modes it creates one CA per install on the workstation, shared by the console and the page, puts the key on the node and in the package, and serves the CA download. The certificate manager renews both certificates. The page detects the Chromium certificate error and shows the guided CA install with a QR code. dmf-infra announces the `.local` name in LAN mode. The console shows the fingerprint and the public-mode warning. | A fresh install in each mode serves a valid certificate under the right name; in LAN mode the fingerprint matches in both places and one CA install covers the console and the page. | The address-change device test (decision 61) |
 | B. Executor identity and catalogue | In dmf-infra: the executor's Kubernetes-auth role and ServiceAccount, its narrow policy, its NetworkPolicy, the standing revoker with a 5-minute grace period and a scan every minute, and the catalogue's pinned per-change policies with their digests. The identity verifier checks every auth method and identity group for who holds each policy. The callers of `ops-admin`'s generate-root policy move or retire (decisions 65 to 69). A dry run against the fake OpenBao. | The executor alone can't finish a root token request; drift is refused before the mint; recovery works after a crash at each step; the scan revokes an unrecorded root token, doesn't race an in-flight mint, and a token left by a crash lives 6 minutes at most. | The ADR-0051 amendment, before it's built |
 | D. Page, session, and enrollment | In dmf-init: the public tier. Sessions are single use and bound to one catalogue entry and its parameters. WebAuthn uses user verification and the relying party ID. The page shows the short code and the catalogue text. Enrollment and removal need an enrolled passkey. The encrypted copy is released only after a verified assertion (decision 42). Rate limits, and a 404 when nothing is pending. It starts with a fixture credential and a fixture copy, so it doesn't wait for WP6. | WP5's negative tests; the rate-limit and 404 tests; an enrollment that another LAN device can't take over; a console session that can't add or remove a passkey; a compromised-console test in which the page shows the real operation. | A, B (the catalogue), C. The real encrypted copy waits for the WP6 design (decision 37) |
 | E. Executor run | In dmf-init: the executor tier, with login, the per-session key, generate-root with the recovery keys, the recorded accessor, the drift checks, the scoped mint, the revokes, and the audit lines. | WP5's sandbox-lane run and its injected-failure tests; the public tier's server side never holds the recovery keys in clear; the page refuses an executor key that isn't signed by the executor. | A, B, D |
@@ -367,8 +435,10 @@ The order is A first, then B, and C once the device tests of decision 61 pass, t
   for the portable kit.
 - **ADR-0051 rule 3:** amended for the executor and the revoker (decision 55),
   with the details of decisions 65 to 69.
-- **ADR-0040:** amended for public mode's publicly trusted certificate
-  (decision 57), through an RFC first.
+- **ADR-0040:** amendment through RFC Discussion
+  [#938](https://github.com/orgs/dmfdeploy/discussions/938) (decisions 77 and
+  78). It defers project-run names with their gates and corrects the
+  click-through statement.
 
 ## Open points
 
@@ -381,8 +451,8 @@ The order is A first, then B, and C once the device tests of decision 61 pass, t
    rebuild.
 3. **The device results** listed in the device test section, before the
    sandbox rollout.
-4. **The order of the device tests** (decision 61): the address-change test and
-   the Android `.local` test run before slice C.
+4. **The order of the device tests** (decision 61): the address-change test
+   runs before slice C.
 5. **Console login with the enrolled passkeys** comes later, outside WP5
    (decision 63), tracked in [#936](https://github.com/dmfdeploy/dmfdeploy/issues/936).
 6. **Losses mean a rebuild:** losing every enrolled passkey, or the workstation
