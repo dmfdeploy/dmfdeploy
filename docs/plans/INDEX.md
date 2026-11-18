@@ -18,7 +18,7 @@ shelved, kept for provenance.
 
 ## Draft (4)
 
-- [operator-unlock-wp5-wp9-build-plan](operator-unlock-wp5-wp9-build-plan.md) — 2026-11-17
+- [operator-unlock-wp5-wp9-build-plan](operator-unlock-wp5-wp9-build-plan.md) — 2026-11-18
 - [dmf-closed-loop-assurance-pattern-plan](dmf-closed-loop-assurance-pattern-plan.md) — 2026-10-21
 - [dmf-facility-console-born-inventoried-env-surfacing-plan](dmf-facility-console-born-inventoried-env-surfacing-plan.md) — 2026-10-21
 - [dmf-media-workload-design-canvas-plan](dmf-media-workload-design-canvas-plan.md) — 2026-10-20
