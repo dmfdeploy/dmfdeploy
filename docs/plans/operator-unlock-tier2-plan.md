@@ -214,8 +214,10 @@ needs a different scope, stop and ask for a new decision.
     use a copy, the admin's device asserts the passkey with user verification,
     derives a key from the PRF output and decrypts the copy on the device. The
     server never stores the key material in the clear. The executor holds the
-    recovery keys in memory during an approval. The public tier never handles
-    them in clear (the build plan's two-tier design). The copy of the seal
+    recovery keys in memory during an approval. The public tier's server
+    process never handles them in clear. Its page code runs on the
+    administrator's device and does handle them there, which the build
+    plan's two-tier design and residual-risk table accept. The copy of the seal
     key stored with the Raft snapshots covers a rebuild. A lane with a
     boot-time unseal needs its own decision, because the copy must be
     reachable while OpenBao is sealed. *See also decisions 36, 37 and 42 (2026-11-14).*
