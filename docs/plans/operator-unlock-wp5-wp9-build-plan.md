@@ -97,9 +97,9 @@ report, a research report on private networks, a device test, and two reviews.
       state, no root token outlives its approval. The installer's initial token
       is revoked at the end of the install, before the revoker starts
       (decision 90). The revoker reads the audit record through a read-only
-      mount (decision 88). If it can't read the record, it revokes every
-      unrecorded root token older than the grace period and raises an alert
-      (decision 89). It measures the grace period from the token's creation
+      mount (decision 88). If it can't read the record, it treats no accessor
+      as recorded, revokes every root-policy token older than the grace period,
+      and raises an alert (decision 89). It measures the grace period from the token's creation
       time on the server (decision 92). Decisions 65 to 69 set the grace period
       and the scan.
     - These identities amend ADR-0051 rule 3. The executor may start a root
@@ -285,7 +285,11 @@ has decision 93.
     executor's volume.
 89. **If the record can't be read, the revoker revokes every unrecorded root
     token older than the grace period and raises an alert.** The executor can't
-    mint while the record is broken, because its gate refuses.
+    mint while the record is broken, because its gate refuses. (Clarified on
+    2026-11-18: with the record unreadable, no accessor counts as recorded, so
+    the revoker revokes every token with the root policy that is older than
+    the grace period. A failure of the revoker's own read or mount therefore
+    fails closed.)
 90. **Everything during install runs with the installer's initial token,** which
     the installer revokes at the end, before the revoker starts. This widens
     decision 69 to the rotation play and the secret seeding at install.
@@ -559,8 +563,9 @@ can run in parallel. Steps B3 to B6 follow in order.
    standard-library scan script in a ConfigMap. A Deployment runs the script
    every 60 seconds (decisions 85 and 87). It reads the audit record through a
    read-only mount (decision 88) and measures the grace period from the token's
-   server creation time (decision 92). If the record is unreadable, it revokes
-   and alerts (decision 89). It starts only after the install.
+   server creation time (decision 92). If it can't read the record, it treats
+   no accessor as recorded, revokes every root-policy token older than the
+   grace period, and alerts (decision 89). It starts only after the install.
 4. **B4, verifier coverage:** the allowlist of login methods and the
    policy-holder check across roles, users, token roles, identity entities, and
    groups (decision 92), plus the live policy digests.
