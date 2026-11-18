@@ -136,7 +136,9 @@ needs a different scope, stop and ask for a new decision.
 10. Periodic admin check-in: a 30-day period, warnings at 14, 7, 3 and 1 days,
     and on expiry privileged changes wait while workloads keep running. The
     recovery package path always works. *Confirmed on 2026-11-14 (decision
-    30).*
+    30).* *Sandbox lane, decision 79 of the build plan:* the package only restores. After
+    expiry, a passkey check-in resumes privileged changes, and with no
+    passkey left the way back is a rebuild.
 11. Next step: a plan in `docs/plans/` with `tracking_issue: 864`. Its first
     work package runs the real-device confirmations from Appendix B of the
     RFC.
@@ -154,7 +156,7 @@ needs a different scope, stop and ask for a new decision.
     token creation. The device is a phone, a laptop or tablet with a platform
     authenticator, or a hardware security key with a PIN. The sandbox lane
     needs at least two enrolled admin devices. The ADR-0009 recovery package
-    stays the last resort. *Changed on 2026-11-12 (decision 21):* the device
+    stays the last resort. *Sandbox lane, decision 79 of the build plan:* the package only restores. *Changed on 2026-11-12 (decision 21):* the device
     does not store the recovery key material. It decrypts the server-stored
     copy for its passkey. *Changed on 2026-11-14 (decision 26):* the minimum
     is two independent passkeys. The earlier minimum counted devices.
@@ -244,7 +246,8 @@ needs a different scope, stop and ask for a new decision.
     15.* The plan expects the recovery package to restore, approve, check in
     and enrol a device. For each of these jobs, the plan records what the
     package must hold. If any job needs the recovery keys, they go in the
-    package. *Added on 2026-11-14 (decision 31):* the operator asked for a
+    package. *Sandbox lane, decision 79 of the build plan:* restore is the package's only job,
+    so approve, check in and enrol aren't package jobs there. *Added on 2026-11-14 (decision 31):* the operator asked for a
     full recovery package. Decision 32 says what it holds.
 26. Dated 2026-11-14 (record item 4). *Amends decision 14 and the 2026-11-08
     wording, which counted devices.* The admin enrols at least two independent
@@ -379,7 +382,10 @@ needs a different scope, stop and ask for a new decision.
     must pass before a Mac approves.
 45. Dated 2026-11-14. *Adds to decision 17.* Any other enrolled passkey
     approves the removal of a device, or the recovery package when no other
-    passkey is available. A passkey cannot approve its own removal. The
+    passkey is available. A passkey cannot approve its own removal.
+    *Sandbox lane, decisions 79 and 81 of the build plan:* the package doesn't
+    approve a removal, and a removal deletes the credential and its copy
+    without rotation. The
     removal counts as done only after the rotation of decision 17 and the
     reissued package of decision 34. If one passkey remains, the console asks
     for a replacement, because one is below the minimum of decision 26.
@@ -708,9 +714,9 @@ column was "To specify" for every job before decision 32 set the contents.
 | Job | What the plan says today | What the package must hold |
 |---|---|---|
 | Restore | A direct copy of the seal key completes the restore with no enrolled device (decisions 15 and 19, WP10). | The seal key, the OpenBao snapshot saved with the package, and the private key that opens every later snapshot download (decisions 32 and 33). Test: with no passkey, restore from the package snapshot, and from a real later download opened with the package key. |
-| Approve | The package stays the last resort when no enrolled device is available (decision 14). A root token needs a quorum of recovery keys (decision 13). | The recovery keys, which meet the threshold alone (decision 32). The executor's own login is still required (decisions 24 and 38). Test: with no passkey and a working executor login, the package's recovery keys complete one approval through the executor of WP5. |
-| Check in | The package path always works, also after expiry, and can check in (decision 10, WP8). | The recovery keys (decision 32). Required outcome: after expiry and with no passkey, a check-in made with the package succeeds. How the package authenticates a check-in is open (see "Open items"). |
-| Enrol | When no enrolled device is available, the package approves an enrolment (WP6). | The recovery keys and the seal key (decision 32), so the new passkey receives copies encrypted for its bound public key (decision 37). Required outcome: with no passkey, the package enrols a new one, and that passkey then approves. How the package authenticates an enrolment is open (see "Open items"). |
+| Approve | Long-lived sites only; in the sandbox lane this isn't a package job (decision 79). The package stays the last resort when no enrolled device is available (decision 14). A root token needs a quorum of recovery keys (decision 13). | The recovery keys, which meet the threshold alone (decision 32). The executor's own login is still required (decisions 24 and 38). Test: with no passkey and a working executor login, the package's recovery keys complete one approval through the executor of WP5. |
+| Check in | Long-lived sites only; in the sandbox lane this isn't a package job (decision 79). The package path always works, also after expiry, and can check in (decision 10, WP8). | The recovery keys (decision 32). Required outcome: after expiry and with no passkey, a check-in made with the package succeeds. How the package authenticates a check-in is open (see "Open items"). |
+| Enrol | Long-lived sites only; in the sandbox lane this isn't a package job (decision 79). When no enrolled device is available, the package approves an enrolment (WP6). | The recovery keys and the seal key (decision 32), so the new passkey receives copies encrypted for its bound public key (decision 37). Required outcome: with no passkey, the package enrols a new one, and that passkey then approves. How the package authenticates an enrolment is open (see "Open items"). |
 
 Decision 32 sets what the package holds. It does not set how the package
 authenticates a check-in or an enrolment. WP8 defines a check-in as a passkey
@@ -1345,7 +1351,8 @@ privileged change or cold boot that needs them.
 
 **Confirmed on 2026-11-14 (decision 30).** The 30-day check-in stays as
 approved. The recovery package's part in a check-in is in the package
-specification under WP2 (decision 25).
+specification under WP2 (decision 25). In the sandbox lane the package has no
+part in a check-in (decision 79 of the build plan).
 
 **Properties that must hold.** These follow decision 10.
 
@@ -1637,7 +1644,9 @@ before the package that depends on it is built.
   passkey is left (the WP2 package table). Decision 32 puts the recovery keys
   and the seal key in the package, and decision 10 requires the package path
   to work after expiry. The design must not accept an unauthenticated claim
-  of possession. WP8 and WP6 record it.
+  of possession. WP8 and WP6 record it. This applies to long-lived sites
+  only: in the sandbox lane, decision 79 of the build plan removes these
+  package jobs.
 - Where a lane with a boot-time unseal keeps its per-passkey copies. That
   waits for such a lane, in
   [#909](https://github.com/dmfdeploy/dmfdeploy/issues/909).
