@@ -179,7 +179,9 @@ has the full text.
     decision 90: every install step uses it) to the rule
     that no root token is created unless its audit record is written. It
     exists before the record. The installer revokes it and writes the
-    record's first entry, which says so.
+    record's first entry, which says so. (Slice B writes no entry: the first
+    entry moves to slice D, where the executor's volume gets its first
+    workload. See the [decision comment](https://github.com/dmfdeploy/dmfdeploy/issues/864#issuecomment-7012945072).)
 
 **Slice A, the audit record**
 
@@ -292,7 +294,9 @@ has decision 93.
     fails closed.)
 90. **Everything during install runs with the installer's initial token,** which
     the installer revokes at the end, before the revoker starts. This widens
-    decision 69 to the rotation play and the secret seeding at install.
+    decision 69 to the rotation play and the secret seeding at install. The
+    record's first entry, which decision 69 assigns to the installer, moves to
+    slice D (see the [decision comment](https://github.com/dmfdeploy/dmfdeploy/issues/864#issuecomment-7012945072)).
 91. **The new model applies to new installs.** The installer never attaches the
     `generate-root` policy to `ops-admin`. Existing sandboxes keep the old
     model until they're rebuilt, so no live removal step is built. (Amended by
@@ -307,7 +311,11 @@ has decision 93.
     reset completely, so no environment keeps the old model, and nothing is
     built to carry an installed environment across. The old callers retire
     outright where slice B replaces them. Environments installed before slice B
-    are rebuilt.
+    are rebuilt. After slice B, seeding happens only inside the install. A
+    release that adds a seeded secret reaches an installed environment only by
+    a rebuild, until the approval executor can write such secrets, which a
+    later slice delivers. `upgrade-in-place` stays as the upgrade path for
+    environments installed after slice B, without a seed stage.
 
 ## How an administrator approves an operation
 
