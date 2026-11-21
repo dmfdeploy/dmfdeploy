@@ -644,9 +644,31 @@ its place until step 7 opens.
 | 2 | B4 | dmf-infra | The verifier's code and tests. The existing checks keep running. The new checks that fail before activation (the `generate-root` holders) don't run yet. | Today's checks still run, and the new ones wait for step 7. | Merged, [dmfdeploy/dmf-infra#161](https://github.com/dmfdeploy/dmf-infra/pull/161) |
 | 3 | B5, dmf-env part | dmf-env | A `seed-install` command that seeds OpenBao only. The AWX role stays the single writer of the AWX key. The wrappers pass `openbao_install_seed_command`. The temporary root helper and the post-install seed path stay. | The current dmf-infra ignores the extra variable, and the old seed path still runs. | Merged, [dmfdeploy/dmf-env#44](https://github.com/dmfdeploy/dmf-env/pull/44) |
 | 4 | B5, install path | dmf-infra | The install seeds from the command. Playbooks 106 and 120 retire. `ops-admin` keeps `generate-root`, and the revoker stays stopped. | dmf-env already passes the command. The old post-install seed still works, because the revoker is stopped and `ops-admin` still holds `generate-root`, which OpenBao 2.6 and later require. Seeding twice is safe: every write is a no-op, is skipped, or errors. | Built; no pull request yet |
-| 5 | B5, dmf-init part | dmf-init | The post-install `seed-bao` step goes. The Manage "Upgrade in place" action stays. The release pins the dmf-env and dmf-infra tags that hold steps 3 and 4. | The install already seeds. | Built; no pull request yet |
-| 6 | B5, dmf-env part | dmf-env | The temporary root helper and the post-install seed path go. `upgrade-in-place` loses only its seed stage and stays as the upgrade path (decision 93). | Step 5 leaves no caller. | Built; no pull request yet |
+| 5 | B5, dmf-init part | dmf-init | The post-install `seed-bao` step goes. The Manage "Upgrade in place" action stays. A dmf-init install clones each repository at `main` when it runs, so nothing pins a tag, and the merge order is the protection. It needs the dmf-init fix that gives the upgrade-in-place script test a provider merged first. | The install already seeds, once step 4 is in. | Built; no pull request yet |
+| 6 | B5, dmf-env part | dmf-env | The temporary root helper and the post-install seed path go. `upgrade-in-place` loses only its seed stage and stays as the upgrade path (decision 93). | Step 5 leaves no caller, once it is in. | Built; no pull request yet |
 | 7 | B5, activation | dmf-infra | `ops-admin` loses `generate-root`. The revoker starts, with a pause and resume around the install, the rescue rule, and the `absent()` alert clause. The new verifier checks run. | Every temporary-root path is gone, and `ops-admin` no longer holds `generate-root`. | Built; no pull request yet |
+
+Each step depends on the one before it, and nothing pins them: dmf-init installs
+track `main`, so the order of the merges is the only protection. Reversing a pair
+breaks or skips seeding:
+
+- **Steps 4 and 5 reversed:** dmf-init no longer seeds after the install, and the
+  install doesn't seed yet, so a fresh install skips the seed.
+- **Steps 5 and 6 reversed:** dmf-init still calls the temporary root helper that
+  step 6 removes, so the install fails after the seed step.
+- **Steps 6 and 7 reversed:** `upgrade-in-place` still runs the old seed stage,
+  which needs the `generate-root` grant that step 7 removes.
+
+Two fixes merge before the steps that build on them:
+
+- **Before step 5:** the dmf-init fix that gives the upgrade-in-place script
+  test a provider. The fix makes the test write the provider that dmf-env main
+  reads, and step 5 is built on it.
+- **Before step 6:** the dmf-env fix that lengthens the playbook runner's time
+  limit for the eight stage playbooks. The upgrade's stage playbooks defaulted
+  to 900 seconds, which cut off the stage playbooks of a sandbox upgrade. The fix
+  gives those eight playbooks a longer limit, and step 6 is built on it. Without
+  it, an upgrade in place still stops at 900 seconds.
 
 Two reviews shaped this order. A sequence review moved the removal of
 `generate-root` from step 4 to step 7, after a check showed that seeding twice
