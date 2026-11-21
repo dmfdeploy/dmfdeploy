@@ -317,6 +317,32 @@ has decision 93.
     later slice delivers. `upgrade-in-place` stays as the upgrade path for
     environments installed after slice B, without a seed stage.
 
+## Decisions of 2026-11-21
+
+These follow a live end-state test of slice B. Numbering continues from
+decision 93. The
+[progress comment](https://github.com/dmfdeploy/dmfdeploy/issues/864#issuecomment-7060931751)
+on the tracking issue has the test result and the next steps.
+
+94. **Reviewer mode becomes the install default.** A from-scratch sandbox
+    install on the final branches of steps 4 to 7 passed the seed-in-install
+    check, then failed in the install stage: every Kubernetes auth login on the
+    fresh OpenBao returned 403, for both the revoker and the executor identity.
+    The cause is that `openbao_kubernetes_reviewer_enabled` defaults to
+    `false`. On that path, the install stores the OpenBao pod's own
+    ServiceAccount token as the TokenReview credential, and that account has no
+    TokenReview grant. The task that writes the config has `failed_when: false`,
+    so the bad config shows only at the first login. The defect is on `main`
+    today: the executor identity, merged earlier, can't log in on a default
+    install either. Nothing used a Kubernetes auth login until now, and step 7
+    is the first step to start a client that needs one. The fake OpenBao can't
+    show this, so the static and fake tests passed. ADR-0051 decides the fix
+    (reviewer mode, and its record that the stored pod token fails): OpenBao
+    runs as its own ServiceAccount, and a ClusterRole grants that account only
+    `create` on `tokenreviews`. The change lands as its own dmf-infra pull
+    request before step 7. It is safe alone on `main`, and it repairs the
+    executor login there too.
+
 ## How an administrator approves an operation
 
 In steady state the sandbox unseals itself, so approvals are rare: the monthly
@@ -533,7 +559,7 @@ off until the slices it depends on are in.
 |---|---|---|---|
 | A. Audit record | Audit module done: dmfdeploy/dmf-init#55, merged 2026-11-18. In dmf-init: a stdlib-only audit module with a chained, numbered, append-only record, on a node volume that only the executor writes to. Retention is 13 months or 64 MiB, whichever comes first: it trims whole segments and keeps the hash of the last trimmed entry. Tamper and gap detection. A gate refuses a root token when its record can't be written, and a full record never blocks an unseal. Intent entries for the revoker. The installer's first entry records its initial root token (decision 69). The failed-attempt counter lives on the public tier's own small volume. The slim second build target of decision 73 moves to slice D, where the approval service first needs an image. | The retention (13 months, 64 MiB) and the overflow behavior are recorded and tested, including a full record that doesn't block an unseal and a flood of failed attempts that doesn't trim authenticated entries. | None |
 | C. Modes, name, and CA | Done: dmfdeploy/dmf-env#43, dmfdeploy/dmf-init#56, dmfdeploy/dmf-infra#155 and #156, dmfdeploy/dmf-cms#221, merged 2026-11-18. Four parts in five pull requests (C3 has two) in order, listed below the table. In both modes the install gets one CA, made on the workstation and shared by the console and the page. The CA lasts 730 days (two years). The page detects the Chromium certificate error and shows the guided CA install with a QR code. The cluster's own self-signed CA is replaced for new installs only. | A fresh install in each mode serves a valid certificate under the right name; in LAN mode the fingerprint matches in both places and one CA install covers the console and the page. | The address-change device test (decision 61) |
-| B. Executor identity and catalogue | Seven steps, B0 to B6, listed below the table. They take eight pull requests, because B5 has one in dmf-infra and one in dmf-env. The steps build the executor's identity with no workload, the catalogue and its pinned policies, the standing revoker, the identity verifier, the install path, and a dry run against the fake OpenBao. The ADR-0051 amendment is accepted on #907, and the ADR text is in dmfdeploy/dmfdeploy#944. | The executor alone can't finish a root token request. After the install, no path to a root token outside the executor remains in dmf-infra or dmf-env. Drift is refused before the mint; recovery works after a crash at each step; the scan revokes an unrecorded root token, doesn't race an in-flight mint, and a token left by a crash lives 6 minutes at most. | None. It no longer waits for the amendment |
+| B. Executor identity and catalogue | Seven steps, B0 to B6, listed below the table. They take eight pull requests, because B5 has one in dmf-infra and one in dmf-env. The steps build the executor's identity with no workload, the catalogue and its pinned policies, the standing revoker, the identity verifier, the install path, and a dry run against the fake OpenBao. The ADR-0051 amendment is accepted on #907, and the ADR text is in dmfdeploy/dmfdeploy#944. The steps ship in the seven-step merge order of 2026-11-19, described below the list. State on 2026-11-21: B0 to B2 and merge steps 1 to 3 are merged; steps 4 to 7 are built but not opened. | The executor alone can't finish a root token request. After the install, no path to a root token outside the executor remains in dmf-infra or dmf-env. Drift is refused before the mint; recovery works after a crash at each step; the scan revokes an unrecorded root token, doesn't race an in-flight mint, and a token left by a crash lives 6 minutes at most. | None. It no longer waits for the amendment |
 | D. Page, session, and enrollment | In dmf-init: the public tier, and the slim second build target of decision 73 that the approval service runs from. Sessions are single use and bound to one catalogue entry and its parameters. WebAuthn uses user verification and the relying party ID. The page shows the short code and the catalogue text. Enrollment and removal need an enrolled passkey. The encrypted copy is released only after a verified assertion (decision 42). Rate limits, and a 404 when nothing is pending. It starts with a fixture credential and a fixture copy, so it doesn't wait for WP6. The real encrypted copy then follows the WP6 sandbox design in the operator unseal plan: a key pair from the PRF output, and the enrolled device makes the new copy. | WP5's negative tests; the rate-limit and 404 tests; an enrollment that another LAN device can't take over; a console session that can't add or remove a passkey; a compromised-console test in which the page shows the real operation. | A, B (the catalogue), C. The real encrypted copy depends on the WP6 key-pair device test (decision 37) |
 | E. Executor run | In dmf-init: the executor tier, with login, the per-session key, generate-root with the recovery keys, the recorded accessor, the drift checks, the scoped mint, the revokes, and the audit lines. | WP5's sandbox-lane run and its injected-failure tests; the public tier's server side never holds the recovery keys in clear; the page refuses an executor key that isn't signed by the executor. | A, B, D |
 
@@ -588,6 +614,41 @@ can run in parallel. Steps B3 to B6 follow in order.
    Slice B isn't done until both pull requests are in.
 6. **B6, dry run:** end to end against the fake, including a crash after the
    intent, after the mint, and before the write.
+
+### Merge order (2026-11-19)
+
+The B0 to B6 list above says what each step builds. The pull requests don't
+merge in that order. On 2026-11-19 the order changed to one rule: each pull
+request is safe alone on the `main` of the moment it merges, and delivery comes
+before activation. Code that changes behavior arrives after the code that it
+needs, and the step that turns the new model on comes last.
+
+B0 to B2 merged earlier, each as its own pull request, and sit before step 1:
+the test fake
+([dmfdeploy/dmf-infra#157](https://github.com/dmfdeploy/dmf-infra/pull/157)),
+the executor identity
+([dmfdeploy/dmf-infra#159](https://github.com/dmfdeploy/dmf-infra/pull/159)),
+and the catalogue
+([dmfdeploy/dmf-infra#158](https://github.com/dmfdeploy/dmf-infra/pull/158)).
+The seven steps below cover B3 to B6. B6, the dry run, has no pull request of
+its own in this table; the live end-state test described in decision 94 takes
+its place until step 7 opens.
+
+| Step | Maps to | Repository | Content | Why it's safe alone | State |
+|---|---|---|---|---|---|
+| 1 | B3 | dmf-infra | The revoker is installed with zero replicas and never starts. | Nothing scans, so every temporary-root path still works. | Merged, [dmfdeploy/dmf-infra#160](https://github.com/dmfdeploy/dmf-infra/pull/160) |
+| 2 | B4 | dmf-infra | The verifier's code and tests. The existing checks keep running. The new checks that fail before activation (the `generate-root` holders) don't run yet. | Today's checks still run, and the new ones wait for step 7. | Merged, [dmfdeploy/dmf-infra#161](https://github.com/dmfdeploy/dmf-infra/pull/161) |
+| 3 | B5, dmf-env part | dmf-env | A `seed-install` command that seeds OpenBao only. The AWX role stays the single writer of the AWX key. The wrappers pass `openbao_install_seed_command`. The temporary root helper and the post-install seed path stay. | The current dmf-infra ignores the extra variable, and the old seed path still runs. | Merged, [dmfdeploy/dmf-env#44](https://github.com/dmfdeploy/dmf-env/pull/44) |
+| 4 | B5, install path | dmf-infra | The install seeds from the command. Playbooks 106 and 120 retire. `ops-admin` keeps `generate-root`, and the revoker stays stopped. | dmf-env already passes the command. The old post-install seed still works, because the revoker is stopped and `ops-admin` still holds `generate-root`, which OpenBao 2.6 and later require. Seeding twice is safe: every write is a no-op, is skipped, or errors. | Built; no pull request yet |
+| 5 | B5, dmf-init part | dmf-init | The post-install `seed-bao` step goes. The Manage "Upgrade in place" action stays. The release pins the dmf-env and dmf-infra tags that hold steps 3 and 4. | The install already seeds. | Built; no pull request yet |
+| 6 | B5, dmf-env part | dmf-env | The temporary root helper and the post-install seed path go. `upgrade-in-place` loses only its seed stage and stays as the upgrade path (decision 93). | Step 5 leaves no caller. | Built; no pull request yet |
+| 7 | B5, activation | dmf-infra | `ops-admin` loses `generate-root`. The revoker starts, with a pause and resume around the install, the rescue rule, and the `absent()` alert clause. The new verifier checks run. | Every temporary-root path is gone, and `ops-admin` no longer holds `generate-root`. | Built; no pull request yet |
+
+Two reviews shaped this order. A sequence review moved the removal of
+`generate-root` from step 4 to step 7, after a check showed that seeding twice
+is safe. A route review found that gating step 6 on the dmf-init release left
+workstation runs of `upgrade-in-place` unprotected. Decision 93 settles that:
+the command stays, without its seed stage.
 
 ## Audit record design
 
@@ -704,3 +765,10 @@ Slice A is dmfdeploy/dmf-init#55.
    (decision 63), tracked in [#936](https://github.com/dmfdeploy/dmfdeploy/issues/936).
 6. **Losses mean a rebuild:** losing every enrolled passkey, or the workstation
    with the recovery passphrase (decision 64).
+7. **Slice B's remaining work, in order:**
+   1. The dmf-infra pull request that makes reviewer mode the default
+      (decision 94), with a test that fails when a default install would write
+      the stored-token config.
+   2. A rerun of the live end-state test on the final branches, with that
+      change included.
+   3. Steps 4 to 7 of the merge order, each opened after a sequence check.
