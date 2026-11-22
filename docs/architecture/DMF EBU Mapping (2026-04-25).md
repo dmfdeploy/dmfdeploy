@@ -154,7 +154,7 @@ Homelab-specific terms with no EBU equivalent (kept):
 |---|---|---|
 | `phase0-host.yml` … `phase8-verify.yml` | *(deleted)* | superseded |
 | (new) | `lifecycle-provision.yml` | imports layer 1xx → 2xx → 3xx → vertical-security + vertical-monitoring + vertical-orchestration → 4xx → 5xx → 6xx |
-| `playbooks/80-stack-verify.yml` (top-level wrapper) | `lifecycle-operate.yml` | full-stack verify, DR drill, day-0 inventory |
+| `playbooks/80-stack-verify.yml` (top-level wrapper) | `lifecycle-operate.yml` | read-only endpoint probes and catalog drift check |
 | `playbooks/90-teardown.yml` | `lifecycle-finalise.yml` | teardown sequence (reverse order) |
 | `site.yml` | `site.yml` (rewritten) | calls `lifecycle-provision.yml` |
 
