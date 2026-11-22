@@ -27,31 +27,33 @@ page="${page%% *}"
 STUB
 chmod +x "$work/bin/gh"
 
-# run_step PR_COMMITS LISTED UNSIGNED ACTOR: the stub lists LISTED commits
+# run_step PR_COMMITS LISTED UNSIGNED PR_AUTHOR UNSIGNED_AUTHOR: the stub lists LISTED commits
 # (capped at 250, 100 per page, like the real endpoint). Every commit carries a
 # sign-off except number UNSIGNED (0 means none). The count is passed to the
-# step as given, so it can be empty or not a number.
+# step as given, so it can be empty or not a number. PR_AUTHOR is the login that
+# opened the PR; UNSIGNED_AUTHOR is the login the unsigned commit is authored by.
 run_step() {
-  python3 - "$work" "$2" "$3" <<'PY'
+  python3 - "$work" "$2" "$3" "$5" <<'PY'
 import sys, json, base64
-work, listed, unsigned = sys.argv[1], min(int(sys.argv[2]), 250), int(sys.argv[3])
+work, listed, unsigned, who = sys.argv[1], min(int(sys.argv[2]), 250), int(sys.argv[3]), sys.argv[4]
 signed = "feat(ci): add a thing\n\nSigned-off-by: A <a@example.com>"
 unsigned_msg = "feat(ci): add a thing"
 for page in range(1, 4):
     rows = [base64.b64encode(json.dumps({"sha": "%040x" % n,
+                                         "author": {"login": who if n == unsigned else "octocat"},
                                          "commit": {"message": unsigned_msg if n == unsigned else signed}}).encode()).decode()
             for n in range((page - 1) * 100 + 1, min(page * 100, listed) + 1)]
     open(f"{work}/page{page}", "w").write("\n".join(rows))
 PY
-  PATH="$work/bin:$PATH" STUB_DIR="$work" COMMITS_URL=x PR_COMMITS="$1" ACTOR="$4" \
+  PATH="$work/bin:$PATH" STUB_DIR="$work" COMMITS_URL=x PR_COMMITS="$1" PR_AUTHOR="$4" \
     bash "$work/step.sh" >"$work/out" 2>&1
 }
 
 fail=0
-# expect NAME WANT_EXIT PR_COMMITS LISTED UNSIGNED ACTOR
+# expect NAME WANT_EXIT PR_COMMITS LISTED UNSIGNED PR_AUTHOR [UNSIGNED_AUTHOR]
 expect() {
   local rc=0
-  run_step "$3" "$4" "$5" "$6" || rc=$?
+  run_step "$3" "$4" "$5" "$6" "${7:-octocat}" || rc=$?
   if [ "$rc" -ne "$2" ]; then
     echo "FAIL: $1 (exit $rc, want $2)" >&2; cat "$work/out" >&2; fail=1
   else
@@ -75,6 +77,10 @@ expect "missing commit count fails" 1 "" 3 0 octocat
 expect_message "missing count is reported" "missing or not a number"
 expect "commit count not a number fails" 1 abc 3 0 octocat
 expect_message "non-numeric count is reported" "missing or not a number"
-expect "dependabot passes with an unsigned commit" 0 3 3 2 "dependabot[bot]"
-expect "dependabot passes without a commit count" 0 "" 3 2 "dependabot[bot]"
+BOT="dependabot[bot]"
+expect "dependabot PR with an unsigned dependabot commit passes" 0 3 3 2 "$BOT" "$BOT"
+expect "dependabot PR with an unsigned human commit fails" 1 3 3 2 "$BOT" octocat
+expect "human PR with an unsigned dependabot-authored commit fails" 1 3 3 2 octocat "$BOT"
+expect "dependabot PR without a commit count fails" 1 "" 3 2 "$BOT" "$BOT"
+expect "dependabot PR whose commits cannot all be listed fails" 1 300 300 0 "$BOT" "$BOT"
 exit "$fail"
