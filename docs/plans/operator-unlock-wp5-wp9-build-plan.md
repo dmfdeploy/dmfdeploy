@@ -693,10 +693,18 @@ refuses a cached checkout that doesn't declare a capability it needs. This guard
 is the one that lasts. Because the declaration is already on `main` when step 5
 merges, a fresh clone passes the check.
 
-**Non-goal:** dmf-init and the install don't support environments or bootstrap
-runs started before slice B. Rebuild them (ADR-0051): remove the environment and
-install again. A retry of a run that failed at the removed `seed-bao` step says so
-and refuses. dmf-init has no migration, provenance stamp or legacy cursor logic.
+**Non-goals and the boundary:** two separate rules apply.
+
+1. dmf-init and the install don't support environments or bootstrap runs started
+   before slice B. Rebuild them (ADR-0051): remove the environment and install
+   again. A retry of a run that failed at the removed `seed-bao` step says so and
+   refuses. dmf-init has no migration, provenance stamp or legacy cursor logic.
+2. dmf-init refuses any cached dmf-infra checkout that doesn't declare a
+   capability it needs, whenever it was fetched. That includes a checkout fetched
+   during slice B, after step 4 and before the marker pull request. Removing the
+   environment doesn't help, because the retry uses the same checkout. Remove
+   `<data root>/repos`, select a ref that has the marker if the selected ref isn't
+   `main`, and install again.
 
 Two reviews shaped this order. A sequence review moved the removal of
 `generate-root` from step 4 to step 7, after a check showed that seeding twice
