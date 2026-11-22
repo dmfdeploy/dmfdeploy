@@ -229,7 +229,7 @@ cd ~/repos/dmfdeploy/dmf-env
 # Single layer or vertical
 bin/run-playbook.sh ../dmf-infra/k3s-lab-bootstrap/playbooks/650-dmf-cms.yml
 
-# Lifecycle stage (provision/operate/finalise)
+# Lifecycle stage (provision/operate/finalise); operate only reads
 bin/run-playbook.sh ../dmf-infra/k3s-lab-bootstrap/lifecycle-operate.yml
 
 # Full build (watch for ~90 min)

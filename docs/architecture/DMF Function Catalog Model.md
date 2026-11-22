@@ -184,9 +184,9 @@ Per ADR-0012, the wrappers are:
 | Wrapper | EBU stage | Role for catalog entries |
 |---|---|---|
 | `lifecycle-provision.yml` | Provision | Walk Layers 1–6 baseline; for each catalog entry, ensure image is in Zot, chart is in OCI, NetBox `ipam.Service` is registered with `lifecycle:bootstrapped`. Workload is **not** deployed for catalog entries with `lifecycle_owner: configure`. |
-| `lifecycle-configure.yml` *(new)* | Configure | Per-entry playbook invocation. Default behavior is "no-op for entries already `lifecycle:active`". Tag-scoped: `--tags <key>` runs one entry's launcher. |
-| `lifecycle-operate.yml` | Operate / Monitor | Existing behavior (smoke tests, verify). Extended to assert NetBox tag matches Helm release presence per entry — drift detector. |
-| `lifecycle-finalise.yml` | Finalise & Review | Existing behavior (full teardown). For per-entry teardown, prefer `lifecycle-configure.yml --tags <key> --extra-vars finalise=true` or an explicit teardown wrapper; v1 keeps it pragmatic. |
+| *(no wrapper)* | Configure | Per-entry launch runs through the AWX job templates in `dmf-runbooks` ([ADR-0025](../decisions/0025-ansible-in-cluster-pods-and-catalog-helm.md)). Launching one flips the NetBox tag to `lifecycle:active`. |
+| `lifecycle-operate.yml` | Operate | Read-only: endpoint probes, plus a drift detector that asserts the NetBox tag matches Helm release presence per entry. It deploys nothing. |
+| `lifecycle-finalise.yml` | Finalise & Review | Existing behavior (full teardown). For per-entry teardown, launch the finalise AWX job template in `dmf-runbooks`; v1 keeps it pragmatic. |
 
 Per-function playbooks live in their source repo:
 
@@ -199,7 +199,7 @@ dmf-media/
   playbooks/
     410-nmos-cpp-provision.yml     # registers catalog entry, no launch
     configure-media/
-      launch-nmos-cpp.yml          # invoked by lifecycle-configure
+      launch-nmos-cpp.yml          # invoked by the AWX launch job template
       teardown-nmos-cpp.yml        # invoked by finalise
 ```
 
@@ -324,7 +324,7 @@ catalog entry and asserts:
 
 **v1 (Move 1):**
 - One catalog entry: `nmos-cpp`
-- `lifecycle-configure.yml` exists with one tagged entry
+- One AWX launch job template for the entry
 - `dmf-runbooks` + 2 mirrored AWX projects
 - dmf-cms catalog page reads YAML + NetBox, renders one entry, Deploy/Teardown buttons work
 - Drift detection in the Operate-stage smoke test

@@ -15,7 +15,7 @@ Adopt a **function catalog model** for Layer 4–6 functions and (in v2, post-Mo
 
 - **A YAML manifest** committed to the function's source repo at `<repo>/catalog/<key>.yaml`. Authoritative for static metadata: EBU layer/vertical, dependencies, the Configure and Finalise playbook references, image/chart pinning, default parameters. This is the "what's available" side.
 - **A NetBox runtime record**, extending the existing `ipam.Service` registration written by `roles/common/dmf-born-inventory/`. Tagged `lifecycle:bootstrapped` after Provision, flipped to `lifecycle:active` after Configure, flipped back after Finalise. This is the "what's currently active" side.
-- **A Configure playbook** (for example `playbooks/configure-media/launch-<key>.yml` in the function's source repo) that launches the workload from a catalog entry and updates the NetBox tag. Imported from `lifecycle-configure.yml` via per-function tag (ADR-0012).
+- **A Configure playbook** (for example `playbooks/configure-media/launch-<key>.yml` in the function's source repo) that launches the workload from a catalog entry and updates the NetBox tag. Launched through the function's AWX job template in `dmf-runbooks` (ADR-0012, ADR-0025).
 - **A Finalise playbook** (symmetric, for example `teardown-<key>.yml`) that removes the workload and flips the tag back.
 
 dmf-cms reads the catalog by joining YAML metadata (from the in-cluster Forgejo mirrors) with NetBox runtime tags. It exposes Deploy and Teardown buttons per entry that invoke the corresponding AWX job templates (ADR-0014 governs the AWX project layout that makes those templates resolve).

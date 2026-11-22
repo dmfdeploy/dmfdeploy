@@ -218,7 +218,7 @@ Ties EBU R 160 to operations:
   - [ ] No `hostPath` mounts (except small allowlist)
   - [ ] Image signature required for production namespaces
   - [ ] Image SBOM required for production namespaces
-- [ ] Drift-detection job runs against the cluster (extension of the existing `lifecycle-operate.yml` drift check)
+- [ ] Drift-detection job runs against the cluster (extension of the existing `operate-catalog-drift.yml` check that `lifecycle-operate.yml` runs)
 
 ### B.9 — SIEM-lite alerting
 
