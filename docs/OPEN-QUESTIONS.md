@@ -65,7 +65,13 @@ calls this the project's systemic risk.
 
 ## Known races and bugs in the headline workflow
 
-- **Sandbox teardown leaves the node dirty**: there is no decommission step
+- **Sandbox teardown leaves the node dirty**: teardown never contacts the node,
+  and there is no decommission step, by decision. Before a new sandbox run,
+  the operator re-images the node, or wipes k3s by hand as a guarded fallback,
+  after verifying the node is a disposable sandbox they own. Hetzner teardown is
+  manual for now ([#997](https://github.com/dmfdeploy/dmfdeploy/issues/997)).
+  The procedure is in the
+  [dmf-env README](https://github.com/dmfdeploy/dmf-env/blob/main/README.md#tear-down-a-sandbox-env)
   ([#18](https://github.com/dmfdeploy/dmfdeploy/issues/18)).
 
 ## Undecided (open architectural questions)
