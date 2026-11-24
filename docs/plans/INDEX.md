@@ -23,16 +23,12 @@ shelved, kept for provenance.
 - [dmf-facility-console-born-inventoried-env-surfacing-plan](dmf-facility-console-born-inventoried-env-surfacing-plan.md) — 2026-10-21
 - [dmf-media-workload-design-canvas-plan](dmf-media-workload-design-canvas-plan.md) — 2026-10-20
 
-## Executed (41)
+## Executed (37)
 
 - [dmf-console-durable-action-history-plan](dmf-console-durable-action-history-plan.md) — 2026-09-02 (executed 2026-10-21)
 - [dmf-console-shell-round-plan](dmf-console-shell-round-plan.md) — 2026-08-30 (executed 2026-10-21)
 - [DMF Console UI Round Plan 2026-08-21](DMF%20Console%20UI%20Round%20Plan%202026-08-21.md) — 2026-08-21 (executed 2026-08-29)
-- [dmf-console-arc-4-visual-pass-plan](dmf-console-arc-4-visual-pass-plan.md) — 2026-08-11 (executed 2026-10-21)
 - [DMF v0.2b Multi-Source Switch Spec 2026-07-15](DMF%20v0.2b%20Multi-Source%20Switch%20Spec%202026-07-15.md) — 2026-07-15 (executed 2026-08-28)
-- [dmf-public-safety-pattern-manifest-plan](dmf-public-safety-pattern-manifest-plan.md) — 2026-07-13 (executed 2026-07-14)
-- [dmf-v0-2-presentable-journey-execution-plan](dmf-v0-2-presentable-journey-execution-plan.md) — 2026-07-12 (executed 2026-10-21)
-- [dmf-init-long-run-re-entry-and-resume-hardening-plan](dmf-init-long-run-re-entry-and-resume-hardening-plan.md) — 2026-06-26 (executed 2026-06-27)
 - [DMF NMOS Crosspoint Media Function Plan 2026-06-21](DMF%20NMOS%20Crosspoint%20Media%20Function%20Plan%202026-06-21.md) — 2026-06-21 (executed 2026-06-22)
 - [DMF AWX On-Demand Scale-to-Zero Plan 2026-06-18](DMF%20AWX%20On-Demand%20Scale-to-Zero%20Plan%202026-06-18.md) — 2026-06-18 (executed 2026-06-20)
 - [canonical-cross-agent-skills](canonical-cross-agent-skills.md) — 2026-06-14 (executed 2026-06-14)
