@@ -9,7 +9,7 @@ tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/200
 > Executed. Status aligned with the backlog on 2026-10-21: its climax, the switch, works live, and episode 001 is published.
 
 > **STATUS: ACTIVE.** Execution-sequencing supplement to the
-> [`dmf-v0-2-ebu-facility-orchestration-re-anchor-plan.md`](dmf-v0-2-ebu-facility-orchestration-re-anchor-plan.md)
+> [`dmf-v0-2-ebu-facility-orchestration-re-anchor-plan.md`](../../plans/dmf-v0-2-ebu-facility-orchestration-re-anchor-plan.md)
 > (#189). That plan owns the **north star and WP definitions**; this one owns
 > **order, acceptance gates, and demo readiness** for the presentable
 > end-to-end journey. It defines no new scope beyond the demo-readiness

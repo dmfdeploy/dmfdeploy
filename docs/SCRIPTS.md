@@ -117,6 +117,12 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `dmf-env/bin/validate-env.sh` | pre-apply validation for cloud envs. |
 | `dmf-env/bin/working-model-digest.sh` | print the DMF working-model digest for session context. |
 
+## dmf-env — `dmf-env/scripts/`
+
+| Script | Description |
+|---|---|
+| `dmf-env/scripts/check.sh` | run the dmf-env checks that CI runs. |
+
 ## dmf-media — `dmf-media/bin/`
 
 | Script | Description |
@@ -133,3 +139,10 @@ repo's `CLAUDE.md` and the matching skill in `.claude/skills/`.
 | `dmf-init/bin/build-bundle.sh` | build a SELF-CONTAINED dmf-init appliance image (the 6 runtime repos baked in) and export it as a portable `docker load` tarball. No registry, no source checkout, no bind-mounts needed on the target host: docker load -i <tarball> docker run --rm -p 127.0.0.1:8000:8000 --tmpfs /tmp/dmf-init-data:exec dmf-init:bundle # open the http://localhost:8000/?token=... printed in the logs |
 | `dmf-init/bin/install-hooks.sh` | point this clone's git at .githooks/. |
 | `dmf-init/bin/working-model-digest.sh` | print the DMF working-model digest for session context. |
+
+## dmf-init — `dmf-init/scripts/`
+
+| Script | Description |
+|---|---|
+| `dmf-init/scripts/build-launcher-release.sh` | Build the launcher release assets. |
+| `dmf-init/scripts/stamp-launcher-image.sh` | Pin a launcher's default image to an exact image reference. |
