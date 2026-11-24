@@ -4,7 +4,7 @@ date: 2026-05-11
 superseded_by: "dmf-dynamic-netbox-driven-monitoring-plan.md"
 ---
 # DMF Day-0 Inventory and Monitoring Plan
-> **Superseded by** [dmf-dynamic-netbox-driven-monitoring-plan.md](../../plans/dmf-dynamic-netbox-driven-monitoring-plan.md) — see frontmatter.
+> **Superseded by** [dmf-dynamic-netbox-driven-monitoring-plan.md](dmf-dynamic-netbox-driven-monitoring-plan.md) — see frontmatter.
 
 > **Vocabulary updated 2026-04-25** — playbook numbering and Phase / Layer
 > language in this doc may reference the pre-EBU naming. Canonical layer /

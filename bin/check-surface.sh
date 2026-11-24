@@ -109,12 +109,10 @@ docs/plans/DMF Secret Ownership and OpenBao Migration Plan.md
 docs/plans/DMF v0.2b Multi-Source Switch Spec 2026-07-15.md
 docs/plans/Move 1 Gate 2 - Pivot to Path A for Catalog Launchers 2026-05-06.md
 docs/plans/canonical-cross-agent-skills.md
-docs/plans/dmf-adr-0025-lane-b-implementation-plan.md
 docs/plans/dmf-bootstrap-pre-seed-blocker-fix-implementation-plan.md
 docs/plans/dmf-bootstrap-provision-configure-split-plan.md
 docs/plans/dmf-console-durable-action-history-plan.md
 docs/plans/dmf-console-shell-round-plan.md
-docs/plans/dmf-dynamic-netbox-driven-monitoring-plan.md
 docs/plans/dmf-env-lifecycle-refactor-plan.md
 docs/plans/dmf-improvement-run-plan.md
 docs/plans/dmf-init-wizard-expansion-survey.md
@@ -141,7 +139,6 @@ docs/plans/dmf-workstream-a-clean-history-import-and-canonical-flip-execution-sp
 docs/plans/dmf-workstream-a-pre-a-tooling-implementation-spec.md
 docs/plans/dmf-workstream-b-dmf-env-public-surface-scrub-spec.md
 docs/plans/dmf-workstream-d-github-first-governance-execution-spec.md
-docs/plans/dmf-workstream-e1-pr-gate-ci-execution-spec.md
 docs/plans/dmf-zot-machine-identity-service-account-plan.md
 docs/plans/llm-restricted-git-pipeline-dev-testing-production-isolation-plan.md
 docs/plans/move-1-gate-2-trials-and-tribulations.md'
