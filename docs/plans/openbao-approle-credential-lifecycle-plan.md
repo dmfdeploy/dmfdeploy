@@ -253,6 +253,10 @@ Its OpenBao policy is rendered from the registry and may only:
 - assign a caller-supplied custom SecretID at the exact role's
   `custom-secret-id` endpoint with registry-bounded `ttl` and `num_uses`, look
   it up by the same candidate, and destroy only its accessor;
+- list that role's SecretID accessors, so that after a failed destroy it can
+  confirm from OpenBao's data that the old accessor is gone. Accessor IDs are
+  not secrets, and the identity can already create and destroy SecretIDs for
+  that role. The operator approved this addition on 2026-11-24;
 - read and update that target's rotation metadata and an explicitly declared
   OpenBao consumer binding, where applicable; and
 - create, read, and delete the single transaction-scoped staging secret for
@@ -298,7 +302,8 @@ with a Kubernetes Lease and follows this order:
    second candidate while the transaction is pending. Persist the resulting
    accessor and transition metadata to `issued-pending-delivery` before any
    consumer write. Do not grant access to the random `secret-id` generation
-   endpoint or to list SecretID accessors.
+   endpoint. Listing the target role's SecretID accessors is allowed only to
+   confirm a destroy (see "Least-privilege identities").
 4. Update every declared authoritative consumer destination from that same
    staged SecretID, stamping the transaction id/version with the credential.
    Do not make a local break-glass file the sole or current runtime copy.
