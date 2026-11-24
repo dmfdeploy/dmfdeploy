@@ -238,6 +238,10 @@ the frontmatter must be flipped; frontmatter wins for design content.
   If you want an automated gate for the review itself, the honest shape is a
   required status check bound to the head SHA (a push voids it). A label cannot serve as that gate.
 
+- **Write code to the [code principles](CODE-PRINCIPLES.md).** They guide how a
+  change is written. They don't gate a PR, and they are never on their own a
+  reason to refactor.
+
 ### Adversarial review gates (codex)
 
 Every non-trivial change is adversarially reviewed by an independent agent
