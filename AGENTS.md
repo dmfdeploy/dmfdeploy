@@ -35,6 +35,7 @@ reference architecture.
   first public import is a clean-history export from `bin/export-scan.sh`. Never push full history to a public mirror.
 - `dmf-env` is public. Env material never enters a repository; it lives in the operator-local store (ADR-0035).
   Before you publish, run `bin/dmf-env-public-surface-gate.sh` from the umbrella root. It fails on unlisted paths, banned files, and identity leaks.
+- Write code to the [code principles](docs/CODE-PRINCIPLES.md). They are guidelines: they never block a PR and are never a reason to refactor.
 - Write in the [project voice](docs/STYLE.md). Run `bin/check-voice.sh` on every draft; errors block.
 - Edit docs here and code in the component repos. Check before you move files between repos.
 - Keep public text free of real IPs, hostnames, private repo names and env
