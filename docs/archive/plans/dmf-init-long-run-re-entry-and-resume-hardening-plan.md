@@ -183,7 +183,7 @@ is fetched once on mount and failures are **silently ignored**
 
 ### (c) Resume durability — DECIDED by ADR-0044: stay stateless, no host persistence
 
-> **Resolved in [ADR-0044](../decisions/0044-dmf-init-stateless-tmpfs-recovery-model.md)
+> **Resolved in [ADR-0044](../../decisions/0044-dmf-init-stateless-tmpfs-recovery-model.md)
 > (Proposed, codex gate-reviewed).** The contract change was *considered and
 > rejected*: dmf-init **stays stateless** rather than persisting a cursor to host
 > disk. Rationale — facets (a)+(b) remove the need to restart a *healthy*
@@ -252,7 +252,7 @@ is fetched once on mount and failures are **silently ignored**
 ## Open questions
 
 - (a) Idle-slide value + absolute-cap value (codex: cap, don't slide unbounded).
-- (c) **Decided** by [ADR-0044](../decisions/0044-dmf-init-stateless-tmpfs-recovery-model.md)
+- (c) **Decided** by [ADR-0044](../../decisions/0044-dmf-init-stateless-tmpfs-recovery-model.md)
   (Proposed): stay stateless. Remaining: the dev/test scoping of fail-closed
   tmpfs, and the exact forced-export mechanism (auto-download on seal vs. gated
   continuation).
