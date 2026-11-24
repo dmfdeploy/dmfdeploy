@@ -45,6 +45,10 @@ ADR-0027 deferred the installation layer. MXL is the second function that forces
 
 `dmf-cms/tests/test_media_workloads.py` tests the server-side tenant scope and the 403 and 404 gates on the clear-for-deployment action. Discipline only for the rest: no check blocks a flow or live state from being written to NetBox.
 
+### Note (2026-11-24) on clear for deployment (#487)
+
+[dmf-cms#249](https://github.com/dmfdeploy/dmf-cms/pull/249) removes the **clear for deployment** action named in item 5 and the `POST /api/media-workloads/{instance}/clear` endpoint. v0.42.0 and the other recent releases checked still have them; the removal lands with the next console release. The install path never provisions a NetBox writer token, so on a standard deployed environment the endpoint returned 503, as dmfdeploy/dmfdeploy#755 reports. The 0.24.0 walk recorded a working confirm. A redesigned transition returns with the lifecycle design work in v0.2 or v0.3. The NetBox tag-flip function (`media_workloads.clear_for_deployment`) stays in the console code, and the tests named under Enforcement call that function directly once #249 lands. The rest of this decision is unchanged.
+
 ## Status
 
 Accepted (model); implementation in flight

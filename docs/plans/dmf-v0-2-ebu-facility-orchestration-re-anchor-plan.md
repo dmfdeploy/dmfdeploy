@@ -62,7 +62,7 @@ Grounded console coverage (from a code survey, 2026-07-06):
 |---|---|---|
 | Provision | ~80% | catalog deploy → AWX → NetBox tag |
 | Finalise & Review | ~80% | teardown job; no "review/record" surface |
-| Configure | ~60% | clear-for-deployment flips intent; no "connections" surface |
+| Configure | ~60% | clear-for-deployment flipped intent (being removed, [#487](https://github.com/dmfdeploy/dmfdeploy/issues/487)); no "connections" surface |
 | **Design** | ~20% | metadata only, no resource-profile view |
 | **Plan** | ~20% | no scheduling / reservation / **licence** surface |
 | Operate / Control | ~40% | job launcher; **no make/break flow control** |

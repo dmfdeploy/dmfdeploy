@@ -41,6 +41,16 @@ look at every surface and run nothing. The fifth-pass and sixth-pass notes
 below give the full account of what each one watched and what it only read.
 Read them before you trust any single sentence here.
 
+**Clear for deployment: removal pending.** v0.42.0 and the other recent
+releases checked offer the **Clear for deployment** control on the Provision
+step. The control and its endpoint come out with
+[dmf-cms#249](https://github.com/dmfdeploy/dmf-cms/pull/249) (tracked in
+[#487](https://github.com/dmfdeploy/dmfdeploy/issues/487)) and the next console
+release. It is removed for now: a redesigned transition returns with the
+lifecycle design work in v0.2 or v0.3, and the NetBox tag-flip function stays
+in the console code. Where this file describes the control, the text records
+what a dated walk saw on the console it names.
+
 **How to tell what a claim is worth.** Most beats say so in their own words.
 A claim stated as plain fact was watched on a live console by some pass, and
 the beat normally names which. A claim marked *(source-derived)* was read
@@ -390,7 +400,8 @@ something deploys it — today, that's Provision. This action does not deploy
 anything itself."* **Confirmed observed, not just source-read:** a later
 round's live walk exercised this control for real after a Teardown left
 members bootstrapped — full detail and the exact confirmation is in §6a,
-not repeated here.
+not repeated here. The next console release removes this control (see the
+note near the start of this file).
 
 Before you begin: confirm the facility is clean (ask the operator, or check
 yourself once logged in — Media Workloads will tell you). If a prior deploy
@@ -1518,6 +1529,10 @@ paragraph above refers to.
 > Confirmed both rounds, on the **Teardown** section's own per-entry status
 > line once torn down, verbatim: **"Not currently deployed."** — a status on
 > Teardown's own panel, distinct from "Already deployed." elsewhere.
+
+**Removal pending.** The next console release removes the control described
+next (see the note near the start of this file). What follows is the record of
+what the 0.24.0 and 2026-09-02 walks saw.
 
 **Clear for deployment — the control's own appearance and confirm-panel
 text are confirmed observed both rounds**, not merely source-read: because
