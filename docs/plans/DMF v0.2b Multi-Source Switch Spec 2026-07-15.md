@@ -92,8 +92,10 @@ concept and no "which source" selector at all.**
 **F3 — the console has a proven reason-gated, audited write to model on.** The
 media-workloads surface (`dmf-cms` `frontend/src/pages/MediaWorkloads/`:
 `index.tsx`, `WorkloadTile.tsx`, `InstanceLiveModal.tsx`, `ClearForDeployment.tsx`)
-already carries exactly one consequential write —
-`POST /api/media-workloads/{instance}/clear` (`main.py`). It is gated by
+carried exactly one consequential write when this spec was written:
+`POST /api/media-workloads/{instance}/clear` (`main.py`). That control and its
+endpoint are being removed ([#487](https://github.com/dmfdeploy/dmfdeploy/issues/487), dmf-cms#249);
+the switch write follows the pattern it set. It was gated by
 `_require_media_workloads_access` (engineer capability **or** `media-engineers`
 group; 403 otherwise; enforced on the *effective* user so view-as downgrade
 holds — ADR-0037 §5, #185 WP-B), it requires a non-empty `reason` via
@@ -453,13 +455,13 @@ body `{ "source_instance": "<source.id>", "reason": "<non-empty>" }`:
 5. **C5 audit** the quartet (actor + effective role + real_role under view-as +
    request_id + `source_instance` + reason + outcome) to the dmf-cms log +
    console-local Activity lane — **not** into AWX `extra_vars` (matches
-   clear-for-deployment / `_audit_awx_write`).
+   `_audit_awx_write`).
 6. Response echoes `request_id`, actor, role, reason, previous/requested source,
    outcome.
 
 **Authz decision (P2-3): reuse `_require_media_workloads_access`, no new gate.**
-Consistency with the surface's only other consequential write
-(clear-for-deployment) wins over introducing a looser operator-only gate, which
+Consistency with the surface's only other consequential write at the time
+(clear-for-deployment, being removed) wins over introducing a looser operator-only gate, which
 would fragment the surface's access model. This **intentionally diverges** from
 #201's looser "operator-gated" wording — the effective gate is *engineer-or-real-
 `media-engineers`*, which is stricter and already refuses a plain viewer. (The PR
@@ -551,8 +553,8 @@ console form ([#231]) driving `topology_params`.
   `catalog/mxl-videotest-view.yaml`; `dmf-runbooks`
   `playbooks/launch-mxl-fabrics-demo.yml`; `dmf-infra`
   `…/awx-integration/defaults/main.yml`; `dmf-cms` `src/dmf_cms/main.py`
-  (`_require_media_workloads_access`, `_require_reason`, `_audit_awx_write`,
-  `/api/media-workloads/{instance}/clear`), `src/dmf_cms/awx.py` (`launch_job`),
+  (`_require_media_workloads_access`, `_require_reason`, `_audit_awx_write`),
+  `src/dmf_cms/awx.py` (`launch_job`),
   `frontend/src/pages/MediaWorkloads/`.
 
 [#189]: https://github.com/dmfdeploy/dmfdeploy/issues/189

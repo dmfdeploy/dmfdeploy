@@ -404,15 +404,17 @@ call has a terminal outcome" (false — switch-source's does) or "every AWX
 action has a watcher" (false — `launch` and `switch-source` don't, for two
 different reasons) from the watched-action description above.
 
-Separately, the CLEAR-FOR-DEPLOYMENT path (`recordClear`) is logged through
+Separately, the CLEAR-FOR-DEPLOYMENT path (`recordClear`) was logged through
 the plain module `logger`, not `audit_logger`/`_audit_awx_write` (confirmed at
-`main.py:5463-5474`): it has no structured, correlatable server record to
-become a read of yet. **Bringing the clear path onto `_audit_awx_write` is a
-prerequisite for this section's plan, not an assumption that is already true
-today.**
+`main.py:5463-5474`): it had no structured, correlatable server record to
+become a read of. That control and its endpoint are being removed
+([#487](https://github.com/dmfdeploy/dmfdeploy/issues/487), dmf-cms#249), so
+bringing the clear path onto `_audit_awx_write` is no longer a prerequisite
+for this section's plan.
 
-**A client-supplied audit record is not an audit record.** Once the clear path
-is on the shared helper, all seven call sites can become
+**A client-supplied audit record is not an audit record.** The remaining six
+call sites (the seven above, less the `recordClear` site that dmf-cms#249
+removes) can become
 **reads/invalidations of the server's dispatch-level record**, never writers
 of a second one. Whether the same surface can also show the *terminal*
 outcome depends on the terminal audit-event producer below — a separate,
@@ -607,9 +609,8 @@ Named here so they are not lost between "decided" and "built":
 
 1. A server audit-READ endpoint over the ring buffer (hot) + Loki (cold) — does
    not exist today (§2b, tracked by umbrella issue #496).
-2. `recordClear`'s CLEAR-FOR-DEPLOYMENT path moved onto `_audit_awx_write` so it
-   has a structured server record to become a read of (§2b, tracked by
-   umbrella issue #496).
+2. No longer needed: the CLEAR-FOR-DEPLOYMENT path (`recordClear`) is being
+   removed (#487, dmf-cms#249), so it needs no structured server record (§2b).
 3. **A terminal audit-event producer** (tracked by umbrella issue #496).
    `_watch_job_operation` (or an equivalent terminal-state observer) needs to
    emit a structured audit event when it reaches a terminal `OperationState`,
