@@ -4,7 +4,7 @@
 **Date:** 2026-11-25
 **Deciders:** operator
 **Rule:** Keep every pin at its current version, or give it a one-line hard reason for staying behind. Sort each update into a lane by what it takes to prove it. Never treat version coupling or "not yet tested" as a reason to wait.
-**Cross-references / touches:** ADR-0005, ADR-0034, ADR-0036, [architectural-commitments-v1](architectural-commitments-v1.md). **Tracking issue:** [#1010](https://github.com/dmfdeploy/dmfdeploy/issues/1010). **RFC:** <RFC link>
+**Cross-references / touches:** ADR-0005, ADR-0034, ADR-0036, [architectural-commitments-v1](architectural-commitments-v1.md). **Tracking issue:** [#1010](https://github.com/dmfdeploy/dmfdeploy/issues/1010). **RFC:** [RFC: version policy](https://github.com/orgs/dmfdeploy/discussions/1015)
 
 ## Context
 
