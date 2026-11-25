@@ -81,7 +81,6 @@ File each one as its own issue when the open questions have answers.
 1. **Problems view for deltas** (dmf-cms, dmf-infra). An Alertmanager
    receiver and a console view list each delta with its duration and
    timeline, so the operator can act on it. This closes flow 3.
-   timeline, so the operator can act on it. This closes flow 3.
 
    The specification of this gap came from
    [dmfdeploy/dmfdeploy#495](https://github.com/dmfdeploy/dmfdeploy/issues/495),
@@ -105,17 +104,23 @@ File each one as its own issue when the open questions have answers.
      that failed to create, so flagging pauses during an active operation.
      This is the one role left for the ops store, and it is much smaller than
      today's.
-   - **Orphan scope** (feasibility finding of 2026-08-30). kube-state-metrics
-     exports no labels today, because `metricLabelsAllowlist` is unset in the
-     Prometheus Helm values (still true on dmf-infra main on 2026-11-25). So
-     orphan detection needs a Helm-values change, not a change to each
-     launcher. The join key is `app.kubernetes.io/instance`, which equals the
-     NetBox service name. Query Services and controllers, not pods, because
-     the nmos-cpp pod templates omit that label. Scope by namespace, and
-     exclude the AWX execution environment pods placed in `nmos` and the L3
-     lock and snapshot ConfigMaps, which aren't NetBox services. A
-     `dmf.io/managed` label on every chart would state DMF ownership outright
-     and is optional for now.
+   - **Orphan scope.** The Prometheus side needs a Helm-values change, not a
+     change to each launcher: kube-state-metrics exports no labels because
+     `metricLabelsAllowlist` is unset in the Prometheus values (rechecked on
+     dmf-infra main on 2026-11-25). The join key is
+     `app.kubernetes.io/instance`, which equals the NetBox service name. It
+     is a Helm identity, not a marker of DMF ownership, so it can't identify
+     DMF objects alone. Query Services and controllers, not pods, because the
+     nmos-cpp pod templates omit that label. Scope by namespace: media lands
+     in the fixed `nmos` and `mxl`, and platform components use `awx`,
+     `monitoring`, `netbox` and `zot`. Namespace alone still produces false
+     orphans, so exclude the AWX execution environment pods placed in `nmos`
+     and the L3 lock, snapshot and coordinator ConfigMaps, which aren't
+     NetBox services. Apart from the Prometheus values, this bullet comes
+     from the 2026-08-30 feasibility finding and wasn't rechecked. A
+     `dmf.io/managed` label on every chart would state DMF ownership
+     outright. It's optional hardening, worth adding before a fourth chart
+     makes the namespace and Helm-label match stop holding.
    - **What replaces the TTL block.** Today the dispatch block lifts when a
      dirty operation ages out of the store. Once blocked-ness comes from
      divergence, the block lifts when the divergence resolves. The job record
