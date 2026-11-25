@@ -77,10 +77,17 @@ None open.
   console i18n/air-gap posture ([ADR-0030](decisions/0030-console-i18n-and-airgap-posture.md)),
   catalog instance-vs-definition separation ([ADR-0027](decisions/0027-catalog-instance-vs-definition-separation.md), CRD + operator).
   Each stays Proposed until a customer, partner, or roadmap item forces it.
-- **dmf-init ↔ dmf-cms convergence**: two React+FastAPI apps with overlapping
-  concerns. This strategic question needs an ADR
-  ([#29](https://github.com/dmfdeploy/dmfdeploy/issues/29)), with a shared UI
-  framework as the tactical half ([#28](https://github.com/dmfdeploy/dmfdeploy/issues/28)).
+- **dmf-init ↔ dmf-cms convergence**: the direction is decided (2026-11-25).
+  dmf-init's functionality moves into dmf-cms for v0.3, and dmf-init stays the
+  standalone front door and day-0 bootstrapper. Still open is the ADR that
+  [#29](https://github.com/dmfdeploy/dmfdeploy/issues/29) asks for: the split
+  between a standalone day-0 bootstrapper and a console-integrated facility
+  spawner, and where environment state lives. The frontend half, aligning and
+  deduplicating the two apps' design tokens and components, is
+  [#28](https://github.com/dmfdeploy/dmfdeploy/issues/28), also in v0.3.
+  Adopting an outside frontend framework is separate new work, not part of
+  v0.3, and is open as
+  [Discussion 1005](https://github.com/orgs/dmfdeploy/discussions/1005).
 - **Post-v0.1 hardening backlog**: OpenBao HA-raft migration, re-key + DR drill
   ([#12](https://github.com/dmfdeploy/dmfdeploy/issues/12)), AppRole secret-id
   rotation + root-token disposal ([#11](https://github.com/dmfdeploy/dmfdeploy/issues/11)).
