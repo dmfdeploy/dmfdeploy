@@ -311,9 +311,10 @@ exposure or a dependency moves them earlier.
 | [#818](https://github.com/dmfdeploy/dmfdeploy/issues/818) | 5 | After the groups |
 | [#835](https://github.com/dmfdeploy/dmfdeploy/issues/835) | 5 | After the groups |
 
-[#8](https://github.com/dmfdeploy/dmfdeploy/issues/8), [#9](https://github.com/dmfdeploy/dmfdeploy/issues/9) and [#28](https://github.com/dmfdeploy/dmfdeploy/issues/28) stay open on purpose with no planned work: #8 is a
-frozen non-goal with a documented re-open trigger, #9 is an open question about
-the EBU taxonomy, and #28 waits on the decision in #29.
+[#8](https://github.com/dmfdeploy/dmfdeploy/issues/8) and [#9](https://github.com/dmfdeploy/dmfdeploy/issues/9) stay open on purpose with no planned work: #8 is a
+frozen non-goal with a documented re-open trigger, and #9 is an open question
+about the EBU taxonomy. [#28](https://github.com/dmfdeploy/dmfdeploy/issues/28)
+is now in v0.3 (decision 2026-11-25) and no longer waits on #29.
 
 ## Status
 
