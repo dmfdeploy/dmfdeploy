@@ -81,6 +81,55 @@ File each one as its own issue when the open questions have answers.
 1. **Problems view for deltas** (dmf-cms, dmf-infra). An Alertmanager
    receiver and a console view list each delta with its duration and
    timeline, so the operator can act on it. This closes flow 3.
+   timeline, so the operator can act on it. This closes flow 3.
+
+   The specification of this gap came from
+   [dmfdeploy/dmfdeploy#495](https://github.com/dmfdeploy/dmfdeploy/issues/495),
+   which this plan now tracks.
+
+   The first delta to build is divergence between NetBox intent and observed
+   state. One read answers "do intent and observation agree?" for every item.
+   That turns "dirty facility" from a remembered flag into an observed fact.
+   The console computes one direction today: an item that should run but
+   doesn't.
+
+   - **One read, both directions, both lanes.** One query finds items that
+     should run but don't, items that run but shouldn't
+     ([dmfdeploy/dmfdeploy#494](https://github.com/dmfdeploy/dmfdeploy/issues/494)),
+     and items that exist with no NetBox record. It reads both observation
+     lanes: the netbox-probe lane and kube-state-metrics. Each case needs its
+     own operator language and remedy.
+   - **Freshness.** Each result carries an "as of", and a stale read shows as
+     stale. A newly created object looks missing for one scrape interval.
+   - **In-flight suppression.** A pod that doesn't exist yet looks like one
+     that failed to create, so flagging pauses during an active operation.
+     This is the one role left for the ops store, and it is much smaller than
+     today's.
+   - **Orphan scope** (feasibility finding of 2026-08-30). kube-state-metrics
+     exports no labels today, because `metricLabelsAllowlist` is unset in the
+     Prometheus Helm values (still true on dmf-infra main on 2026-11-25). So
+     orphan detection needs a Helm-values change, not a change to each
+     launcher. The join key is `app.kubernetes.io/instance`, which equals the
+     NetBox service name. Query Services and controllers, not pods, because
+     the nmos-cpp pod templates omit that label. Scope by namespace, and
+     exclude the AWX execution environment pods placed in `nmos` and the L3
+     lock and snapshot ConfigMaps, which aren't NetBox services. A
+     `dmf.io/managed` label on every chart would state DMF ownership outright
+     and is optional for now.
+   - **What replaces the TTL block.** Today the dispatch block lifts when a
+     dirty operation ages out of the store. Once blocked-ness comes from
+     divergence, the block lifts when the divergence resolves. The job record
+     then explains a divergence ("this diverged when deploy 168 failed")
+     instead of being the truth.
+   - **Related issues.**
+     [dmfdeploy/dmfdeploy#494](https://github.com/dmfdeploy/dmfdeploy/issues/494)
+     is the narrow one-directional defect and stands alone.
+     [dmfdeploy/dmfdeploy#493](https://github.com/dmfdeploy/dmfdeploy/issues/493)
+     says what is actionable at a stage, which is the operator-facing form of
+     this query.
+     [dmfdeploy/dmfdeploy#408](https://github.com/dmfdeploy/dmfdeploy/issues/408)
+     says where a terminal outcome persists: dirty state shows at the
+     workload and its Provision stage.
 2. **Drift detector proof** (dmf-infra). Record one fault-injection run of
    `operate-catalog-drift.yml` before anything depends on it.
 3. **Change-intent path** (dmf-cms). A console action writes intent to
