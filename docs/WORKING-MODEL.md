@@ -148,6 +148,12 @@ the frontmatter must be flipped; frontmatter wins for design content.
   converge → ADR PR (copy `docs/decisions/0000-template.md`, next free number,
   reciprocal supersession links) → announcement thread on merge. Small
   single-repo decisions stay in their issue.
+- **Ideas leave the backlog** (2026-11-25): an issue that proposes new
+  function or a design direction, with no decided work, moves to Ideas, or
+  to RFC if it needs a decision. A maintainer converts it in the web UI
+  (Convert to discussion); the number changes and the old issue closes, so
+  update a plan's `tracking_issue`, `OPEN-QUESTIONS.md` or an ADR that
+  points at it in the same change.
 
 ## 5. Plans + documentation rules
 
