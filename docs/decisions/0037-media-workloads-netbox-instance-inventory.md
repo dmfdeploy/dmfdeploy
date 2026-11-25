@@ -43,7 +43,7 @@ ADR-0027 deferred the installation layer. MXL is the second function that forces
 
 ## Enforcement
 
-`dmf-cms/tests/test_media_workloads.py` tests the server-side tenant scope and the 403 and 404 gates on the clear-for-deployment action. Discipline only for the rest: no check blocks a flow or live state from being written to NetBox.
+`dmf-cms/tests/test_media_workloads.py` tests the server-side tenant scope and the role gate on the list. It also tests the clear-for-deployment tag flip, including its out-of-scope not-found result: through the 403 and 404 gates on the action before [dmfdeploy/dmf-cms#249](https://github.com/dmfdeploy/dmf-cms/pull/249), and by calling the function directly after it. Discipline only for the rest: no check blocks a flow or live state from being written to NetBox.
 
 ### Note (2026-11-24) on clear for deployment (#487)
 
