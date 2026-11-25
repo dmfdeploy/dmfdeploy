@@ -13,4 +13,4 @@ This file holds the alternatives and the pointers for [ADR-0053](../../decisions
 ## Where the work lives
 
 - Tracking issue: [#1010](https://github.com/dmfdeploy/dmfdeploy/issues/1010).
-- RFC: <RFC link>
+- RFC: [RFC: version policy](https://github.com/orgs/dmfdeploy/discussions/1015)
