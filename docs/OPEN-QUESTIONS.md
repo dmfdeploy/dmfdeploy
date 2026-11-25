@@ -18,7 +18,7 @@ FREEZE table. Frozen ≠ abandoned: each entry names its re-open trigger.
 | **Cross-cluster Authentik federation** (thesis-killer #2): [#8](https://github.com/dmfdeploy/dmfdeploy/issues/8) | `dmf-central` is all-scaffold; a multi-week lane for an audience of zero. The largest untested part of the original vision. | Post-v0.1, as a ≤1-day spike |
 | **Multi-node HA / cloud as a release claim** | Repeatedly stalled (capacity, teardown); single-node is the proof surface ([ADR-0031](decisions/0031-oss-v0-1-sandbox-and-aws-release-profile-matrix.md)). | A real multi-site need |
 | **Argo+AWX hybrid catalog actuator** | Would reverse [ADR-0025](decisions/0025-ansible-in-cluster-pods-and-catalog-helm.md) for a platform with no users yet. AWX is the committed actuator; the hybrid recommendation is future direction only. | Post-v0.1 spike, if AWX hits a wall |
-| **In-place upgrade** (`main~N → main` skew convergence) | Rebuild-only is the committed lifecycle model (commitment 6). | A real upgrade-without-rebuild requirement |
+| **In-place upgrade** (`main~N → main` skew convergence) | Rebuild-only is the committed lifecycle model (commitment 6). | v1.0 ([ADR-0053](decisions/0053-version-policy-stay-current-in-three-lanes.md)) |
 | **dmf-media catalog-v2 roles** (ebu-list, flow-exporters, ptp-monitor, netbox-media-plugin) | Deeper media-domain value, but new surface area before the core is legible. | Post-v0.1 |
 | **dmf-init feature work** | The installer is good enough; only v0.1-install-path bugs are in scope. | v0.1 shipped |
 | **Drift-prevention meta-harness** (beyond the thin doc/hygiene gates) | Friction wall for a solo operator; the retired agentic harness is the cautionary tale. | A collaborator joins |

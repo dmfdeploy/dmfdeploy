@@ -48,7 +48,7 @@ the existing proof legible. Frozen ≠ deleted — these are reservations (see
 | **dmf-central / federation (#2)** | All-scaffold; opens a 2–4 week lane for an audience of zero | Post-v0.1, as a ≤1-day spike |
 | **HA / cloud as a release claim** | Repeatedly stalled (capacity/teardown); single-node is the wedge | A real multi-site need |
 | **Argo+AWX hybrid actuator** | Reverses ADR-0025 for a no-user platform; the trap | Post-v0.1 spike, if AWX hits a wall |
-| **In-place upgrade (`main~N→main`)** | Rebuild-only is the committed model | Real upgrade-without-rebuild requirement |
+| **In-place upgrade (`main~N→main`)** | Rebuild-only is the committed model | v1.0 ([ADR-0053](../decisions/0053-version-policy-stay-current-in-three-lanes.md)) |
 | **dmf-media catalog-v2 roles** | ebu-list / flow-exporters / ptp-monitor / netbox-media-plugin — future depth | Post-v0.1 |
 | **dmf-init feature work** | Installer is good enough; only v0.1-install-path bugs allowed | v0.1 shipped |
 | **drift meta-harness (beyond minimal CI)** | Friction wall for a solo operator | A collaborator joins |
