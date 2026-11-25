@@ -56,7 +56,7 @@ A survey of nine repositories and about 220 pins showed one pattern. A pin that 
 This ADR supersedes nothing.
 
 - ADR-0005 makes the dmf-cms `VERSION` file the source of that component's own version. This ADR covers how pins move, so the two don't overlap.
-- ADR-0034 pins Ansible collections to a full commit SHA. ADR-0034 bumps the mirror list monthly. A two-week batch meets that, so ADR-0034 doesn't change.
+- ADR-0034 pins Ansible collections to a full commit SHA. ADR-0034 bumps the mirror list monthly, and at once for a security fix. Both rules stay in force. The two-week batch gives a regular chance to make the monthly bump, but it doesn't replace it.
 - ADR-0036 has the installer clone playbooks at an operator-selected ref. Defaulting to `main` until v1.0 is consistent with it.
 - The in-place upgrade trigger in `docs/OPEN-QUESTIONS.md` and in the v0.1 commitment plan changes from "a real upgrade-without-rebuild requirement" to v1.0.
 
