@@ -85,8 +85,9 @@ None open.
   spawner, and where environment state lives. The frontend half, aligning and
   deduplicating the two apps' design tokens and components, is
   [#28](https://github.com/dmfdeploy/dmfdeploy/issues/28), also in v0.3.
-  Adopting an outside frontend framework is separate new work, not part of
-  v0.3, and is open as
+  Adopting an outside frontend framework is separate new work outside
+  [#28](https://github.com/dmfdeploy/dmfdeploy/issues/28), and #28 doesn't
+  wait on it. It is open as
   [Discussion 1005](https://github.com/orgs/dmfdeploy/discussions/1005).
 - **Post-v0.1 hardening backlog**: OpenBao HA-raft migration, re-key + DR drill
   ([#12](https://github.com/dmfdeploy/dmfdeploy/issues/12)), AppRole secret-id
