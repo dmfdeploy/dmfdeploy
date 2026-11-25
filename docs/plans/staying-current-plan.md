@@ -22,8 +22,8 @@ that this plan's step 1 produces.
   environment is rebuilt. v1.0 has no milestone yet, and the dmf-init default
   refs stay `main` until v1.0.
 - **A batch install every two weeks.** The automatic lane runs weekly.
-- **Every major version in the survey moves,** in two batches. The next section
-  names them.
+- **The twelve major groups are planned for batch 2,** under the changelog and
+  park rules. The next section names them.
 - **A changelog break is a named blocker.** Before a major version moves, search
   its changelog for a break in something the platform uses. A break sends the
   item to a named-blocker issue. The item is recorded and not dropped.
@@ -96,12 +96,11 @@ trigger in `docs/OPEN-QUESTIONS.md` and the v0.1 commitment plan to v1.0.
 - The blanket major-version ignore rules leave all nine Dependabot
   configurations, and so does the stale `ansible >= 15` ignore in dmf-media and
   dmf-central.
-- A trial runs Renovate in report-only mode on dmf-infra. If its report covers
-  the survey rows for the pins that nothing proposes, it replaces a list
-  workflow. If it doesn't, one scheduled workflow in the umbrella, built with
-  GitHub's own tools, opens or updates one issue that lists those pins.
-- Turning the bot on to open PRs needs a token from the operator. Whether it
-  replaces Dependabot's version updates is a later decision.
+- The report-only Renovate trial didn't cover pins that pair a version with a
+  SHA-256, the AWX control image pinned only by digest, or our own images. One
+  scheduled GitHub-native umbrella workflow opens or updates one issue that lists
+  the pins nothing proposes, including these. Turning on Renovate pull requests
+  needs an operator token; whether it replaces Dependabot is a later decision.
 
 ### Step 3, batch 1
 
@@ -125,8 +124,7 @@ until the completing PR, which says `Closes dmfdeploy/dmfdeploy#1010`.
 | 0 | dmf-infra | execution environment tag, held until publish | `chore(ee): switch the awx execution environment to 0.5.0` |
 | 0 | dmf-runbooks | CI leg that mirrors the execution environment's Python, held until publish | `ci: move the ee leg to the execution environment's Python` |
 | 2 | nine repositories | Dependabot configuration | `ci(dependabot): remove the blanket major-version ignore` |
-| 2 | dmf-infra | Renovate report-only trial | `ci(renovate): add a report-only trial` |
-| 2 | dmfdeploy | scheduled list workflow, only if the trial falls short | `ci: list the pins that nothing proposes` |
+| 2 | dmfdeploy | scheduled list workflow | `ci: list the pins that nothing proposes` |
 | 3 | one per repository that has a minor or patch move | one commit per tool | `chore(deps): bring <repository> current inside its major lines` |
 | 4 | one per major group | the group's tools | `chore(deps): move <group> to <version>` |
 
@@ -138,7 +136,7 @@ Batch 1 and batch 2 rows are counted when the batch starts, from the survey.
   fresh install has run on the new ansible-core with the controller and
   execution environment versions recorded side by side.
 - No ignore rule holds a version back without a named reason.
-- The scheduled check, or the Renovate report that replaces it, is running.
+- The scheduled check runs.
 - The batch 1 install passed, with the controller and execution environment
   versions side by side.
 - Each parked major has a named-blocker issue.
