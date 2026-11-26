@@ -100,9 +100,9 @@ trigger in `docs/OPEN-QUESTIONS.md` and the v0.1 commitment plan to v1.0.
   SHA-256, the AWX control image pinned only by digest, or our own images. A
   scheduled GitHub-native umbrella workflow that lists the pins nothing proposes
   was built and reviewed, then parked in dmfdeploy/dmfdeploy#1018. Until it's
-  unparked, the batch research table is the list. Turning on Renovate pull
-  requests needs an operator token; whether it replaces Dependabot is a later
-  decision.
+  unparked, each batch uses its own research as input, and nothing maintains the
+  full set of unwatched pins automatically. Turning on Renovate pull requests
+  needs an operator token; whether it replaces Dependabot is a later decision.
 
 ### Step 3, batch 1
 
