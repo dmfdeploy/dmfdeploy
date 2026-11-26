@@ -349,10 +349,10 @@ VALE_SCOPE_RUN = (
 VALE_STEPS = [
     {"name": "Checkout", "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683", "with": {"persist-credentials": False, "fetch-depth": 2}},
     {"name": "Find the changed Vale paths", "id": "scope", "run": VALE_SCOPE_RUN},
-    {"name": "Install Vale", "if": VALE_IF, "env": {"VALE_VERSION": "3.25.1"}, "run": (
+    {"name": "Install Vale", "if": VALE_IF, "env": {"VALE_VERSION": "3.26.0"}, "run": (
         "set -euo pipefail\n"
         "url=\"https://github.com/vale-cli/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz\"\n"
-        "sha=\"4bf5c5176b682b1da0830f471584d3494f1c2e27ee3029e1ad6f6661d4962182\"\n"
+        "sha=\"22aa69a556558e4a9dfc63c17030777383d8d3c48dcdfad655fa98e839d666ed\"\n"
         "mkdir -p \"$RUNNER_TEMP/vale\"\n"
         "curl -fsSL -o \"$RUNNER_TEMP/vale.tgz\" \"$url\"\n"
         "echo \"$sha  $RUNNER_TEMP/vale.tgz\" | sha256sum -c -\n"
