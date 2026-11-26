@@ -78,7 +78,7 @@ says so.
   checksum. The secret-scan checks use that copy and ignore any gitleaks that
   you installed.
 - **[Vale](https://vale.sh/) 3.25.1 or later**, for the voice checks. CI
-  installs 3.25.1. With an older version, `tests/voice-changed-links.sh` fails.
+  installs 3.26.0. With an older version, `tests/voice-changed-links.sh` fails.
 
 You don't need a cluster, a cloud account, secrets, or a container runtime. The
 tests use fixtures and stand-in commands for `gh`, `helm` and `docker`.
