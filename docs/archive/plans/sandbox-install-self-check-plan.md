@@ -1,10 +1,28 @@
 ---
-status: active
+status: executed
 date: 2026-11-27
+executed: 2026-11-27
 tracking_issue: https://github.com/dmfdeploy/dmfdeploy/issues/1031
 ---
 
 # Sandbox install self-check plan
+
+## Outcome
+
+The plan is executed. Two rounds ran on one fresh sandbox install from
+2026-11-27, and their results are on
+[#1031](https://github.com/dmfdeploy/dmfdeploy/issues/1031) and
+[#1020](https://github.com/dmfdeploy/dmfdeploy/issues/1020):
+
+- The verify step prints the self-check summary, and each check has its test.
+- The sign-in check design was posted and is parked.
+- [#1026](https://github.com/dmfdeploy/dmfdeploy/issues/1026) is closed.
+  [#1025](https://github.com/dmfdeploy/dmfdeploy/issues/1025),
+  [#1027](https://github.com/dmfdeploy/dmfdeploy/issues/1027) and
+  [#1028](https://github.com/dmfdeploy/dmfdeploy/issues/1028) stay open, each
+  with its gap named on #1031.
+
+The plan below is kept as it was during the work.
 
 ## Why
 
