@@ -8,9 +8,8 @@ replaced by a named successor; **historical** = point-in-time / frozen /
 shelved, kept for provenance.
 
 
-## Active (7)
+## Active (6)
 
-- [sandbox-install-self-check-plan](sandbox-install-self-check-plan.md) — 2026-11-27
 - [staying-current-plan](staying-current-plan.md) — 2026-11-25
 - [dmf-maintainable-codebase-plan](dmf-maintainable-codebase-plan.md) — 2026-11-14
 - [eso-kubernetes-auth-migration-plan](eso-kubernetes-auth-migration-plan.md) — 2026-11-07
