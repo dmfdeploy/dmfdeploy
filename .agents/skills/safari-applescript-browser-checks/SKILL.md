@@ -55,7 +55,7 @@ In that trial, `make new window` failed, filtering windows by `document` wasn't 
 
 **Closing.** Safari can keep a closed window's id with no tabs, so `exists` can stay true after a close. Check that the window is visible and has tabs before treating it as open.
 
-**Requests from the page.** `do JavaScript` returns before an asynchronous `fetch` finishes, and requests from the page carry the operator's session. Use only endpoints and fields the operator approved; a GET request alone doesn't prove an endpoint has no side effects. Set a fresh `pending` result before each request, check `r.ok`, and store `done` with only the approved non-sensitive fields, or `error`. Poll only until a fixed wall-clock deadline. Check each call's exit status and parse its result. Accept only `pending`, `done` and `error`: continue for `pending`, report the approved result for `done`, and report the check as unproven for `error`, a failed call, malformed or missing output, an unexpected state, or deadline expiry. Bound each call by the time remaining. Don't treat an empty or unexpected response as success.
+**Requests from the page.** `do JavaScript` returns before an asynchronous `fetch` finishes, and requests from the page carry the operator's session. Use only endpoints and fields the operator approved; a GET request alone doesn't prove an endpoint has no side effects. Set a fresh `pending` result before each request, check `r.ok`, and store `done` with only preapproved boolean comparisons or sanitized counts, or `error`. Poll only until a fixed wall-clock deadline. Check each call's exit status and parse its result. Accept only `pending`, `done` and `error`: continue for `pending`, report the boolean comparisons or sanitized counts for `done`, and report the check as unproven for `error`, a failed call, malformed or missing output, an unexpected state, or deadline expiry. Bound each call by the time remaining. Don't treat an empty or unexpected response as success.
 
 ## 3. Patterns
 
@@ -82,7 +82,7 @@ Open the deep link by a click, reload the tab, wait about 6 seconds, then check,
 
 ### Grafana dashboards
 
-Grafana markup and lazy loading vary by version. Inspect the rendered panel container and identify its title, visible `No data` state and error indicator; validate the selector against the current page. Scroll the relevant container incrementally and verify that all expected panels rendered before counting. Record absolute start and end times and resolved variable values when safe to read; a dashboard definition alone doesn't prove the resolved value. Investigate an empty panel before calling it a defect: for example, query the panel's expression in Prometheus, because panels filtered to `> 0` are empty when nothing happened.
+Grafana markup and lazy loading vary by version. Compare each rendered panel's title with an expected title and check for the visible `No data` state and error indicator; return only booleans. Validate the selector against the current page without returning page text. Scroll the relevant container incrementally and verify that all expected panels rendered before counting. Record absolute start and end times, boolean comparisons with preapproved expected variable values, and sanitized counts. A dashboard definition alone doesn't prove that a resolved value matches the expected value. Investigate an empty panel before calling it a defect: for example, query the panel's expression in Prometheus, because panels filtered to `> 0` are empty when nothing happened.
 
 ## 4. Possible failure messages
 
@@ -96,4 +96,4 @@ Grafana markup and lazy loading vary by version. Inspect the rendered panel cont
 
 ## 5. Recording
 
-Write down the expected values you chose, the boolean results and any sanitized counts (path, title and heading checks, absolute time in UTC), in the evidence file, and say how the check was run: "Safari driven by AppleScript, with the operator's yes". Say what wasn't covered, such as no screenshot. A reading from the operator's browser proves what that session saw, at that time.
+In the evidence file, record the expected values you chose, the boolean results of the path, title and heading checks, any sanitized counts, and the absolute time in UTC. Say how the check was run: “Safari driven by AppleScript, with the operator's yes”. Say what wasn't covered, such as no screenshot. A reading from the operator's browser proves what that session saw, at that time.
