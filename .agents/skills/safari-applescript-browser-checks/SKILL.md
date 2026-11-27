@@ -10,9 +10,9 @@ source_ref: https://github.com/dmfdeploy/dmfdeploy/issues/1020
 
 # Safari browser checks through AppleScript
 
-Use this skill when a check has to run in the operator's real browser, with their sign-ins and cookies, and no test browser (Playwright, a Chrome extension) is connected. On macOS, `osascript` can open a Safari window, read its URL and title, and run JavaScript in the page. That's enough for read-only checks: page moves, a deep link through a reload, and dashboards that load with data.
+Use this skill when a check has to run in the operator's real browser, with their sign-ins and cookies, and no test browser (Playwright, a Chrome extension) is connected. On macOS, `osascript` can open a Safari window, compare its URL and title with expected values, and run JavaScript in the page. That's enough for read-only checks: page moves, a deep link through a reload, and dashboards that load with data.
 
-It isn't a test framework. JavaScript clicks find elements by text or attributes, and they break when the page changes. Keep it to a handful of checks and record what you read.
+It isn't a test framework. JavaScript clicks find elements by text or attributes, and they break when the page changes. Keep it to a handful of checks and record the expected values and the results.
 
 ## 0. Rules (read first)
 
@@ -61,24 +61,24 @@ In that trial, `make new window` failed, filtering windows by `document` wasn't 
 
 ### Prove a client-side page move (single-page apps)
 
-Set a marker on `window`, click the link, then read the path, title and heading. If the marker survives, the app moved without a full page load. After a reload, the marker must be gone.
+Before the run, write down the expected path, title and heading. Set a marker on `window`, click the link, then compare the path, title and heading with those values inside the page. Return only booleans. If the marker survives, the app moved without a full page load. After a reload, the marker must be gone.
 
 ```javascript
 // 1. set the marker
 window.__mark = Date.now(); "marked"
 // 2. click the visible link
 (() => { const a = [...document.querySelectorAll('a[href="/facilities"]')].find(a => a.offsetParent !== null); if (!a) return 'no visible link'; a.click(); return 'ok'; })()
-// 3. after 3 to 4 seconds, read the result
-location.pathname + ' | ' + document.title + ' | sameDoc=' + (window.__mark ? 'yes' : 'no') + ' | h1=' + ((document.querySelector('h1') || {}).textContent || '').trim().slice(0, 60)
+// 3. after 3 to 4 seconds, compare with the expected values you chose before the run
+(() => { const want = { path: '/facilities', title: 'EXPECTED TITLE', heading: 'EXPECTED HEADING' }; const h = document.querySelector('h1'); return JSON.stringify({ pathOk: location.pathname === want.path, titleOk: document.title === want.title, headingOk: !!h && h.textContent.trim() === want.heading, sameDoc: !!window.__mark }); })()
 ```
 
 - Click only a **visible** link (`offsetParent !== null`). Menus and collapsed rails can hold hidden copies of the same link.
-- Leave 3 to 4 seconds between clicks. A click sent while the app is still moving can be dropped. Read the path after every click, and retry once if it didn't change.
+- Leave 3 to 4 seconds between clicks. A click sent while the app is still moving can be dropped. After every click, check that the path equals the expected value, and retry once if it doesn't.
 - A heading alone can mislead. Check for the expected heading, known non-sensitive page-specific markers and known error markers. Report only booleans or sanitized counts.
 
 ### Deep link through a reload
 
-Open the deep link by a click, reload the tab, wait about 6 seconds, then check: same URL, marker gone, the expected heading and the expected page markers.
+Open the deep link by a click, reload the tab, wait about 6 seconds, then check, as booleans: the URL equals the expected value, marker gone, the expected heading and the expected page markers.
 
 ### Grafana dashboards
 
@@ -92,8 +92,8 @@ Grafana markup and lazy loading vary by version. Inspect the rendered panel cont
 | `You must enable 'Allow JavaScript from Apple Events' … (8)` | The Develop setting is off. | Section 1, second row. |
 | `could not create image from …` | Missing permission or another capture failure. | Skip the screenshot, or ask for the permission. |
 | Your target check fails | The operator or Safari closed or changed your window or tab. | Stop. Ask before you open a new window. |
-| The click returns `ok` but the path doesn't change | Hidden duplicate link, or a click sent while the page was still moving. | Click the visible link, wait, read the path, retry once. |
+| The click returns `ok` but the path doesn't change | Hidden duplicate link, or a click sent while the page was still moving. | Click the visible link, wait, check the path against the expected value, retry once. |
 
 ## 5. Recording
 
-Write down the sanitized readings (path, title, heading, counts, absolute time in UTC) in the evidence file, and say how the check was run: "Safari driven by AppleScript, with the operator's yes". Say what wasn't covered, such as no screenshot. A reading from the operator's browser proves what that session saw, at that time.
+Write down the expected values you chose, the boolean results and any sanitized counts (path, title and heading checks, absolute time in UTC), in the evidence file, and say how the check was run: "Safari driven by AppleScript, with the operator's yes". Say what wasn't covered, such as no screenshot. A reading from the operator's browser proves what that session saw, at that time.
