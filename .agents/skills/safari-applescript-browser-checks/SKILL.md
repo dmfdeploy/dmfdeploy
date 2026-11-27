@@ -96,4 +96,4 @@ Grafana markup and lazy loading vary by version. Compare each rendered panel's t
 
 ## 5. Recording
 
-In the evidence file, record the expected values you chose, the boolean results of the path, title and heading checks, any sanitized counts, and the absolute time in UTC. Say how the check was run: “Safari driven by AppleScript, with the operator's yes”. Say what wasn't covered, such as no screenshot. A reading from the operator's browser proves what that session saw, at that time.
+In the evidence file, record the expected values you chose, the boolean results of the path, title and heading checks, any sanitized counts, and the absolute time in UTC. Say how the check was run: "Safari driven by AppleScript, with the operator's yes". Say what wasn't covered, such as no screenshot. A reading from the operator's browser proves what that session saw, at that time.
