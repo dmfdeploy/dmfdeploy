@@ -338,7 +338,7 @@ For decisions, see [docs/decisions/](docs/decisions/INDEX.md).
 For active task spec, see the most recent file in [docs/plans/](docs/plans/).
 For live handoff state, read the claimed tracking issue's comments
 (two-tier model, R4); the old session handoff notes were removed from the tree (git history keeps them).
-For canonical architecture, see [docs/architecture/dmfdeploy-platform-plan.md](docs/architecture/dmfdeploy-platform-plan.md).
+For the purpose and the parts of the platform, see the [README](README.md#how-the-parts-fit-together). For the layer and vertical vocabulary, see the [EBU mapping](docs/architecture/DMF%20EBU%20Mapping%20%282026-04-25%29.md).
 
 ## Repo state
 
