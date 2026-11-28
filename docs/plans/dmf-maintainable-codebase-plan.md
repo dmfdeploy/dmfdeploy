@@ -317,24 +317,6 @@ about the EBU taxonomy. [#28](https://github.com/dmfdeploy/dmfdeploy/issues/28)
 is now in v0.3 (decision 2026-11-25) and no longer waits for the convergence
 direction. The ADR that #28 and #29 record is still needed before building.
 
-## Status
-
-| Part | Status | Links |
-|---|---|---|
-| Track 1: #833 | done | Every repository has a successful run under its policy, policy insights show no would-be block since the policies took effect, and the ineffective organization-level policy is deleted (2026-11-14). |
-| Track 1: #831 | done | The disarm and direct-merge probes passed on [dmf-cms#220](https://github.com/dmfdeploy/dmf-cms/pull/220), and the key rotation dates are in #618. The operator skipped the sweep-disarm probe. [#915](https://github.com/dmfdeploy/dmfdeploy/pull/915) archived the release gate plan and #831 closed on 2026-11-14. |
-| Track 2: #864 | in progress | Plan reconciled in [#908](https://github.com/dmfdeploy/dmfdeploy/pull/908) (2026-11-14). ADR-0029 and ADR-0009 amended in [#930](https://github.com/dmfdeploy/dmfdeploy/pull/930) (2026-11-17); ADR-0051 amended in [#944](https://github.com/dmfdeploy/dmfdeploy/pull/944) (2026-11-18). Slice B merged and passed its end-to-end check on 2026-11-22. Discussions #865 and #907 are still open; #864 is open. |
-| Track 3: #911 | done | [dmf-infra#148](https://github.com/dmfdeploy/dmf-infra/pull/148) and [dmf-env#41](https://github.com/dmfdeploy/dmf-env/pull/41) merged on 2026-11-14. |
-| Track 3: #912 | in progress | Merged: [dmf-cms#220](https://github.com/dmfdeploy/dmf-cms/pull/220) on 2026-11-14; [dmf-init#53](https://github.com/dmfdeploy/dmf-init/pull/53), [dmf-media#51](https://github.com/dmfdeploy/dmf-media/pull/51), [dmf-runbooks#62](https://github.com/dmfdeploy/dmf-runbooks/pull/62), [dmf-promsd#21](https://github.com/dmfdeploy/dmf-promsd/pull/21), [dmf-env#42](https://github.com/dmfdeploy/dmf-env/pull/42), [dmfdeploy#918](https://github.com/dmfdeploy/dmfdeploy/pull/918), [dmf-central#20](https://github.com/dmfdeploy/dmf-central/pull/20) and [dmf-infra#149](https://github.com/dmfdeploy/dmf-infra/pull/149) on 2026-11-15; [dmf-init#80](https://github.com/dmfdeploy/dmf-init/pull/80) on 2026-11-25. A second walkthrough ran on 2026-11-28; its results are on #912. The five walkthrough fix PRs merged on 2026-11-28: [dmfdeploy#1040](https://github.com/dmfdeploy/dmfdeploy/pull/1040) (front door and repository prerequisites), [dmf-cms#266](https://github.com/dmfdeploy/dmf-cms/pull/266), [dmf-central#35](https://github.com/dmfdeploy/dmf-central/pull/35), [dmf-infra#234](https://github.com/dmfdeploy/dmf-infra/pull/234) and [dmf-media#65](https://github.com/dmfdeploy/dmf-media/pull/65). The walkthrough opened #1041 (a single test command) and #1042 (the remaining small gaps). |
-| Security and supply chain | in progress | Secrets in arguments: #872 ([dmf-infra#198](https://github.com/dmfdeploy/dmf-infra/pull/198)), #885 ([dmf-infra#150](https://github.com/dmfdeploy/dmf-infra/pull/150)), #896 ([dmf-infra#186](https://github.com/dmfdeploy/dmf-infra/pull/186)), #897 ([dmf-infra#151](https://github.com/dmfdeploy/dmf-infra/pull/151)) and #922 ([dmf-infra#154](https://github.com/dmfdeploy/dmf-infra/pull/154)) closed (2026-11-16 to 11-24). Images and chart: #903 ([dmf-infra#205](https://github.com/dmfdeploy/dmf-infra/pull/205)) and #889 ([dmf-infra#163](https://github.com/dmfdeploy/dmf-infra/pull/163)) closed. Also closed: #893 ([dmf-infra#200](https://github.com/dmfdeploy/dmf-infra/pull/200)), #917 ([dmf-cms#240](https://github.com/dmfdeploy/dmf-cms/pull/240)) and #443 ([dmf-infra#209](https://github.com/dmfdeploy/dmf-infra/pull/209)). Open: #843, #541, #11, #396, #866, #731, #234, #868, #837. |
-| Structure | in progress | Measured on 2026-11-28: the table is on #768. The measurement switches on no new limits; dmf-promsd already enforces its existing limits. |
-| Accessibility and UI substrate | in progress | [dmf-cms#241](https://github.com/dmfdeploy/dmf-cms/pull/241) (#526) and [dmf-cms#242](https://github.com/dmfdeploy/dmf-cms/pull/242) (#529) merged on 2026-11-24. #740 is open. |
-| Broken paths | in progress | Closed: #910 ([dmf-cms#222](https://github.com/dmfdeploy/dmf-cms/pull/222), 2026-11-21), #916 ([dmf-init#58](https://github.com/dmfdeploy/dmf-init/pull/58), 2026-11-21), #870 ([dmf-infra#194](https://github.com/dmfdeploy/dmf-infra/pull/194), 2026-11-24), #875 ([dmf-infra#203](https://github.com/dmfdeploy/dmf-infra/pull/203), 2026-11-24). Open: #873, #882, #874. |
-| Console defects | in progress | [dmf-cms#249](https://github.com/dmfdeploy/dmf-cms/pull/249) closed #487 on 2026-11-24. #737 and #869 are open; #341 stays parked. |
-| Issues after the groups: the carried issues and #883 | in progress | [dmf-infra#204](https://github.com/dmfdeploy/dmf-infra/pull/204) closed #883 on 2026-11-24. Of the carried issues, #302, #495, #10, #18, #159, #742 and #803 are closed (2026-11-24 to 11-25). |
-
-Allowed values: not started, in progress, done.
-
 ## Done when
 
 This plan orders the work. It is complete when each part above is done by its
@@ -346,8 +328,8 @@ as #6 or #341, does not hold the plan open.
 - [ ] Track 2 is done: the #864 plan, its ADRs and its RFCs agree, and its
       prerequisites are scheduled.
 - [ ] Track 3 is done by its second walkthrough.
-- [ ] Each later group is done, or closed with a recorded reason, in the
-      status table.
+- [ ] Each later group is done, or closed with a recorded reason, on the
+      tracking issue, [#913](https://github.com/dmfdeploy/dmfdeploy/issues/913).
 - [ ] Each issue that runs after the groups, the carried issues and #883, is
       closed, or the completing PR names its next place: a successor plan,
       parked with a trigger, or kept open with a reason.
