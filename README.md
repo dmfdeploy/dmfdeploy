@@ -12,25 +12,37 @@ console you deploy media functions, such as an NMOS registry, from a catalog.
 It is for broadcast and media-tech engineers who want to learn how an IP-media
 facility can be installed and operated, and for anyone who wants to study a
 working prototype with its decisions on the record. It is not a production
-facility. [docs/THESIS.md](docs/THESIS.md) says what has been shown, and a
-recording of one deployment is on the [organization page](https://github.com/dmfdeploy).
+facility. [docs/THESIS.md](docs/THESIS.md) says what has been shown.
 
-The platform implements part of the [EBU](https://tech.ebu.ch/) *Dynamic Media
-Facility* (DMF) reference architecture: layers 2, 3 and 6 (host platform,
-container platform, and the operator console) and the Orchestration, Security
-and Monitoring verticals. Layers 4 and 5 are thin so far: an NMOS registry and
-a media-exchange demo. You provide the node, which is layer 1. See the
-[EBU mapping](docs/architecture/DMF%20EBU%20Mapping%20%282026-04-25%29.md) and
-the [glossary](docs/GLOSSARY.md).
+The platform implements part of the [EBU](https://tech.ebu.ch/) *Dynamic Media Facility* (DMF)
+reference architecture: layers 2, 3 and 6 (host platform, container platform, and the operator console)
+and the Orchestration, Security and Monitoring verticals. Layers 4 and 5 are thin so far: an NMOS
+registry and a media-exchange demo. You provide the node, which is layer 1. See the
+[EBU mapping](docs/architecture/DMF%20EBU%20Mapping%20%282026-04-25%29.md) and the [glossary](docs/GLOSSARY.md).
 
-<!-- Goal statement (short, mid and long term): dmfdeploy/dmfdeploy#675 -->
+dmfdeploy stays an independent, open prototype of a Dynamic Media Facility. It aims to earn trust by
+checking its claims against published specifications with conformance tests, and by sharing what is
+learned upstream as evidence. It also aims to be an independent implementation that others can
+compare against those specifications. Any change of direction goes through a [Discussions
+RFC](docs/decisions/README.md) first.
 
-dmfdeploy stays an independent, open prototype of a Dynamic Media Facility.
-It aims to earn trust by checking its claims against published specifications
-with conformance tests, and by sharing what is learned upstream as evidence. It
-also aims to be an independent implementation that others can compare against
-those specifications. Any change of direction goes through a
-[Discussions RFC](docs/decisions/README.md) first.
+## Goals
+
+**Short term: [`v0.1-polish`](https://github.com/dmfdeploy/dmfdeploy/milestone/1).** The console tells
+the truth. An outsider installs the platform, signs in, and deploys the NMOS registry from the documented
+walkthrough without help, and nothing on the way says something that isn't true.
+
+**Mid term: [`v0.2`](https://github.com/dmfdeploy/dmfdeploy/milestone/2) and
+[`v0.3`](https://github.com/dmfdeploy/dmfdeploy/milestone/4).** In `v0.2`, a small team shares one
+console and runs a workload made of several media functions, switched with NMOS IS-05. A deploy never
+blocks the facility. In `v0.3`, the team designs and plans a workload and a facility in the console
+before it provisions them.
+
+**Long term: the platform vision in [`docs/THESIS.md`](docs/THESIS.md).** An open prototype of how a
+software-defined media facility can be installed, managed, and monitored, aligned with the EBU Dynamic
+Media Facility reference architecture. The size and architecture of future facilities stay open. The
+project earns trust through conformance checks against published specifications and evidence shared
+upstream.
 
 ## Start here
 
@@ -39,17 +51,14 @@ those specifications. Any change of direction goes through a
 | **Evaluating** the platform | [docs/THESIS.md](docs/THESIS.md), then the [dmf-init quickstart](https://github.com/dmfdeploy/dmf-init) (Day-0 installer) |
 | **A potential contributor** | [CONTRIBUTING.md](CONTRIBUTING.md), the [core ADRs](docs/decisions/INDEX.md#start-here), then the [issues](https://github.com/dmfdeploy/dmfdeploy/issues) |
 | **An AI-agent operator** working on the platform | [AGENTS.md](AGENTS.md) and its boot steps |
-
-The [docs landing page](docs/README.md) maps the knowledge base,
-[ROADMAP](ROADMAP.md) lists the milestones, and
-[OPEN-QUESTIONS](docs/OPEN-QUESTIONS.md) lists what is frozen or unproven.
+| **Following the process** | [docs/WORKING-MODEL.md](docs/WORKING-MODEL.md): ADRs in [docs/decisions/](docs/decisions/INDEX.md), plans in [docs/plans/](docs/plans/INDEX.md), [issues](https://github.com/dmfdeploy/dmfdeploy/issues) as the backlog, [Discussions](https://github.com/dmfdeploy/dmfdeploy/discussions) for RFCs. [The method](docs/JOURNEY.md#working-with-agents-the-method) covers the agents |
+| **Browsing** the docs | The [docs landing page](docs/README.md), the [ROADMAP](ROADMAP.md), then [OPEN-QUESTIONS](docs/OPEN-QUESTIONS.md) for what is frozen or unproven |
 
 ## How the parts fit together
 
-This repository is the **umbrella**: the knowledge base, the decision record,
-and the coordination point for the eight component repos. In the diagram,
-boxes are component repos, rounded shapes are services they install, and an
-arrow points from the caller to the part it calls.
+This repository is the **umbrella**: the knowledge base, the decision record, and the coordination point
+for the eight component repos. In the diagram, boxes are component repos, rounded shapes are services
+they install, and an arrow points from the caller to the part it calls.
 
 ```mermaid
 flowchart LR
@@ -84,15 +93,6 @@ Each repo is independent and sits beside this one under a common parent. Pick th
 | [`dmf-cms`](https://github.com/dmfdeploy/dmf-cms/blob/main/CONTRIBUTING.md) | The operator console, with a React frontend and a FastAPI backend (layer 6) | Python 3, Node.js 22 |
 | [`dmf-init`](https://github.com/dmfdeploy/dmf-init/blob/main/CONTRIBUTING.md) | The Day-0 installer container: blank node to full platform | Python 3, Node.js 22, `age`, `rclone`; Docker for the image |
 | [`dmf-promsd`](https://github.com/dmfdeploy/dmf-promsd/blob/main/CONTRIBUTING.md) | NetBox-driven Prometheus service discovery (ADR-0038) | Python 3 |
-
-## Working model
-
-ADRs ([docs/decisions/](docs/decisions/INDEX.md)) and plans
-([docs/plans/](docs/plans/INDEX.md)) live in this repo. The
-[issues](https://github.com/dmfdeploy/dmfdeploy/issues) are the backlog, and
-[Discussions](https://github.com/dmfdeploy/dmfdeploy/discussions) hold RFCs.
-The rules are in [docs/WORKING-MODEL.md](docs/WORKING-MODEL.md). AI agents
-build much of the platform, by design ([the method](docs/JOURNEY.md#working-with-agents-the-method)).
 
 ## License
 
