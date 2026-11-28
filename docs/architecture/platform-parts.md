@@ -1,13 +1,16 @@
 # The parts of the platform
 
-This page shows the component repos, the services that `dmf-infra` deploys on the cluster, the host daemons that it sets up, and the
-calls between them. Boxes are component repos. Stadium shapes are services. Rounded boxes are groups of services, with their
-members listed. An arrow points from the part that acts to the part it reads or writes. `dmf-infra` deploys every service in the
-diagram except GHCR, which is the project's public registry, and it deploys `dmf-promsd` and `dmf-cms` too. The
-[Services](#services) table lists each service once, including the members of the groups.
+This page shows the component repos, the services that the `dmf-infra` bootstrap playbooks deploy on the cluster, including the data
+stores that their charts bundle, the host daemons that they set up, and the calls between them. The list comes from the roles that
+the bootstrap playbooks call. For each chart or operator role, the values and the resources were searched for bundled databases,
+caches and brokers.
 
-AWX reads its projects, including `dmf-runbooks`, through the Forgejo mirror. External Secrets Operator writes the Kubernetes
-Secrets that pods read.
+Boxes are component repos. Stadium shapes are services or named external systems and resources; rounded boxes group services,
+with their members listed. An arrow points from the part that acts to the part it reads or writes. `dmf-infra` deploys the platform
+services; GHCR is external, and External Secrets Operator writes Kubernetes Secrets. `dmf-infra` also deploys `dmf-promsd` and
+`dmf-cms`. The [Services](#services) table lists each service once, including the members of the groups.
+
+AWX reads its projects, including `dmf-runbooks`, through the Forgejo mirror.
 
 ```mermaid
 flowchart LR
@@ -32,6 +35,7 @@ flowchart LR
   prom -->|"probes through"| monitoring("Monitoring<br/>Loki, Grafana, Promtail, Blackbox exporter, Alertmanager, kube-state-metrics, node exporter, an alert notification bridge")
   monitoring -->|"Grafana reads"| prom
   resilience("Resilience<br/>backup jobs for volumes, OpenBao, databases and Zot")
+  appdata("Application data<br/>PostgreSQL for Authentik, NetBox and AWX; Valkey for NetBox; Redis in the AWX pods")
   landing(["Landing page"])
 ```
 
@@ -66,6 +70,9 @@ Paths are relative to `k3s-lab-bootstrap/` in the `dmf-infra` repo.
 | OpenBao | Security and secrets | `playbooks/vertical-security/100-openbao.yml` | Stores the platform's secrets |
 | External Secrets Operator | Security and secrets | `playbooks/vertical-orchestration/100-eso.yml` | Copies secrets from OpenBao into Kubernetes Secrets |
 | Authentik | Security and secrets | `playbooks/vertical-security/110-authentik.yml` | Provides the platform's identity and passkey-based sign-in; break-glass access is also supported |
+| PostgreSQL (Authentik) | Application data | `playbooks/vertical-security/110-authentik.yml`, role `stack/operator/authentik` (the chart's PostgreSQL subchart) | Stores Authentik's data |
+| PostgreSQL and Valkey (NetBox) | Application data | `playbooks/610-netbox.yml`, role `stack/operator/netbox` (the chart's PostgreSQL and Valkey subcharts) | Store NetBox's data, and the Valkey store that NetBox uses |
+| PostgreSQL and Redis (AWX) | Application data | `playbooks/640-awx.yml`, role `stack/operator/awx` (managed by the AWX operator) | Store AWX's data, and run a Redis container in the AWX pods |
 | Kubernetes Secrets | Security and secrets | Written by External Secrets Operator (`playbooks/vertical-orchestration/100-eso.yml`) | Hold the secrets that pods read |
 | NetBox | Source of truth and orchestration | `playbooks/610-netbox.yml` | Records the inventory and the state of each workload |
 | AWX | Source of truth and orchestration | `playbooks/640-awx.yml`, `playbooks/693-awx-integration.yml` | Runs the playbooks that deploy workloads |
