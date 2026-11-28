@@ -7,7 +7,7 @@
 dmfdeploy is an open prototype of a software-defined media facility. You
 install it on one computer or virtual machine, and it gives you identity,
 secrets custody, an inventory, monitoring, and an operator console. From the
-console you deploy media functions, such as an NMOS registry, from a catalog.
+console you deploy catalog services and media functions, including an NMOS registry.
 
 It is for broadcast and media-tech engineers who want to learn how an IP-media
 facility can be installed and operated, and for anyone who wants to study a
@@ -29,8 +29,8 @@ RFC](docs/decisions/README.md) first.
 ## Goals
 
 **Short term: [`v0.1-polish`](https://github.com/dmfdeploy/dmfdeploy/milestone/1).** The console tells
-the truth. An outsider installs the platform, signs in, and deploys the NMOS registry from the documented
-walkthrough without help, and nothing on the way says something that isn't true.
+the truth. An outsider completes the documented journey cold, nothing on the way tells them something
+untrue, and the public repos are safe to read and clone.
 
 **Mid term: [`v0.2`](https://github.com/dmfdeploy/dmfdeploy/milestone/2) and
 [`v0.3`](https://github.com/dmfdeploy/dmfdeploy/milestone/4).** In `v0.2`, a small team shares one
@@ -72,7 +72,7 @@ flowchart LR
   runbooks -->|"deploys charts from"| media
   runbooks -->|"writes state to"| netbox
   promsd -->|"reads targets from"| netbox
-  prom -->|"scrapes targets from"| promsd
+  prom -->|"discovers targets from"| promsd
   central["dmf-central<br/>scaffold, frozen for v0.1"]
 ```
 
