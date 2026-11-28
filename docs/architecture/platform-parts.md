@@ -1,9 +1,8 @@
 # The parts of the platform
 
-This page shows the component repos, the services that the `dmf-infra` bootstrap playbooks deploy on the cluster, including the data
-stores that their charts bundle, the host daemons that they set up, and the calls between them. The list comes from the roles that
-the bootstrap playbooks call. For each chart or operator role, the values and the resources were searched for bundled databases,
-caches and brokers.
+This page shows the component repos, the services identified in the dmf-infra bootstrap roles, their explicitly configured bundled
+data stores, and the host daemons they set up. The audit searched the values, templates and resources in those role directories for
+databases, caches and brokers. It did not audit upstream chart defaults or the dmf-cms and dmf-promsd chart repositories.
 
 Boxes are component repos. Stadium shapes are services or named external systems and resources; rounded boxes group services,
 with their members listed. An arrow points from the part that acts to the part it reads or writes. `dmf-infra` deploys the platform

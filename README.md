@@ -57,8 +57,8 @@ upstream.
 ## How the parts fit together
 
 This repository is the **umbrella**: the knowledge base, the decision record, and the coordination point for the eight component
-repos. [The parts of the platform](docs/architecture/platform-parts.md) has one diagram of the repos, the services that
-`dmf-infra` deploys on the cluster, and the calls between them. It also lists what the cluster copies from GitHub and GHCR.
+repos. [The parts of the platform](docs/architecture/platform-parts.md) has one diagram of the repos, the services
+identified in the `dmf-infra` bootstrap roles, and the calls between them. It also lists what the cluster copies from GitHub and GHCR.
 
 ## Component repos
 
