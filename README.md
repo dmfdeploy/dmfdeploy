@@ -90,8 +90,8 @@ Each repo is independent and sits beside this one under a common parent. Pick th
 | [`dmf-central`](https://github.com/dmfdeploy/dmf-central/blob/main/CONTRIBUTING.md) | Central services: a scaffold, **frozen** for v0.1 | Python 3, Ansible, `ansible-lint`, `yamllint` |
 | [`dmf-media`](https://github.com/dmfdeploy/dmf-media/blob/main/CONTRIBUTING.md) | Media function catalog and charts for layers 4–5 (v2 roles frozen for v0.1) | Python 3, Helm, Ansible |
 | [`dmf-runbooks`](https://github.com/dmfdeploy/dmf-runbooks/blob/main/CONTRIBUTING.md) | Playbooks that AWX launches to start, switch, and tear down workloads | Python 3, `ansible-core`; no cluster for the tests |
-| [`dmf-cms`](https://github.com/dmfdeploy/dmf-cms/blob/main/CONTRIBUTING.md) | The operator console, with a React frontend and a FastAPI backend (layer 6) | Python 3, Node.js 22 |
-| [`dmf-init`](https://github.com/dmfdeploy/dmf-init/blob/main/CONTRIBUTING.md) | The Day-0 installer container: blank node to full platform | Python 3, Node.js 22, `age`, `rclone`; Docker for the image |
+| [`dmf-cms`](https://github.com/dmfdeploy/dmf-cms/blob/main/CONTRIBUTING.md) | The operator console, with a React frontend and a FastAPI backend (layer 6) | Python 3, Node.js 26 |
+| [`dmf-init`](https://github.com/dmfdeploy/dmf-init/blob/main/CONTRIBUTING.md) | The Day-0 installer container: blank node to full platform | Python 3, Node.js 22, `age`; Docker for the image |
 | [`dmf-promsd`](https://github.com/dmfdeploy/dmf-promsd/blob/main/CONTRIBUTING.md) | NetBox-driven Prometheus service discovery (ADR-0038) | Python 3 |
 
 ## License
