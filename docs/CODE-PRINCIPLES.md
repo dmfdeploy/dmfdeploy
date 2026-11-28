@@ -35,5 +35,22 @@ The operator's text, as given:
 - A codex review brief asks one extra question: could an engineer new to the
   code understand, test and safely change it?
 - A PR body says what the change simplified and how it was verified.
-- A PR body reports how the change fits the size guidelines. No CI check
-  counts lines.
+- A PR body says how the change fits the size guidelines.
+
+### What CI checks for size and structure
+
+- No CI check fails a PR on a line count. When a PR changes a file of more
+  than 400 lines, CI shows a warning on that file and the check still passes.
+- In Python (`*.py` files, plus any script that a repo names in ruff's
+  `extend-include`), CI fails a function that breaks one of four ruff rules at
+  ruff's default limits: `C901` (complexity), `PLR0912` (branches), `PLR0913`
+  (arguments) and `PLR0915` (statements).
+- A function that broke a rule when the check was switched on carries a
+  `# noqa` mark with the rule code. A PR may remove a mark, and must remove it
+  when the function no longer breaks the rule. A PR can't add a mark, and a
+  file-wide `noqa` without rule codes fails.
+- When a rule doesn't fit a case, say why in the PR. A maintainer can then
+  change that repo's ruff settings, and the change shows in the diff. A new
+  `# noqa` mark never passes.
+- To run the check locally, use `ruff check .` (in dmf-promsd,
+  `scripts/check.sh`). Each repo's CONTRIBUTING file says where to run it.
