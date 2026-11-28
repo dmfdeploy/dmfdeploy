@@ -39,6 +39,10 @@ lifecycle checkpoint. You delete it when you're done; the downloaded backups
 and your passphrase are all that remain. It commissions a cluster. It does not
 build or emit a deployable image.
 
+### Authentik
+
+The identity provider that the platform installs. It signs users in, with passkeys, to the console, Forgejo and Zot.
+
 ### born inventory
 
 The record of an environment that the installer writes into NetBox while it
@@ -101,6 +105,10 @@ pods that AWX starts from one shared EE image, hosted in the cluster's own
 registry (Zot). They never connect to a node over SSH. See
 [ADR-0025](decisions/0025-ansible-in-cluster-pods-and-catalog-helm.md).
 
+### External Secrets Operator (ESO)
+
+A Kubernetes operator that copies secrets from OpenBao into Kubernetes Secrets, so that pods can read them.
+
 ### Finalise
 
 The lifecycle stage that removes a media function and returns it to the state
@@ -116,6 +124,11 @@ facilities the platform aims at, next to an outside broadcast truck. The
 single-node sandbox is the proof surface for this profile. See
 [ADR-0050](decisions/0050-flypack-mode-portable-offline-kit.md).
 
+### Forgejo
+
+The Git service that the platform installs in the cluster. AWX reads its playbook projects from it. Forgejo pull-mirrors the
+`dmf-runbooks`, `dmf-media` and `dmf-infra` repos from GitHub, every hour by default.
+
 ### hetzner (provider)
 
 The cloud provider profile: an ARM64 k3s cluster on Hetzner CAX21 instances,
@@ -130,6 +143,11 @@ function's Helm chart from the cluster's registry, waits for its health check,
 and updates the function's tag in NetBox. Launchers live in
 [dmf-runbooks](https://github.com/dmfdeploy/dmf-runbooks), and each is
 registered as an AWX job template named `media-*`.
+
+### Longhorn
+
+The storage system for Kubernetes volumes on the cloud provider profile. It replicates volumes across nodes and backs them up to
+object storage.
 
 ### Media Function
 
@@ -153,6 +171,10 @@ the whole catalog chain, from console to AWX, Helm and NetBox. It closed on
 2026-06-04. Move 2 was the vertical slice from the console
 through AWX to NetBox ([JOURNEY](JOURNEY.md)). The [learnings](reviews/dmf-platform-move-1-learnings.md)
 record the result.
+
+### OpenBao
+
+The secrets store of the platform. External Secrets Operator copies its secrets into Kubernetes.
 
 ### Path A
 
@@ -189,3 +211,8 @@ and cross-repo coordination point for the dmfdeploy platform. It holds architect
 documents, architecture decision records, plans, reviews, and the
 generated status snapshot. The eight component repos are its siblings. They are not its
 children.
+
+### Zot
+
+The container registry that the platform installs in the cluster. Pods pull images from it, and the launchers pull Helm charts from
+it. A bootstrap playbook seeds it from GHCR, the public registry of the project.

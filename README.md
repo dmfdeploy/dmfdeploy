@@ -56,27 +56,9 @@ upstream.
 
 ## How the parts fit together
 
-This repository is the **umbrella**: the knowledge base, the decision record, and the coordination point
-for the eight component repos. In the diagram, boxes are component repos, rounded shapes are services
-they install, and an arrow points from the caller to the part it calls.
-
-```mermaid
-flowchart LR
-  init["dmf-init<br/>Day-0 installer"] -->|"runs playbooks through"| env["dmf-env<br/>env tooling"] -->|"runs"| infra["dmf-infra<br/>Ansible roles and playbooks"]
-  infra -->|"installs"| cms["dmf-cms<br/>operator console"] & promsd["dmf-promsd<br/>service discovery"] & awx(["AWX"]) & netbox(["NetBox"]) & prom(["Prometheus"])
-  infra -->|"copies the catalog from"| media["dmf-media<br/>catalog and charts"]
-  infra -->|"registers projects in"| awx
-  cms -->|"launches job templates"| awx
-  cms -->|"reads workloads"| netbox
-  awx -->|"runs playbooks from"| runbooks["dmf-runbooks<br/>workload playbooks"]
-  runbooks -->|"deploys charts from"| media
-  runbooks -->|"writes state to"| netbox
-  promsd -->|"reads targets from"| netbox
-  prom -->|"discovers targets from"| promsd
-  central["dmf-central<br/>scaffold, frozen for v0.1"]
-```
-
-`dmf-central` has no arrows because it is a scaffold, frozen for v0.1.
+This repository is the **umbrella**: the knowledge base, the decision record, and the coordination point for the eight component
+repos. [The parts of the platform](docs/architecture/platform-parts.md) has one diagram of the repos, every service that
+`dmf-infra` installs, and the calls between them. It also lists what the cluster copies from GitHub and GHCR.
 
 ## Component repos
 
