@@ -10,7 +10,7 @@ multiple repos or implies an enforcement mechanism (script, CI gate, skill).
 
 ## Start here
 
-New here, as a human or a cold-start agent? You do **not** need all 47 ADRs. Read these
+New here, as a human or a cold-start agent? You do **not** need all 53 ADRs. Read these
 **core** decisions (marked ★ in the Index below), in order. Each is summarised by
 its binding **Rule**; open the full ADR only when you need the *why*. Everything
 else is reference. (How the record evolved and what reversed is told in

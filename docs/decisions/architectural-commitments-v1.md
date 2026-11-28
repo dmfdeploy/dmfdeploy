@@ -19,7 +19,7 @@ set an explicit commit gate:
 > **AND** one NMOS registry is deployed in dmf-media, write
 > `architectural-commitments-v1.md` and **stop reshaping the foundations.**
 
-Per [TODOS.md](../../TODOS.md): **Move 2** (vertical slice → AWX → NetBox) closed
+As the [JOURNEY](../JOURNEY.md) records: **Move 2** (vertical slice → AWX → NetBox) closed
 2026-05-04; **Move 1** (NMOS registry) closed 2026-06-04, runtime-verified. **Both
 halves are met.** The gate fired ~5 weeks before this doc was written, and the project
 kept choosing work under the experiment-phase doctrine. That work included a
