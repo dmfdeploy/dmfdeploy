@@ -133,8 +133,8 @@ registered as an AWX job template named `media-*`.
 
 ### Media Function
 
-A containerised unit of media processing, such as a registry, a mixer or a
-format converter. It is layer 5 of the EBU reference architecture. In this
+A containerised media-processing or support/control function, such as a mixer,
+format converter or NMOS registry. It is layer 5 of the EBU reference architecture. In this
 project, a media function is described by a catalog entry and deployed as a
 Helm chart.
 
@@ -179,9 +179,8 @@ See the [bootstrap secrets design](plans/dmf-pre-bao-bootstrap-secrets-design.md
 ### thesis-killer
 
 An assumption that, if false, would make the project a different product. The
-project named three and tested them before committing to the architecture. The
-first was whether NMOS runs on commodity k3s, which Move 1 answered. See
-[JOURNEY](JOURNEY.md).
+project named three. Move 1 answered the first, whether NMOS runs on commodity
+k3s; the other two remain unproven. See [JOURNEY](JOURNEY.md).
 
 ### umbrella (repo)
 
