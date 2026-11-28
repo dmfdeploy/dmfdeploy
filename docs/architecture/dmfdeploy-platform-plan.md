@@ -1,9 +1,9 @@
 # DMF-Aligned Operations Prototype — Platform Plan
 
 > **History.** This is the April 2026 draft, kept as a record of early
-> thinking. Several sections are overtaken. For the current purpose and the
-> parts of the platform, read the [README](../../README.md) and its
-> [diagram](../../README.md#how-the-parts-fit-together).
+> thinking. Several sections are overtaken. For the current purpose, read the
+> [README](../../README.md). For the parts of the platform, read
+> [the parts of the platform](platform-parts.md).
 
 > **Vocabulary aligned 2026-04-25** with the EBU *Dynamic Media Facility Reference
 > Architecture* White Paper V2.0. See `DMF EBU Mapping (2026-04-25).md` for the

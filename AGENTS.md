@@ -24,7 +24,7 @@ reference architecture.
 
 | Question | Look in |
 |---|---|
-| What is this and why? | `README.md` (purpose and diagram of the parts), `docs/THESIS.md`, `docs/GLOSSARY.md` |
+| What is this and why? | `README.md` (purpose), `docs/architecture/platform-parts.md` (diagram of the parts), `docs/THESIS.md`, `docs/GLOSSARY.md` |
 | What is frozen or undecided? | `docs/decisions/architectural-commitments-v1.md`, `docs/OPEN-QUESTIONS.md` |
 | What is the active task? | [GitHub Issues](https://github.com/dmfdeploy/dmfdeploy/issues) |
 
