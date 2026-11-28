@@ -186,7 +186,7 @@ the frontmatter must be flipped; frontmatter wins for design content.
   every file that refers to it. Doc edits go in the umbrella; code edits in
   component repos.
 - A plan records no open or in-progress state. The tracking issue shows progress,
-  and the plan keeps its purpose, order, decisions and "Done when".
+  and the plan keeps its purpose, order, decisions and its "Done when" section.
 - Public-safety rules apply to *all* artifacts including issues/PRs/CI logs:
   placeholder syntax for IPs/DNS/identity (`<control-node-public-ip>`,
   `dmf.example.com`, `<handle>`); secrets never leave OpenBao.
