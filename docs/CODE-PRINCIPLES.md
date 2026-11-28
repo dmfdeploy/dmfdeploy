@@ -39,18 +39,23 @@ The operator's text, as given:
 
 ### What CI checks for size and structure
 
-- No CI check fails a PR on a line count. When a PR changes a file of more
-  than 400 lines, CI shows a warning on that file and the check still passes.
+The repos switch these checks on one at a time under
+[dmfdeploy/dmfdeploy#768](https://github.com/dmfdeploy/dmfdeploy/issues/768).
+The bullets describe a repo once it has.
+
+- No CI check fails a PR on a line count. When a PR changes a text file (not a
+  symlink or a binary file) of more than 400 lines, CI shows a warning on that
+  file. A file's length never fails the PR.
 - In Python (`*.py` files, plus any script that a repo names in ruff's
   `extend-include`), CI fails a function that breaks one of four ruff rules at
   ruff's default limits: `C901` (complexity), `PLR0912` (branches), `PLR0913`
   (arguments) and `PLR0915` (statements).
 - A function that broke a rule when the check was switched on carries a
   `# noqa` mark with the rule code. A PR may remove a mark, and must remove it
-  when the function no longer breaks the rule. A PR can't add a mark, and a
-  file-wide `noqa` without rule codes fails.
+  when the function no longer breaks the rule. A required check fails a PR that
+  raises the number of function-rule marks or adds a file-wide `noqa` without
+  rule codes, and reviewers check any mark that a PR adds.
 - When a rule doesn't fit a case, say why in the PR. A maintainer can then
-  change that repo's ruff settings, and the change shows in the diff. A new
-  `# noqa` mark never passes.
+  change that repo's ruff settings, and the change shows in the diff.
 - To run the check locally, use `ruff check .` (in dmf-promsd,
   `scripts/check.sh`). Each repo's CONTRIBUTING file says where to run it.
