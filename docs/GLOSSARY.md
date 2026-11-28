@@ -41,7 +41,7 @@ build or emit a deployable image.
 
 ### Authentik
 
-The identity provider that the platform installs. It signs users in, with passkeys, to the console, Forgejo and Zot.
+The identity provider that the platform installs. It provides the platform's identity and passkey-based sign-in; break-glass access is also supported.
 
 ### born inventory
 
@@ -214,5 +214,4 @@ children.
 
 ### Zot
 
-The container registry that the platform installs in the cluster. Pods pull images from it, and the launchers pull Helm charts from
-it. A bootstrap playbook seeds it from GHCR, the public registry of the project.
+The container registry that the platform installs in the cluster. Selected platform and workload pods pull seeded images from it, and the launchers pull Helm charts from it. A bootstrap playbook seeds it from GHCR, the public registry of the project.
