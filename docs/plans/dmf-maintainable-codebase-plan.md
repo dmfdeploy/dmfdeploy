@@ -199,14 +199,13 @@ One ranked list, ordered by real exposure:
   are identical across repositories have one source
   ([#73](https://github.com/dmfdeploy/dmfdeploy/issues/73)).
 - One behaviour-preserving restructure: cohesive route groups move out of
-  `dmf-cms/src/dmf_cms/main.py`, the largest source file in the project at
-  about 7,200 lines. Its dependencies are mapped and its behaviour is pinned by
-  tests before anything moves.
+  `dmf-cms/src/dmf_cms/main.py`, the largest source file in the project. Its
+  dependencies are mapped and its behaviour is pinned by tests before anything
+  moves.
 - The other repositories are then measured for similar hot spots before more
-  restructures are chosen. The walkthrough named candidates: a 3,951-line test
-  playbook in dmf-runbooks and two shell scripts of about 2,100 lines each in
-  dmf-env. A shared script exists in seven copies, and only two of them are
-  identical.
+  restructures are chosen. The walkthrough named candidates: a test
+  playbook in dmf-runbooks and two shell scripts in dmf-env. A shared script
+  exists in seven copies, and only two of them are identical.
 
 ### Accessibility, bounded
 
