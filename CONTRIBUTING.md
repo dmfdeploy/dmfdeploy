@@ -78,7 +78,12 @@ says so.
   checksum. The secret-scan checks use that copy and ignore any gitleaks that
   you installed.
 - **[Vale](https://vale.sh/) 3.25.1 or later**, for the voice checks. CI
-  installs 3.26.0. With an older version, `tests/voice-changed-links.sh` fails.
+  installs 3.26.0. With an older version, `tests/voice-changed-links.sh` fails
+  and `bin/check.sh` exits with code 2. Download Vale from the
+  [Vale releases page](https://github.com/vale-cli/vale/releases) or install
+  it with your platform's package manager. To run every step except the voice
+  checks, use
+  `bin/check.sh shellcheck review-comments check-docs skills-sync surface static`.
 
 You don't need a cluster, a cloud account, secrets, or a container runtime. The
 tests use fixtures and stand-in commands for `gh`, `helm` and `docker`.
@@ -118,7 +123,9 @@ bin/check.sh surface vale
 ```
 
 Before it runs anything, the script checks that the steps you chose have their
-tools, and it lists what is missing. Run times come from one laptop:
+tools, and it lists what is missing. Run times come from one laptop. A
+fresh-clone run of the six steps other than `vale` took about four minutes
+on 2026-11-28, and the `vale` step adds about half a minute:
 
 | Step | What it runs | CI job | Time |
 | --- | --- | --- | --- |
